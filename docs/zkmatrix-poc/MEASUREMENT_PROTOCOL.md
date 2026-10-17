@@ -1,5 +1,15 @@
 # MEASUREMENT_PROTOCOL.md — the p50/p95 measurement protocol
 
+**2026-09-26 workload/hardware amendment:** the current target is sustained
+>=50 proved tokens/s for a complete private 8B forward pass on an RTX 5090 or
+a named alternative high-end GPU. Victor allows larger workloads to amortize
+initialization and initial prefill. Follow
+[the current throughput contract](ZK60_THROUGHPUT_TARGET.md): disclose warm
+and total-workload rates, setup fraction, context and pass count, and latency.
+The historical 512-token reference and per-subcommand rows below remain
+comparisons; they cannot substitute for completed full-stack work on the named
+GPU. Keep the same workload size for each repeated p50/p95 measurement.
+
 Status: LANE DELIVERABLE (2026-08-10, U-AG-B1 wave 3, Agent BI).
 Implements the TARGET_CONTRACT.md Section 4 statistic as an executable
 harness (`ring_matmul uagb1-bi bench-stat ...`) and pins the protocol

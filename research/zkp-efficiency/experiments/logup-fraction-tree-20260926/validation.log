@@ -1,0 +1,14 @@
+{
+  "status": "passed",
+  "validated_at_utc": "2026-09-27T00:08:34.779773+00:00",
+  "source_files": 14,
+  "native_snapshots": 8,
+  "owner_logs": 4,
+  "preserved_history_prefixes": true,
+  "source_records": 8,
+  "initial_correction_preserved": true,
+  "result_sha256": "e6b3b515a271bbe9001719c169b0472051d8a6f8ddf444c571d271138fb6fdd4",
+  "run_log_sha256": "e6b3b515a271bbe9001719c169b0472051d8a6f8ddf444c571d271138fb6fdd4",
+  "experiment_reexecuted": false,
+  "native_proofs_executed": false
+}

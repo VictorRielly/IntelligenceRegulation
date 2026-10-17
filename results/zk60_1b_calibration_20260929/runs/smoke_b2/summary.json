@@ -1,0 +1,215 @@
+{
+ "args": {
+  "T": 32,
+  "calib_per": 1,
+  "chunk": 6,
+  "f_e": 9,
+  "heldout_per": 1,
+  "layers": 3,
+  "margin": 0.25,
+  "no_head": true,
+  "norm": "calibrated",
+  "res": "global",
+  "save_weights": false,
+  "shifts": "free",
+  "smooth": null,
+  "tn": 10,
+  "variant": "smoke_b2"
+ },
+ "calib_sequences": [
+  {
+   "offset": 0,
+   "sha256": "f22696b3001bc048",
+   "source": "/usr/share/common-licenses/GPL-3"
+  },
+  {
+   "offset": 0,
+   "sha256": "70ec8ca069313c88",
+   "source": "/usr/share/common-licenses/GFDL-1.3"
+  },
+  {
+   "offset": 0,
+   "sha256": "ec0990d764da5e1b",
+   "source": "/usr/share/common-licenses/MPL-2.0"
+  },
+  {
+   "offset": 0,
+   "sha256": "a8ee08894e6df453",
+   "source": "python3.10 stdlib docstrings: argparse"
+  },
+  {
+   "offset": 0,
+   "sha256": "ca046fb3c7b5373e",
+   "source": "python3.10 stdlib docstrings: collections/__init__"
+  },
+  {
+   "offset": 0,
+   "sha256": "49d1adab037fca9d",
+   "source": "python3.10 stdlib docstrings: textwrap"
+  },
+  {
+   "offset": 0,
+   "sha256": "b8f64d510572c03f",
+   "source": "python3.10 stdlib docstrings: logging/__init__"
+  },
+  {
+   "offset": 0,
+   "sha256": "e8ddb6288edf931c",
+   "source": "python3.10 stdlib docstrings: subprocess"
+  },
+  {
+   "offset": 0,
+   "sha256": "08012b32ed86dcea",
+   "source": "python3.10 stdlib docstrings: typing"
+  }
+ ],
+ "calib_sequences_refused_any_layer": 0,
+ "checkpoint": {
+  "config_sha256": "486bedda3a6988332e60d9638a09ca4b260d34ebcf1b19e22cf3b140b63d8fe9",
+  "geometry": {
+   "head_dim": 64,
+   "heads": 32,
+   "hidden_size": 2048,
+   "intermediate_size": 5632,
+   "kv_heads": 4,
+   "layers": 22,
+   "rms_norm_eps": 1e-05,
+   "rope_theta": 10000.0,
+   "vocab": 32000
+  },
+  "payload_bytes": 2200096768,
+  "schema": "zk60-llama-layer-inventory/1",
+  "shard_sha256": {
+   "model.safetensors": "6e6001da2106d4757498752a021df6c2bdc332c650aae4bae6b0c004dcf14933"
+  },
+  "tensor_count": 201
+ },
+ "complete_stack": false,
+ "diagnostic_clamping": "values outside a class were clamped to continue; a native kernel refuses such a sequence",
+ "embedding_cos": {
+  "mean": 0.9779647131755197,
+  "min": 0.8084386895809601,
+  "p01": 0.8084386895809601
+ },
+ "heldout_sequences": [
+  {
+   "offset": 0,
+   "sha256": "46bb73165bb3c091",
+   "source": "/usr/share/common-licenses/Apache-2.0"
+  },
+  {
+   "offset": 0,
+   "sha256": "3aa3dd7e3fbbde3d",
+   "source": "/usr/share/common-licenses/LGPL-2.1"
+  },
+  {
+   "offset": 0,
+   "sha256": "9b05ebc4895bc38b",
+   "source": "/usr/share/common-licenses/Artistic"
+  },
+  {
+   "offset": 0,
+   "sha256": "708536d10c6aec03",
+   "source": "python3.10 stdlib docstrings: json/__init__"
+  },
+  {
+   "offset": 0,
+   "sha256": "f01501ccfce4c53b",
+   "source": "python3.10 stdlib docstrings: pathlib"
+  },
+  {
+   "offset": 0,
+   "sha256": "3028edc5392c0111",
+   "source": "python3.10 stdlib docstrings: functools"
+  },
+  {
+   "offset": 0,
+   "sha256": "a92d9b1d9d6abb19",
+   "source": "python3.10 stdlib docstrings: dataclasses"
+  },
+  {
+   "offset": 0,
+   "sha256": "08b7196e44b1e1a7",
+   "source": "python3.10 stdlib docstrings: unittest/case"
+  },
+  {
+   "offset": 0,
+   "sha256": "1bfa53933f64ceba",
+   "source": "python3.10 stdlib docstrings: shutil"
+  }
+ ],
+ "heldout_sequences_refused_any_layer": 0,
+ "input_range_calib": {
+  "first_refusal_sites": [],
+  "sequences": 9,
+  "sequences_refused": 0,
+  "sites": {}
+ },
+ "input_range_heldout": {
+  "first_refusal_sites": [],
+  "sequences": 9,
+  "sequences_refused": 0,
+  "sites": {}
+ },
+ "layers_evaluated": 3,
+ "options": {
+  "f_e": 9,
+  "f_p": 9,
+  "f_ro": 7,
+  "margin": 0.25,
+  "norm": "calibrated",
+  "shifts": "free",
+  "smooth_alpha": null,
+  "tn": 10
+ },
+ "residual_scales_in": [
+  0.0053663705198366135,
+  0.0053663705198366135,
+  0.0053663705198366135
+ ],
+ "residual_scales_out": [
+  0.0053663705198366135,
+  0.0053663705198366135,
+  0.0053663705198366135
+ ],
+ "seconds": 12.796810865402222,
+ "tokenizer_selfcheck": {
+  "boundary_crossing_pieces": 0,
+  "cases": {
+   "Hello world": {
+    "expected": [
+     1,
+     15043,
+     3186
+    ],
+    "got": [
+     1,
+     15043,
+     3186
+    ],
+    "ok": true
+   },
+   "The quick brown fox": {
+    "expected": [
+     1,
+     450,
+     4996,
+     17354,
+     1701,
+     29916
+    ],
+    "got": [
+     1,
+     450,
+     4996,
+     17354,
+     1701,
+     29916
+    ],
+    "ok": true
+   }
+  },
+  "roundtrip_ok": true
+ },
+ "variant": "smoke_b2"
+}

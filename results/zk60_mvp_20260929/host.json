@@ -1,0 +1,8 @@
+{
+  "os": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "host_memory_total_bytes": 16527826944,
+  "host_memory_available_bytes": 12757299200,
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "logical_cpus": 22,
+  "benchmark_cpu_threads": 2
+}

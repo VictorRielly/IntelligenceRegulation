@@ -1,0 +1,45 @@
+{
+  "accessed": "2026-09-24",
+  "tool": "native web.run search_query/open/click/find",
+  "queries": [
+    "GPU sumcheck 2026 September preprint GKR memory efficient",
+    "site.github.com sumcheck GPU Goldilocks 2026",
+    "site.eprint.iacr.org 2026 lookup softmax zkLLM",
+    "\"SumCATS\" \"2026\" DATE",
+    "\"GPU\" \"NTT\" \"2026\" Goldilocks github September",
+    "site.github.com/ingonyama-zk/icicle/releases 2026 sumcheck",
+    "Gruen sumcheck optimization 2023 eprint 2023 equality polynomial",
+    "site.eprint.iacr.org \"sum-check\" \"streaming\" 2025 memory"
+  ],
+  "access_errors": [
+    {
+      "url": "https://github.com/SPIRE-GMU/sum_cats/commits/main/",
+      "message": "Failed to fetch: Cache miss"
+    },
+    {
+      "url": "https://github.com/SPIRE-GMU/sum_cats/blob/main/LICENSE",
+      "message": "Failed to fetch: Cache miss; nested LICENSE.txt discovered later but also could not be fetched"
+    },
+    {
+      "url": "https://api.github.com/repos/uulong950/qingming-g64-ntt/commits/main",
+      "message": "URL is not accessible via this tool."
+    },
+    {
+      "url": "https://api.github.com/repos/ingonyama-zk/icicle/releases/tags/v4.0.0",
+      "message": "URL is not accessible via this tool."
+    },
+    {
+      "url": "https://api.github.com/repos/SPIRE-GMU/sum_cats/commits/main",
+      "message": "URL is not accessible via this tool."
+    },
+    {
+      "url": "https://eprint.iacr.org/2025/611.pdf",
+      "message": "Failed to fetch: (robots.txt) Fetch denied by robots.txt (OAI-SearchBot)"
+    },
+    {
+      "url": "https://github.com/0xPolygon/goldilocks/blob/master/LICENSE",
+      "message": "Internal Error; no license inferred"
+    }
+  ],
+  "scope": "Only public research terms; no private prompts, tokens, weights or credentials in searches. No downloaded code executed."
+}

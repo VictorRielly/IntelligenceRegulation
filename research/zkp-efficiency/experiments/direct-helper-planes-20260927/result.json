@@ -1,0 +1,32 @@
+{
+  "status": "passed",
+  "seed": 2026092711,
+  "cases": 63,
+  "successful_cases": 44,
+  "refused_cases": 19,
+  "successful_output_words": 7932,
+  "negative_controls": 8,
+  "output_digest_sha256": "770fec74679cb13e82ac4be987adbcb2d81f25c9db0b697cdfc1a22e3cea8939",
+  "guarded_preflight_cases": 28,
+  "guarded_fast_cases": 35,
+  "source_sha256": "063c54060112693a1aebedd5d20995dc340dabbc3bfdf341a8f989f08799e756",
+  "native_source_sha256": "ac4122375397a155d392df27a7e08f818ee78f80b38d41207565b325f5290413",
+  "elapsed_s": 2.096581782971043,
+  "peak_rss_kib": 16500,
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "experiment_limits": {
+    "threads": 1,
+    "cpu_s": 55,
+    "wall_s": 59,
+    "address_space_mib": 512,
+    "estimated_memory_mib": 64
+  },
+  "clocks": {
+    "witness_s": null,
+    "prove_s": null,
+    "serialization_s": null,
+    "verify_s": null
+  },
+  "scope": "Synthetic helper arithmetic, planes, refusal strings, and traffic accounting; no native compilation, receipt, GPU or end-to-end speed."
+}

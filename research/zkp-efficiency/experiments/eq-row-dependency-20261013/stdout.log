@@ -1,0 +1,32 @@
+{
+  "status": "pass",
+  "counts": {
+    "fixtures": 32,
+    "baseline_schedules": 32,
+    "generic_total_checks": 128,
+    "original_census_cell_checks": 176512,
+    "ordered_final_checks": 3584,
+    "bracket_count_invariance_checks": 288,
+    "count_formula_checks": 768,
+    "extension_table_checks": 21504,
+    "extension_polynomial_checks": 768,
+    "public_eq_selector_checks": 768,
+    "group_recoveries": 656,
+    "zero_factor_explicit_fallbacks": 496,
+    "schedules": 128,
+    "independent_group_samples": 2520,
+    "generic_partial_eq_checks": 37056,
+    "zero_eq_scan_read_checks": 360,
+    "candidate_group_sample_degree_checks": 10080,
+    "actual_claim_checks": 1440,
+    "terminal_claim_checks": 288,
+    "span_reader_checks": 667,
+    "span_fixtures": 35,
+    "span_ordered_finals": 105,
+    "span_round_samples": 315
+  },
+  "control_count": 17,
+  "elapsed_seconds": 16.297097829999984,
+  "peak_rss_kib": 22836,
+  "digest_sha256": "f59a9fa3a4c46fbab088bd9af51fd1a4cbd621575891a762b6dfe8be83690b47"
+}

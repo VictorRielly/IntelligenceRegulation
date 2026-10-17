@@ -1,0 +1,181 @@
+[
+  {
+    "access_date": "2026-10-04",
+    "recorded_at_utc": "2026-10-04T13:15:22.175938+00:00",
+    "run_id": "20261004T130146Z-19e7c75c",
+    "cycle": "0031",
+    "evidence_kind": "Native LIVE web search and primary inspection; no foreign code executed",
+    "reproduced_performance": false,
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "id": "cycle31-dao-thaler-two-layer-count-transfer",
+    "title": "More Optimizations to Sum-Check Proving",
+    "url": "https://eprint.iacr.org/2024/1210",
+    "published": "2024-07-27",
+    "updated": null,
+    "date_basis": "Primary history received Jul27/approved Jul29 2024; no revision displayed",
+    "paper_license": "CC BY",
+    "author_claim": "Two-layer equality-weighted sums reduce arithmetic while preserving the sumcheck relation.",
+    "assessment": "Materially refined older work: adapt nested sums to the native common data scan using per-group chunk-local accumulators. Local exact tests cover arbitrary spans, zero factors and full degree samples. No author runtime factor transferred; direct PDF fetch failed this cycle, section2.2 was returned by native LIVE search.",
+    "access_issues": [
+      "https://eprint.iacr.org/2024/1210.pdf: Internal Error on open, including retry"
+    ]
+  },
+  {
+    "access_date": "2026-10-04",
+    "recorded_at_utc": "2026-10-04T13:15:22.175938+00:00",
+    "run_id": "20261004T130146Z-19e7c75c",
+    "cycle": "0031",
+    "evidence_kind": "Native LIVE web search and primary inspection; no foreign code executed",
+    "reproduced_performance": false,
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "id": "cycle31-extended-sumcheck-current-refresh",
+    "title": "Speeding Up Sum-Check Proving (Extended Version)",
+    "url": "https://eprint.iacr.org/2026/587",
+    "published": "2026-03-24",
+    "updated": null,
+    "date_basis": "Primary received Mar24/approved Mar25 2026; approval not revision",
+    "paper_license": "CC BY",
+    "author_claim": "Combines high-degree, small-value and equality optimizations, evaluated in Jolt.",
+    "assessment": "Current primary paper checked. Native Goldilocks/Fp2, softmax polynomial and privacy/PCS are different; this cycle reproduces an exact arithmetic schedule only, not published Jolt gains."
+  },
+  {
+    "access_date": "2026-10-04",
+    "recorded_at_utc": "2026-10-04T13:15:22.175938+00:00",
+    "run_id": "20261004T130146Z-19e7c75c",
+    "cycle": "0031",
+    "evidence_kind": "Native LIVE web search and primary inspection; no foreign code executed",
+    "reproduced_performance": false,
+    "implementation_license": "MIT",
+    "inspected_commit_id": null,
+    "id": "cycle31-jolt-nested-fold-and-old-release-PR",
+    "title": "Jolt split equality nested fold helpers and product-sum PR",
+    "url": "https://github.com/a16z/jolt/blob/main/jolt-core/src/poly/split_eq_poly.rs",
+    "published": null,
+    "updated": null,
+    "license_scope": "Current main MIT terms inspected, not a commit-pinned runtime license audit",
+    "inspected_urls": [
+      "https://github.com/a16z/jolt/blob/main/LICENSE-MIT",
+      "https://github.com/a16z/jolt/pull/965",
+      "https://github.com/a16z/jolt/pull/970",
+      "https://github.com/a16z/jolt/releases",
+      "https://github.com/orgs/a16z/repositories"
+    ],
+    "verified_pr_merge_dates": {
+      "965": "2025-09-29",
+      "970": "2025-09-29"
+    },
+    "displayed_merge_commit_ids": {
+      "965": "ee1fd08",
+      "970": "a11fa89"
+    },
+    "verified_repository_update_date": "2026-10-03",
+    "date_basis": "PR timelines explicitly Sep29 2025; organization listing repo update Oct3 2026; neither dates current fetched runtime file. Release Oct1 lacks year. File History failed.",
+    "author_claim": "par_fold_out_in exposes inner and outer accumulators; unreduced helper delays modular reduction.",
+    "assessment": "Source helper supports schedule, but native must retain multiple groups/common data scan, MSB order, short spans and Goldilocks arithmetic. Do not transfer BN254 Montgomery accumulation or align old jolt-core file with modular documentation without source pins. No commit diff inspected or code executed.",
+    "access_issues": [
+      "https://github.com/a16z/jolt/commits/main/jolt-core/src/poly/split_eq_poly.rs: Internal Error",
+      "PR965 merge commit ee1fd08 link: Internal Error",
+      "https://github.com/a16z/jolt/raw/refs/heads/main/jolt-core/src/poly/split_eq_poly.rs: Cache miss"
+    ]
+  },
+  {
+    "access_date": "2026-10-04",
+    "recorded_at_utc": "2026-10-04T13:15:22.175938+00:00",
+    "run_id": "20261004T130146Z-19e7c75c",
+    "cycle": "0031",
+    "evidence_kind": "Native LIVE web search and primary inspection; no foreign code executed",
+    "reproduced_performance": false,
+    "implementation_license": "MIT",
+    "inspected_commit_id": "6c77775",
+    "id": "cycle31-icicle-batch-api-and-release-scope",
+    "title": "ICICLE sumcheck configuration and current displayed release",
+    "url": "https://github.com/ingonyama-zk/icicle/blob/main/wrappers/rust/icicle-core/src/sumcheck/mod.rs",
+    "published": null,
+    "updated": null,
+    "license_scope": "Current main LICENSE terms inspected; binary backend license/performance not inspected",
+    "inspected_urls": [
+      "https://github.com/ingonyama-zk/icicle/releases",
+      "https://github.com/ingonyama-zk/icicle/blob/main/LICENSE",
+      "https://github.com/ingonyama-zk/icicle/commit/6c77775"
+    ],
+    "commit_id_kind": "Abbreviated only; full SHA fetch failed",
+    "commit_scope": "Inspected two-file 3.9.2->4.0.0 Cargo version diff, not sumcheck kernel",
+    "date_basis": "Displayed v4.0.0 July11 omits year; commit has no rendered date; main file history failed",
+    "author_claim": "API provides device input, asynchronous stream and batch hash-chunk settings.",
+    "assessment": "batch comment describes input hash chunks, not independently verified resident-model passes. Extension challenge flag alone proves no compatibility with native masked Fp2 relation/transcript. Version-bump diff supports release identity only; no backend installed or speed reproduced.",
+    "access_issues": [
+      "https://github.com/ingonyama-zk/icicle/commits/main/wrappers/rust/icicle-core/src/sumcheck/mod.rs: Internal Error",
+      "release commit Browse files link: Internal Error"
+    ],
+    "tool_error": [
+      "One guessed history click id invalid; corrected to exact history URL, which returned Internal Error"
+    ]
+  },
+  {
+    "access_date": "2026-10-04",
+    "recorded_at_utc": "2026-10-04T13:15:22.175938+00:00",
+    "run_id": "20261004T130146Z-19e7c75c",
+    "cycle": "0031",
+    "evidence_kind": "Native LIVE web search and primary inspection; no foreign code executed",
+    "reproduced_performance": false,
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "id": "cycle31-jolt-opening-batch-architecture-filter",
+    "title": "JoltBook batched opening proof",
+    "url": "https://jolt.a16zcrypto.com/how/architecture/opening-proof.html",
+    "published": null,
+    "updated": null,
+    "date_basis": "Documentation has no verified publication/update date",
+    "author_claim": "Dory homomorphic batching or Akita prefix packing amortizes accumulated claims in the last opening stage.",
+    "assessment": "New architecture queue lead only. Native already coordinates one-run openings; first census actual repeated objects. This document does not establish hiding Ligero replacement, cross-window state binding, private commitment reuse or new privacy permission. Current modular docs and fetched old runtime path are unpinned revisions."
+  },
+  {
+    "access_date": "2026-10-04",
+    "recorded_at_utc": "2026-10-04T13:15:22.175938+00:00",
+    "run_id": "20261004T130146Z-19e7c75c",
+    "cycle": "0031",
+    "evidence_kind": "Native LIVE web search and primary inspection; no foreign code executed",
+    "reproduced_performance": false,
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "id": "cycle31-packed-small-field-newly-assessed-revision",
+    "title": "SNARKs over Small Prime Fields without Extension Field Multiplication",
+    "url": "https://eprint.iacr.org/2025/719",
+    "published": "2025-04-22",
+    "updated": "2026-09-14",
+    "date_basis": "Primary history last of4 revisions Sep14 2026; ASIACRYPT2026 publication-status label is not an independently verified proceedings date",
+    "paper_license": "CC BY",
+    "inspected_urls": [
+      "https://eprint.iacr.org/2025/719.pdf"
+    ],
+    "author_claim": "Matrix-coupled packed sumcheck uses base-field arithmetic and matrix-weighted MLE commitments.",
+    "assessment": "Previously unassessed older work with recent revision: abstract/introduction inspected. Replaces challenge/fold/PCS modules, adding k-coordinate state and matrix work; not a byte-preserving Fp2 multiplication substitution. Only author BabyBear/TFHE results; private native masks, whole-proof soundness and commitment migration unproved here.",
+    "access_issues": [
+      "Initial PDF text succeeded; later https:// pattern lookup returned (403) Forbidden; no bypass"
+    ]
+  },
+  {
+    "access_date": "2026-10-04",
+    "recorded_at_utc": "2026-10-04T13:15:22.175938+00:00",
+    "run_id": "20261004T130146Z-19e7c75c",
+    "cycle": "0031",
+    "evidence_kind": "Native LIVE web search and primary inspection; no foreign code executed",
+    "reproduced_performance": false,
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "id": "cycle31-flock-september-batch-boolean-filter",
+    "title": "Flock: Fast Proving for Batch Boolean Computations",
+    "url": "https://eprint.iacr.org/2026/1329",
+    "published": "2026-06-28",
+    "updated": "2026-09-19",
+    "date_basis": "Primary history received Jun28/revised Sep19 2026",
+    "paper_license": "CC BY-NC-ND",
+    "author_claim": "Fast batch Boolean hash-circuit proving, with single-core M4 Max results.",
+    "assessment": "New recent lead filtered on scope: proving hash-circuit evaluations differs from computing PCS commitment hashes. Could inform future sealed-input circuit composition; no complete private attention/FFN throughput result or native privacy transfer. Abstract only; fulltext blocked.",
+    "access_issues": [
+      "https://eprint.iacr.org/2026/1329.pdf: (403) Forbidden/Internal Error"
+    ]
+  }
+]

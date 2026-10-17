@@ -1,0 +1,23 @@
+{
+  "backend": "cron+bwrap",
+  "installation_verified": true,
+  "host_identity_verified_at": "2026-09-24T03:14:53.207961+00:00",
+  "live_supervisor_host_pid": 1075687,
+  "tests_passed": 14,
+  "real_cycle": {
+    "run_id": "20260924T024433Z-0c043a75",
+    "state": "completed",
+    "returncode": 0,
+    "thread_id": "01a0d14c-ea9c-78f2-8578-2ae51ab443cc",
+    "elapsed_seconds": 907.116,
+    "turn_completed": true
+  },
+  "cycle_web_search_event_count": 22,
+  "cycle_result_sha256": "161b8150409379dead46bc9636ee908cfaa39018f8417abf20d40fa6670659b4",
+  "sources": {
+    "scripts/zk60_explorer.py": "a8eebc2b5c8cf7c1d5bebbed0123fbf17ac0d6e807857f8c9c1ae800ae681569",
+    "tests/test_zk60_explorer.py": "1d9080813330d64a7aad5edfc871e50b52ff8b754a841ee3adb834bfb3ab9729",
+    "ops/zkp-explorer/PROMPT.md": "1aa3d45903d5900fa0b6838e49f9a314d05f407994e8e9be385b112153777844"
+  },
+  "limits": "Hourly cycles; awake/running host + cron + Codex auth required; cron fallback has nice and per-cycle limits, not systemd cgroup ceilings."
+}

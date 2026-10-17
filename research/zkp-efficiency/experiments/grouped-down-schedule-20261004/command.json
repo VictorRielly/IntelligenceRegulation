@@ -1,0 +1,10 @@
+{
+  "command": [
+    "python3",
+    "experiments/grouped-down-schedule-20261004/experiment.py"
+  ],
+  "exit_code": 0,
+  "wall_s": 0.6721235090001301,
+  "completed_at": "2026-10-04T06:09:24.090960+00:00",
+  "source_sha256": "36b023e0ea32e9edb1595f3a5e02f852954c6ed50aadd75042ab57eaced1c0e1"
+}

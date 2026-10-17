@@ -1,0 +1,32 @@
+[
+  {
+    "path": "STATE.md",
+    "sha256": "17b6016517e505f38ec2e493a38e51d10aa0a6d4162bffdb2b7b7f1b00de41ff",
+    "bytes": 5518
+  },
+  {
+    "path": "FINDINGS.md",
+    "sha256": "76e436e6011fa6bb4f83205fbd799ad4e3c73c97d931d291b2c42bf1a00b8405",
+    "bytes": 195829
+  },
+  {
+    "path": "sources.jsonl",
+    "sha256": "37f6bb1f512b871d50824bb798be6734df9a497fb2549eeea12bdb565dc114ff",
+    "bytes": 159079
+  },
+  {
+    "path": "PROGRESS.md",
+    "sha256": "b11b45e2747402b58dca85d9a8b66d29887b6512650356cbbbce460bcc72e9c1",
+    "bytes": 1911
+  },
+  {
+    "path": "progress/20261004T100146Z-8793c93e.md",
+    "sha256": "b11b45e2747402b58dca85d9a8b66d29887b6512650356cbbbce460bcc72e9c1",
+    "bytes": 1911
+  },
+  {
+    "path": "handoffs/20261004-public-prefix-checkpoint.md",
+    "sha256": "9ba8fc7e893d9d60745784791ce8243f5a94b670f7c244d3c87fa934cc080dba",
+    "bytes": 4504
+  }
+]

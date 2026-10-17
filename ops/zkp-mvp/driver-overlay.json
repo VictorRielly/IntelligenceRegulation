@@ -1,0 +1,10 @@
+{
+  "sources": {
+    "hashline/src/private_block/mvp_driver.rs": "5782211834b899e08ff3d4097b4a40a652156768e1d479476adbfdfa54a20260",
+    "hashline/examples/zk60_private_stack.rs": "c3843b9ed9e33ff1323b1d4b53fd53fb58854e7a21a8abfec02822289928b700",
+    "hashline/src/private_block.rs": "9540a7e60a2d07f2988d57267e9971c618627407dc9109f691656ea300c5b96d"
+  },
+  "private_block_module_addition": "mod mvp_driver;\\npub use mvp_driver::{prove_command, verify_command};\\n",
+  "status": "reviewed-synthetic-driver-candidate",
+  "protocol_changed": false
+}

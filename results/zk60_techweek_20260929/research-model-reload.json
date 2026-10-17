@@ -1,0 +1,41 @@
+{
+  "before": {
+    "checked_at": "2026-09-30T00:37:50.764025+00:00",
+    "launcher_identity_matches": true,
+    "worker_host_pid": 389,
+    "paused": false,
+    "status": {
+      "state": "interrupted",
+      "pid": 2,
+      "run_id": "20260927T055233Z-5d1eb3b0",
+      "requested_model": "gpt-6-sol",
+      "started_at": "2026-09-27T05:52:33.900412+00:00",
+      "heartbeat": "2026-09-30T00:37:49.778674+00:00",
+      "last_completed_run": "20260927T045233Z-e6183046",
+      "interval_seconds": 3600,
+      "timeout_seconds": 1200,
+      "child_pid": 6113,
+      "next_due_unix": 1790729155.987735
+    }
+  },
+  "after": {
+    "checked_at": "2026-09-30T00:37:51.469006+00:00",
+    "launcher_identity_matches": true,
+    "worker_host_pid": 36628,
+    "paused": false,
+    "status": {
+      "state": "idle",
+      "pid": 2,
+      "run_id": "20260927T055233Z-5d1eb3b0",
+      "requested_model": "gpt-6.1-sol",
+      "started_at": "2026-09-27T05:52:33.900412+00:00",
+      "heartbeat": "2026-09-30T00:37:51.002086+00:00",
+      "last_completed_run": "20260927T045233Z-e6183046",
+      "interval_seconds": 3600,
+      "timeout_seconds": 1200,
+      "next_due_unix": 1790729155.987735
+    }
+  },
+  "requested_model": "gpt-6.1-sol",
+  "schedule_preserved": true
+}

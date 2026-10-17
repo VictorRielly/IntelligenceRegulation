@@ -1,0 +1,15 @@
+{
+  "status": "pass",
+  "matrix_schedule_cases": 260,
+  "outcomes": {
+    "accepted": 178,
+    "FFN down": 81,
+    "residual 2": 1
+  },
+  "accepted_plane_words": 9508,
+  "rounding_cases": 162,
+  "control_count": 14,
+  "elapsed_s": 1.2527275800021016,
+  "peak_rss_kib": 23096,
+  "digest": "10697c1d5e23b0770a4692bf108f80b763b61f3b1ee000f0f9b2a5ee6f9f9fb4"
+}

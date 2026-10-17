@@ -1,0 +1,5 @@
+{
+  "stage": "negative control",
+  "reason": "drop_high did not change first round; public causal mask constant along the first folded axis makes the declared leading coefficient zero",
+  "result": "differential schedules passed before control failure; no successful refined result yet"
+}

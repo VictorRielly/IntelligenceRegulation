@@ -1,0 +1,32 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/argument.rs",
+    "sha256": "b3b02383a14a64a12194a465873b76f78406e5d3115b0c8157fde2882d22c865",
+    "bytes": 99535
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/pad.rs",
+    "sha256": "f8b1f6c26d18eadf01eb5e8527f3a2e9620fad533b8ab332cd57a6014bf96df0",
+    "bytes": 56533
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/shape.rs",
+    "sha256": "dbf4e2bc36e9f74c432d6e529b229e3a593e794271fd8593d1412b8312403911",
+    "bytes": 71241
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/witness.rs",
+    "sha256": "b9b66c024e7ca68d2a0ae4ba46241eb2abbccc8c8d94fe828041abbc710850ad",
+    "bytes": 29357
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/layout.rs",
+    "sha256": "14758039fbe9daa61affa1316c6e4159437b98d888d72a926f6e70e788592b30",
+    "bytes": 61217
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/zkp-core/src/sumcheck/grouped.rs",
+    "sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b",
+    "bytes": 7903
+  }
+]

@@ -1,0 +1,599 @@
+{
+  "run_identity": "20261004T020146Z-c40246c9",
+  "seed": 2026100420,
+  "status": "pass",
+  "cases": 18,
+  "checked_field_words": 800768,
+  "checked_required_zero_words": 53646,
+  "checked_fresh_mask_words": 48640,
+  "controls": [
+    "missing interval",
+    "duplicate interval",
+    "gap/out-of-range start",
+    "negative count",
+    "unknown writer",
+    "baseline shape refusal",
+    "candidate shape refusal",
+    "histogram length",
+    "row-tail dirty",
+    "table-padding dirty",
+    "histogram mismatch",
+    "mask mismatch",
+    "proximity mismatch",
+    "plane missing",
+    "widened-table fallback mutation",
+    "old-pass mask substitution",
+    "RNG continuation mismatch",
+    "supplied internal padding discarded"
+  ],
+  "control_count": 18,
+  "cases_detail": [
+    {
+      "case": 0,
+      "shape": [
+        1,
+        4,
+        8,
+        1,
+        1,
+        4,
+        256
+      ],
+      "limbs": [
+        4,
+        2,
+        2
+      ],
+      "pairs": 0,
+      "words": 21248,
+      "required_zero_words": 1530,
+      "fresh_mask_words": 512,
+      "sha256": "137defb1ebaa834d51b66e13956b23942126aec01981d0c58328afc39812484c",
+      "synthetic_rng_continuation": 201546645020144415076999311827062985236
+    },
+    {
+      "case": 1,
+      "shape": [
+        1,
+        4,
+        8,
+        1,
+        1,
+        4,
+        256
+      ],
+      "limbs": [
+        4,
+        3,
+        2
+      ],
+      "pairs": 1,
+      "words": 22272,
+      "required_zero_words": 1530,
+      "fresh_mask_words": 1024,
+      "sha256": "5e04789675826adc82d21383487c2e852babc6f13c06238be5be74df4768358c",
+      "synthetic_rng_continuation": 1282428147833283535881159918177062937
+    },
+    {
+      "case": 2,
+      "shape": [
+        1,
+        4,
+        8,
+        1,
+        1,
+        4,
+        256
+      ],
+      "limbs": [
+        5,
+        3,
+        2
+      ],
+      "pairs": 2,
+      "words": 23808,
+      "required_zero_words": 1530,
+      "fresh_mask_words": 1536,
+      "sha256": "52f27697fc9a5a762766136b2d255c6a034dfd7e6b422644c2f7c01fdf67f527",
+      "synthetic_rng_continuation": 300881271674063409942717383730092206279
+    },
+    {
+      "case": 3,
+      "shape": [
+        3,
+        12,
+        16,
+        3,
+        1,
+        4,
+        256
+      ],
+      "limbs": [
+        4,
+        2,
+        2
+      ],
+      "pairs": 3,
+      "words": 22784,
+      "required_zero_words": 1488,
+      "fresh_mask_words": 2048,
+      "sha256": "57668e9740d489ab4f6f4a3f6bcf0d780ab0cf875e871fe231a1395ea4d24cbb",
+      "synthetic_rng_continuation": 182618682434520797253862132831019776922
+    },
+    {
+      "case": 4,
+      "shape": [
+        3,
+        12,
+        16,
+        3,
+        1,
+        4,
+        256
+      ],
+      "limbs": [
+        4,
+        3,
+        2
+      ],
+      "pairs": 4,
+      "words": 23808,
+      "required_zero_words": 1488,
+      "fresh_mask_words": 2560,
+      "sha256": "ac9f8e6d99c73087f7875920b5bb595008a9b0588e78ef8f7b4ee5336b5a3c09",
+      "synthetic_rng_continuation": 285112076522685112892369156073229799759
+    },
+    {
+      "case": 5,
+      "shape": [
+        3,
+        12,
+        16,
+        3,
+        1,
+        4,
+        256
+      ],
+      "limbs": [
+        5,
+        3,
+        2
+      ],
+      "pairs": 0,
+      "words": 22784,
+      "required_zero_words": 1488,
+      "fresh_mask_words": 512,
+      "sha256": "f4517a5d8d686f69b0bd60d67bb0e6bdbb9e3aed3972978e3c1ebe84797797b5",
+      "synthetic_rng_continuation": 320732230426549864041655375235774927599
+    },
+    {
+      "case": 6,
+      "shape": [
+        5,
+        16,
+        32,
+        4,
+        2,
+        4,
+        256
+      ],
+      "limbs": [
+        4,
+        2,
+        2
+      ],
+      "pairs": 1,
+      "words": 21760,
+      "required_zero_words": 1440,
+      "fresh_mask_words": 1024,
+      "sha256": "7e171de4f0053a4d30879cbf83312cff8012da8716dd729d036393ffaeaecbee",
+      "synthetic_rng_continuation": 164628768198043285179890028065206944309
+    },
+    {
+      "case": 7,
+      "shape": [
+        5,
+        16,
+        32,
+        4,
+        2,
+        4,
+        256
+      ],
+      "limbs": [
+        4,
+        3,
+        2
+      ],
+      "pairs": 2,
+      "words": 22784,
+      "required_zero_words": 1440,
+      "fresh_mask_words": 1536,
+      "sha256": "1ff59c1eb10f73549f0967bd1bbd115c9ee4946de10d7b1989d52451a6531ae1",
+      "synthetic_rng_continuation": 52870444220843657207554221970133604352
+    },
+    {
+      "case": 8,
+      "shape": [
+        5,
+        16,
+        32,
+        4,
+        2,
+        4,
+        256
+      ],
+      "limbs": [
+        5,
+        3,
+        2
+      ],
+      "pairs": 3,
+      "words": 24320,
+      "required_zero_words": 1440,
+      "fresh_mask_words": 2048,
+      "sha256": "1decf412f02688416e0b21035f68492eb3e8b8fcb2fcd7161f11b0684b3cc4dd",
+      "synthetic_rng_continuation": 292016538244877537201358437233592862377
+    },
+    {
+      "case": 9,
+      "shape": [
+        8,
+        24,
+        64,
+        3,
+        1,
+        8,
+        512
+      ],
+      "limbs": [
+        4,
+        2,
+        2
+      ],
+      "pairs": 4,
+      "words": 46592,
+      "required_zero_words": 3744,
+      "fresh_mask_words": 5120,
+      "sha256": "1ac9e349804c51f3affbf04fc4e5385c5bc515e85773686b27e5469fbd0ed5ac",
+      "synthetic_rng_continuation": 78520319342549509236659711006220660119
+    },
+    {
+      "case": 10,
+      "shape": [
+        8,
+        24,
+        64,
+        3,
+        1,
+        8,
+        512
+      ],
+      "limbs": [
+        4,
+        3,
+        2
+      ],
+      "pairs": 0,
+      "words": 43520,
+      "required_zero_words": 3744,
+      "fresh_mask_words": 1024,
+      "sha256": "335bb3c80de48ba8fc3dbcf91f6eccbda636bcd6866546a515c80cd4835ce29f",
+      "synthetic_rng_continuation": 44313767231416047260953284831125960884
+    },
+    {
+      "case": 11,
+      "shape": [
+        8,
+        24,
+        64,
+        3,
+        1,
+        8,
+        512
+      ],
+      "limbs": [
+        5,
+        3,
+        2
+      ],
+      "pairs": 1,
+      "words": 46592,
+      "required_zero_words": 3744,
+      "fresh_mask_words": 2048,
+      "sha256": "b2d2535f4f47152240620edc1f178dc5c8be4cf35fc9c127a44422b235a2f6dd",
+      "synthetic_rng_continuation": 92905976502965203655087372975051489861
+    },
+    {
+      "case": 12,
+      "shape": [
+        3,
+        12,
+        16,
+        3,
+        1,
+        4,
+        1024
+      ],
+      "limbs": [
+        4,
+        2,
+        2
+      ],
+      "pairs": 2,
+      "words": 89088,
+      "required_zero_words": 8400,
+      "fresh_mask_words": 6144,
+      "sha256": "6b779110e23b420f1c328758fc373984faaba999a081e19669c3662edb6dfd2f",
+      "synthetic_rng_continuation": 117450140812080547986506257436576428406
+    },
+    {
+      "case": 13,
+      "shape": [
+        3,
+        12,
+        16,
+        3,
+        1,
+        4,
+        1024
+      ],
+      "limbs": [
+        4,
+        3,
+        2
+      ],
+      "pairs": 3,
+      "words": 93184,
+      "required_zero_words": 8400,
+      "fresh_mask_words": 8192,
+      "sha256": "5c4b55b6cb8c1ef6e10e5f9ef24d8b49612e4a0431c265367a51ec415cd8b991",
+      "synthetic_rng_continuation": 226021571186144078340303696181006687546
+    },
+    {
+      "case": 14,
+      "shape": [
+        3,
+        12,
+        16,
+        3,
+        1,
+        4,
+        1024
+      ],
+      "limbs": [
+        5,
+        3,
+        2
+      ],
+      "pairs": 4,
+      "words": 99328,
+      "required_zero_words": 8400,
+      "fresh_mask_words": 10240,
+      "sha256": "ab0e8065346b1883e219d3373196d8c0d3f4ba05fa82ae3771c41220432f0a1a",
+      "synthetic_rng_continuation": 194855411544287694448306401227209708178
+    },
+    {
+      "case": 15,
+      "shape": [
+        32,
+        16,
+        16,
+        2,
+        1,
+        8,
+        256
+      ],
+      "limbs": [
+        4,
+        2,
+        2
+      ],
+      "pairs": 0,
+      "words": 55040,
+      "required_zero_words": 1280,
+      "fresh_mask_words": 512,
+      "sha256": "025e16a65cbaed12942e81038536353ed3ca01b5040e19805b68c52d38e02078",
+      "synthetic_rng_continuation": 2940249380541867496133517226918222770
+    },
+    {
+      "case": 16,
+      "shape": [
+        32,
+        16,
+        16,
+        2,
+        1,
+        8,
+        256
+      ],
+      "limbs": [
+        4,
+        3,
+        2
+      ],
+      "pairs": 1,
+      "words": 59648,
+      "required_zero_words": 1280,
+      "fresh_mask_words": 1024,
+      "sha256": "48c6ab5c1e8fded1f8711837030605808708ae663cfd576bf1d6700daf5c5b9a",
+      "synthetic_rng_continuation": 247415436295355844662266269265003894588
+    },
+    {
+      "case": 17,
+      "shape": [
+        32,
+        16,
+        16,
+        2,
+        1,
+        8,
+        256
+      ],
+      "limbs": [
+        5,
+        3,
+        2
+      ],
+      "pairs": 2,
+      "words": 62208,
+      "required_zero_words": 1280,
+      "fresh_mask_words": 1536,
+      "sha256": "8b30bc1d51bb89d7c2347b55b94cfa2ce426739006328c3dab481d69d0cbf621",
+      "synthetic_rng_continuation": 187975937306307527484782474310440373114
+    }
+  ],
+  "count_only": [
+    {
+      "name": "toy",
+      "shape": {
+        "T": 32,
+        "d": 16,
+        "f": 16,
+        "H": 2,
+        "KV": 1,
+        "dh": 8,
+        "cols": 256
+      },
+      "registered": true,
+      "norm_limbs": 4,
+      "softmax_limbs": 2,
+      "p_limbs": 2,
+      "A_rows": 455,
+      "A_data_rows": 213,
+      "zero_then_scatter_initialization_bytes": 931840,
+      "required_zero_bytes": 10240,
+      "logical_overwritten_zero_bytes": 921600,
+      "witness_copy_bytes": 419840,
+      "histogram_bytes": 6144,
+      "fresh_mask_bytes": 495616,
+      "final_matrix_bytes": 931840,
+      "peak_matrix_capacity_saving_bytes": 0,
+      "actual_zero_store_traffic_bytes": null,
+      "actual_time_saved_s": null
+    },
+    {
+      "name": "m125",
+      "shape": {
+        "T": 512,
+        "d": 768,
+        "f": 2048,
+        "H": 12,
+        "KV": 4,
+        "dh": 64,
+        "cols": 16384
+      },
+      "registered": true,
+      "norm_limbs": 4,
+      "softmax_limbs": 3,
+      "p_limbs": 2,
+      "A_rows": 5681,
+      "A_data_rows": 5435,
+      "zero_then_scatter_initialization_bytes": 744620032,
+      "required_zero_bytes": 1026048,
+      "logical_overwritten_zero_bytes": 743593984,
+      "witness_copy_bytes": 711344128,
+      "histogram_bytes": 6144,
+      "fresh_mask_bytes": 32243712,
+      "final_matrix_bytes": 744620032,
+      "peak_matrix_capacity_saving_bytes": 0,
+      "actual_zero_store_traffic_bytes": null,
+      "actual_time_saved_s": null
+    },
+    {
+      "name": "mistral_t512_probe",
+      "shape": {
+        "T": 512,
+        "d": 4096,
+        "f": 14336,
+        "H": 32,
+        "KV": 8,
+        "dh": 128,
+        "cols": 16384
+      },
+      "registered": false,
+      "norm_limbs": 5,
+      "softmax_limbs": 3,
+      "p_limbs": 2,
+      "A_rows": 18633,
+      "A_data_rows": 18379,
+      "zero_then_scatter_initialization_bytes": 2442264576,
+      "required_zero_bytes": 894976,
+      "logical_overwritten_zero_bytes": 2441369600,
+      "witness_copy_bytes": 2408071168,
+      "histogram_bytes": 6144,
+      "fresh_mask_bytes": 33292288,
+      "final_matrix_bytes": 2442264576,
+      "peak_matrix_capacity_saving_bytes": 0,
+      "actual_zero_store_traffic_bytes": null,
+      "actual_time_saved_s": null
+    },
+    {
+      "name": "mistral_t1024_probe",
+      "shape": {
+        "T": 1024,
+        "d": 4096,
+        "f": 14336,
+        "H": 32,
+        "KV": 8,
+        "dh": 128,
+        "cols": 16384
+      },
+      "registered": false,
+      "norm_limbs": 5,
+      "softmax_limbs": 3,
+      "p_limbs": 2,
+      "A_rows": 50315,
+      "A_data_rows": 50061,
+      "zero_then_scatter_initialization_bytes": 6594887680,
+      "required_zero_bytes": 878592,
+      "logical_overwritten_zero_bytes": 6594009088,
+      "witness_copy_bytes": 6560710656,
+      "histogram_bytes": 6144,
+      "fresh_mask_bytes": 33292288,
+      "final_matrix_bytes": 6594887680,
+      "peak_matrix_capacity_saving_bytes": 0,
+      "actual_zero_store_traffic_bytes": null,
+      "actual_time_saved_s": null
+    }
+  ],
+  "baseline_parent_ceiling": {
+    "scope": "synthetic dense 12-block 125M geometry",
+    "independent_verification": false,
+    "wall_s": 408.60922643699996,
+    "parent_s": 86.69099999999999,
+    "parent_fraction": 0.21216114172440537,
+    "zero_cost_parent_deletion_wall_s": 321.918226437,
+    "diagnostic_arithmetic_positions_per_s_if_entire_parent_deleted": 1.5904660188608468,
+    "candidate_time_saved_s": null,
+    "note": "Parent deletion is not zero-fill savings or counted throughput"
+  },
+  "elapsed_s": 2.1562251140003355,
+  "peak_rss_kib": 29496,
+  "device": "CPU only",
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "python": "3.10.12",
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "estimated_memory_mib": 64,
+  "alarm_s": 59,
+  "RLIMIT_AS_mib": 512,
+  "script_sha256": "d5ac5a6341e334e64b26db5234b0c07333e18a3cb145ac480dba7e89b6f92c3b",
+  "scope": "Source-pinned synthetic A layout/field/histogram/write coverage; Python PRNG stand-in; no native mask/transcript/commitment/proof",
+  "full_stack": {
+    "countable_tokens": 0,
+    "passes": 0,
+    "context_length": null,
+    "steady_tokens_per_s": null,
+    "total_tokens_per_s": null,
+    "startup_fraction": null,
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "proof_lag_s": null,
+    "pipeline_drain_s": null
+  }
+}

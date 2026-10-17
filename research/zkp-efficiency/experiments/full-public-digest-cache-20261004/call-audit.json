@@ -1,0 +1,248 @@
+{
+  "run_id": "20261004T090146Z-73c03938",
+  "created_at": "2026-10-04T09:16:26.209214+00:00",
+  "seams": [
+    {
+      "relative_path": "hashline/src/private_block.rs",
+      "line_candidate": 494,
+      "meaning": "attention absorb: five i8 tensors + three i64 tables",
+      "source_pins": [
+        {
+          "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block.rs",
+          "snapshot": "snapshots/ops__zkp-mvp__candidate__hashline__src__private_block.rs",
+          "sha256": "9540a7e60a2d07f2988d57267e9971c618627407dc9109f691656ea300c5b96d",
+          "bytes": 48544
+        },
+        {
+          "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block.rs",
+          "snapshot": "snapshots/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block.rs",
+          "sha256": "9540a7e60a2d07f2988d57267e9971c618627407dc9109f691656ea300c5b96d",
+          "bytes": 48544
+        }
+      ]
+    },
+    {
+      "relative_path": "hashline/src/private_block.rs",
+      "line_candidate": 575,
+      "meaning": "FFN absorb: four i8 tensors + activationi16",
+      "source_pins": [
+        {
+          "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block.rs",
+          "snapshot": "snapshots/ops__zkp-mvp__candidate__hashline__src__private_block.rs",
+          "sha256": "9540a7e60a2d07f2988d57267e9971c618627407dc9109f691656ea300c5b96d",
+          "bytes": 48544
+        },
+        {
+          "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block.rs",
+          "snapshot": "snapshots/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block.rs",
+          "sha256": "9540a7e60a2d07f2988d57267e9971c618627407dc9109f691656ea300c5b96d",
+          "bytes": 48544
+        }
+      ]
+    },
+    {
+      "relative_path": "hashline/src/private_block.rs",
+      "line_candidate": 614,
+      "meaning": "block digest domain and both halves",
+      "source_pins": [
+        {
+          "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block.rs",
+          "snapshot": "snapshots/ops__zkp-mvp__candidate__hashline__src__private_block.rs",
+          "sha256": "9540a7e60a2d07f2988d57267e9971c618627407dc9109f691656ea300c5b96d",
+          "bytes": 48544
+        },
+        {
+          "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block.rs",
+          "snapshot": "snapshots/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block.rs",
+          "sha256": "9540a7e60a2d07f2988d57267e9971c618627407dc9109f691656ea300c5b96d",
+          "bytes": 48544
+        }
+      ]
+    },
+    {
+      "relative_path": "hashline/src/private_block/run.rs",
+      "line_candidate": 202,
+      "meaning": "constructor computes every block digest",
+      "source_pins": [
+        {
+          "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/run.rs",
+          "snapshot": "snapshots/ops__zkp-mvp__candidate__hashline__src__private_block__run.rs",
+          "sha256": "f39aec7925ba27d51361cd3935e874b1301d7595be81f3199d9d2941c0f818e0",
+          "bytes": 46667
+        },
+        {
+          "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/run.rs",
+          "snapshot": "snapshots/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__run.rs",
+          "sha256": "2d43bc335d176b533589a587a916ac766cc810536e7b14832273b2a9fa8c3cae",
+          "bytes": 49115
+        }
+      ]
+    },
+    {
+      "relative_path": "hashline/src/private_block/run.rs",
+      "line_candidate": 254,
+      "meaning": "public statement uses stored digests",
+      "source_pins": [
+        {
+          "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/run.rs",
+          "snapshot": "snapshots/ops__zkp-mvp__candidate__hashline__src__private_block__run.rs",
+          "sha256": "f39aec7925ba27d51361cd3935e874b1301d7595be81f3199d9d2941c0f818e0",
+          "bytes": 46667
+        },
+        {
+          "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/run.rs",
+          "snapshot": "snapshots/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__run.rs",
+          "sha256": "2d43bc335d176b533589a587a916ac766cc810536e7b14832273b2a9fa8c3cae",
+          "bytes": 49115
+        }
+      ]
+    },
+    {
+      "relative_path": "hashline/src/private_block/run.rs",
+      "line_candidate": 571,
+      "meaning": "prover stage uses stored digest, no weights rescan",
+      "source_pins": [
+        {
+          "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/run.rs",
+          "snapshot": "snapshots/ops__zkp-mvp__candidate__hashline__src__private_block__run.rs",
+          "sha256": "f39aec7925ba27d51361cd3935e874b1301d7595be81f3199d9d2941c0f818e0",
+          "bytes": 46667
+        },
+        {
+          "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/run.rs",
+          "snapshot": "snapshots/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__run.rs",
+          "sha256": "2d43bc335d176b533589a587a916ac766cc810536e7b14832273b2a9fa8c3cae",
+          "bytes": 49115
+        }
+      ]
+    },
+    {
+      "relative_path": "hashline/src/private_block/run.rs",
+      "line_candidate": 717,
+      "meaning": "verifier stage uses stored digest",
+      "source_pins": [
+        {
+          "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/run.rs",
+          "snapshot": "snapshots/ops__zkp-mvp__candidate__hashline__src__private_block__run.rs",
+          "sha256": "f39aec7925ba27d51361cd3935e874b1301d7595be81f3199d9d2941c0f818e0",
+          "bytes": 46667
+        },
+        {
+          "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/run.rs",
+          "snapshot": "snapshots/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__run.rs",
+          "sha256": "2d43bc335d176b533589a587a916ac766cc810536e7b14832273b2a9fa8c3cae",
+          "bytes": 49115
+        }
+      ]
+    },
+    {
+      "relative_path": "hashline/src/private_block/mvp_driver.rs",
+      "line_candidate": 285,
+      "meaning": "model root recomputes block digests",
+      "source_pins": [
+        {
+          "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/mvp_driver.rs",
+          "snapshot": "snapshots/ops__zkp-mvp__candidate__hashline__src__private_block__mvp_driver.rs",
+          "sha256": "5782211834b899e08ff3d4097b4a40a652156768e1d479476adbfdfa54a20260",
+          "bytes": 57022
+        },
+        {
+          "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/mvp_driver.rs",
+          "snapshot": "snapshots/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__mvp_driver.rs",
+          "sha256": "906c6349daa641c07d1eb74f2e52fa6a5f83caeaa909879c16fc5eb07eee760d",
+          "bytes": 83717
+        }
+      ]
+    },
+    {
+      "relative_path": "hashline/src/private_block/mvp_driver.rs",
+      "line_candidate": 459,
+      "meaning": "independent verifier builds model root and run statement",
+      "source_pins": [
+        {
+          "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/mvp_driver.rs",
+          "snapshot": "snapshots/ops__zkp-mvp__candidate__hashline__src__private_block__mvp_driver.rs",
+          "sha256": "5782211834b899e08ff3d4097b4a40a652156768e1d479476adbfdfa54a20260",
+          "bytes": 57022
+        },
+        {
+          "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/mvp_driver.rs",
+          "snapshot": "snapshots/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__mvp_driver.rs",
+          "sha256": "906c6349daa641c07d1eb74f2e52fa6a5f83caeaa909879c16fc5eb07eee760d",
+          "bytes": 83717
+        }
+      ]
+    },
+    {
+      "relative_path": "hashline/src/private_block/run_statement_file.rs",
+      "line_candidate": 264,
+      "meaning": "renderer hashes both regenerated and input blocks",
+      "source_pins": [
+        {
+          "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/run_statement_file.rs",
+          "snapshot": "snapshots/ops__zkp-mvp__candidate__hashline__src__private_block__run_statement_file.rs",
+          "sha256": "9eb2c16e1ade57de2f51a105eb5ac5548bfc619303e68886f6dbb2bf000c79e3",
+          "bytes": 44242
+        },
+        {
+          "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/run_statement_file.rs",
+          "snapshot": "snapshots/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__run_statement_file.rs",
+          "sha256": "9eb2c16e1ade57de2f51a105eb5ac5548bfc619303e68886f6dbb2bf000c79e3",
+          "bytes": 44242
+        }
+      ]
+    },
+    {
+      "relative_path": "hashline/src/private_block/run_statement_file.rs",
+      "line_candidate": 518,
+      "meaning": "parser recomputes declared digests before RunStatement::new",
+      "source_pins": [
+        {
+          "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/run_statement_file.rs",
+          "snapshot": "snapshots/ops__zkp-mvp__candidate__hashline__src__private_block__run_statement_file.rs",
+          "sha256": "9eb2c16e1ade57de2f51a105eb5ac5548bfc619303e68886f6dbb2bf000c79e3",
+          "bytes": 44242
+        },
+        {
+          "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/run_statement_file.rs",
+          "snapshot": "snapshots/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__run_statement_file.rs",
+          "sha256": "9eb2c16e1ade57de2f51a105eb5ac5548bfc619303e68886f6dbb2bf000c79e3",
+          "bytes": 44242
+        }
+      ]
+    },
+    {
+      "relative_path": "hashline/src/private_block/protocol.rs",
+      "line_candidate": 117,
+      "meaning": "single-block header digest; outer profile/parameters/calibration separate",
+      "source_pins": [
+        {
+          "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/protocol.rs",
+          "snapshot": "snapshots/ops__zkp-mvp__candidate__hashline__src__private_block__protocol.rs",
+          "sha256": "ac4122375397a155d392df27a7e08f818ee78f80b38d41207565b325f5290413",
+          "bytes": 61745
+        },
+        {
+          "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/protocol.rs",
+          "snapshot": "snapshots/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__protocol.rs",
+          "sha256": "ac4122375397a155d392df27a7e08f818ee78f80b38d41207565b325f5290413",
+          "bytes": 61745
+        }
+      ]
+    }
+  ],
+  "findings": [
+    "Owned private Vec words and immutable getters, no current post-construction writer found by simple regex audit; descendants can access private fields, so no type-enforced immutability claim.",
+    "Run stages already read RunStatement.block_digests; no scan removed inside stage.",
+    "Block digest binds13tensor-length frames/values, not shape/profile/calibration; enclosing header checks remain.",
+    "Cold processes each recompute trusted local content; cache must not accept a persisted or caller-supplied identity.",
+    "DenseRun clones before digest initialization; OnceLock clone of empty cell is empty. No clone warm-up synthetic-only gain is projected for trained layers."
+  ],
+  "count_only_baseline_current_CLI": {
+    "prover": "model_root_of + RunStatement::new =2 full model scans before proof",
+    "fresh_verifier": "same2 scans from independently regenerated/loaded words",
+    "resident": "retain model root once; each fresh endpoint statement still scans once per pass without cache",
+    "same_statement_replay": "already uses stored digests during stages; fixed endpoints/receipt replay not new target positions"
+  },
+  "limits": "Static source audit, not historical binary attribution/runtime counts, native immutability, BLAKE3, receipt or RNG validation"
+}

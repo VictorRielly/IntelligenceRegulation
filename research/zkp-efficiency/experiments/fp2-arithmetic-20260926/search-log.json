@@ -1,0 +1,32 @@
+{
+  "run_identity": "20260926T225233Z-f66107c9",
+  "accessed_at_utc": "2026-09-26 23:03:32 UTC",
+  "tool": "native LIVE web.run",
+  "queries": [
+    "Goldilocks quadratic extension Karatsuba multiplication square 2026 GPU proof",
+    "site.github.com/Plonky3/Plonky3 goldilocks extension quadratic mul square",
+    "site.eprint.iacr.org 2026 finite field arithmetic GPU Goldilocks",
+    "site.eprint.iacr.org multiplication squaring pairing friendly fields Devegili OhEigeartaigh Scott Dahab 2006 471",
+    "site.arxiv.org 2026 Goldilocks GPU field arithmetic instruction wall"
+  ],
+  "dispositions": [
+    "Primary sources only used for technical claims; DeepWiki and other secondary search results not relied on.",
+    "Ed448-Goldilocks search hit uses a different 448-bit field and was excluded.",
+    "No external source code executed; no shell network fallback."
+  ],
+  "failures": [
+    {
+      "url": "https://raw.githubusercontent.com/Plonky3/Plonky3/main/field/src/extension/quadratic.rs",
+      "error": "Internal Error; actual implementation found through binomial_extension.rs in same native tool"
+    },
+    {
+      "url": "https://github.com/Plonky3/Plonky3/pull/2098 link126",
+      "error": "Internal Error on linked merge commit"
+    },
+    {
+      "url": "https://github.com/Plonky3/Plonky3/commit/4faefa9",
+      "error": "Internal Error; full commit not verified"
+    }
+  ]
+}
+

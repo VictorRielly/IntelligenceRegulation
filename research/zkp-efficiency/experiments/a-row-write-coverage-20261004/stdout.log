@@ -1,0 +1,10 @@
+{
+  "status": "pass",
+  "cases": 18,
+  "checked_field_words": 800768,
+  "checked_required_zero_words": 53646,
+  "checked_fresh_mask_words": 48640,
+  "control_count": 18,
+  "elapsed_s": 2.1562251140003355,
+  "peak_rss_kib": 29496
+}

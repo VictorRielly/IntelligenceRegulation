@@ -1,0 +1,1 @@
+REJECT: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim

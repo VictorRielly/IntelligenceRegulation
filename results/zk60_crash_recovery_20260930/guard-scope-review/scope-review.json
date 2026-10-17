@@ -1,0 +1,17 @@
+{
+  "command": "python3 -m unittest tests.test_zk60_resource_guard.TestScopeIdentity -v",
+  "tests_run": 8,
+  "passed": 7,
+  "skipped": 1,
+  "skip_reason": "sandbox cannot reach systemd user scope; live caller-scope sentinel test is not claimed",
+  "errors": 0,
+  "failures": 0,
+  "process_launches_in_scope_regressions": false,
+  "signals_in_scope_regressions": false,
+  "verified_at_unix": 1790731385.4108746,
+  "guard_release_pending": true,
+  "source_sha256": {
+    "scripts/zk60_resource_guard.py": "f0b87668b9ad3bc42683d95a16314b54973b8e36be576b25183302287168e772",
+    "tests/test_zk60_resource_guard.py": "529e8ff11d3658a72f0405d479233e2f68113962bf201679ab5e4fb057b68437"
+  }
+}

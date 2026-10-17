@@ -1,0 +1,46 @@
+{
+  "profiles": [
+    [
+      "a1-cpu",
+      0.199
+    ],
+    [
+      "a2-cpu",
+      0.207
+    ],
+    [
+      "b1-gpu",
+      0.202
+    ],
+    [
+      "b2-gpu",
+      0.197
+    ]
+  ],
+  "ideal_enclosing_removal_fraction": 0.007157422866121394,
+  "native_m125_geometry": {
+    "label": "native_m125",
+    "T": 512,
+    "h_pad": 16,
+    "f_pad": 2048,
+    "exp_occurrences": 4194304,
+    "act_occurrences": 1048576,
+    "pair_occurrences": 5242880,
+    "native_batch_multiplications": 15728640,
+    "candidate_all_hit_batch_multiplications": 1536,
+    "native_beta_products": 5242880,
+    "candidate_all_hit_beta_products": 512,
+    "native_field_inversions": 2,
+    "candidate_all_hit_field_inversions": 2,
+    "unchanged_H_output_bytes": 83886080,
+    "native_peak_den_plus_prefix_payload_bytes": 134217728,
+    "candidate_scratch_logical_payload_bound_bytes": 45360,
+    "activation_conversion_bytes": 2048,
+    "notes": [
+      "arithmetic/payload not actual peak or speed; headers/allocator/compiler stack unpriced",
+      "prefix16N + in-place denominators16N; sequential exp/act peaks cannot be added",
+      "native literal full Fp2 beta products; compiler specialization unmeasured",
+      "all tablehelpers/masks/PCS/polynomials/extensions/witness retained"
+    ]
+  }
+}

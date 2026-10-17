@@ -1,0 +1,137 @@
+TRAINED-TINYLLAMA BLOCK: SMALLEST CALIBRATION-PARAMETER CHANGES (specification, not implementation)
+==================================================================================================
+Status: read-only analysis of this candidate tree. Nothing was built, run or edited beyond the two owned files/report. Numbers below are
+arithmetic from the code constants; anything that needs data is marked MEASURE. No equation is changed or weakened by anything proposed;
+items that touch a proof relation are marked RULING and are NOT proposed for implementation without the security owner.
+
+Targets: TinyLlama = 22 layers, width 2048, FFN 5632, Q32/KV4/dh64, rope_theta 10000, rms_eps 1e-5 (confirm against the pinned config).
+Pinned plain Llama3-8B = 32 layers, width 4096, FFN 14336, Q32/KV8/dh128, rms_eps 1e-5, rope_theta 500000, no scaling. Only TinyLlama is
+worked through; 8B numbers are given where the same arithmetic decides something.
+
+0. HEADLINE (what actually blocks a trained block, in order)
+   H1  The norm remainder needs a FIFTH byte limb at width 2048 and 4096; the tree pins four. (proof layout, not a calibration knob)
+   H2  The norm output resolution collapses with width because the integer RMSNorm is an L2 normalisation with a fixed 0.5 gain. The one
+       code parameter that fixes this is NORM_CN (per profile). (code parameter + coefficient, no new plane)
+   H3  Epsilon is an additive constant inside the isqrt; weights cannot emulate it. Ceps=1 is exact only at a residual scale that is useless.
+       (code parameter + coefficient)
+   H4  Everything else the trained model needs (all requant shifts, exp table, SiLU table member, RoPE base, gains, residual scale) is
+       absorbed by weight/table choice with a computable bit cost, and NO shift value may change: each shift is wired into a hard-coded
+       remainder-limb decomposition.
+
+1. WHAT THE THREE KINDS OF "PARAMETER" ARE IN THIS TREE
+   A. Code kernel parameters (compiled constants, mirrored in two kernels + the witness):
+      private-block-kernel-shaped/src/lib.rs:62-89 (calib: NORM_TN/CN/CEPS/WRHO, SH_Q..SH_AO, SH_G/U/H/Z, F_E/F_P/F_RO, WRHO_S, MASK)
+      hashline private_block/layout.rs:62-80, shape.rs:44-47 (NORM_TN, NORM_CEPS, F_P), witness.rs:369-389 (norm), layout.rs:1267,1271
+      (the "calibration:" / "feed-forward:" schedule lines). private_attention/ carries a further copy (layout.rs:39-41).
+      Shape-driven already: f_e, wrho_s, norm_wrho, tokens, dims (shape.rs:141-236). Everything else above is one global calibration.
+      Coupling: parity.rs:1196-1198 asserts kernel-shaped calib == the frozen guest crate at the toy, and the frozen crate is byte-frozen
+      (kernel-shaped header lines 9-32: "a different calibration is a different trusted image"). So a changed value must be per profile
+      (a Shape field), never a change of the global constant, or the toy/parity path breaks.
+   B. Proof constraints (the constants as they appear inside relations and range decompositions):
+      * norm: coefficients 2*NORM_CN, 2^NORM_TN, 2^(NORM_TN+1) in slot_ir.rs:1162-1203 and argument.rs:1466; NORM_CEPS in slot_ir.rs:1007-1010
+        and argument.rs:1237-1238; padded rows use a zero sum, not Ceps (argument.rs:1209).
+      * rho/sigma windows: `limbs_norm = ceil(norm_wrho/8)` (shape.rs:958), norm_wrho = tn+1+bitlen(D_max) (shape.rs:228), planes A_NR/A_NS are
+        four limbs each (layout.rs:221-222), exactness argued at layout.rs:636-660 (margin 0.21 bits at 125M).
+      * requant remainders are BIASED LIMBS chosen per shift value: 7-bit (2l), 6-bit (4l), 9-bit, 14-bit (layout.rs:650-654). A different
+        shift value is a different decomposition, i.e. a layout/argument change.
+      * softmax: p < 2^(F_P+1) in `lp` limbs (layout.rs:655-663), F_P = SH_O = 9 coupled; rho_s/sigma_s windows from wrho_s.
+      * field no-wrap arguments (Goldilocks p = 2^64-2^32+1, zkp-core/src/field.rs:10) at layout.rs:636-660.
+   C. Transcript / profile / registry:
+      * profile string per shape (D17) and its hash-tag key set (shape.rs:941), a RUN_PROFILE_* const (run.rs:52-70), RunShape ctor,
+        shape_of_profile/run_profile_of lists (run_statement_file.rs:185-202, test-only), the statement's parameter_line (run.rs:268) and
+        schedule_digest (run.rs:319-334) which absorbs layout.describe() including the calibration line (layout.rs:1267) => any value printed
+        there moves the transcript. calibration_identity() is the digest of a fixed literal (private_block.rs:318) and does NOT name
+        s_x, weight scales, table members, rope base or eps.
+      * weights/tables are bound by BlockPublic::digest (private_block.rs:609): rope tables, exp table and the 256-entry act table are
+        public data inside that digest, so choosing them needs NO code change.
+      * SiLU table is a FROZEN registry: 9 members (e_in,e_out) with pinned digests (zkp-core/src/tables.rs:79-91, 143-150); outside it
+        `int16out_member` returns None. The exp table has no registry: exp_member(e_s, head_dim, f_e) (tables_attn.rs:132) is generated, any e_s.
+
+2. GEOMETRY NUMBERS FOR A TinyLlama Shape (arithmetic from shape.rs:141-236)
+   d_pad 2048 (= h_pad 32 * dh 64, no pad), h_pad 32 (no padded head slot), kv width 256, group 8, f_pad 8192 (FFN 5632 pads 45%), C-1 ok
+   (32 % 4 == 0). D_max = isqrt(1 + 2048*32767^2) ~ 1.483e6 -> 21 bits -> norm_wrho = 11+1+21 = 33 -> limbs_norm = 5 (pinned 4).
+   For 4096: D_max = 32767*64 = 2,097,088 < 2^21 -> 21 bits -> 33 -> 5 limbs. Four limbs hold width <= 1024 (1024*32767^2 < 2^40).
+   isqrt limbs (LIMBS_ISQRT=3, 2^24) are fine at both (2*D_max = 2.97e6 / 4.19e6 < 1.68e7). wrho_s = clog2(tokens)+f_e must be <= 24 for
+   3 sigma_s limbs (e.g. tokens 512 with f_e 9 -> 18). Shape::new also refuses lifted Q/Kv/S domains (shape.rs:258-266): Kv = tokens*256.
+   The build refuses a five-limb shape by name today: witness.rs:429-434 (LN_TOY) and Witness::output's literal A_X2 (witness.rs:57-59, S8-F3).
+
+3. WHAT WEIGHT / TABLE CHOICE ABSORBS (no code, no proof change)
+   Requant site out = round(acc / 2^sh), acc = sum(in_int * W_int). With scales s_out = s_in * s_W / 2^sh and s_W <= 127/max|W|, the shift
+   needed for a full-range output is  sh* = log2(s_in * M_out / M_W)  (M_out = calibrated max |real output|, M_W = max |real weight|).
+   The fixed shift is harmless iff it is close to sh*: cost = |sh - sh*| bits, paid as WEIGHT precision if sh < sh* (shrink s_W) or as
+   ACTIVATION range if sh > sh* (output under-uses int8/int16). MEASURE sh* per site from the sealing pass on a calibration set.
+   Per site:
+     Q,K,V (SH 7)     absorbed by Wq/Wk/Wv scale.
+     scores (SH_S 6)  absorbed by exp table key e_s (score = int * 2^e_s, 1/sqrt(dh) is inside the table: tables_attn.rs:96-104) and/or Wq,Wk.
+     softmax f_e      Shape field (registry); e_s is table data. Delta = max-s must be in [0,256) (refusal "exp difference").
+     O (SH_O 9)       = F_P, identity scale for P*V: nothing to absorb, do not change.
+     AO (SH_AO 7)     HARD EQUALITY, not a preference: s_ao = s_o8*s_Wo/128 must equal the residual scale s_x (SH_A1=0, no alignment).
+     gate (SH_G 7)    absorbed by Wg scale; real gate = g_int * 2^e_in with e_in in {-5..-1} of the frozen registry: gate range +-4/8/16/32/64.
+                      Outside +-range the build refuses (no saturation). Registry pairs (e_in,e_out) fix the activation scale 2^-e_out.
+     up (SH_U 0)      NO shift at all: u = nm*Wu must fit int16 raw. Absorbed only by shrinking Wu (bits lost); a nonzero shift would need a
+                      remainder plane = layout change (witness/layout comments T2 A.4). This is the tightest site. MEASURE max|u_int|.
+     product (SH_H 14) absorbed by Wu scale / table member (s_h = s_a*s_u/2^14, s_a = 2^-e_out).
+     down (SH_Z 6)    HARD EQUALITY: s_z = s_h*s_Wd/64 must equal s_x.
+     residual         one global s_x for all layers (SH_X1=SH_A1=SH_R1=SH_X2=SH_Z2=SH_R2=0, endpoint scales pinned (0,0) at private_block.rs:678,
+                      run.rs:193-200). Constraints on s_x: s_x <= 32767/max|x_res| (int16, no clamp), s_x <= s_o8*127/(128*max|Wo_l|) and
+                      s_x <= s_h*127/(64*max|Wd_l|) for EVERY layer, and (if the window route in 4.1-B is used) row RMS_int <= 23,170 (width 2048)
+                      / 16,384 (width 4096). s_x is out-of-proof metadata: the pinned calibration identity does not commit it.
+     gains g          int8 per channel, |g| <= 127: absorbs gamma*sqrt(d)*s_y (see 4.2).
+     RoPE base        table-generation argument (tables_attn.rs:142): 10000 for TinyLlama, 500000 for pinned Llama3-8B. A public-table change; the
+                      structure check (private_block.rs:464-474) does not depend on the base. Pin the table digest (f64 powf/cos/sin) in the model manifest.
+
+4. WHAT WEIGHTS CANNOT ABSORB (the true parameter changes), smallest first
+   4.1 H1: fifth norm limb.  Two options, neither implemented:
+       A (protocol, RULING): a five-limb norm remainder = new plane ids in layout/Ids, lookup counts, wire length, and carrying the output
+          plane id in Witness (S8-F3). Shape-general, but a real proof-layout change.
+       B (no equation touched, RULING on soundness/completeness): a shape declared with norm_wrho = Some(32) (Shape::new already takes it,
+          shape.rs:156,228) keeps four limbs. Reading rho,sigma in [0,2^32) with rho+sigma = den-1: rho stays in [0,den) (so the quotient
+          stays the floor quotient) but rows with D > 2^20 (den > 2^32) become UNPROVABLE. I read this as a completeness restriction only, not
+          as a soundness change, but the exactness argument at layout.rs:636-660 and the alias exclusion (norm_alias.rs:403-436, wrho <= 32) were
+          written for the derived window, so this needs the security owner. Binding condition: per-token ||x_int||_2 <= 2^20, i.e. row
+          RMS_int <= 23,170 (2048) / 16,384 (4096); a single 32767 element with small others does not violate it. MEASURE on real rows.
+   4.2 H2: NORM_CN.  y_int = round(g*Cn*x_i / (2^tn * D)) = round(g*(Cn/2048)*x_i/||x||_2). There is no sqrt(d) and Cn/2^tn = 0.5 at Cn=1024.
+       Consequences (k = Cn/1024): max|y| = k*g/2 when x_i/||x|| = 1 (so at most 63.5k), and the rms of y for a "typical" element is
+       k*g/(2*sqrt(d)): 0.01105*k*g at d=2048 (1.40 levels at g=127, k=1), 0.0078*k*g at d=4096 (0.99 levels). Weights cannot lift this: g is
+       int8 and s_y*gamma*sqrt(d) <= 63.5*k. The needed k is DATA-DRIVEN: it must keep k*|g_i|*|x_i|/(2*||x||) <= 127 for the worst row/site
+       (the build refuses, never clamps), i.e. k <= 254/max(|g_i|*|x_i|/||x||). MEASURE that maximum on a calibration set with the sealing
+       pass; do not choose k from width. Cost in the proof: Cn is a coefficient only (slot_ir.rs:1162-1203, argument.rs:1466, witness.rs:389,
+       kernel-shaped lib.rs:565, layout.rs:1267 line) with windows/limbs unchanged (they depend on tn and D_max, not Cn); the field bound
+       |2*Cn*g*x| is ~2^33*k against p ~ 2^64, so k <= 2^6 leaves >2^20 of room, but re-derive the layout.rs:636-660 no-wrap list before use.
+       Smallest change: Cn becomes a Shape field (toy 1024) mirrored in kernel-shaped and hashline witness. tn stays 11.
+   4.3 H3: epsilon.  Real: y = gamma*x/sqrt(mean(x^2)+eps). Integer: D = isqrt(sum x_int^2 + Ceps). Equivalent Ceps = d*eps*s_x^2:
+       d=2048: 0.02048*s_x^2 (s_x=32 -> 21, 64 -> 84, 128 -> 336, 256 -> 1342); d=4096: 0.04096*s_x^2 (64 -> 168, 128 -> 671, 256 -> 2684).
+       Ceps=1 is exactly right only at s_x = 1/sqrt(d*eps) = 6.99 (2048) / 4.94 (4096), far too coarse for the residual stream.
+       Effect of dropping it: y scales by (1+eps/ms)^(-1/2) ~ 1 - eps/(2*ms), ms = real mean square: rms 0.02 -> 1.25%, 0.05 -> 0.2%, 0.1 ->
+       0.05%; a per-row scalar, small next to int8 quantisation at the resolutions in 4.2 but real for small-norm rows. It is nonlinear in the
+       row, so no weight or gain rescaling reproduces it. Decision by MEASURE: run the reference kernel against the float model on the calibration
+       set; only if the error matters does Ceps become a per-profile Shape field (coefficient sites: slot_ir.rs:1007-1010, argument.rs:1237-1238,
+       witness.rs:369, kernel-shaped lib.rs:553, shape.rs:196 D_max, layout.rs:1267 line; review the padded-row zero-sum rule argument.rs:1209).
+       Both norms (attention and FFN) share the constants.
+   4.4 F_P = 9 (softmax probability scale), a fidelity limit, not a soundness one: p = floor(e*2^9/total), so each weight loses < 2^-9 and the
+       attention mass lost per row is < n/512 for n visible keys (n=32 -> <6%; n=512 -> up to 100%, e.g. uniform weights 1/n round to 0 for n>512).
+       Not absorbable (it is the probability scale). Changing it moves F_P, SH_O (=F_P), the p limbs and wrho_s together: a layout change.
+       Consequence for scope: prove short contexts first; do not read a trained-quality claim into T>~128 without measuring mass loss.
+   4.5 F_RO = 7 with SH_QR = SH_KR = 7: rotation table precision 2^-7 (abs error <= 2^-8 per entry); coupled constants, not a free choice.
+       Leave; MEASURE the resulting score error.
+   4.6 SiLU registry range: gate real range is +-4..+-64 depending on the frozen member; a checkpoint whose gate pre-activations exceed the
+       chosen member's range refuses. Adding a member = freezing a new digest pin in zkp-core (another lane).
+   4.7 SH_U = 0: see section 3; a real limit, not fixable without a remainder plane.
+
+5. MINIMAL CHANGE SET (in order; every item leaves the toy and all existing profiles byte-identical)
+   1. Model manifest (out of proof, my lane's policy file can carry it): s_x, per-layer weight scales, e_s, SiLU (e_in,e_out), rope base + table
+      digest, eps, and the per-layer digest list. calibration_identity() cannot carry these today.
+   2. New Shape + profile/run-profile registry entries for TinyLlama (profile string, hash tag, RUN_PROFILE const, RunShape ctor, endpoint_rows,
+      log_cols/inv_rate, f_e, wrho_s), tokens chosen so wrho_s <= 24.
+   3. H1 decision (4.1 A or B) by the security owner. Nothing else in this list is unblocked until then.
+   4. Per-profile NORM_CN (and, only if MEASURE says so, NORM_CEPS) as Shape fields; k from the measured bound in 4.2.
+   5. Leave every SH_*, F_P, F_RO, F_E table logic, MASK and the SiLU registry untouched; absorb by section 3.
+   Measurements that decide 3-5, all obtainable from the existing sealing pass / reference kernel without touching a proof:
+     per norm site max(|g_i||x_i|/||x||) and row RMS_int; max|x_res| per layer; max|u_int|; gate range; max Delta; per-site sh* from section 3;
+     max|W| per tensor; float-vs-integer y error with and without eps.
+
+6. NOT VERIFIED
+   * I did not run the reference kernel or any witness; all "MEASURE" items are open. * The no-wrap list at layout.rs:636-660 was read, not
+     re-derived for k > 1. * 4.1-B's completeness-only reading is mine, not a ruling. * Whether a 32-head/4-kv shape with no padded head slot
+     and a padded FFN (5632 -> 8192) exercises a pad branch no registered shape has covered is a stage-style coverage question I did not settle.
+   * TinyLlama eps 1e-5 and theta 10000 are from memory of its config; confirm against the pinned checkpoint.

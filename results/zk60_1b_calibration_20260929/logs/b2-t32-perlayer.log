@@ -1,0 +1,31 @@
+[01:35:01Z] variant t32_perlayer: {'variant': 't32_perlayer', 'T': 32, 'calib_per': 1, 'heldout_per': 1, 'layers': 22, 'margin': 0.25, 'smooth': None, 'norm': 'calibrated', 'shifts': 'free', 'tn': 10, 'f_e': 9, 'res': 'perlayer', 'chunk': 6, 'save_weights': False, 'no_head': False}
+[01:35:01Z] exact-mm selfcheck {'int8xint8 d2048': True, 'int16xint8 f5632': True}
+[01:35:05Z] checkpoint pinned (3s): {'model.safetensors': '6e6001da2106d4757498752a021df6c2bdc332c650aae4bae6b0c004dcf14933'}
+[01:35:05Z] tokenizer selfcheck ok=True; calib (9, 32), heldout (9, 32)
+[01:35:25Z] pass 1 (float calibration stats, 22 blocks) done (24s)
+[01:35:25Z] residual scales: in ['1.26e-05', '2.51e-05', '5.03e-05', '0.00644', '0.00644', '0.00644', '0.00644', '0.00644', '0.0129', '0.0129', '0.0129', '0.0129', '0.0129', '0.0129', '0.0129', '0.0129', '0.0129', '0.0129', '0.0129', '0.0129', '0.0129', '0.0129']
+[01:35:25Z] embedding quantized at s_x 1.257e-05: cos mean 1.00000 min 1.0000; zero fraction 0.001
+[01:35:30Z] L00 cn 5344/8630 ceps 129612963 sh qkv7 s6 o9 ao1 g7 h12 z8 r21 | iso cos 0.98731 dcos 0.9761 (min 0.911) | chain cos 0.98731 dcos 0.9761 | viol iso 0 chain 0 cal 0 refused seqs h/c 0/0 (5s)
+[01:35:36Z] L01 cn 2065/8839 ceps 32403241 sh qkv7 s8 o9 ao1 g8 h13 z8 r21 | iso cos 0.98342 dcos 0.9309 (min 0.818) | chain cos 0.97268 dcos 0.9169 | viol iso 0 chain 0 cal 0 refused seqs h/c 0/0 (6s)
+[01:35:41Z] L02 cn 2740/5068 ceps 8100810 sh qkv7 s8 o9 ao1 g8 h14 z7 r27 | iso cos 0.95131 dcos 0.8520 (min 0.728) | chain cos 0.92081 dcos 0.8154 | viol iso 0 chain 0 cal 0 refused seqs h/c 0/0 (5s)
+[01:35:47Z] L03 cn 3529/2126 ceps 494 sh qkv8 s7 o9 ao7 g8 h16 z8 r20 | iso cos 0.98715 dcos 0.9571 (min 0.892) | chain cos 0.91453 dcos 0.8371 | viol iso 0 chain 0 cal 0 refused seqs h/c 0/0 (6s)
+[01:35:52Z] L04 cn 4133/2101 ceps 494 sh qkv8 s7 o9 ao7 g8 h16 z8 r20 | iso cos 0.98994 dcos 0.9550 (min 0.771) | chain cos 0.91180 dcos 0.8166 | viol iso 0 chain 0 cal 0 refused seqs h/c 0/0 (5s)
+[01:35:57Z] L05 cn 4636/2003 ceps 494 sh qkv8 s7 o9 ao6 g7 h16 z8 r20 | iso cos 0.99122 dcos 0.9622 (min 0.888) | chain cos 0.90986 dcos 0.8234 | viol iso 0 chain 0 cal 0 refused seqs h/c 0/0 (5s)
+[01:36:03Z] L06 cn 4163/1860 ceps 494 sh qkv8 s7 o9 ao7 g7 h16 z8 r20 | iso cos 0.99371 dcos 0.9748 (min 0.954) | chain cos 0.91171 dcos 0.8397 | viol iso 0 chain 0 cal 0 refused seqs h/c 0/0 (6s)
+[01:36:09Z] L07 cn 4017/1759 ceps 494 sh qkv8 s7 o9 ao7 g8 h15 z7 r21 | iso cos 0.98142 dcos 0.9344 (min 0.892) | chain cos 0.90526 dcos 0.8178 | viol iso 0 chain 0 cal 0 refused seqs h/c 0/0 (5s)
+[01:36:14Z] L08 cn 3624/2189 ceps 124 sh qkv8 s7 o9 ao6 g7 h16 z8 r20 | iso cos 0.99050 dcos 0.9582 (min 0.837) | chain cos 0.89707 dcos 0.8129 | viol iso 0 chain 0 cal 0 refused seqs h/c 0/0 (6s)
+[01:36:20Z] L09 cn 3270/2151 ceps 124 sh qkv8 s7 o9 ao8 g7 h16 z8 r20 | iso cos 0.99361 dcos 0.9670 (min 0.828) | chain cos 0.90042 dcos 0.8111 | viol iso 1 chain 1 cal 0 refused seqs h/c 1/0 (6s)
+[01:36:26Z] L10 cn 3586/2081 ceps 124 sh qkv8 s7 o9 ao8 g7 h16 z8 r20 | iso cos 0.99486 dcos 0.9699 (min 0.830) | chain cos 0.89891 dcos 0.8097 | viol iso 0 chain 0 cal 0 refused seqs h/c 1/0 (6s)
+[01:36:33Z] L11 cn 3350/2394 ceps 124 sh qkv8 s7 o9 ao7 g7 h16 z8 r20 | iso cos 0.99490 dcos 0.9699 (min 0.861) | chain cos 0.89719 dcos 0.8126 | viol iso 0 chain 0 cal 0 refused seqs h/c 1/0 (7s)
+[01:36:40Z] L12 cn 3400/2643 ceps 124 sh qkv8 s6 o9 ao8 g7 h16 z8 r20 | iso cos 0.99568 dcos 0.9759 (min 0.897) | chain cos 0.90404 dcos 0.8254 | viol iso 0 chain 1 cal 0 refused seqs h/c 2/0 (7s)
+[01:36:45Z] L13 cn 3651/2537 ceps 124 sh qkv8 s7 o9 ao8 g8 h16 z8 r20 | iso cos 0.99634 dcos 0.9790 (min 0.914) | chain cos 0.91015 dcos 0.8426 | viol iso 0 chain 0 cal 0 refused seqs h/c 2/0 (5s)
+[01:36:51Z] L14 cn 3670/2349 ceps 124 sh qkv8 s7 o9 ao7 g7 h16 z8 r20 | iso cos 0.99652 dcos 0.9802 (min 0.915) | chain cos 0.91809 dcos 0.8613 | viol iso 0 chain 0 cal 0 refused seqs h/c 2/0 (6s)
+[01:36:57Z] L15 cn 3601/2439 ceps 124 sh qkv8 s7 o9 ao7 g8 h16 z8 r20 | iso cos 0.99701 dcos 0.9809 (min 0.887) | chain cos 0.92129 dcos 0.8639 | viol iso 0 chain 0 cal 0 refused seqs h/c 2/0 (6s)
+[01:37:03Z] L16 cn 3513/2642 ceps 124 sh qkv8 s7 o9 ao7 g8 h16 z8 r20 | iso cos 0.99723 dcos 0.9844 (min 0.907) | chain cos 0.92594 dcos 0.8788 | viol iso 0 chain 0 cal 0 refused seqs h/c 2/0 (7s)
+[01:37:10Z] L17 cn 3653/2392 ceps 124 sh qkv8 s6 o9 ao6 g8 h16 z8 r20 | iso cos 0.99763 dcos 0.9811 (min 0.861) | chain cos 0.92431 dcos 0.8636 | viol iso 0 chain 0 cal 0 refused seqs h/c 2/0 (7s)
+[01:37:19Z] L18 cn 3924/2641 ceps 124 sh qkv8 s6 o9 ao5 g8 h16 z8 r20 | iso cos 0.99738 dcos 0.9831 (min 0.904) | chain cos 0.91918 dcos 0.8613 | viol iso 0 chain 0 cal 0 refused seqs h/c 2/0 (8s)
+[01:37:27Z] L19 cn 4799/2755 ceps 124 sh qkv8 s6 o9 ao5 g8 h16 z8 r20 | iso cos 0.99782 dcos 0.9872 (min 0.968) | chain cos 0.91420 dcos 0.8611 | viol iso 0 chain 0 cal 0 refused seqs h/c 2/0 (8s)
+[01:37:34Z] L20 cn 5591/2438 ceps 124 sh qkv8 s6 o9 ao6 g8 h16 z8 r20 | iso cos 0.99768 dcos 0.9854 (min 0.880) | chain cos 0.90909 dcos 0.8703 | viol iso 0 chain 0 cal 0 refused seqs h/c 2/0 (7s)
+[01:37:37Z] L21 cn 6786/2015 ceps 124 sh qkv8 s6 o9 ao7 g8 h13 z8 r20 | iso cos 0.96811 dcos 0.9898 (min 0.971) | chain cos 0.86588 dcos 0.9023 | viol iso 0 chain 0 cal 0 refused seqs h/c 2/0 (3s)
+[01:37:38Z] head: {'positions': 279, 'top1_agreement': 0.7311827956989247, 'ppl_float': 20.562224113668282, 'ppl_int': 25.96310377610029, 'nll_float': 3.023455611471122, 'nll_int': 3.256676444631399, 'kl_float_to_int_mean': 0.5233807601599632, 'last_position_top1_agreement': 1.0}
+[01:37:38Z] done (157s) -> /home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/runs/t32_perlayer

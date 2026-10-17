@@ -1,0 +1,197 @@
+{
+  "scope": "count-only unadmitted Llama3-8B metadata T512 FFN-down; payload per one abstract memory tier; not measured peak/rate",
+  "schedules": [
+    {
+      "M": 512,
+      "K": 16384,
+      "N_true": 4096,
+      "M_pad": 512,
+      "N_pad": 4096,
+      "tile": [
+        512,
+        4096,
+        16384
+      ],
+      "final_z16_RDL_bytes": 33554432,
+      "materialized_split_phase_bytes": {
+        "stacked_gemm": 33554432,
+        "reconstruct_after_pack_release": 33554432,
+        "requant_after_partial_release": 50331648
+      },
+      "materialized_split_peak_bytes": 50331648,
+      "native_CPU_down_acc_plus_final_peak_bytes": 50331648,
+      "tiled_pack_bytes": 16777216,
+      "tiled_partial_bytes": 16777216,
+      "tiled_i64_K_reduction_bytes": 0,
+      "tiled_peak_bytes": 67108864,
+      "payload_peak_difference_bytes": -16777216,
+      "conceptual_stacked_gemm_calls": 1,
+      "conceptual_reconstruction_calls": 1,
+      "packing_bytes_total": 16777216,
+      "naive_weight_read_bytes_total": 67108864,
+      "weight_bytes_once": 67108864,
+      "final_plane_bytes_unchanged": true,
+      "omitted": "BLAS workspace, retained input/weights/other witness planes, host/device duplication, transfers, pools, status flags, cache and actual allocator peaks"
+    },
+    {
+      "M": 512,
+      "K": 16384,
+      "N_true": 4096,
+      "M_pad": 512,
+      "N_pad": 4096,
+      "tile": [
+        64,
+        4096,
+        16384
+      ],
+      "final_z16_RDL_bytes": 33554432,
+      "materialized_split_phase_bytes": {
+        "stacked_gemm": 33554432,
+        "reconstruct_after_pack_release": 33554432,
+        "requant_after_partial_release": 50331648
+      },
+      "materialized_split_peak_bytes": 50331648,
+      "native_CPU_down_acc_plus_final_peak_bytes": 50331648,
+      "tiled_pack_bytes": 2097152,
+      "tiled_partial_bytes": 2097152,
+      "tiled_i64_K_reduction_bytes": 0,
+      "tiled_peak_bytes": 37748736,
+      "payload_peak_difference_bytes": 12582912,
+      "conceptual_stacked_gemm_calls": 8,
+      "conceptual_reconstruction_calls": 8,
+      "packing_bytes_total": 16777216,
+      "naive_weight_read_bytes_total": 536870912,
+      "weight_bytes_once": 67108864,
+      "final_plane_bytes_unchanged": true,
+      "omitted": "BLAS workspace, retained input/weights/other witness planes, host/device duplication, transfers, pools, status flags, cache and actual allocator peaks"
+    },
+    {
+      "M": 512,
+      "K": 16384,
+      "N_true": 4096,
+      "M_pad": 512,
+      "N_pad": 4096,
+      "tile": [
+        64,
+        128,
+        16384
+      ],
+      "final_z16_RDL_bytes": 33554432,
+      "materialized_split_phase_bytes": {
+        "stacked_gemm": 33554432,
+        "reconstruct_after_pack_release": 33554432,
+        "requant_after_partial_release": 50331648
+      },
+      "materialized_split_peak_bytes": 50331648,
+      "native_CPU_down_acc_plus_final_peak_bytes": 50331648,
+      "tiled_pack_bytes": 2097152,
+      "tiled_partial_bytes": 65536,
+      "tiled_i64_K_reduction_bytes": 0,
+      "tiled_peak_bytes": 35717120,
+      "payload_peak_difference_bytes": 14614528,
+      "conceptual_stacked_gemm_calls": 256,
+      "conceptual_reconstruction_calls": 256,
+      "packing_bytes_total": 16777216,
+      "naive_weight_read_bytes_total": 536870912,
+      "weight_bytes_once": 67108864,
+      "final_plane_bytes_unchanged": true,
+      "omitted": "BLAS workspace, retained input/weights/other witness planes, host/device duplication, transfers, pools, status flags, cache and actual allocator peaks"
+    },
+    {
+      "M": 512,
+      "K": 16384,
+      "N_true": 4096,
+      "M_pad": 512,
+      "N_pad": 4096,
+      "tile": [
+        64,
+        128,
+        1024
+      ],
+      "final_z16_RDL_bytes": 33554432,
+      "materialized_split_phase_bytes": {
+        "stacked_gemm": 33554432,
+        "reconstruct_after_pack_release": 33554432,
+        "requant_after_partial_release": 50331648
+      },
+      "materialized_split_peak_bytes": 50331648,
+      "native_CPU_down_acc_plus_final_peak_bytes": 50331648,
+      "tiled_pack_bytes": 131072,
+      "tiled_partial_bytes": 65536,
+      "tiled_i64_K_reduction_bytes": 65536,
+      "tiled_peak_bytes": 33816576,
+      "payload_peak_difference_bytes": 16515072,
+      "conceptual_stacked_gemm_calls": 4096,
+      "conceptual_reconstruction_calls": 4096,
+      "packing_bytes_total": 536870912,
+      "naive_weight_read_bytes_total": 536870912,
+      "weight_bytes_once": 67108864,
+      "final_plane_bytes_unchanged": true,
+      "omitted": "BLAS workspace, retained input/weights/other witness planes, host/device duplication, transfers, pools, status flags, cache and actual allocator peaks"
+    },
+    {
+      "M": 512,
+      "K": 16384,
+      "N_true": 4096,
+      "M_pad": 512,
+      "N_pad": 4096,
+      "tile": [
+        16,
+        128,
+        16384
+      ],
+      "final_z16_RDL_bytes": 33554432,
+      "materialized_split_phase_bytes": {
+        "stacked_gemm": 33554432,
+        "reconstruct_after_pack_release": 33554432,
+        "requant_after_partial_release": 50331648
+      },
+      "materialized_split_peak_bytes": 50331648,
+      "native_CPU_down_acc_plus_final_peak_bytes": 50331648,
+      "tiled_pack_bytes": 524288,
+      "tiled_partial_bytes": 16384,
+      "tiled_i64_K_reduction_bytes": 0,
+      "tiled_peak_bytes": 34095104,
+      "payload_peak_difference_bytes": 16236544,
+      "conceptual_stacked_gemm_calls": 1024,
+      "conceptual_reconstruction_calls": 1024,
+      "packing_bytes_total": 16777216,
+      "naive_weight_read_bytes_total": 2147483648,
+      "weight_bytes_once": 67108864,
+      "final_plane_bytes_unchanged": true,
+      "omitted": "BLAS workspace, retained input/weights/other witness planes, host/device duplication, transfers, pools, status flags, cache and actual allocator peaks"
+    },
+    {
+      "M": 512,
+      "K": 16384,
+      "N_true": 4096,
+      "M_pad": 512,
+      "N_pad": 4096,
+      "tile": [
+        64,
+        128,
+        31
+      ],
+      "final_z16_RDL_bytes": 33554432,
+      "materialized_split_phase_bytes": {
+        "stacked_gemm": 33554432,
+        "reconstruct_after_pack_release": 33554432,
+        "requant_after_partial_release": 50331648
+      },
+      "materialized_split_peak_bytes": 50331648,
+      "native_CPU_down_acc_plus_final_peak_bytes": 50331648,
+      "tiled_pack_bytes": 3968,
+      "tiled_partial_bytes": 65536,
+      "tiled_i64_K_reduction_bytes": 65536,
+      "tiled_peak_bytes": 33689472,
+      "payload_peak_difference_bytes": 16642176,
+      "conceptual_stacked_gemm_calls": 135424,
+      "conceptual_reconstruction_calls": 135424,
+      "packing_bytes_total": 536870912,
+      "naive_weight_read_bytes_total": 536870912,
+      "weight_bytes_once": 67108864,
+      "final_plane_bytes_unchanged": true,
+      "omitted": "BLAS workspace, retained input/weights/other witness planes, host/device duplication, transfers, pools, status flags, cache and actual allocator peaks"
+    }
+  ]
+}

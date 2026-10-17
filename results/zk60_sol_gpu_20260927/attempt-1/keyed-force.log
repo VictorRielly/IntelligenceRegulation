@@ -1,0 +1,19 @@
+binary=/tmp/zk60-sol-gpu-20260927/hashline/target/debug/deps/zk60_tagged_gpu_commit-0df3833a44036b12
+sha256=0ee52507be972c62713a20b9462da3312cd58091c6fe0e81cfba8d412f03a50c
+args=['tagged_column_hashes_and_full_commitment_match_cpu', '--exact', '--nocapture']
+mode=force
+
+running 1 test
+
+thread 'tagged_column_hashes_and_full_commitment_match_cpu' (1117353) panicked at tests/zk60_tagged_gpu_commit.rs:33:92:
+keyed device commit: "k_hash_cols_stream_keyed: DriverError(CUDA_ERROR_LAUNCH_OUT_OF_RESOURCES, \"too many resources requested for launch\")"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test tagged_column_hashes_and_full_commitment_match_cpu ... FAILED
+
+failures:
+
+failures:
+    tagged_column_hashes_and_full_commitment_match_cpu
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.71s
+

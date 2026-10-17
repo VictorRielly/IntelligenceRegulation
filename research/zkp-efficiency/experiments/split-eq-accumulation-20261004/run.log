@@ -1,0 +1,314 @@
+{
+  "run_id": "20261004T130146Z-19e7c75c",
+  "cycle": "0031",
+  "seed": 2026100431,
+  "status": "pass",
+  "mixed_fixtures": 40,
+  "exhaustive_span_fixtures": 41,
+  "candidate_schedules": 486,
+  "independent_original_cube_samples": 1128,
+  "differential_candidate_samples": 6768,
+  "candidate_direct_MLE_final_values": 2178,
+  "exact_counter_checks": 18078,
+  "control_count": 12,
+  "projections": [
+    {
+      "n": 20,
+      "illustrative_short_eq_length": 12,
+      "recovery": false,
+      "strategy": "split",
+      "counts": {
+        "literal_mul": 14680050,
+        "unit_aware_mul": 14677480,
+        "candidate_mul": 11552208,
+        "baseline_add": 11534325,
+        "candidate_add": 11553795,
+        "flushes": 5126
+      },
+      "removed_vs_literal": 3127842,
+      "removed_vs_unit_aware": 3125272,
+      "added_additions": 19470,
+      "extra_accumulator_bytes_per_part": 176,
+      "native_k_for_chunk_threshold": 26,
+      "scope": "count only, equality weighting; all data/bracket/fold/setup/masks/PCS/transfers excluded"
+    },
+    {
+      "n": 20,
+      "illustrative_short_eq_length": 12,
+      "recovery": false,
+      "strategy": "adaptive",
+      "counts": {
+        "literal_mul": 14680050,
+        "unit_aware_mul": 14677480,
+        "candidate_mul": 11552194,
+        "baseline_add": 11534325,
+        "candidate_add": 11553703,
+        "flushes": 5102
+      },
+      "removed_vs_literal": 3127856,
+      "removed_vs_unit_aware": 3125286,
+      "added_additions": 19378,
+      "extra_accumulator_bytes_per_part": 176,
+      "native_k_for_chunk_threshold": 26,
+      "scope": "count only, equality weighting; all data/bracket/fold/setup/masks/PCS/transfers excluded"
+    },
+    {
+      "n": 20,
+      "illustrative_short_eq_length": 12,
+      "recovery": true,
+      "strategy": "split",
+      "counts": {
+        "literal_mul": 13107189,
+        "unit_aware_mul": 13105132,
+        "candidate_mul": 9976284,
+        "baseline_add": 9961464,
+        "candidate_add": 9977344,
+        "flushes": 5126
+      },
+      "removed_vs_literal": 3130905,
+      "removed_vs_unit_aware": 3128848,
+      "added_additions": 15880,
+      "extra_accumulator_bytes_per_part": 176,
+      "native_k_for_chunk_threshold": 26,
+      "scope": "count only, equality weighting; all data/bracket/fold/setup/masks/PCS/transfers excluded"
+    },
+    {
+      "n": 20,
+      "illustrative_short_eq_length": 12,
+      "recovery": true,
+      "strategy": "adaptive",
+      "counts": {
+        "literal_mul": 13107189,
+        "unit_aware_mul": 13105132,
+        "candidate_mul": 9976280,
+        "baseline_add": 9961464,
+        "candidate_add": 9977276,
+        "flushes": 5102
+      },
+      "removed_vs_literal": 3130909,
+      "removed_vs_unit_aware": 3128852,
+      "added_additions": 15812,
+      "extra_accumulator_bytes_per_part": 176,
+      "native_k_for_chunk_threshold": 26,
+      "scope": "count only, equality weighting; all data/bracket/fold/setup/masks/PCS/transfers excluded"
+    },
+    {
+      "n": 23,
+      "illustrative_short_eq_length": 14,
+      "recovery": false,
+      "strategy": "split",
+      "counts": {
+        "literal_mul": 117440498,
+        "unit_aware_mul": 117435368,
+        "candidate_mul": 92369866,
+        "baseline_add": 92274677,
+        "candidate_add": 92372992,
+        "flushes": 26629
+      },
+      "removed_vs_literal": 25070632,
+      "removed_vs_unit_aware": 25065502,
+      "added_additions": 98315,
+      "extra_accumulator_bytes_per_part": 176,
+      "native_k_for_chunk_threshold": 26,
+      "scope": "count only, equality weighting; all data/bracket/fold/setup/masks/PCS/transfers excluded"
+    },
+    {
+      "n": 23,
+      "illustrative_short_eq_length": 14,
+      "recovery": false,
+      "strategy": "adaptive",
+      "counts": {
+        "literal_mul": 117440498,
+        "unit_aware_mul": 117435368,
+        "candidate_mul": 92369852,
+        "baseline_add": 92274677,
+        "candidate_add": 92372897,
+        "flushes": 26604
+      },
+      "removed_vs_literal": 25070646,
+      "removed_vs_unit_aware": 25065516,
+      "added_additions": 98220,
+      "extra_accumulator_bytes_per_part": 176,
+      "native_k_for_chunk_threshold": 26,
+      "scope": "count only, equality weighting; all data/bracket/fold/setup/masks/PCS/transfers excluded"
+    },
+    {
+      "n": 23,
+      "illustrative_short_eq_length": 14,
+      "recovery": true,
+      "strategy": "split",
+      "counts": {
+        "literal_mul": 104857589,
+        "unit_aware_mul": 104853484,
+        "candidate_mul": 79773656,
+        "baseline_add": 79691768,
+        "candidate_add": 79775742,
+        "flushes": 26629
+      },
+      "removed_vs_literal": 25083933,
+      "removed_vs_unit_aware": 25079828,
+      "added_additions": 83974,
+      "extra_accumulator_bytes_per_part": 176,
+      "native_k_for_chunk_threshold": 26,
+      "scope": "count only, equality weighting; all data/bracket/fold/setup/masks/PCS/transfers excluded"
+    },
+    {
+      "n": 23,
+      "illustrative_short_eq_length": 14,
+      "recovery": true,
+      "strategy": "adaptive",
+      "counts": {
+        "literal_mul": 104857589,
+        "unit_aware_mul": 104853484,
+        "candidate_mul": 79773652,
+        "baseline_add": 79691768,
+        "candidate_add": 79775672,
+        "flushes": 26604
+      },
+      "removed_vs_literal": 25083937,
+      "removed_vs_unit_aware": 25079832,
+      "added_additions": 83904,
+      "extra_accumulator_bytes_per_part": 176,
+      "native_k_for_chunk_threshold": 26,
+      "scope": "count only, equality weighting; all data/bracket/fold/setup/masks/PCS/transfers excluded"
+    },
+    {
+      "n": 25,
+      "illustrative_short_eq_length": 15,
+      "recovery": false,
+      "strategy": "split",
+      "counts": {
+        "literal_mul": 469762034,
+        "unit_aware_mul": 469751784,
+        "candidate_mul": 369461188,
+        "baseline_add": 369098741,
+        "candidate_add": 369467389,
+        "flushes": 100356
+      },
+      "removed_vs_literal": 100300846,
+      "removed_vs_unit_aware": 100290596,
+      "added_additions": 368648,
+      "extra_accumulator_bytes_per_part": 176,
+      "native_k_for_chunk_threshold": 26,
+      "scope": "count only, equality weighting; all data/bracket/fold/setup/masks/PCS/transfers excluded"
+    },
+    {
+      "n": 25,
+      "illustrative_short_eq_length": 15,
+      "recovery": false,
+      "strategy": "adaptive",
+      "counts": {
+        "literal_mul": 469762034,
+        "unit_aware_mul": 469751784,
+        "candidate_mul": 369461174,
+        "baseline_add": 369098741,
+        "candidate_add": 369467291,
+        "flushes": 100330
+      },
+      "removed_vs_literal": 100300860,
+      "removed_vs_unit_aware": 100290610,
+      "added_additions": 368550,
+      "extra_accumulator_bytes_per_part": 176,
+      "native_k_for_chunk_threshold": 26,
+      "scope": "count only, equality weighting; all data/bracket/fold/setup/masks/PCS/transfers excluded"
+    },
+    {
+      "n": 25,
+      "illustrative_short_eq_length": 15,
+      "recovery": true,
+      "strategy": "split",
+      "counts": {
+        "literal_mul": 419430389,
+        "unit_aware_mul": 419422188,
+        "candidate_mul": 319080404,
+        "baseline_add": 318767096,
+        "candidate_add": 319084540,
+        "flushes": 100356
+      },
+      "removed_vs_literal": 100349985,
+      "removed_vs_unit_aware": 100341784,
+      "added_additions": 317444,
+      "extra_accumulator_bytes_per_part": 176,
+      "native_k_for_chunk_threshold": 26,
+      "scope": "count only, equality weighting; all data/bracket/fold/setup/masks/PCS/transfers excluded"
+    },
+    {
+      "n": 25,
+      "illustrative_short_eq_length": 15,
+      "recovery": true,
+      "strategy": "adaptive",
+      "counts": {
+        "literal_mul": 419430389,
+        "unit_aware_mul": 419422188,
+        "candidate_mul": 319080400,
+        "baseline_add": 318767096,
+        "candidate_add": 319084468,
+        "flushes": 100330
+      },
+      "removed_vs_literal": 100349989,
+      "removed_vs_unit_aware": 100341788,
+      "added_additions": 317372,
+      "extra_accumulator_bytes_per_part": 176,
+      "native_k_for_chunk_threshold": 26,
+      "scope": "count only, equality weighting; all data/bracket/fold/setup/masks/PCS/transfers excluded"
+    }
+  ],
+  "round_digest_sha256": "f423a759d3eed58a1ec904386889dcc0d87b138329a4cbb43ebe0f8c7c9e70ad",
+  "elapsed_seconds": 10.406791730001714,
+  "peak_rss_kib": 18332,
+  "hardware": {
+    "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+    "device": "CPU only",
+    "threads": 1,
+    "affinity": [
+      0
+    ],
+    "nice": 19,
+    "python": "3.10.12",
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.35"
+  },
+  "resources": {
+    "wall_cap_seconds": 59,
+    "cpu_cap_seconds": 59,
+    "address_space_cap_mib": 512,
+    "estimated_memory_mib": 64
+  },
+  "hashes": {
+    "field_support.py": "8359ca44d70211cea90e9e251faadd10c4c953ced212cff3014ec3b839c59fc4",
+    "oracle.py": "a1c639a63dcc7175b9567dcc4e52ae71bb66a5c5e88ae18f77682adc335f2d58",
+    "candidate.py": "3e7db7b325cad68cde5e3f54c9c63c68a9ab7922c4d7e114bfb0ede4c2f79add",
+    "fixtures.py": "f652af16cda5cae34ce4a630f78935c70fb9a849e574dec6a74b5827321eb133",
+    "baseline.py": "5852eb4b4e202f8179e5e1b3ee30b09aa854f6c4a206467761c9569842037d2a",
+    "experiment.py": "7c50ab3b34619d0c45f19bae2af47db4decf1b0d7a01c720fcef6526deb47aad"
+  },
+  "proof_accounting": {
+    "accepted_complete_private8b_proofs": 0,
+    "countable_tokens": 0,
+    "context_length": null,
+    "passes": 0,
+    "device": "CPU only",
+    "steady_state_tokens_per_s": null,
+    "total_workload_tokens_per_s": null,
+    "startup_fraction": null,
+    "startup_seconds": null,
+    "witness_seconds": null,
+    "proof_seconds": null,
+    "serialization_seconds": null,
+    "independent_verification_seconds": null,
+    "proof_latency_seconds": null,
+    "proof_lag_seconds": null,
+    "pipeline_drain_seconds": null,
+    "prefill": "none",
+    "resident_passes": "none",
+    "decode": "none"
+  },
+  "limits": [
+    "Synthetic generic grouped polynomial gate, no native SC_SZC closure/IR execution",
+    "Exact tuple-field expanded-cube oracle independently computes every expected sample/final",
+    "Baseline is prior tagged-Eq prototype; native still materializes/folds Eq tables",
+    "No native CFS/RNG/mask/extension/PCS/receipt/refusal/privacy or parallel scheduler test",
+    "Operation counts are not native CPU/GPU timing, peak memory, bandwidth or complete proof rates",
+    "Chunk1 regression retained; common data scan/bracket/fold work unchanged",
+    "No foreign code run, real private values, GPU, build or installed dependencies"
+  ]
+}

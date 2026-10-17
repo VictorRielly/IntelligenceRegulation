@@ -1,0 +1,6 @@
+{
+  "zkp-core/src/pcs.rs": "227ecbdd72a3d4e4e0487ede3d0c13341f82deda67695c34eb4bcfc51fdbbb5c",
+  "zkp-core/src/pcs/encode_buffer.rs": "e0f65b9c84a130aa090fd3ddcec47f8a9203fe47b7344a5ec92422fd0c9e1249",
+  "zkp-core/src/pcs/encode_buffer/tests.rs": "e4dd72e9edfb44e72cb6482691ea7d2e08bafe68478fbc3266643db4de18ac16",
+  "zkp-core/src/pcs/encode_conformance_tests.rs": "fba8290077db6c5f335c75fc66f0f68a695f2b310e124b53e115e6fd3d886df8"
+}

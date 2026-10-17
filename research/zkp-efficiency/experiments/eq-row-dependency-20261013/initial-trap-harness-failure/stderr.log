@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/eq-row-dependency-20261013/experiment.py", line 208, in <module>
+    if __name__=='__main__':main()
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/eq-row-dependency-20261013/experiment.py", line 162, in main
+    refuse('unproven_opaque_dependency_trapped',lambda:ev.round(0))
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/eq-row-dependency-20261013/experiment.py", line 150, in refuse
+    try:action()
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/eq-row-dependency-20261013/experiment.py", line 162, in <lambda>
+    refuse('unproven_opaque_dependency_trapped',lambda:ev.round(0))
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/eq-row-dependency-20261013/grouped.py", line 85, in round
+    parts[g][x] += weights[g]*self.bracket(g,cur)
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/eq-row-dependency-20261013/experiment.py", line 161, in <lambda>
+    ev=fresh();ev.bracket=lambda g,v:fn(g,v)+v[0]
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/eq-row-dependency-20261013/field.py", line 7, in __add__
+    if not isinstance(y, F): y = F(y)
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/eq-row-dependency-20261013/field.py", line 5, in __init__
+    def __init__(self, a=0, b=0): self.a, self.b = a % P, b % P
+TypeError: unsupported operand type(s) for %: 'Dead' and 'int'

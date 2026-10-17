@@ -1,0 +1,100 @@
+[
+  {
+    "cycle": "0016",
+    "run_identity": "20261003T220146Z-cf20886e",
+    "accessed_date": "2026-10-03",
+    "recorded_at_utc": "2026-10-03T22:16:15.130289+00:00",
+    "evidence_kind": "Native LIVE primary-source inspection; no foreign code executed or performance reproduced",
+    "inspected_commit_id": null,
+    "id": "cycle16-adacc-exactness-filter",
+    "url": "https://arxiv.org/abs/2508.00806",
+    "published": "2025-08-01",
+    "updated": "2025-08-08",
+    "date_evidence": "arXiv submission history v1 Aug 1 17:39:25 UTC; v2 Aug 8 09:49:52 UTC, verified on abstract page",
+    "inspected_urls": [
+      "https://arxiv.org/html/2508.00806v2"
+    ],
+    "implementation_license": "No implementation inspected; paper HTML marked CC BY 4.0",
+    "author_claim": "Adaptive tensor retention/compression/recomputation improves training throughput 1.01\u20131.37x with comparable accuracy.",
+    "assessment": "Read compression and scheduling sections. FP16->INT4 clipping/dequantization is lossy and cannot preserve this exact integer proof relation. Scheduling comparison is useful; only lossless integer representation is tested locally. Training gain is not proof evidence."
+  },
+  {
+    "cycle": "0016",
+    "run_identity": "20261003T220146Z-cf20886e",
+    "accessed_date": "2026-10-03",
+    "recorded_at_utc": "2026-10-03T22:16:15.130289+00:00",
+    "evidence_kind": "Native LIVE primary-source inspection; no foreign code executed or performance reproduced",
+    "inspected_commit_id": null,
+    "id": "cycle16-checkmate-rematerialization",
+    "url": "https://arxiv.org/abs/1910.02653",
+    "published": "2019-10-07",
+    "updated": "2020-05-14",
+    "date_evidence": "arXiv history v1 Oct 7 2019; v3 May 14 2020 verified",
+    "implementation_license": "Implementation assessed separately in companion repository record",
+    "author_claim": "Profile-based rematerialization schedules trade neural-network training computation for memory.",
+    "assessment": "Older technique not previously assessed here. Read abstract and author README. Motivates ranking avoided witness rebuilds against cache lifetime/pack cost, not inference of a proving speedup. Training dependency order differs from sealing/proving; no solver installed."
+  },
+  {
+    "cycle": "0016",
+    "run_identity": "20261003T220146Z-cf20886e",
+    "accessed_date": "2026-10-03",
+    "recorded_at_utc": "2026-10-03T22:16:15.130289+00:00",
+    "evidence_kind": "Native LIVE primary-source inspection; no foreign code executed or performance reproduced",
+    "inspected_commit_id": null,
+    "id": "cycle16-checkmate-author-repository",
+    "url": "https://github.com/parasj/checkmate",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Repository latest commit/date unavailable in inspected rendering; no update date inferred from crawler timestamp",
+    "inspected_urls": [
+      "https://github.com/parasj/checkmate/blob/master/LICENSE",
+      "https://github.com/parasj/checkmate/commits/master/",
+      "https://github.com/parasj/checkmate/activity",
+      "https://api.github.com/repos/parasj/checkmate/commits/master",
+      "https://github.com/parasj/checkmate/commits/master/LICENSE"
+    ],
+    "implementation_license": "Apache-2.0; LICENSE header and terms inspected",
+    "author_claim": "TensorFlow 2.0 optimal rematerialization implementation; README directs replication to mlsys20_artifact branch.",
+    "assessment": "README/LICENSE inspected, runtime source not adopted or executed. Rust/CUDA integration would be a new schedule, not copying this TensorFlow system.",
+    "access_issues": [
+      "commit history and activity returned Internal Error",
+      "GitHub API commit URL not accessible via native web tool",
+      "LICENSE history returned Cache miss; no commit pin established"
+    ]
+  },
+  {
+    "cycle": "0016",
+    "run_identity": "20261003T220146Z-cf20886e",
+    "accessed_date": "2026-10-03",
+    "recorded_at_utc": "2026-10-03T22:16:15.130289+00:00",
+    "evidence_kind": "Native LIVE primary-source inspection; no foreign code executed or performance reproduced",
+    "inspected_commit_id": null,
+    "id": "cycle16-hybridserve-kv-checkpoint",
+    "url": "https://arxiv.org/abs/2501.01792",
+    "published": "2025-01-03",
+    "updated": null,
+    "date_evidence": "arXiv sole visible v1 Jan 3 2025 12:51:37 UTC; page lists ICCD 2025 journal reference without conference publication day",
+    "implementation_license": "No author implementation or implementation license inspected",
+    "author_claim": "Activation/KV hybrid caching overlaps recomputation with model transfer, reporting 2.19x inference throughput.",
+    "assessment": "Older primary design comparison. Activation checkpoints are not the full integer witness and do not discharge future-score range checks or private cross-window state binding. No inference gain transferred to proof throughput."
+  },
+  {
+    "cycle": "0016",
+    "run_identity": "20261003T220146Z-cf20886e",
+    "accessed_date": "2026-10-03",
+    "recorded_at_utc": "2026-10-03T22:16:15.130289+00:00",
+    "evidence_kind": "Native LIVE primary-source inspection; no foreign code executed or performance reproduced",
+    "inspected_commit_id": null,
+    "id": "cycle16-fastar-september-locality",
+    "url": "https://arxiv.org/abs/2609.25535",
+    "published": "2026-09-22",
+    "updated": null,
+    "date_evidence": "arXiv v1 Sept 22 2026 01:05:01 UTC; ICCAD 2026 is listed as upcoming Nov 8\u201312, not the publication date",
+    "inspected_urls": [
+      "https://arxiv.org/html/2609.25535v1"
+    ],
+    "implementation_license": "No FASTAR implementation/license inspected; paper HTML marked CC BY 4.0",
+    "author_claim": "Parameterized FPGA NTT/fold/Merkle architecture and streamed tree memory design.",
+    "assessment": "Recent paper checked through memory-design and hardware-search sections. Different FPGA/FRI fields and protocol, not this GPU keyed BLAKE3 Ligero path; exact hash algorithm not established. Locality analogy retained in NTT/commitment rotation; no device result reproduced."
+  }
+]

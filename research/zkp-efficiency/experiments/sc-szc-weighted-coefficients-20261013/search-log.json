@@ -1,0 +1,29 @@
+{
+  "access_date": "2026-10-13",
+  "run_id": "20261013T052555Z-bb2755b6",
+  "tool": "native LIVE web.run",
+  "queries": [
+    "sumcheck coefficient accumulation prover monomial basis 2026 github",
+    "2026 zk machine learning attention proof composition sumcheck arxiv",
+    "sumcheck Libra GKR zero knowledge 2019 amortized linear prover github",
+    "sumcheck prover coefficient accumulation 2013 CMT implementation license",
+    "Libra GKR github sunblaze-ucb Libra license"
+  ],
+  "records": [
+    "cycle48-coefficient-part-reduction-boundary",
+    "cycle48-october-p3-release-and-linear-coefficients",
+    "cycle48-zkllmpot-fulltext-composition-filter",
+    "cycle48-new-older-allspice-static-selection"
+  ],
+  "additional_primary_sources_searched": [
+    "https://eprint.iacr.org/2019/317",
+    "https://github.com/sunblaze-ucb/Libra"
+  ],
+  "limits": [
+    "No reliance on secondary/Reddit search results",
+    "No foreign implementation downloaded/executed",
+    "No rate/login/network bypass",
+    "RC/code/commit failures retained above"
+  ],
+  "rotation": "Composition this cycle; next memory/batching, then GPU NTT/commitments,lookup/softmax,quantization/arithmetic; sumcheck followed measured SC_SZC bottleneck"
+}

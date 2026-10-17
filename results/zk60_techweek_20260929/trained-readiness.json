@@ -1,0 +1,73 @@
+{
+  "schema": "zk60-trained-readiness/1",
+  "observed_utc": "2026-09-30T00:13:45.388221+00:00",
+  "scope": "Read-only evidence audit; no new download, heavy run, trained execution or proof performed",
+  "target": {
+    "parameters": "trained 8B",
+    "proved_tokens_per_second_minimum": 50,
+    "privacy": "P1: hidden inputs, outputs and intermediate activations; public weights permitted"
+  },
+  "tinyllama": {
+    "source_revision": "fe8a4ea1ffedaf415f4da2f062534de366a451e6",
+    "checkpoint_parameters_counted_from_bf16_payload": 1100048384,
+    "stack_parameters_counted_from_config": 968974336,
+    "tensor_count": 201,
+    "inventory_evidence": "results/zk60_1b_checkpoint_20260927/inventory_20260929.json",
+    "inventory_shard_sha256": {
+      "model.safetensors": "6e6001da2106d4757498752a021df6c2bdc332c650aae4bae6b0c004dcf14933"
+    },
+    "existing_complete_file": "/home/victor/models/tinyllama-1.1b-chat-fe8a4ea1/model.safetensors",
+    "complete_file_stat_bytes": 2200119864,
+    "caveat": "Saved inventory confirms prior hash; file size checked this audit, full digest not recomputed",
+    "trained_execution_evidence": false,
+    "trained_proof_evidence": false
+  },
+  "llama3_8b": {
+    "source_revision": "315b20096dc791d381d514deb5f8bd9c8d6d3061",
+    "provider_parameter_count": 8030261248,
+    "provider_shard_bytes": 16060556376,
+    "download_completion_established": false,
+    "process_liveness": "not inferred from sandbox PID visibility",
+    "rope_theta": 500000,
+    "synthetic_driver_rope_theta": 10000
+  },
+  "next_concrete_bottleneck": "BF16 inventory is not a proof model: importer neither quantizes nor constructs BlockPublic; native calibration identity remains fixed B3 public fixed calibration v1; MVP driver constructs synthetic weights.",
+  "critical_path": [
+    {
+      "gate": 1,
+      "action": "Reuse and revalidate complete TinyLlama pin; finish bounded tile and license evidence; keep 8B acquisition independent",
+      "acceptance": "source/config/header identity, exact total and stack parameter counts, matching tensor digest; no trained proof claim"
+    },
+    {
+      "gate": 2,
+      "action": "Define separately versioned full-block integer calibration and trained profile for TinyLlama",
+      "acceptance": "norm eps/gains, QKV orientations and GQA permutation, RoPE, softmax/PV, O, residuals and SiLU/FFN scales/ranges bound to source; no silent clipping or synthetic substitution"
+    },
+    {
+      "gate": 3,
+      "action": "Implement layer-streamed tensor decoding/quantization and reference trained integer witness execution",
+      "acceptance": "held-out range/quality evidence and integer CPU kernel parity for every operation and layer seam; explicit embedding/head exclusions under D13"
+    },
+    {
+      "gate": 4,
+      "action": "Prove first trained block at smallest memory-gated context; verify separately with mutation and inconsistent-witness controls",
+      "acceptance": "saved receipt pinned to independently trusted model/profile/calibration, bounded host/device allocations, P1 preserved; verification does not alone confer privacy acceptance"
+    },
+    {
+      "gate": 5,
+      "action": "Compose all 22 trained blocks and obtain matched CPU/GPU full-stack timings before 8B scaling",
+      "acceptance": "every seam proved, actual device dispatch with no fallback, each position counted once, complete enclosing wall and RAM/VRAM; privacy review remains separate"
+    }
+  ],
+  "next_week_tradeoff": {
+    "reviewable_demo_now": "Existing genuine private tiny-computation zkVM receipt plus synthetic complete-stack native correctness demo, accurately labeled and independently verified",
+    "trained_path": "A trained one-block checkpoint is a useful conditional next milestone after calibration gates; complete 1B or trained 8B >=50 proved tokens/s by next week cannot be promised from current evidence",
+    "security": "No new security ruling; native whole-proof privacy acceptance must remain false until reviewed"
+  },
+  "source_sha256": {
+    "scripts/zk60_1b_checkpoint.py": "73339779bca99326dbd5ae5ffb30fe2ff7861fb3460c9f17753df8c3f919ec23",
+    "scripts/zk60_checkpoint_fetch.py": "d1f4904d6ada07226d9e1df714814fdc2c8281f3b76026dfa78e5bc6ac229b83",
+    "results/zk60_1b_checkpoint_20260927/inventory_20260929.json": "58a7492a30e670961c917ba560430453cc3e0207473a20419a41777a10f38daa",
+    "ops/zkp-mvp/candidate/hashline/src/private_block/mvp_driver.rs": "b50c40a1ab553594486181894c985cf915ba2757ca35c9be8952531a9f57b37c"
+  }
+}

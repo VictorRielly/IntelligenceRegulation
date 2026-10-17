@@ -1,0 +1,103 @@
+[
+  {
+    "id": "cycle10-cupqc-six-field-bound",
+    "url": "https://nvidia.github.io/cuPQC/releases/v0.6/",
+    "published": "2026-08-28",
+    "updated": null,
+    "date_evidence": "Official release article explicitly displays August 28, 2026; latest edit date not exposed.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "assessment": "Recent primary release assessed: device-callable NTT, shared-memory single-pass and staged transforms allow custom fusion. Its explicit p<2^62 bound excludes the current Goldilocks prime despite uint64 storage support. No drop-in substitution, field change, implementation adoption, or reproduced speed claim. SDK license not inspected.",
+    "accessed_date": "2026-09-27",
+    "recorded_at_utc": "2026-09-27T02:06:47.158607+00:00",
+    "run_identity": "20260927T015233Z-c29b434c",
+    "cycle": "0010",
+    "evidence_kind": "Native LIVE primary inspection; no external implementation or performance reproduced"
+  },
+  {
+    "id": "cycle10-unintt-older",
+    "url": "https://doi.org/10.1145/3669940.3707241",
+    "published": "2025-03-30",
+    "updated": null,
+    "date_evidence": "Publisher page text delivered by native LIVE search lists Published: 30 March 2025. Direct open returned Internal Error.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "assessment": "New older technique assessment, abstract only: hierarchical NTT decomposition across warp/block/GPU boundaries emphasizes locality. Authors report an eight-GPU comparison; not applicable as a measured single-GPU hiding-row gain. No implementation repository established by bounded search; no code run.",
+    "accessed_date": "2026-09-27",
+    "recorded_at_utc": "2026-09-27T02:06:47.158607+00:00",
+    "run_identity": "20260927T015233Z-c29b434c",
+    "cycle": "0010",
+    "evidence_kind": "Native LIVE primary inspection; no external implementation or performance reproduced"
+  },
+  {
+    "id": "cycle10-yrrid-cache-residency",
+    "url": "https://github.com/yrrid/GoldilocksNTT",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Repository page exposes no verified commit dates; history fetch failed. No age inferred from crawl timestamps.",
+    "implementation_license": null,
+    "license_note": "Repository advertises MIT; LICENSE content could not be inspected. Not treated as a verified license.",
+    "inspected_commit_id": null,
+    "assessment": "README inspected only: 1024-point Goldilocks arithmetic in signed 24-bit chunks, 97KB shared-memory requirement, separate data-only/compute-only diagnostics. Author explicitly attributes headline throughput to L2 residency and labels larger-size throughput as belief. Motivates cache-qualified accounting; no timing transferred or implementation executed.",
+    "access_issues": [
+      "https://raw.githubusercontent.com/yrrid/GoldilocksNTT/main/LICENSE: (400) Unsupported content-type: application/octet-stream",
+      "https://github.com/yrrid/GoldilocksNTT/commits/main/: Cache miss",
+      "https://github.com/yrrid/GoldilocksNTT/blob/main/LICENSE: Internal Error",
+      "https://github.com/yrrid/GoldilocksNTT/blob/main/DataOnly.cu: Internal Error",
+      "https://raw.githubusercontent.com/yrrid/GoldilocksNTT/main/DataOnly.cu: Internal Error"
+    ],
+    "accessed_date": "2026-09-27",
+    "recorded_at_utc": "2026-09-27T02:06:47.158607+00:00",
+    "run_identity": "20260927T015233Z-c29b434c",
+    "cycle": "0010",
+    "evidence_kind": "Native LIVE primary inspection; no external implementation or performance reproduced"
+  },
+  {
+    "id": "cycle10-cuda-sector-model",
+    "url": "https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/",
+    "inspected_urls": [
+      "https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/writing-cuda-kernels.html"
+    ],
+    "published": null,
+    "updated": null,
+    "date_evidence": "Current official documentation exposes version 13.4 in search title, but no verified publication/update date for the inspected sections.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "assessment": "Official coalescing rule: count distinct 32-byte sectors required by one warp memory instruction on CC>=6. Local address model assumes aligned allocation bases and no inter-instruction cache reuse. These are issued-sector counts, not hardware cache misses, transferred DRAM bytes, compiled instruction counts or time.",
+    "accessed_date": "2026-09-27",
+    "recorded_at_utc": "2026-09-27T02:06:47.158607+00:00",
+    "run_identity": "20260927T015233Z-c29b434c",
+    "cycle": "0010",
+    "evidence_kind": "Native LIVE primary inspection; no external implementation or performance reproduced"
+  },
+  {
+    "id": "cycle10-gpu-ntt-release-check",
+    "url": "https://github.com/Alisah-Ozcan/GPU-NTT/releases",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Release page explicitly lists no releases at access; no release date exists to record.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "assessment": "Current release search refreshed prior four-step candidate. No new release or code revision established. Earlier cycle3 repository/license assessment remains historical; no new code or license inspection this cycle.",
+    "accessed_date": "2026-09-27",
+    "recorded_at_utc": "2026-09-27T02:06:47.158607+00:00",
+    "run_identity": "20260927T015233Z-c29b434c",
+    "cycle": "0010",
+    "evidence_kind": "Native LIVE primary inspection; no external implementation or performance reproduced"
+  },
+  {
+    "id": "cycle10-ntt-sumcheck-paper-refresh",
+    "url": "https://arxiv.org/abs/2606.16146",
+    "published": "2026-06-15",
+    "updated": null,
+    "date_evidence": "arXiv history displays only v1 Mon June15 03:03:54 UTC 2026.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "assessment": "Recent primary paper refreshed; abstract makes locality/SRAM dependence explicit. Prior cycle9 fulltext methodology assessment remains: synthesized/simulated 255-bit acceleration, not a measured Goldilocks GPU complete-proof result. No new reproduction or protocol substitution.",
+    "accessed_date": "2026-09-27",
+    "recorded_at_utc": "2026-09-27T02:06:47.158607+00:00",
+    "run_identity": "20260927T015233Z-c29b434c",
+    "cycle": "0010",
+    "evidence_kind": "Native LIVE primary inspection; no external implementation or performance reproduced"
+  }
+]

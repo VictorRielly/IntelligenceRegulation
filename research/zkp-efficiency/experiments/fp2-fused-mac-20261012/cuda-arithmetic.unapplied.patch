@@ -1,0 +1,43 @@
+--- a/hashline/src/gpu/kernels.cu
++++ b/hashline/src/gpu/kernels.cu
+@@ -59,14 +59,36 @@
+ 
+ __device__ __forceinline__ f2 f2_add(f2 a, f2 b) { f2 r; r.c0 = gl_add(a.c0, b.c0); r.c1 = gl_add(a.c1, b.c1); return r; }
+ __device__ __forceinline__ f2 f2_sub(f2 a, f2 b) { f2 r; r.c0 = gl_sub(a.c0, b.c0); r.c1 = gl_sub(a.c1, b.c1); return r; }
++// Review sketch only: callers supply canonical limbs, NONRES=7.
++// Each wide addition below is bounded by (p-1)^2 + 8*(p-1) < 2^128.
++struct gl_wide_128 { u64 lo, hi; };
++__device__ __forceinline__ gl_wide_128 gl_wmul(u64 a, u64 b) {
++    gl_wide_128 r; r.lo = a * b; r.hi = __umul64hi(a, b); return r;
++}
++__device__ __forceinline__ gl_wide_128 gl_wadd(gl_wide_128 a, gl_wide_128 b) {
++    gl_wide_128 r; r.lo = a.lo + b.lo;
++    r.hi = a.hi + b.hi + (r.lo < a.lo); return r;
++}
++__device__ __forceinline__ gl_wide_128 gl_wres(u64 a) {
++    gl_wide_128 r; r.lo = a; r.hi = 0; return r;
++}
++__device__ __forceinline__ u64 gl_wreduce(gl_wide_128 a) {
++    return gl_reduce(a.lo, a.hi);
++}
+ __device__ __forceinline__ f2 f2_mul(f2 a, f2 b) {
+-    u64 ac = gl_mul(a.c0, b.c0);
+     u64 bd = gl_mul(a.c1, b.c1);
+     u64 ad = gl_mul(a.c0, b.c1);
+-    u64 bc = gl_mul(a.c1, b.c0);
+     f2 r;
+-    r.c0 = gl_add(ac, gl_mul(bd, NONRES));
+-    r.c1 = gl_add(ad, bc);
++    r.c0 = gl_wreduce(gl_wadd(gl_wmul(a.c0, b.c0), gl_wmul(NONRES, bd)));
++    r.c1 = gl_wreduce(gl_wadd(gl_wmul(a.c1, b.c0), gl_wres(ad)));
++    return r;
++}
++__device__ __forceinline__ f2 f2_add_product(f2 acc, f2 a, f2 b) {
++    u64 bd = gl_mul(a.c1, b.c1);
++    u64 ad = gl_mul(a.c0, b.c1);
++    f2 r;
++    r.c0 = gl_wreduce(gl_wadd(gl_wadd(gl_wmul(a.c0, b.c0), gl_wmul(NONRES, bd)), gl_wres(acc.c0)));
++    r.c1 = gl_wreduce(gl_wadd(gl_wadd(gl_wmul(a.c1, b.c0), gl_wres(ad)), gl_wres(acc.c1)));
+     return r;
+ }
+ __device__ __forceinline__ f2 f2_mul_base(f2 a, u64 b) { f2 r; r.c0 = gl_mul(a.c0, b); r.c1 = gl_mul(a.c1, b); return r; }

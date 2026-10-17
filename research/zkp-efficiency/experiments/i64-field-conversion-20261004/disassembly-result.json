@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/usr/bin/objdump",
+    "--disassemble=_RNvNtNtCslPHH5jTqOQ3_8hashline13private_block8protocol10prove_core",
+    "--no-show-raw-insn",
+    "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/target/release/deps/hashline-ef0ac1171b2553b5"
+  ],
+  "exit_code": 0,
+  "elapsed_s": 0.047142734001681674,
+  "peak_rss_kib": 15524,
+  "binary_sha256": "2c617ae5203c2db3b785ee56da364ad73407b2c8012e646ea0b2fdc876460015",
+  "symbol": "_RNvNtNtCslPHH5jTqOQ3_8hashline13private_block8protocol10prove_core",
+  "output_sha256": "9dde32ca6df88122a464386cc928e74e9bc6c271da55670084e90754e30ead20",
+  "estimated_memory_mib": 64,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "scope": "Read-only CURRENT binary at historical path. Hash mismatches historical report; no baseline timing/source provenance attribution. No compiled candidate or binary execution.",
+  "expected_historical_binary_sha256": "74abdad3a53e2010a5281329c2d985b8ee8676d75b3f68b9083e3840fb762337",
+  "matches_historical_timing_binary": false
+}

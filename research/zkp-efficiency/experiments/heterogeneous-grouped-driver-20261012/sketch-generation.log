@@ -1,0 +1,5 @@
+Initial generator assertion failed after saving command/execution/run evidence.
+The assertion incorrectly rejected every Vec<Vec<Fp2>>, including legitimate
+pending group polynomials. No native file, result or Rust sketch was produced.
+Corrected assertion checks only the replaced concrete table-borrow type.
+This was a generator bookkeeping failure, not an algebra or proof result.

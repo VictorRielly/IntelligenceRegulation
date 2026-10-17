@@ -1,6 +1,21 @@
 # Target Contract: What "a 5-15 s Proof of an 8B Feedforward" Will Mean
 
-Status: FROZEN benchmark boundary (audit 2026-07-10 finding H-05). This
+**Performance amendment, 2026-09-26 (Victor):** complete private 8B forward-pass
+proof at >=50 proved tokens/s on an **RTX 5090 or another high-end GPU**.
+Larger token workloads are explicitly allowed to amortize initialization and
+initial prefill. The historical single-request 512-token/no-batching restriction
+below is retained for that comparison fixture, **not** for target acceptance.
+The 10.24-second budget applies only when N=512; no fixed per-proof latency
+limit replaces the sustained-throughput target. Report workload shape,
+steady-state and full-workload rates, startup fraction, latency and verification
+separately. [Current target and benchmark rules](ZK60_THROUGHPUT_TARGET.md).
+D13 in the decisions register scopes the first MVP to hidden transformer
+blocks; the embedding/final norm/head/token-selection milestone follows.
+Neither the complete private 8B measurement nor its 50-token/s target has
+been demonstrated. Historical sections below retain their dated scope.
+
+Status: Historical FROZEN benchmark boundary (audit 2026-07-10 finding H-05),
+with the explicit workload/hardware amendment above. This
 page pins every word of the headline claim so that a future latency
 number is checkable instead of elastic. Nothing here is a measurement;
 where a budget is not yet met (or not yet measurable) it says so.

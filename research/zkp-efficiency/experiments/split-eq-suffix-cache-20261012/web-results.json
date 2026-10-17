@@ -1,0 +1,110 @@
+{
+  "batch1": {
+    "response_sha256": "2e77bc6fea25332c8ad8cbb9e0c8243784d7492f5f6e6ff654ab6b903b9c62fb",
+    "returned_urls": [
+      "https://eprint.iacr.org/2024/1210",
+      "https://eprint.iacr.org/2024/1210}",
+      "https://eprint.iacr.org/2026/587",
+      "https://eprint.iacr.org/2026/587}",
+      "https://github.com/LayerZero-Labs/akita/blob/main/akita-algebra/src/split_eq.rs",
+      "https://github.com/LayerZero-Labs/akita/blob/main/akita-algebra/src/split_eq.rs:",
+      "https://github.com/LayerZero-Labs/akita/releases",
+      "https://ia.cr/2024/1210\u2020ia.cr\ue201",
+      "https://ia.cr/2026/587\u2020ia.cr\ue201",
+      "https://layerzero-labs.github.io/akita/foundations/eq-factored-sumcheck.html",
+      "https://layerzero-labs.github.io/akita/foundations/eq-factored-sumcheck.html:"
+    ],
+    "fetch_errors": [
+      "L0: Failed to fetch https://github.com/LayerZero-Labs/akita/blob/main/akita-algebra/src/split_eq.rs: Cache miss",
+      "L0: Failed to fetch https://layerzero-labs.github.io/akita/foundations/eq-factored-sumcheck.html: Cache miss"
+    ],
+    "note": "Retain source locations, response hashes and exact fetch errors; full third-party text is not copied into research artifacts. Assessment/date/license/commit evidence is in source-records.json."
+  },
+  "batch2": {
+    "response_sha256": "9e7d167288338674d5b1712c9f0e21cb7c748a7c9853c0dd47472e4ff7b979ea",
+    "returned_urls": [
+      "https://arxiv-troller.com/paper/3329676/",
+      "https://blockchainlab.com/whitepaper/hyperplonk",
+      "https://ch-sprenger.github.io/assets/pdf/csf2024-sumcheck-verification.pdf",
+      "https://devel.isa-afp.org/browser_info/current/AFP/Sumcheck_Protocol/outline.pdf",
+      "https://docs.github.com/en/enterprise-cloud%40latest/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository",
+      "https://dyne.org/longfellow-zk/specifications/sumcheck.html",
+      "https://eprint.iacr.asia/days/7",
+      "https://eprint.iacr.org/2026/1329",
+      "https://eprint.iacr.org/2026/1693",
+      "https://github.com/Plonky3/Plonky3/issues/1649",
+      "https://github.com/a16z/jolt/blob/main/specs/symbolic-sumcheck.md",
+      "https://github.com/ls-rm-rf/sumcheck/blob/main/README.md",
+      "https://github.com/zksecurity/sumcheck-optimized-sagemath/blob/main/sumcheck_algo2.sage",
+      "https://iq.wiki/wiki/thomas-coratger",
+      "https://layerzero-labs.github.io/akita/foundations/eq-factored-sumcheck.html",
+      "https://tenki.no/forskning/zk-llm-asymvzk-vewc-v2-1-may-2026/pdf?download=1",
+      "https://wegamans.net/?_=%2Fsearch%2Fcs%23BaQ2cyRFYLjjLXYuzGgU%2Fgo%3D&query=B%C3%BCnz%2C+B&searchtype=author",
+      "https://www.isa-afp.org/browser_info/current/AFP/Sumcheck_Protocol/document.pdf"
+    ],
+    "fetch_errors": [],
+    "note": "Retain source locations, response hashes and exact fetch errors; full third-party text is not copied into research artifacts. Assessment/date/license/commit evidence is in source-records.json."
+  },
+  "batch3": {
+    "response_sha256": "849cb2e03cda360811a1828b8b42880071da5e567b0c5cad47f3e0c94eee32de",
+    "returned_urls": [
+      "https://cronokirby.com/refs/2026-03-interactive-proofs-for-batch-polynomial-evaluation.html",
+      "https://d3ccyth396mz21.cloudfront.net/publications/sublogarithmic-linear-time-snarks-from-improved-sumcheck",
+      "https://docs.rs/p3-sumcheck/latest/p3_sumcheck/layout/index.html",
+      "https://doi.org/10.1145/3803627.3805819",
+      "https://eid-privacy.github.io/zkp-vault/Resources/papers/LFKN92-Sumcheck/",
+      "https://escholarship.org/content/qt5qm6n0s0/qt5qm6n0s0.pdf",
+      "https://escholarship.org/uc/item/5qm6n0s0",
+      "https://github.com/LayerZero-Labs/akita/blob/main/LICENSE",
+      "https://github.com/Plonky3/Plonky3/issues/1890",
+      "https://infossm.github.io/blog/2023/03/19/GKR-protocol-and-Linear-Prover/",
+      "https://org.weids.dev/agenda/notes/vcmath.html",
+      "https://raw.githubusercontent.com/LayerZero-Labs/akita/main/akita-algebra/src/split_eq.rs",
+      "https://www.cs.cmu.edu/~csd-phd-blog/2026/sumcheck-proving/",
+      "https://www.cs.yale.edu/homes/cpap/published/libra-crypto19.pdf",
+      "https://www.escholarship.org/content/qt73f1v5ph/qt73f1v5ph.pdf",
+      "https://www.iacr.org/archive/crypto2019/116940229/116940229.pdf",
+      "https://www.mdpi.com/2227-7390/13/8/1309",
+      "https://www.scribd.com/document/945493545/2024-1970"
+    ],
+    "fetch_errors": [],
+    "note": "Retain source locations, response hashes and exact fetch errors; full third-party text is not copied into research artifacts. Assessment/date/license/commit evidence is in source-records.json."
+  },
+  "batch4": {
+    "response_sha256": "19363f79614aee7a9a567da0e707cf255cde41ae12d97df9af84a13106b4f19f",
+    "returned_urls": [
+      "https://eprint.iacr.org/2019/317",
+      "https://eprint.iacr.org/2019/317}",
+      "https://github.com/LayerZero-Labs/akita",
+      "https://github.com/LayerZero-Labs/akita/commit/029ceceaba879a0d9bf80a47d2e08534e630457d",
+      "https://ia.cr/2019/317\u2020ia.cr\ue201",
+      "https://www.iacr.org/archive/crypto2019/116940229/116940229.pdf",
+      "https://www.iacr.org/archive/crypto2019/116940229/116940229.pdf:"
+    ],
+    "fetch_errors": [
+      "L0: Failed to fetch https://www.iacr.org/archive/crypto2019/116940229/116940229.pdf: (403) Forbidden"
+    ],
+    "note": "Retain source locations, response hashes and exact fetch errors; full third-party text is not copied into research artifacts. Assessment/date/license/commit evidence is in source-records.json."
+  },
+  "batch5": {
+    "response_sha256": "7ac6bc699ea3540445ae6c3dc7dba2238ea41962edc2e454ecc5d4931921b73e",
+    "returned_urls": [
+      "https://github.com/LayerZero-Labs/akita/blob/main/LICENSE-APACHE",
+      "https://github.com/LayerZero-Labs/akita/blob/main/LICENSE-APACHE:",
+      "https://github.com/LayerZero-Labs/akita/blob/main/LICENSE-MIT",
+      "https://github.com/LayerZero-Labs/akita/blob/main/LICENSE-MIT:",
+      "https://github.com/LayerZero-Labs/akita/blob/main/crates/akita-algebra/src/split_eq.rs",
+      "https://github.com/LayerZero-Labs/akita/blob/main/crates/akita-algebra/src/split_eq.rs:",
+      "https://raw.githubusercontent.com/LayerZero-Labs/akita/main/crates/akita-algebra/src/split_eq.rs",
+      "https://raw.githubusercontent.com/LayerZero-Labs/akita/main/crates/akita-algebra/src/split_eq.rs:",
+      "https://www.cs.yale.edu/homes/cpap/published/libra-crypto19.pdf"
+    ],
+    "fetch_errors": [
+      "L0: Failed to fetch https://github.com/LayerZero-Labs/akita/blob/main/crates/akita-algebra/src/split_eq.rs: Cache miss",
+      "L0: Failed to fetch https://raw.githubusercontent.com/LayerZero-Labs/akita/main/crates/akita-algebra/src/split_eq.rs: Cache miss",
+      "L0: Failed to fetch https://github.com/LayerZero-Labs/akita/blob/main/LICENSE-MIT: Cache miss",
+      "L0: Failed to fetch https://github.com/LayerZero-Labs/akita/blob/main/LICENSE-APACHE: Cache miss"
+    ],
+    "note": "Retain source locations, response hashes and exact fetch errors; full third-party text is not copied into research artifacts. Assessment/date/license/commit evidence is in source-records.json."
+  }
+}

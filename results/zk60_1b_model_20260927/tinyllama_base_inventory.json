@@ -1,0 +1,22 @@
+{
+  "status": "config_geometry_only",
+  "architecture": "LlamaForCausalLM/RMSNorm/RoPE/GQA/SwiGLU",
+  "geometry": {
+    "layers": 22,
+    "d": 2048,
+    "f": 5632,
+    "query_heads": 32,
+    "kv_heads": 4,
+    "head_dim": 64,
+    "kv_width": 256,
+    "vocab": 32000,
+    "max_positions": 2048
+  },
+  "checkpoint_dtype": "F32",
+  "tensor_count": 201,
+  "parameter_count": 1100048384,
+  "checkpoint_payload_bytes": 4400193536,
+  "per_layer_parameter_count": 44044288,
+  "integer_calibration_ready": false,
+  "private_block_profile_admitted": false
+}

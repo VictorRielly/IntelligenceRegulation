@@ -1,0 +1,192 @@
+{
+  "schema": 1,
+  "tool": "zk60_zkvm_cycle_gate",
+  "coverage": "executor-only cycle and segment counts of one fixed T32/d16/f16 integer transformer block; no proof is created",
+  "generated_utc": "2026-09-19T03:21:32Z",
+  "host": {
+    "path": "/home/victor/wt-zk60-zkvm-hardening/zkvm-block/target/release/zk60-block-host",
+    "sha256": "1ae9038481d1dcd668122dd184bb128165246da3b45b92edaec4eee9f59d10bf"
+  },
+  "model": {
+    "path": "/home/victor/wt-zk60-zkvm-hardening/zkvm-block/fixtures/synthetic-model.bin",
+    "sha256": "c345ccdb09ccfa4f235d04003835cca9eff9e5cb10c84a5555abc4d13a9bdc55",
+    "bytes": 6184
+  },
+  "r0vm": {
+    "path": "/home/victor/.cargo/bin/r0vm",
+    "sha256": "751b9b188d341e8bec5e02060086b7b1dc3f7289e90f726c38589bb6735dd6d7"
+  },
+  "image_id": "c5a04b83448eb2a17919e38a9a00db7edfab4bdc979800ee867be11f5dc295a5",
+  "timeout_seconds": 900,
+  "scrubbed_prefixes": [
+    "BONSAI_",
+    "RISC0_",
+    "RUST_LOG"
+  ],
+  "patterns": [
+    {
+      "name": "zero",
+      "description": "all zero",
+      "accepted": true,
+      "prepare_seconds": 0.031,
+      "execute_seconds": 0.151,
+      "stage": "execute",
+      "exit_code": 0,
+      "total_cycles": 6553600,
+      "user_cycles": 5343122,
+      "segments": 25,
+      "segment_limit_po2": 18
+    },
+    {
+      "name": "pos3",
+      "description": "all +3 (top of the calibrated small range)",
+      "accepted": true,
+      "prepare_seconds": 0.031,
+      "execute_seconds": 0.151,
+      "stage": "execute",
+      "exit_code": 0,
+      "total_cycles": 6553600,
+      "user_cycles": 5347964,
+      "segments": 25,
+      "segment_limit_po2": 18
+    },
+    {
+      "name": "neg3",
+      "description": "all -3 (bottom of the calibrated small range)",
+      "accepted": true,
+      "prepare_seconds": 0.031,
+      "execute_seconds": 0.151,
+      "stage": "execute",
+      "exit_code": 0,
+      "total_cycles": 6553600,
+      "user_cycles": 5354108,
+      "segments": 25,
+      "segment_limit_po2": 18
+    },
+    {
+      "name": "alt",
+      "description": "alternating +3/-3",
+      "accepted": true,
+      "prepare_seconds": 0.031,
+      "execute_seconds": 0.151,
+      "stage": "execute",
+      "exit_code": 0,
+      "total_cycles": 6553600,
+      "user_cycles": 5351006,
+      "segments": 25,
+      "segment_limit_po2": 18
+    },
+    {
+      "name": "rows_equal",
+      "description": "each row of 16 constant, rows differing (softmax ties)",
+      "accepted": true,
+      "prepare_seconds": 0.031,
+      "execute_seconds": 0.151,
+      "stage": "execute",
+      "exit_code": 0,
+      "total_cycles": 6553600,
+      "user_cycles": 5348955,
+      "segments": 25,
+      "segment_limit_po2": 18
+    },
+    {
+      "name": "random_small",
+      "description": "fresh uniform values in [-3,3] from secrets",
+      "accepted": true,
+      "prepare_seconds": 0.031,
+      "execute_seconds": 0.151,
+      "stage": "execute",
+      "exit_code": 0,
+      "total_cycles": 6553600,
+      "user_cycles": 5349272,
+      "segments": 25,
+      "segment_limit_po2": 18
+    },
+    {
+      "name": "ramp",
+      "description": "(i mod 7) - 3",
+      "accepted": true,
+      "prepare_seconds": 0.031,
+      "execute_seconds": 0.151,
+      "stage": "execute",
+      "exit_code": 0,
+      "total_cycles": 6553600,
+      "user_cycles": 5349058,
+      "segments": 25,
+      "segment_limit_po2": 18
+    },
+    {
+      "name": "pos64",
+      "description": "all +64: probe outside the calibrated range, may be refused",
+      "accepted": true,
+      "prepare_seconds": 0.031,
+      "execute_seconds": 0.151,
+      "stage": "execute",
+      "exit_code": 0,
+      "total_cycles": 6553600,
+      "user_cycles": 5354588,
+      "segments": 25,
+      "segment_limit_po2": 18
+    },
+    {
+      "name": "neg64",
+      "description": "all -64: probe outside the calibrated range, may be refused",
+      "accepted": true,
+      "prepare_seconds": 0.031,
+      "execute_seconds": 0.151,
+      "stage": "execute",
+      "exit_code": 0,
+      "total_cycles": 6553600,
+      "user_cycles": 5360732,
+      "segments": 25,
+      "segment_limit_po2": 18
+    }
+  ],
+  "mvp_complete": false,
+  "accepted_patterns": [
+    "zero",
+    "pos3",
+    "neg3",
+    "alt",
+    "rows_equal",
+    "random_small",
+    "ramp",
+    "pos64",
+    "neg64"
+  ],
+  "refused_patterns": [],
+  "distinct_cycle_shapes": [
+    {
+      "total_cycles": 6553600,
+      "segments": 25,
+      "patterns": [
+        "alt",
+        "neg3",
+        "neg64",
+        "pos3",
+        "pos64",
+        "ramp",
+        "random_small",
+        "rows_equal",
+        "zero"
+      ]
+    }
+  ],
+  "distinct_user_cycle_counts": [
+    5343122,
+    5347964,
+    5348955,
+    5349058,
+    5349272,
+    5351006,
+    5354108,
+    5354588,
+    5360732
+  ],
+  "constant_cycles": false,
+  "constant_total_cycles": true,
+  "constant_user_cycles": false,
+  "total_cycle_spread": 0,
+  "user_cycle_spread": 17610,
+  "declared_leakage": "Declared timing leakage: over 9 accepted input patterns the padded total (6553600 cycles) and the segment count (25) are identical, so the proof-visible execution length is constant; the executor's unpadded USER cycle count is not, spanning 17610 cycles (5343122 to 5360732, 0.2687% of the padded total). Anything that observes the executor's own work rather than the receipt -- host-side timing, r0vm telemetry -- learns that much about a private input."
+}

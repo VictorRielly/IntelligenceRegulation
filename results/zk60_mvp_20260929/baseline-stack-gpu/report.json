@@ -1,0 +1,28 @@
+{
+  "state": "failed",
+  "scope": "synthetic dense 12-block 125M geometry",
+  "trained_checkpoint": false,
+  "complete_8b_proof": false,
+  "privacy_accepted": false,
+  "tokens_counted_once": 512,
+  "blocks": 12,
+  "command": [
+    "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/target/release/deps/hashline-ef0ac1171b2553b5",
+    "--ignored",
+    "--exact",
+    "private_block::run_tests::private_run_125m_twelve_blocks",
+    "--nocapture",
+    "--test-threads=1"
+  ],
+  "binary_sha256": "74abdad3a53e2010a5281329c2d985b8ee8676d75b3f68b9083e3840fb762337",
+  "fresh_process_verification": false,
+  "includes_native_test_oracles": true,
+  "shared_host": true,
+  "samples": 1,
+  "exit_code": 101,
+  "workload_wall_seconds": 0.002826456000093458,
+  "accepted_keyed_commits": 0,
+  "log_sha256": "8adcec3b64e53e3e64865c1b01fb5b29cec4e7af4d2c16b0fe71f1e5182e9479",
+  "gpu_samples": 1,
+  "sampled_vram_peak_mib": 0.0
+}

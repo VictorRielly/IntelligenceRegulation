@@ -1,0 +1,46 @@
+{
+  "schema": "zk60-checkpoint-source/1",
+  "model": "NousResearch/Meta-Llama-3-8B",
+  "revision": "315b20096dc791d381d514deb5f8bd9c8d6d3061",
+  "provider_metadata_sha256": "0f538439b39c71a3131566bd4e0286b6cf987dd5cbd32e61838d99ec60f78cc0",
+  "parameter_count": 8030261248,
+  "files": {
+    "config.json": {
+      "size": 654,
+      "sha256": "2430cee764b6530ff8673cf9ba8561e1d5a33152d503cd0de909ff5718261441",
+      "git_blob": "7784fbf6342de338b736f884a49b08f270c5e9c8",
+      "local_verified": true
+    },
+    "model.safetensors.index.json": {
+      "size": 23950,
+      "sha256": "146776fce3f6db1103aa6f249e65ee5544c5923ce6f971b092eee79aa6e5d37b",
+      "git_blob": "0fd8120f1c6acddc268ebc2583058efaf699a771",
+      "local_verified": true
+    },
+    "model-00001-of-00004.safetensors": {
+      "size": 4976698672,
+      "sha256": "f2c144103072514542e327fa8080bd375cb300f2d453fba9ca3aea81d0d4cf33",
+      "git_blob": "43e213f921d3f0110493b8b5e25a59b9d0da3fff",
+      "local_verified": true
+    },
+    "model-00002-of-00004.safetensors": {
+      "size": 4999802720,
+      "sha256": "d9eee5f23d94405d90b7e9ff88b9443fee42f8528a658f54214c2aba7530d80c",
+      "git_blob": "13d091653c470cbf3f41fd682ba63105e280b1f4",
+      "local_verified": true
+    },
+    "model-00003-of-00004.safetensors": {
+      "size": 4915916176,
+      "sha256": "4b8fbc5e113f69768dd8de84661ea20af8a32b734a9976144b4236c447b40ccc",
+      "git_blob": "28383be752704ed130ffca1696eaa074bc9b1db8"
+    },
+    "model-00004-of-00004.safetensors": {
+      "size": 1168138808,
+      "sha256": "5dc34e6bdf2da9e35f0d93b5c333c870f3677dc43dc3a91ea3a8ad28a1fe1acb",
+      "git_blob": "3b775e7690997f2ac2ce1726354c4ccd86acb867"
+    }
+  },
+  "state": "metadata-pinned",
+  "proof_ready": false,
+  "proof_produced": false
+}

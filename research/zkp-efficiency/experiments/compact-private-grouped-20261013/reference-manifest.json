@@ -1,0 +1,57 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/heterogeneous-grouped-driver-20261012/field.py",
+    "sha256": "7c96b879d97197cb09180d5e2a0f2fc62287e1ff500b8e8694aa0eb4592508e9",
+    "bytes": 1185
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/heterogeneous-grouped-driver-20261012/driver.py",
+    "sha256": "bab4e9bed35338aebc4c1fa2837109879c1b73c19f939d844bdbd8c9a72c8042",
+    "bytes": 5303
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/heterogeneous-grouped-driver-20261012/grouped.py",
+    "sha256": "bcd9adc68247bd7bcbcf366c7206f64c5c95f85decc4fc3782a1db03a9452904",
+    "bytes": 5292
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/heterogeneous-grouped-driver-20261012/fixture.py",
+    "sha256": "6b4bfb6bdaef838344323d348812821ad81617cef727fdb7d267cba88854a646",
+    "bytes": 17066
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/heterogeneous-grouped-driver-20261012/support.py",
+    "sha256": "5044b13ecc3a93eb0bc5ea4c55d036ebcc297716324fcabfeab78aade6a55031",
+    "bytes": 5612
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/heterogeneous-grouped-driver-20261012/causal.py",
+    "sha256": "d557f9c87cc61e4b83d23c8b9c815189eb4f9b85ad287fcb5389ae9b6082ca39",
+    "bytes": 2638
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/heterogeneous-grouped-driver-20261012/support_reference.py",
+    "sha256": "e93b91ba7d2398f53655d3a377f8a8843d01ff728bd99fc8ca65ae479c4226b7",
+    "bytes": 1776
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/heterogeneous-grouped-driver-20261012/source_port.py",
+    "sha256": "8d4d614b93530e3b374ad870adf7ebe8ee887282d571da0629bf51863abb8232",
+    "bytes": 5989
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/heterogeneous-grouped-driver-20261012/polynomial_ir.py",
+    "sha256": "94a6924997315d02cb083205aa3f8c95c53f0357359c96bae5f3be43da08ccc0",
+    "bytes": 3353
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/heterogeneous-grouped-driver-20261012/full_oracle.py",
+    "sha256": "a1c639a63dcc7175b9567dcc4e52ae71bb66a5c5e88ae18f77682adc335f2d58",
+    "bytes": 2382
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/heterogeneous-grouped-driver-20261012/oracle.py",
+    "sha256": "bd3588f0be61c006910468701eb303846d8783c8209795b97843e140650f88c7",
+    "bytes": 1161
+  }
+]

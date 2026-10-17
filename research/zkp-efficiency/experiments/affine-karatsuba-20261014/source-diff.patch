@@ -1,0 +1,36 @@
+--- cycle49/coefficients.py
++++ cycle50/coefficients.py
+@@ -5,6 +5,12 @@
+ lengths and first-contribution positions derive solely from the expression.
+ """
+ from field_support import F
++from collections import Counter
++
++# TEST HARNESS ONLY: changed only inside one-thread row construction scopes.
++# A native factory would select a fixed helper using static coefficient widths.
++ALGORITHM = 'schoolbook'
++K_WORK = Counter()
+ 
+ class Coeff:
+     def __init__(self, values): self.c=tuple(values)
+@@ -18,7 +24,19 @@
+             counts[kind]+=1; out.append(a+b if kind=='add' else a-b)
+         return Coeff(out)
+     def multiply(self,other,counts):
+-        other=Coeff.lift(other); out=[None for _ in range(len(self.c)+len(other.c)-1)]
++        other=Coeff.lift(other)
++        if ALGORITHM != 'schoolbook':
++            K_WORK['public_width_tests'] += 1
++            if len(self.c)==2 and len(other.c)==2:
++                K_WORK['affine_products'] += 1
++                a0,a1=self.c; b0,b1=other.c
++                p0=a0*b0; p2=a1*b1
++                middle=(a0+a1)*(b0+b1)-p0-p2
++                counts.update(mul=3,add=2,sub=2)
++                if ALGORITHM=='bad_sign':middle=(a0+a1)*(b0+b1)-p0+p2
++                if ALGORITHM=='drop_cross':middle=F()
++                return Coeff([p0,middle,p2])
++        out=[None for _ in range(len(self.c)+len(other.c)-1)]
+         for i,a in enumerate(self.c):
+             for j,b in enumerate(other.c):
+                 counts['mul']+=1; product=a*b

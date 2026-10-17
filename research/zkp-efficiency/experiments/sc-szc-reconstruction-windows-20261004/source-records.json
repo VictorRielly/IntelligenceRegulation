@@ -1,0 +1,179 @@
+[
+  {
+    "cycle": "0029",
+    "run_id": "20261004T110146Z-56ac7478",
+    "access_date": "2026-10-04",
+    "recorded_at_utc": "2026-10-04T11:16:15.845123+00:00",
+    "evidence_kind": "Native LIVE primary search/inspection; no downloaded code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "id": "cycle29-product-sumcheck-time-space-2026-revision",
+    "title": "Time-Space Trade-Offs for Sumcheck",
+    "url": "https://eprint.iacr.org/2025/1473",
+    "published": "2025-08-13",
+    "updated": "2026-02-25",
+    "date_basis": "ePrint received/revised history verified; TCC2025 noted, conference day not checked",
+    "paper_license": "CC BY",
+    "author_claim": "Streaming product sumcheck with time-space tradeoffs; reported memory/time comparison.",
+    "assessment": "Newly assessed product-polynomial extension beyond prior cycle13 multilinear-only note. Interactive algorithms versus a new PIOP explicitly separated. No author factor transferred to native Fp2 grouped SC_SZC; PDF inaccessible so only metadata/abstract claim inspected.",
+    "access_issues": [
+      "https://eprint.iacr.org/2025/1473.pdf: URL not accessible via native web tool"
+    ]
+  },
+  {
+    "cycle": "0029",
+    "run_id": "20261004T110146Z-56ac7478",
+    "access_date": "2026-10-04",
+    "recorded_at_utc": "2026-10-04T11:16:15.845123+00:00",
+    "evidence_kind": "Native LIVE primary search/inspection; no downloaded code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "id": "cycle29-blendy-older-fulltext-scope",
+    "title": "A Time-Space Tradeoff for the Sumcheck Prover",
+    "url": "https://eprint.iacr.org/2024/524",
+    "inspected_urls": [
+      "https://eprint.iacr.org/2024/524.pdf",
+      "https://github.com/compsec-epfl/space-efficient-sumcheck"
+    ],
+    "published": "2024-04-03",
+    "updated": "2024-09-11",
+    "date_basis": "ePrint history; PDF title says August15 2024, distinct from upload date",
+    "paper_license": "CC BY",
+    "author_claim": "O(kN) time/O(N^(1/k)) space for multilinear sumcheck, implementation and CPU experiments.",
+    "assessment": "Material refinement of cycle13: sections4/7 inspected; one multilinear polynomial is not native product-degree4/5 SC_SZC. Reference implementation/128-bit field/32vCPU m5.8xlarge and RSS baseline subtraction do not give GPU timings. Old repository redirects to current efficient-sumcheck. Simple per-round reconstruction here is not their staged algorithm."
+  },
+  {
+    "cycle": "0029",
+    "run_id": "20261004T110146Z-56ac7478",
+    "access_date": "2026-10-04",
+    "recorded_at_utc": "2026-10-04T11:16:15.845123+00:00",
+    "evidence_kind": "Native LIVE primary search/inspection; no downloaded code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "id": "cycle29-scribe-RW-streaming-old-and-2026-publication",
+    "title": "Scribe: Low-memory SNARKs via Read-Write Streaming",
+    "url": "https://eprint.iacr.org/2024/1970",
+    "inspected_urls": [
+      "https://www.usenix.org/conference/usenixsecurity26/presentation/baweja",
+      "https://www.usenix.org/system/files/conference/usenixsecurity26/sec26_prepub_baweja.pdf",
+      "https://github.com/Pratyush/scribe-system"
+    ],
+    "published": "2024-12-05",
+    "updated": "2026-07-29",
+    "proceedings_publication_month": "2026-08",
+    "date_basis": "ePrint received/latest revision and USENIX BibTeX August2026; exact proceedings day not verified",
+    "paper_license": "CC BY (ePrint)",
+    "license_scope": "Repository lists MIT/Apache2; actual LICENSE-MIT/Apache fetch Cache miss/Internal Error, terms not inspected.",
+    "author_claim": "Disk-backed read-write streams reduce prover RAM; published performance compared with HyperPlonk.",
+    "assessment": "Previously unassessed older/newly revised lead; section5.1 and appendixB show streamed table folding and symbolic eq generation; section7 PST/KZG/MSM path differs from native hiding Ligero. Adjacent even/odd folding changes native MSB unless adapted. Adopt only schedule idea after native mask/final/PCS parity, secure private storage/lifetimes and I/O accounting; no claimed gain reproduced.",
+    "access_issues": [
+      "https://github.com/Pratyush/scribe-system/commits/main/: Cache miss",
+      "https://github.com/Pratyush/scribe-system/blob/main/LICENSE: Cache miss",
+      "https://github.com/Pratyush/scribe-system/blob/main/LICENSE-MIT: Cache miss",
+      "https://github.com/Pratyush/scribe-system/blob/main/LICENSE-APACHE: Internal Error",
+      "https://github.com/Pratyush/scribe-system/blob/main/bench-utils/README.md: Cache miss"
+    ]
+  },
+  {
+    "cycle": "0029",
+    "run_id": "20261004T110146Z-56ac7478",
+    "access_date": "2026-10-04",
+    "recorded_at_utc": "2026-10-04T11:16:15.845123+00:00",
+    "evidence_kind": "Native LIVE primary search/inspection; no downloaded code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": "MIT",
+    "id": "cycle29-epfl-streaming-design-license-refinement",
+    "title": "Efficient Sumcheck space strategies and variable ordering",
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck/blob/main/docs/design.md",
+    "inspected_urls": [
+      "https://github.com/compsec-epfl/efficient-sumcheck/commits/main/",
+      "https://github.com/compsec-epfl/space-efficient-sumcheck/blob/main/LICENSE-MIT"
+    ],
+    "published": null,
+    "updated": "2026-06-24",
+    "date_basis": "Latest displayed repository history entry; current design page exact revision not pinned",
+    "license_scope": "Full current main MIT terms inspected via old repository URL redirect; prior canonical fetch Cache miss preserved. Apache alternative not inspected; not a pinned runtime-source license audit.",
+    "displayed_commit_id": "9e55dc3a020fe9e94a7617628587685eb39b32ce",
+    "author_claim": "Design documents MSB/LSB, stage schedules and Jolt adapter options.",
+    "assessment": "Design strategy is not proof of deployed streaming implementation. Native emits0..degree and uses separate fold; their adapter/wire cannot be blindly substituted. Supports memory accounting and exact boundary experiment only.",
+    "access_issues": [
+      "https://github.com/compsec-epfl/efficient-sumcheck/blob/main/LICENSE-MIT: Cache miss",
+      "https://github.com/compsec-epfl/efficient-sumcheck/commit/9e55dc3a020fe9e94a7617628587685eb39b32ce: Internal Error",
+      "https://github.com/compsec-epfl/space-efficient-sumcheck/commits/main/: Internal Error"
+    ]
+  },
+  {
+    "cycle": "0029",
+    "run_id": "20261004T110146Z-56ac7478",
+    "access_date": "2026-10-04",
+    "recorded_at_utc": "2026-10-04T11:16:15.845123+00:00",
+    "evidence_kind": "Native LIVE primary search/inspection; no downloaded code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "id": "cycle29-hardware-locality-primary-refresh",
+    "title": "When Proofs Meet Hardware: Comparing NTT and SumCheck in Zero-Knowledge Systems",
+    "url": "https://arxiv.org/abs/2606.16146",
+    "inspected_urls": [
+      "https://arxiv.org/html/2606.16146v1",
+      "https://github.com/beekayg15/zerocheck"
+    ],
+    "published": "2026-06-15",
+    "updated": null,
+    "date_basis": "arXiv v1 submission history; no later version displayed",
+    "paper_license": "arXiv perpetual non-exclusive license",
+    "author_claim": "Primitive performance changes with degree, polynomial count, SRAM and bandwidth.",
+    "assessment": "Prior finding refreshed: section5 uses64-thread Xeon plus synthesized/simulated255-bit hardware scaled22nm->7nm. It does not measure our Goldilocks GPU or complete proof. Repository inspected only README/tree; license/history unavailable; no scripts executed.",
+    "access_issues": [
+      "https://github.com/beekayg15/zerocheck/commits/main/: Internal Error",
+      "https://github.com/beekayg15/zerocheck/blob/main/LICENSE: Internal Error"
+    ]
+  },
+  {
+    "cycle": "0029",
+    "run_id": "20261004T110146Z-56ac7478",
+    "access_date": "2026-10-04",
+    "recorded_at_utc": "2026-10-04T11:16:15.845123+00:00",
+    "evidence_kind": "Native LIVE primary search/inspection; no downloaded code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": "5101ad2143039de6f279613810414c3d071d1f8f",
+    "implementation_license": null,
+    "id": "cycle29-jolt-current-release-mem-and-eq-not-native-speed",
+    "title": "Jolt displayed v0.3.0-alpha release",
+    "url": "https://github.com/a16z/jolt/releases",
+    "inspected_urls": [
+      "https://github.com/a16z/jolt/commit/5101ad2143039de6f279613810414c3d071d1f8f"
+    ],
+    "published": null,
+    "updated": null,
+    "date_basis": "Release displays01Oct03:04 without year; commit page omits date. No inferred2026 year.",
+    "commit_scope": "Release-linked one-line benchmark exclusion-list diff only; not sumcheck runtime implementation",
+    "author_claim": "Release notes mention batched-sumcheck memory, large degree, split Eq and delayed reduction changes.",
+    "assessment": "Current release queue checked. Runtime relevant PRs not audited; different zkVM field/relations/masking, no native private-stack factor. Benchmark-exclusion commit cannot support sumcheck claims.",
+    "access_issues": [
+      "https://github.com/a16z/jolt/blob/main/LICENSE: Internal Error"
+    ]
+  },
+  {
+    "cycle": "0029",
+    "run_id": "20261004T110146Z-56ac7478",
+    "access_date": "2026-10-04",
+    "recorded_at_utc": "2026-10-04T11:16:15.845123+00:00",
+    "evidence_kind": "Native LIVE primary search/inspection; no downloaded code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "id": "cycle29-rust-vector-capacity-contract",
+    "title": "Rust Vec::truncate allocation contract",
+    "url": "https://doc.rust-lang.org/std/vec/struct.Vec.html#method.truncate",
+    "published": null,
+    "updated": null,
+    "date_basis": "Current official API text inspected; page publication/update date absent",
+    "author_claim": "truncate changes length without changing allocated capacity.",
+    "assessment": "Native grouped.rs167 truncates without shrink, so declining logical length alone is not declining table capacity. Python lists are not a Rust allocator benchmark. Avoiding equality allocations could remove their full capacity; shrinking folds would add realloc/copy and does not reduce initial peak."
+  }
+]

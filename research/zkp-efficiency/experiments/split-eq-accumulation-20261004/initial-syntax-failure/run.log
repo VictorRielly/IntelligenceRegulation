@@ -1,0 +1,4 @@
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/split-eq-accumulation-20261004/experiment.py", line 153
+    scope='count only, equality weighting; all data/bracket/fold/setup/masks/PCS/transfers excluded')))
+                                                                                                      ^
+SyntaxError: unmatched ')'

@@ -1,0 +1,30 @@
+{
+  "source": "/home/victor/IntelligenceRegulation/results/zk60_mvp_20260929/baseline-stack-gpu-attempt2/report.json",
+  "source_sha256": "ae971925a0c2ffb0c7d04a4722dc39903308639fd449708df722e14f4a69687e",
+  "owner_report": {
+    "state": "passed",
+    "scope": "synthetic dense 12-block 125M geometry",
+    "trained_checkpoint": false,
+    "complete_8b_proof": false,
+    "privacy_accepted": false,
+    "tokens_counted_once": 512,
+    "blocks": 12,
+    "fresh_process_verification": false,
+    "includes_native_test_oracles": true,
+    "shared_host": true,
+    "samples": 1,
+    "exit_code": 0,
+    "workload_wall_seconds": 408.60922643699996,
+    "accepted_keyed_commits": 37,
+    "log_sha256": "a1575d1d48025978d6470b30541756bcc2372c33030cde35afee6196c4c1364a",
+    "gpu_samples": 392,
+    "sampled_vram_peak_mib": 2113.0,
+    "prove_run_seconds": 318.22,
+    "verify_in_process_seconds": 12.15,
+    "receipt_bytes": 484107456,
+    "diagnostic_positions_per_workload_second": 1.25303093242546,
+    "target_ratio": 39.90324476923828,
+    "target_met": false
+  },
+  "research_assessment": "Recorded owner synthetic 12-block T512 GPU diagnostic, one cold process, same-process verification only. Researcher ran no proof. No countable independently verified trained 8B positions. Run-prover clock includes witness/serialization according to inspected run.rs; startup and serialization clocks are not separated."
+}

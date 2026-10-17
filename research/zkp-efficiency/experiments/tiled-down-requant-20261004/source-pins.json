@@ -1,0 +1,51 @@
+[
+  {
+    "path": "ops/zkp-mvp/candidate/hashline/src/private_block/witness.rs",
+    "snapshot": "ops__zkp-mvp__candidate__hashline__src__private_block__witness.rs",
+    "bytes": 29357,
+    "sha256": "b9b66c024e7ca68d2a0ae4ba46241eb2abbccc8c8d94fe828041abbc710850ad"
+  },
+  {
+    "path": "ops/zkp-mvp/candidate/hashline/src/private_block/layout.rs",
+    "snapshot": "ops__zkp-mvp__candidate__hashline__src__private_block__layout.rs",
+    "bytes": 61217,
+    "sha256": "14758039fbe9daa61affa1316c6e4159437b98d888d72a926f6e70e788592b30"
+  },
+  {
+    "path": "ops/zkp-mvp/candidate/hashline/src/private_block/shape.rs",
+    "snapshot": "ops__zkp-mvp__candidate__hashline__src__private_block__shape.rs",
+    "bytes": 71241,
+    "sha256": "dbf4e2bc36e9f74c432d6e529b229e3a593e794271fd8593d1412b8312403911"
+  },
+  {
+    "path": "ops/zkp-mvp/candidate/private-block-kernel/src/lib.rs",
+    "snapshot": "ops__zkp-mvp__candidate__private-block-kernel__src__lib.rs",
+    "bytes": 22843,
+    "sha256": "9e7c9bff10790c643ab26dcd6335991a016e62d9cc19ae217a92de60e27d4cf6"
+  },
+  {
+    "path": "results/zk60_mvp_20260929/baseline-stack-gpu-attempt2/report.json",
+    "snapshot": "results__zk60_mvp_20260929__baseline-stack-gpu-attempt2__report.json",
+    "bytes": 1157,
+    "sha256": "ae971925a0c2ffb0c7d04a4722dc39903308639fd449708df722e14f4a69687e"
+  },
+  {
+    "path": "results/zk60_mvp_20260929/llama3-8b/config.json",
+    "snapshot": "results__zk60_mvp_20260929__llama3-8b__config.json",
+    "bytes": 654,
+    "sha256": "2430cee764b6530ff8673cf9ba8561e1d5a33152d503cd0de909ff5718261441"
+  },
+  {
+    "path": "research/zkp-efficiency/experiments/int16-split-witness-20261004/cost-accounting.json",
+    "snapshot": "research__zkp-efficiency__experiments__int16-split-witness-20261004__cost-accounting.json",
+    "bytes": 1729,
+    "sha256": "b9d798dfe309ffaaff74b95a10dfb070d90b9fce0e15cd0048746a3050837dac"
+  },
+  {
+    "path": "ops/zkp-mvp/candidate/hashline/src/gpu/cuda.rs",
+    "snapshot": "ops__zkp-mvp__candidate__hashline__src__gpu__cuda.rs",
+    "bytes": 205193,
+    "sha256": "8fe2a2a39e0796254be37d0d7507d7fc22ea3af141d97d35cd93754d505072c9",
+    "scope": "existing CudaDevice singleton/uploader source only; no witness GEMM implemented"
+  }
+]

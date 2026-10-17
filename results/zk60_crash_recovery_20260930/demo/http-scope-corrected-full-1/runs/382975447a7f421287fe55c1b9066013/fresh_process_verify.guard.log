@@ -1,0 +1,2 @@
+[zk60-guard 18:31:14] START demo-fresh_process_verify class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=92c1aaa22fa6
+[zk60-guard 18:31:14] END demo-fresh_process_verify exit=0 child_wall=0s peak_rss=0.00G min_avail=13.83G

@@ -1,0 +1,1 @@
+Initial passing run retained before adding direct public zero-extension selector and future-score controls. Its four source files were reconstructed by removing precisely those added sections from final source and ALL original result-recorded SHA256 pins match. Final code/result adds coverage. Neither is native proof evidence.

@@ -1,0 +1,32 @@
+[
+  {
+    "path": "STATE.md",
+    "bytes": 5151,
+    "sha256": "2f9860ee56bee6f9f9baacb91fa7eb4b48ab81ffb3a8d9aec6fe1db353b1af88"
+  },
+  {
+    "path": "FINDINGS.md",
+    "bytes": 169899,
+    "sha256": "b667acb5a37020080d5bd471a883bc28c6039f413506ff655df8fe2a1efc8d92"
+  },
+  {
+    "path": "PROGRESS.md",
+    "bytes": 2014,
+    "sha256": "66ce67a7e389d623089839113811428c834f8b00eacfa6ad37013b67a9dae3f6"
+  },
+  {
+    "path": "sources.jsonl",
+    "bytes": 129561,
+    "sha256": "1a7c09248fcc6aebd1867dd0b426497db3ad66577614ee7cc51f80282bbc54a8"
+  },
+  {
+    "path": "progress/20261004T060146Z-96d1ccac.md",
+    "bytes": 9124,
+    "sha256": "6c32ca71ea1017903c76f8eaf6191bf1320e0f8fc37d75b4b9d8a909279679ae"
+  },
+  {
+    "path": "handoffs/20261004-grouped-down-schedule.md",
+    "bytes": 4657,
+    "sha256": "9ac7eb6a48f9cc3ae096aad3e6ba7d08922f1de53f03886c096caed4989ee40c"
+  }
+]

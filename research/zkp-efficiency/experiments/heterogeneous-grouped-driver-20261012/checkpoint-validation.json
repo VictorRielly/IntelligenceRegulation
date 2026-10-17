@@ -1,0 +1,18 @@
+{
+  "checked_at_utc": "2026-10-12T21:39:20.051396+00:00",
+  "checks": {
+    "FINDINGS.md_history_preserved": true,
+    "sources.jsonl_history_preserved": true,
+    "source_count": true,
+    "five_source_ids_unique": true,
+    "executed_code_pins": true,
+    "native_and_measurement_pins": true,
+    "agenda_unchanged": true,
+    "progress_matches_dated": true,
+    "state_run_id": true,
+    "state_commit_pin": true,
+    "within_cycle_deadline": true
+  },
+  "artifact_count": 53,
+  "status": "pass"
+}

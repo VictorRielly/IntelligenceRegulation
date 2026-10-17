@@ -1,0 +1,1237 @@
+--- a/hashline/src/private_block/argument.rs
++++ b/hashline/src/private_block/argument.rs
+@@ -1225,6 +1225,9 @@
+                 pz.mu = mu[6];
+                 pz.add(gt.0, &planes?, zeta);
+             }
++            // LANE C SCRATCH: the norm epsilon is the SHAPE's (the frozen 1
++            // at every registered shape)
++            let k_ceps = k(sh.norm_ceps);
+             let poly = move |v: &[Fp2]| {
+                 let l3 = |o: usize| v[o].add(v[o + 1].mul(p1)).add(v[o + 2].mul(p2));
+                 let (d, dsq, dl, a1, a2) = (v[i_d], v[i_dsq], l3(i_limb), l3(i_limb + 3), l3(i_limb + 6));
+@@ -1234,8 +1237,8 @@
+                 let g = gt.at(v);
+                 v[i_tau]
+                     .mul(zc.add(pz.eval(v)))
+-                    .add(nu[0].mul(v[i_rt]).mul(g).mul(dsq.add(a1).sub(k(NORM_CEPS))))
+-                    .add(nu[1].mul(v[i_rt2]).mul(g).mul(dsqm.add(a1m).sub(k(NORM_CEPS))))
++                    .add(nu[0].mul(v[i_rt]).mul(g).mul(dsq.add(a1).sub(k_ceps)))
++                    .add(nu[1].mul(v[i_rt2]).mul(g).mul(dsqm.add(a1m).sub(k_ceps)))
+             };
+             b.finish(Box::new(poly), hosted)
+         }
+@@ -1463,7 +1466,10 @@
+                 b.h(hids.helper(Dom::D, j))?;
+             }
+             let lks = lk_tables(lay, Dom::D, &b.shaped, g_u8);
+-            let (k_num, k_dv, k_den) = (k(2 * NORM_CN), k(1 << NORM_TN), k(1 << (NORM_TN + 1)));
++            // LANE C SCRATCH: `Cn` and the attention-output shift are the
++            // SHAPE's (the frozen values at every registered shape)
++            let (k_num, k_dv, k_den) = (k(2 * sh.norm_cn), k(1 << NORM_TN), k(1 << (NORM_TN + 1)));
++            let k_ao_half = k(super::witness::half(sh.sh_ao));
+             // **STAGE 35, LEVER (b)(iii): the public constants as BASE field
+             // elements.** Every one of these is `Fp2::from_i64` of a public
+             // integer of the profile, so its imaginary part is zero, and for
+@@ -1479,7 +1485,7 @@
+             // the closure instead of being paid as a multiply by one, which
+             // is what the hand-written `l2` and `l3` already do.
+             let (b_num, b_dv, b_den, b_p1) = (k_num.c0, k_dv.c0, k_den.c0, p1.c0);
+-            let (b_ao, b_z) = (k(1 << SH_AO).c0, k(1 << SH_Z).c0);
++            let (b_ao, b_z) = (k(1i64 << sh.sh_ao).c0, k(1 << SH_Z).c0);
+             let lw = |ix: &[usize]| -> Vec<(usize, Fp)> { ix.iter().enumerate().map(|(kk, i)| (*i, pow256(kk).c0)).collect() };
+             let (w_nr, w_ns, w_mr, w_ms) = (lw(&i_nr), lw(&i_ns), lw(&i_mr), lw(&i_ms));
+             let hosted = vec![(SC_WO, nu[0]), (SC_DMM, nu[1])];
+@@ -1520,6 +1526,8 @@
+                 alpha,
+                 gd: super::s35_tests::Gate(gd.0),
+                 pz: super::s35_tests::PadTerm { groups: pz.groups.clone(), mu: pz.mu },
++                norm_cn: sh.norm_cn,
++                sh_ao: sh.sh_ao,
+             };
+             let poly = move |v: &[Fp2]| {
+                 let at = |p: usize| v[idx[p]];
+@@ -1574,7 +1582,7 @@
+                     clauses = clauses.add(m.mul(c));
+                 }
+                 let zc = helper_sum(v, &lks, h0, alpha, &mu[11..]).add(pz.eval(v)).add(g.mul(clauses));
+-                let host_wo = ao.mul_base(b_ao).add(at(A_RAL)).sub(k(1 << (SH_AO - 1)));
++                let host_wo = ao.mul_base(b_ao).add(at(A_RAL)).sub(k_ao_half);
+                 let host_dmm = z16.mul_base(b_z).add(at(A_RDL)).sub(k(1 << (SH_Z - 1)));
+                 v[0].mul(zc).add(nu[0].mul(v[1]).mul(g).mul(host_wo)).add(nu[1].mul(v[2]).mul(g).mul(host_dmm))
+             };
+--- /dev/null
++++ b/hashline/src/private_block/lane_c_tinyllama_tests.rs
+@@ -0,0 +1,387 @@
++//! **LANE C SCRATCH PROTOTYPE TESTS (2026-09-30) — NOT IN THE MAIN TREE.**
++//!
++//! The TinyLlama-1.1B geometry (width 2048, FFN 5632, 32 query heads of 64
++//! over 4 key-value heads, T = 32) against the restored unpromoted candidate:
++//!
++//! * the layout counts at the TRUE geometry reproduce the retained Sol probe
++//!   (`results/zk60_1b_model_20260927/layout_probe.log`), and the frozen toy,
++//!   the calibration literal and 125M do not move;
++//! * the TRUE geometry has a layout and NO witness: its norm window is 33
++//!   bits, five remainder limbs, and the witness builder refuses by name;
++//! * the development shape (norm window 32) builds an admissible DENSE
++//!   SYNTHETIC witness, and one block of it proves and verifies (heavy,
++//!   `#[ignore]`d) — public synthetic weights, NOT a trained model;
++//! * the trained-model statement: every field moves its identity, a
++//!   calibration the relations do not use is refused, and a run bound to it
++//!   absorbs its identity, verifies under it, and is rejected under any other.
++//!
++//! **Capture rule.** Everything here is public synthetic test data. Only
++//! counts, fractions, sizes, times and memory marks are printed; no witness
++//! value, position or hidden word is printed or written anywhere.
++
++use super::dense_tests::{dense_case, statement_of_words};
++use super::layout::*;
++use super::protocol::{prove_inner_at, verify_inner_at};
++use super::run::{self, RunShape, RunStatement, RunWitnessSource};
++use super::shape::Shape;
++use super::trained_statement::*;
++use super::witness::{self, Witness};
++use super::*;
++
++// ------------------------------------------------------------ layout counts
++
++/// The Sol probe's retained counts, `layout_probe.log` lines 150 and 160.
++#[test]
++fn the_true_geometry_reproduces_the_retained_sol_layout_counts() {
++    for (lc, a, h, receipt, u8s) in [(12usize, 1801usize, 1934usize, 12_053_320usize, 6_496_256usize), (13, 1031, 1026, 11_959_304, 6_504_448)] {
++        let sh = Shape::tinyllama_t32_probe(lc).expect("the true TinyLlama geometry constructs at this row width");
++        let t = sh.totals();
++        assert_eq!((t.a_rows, t.h_rows, t.m_rows, t.receipt_bytes.total, t.u8_lookups), (a, h, 50, receipt, u8s), "log_cols {lc}: the counts moved from the retained probe");
++        let lay = Layout::for_shape(&sh).expect("the layout builds");
++        assert_eq!((lay.a_rows, lay.h_rows), (a, h), "log_cols {lc}: Layout::for_shape disagrees with Shape::totals");
++        eprintln!("TinyLlama true geometry log_cols {lc}: A {a} rows, H {h} rows, M 50, receipt {receipt} B, u8 lookups {u8s}, norm window {} bits = {} limbs", sh.norm_wrho, sh.limbs_norm());
++    }
++    let e = Shape::tinyllama_t32_probe(14).expect_err("log_cols 14 must be refused at T32");
++    assert!(e.contains("Kv domain is lifted by P-3"), "the refusal is not F-2's: {e}");
++}
++
++/// Nothing that exists moves: the toy's pinned counts and receipt length,
++/// the calibration literal, 125M's rows.
++#[test]
++fn the_frozen_toy_the_calibration_literal_and_125m_do_not_move() {
++    let t = Shape::toy().totals();
++    assert_eq!((t.a_rows, t.h_rows, t.receipt_bytes.total), (455, 384, 2_816_472), "the frozen toy moved");
++    assert_eq!(calibration_identity(), *blake3::hash(b"B3 public fixed calibration v1").as_bytes(), "the calibration literal moved");
++    let m = Shape::m125().totals();
++    assert_eq!((m.a_rows, m.h_rows), (5_681, 7_120), "125M moved");
++    assert_ne!(Shape::tinyllama_t32_dev().profile, Shape::m125().profile);
++    assert!(!Shape::tinyllama_t32_dev().hashes_under_the_legacy_rule(), "a new profile is tagged (D19a)");
++}
++
++/// The development shape: one override, and what it does to the counts.
++#[test]
++fn the_development_shape_has_four_norm_limbs_and_its_own_counts() {
++    let sh = Shape::tinyllama_t32_dev();
++    assert_eq!((sh.norm_wrho, sh.limbs_norm(), sh.norm_top_is_full_byte()), (32, 4, true), "the development window");
++    assert_eq!((sh.d_pad, sh.h_pad, sh.f_pad, sh.t_pad), (2048, 32, 8192, 32));
++    // TinyLlama pads only the limb, feed-forward and table domains
++    assert_eq!(sh.padded_domains(), vec![Dom::L, Dom::F, Dom::Tab]);
++    let t = sh.totals();
++    let lay = Layout::for_shape(&sh).expect("the development layout builds");
++    assert_eq!((lay.a_rows, lay.h_rows), (t.a_rows, t.h_rows));
++    eprintln!(
++        "TinyLlama dev shape: A {} rows ({} data), H {} rows ({} data), A planes {}, H planes {}, receipt {} B (slots {} / mask {} / A {} / H {} / endpoints {}), largest slot message {} of 256",
++        t.a_rows,
++        t.a_data_rows,
++        t.h_rows,
++        t.h_data_rows,
++        t.a_planes,
++        t.h_planes,
++        t.receipt_bytes.total,
++        t.receipt_bytes.slots,
++        t.receipt_bytes.mask_opening,
++        t.receipt_bytes.a_opening,
++        t.receipt_bytes.h_opening,
++        t.receipt_bytes.endpoint_openings,
++        t.largest_slot_length
++    );
++}
++
++// ------------------------------------------------------- the witness blocker
++
++fn zero_words(s: &Shape) -> [Vec<i8>; 9] {
++    let (d, f, kvw) = (s.width, s.hidden, s.kv_heads * s.head_dim);
++    [vec![0; d * d], vec![0; kvw * d], vec![0; kvw * d], vec![0; d * d], vec![1; d], vec![1; d], vec![0; d * f], vec![0; d * f], vec![0; f * d]]
++}
++
++/// **BLOCKER B-W1, demonstrated.** At the TRUE geometry the witness builder
++/// refuses before computing anything, by name, whatever the weights are.
++#[test]
++fn the_true_geometry_has_a_layout_but_no_witness() {
++    let sh = Shape::tinyllama_t32_probe(12).expect("the probe shape");
++    assert_eq!((sh.norm_wrho, sh.limbs_norm()), (33, 5));
++    let (public, ff) = statement_of_words(&sh, &zero_words(&sh));
++    let input = vec![0i16; sh.tokens * sh.width];
++    let e = match witness::build_shaped(&sh, &public, &ff, &input) {
++        Ok(_) => panic!("a five-limb witness was built"),
++        Err(e) => e,
++    };
++    assert!(e.contains("different number of byte limbs"), "the refusal is not the pinned-limb one: {e}");
++}
++
++// ------------------------------------------- the dense synthetic block proof
++
++fn upper_fraction(sh: &Shape, plane: &[i64]) -> f64 {
++    let (d, f, fp) = (sh.width, sh.hidden, sh.f_pad);
++    let live = (0..sh.tokens).flat_map(|t| (d..f).map(move |j| t * fp + j)).filter(|i| plane[*i] != 0).count();
++    live as f64 / (sh.tokens * (f - d)) as f64
++}
++
++fn dense_witness(sh: &Shape) -> (BlockPublic, Witness) {
++    let (public, ff, input) = dense_case(sh);
++    let t0 = std::time::Instant::now();
++    let w = witness::build_shaped(sh, &public, &ff, &input).unwrap_or_else(|m| panic!("the dense recipe is not admissible at {}: {m}", sh.name));
++    let ids = Ids::new(sh).expect("the plane map");
++    assert!(super::pad::every_checkable_relation_holds(sh, &ids, &w), "the dense witness is inconsistent");
++    eprintln!(
++        "TinyLlama dev dense witness built in {:.2} s; upper hidden half gate {:.1}% / act {:.1}% nonzero; peak RSS {:.0} MiB",
++        t0.elapsed().as_secs_f64(),
++        100.0 * upper_fraction(sh, &w.planes[ids.at(A_G8)]),
++        100.0 * upper_fraction(sh, &w.planes[ids.at(A_A16)]),
++        run::peak_rss_mib()
++    );
++    (BlockPublic::new(public, ff), w)
++}
++
++/// Admissibility only (no proof): the dense recipe survives width 2048.
++#[test]
++#[ignore = "lane C heavy: builds a width-2048 witness"]
++fn lane_c_the_dense_recipe_is_admissible_at_the_tinyllama_dev_shape() {
++    let sh = Shape::tinyllama_t32_dev();
++    let _ = dense_witness(&sh);
++}
++
++fn lane_c_context() -> Digest {
++    *blake3::hash(b"lane C scratch: the TinyLlama geometry, dense synthetic").as_bytes()
++}
++
++/// **ONE BLOCK AT THE TINYLLAMA GEOMETRY PROVES AND VERIFIES** — dense public
++/// SYNTHETIC weights, development calibration, CPU. With the three controls a
++/// trained-block acceptance would need: a statement mutation, a receipt
++/// mutation and a truncation are refused.
++#[test]
++#[ignore = "lane C heavy: one width-2048 block proof"]
++fn lane_c_one_dense_block_proves_and_verifies_at_the_tinyllama_dev_shape() {
++    let sh = Shape::tinyllama_t32_dev();
++    let (blk, w) = dense_witness(&sh);
++    let ids = Ids::new(&sh).expect("the plane map");
++    let plane = |p: usize| -> Vec<i16> { w.planes[p].iter().map(|v| i16::try_from(*v).expect("an endpoint word outside int16")).collect() };
++    let spec = IoSpec::new_shaped(&sh, lane_c_context(), 0, 0).expect("the endpoint spec");
++    let (expected, owners) = prepare_endpoints(spec, &plane(ids.at(A_X)), &plane(ids.at(A_X2))).expect("the endpoint owners");
++    let t0 = std::time::Instant::now();
++    let (receipt, _) = prove_inner_at(&sh, &blk, w, &expected, owners).expect("the honest dense TinyLlama-geometry block proves");
++    let prove_s = t0.elapsed().as_secs_f64();
++    let bytes = receipt.to_bytes_at(&sh, &blk, &expected).expect("the receipt encodes");
++    let hwm_prove = run::peak_rss_mib();
++    assert_eq!(bytes.len(), sh.receipt_bytes().total, "the receipt is not the counted length");
++    verify_inner_at(&sh, &blk, &expected, &receipt).expect("the receipt verifies in typed form");
++    drop(receipt);
++    let t1 = std::time::Instant::now();
++    verify_bytes_at(&sh, &blk, &expected, &bytes).expect("the receipt verifies from bytes");
++    let verify_s = t1.elapsed().as_secs_f64();
++    // control 1: truncation
++    assert!(verify_bytes_at(&sh, &blk, &expected, &bytes[..bytes.len() - 1]).is_err(), "a short receipt was accepted");
++    // control 2: receipt mutation, one byte in the middle of the frame
++    let mut bad = bytes.clone();
++    let mid = bad.len() / 2;
++    bad[mid] ^= 1;
++    assert!(verify_bytes_at(&sh, &blk, &expected, &bad).is_err(), "a mutated receipt was accepted");
++    // control 3: statement mutation, one public weight word moved
++    let (mut public2, ff2, _) = dense_case(&sh);
++    public2.gamma_a[0] = public2.gamma_a[0].wrapping_add(1).max(1);
++    let blk2 = BlockPublic::new(public2, ff2);
++    assert_ne!(blk2.digest(), blk.digest());
++    assert!(verify_bytes_at(&sh, &blk2, &expected, &bytes).is_err(), "a receipt verified under another public statement");
++    eprintln!(
++        "LANE C TinyLlama dev shape, ONE dense synthetic block: prove {prove_s:.2} s, verify from bytes {verify_s:.2} s, receipt {} B (counted {}), peak RSS after prove {hwm_prove:.0} MiB, at end {:.0} MiB (shared box, diagnostic only; NOT a trained model)",
++        bytes.len(),
++        sh.receipt_bytes().total,
++        run::peak_rss_mib()
++    );
++}
++
++// ------------------------------------------------ the trained statement
++
++fn synthetic_source(name: &str, layers: u32) -> ModelSource {
++    ModelSource {
++        kind: SourceKind::PublicSyntheticRecipe,
++        repo: "hashline/private-block/tame-fixture".into(),
++        revision: name.into(),
++        weights_sha256: [0; 32],
++        config_sha256: [0; 32],
++        checkpoint_parameters: 0,
++        checkpoint_layers: layers,
++    }
++}
++
++fn calib(sh: &Shape) -> IntegerCalibration {
++    IntegerCalibration::as_the_code_proves(sh, "lane-c/scratch-dev/0", 1.0 / 1024.0, [7; 32], [9; 32])
++}
++
++/// The pinned TinyLlama source record, and its refusals.
++#[test]
++fn the_tinyllama_source_record_is_the_pinned_one_and_is_checked() {
++    let s = ModelSource::tinyllama_chat_v1_0();
++    assert_eq!((s.checkpoint_parameters, s.checkpoint_layers), (1_100_048_384, 22));
++    let sh = Shape::tinyllama_t32_dev();
++    let (public, ff) = statement_of_words(&sh, &zero_words(&sh));
++    let blk = BlockPublic::new(public, ff);
++    let rec = LayerRecord::of_block(0, &blk, vec![("model.layers.0.self_attn.q_proj.weight".into(), [1; 32])]);
++    let st = TrainedModelStatement::new(&sh, run::RUN_PROFILE_TINYLLAMA_T32_DEV, s.clone(), calib(&sh), vec![rec.clone()]).expect("a one-layer statement");
++    let id = st.identity();
++    assert_eq!(id, TrainedModelStatement::new(&sh, run::RUN_PROFILE_TINYLLAMA_T32_DEV, s.clone(), calib(&sh), vec![rec.clone()]).unwrap().identity(), "the identity is not deterministic");
++    let mut branch = s.clone();
++    branch.revision = "main".into();
++    assert!(TrainedModelStatement::new(&sh, run::RUN_PROFILE_TINYLLAMA_T32_DEV, branch, calib(&sh), vec![rec.clone()]).is_err(), "a branch name was accepted as a revision");
++    let mut nohash = s.clone();
++    nohash.weights_sha256 = [0; 32];
++    assert!(TrainedModelStatement::new(&sh, run::RUN_PROFILE_TINYLLAMA_T32_DEV, nohash, calib(&sh), vec![rec.clone()]).is_err(), "a source without its tensor-file digest was accepted");
++    let mut far = rec.clone();
++    far.index = 22;
++    assert!(TrainedModelStatement::new(&sh, run::RUN_PROFILE_TINYLLAMA_T32_DEV, s.clone(), calib(&sh), vec![far]).is_err(), "layer 22 of a 22-layer checkpoint was accepted");
++    eprintln!("the one-layer TinyLlama dev statement: {} encoded bytes", st.encode().len());
++}
++
++/// Every field moves the identity; a constant the relations do not use is
++/// refused rather than hashed.
++#[test]
++fn every_statement_field_moves_the_identity_and_an_unused_constant_is_refused() {
++    let sh = Shape::tinyllama_t32_dev();
++    let (public, ff) = statement_of_words(&sh, &zero_words(&sh));
++    let blk = BlockPublic::new(public, ff);
++    let rec = LayerRecord::of_block(0, &blk, vec![]);
++    let base = TrainedModelStatement::new(&sh, run::RUN_PROFILE_TINYLLAMA_T32_DEV, ModelSource::tinyllama_chat_v1_0(), calib(&sh), vec![rec.clone()]).unwrap();
++    let mut ids = vec![base.identity()];
++    let mut push = |st: TrainedModelStatement| ids.push(st.identity());
++    let mut v = base.clone();
++    v.source.revision = "0000000000000000000000000000000000000000".into();
++    push(v);
++    let mut v = base.clone();
++    v.source.weights_sha256[0] ^= 1;
++    push(v);
++    let mut v = base.clone();
++    v.source.config_sha256[31] ^= 1;
++    push(v);
++    let mut v = base.clone();
++    v.layers[0].block_digest[0] ^= 1;
++    push(v);
++    let mut v = base.clone();
++    v.layers[0].word_sha256[8][0] ^= 1;
++    push(v);
++    let mut v = base.clone();
++    v.layers[0].table_sha256[1][0] ^= 1;
++    push(v);
++    let mut v = base.clone();
++    v.calibration.quantizer_sha256[0] ^= 1;
++    push(v);
++    let mut v = base.clone();
++    v.calibration.calibration_set_sha256[0] ^= 1;
++    push(v);
++    let mut v = base.clone();
++    v.calibration.residual_unit_f64_bits ^= 1;
++    push(v);
++    let mut v = base.clone();
++    v.calibration.label.push('x');
++    push(v);
++    let mut v = base.clone();
++    v.run_profile.push('x');
++    push(v);
++    let mut v = base.clone();
++    v.layers[0].source_tensors.push(("model.layers.0.mlp.down_proj.weight".into(), [3; 32]));
++    push(v);
++    let n = ids.len();
++    ids.sort();
++    ids.dedup();
++    assert_eq!(ids.len(), n, "two different statements share an identity");
++    // a calibration constant the relations do not use is REFUSED, not hashed
++    let mut c = calib(&sh);
++    c.norm_cn = 4096;
++    assert!(TrainedModelStatement::new(&sh, run::RUN_PROFILE_TINYLLAMA_T32_DEV, ModelSource::tinyllama_chat_v1_0(), c, vec![rec.clone()]).is_err(), "a norm constant the relations do not use was accepted");
++    let mut c = calib(&sh);
++    c.sh_qkv = 10;
++    assert!(TrainedModelStatement::new(&sh, run::RUN_PROFILE_TINYLLAMA_T32_DEV, ModelSource::tinyllama_chat_v1_0(), c, vec![rec]).is_err(), "a shift the relations do not use was accepted");
++}
++
++// ------------------------------------------- a run BOUND to its statement
++
++fn padded(w: &Witness, plane: usize) -> Vec<i16> {
++    w.planes[plane].iter().map(|v| i16::try_from(*v).expect("a plane word outside int16")).collect()
++}
++
++fn true_input(sh: &Shape, plane: &[i16]) -> Vec<i16> {
++    (0..sh.tokens).flat_map(|t| plane[t * sh.d_pad..t * sh.d_pad + sh.width].to_vec()).collect()
++}
++
++/// the honest chain at a small shape, ONE plane per boundary kept
++struct Chain {
++    sh: Shape,
++    public: AttentionPublic,
++    ff: FeedForwardPublic,
++    inputs: Vec<Vec<i16>>,
++    planes: Vec<Vec<i16>>,
++}
++
++impl Chain {
++    fn honest(sh: &Shape, l: usize) -> Chain {
++        let (public, ff, x0) = super::grow_tests::tame_case(sh);
++        let ids = Ids::new(sh).unwrap();
++        let (mut inputs, mut planes, mut x) = (vec![], vec![], x0);
++        for k in 0..l {
++            let w = witness::build_shaped(sh, &public, &ff, &x).expect("an honest witness");
++            if k == 0 {
++                planes.push(padded(&w, ids.at(A_X)));
++            }
++            planes.push(padded(&w, ids.at(A_X2)));
++            inputs.push(x);
++            x = true_input(sh, &w.output().unwrap());
++        }
++        Chain { sh: sh.clone(), public, ff, inputs, planes }
++    }
++}
++
++impl RunWitnessSource for Chain {
++    fn witness(&mut self, k: usize) -> Result<Witness, String> {
++        witness::build_shaped(&self.sh, &self.public, &self.ff, &self.inputs[k])
++    }
++    fn boundary_plane(&mut self, k: usize) -> Result<Vec<i16>, String> {
++        Ok(self.planes[k + 1].clone())
++    }
++}
++
++fn bound_statement(sh: &Shape, profile: &str, blocks: &[BlockPublic], quantizer: u8) -> TrainedModelStatement {
++    let recs = blocks.iter().enumerate().map(|(k, b)| LayerRecord::of_block(k as u32, b, vec![])).collect();
++    let mut c = calib(sh);
++    c.quantizer_sha256 = [quantizer; 32];
++    TrainedModelStatement::new(sh, profile, synthetic_source("tame", blocks.len() as u32), c, recs).expect("the statement")
++}
++
++/// **THE BINDING, end to end at the rung-G development shape (small and
++/// fast).** A run bound to a statement absorbs that statement's identity,
++/// which is NOT the literal, proves and verifies; the same segments are
++/// REJECTED under a statement that differs in one provenance byte, and a
++/// statement that does not describe the run does not construct.
++#[test]
++fn a_run_bound_to_its_statement_verifies_and_is_rejected_under_any_other() {
++    let sh = Shape::rung_g();
++    let l = 2;
++    let mut chain = Chain::honest(&sh, l);
++    let blocks: Vec<BlockPublic> = (0..l).map(|_| BlockPublic::new(chain.public.clone(), chain.ff.clone())).collect();
++    let ctx = *blake3::hash(b"lane C: a bound run").as_bytes();
++    let spec = IoSpec::new_shaped(&sh, ctx, 0, 0).unwrap();
++    let (expected, owners) = prepare_endpoints(spec, &chain.planes[0], &chain.planes[l]).unwrap();
++    let model = bound_statement(&sh, run::RUN_PROFILE_RUNG_G, &blocks, 1);
++    let st = RunStatement::new_bound(RunShape::rung_g(l).unwrap(), ctx, expected.clone(), &blocks, &vec![(0, 0); l], &model).expect("the bound run statement");
++    let plain = RunStatement::new(RunShape::rung_g(l).unwrap(), ctx, expected.clone(), &blocks, &vec![(0, 0); l]).unwrap();
++    assert_ne!(st.binding().unwrap(), plain.binding().unwrap(), "the bound run absorbs the literal calibration");
++    let mut segs: Vec<Vec<u8>> = vec![];
++    run::prove_run(&st, &blocks, &mut chain, owners, &mut |_, b| {
++        segs.push(b);
++        Ok(())
++    })
++    .expect("the bound run proves");
++    run::verify_run(&st, &blocks, &segs).expect("the bound run verifies under its own statement");
++    // one provenance byte moved: same blocks, same scales, other identity
++    let other = bound_statement(&sh, run::RUN_PROFILE_RUNG_G, &blocks, 2);
++    let st2 = RunStatement::new_bound(RunShape::rung_g(l).unwrap(), ctx, expected.clone(), &blocks, &vec![(0, 0); l], &other).unwrap();
++    assert!(run::verify_run(&st2, &blocks, &segs).is_err(), "the segments verified under a different model statement");
++    assert!(run::verify_run(&plain, &blocks, &segs).is_err(), "the segments verified under the literal calibration");
++    // statements that do not describe this run do not construct
++    let short = bound_statement(&sh, run::RUN_PROFILE_RUNG_G, &blocks[..1], 1);
++    assert!(RunStatement::new_bound(RunShape::rung_g(l).unwrap(), ctx, expected.clone(), &blocks, &vec![(0, 0); l], &short).is_err(), "a one-layer statement bound a two-block run");
++    let wrong_profile = bound_statement(&sh, run::RUN_PROFILE_RUNG_K4, &blocks, 1);
++    assert!(RunStatement::new_bound(RunShape::rung_g(l).unwrap(), ctx, expected.clone(), &blocks, &vec![(0, 0); l], &wrong_profile).is_err(), "a statement for another run profile was accepted");
++    let mut foreign = model.clone();
++    foreign.layers[1].block_digest[0] ^= 1;
++    assert!(RunStatement::new_bound(RunShape::rung_g(l).unwrap(), ctx, expected.clone(), &blocks, &vec![(0, 0); l], &foreign).is_err(), "a statement naming another block was accepted");
++    assert!(RunStatement::new_bound(RunShape::rung_g(l).unwrap(), ctx, expected, &blocks, &[(0, 0), (1, 1)], &model).is_err(), "a scale the calibration does not approve was accepted");
++}
+--- a/hashline/src/private_block/layout.rs
++++ b/hashline/src/private_block/layout.rs
+@@ -723,7 +723,9 @@
+             if norm_top {
+                 v.push(scaled(ids.ns(ln - 1), norm_scale));
+             }
+-            v.extend([byte(ids.at(A_AL0)), byte(ids.at(A_AL1)), byte(ids.at(A_RAL)), scaled(ids.at(A_RAL), 2), byte(ids.at(A_X1L0)), byte(ids.at(A_X1L1))]);
++            // LANE C SCRATCH: the AO remainder's top-bit pin is `2^(8 - sh_ao)`
++            // (the frozen 2 at SH_AO = 7; 256, i.e. remainder zero, at 0)
++            v.extend([byte(ids.at(A_AL0)), byte(ids.at(A_AL1)), byte(ids.at(A_RAL)), scaled(ids.at(A_RAL), 1i64 << (8 - sh.sh_ao)), byte(ids.at(A_X1L0)), byte(ids.at(A_X1L1))]);
+             // T1 section C.1: norm_m's class, its rho / sigma limbs, and
+             // residual 2's int16 limbs. Fourteen lookups at four limbs.
+             v.extend(sym(ids.at(A_YM)));
+--- a/hashline/src/private_block/run.rs
++++ b/hashline/src/private_block/run.rs
+@@ -68,6 +68,9 @@
+ /// shape (`Shape::rung_e32`), by the same rule: one profile per shape (D17).
+ pub(crate) const RUN_PROFILE_RUNG_E32: &str = "hashline-zk-mr1/private-run-rung-e32-t32-dev/1";
+ pub(crate) const RUN_PROFILE_M125: &str = "hashline-zk-mr1/private-run-m125/1";
++/// LANE C SCRATCH (not in the main tree): the run profile of the TinyLlama
++/// geometry's development shape, by the same rule: one profile per shape (D17).
++pub(crate) const RUN_PROFILE_TINYLLAMA_T32_DEV: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t32-dev/1";
+ 
+ /// One run's geometry: the per-block shape, how many blocks, and the run's own
+ /// profile id. A run is a NEW profile under D17 — its own transcript, its own
+@@ -111,6 +114,10 @@
+     }
+     pub(crate) fn m125(l: usize) -> Result<RunShape, String> {
+         RunShape::new(Shape::m125(), l, RUN_PROFILE_M125)
++    }
++    /// LANE C SCRATCH: a run at the TinyLlama geometry's development shape.
++    pub(crate) fn tinyllama_t32_dev(l: usize) -> Result<RunShape, String> {
++        RunShape::new(Shape::tinyllama_t32_dev(), l, RUN_PROFILE_TINYLLAMA_T32_DEV)
+     }
+     /// how many rows of an IO commitment carry plane words — the same at an
+     /// external endpoint and at an internal boundary, because both commit the
+@@ -148,8 +155,37 @@
+     /// the one field a boundary has, and a disagreement is refused by name
+     /// here rather than being carried into a proof (ruling M-4).
+     pub(crate) fn new(rs: RunShape, context: Digest, expected: ExpectedIo, blocks: &[BlockPublic], block_scales: &[(i32, i32)]) -> Result<RunStatement, String> {
+-        if blocks.len() != rs.l || block_scales.len() != rs.l {
++        // LANE C SCRATCH: a trained-model run profile binds its model
++        // statement and may not fall back to the synthetic literal.
++        if rs.profile.contains("tinyllama") && !rs.profile.ends_with("-dev/1") {
++            return Err("private run: a trained-model run profile needs its model statement (RunStatement::new_bound)".into());
++        }
++        let digests: Vec<Digest> = blocks.iter().map(|b| b.digest()).collect();
++        Self::new_with_calibration(rs, context, expected, digests, blocks.len(), block_scales, super::calibration_identity(), super::ENDPOINT_SCALES)
++    }
++
++    /// **LANE C SCRATCH PROTOTYPE: a run BOUND to a trained-model statement.**
++    /// Every check `new` makes, with two substitutions: the approved scale
++    /// pair is the statement's calibration's (not the literal), and the
++    /// `"calibration"` absorb is the statement's identity (not the literal).
++    /// The statement is checked against the run's OWN block digests, profile,
++    /// geometry and scales before anything is built. At a trained profile
++    /// this is the only constructor; at the toy, the rungs and 125M it is
++    /// never called, so none of their bytes moves.
++    pub(crate) fn new_bound(rs: RunShape, context: Digest, expected: ExpectedIo, blocks: &[BlockPublic], block_scales: &[(i32, i32)], model: &super::trained_statement::TrainedModelStatement) -> Result<RunStatement, String> {
++        let digests: Vec<Digest> = blocks.iter().map(|b| b.digest()).collect();
++        if digests.len() != rs.l {
+             return Err(format!("private run: the statement is for {} blocks, {} public statements and {} scale pairs were given", rs.l, blocks.len(), block_scales.len()));
++        }
++        model.check_against(&rs.sh, rs.profile, &digests, block_scales)?;
++        let approved = model.calibration.block_scales;
++        Self::new_with_calibration(rs, context, expected, digests, blocks.len(), block_scales, model.identity(), approved)
++    }
++
++    #[allow(clippy::too_many_arguments)]
++    fn new_with_calibration(rs: RunShape, context: Digest, expected: ExpectedIo, block_digests: Vec<Digest>, n_blocks: usize, block_scales: &[(i32, i32)], calibration: Digest, approved: (i32, i32)) -> Result<RunStatement, String> {
++        if n_blocks != rs.l || block_scales.len() != rs.l {
++            return Err(format!("private run: the statement is for {} blocks, {} public statements and {} scale pairs were given", rs.l, n_blocks, block_scales.len()));
+         }
+         if context == [0; 32] {
+             return Err("private run: a nonempty context is required".into());
+@@ -191,15 +227,12 @@
+         // its own message. A future calibration with per-layer scales must
+         // put them under its own identity; until then there is one pair.
+         for (k, pair) in block_scales.iter().enumerate() {
+-            if *pair != super::ENDPOINT_SCALES {
+-                return Err(format!(
+-                    "private run: block scales are pinned to the approved calibration {:?}; block {k} declares {pair:?}",
+-                    super::ENDPOINT_SCALES
+-                ));
++            if *pair != approved {
++                return Err(format!("private run: block scales are pinned to the approved calibration {:?}; block {k} declares {pair:?}", approved));
+             }
+         }
+         let boundary_scales: Vec<i32> = (0..rs.l - 1).map(|k| block_scales[k].1).collect();
+-        let st = RunStatement { rs, expected, block_digests: blocks.iter().map(|b| b.digest()).collect(), context, boundary_scales, calibration: super::calibration_identity() };
++        let st = RunStatement { rs, expected, block_digests, context, boundary_scales, calibration };
+         // **STAGE 16, ruling T-3.** `Layout::for_shape` has already checked
+         // `A`, `H`, `M` and the external endpoint against the BLOCK's set of
+         // hash-input lengths. A run absorbs one word no block does — its own
+--- a/hashline/src/private_block/s35_tests.rs
++++ b/hashline/src/private_block/s35_tests.rs
+@@ -260,6 +260,10 @@
+     pub alpha: Fp2,
+     pub gd: Gate,
+     pub pz: PadTerm,
++    /// LANE C SCRATCH: the shape's two calibration constants of this arm
++    /// (the frozen `NORM_CN` / `SH_AO` at every registered shape)
++    pub norm_cn: i64,
++    pub sh_ao: u32,
+ }
+ 
+ impl Dzc {
+@@ -273,7 +277,10 @@
+         let (i_nr, i_ns, i_mr, i_ms) = (&self.i_nr, &self.i_ns, &self.i_mr, &self.i_ms);
+         let (lks, mu, nu, alpha, gd, pz) = (&self.lks, &self.mu, &self.nu, self.alpha, self.gd, &self.pz);
+         let p1 = pow256(1);
+-        let (k_num, k_dv, k_den) = (k(2 * NORM_CN), k(1 << NORM_TN), k(1 << (NORM_TN + 1)));
++        let (k_num, k_dv, k_den) = (k(2 * self.norm_cn), k(1 << NORM_TN), k(1 << (NORM_TN + 1)));
++        // LANE C SCRATCH: the one line below that is not verbatim takes the
++        // shape's attention-output shift (the frozen SH_AO everywhere else)
++        let (sh_ao_pow, sh_ao_half) = (k(1i64 << self.sh_ao), k(super::witness::half(self.sh_ao)));
+         // ---- verbatim from here ----
+         let at = |p: usize| v[idx[p]];
+         let l2 = |o: usize| at(o).add(at(o + 1).mul(p1));
+@@ -299,7 +306,7 @@
+         for (m, c) in mu.iter().zip([c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10]) {
+             zc = zc.add(m.mul(g).mul(c));
+         }
+-        let host_wo = k(1 << SH_AO).mul(ao).add(at(A_RAL)).sub(k(1 << (SH_AO - 1)));
++        let host_wo = sh_ao_pow.mul(ao).add(at(A_RAL)).sub(sh_ao_half);
+         let host_dmm = k(1 << SH_Z).mul(z16).add(at(A_RDL)).sub(k(1 << (SH_Z - 1)));
+         v[0].mul(zc).add(nu[0].mul(v[1]).mul(g).mul(host_wo)).add(nu[1].mul(v[2]).mul(g).mul(host_dmm))
+         // ---- verbatim to here ----
+--- a/hashline/src/private_block/shape.rs
++++ b/hashline/src/private_block/shape.rs
+@@ -39,6 +39,11 @@
+ /// It is a stepping-stone development FIXTURE, never a deliverable, barred by
+ /// name from any privacy statement, and [`Shape::rung_g`] replaces it.
+ pub(crate) const FROZEN_SEAM_RUNG_PROFILE: &str = "hashline-zk-mr1/private-block-rung-t24-dev/1";
++/// LANE C SCRATCH (not registered in the main tree): the TinyLlama-1.1B block
++/// geometry under a DEVELOPMENT calibration. A trained-model profile must
++/// never share a string with a synthetic one (D17), so the trained profile of
++/// PLAN.md gets its own string again once its calibration exists.
++pub(crate) const TINYLLAMA_T32_DEV_PROFILE: &str = "hashline-zk-mr1/private-block-tinyllama-1.1b-t32-dev/1";
+ const INT16_MAX: i128 = 32_767;
+ /// the norm's fixed-point shift; the denominator is `2^(tn+1) * D`
+ const NORM_TN: u32 = 11;
+@@ -128,6 +133,16 @@
+     /// the two integer windows, overridable for a development-only calibration
+     pub norm_wrho: u32,
+     pub wrho_s: u32,
++    /// **LANE C SCRATCH: three calibration constants as per-profile fields.**
++    /// Every registered shape keeps the frozen `layout.rs` values (so no
++    /// relation, describe line or byte moves); only
++    /// [`Shape::with_trained_calibration`] may change them, and only on a
++    /// TinyLlama profile. `norm_cn` and `norm_ceps` are pure coefficients;
++    /// `sh_ao` stays inside its one-limb remainder class (0..=8), so no plane
++    /// list or lookup count moves either.
++    pub norm_cn: i64,
++    pub norm_ceps: i64,
++    pub sh_ao: u32,
+     // ---- derived
+     pub t_pad: usize,
+     pub d_pad: usize,
+@@ -228,6 +243,9 @@
+             norm_wrho: norm_wrho.unwrap_or(NORM_TN + 1 + bit_length(d_max)),
+             // §3.4: `Sum <= T * 2^F_E` and `sigma_s < Sum`
+             wrho_s: wrho_s.unwrap_or(clog2(tokens) as u32 + f_e),
++            norm_cn: super::layout::NORM_CN,
++            norm_ceps: NORM_CEPS as i64,
++            sh_ao: super::layout::SH_AO,
+             t_pad,
+             d_pad,
+             h_pad,
+@@ -860,6 +878,109 @@
+     pub(crate) fn m125() -> Shape {
+         Shape::new("125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)", "hashline-zk-mr1/private-block-m125/1", 512, 768, 2048, 12, 64, 4, 14, 4, 9, 37, None, None, None, None)
+             .expect("the 125M shape is well formed")
++    }
++
++    // ---- LANE C SCRATCH PROTOTYPE (2026-09-30): the TinyLlama-1.1B geometry ----
++    //
++    // NOT REGISTERED IN THE MAIN TREE. A new geometry is a NEW profile (D17)
++    // and therefore its own hash-tag key set (D19a); no existing shape moves.
++    // TinyLlama-1.1B-Chat-v1.0 at revision fe8a4ea1: width 2048, FFN 5632,
++    // 32 query heads of 64 over 4 key-value heads, 22 blocks, RoPE theta
++    // 10000, RMSNorm eps 1e-5. T = 32 is the smallest context the layout
++    // admits at a row width of 2^12 (ruling F-2 needs Dom::Kv = 32*4*64 =
++    // 2^13 at or above the row width, so log_cols <= 13; S-6 needs 2^5 < 2^12).
++
++    /// The TRUE geometry at the frozen calibration: the Sol probe's
++    /// `tinyllama_t32_lc*` layout, with its `unregistered-layout-probe/1`
++    /// string. It CONSTRUCTS, but its norm window is 33 bits
++    /// (`NORM_TN + 1 + bits(D_max = 1,482,861)`), which is FIVE remainder
++    /// limbs, and `witness::build_shaped` refuses any shape whose norm limb
++    /// count is not the pinned four (`norm_limbs_are_the_pinned_count`). So
++    /// this shape has a layout and cannot have a witness.
++    pub(crate) fn tinyllama_t32_probe(log_cols: usize) -> Result<Shape, String> {
++        let rows = (32 * 2048 >> log_cols) + super::endpoint_g::MASK_ROWS;
++        Shape::new(
++            "TinyLlama-1.1B block geometry, unregistered probe (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads)",
++            "unregistered-layout-probe/1",
++            32,
++            2048,
++            5632,
++            32,
++            64,
++            4,
++            log_cols,
++            4,
++            9,
++            rows,
++            None,
++            None,
++            None,
++            None,
++        )
++    }
++
++    /// **The scratch development profile of the TinyLlama geometry.** The
++    /// true geometry with ONE development-calibration override: the norm
++    /// remainder window is 32 bits (four limbs, C-6 applies exactly as at
++    /// 125M), instead of the derived 33. Sound — `rho, sigma` are still
++    /// byte-limb range proved and `rho + sigma + 1 = den` still pins the
++    /// quotient — but an honest row whose denominator `D * 2^12` reaches
++    /// `2^32` (an RMS above 23,170 integer units) is REFUSED by the witness
++    /// builder instead of proved. The clean fix is a per-profile `NORM_TN =
++    /// 10`, which makes the derived window exactly 32 at widths 2048 AND 4096
++    /// (`2,097,088 * 2^11 < 2^32`); that is a calibration change, see PLAN.md.
++    pub(crate) fn tinyllama_t32_dev() -> Shape {
++        Shape::new(
++            "TinyLlama-1.1B block geometry, scratch development calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads)",
++            TINYLLAMA_T32_DEV_PROFILE,
++            32,
++            2048,
++            5632,
++            32,
++            64,
++            4,
++            12,
++            4,
++            9,
++            21,
++            None,
++            None,
++            Some(32),
++            None,
++        )
++        .expect("the TinyLlama development shape is well formed")
++    }
++
++    /// **LANE C SCRATCH: the one door to a non-frozen calibration.** Refused
++    /// on every profile but a TinyLlama one, so the toy, the rungs and 125M
++    /// cannot be handed a constant their receipts were not made with.
++    ///
++    /// * `norm_cn` — the norm multiplier is `norm_cn / 2^NORM_TN`; the frozen
++    ///   `1024 / 2^11 = 1/2` leaves a width-2048 norm output about 3 bits of
++    ///   its int8 range (PLAN.md §C). Bounded so `2 x g Cn` cannot approach
++    ///   the field: `|2 * 32767 * 127 * 2^20| < 2^43`.
++    /// * `norm_ceps` — HF's `eps` inside `mean(x^2) + eps` is `d * eps /
++    ///   s_x^2` integer units of `sum x^2`; bounded below `2^44` so `ss`
++    ///   stays below `2^45` and `D` below the three-limb window `2^24`.
++    /// * `sh_ao` — the attention output requantization shift, inside the
++    ///   one-limb class `0..=8` (the remainder's `scaled` coefficient is
++    ///   `2^(8 - sh_ao)`); `sh_ao = 0` is exact, remainder pinned to zero.
++    pub(crate) fn with_trained_calibration(mut self, norm_cn: i64, norm_ceps: i64, sh_ao: u32) -> Result<Shape, String> {
++        if !self.profile.contains("tinyllama") {
++            return Err(format!("private block shape: the calibration of {} is frozen", self.profile));
++        }
++        if !(1..=1 << 20).contains(&norm_cn) || !(1..1i64 << 44).contains(&norm_ceps) || sh_ao > 8 {
++            return Err("private block shape: a trained calibration constant is out of its class".into());
++        }
++        // D stays inside LIMBS_ISQRT byte limbs with the larger epsilon
++        let d_max = isqrt_i128(norm_ceps as i128 + self.width as i128 * INT16_MAX * INT16_MAX);
++        if d_max >= 1i128 << (8 * LIMBS_ISQRT) {
++            return Err("private block shape: the norm denominator leaves its byte limbs".into());
++        }
++        self.norm_cn = norm_cn;
++        self.norm_ceps = norm_ceps;
++        self.sh_ao = sh_ao;
++        Ok(self)
+     }
+ 
+     // ---- the head permutation (correction C-1, ruling P-2) -----------------
+--- /dev/null
++++ b/hashline/src/private_block/trained_statement.rs
+@@ -0,0 +1,448 @@
++//! **LANE C SCRATCH PROTOTYPE (2026-09-30) — NOT IN THE MAIN TREE.**
++//!
++//! The separately versioned MODEL / PROFILE / CALIBRATION statement of a
++//! trained-model run, and the one digest of it a run binds.
++//!
++//! **Why it exists.** Every existing profile absorbs the same calibration
++//! identity, `calibration_identity()` = `blake3("B3 public fixed calibration
++//! v1")` (`private_block.rs`), which names the synthetic fixture's calibration
++//! and says nothing about where the public words came from. A trained-model
++//! run must bind, in a form a verifier checks against its OWN trusted copy:
++//!
++//! 1. the SOURCE identity — repository, immutable revision, the tensor file's
++//!    SHA-256, the config's SHA-256, the checkpoint's parameter and layer
++//!    counts, and every source tensor the importer read (name + SHA-256 of its
++//!    raw bytes);
++//! 2. the INTEGER CALIBRATION — every constant the proof relations use
++//!    (`layout.rs:62-80` plus the shape's two windows), the endpoint/boundary
++//!    scale labels, the float value of one residual unit, and the digests of
++//!    the quantizer and of the public calibration token set;
++//! 3. the INTEGER MODEL — per proved layer, the `BlockPublic::digest()` the run
++//!    header absorbs, and the SHA-256 of each of the nine padded integer words
++//!    and of the three public tables, so a single tensor can be audited
++//!    without re-running the proof;
++//! 4. the PROFILE and GEOMETRY strings, and the D13 coverage sentence.
++//!
++//! **How it is bound.** `run::RunStatement::new_bound` absorbs
++//! [`TrainedModelStatement::identity`] in the run header's existing
++//! `"calibration"` slot (32 bytes, the same label and length every run
++//! already absorbs there, so no hash-length guard moves), after checking the
++//! statement against the run: same run and block profile, same geometry,
++//! `L` layer records whose block digests equal the run's own, and scales equal
++//! to the calibration's. The toy, every development rung and 125M keep the
++//! literal identity byte for byte: they never call this module.
++//!
++//! **What it does NOT do.** It proves nothing about the float model. The
++//! proof is about the INTEGER model whose words the digests name; how close
++//! that integer model is to the BF16 checkpoint is a calibration-validation
++//! measurement, separate from any proof. A statement names the source it was
++//! imported from; the verifier must still hold (or recompute) the integer
++//! words it trusts. It is not a privacy statement.
++
++use super::shape::Shape;
++use super::BlockPublic;
++use crate::merkle::Digest;
++use sha2::{Digest as _, Sha256};
++
++/// the statement's schema tag, the first field of its encoding
++pub(crate) const SCHEMA: &str = "zk60-trained-model-statement/1";
++/// the identity's hash domain (the repository's convention: a versioned
++/// literal prefix under the plain hash, then length-prefixed fields)
++const DOMAIN: &[u8] = b"hashline/private-run/trained-model-statement/v1";
++/// the D13 coverage sentence every v1 statement carries verbatim
++pub(crate) const COVERAGE_D13: &str =
++    "proves the hidden transformer blocks listed below and nothing else: embedding, final norm, output head and token selection are NOT covered (D13)";
++
++/// Where the public words came from.
++#[derive(Clone, Debug, PartialEq, Eq)]
++pub(crate) enum SourceKind {
++    /// an immutable Hugging Face checkpoint revision
++    HfCheckpoint,
++    /// a public synthetic recipe (test and development runs only). A statement
++    /// of this kind may never carry a trained profile string.
++    PublicSyntheticRecipe,
++}
++
++impl SourceKind {
++    fn tag(&self) -> &'static str {
++        match self {
++            SourceKind::HfCheckpoint => "hf-checkpoint",
++            SourceKind::PublicSyntheticRecipe => "public-synthetic-recipe",
++        }
++    }
++}
++
++#[derive(Clone, Debug, PartialEq, Eq)]
++pub(crate) struct ModelSource {
++    pub kind: SourceKind,
++    pub repo: String,
++    /// 40 lowercase hex characters for a checkpoint; the recipe name otherwise
++    pub revision: String,
++    pub weights_sha256: [u8; 32],
++    pub config_sha256: [u8; 32],
++    pub checkpoint_parameters: u64,
++    pub checkpoint_layers: u32,
++}
++
++fn hex32(s: &str) -> [u8; 32] {
++    assert_eq!(s.len(), 64, "a SHA-256 is 64 hex characters");
++    let mut out = [0u8; 32];
++    for (i, b) in out.iter_mut().enumerate() {
++        *b = u8::from_str_radix(&s[2 * i..2 * i + 2], 16).expect("hex");
++    }
++    out
++}
++
++impl ModelSource {
++    /// **The pinned TinyLlama source** (`results/zk60_mvp_20260929/
++    /// tinyllama-1.1b/source.json`, local SHA-256 re-verified 2026-09-29):
++    /// 22 layers, 1,100,048,384 parameters, 201 tensors.
++    pub(crate) fn tinyllama_chat_v1_0() -> ModelSource {
++        ModelSource {
++            kind: SourceKind::HfCheckpoint,
++            repo: "TinyLlama/TinyLlama-1.1B-Chat-v1.0".into(),
++            revision: "fe8a4ea1ffedaf415f4da2f062534de366a451e6".into(),
++            weights_sha256: hex32("6e6001da2106d4757498752a021df6c2bdc332c650aae4bae6b0c004dcf14933"),
++            config_sha256: hex32("486bedda3a6988332e60d9638a09ca4b260d34ebcf1b19e22cf3b140b63d8fe9"),
++            checkpoint_parameters: 1_100_048_384,
++            checkpoint_layers: 22,
++        }
++    }
++
++    fn check(&self) -> Result<(), String> {
++        if self.kind == SourceKind::HfCheckpoint {
++            let hex_ok = self.revision.len() == 40 && self.revision.bytes().all(|c| c.is_ascii_digit() || (b'a'..=b'f').contains(&c));
++            if !hex_ok {
++                return Err("trained statement: a checkpoint revision is 40 lowercase hex characters (a branch name is not immutable)".into());
++            }
++            if self.weights_sha256 == [0; 32] || self.config_sha256 == [0; 32] {
++                return Err("trained statement: a checkpoint source needs its tensor-file and config SHA-256".into());
++            }
++        }
++        if self.repo.is_empty() || self.checkpoint_layers == 0 {
++            return Err("trained statement: the source names no repository or no layers".into());
++        }
++        Ok(())
++    }
++}
++
++/// **Every constant the proof relations use**, as the statement declares it.
++///
++/// v1 has ONE set for every block, because the code has no per-layer
++/// constants: `layout.rs:62-80` are `const`s read by `witness.rs`,
++/// `argument.rs` and `slot_ir.rs`. [`IntegerCalibration::check_honoured_by_code`]
++/// refuses a record that declares anything the relations do not actually use,
++/// so a statement can never claim a calibration the proof did not prove.
++#[derive(Clone, Debug, PartialEq, Eq)]
++pub(crate) struct IntegerCalibration {
++    pub label: String,
++    pub norm_tn: u32,
++    pub norm_cn: i64,
++    pub norm_ceps: i64,
++    pub norm_wrho: u32,
++    pub sh_qkv: u32,
++    pub sh_rope: u32,
++    pub sh_s: u32,
++    pub sh_o: u32,
++    pub sh_ao: u32,
++    pub sh_g: u32,
++    pub sh_u: u32,
++    pub sh_h: u32,
++    pub sh_z: u32,
++    pub residual_shifts: [u32; 6],
++    pub f_e: u32,
++    pub f_p: u32,
++    pub f_ro: u32,
++    pub wrho_s: u32,
++    pub mask_score: i64,
++    /// the `(input, output)` scale label every block declares (`IoSpec`)
++    pub block_scales: (i32, i32),
++    /// provenance only: the float value of one residual-stream integer unit,
++    /// IEEE-754 binary64 bits (the proof is about the integer model)
++    pub residual_unit_f64_bits: u64,
++    pub quantizer_sha256: [u8; 32],
++    pub calibration_set_sha256: [u8; 32],
++}
++
++impl IntegerCalibration {
++    /// The constants the CURRENT code proves with, read from the code's own
++    /// `const`s and the shape's windows — not retyped.
++    pub(crate) fn as_the_code_proves(sh: &Shape, label: &str, residual_unit: f64, quantizer_sha256: [u8; 32], calibration_set_sha256: [u8; 32]) -> IntegerCalibration {
++        use super::layout::*;
++        IntegerCalibration {
++            label: label.into(),
++            norm_tn: NORM_TN,
++            norm_cn: NORM_CN,
++            norm_ceps: NORM_CEPS,
++            norm_wrho: sh.norm_wrho,
++            sh_qkv: SH_QKV,
++            sh_rope: SH_ROPE,
++            sh_s: SH_S,
++            sh_o: SH_O,
++            sh_ao: SH_AO,
++            sh_g: SH_G,
++            sh_u: 0,
++            sh_h: SH_H_PROD,
++            sh_z: SH_Z,
++            residual_shifts: [0; 6],
++            f_e: sh.f_e,
++            f_p: F_P,
++            f_ro: F_RO,
++            wrho_s: sh.wrho_s,
++            mask_score: MASK_SCORE,
++            block_scales: super::ENDPOINT_SCALES,
++            residual_unit_f64_bits: residual_unit.to_bits(),
++            quantizer_sha256,
++            calibration_set_sha256,
++        }
++    }
++
++    /// Refuse, by name, any declared constant the relations do not use at
++    /// this shape. When a constant becomes a per-profile field (PLAN.md, item
++    /// C-1), this reads the field instead of the `const`.
++    pub(crate) fn check_honoured_by_code(&self, sh: &Shape) -> Result<(), String> {
++        let code = IntegerCalibration::as_the_code_proves(sh, &self.label, f64::from_bits(self.residual_unit_f64_bits), self.quantizer_sha256, self.calibration_set_sha256);
++        if *self != code {
++            return Err(format!(
++                "trained statement: the calibration '{}' declares constants the proof relations at {} do not use (the relations prove the code's constants; see PLAN.md C-1)",
++                self.label, sh.profile
++            ));
++        }
++        if !f64::from_bits(self.residual_unit_f64_bits).is_finite() || f64::from_bits(self.residual_unit_f64_bits) <= 0.0 {
++            return Err("trained statement: the residual unit is not a positive finite number".into());
++        }
++        Ok(())
++    }
++}
++
++/// One proved layer: the digest the run header absorbs, plus its parts.
++#[derive(Clone, Debug, PartialEq, Eq)]
++pub(crate) struct LayerRecord {
++    /// the checkpoint's own layer index
++    pub index: u32,
++    pub block_digest: Digest,
++    /// SHA-256 of the nine PADDED integer words, in the kernel's order
++    /// `[Wq, Wk, Wv, Wo, gamma_a, gamma_m, Wg^T, Wu^T, Wd^T]`
++    pub word_sha256: [[u8; 32]; 9],
++    /// SHA-256 of the three public tables `[rope cos||sin, exp, act]`
++    pub table_sha256: [[u8; 32]; 3],
++    /// every source tensor the importer read for this layer: name and the
++    /// SHA-256 of its raw (BF16) bytes, sorted by name
++    pub source_tensors: Vec<(String, [u8; 32])>,
++}
++
++fn sha(bytes: &[u8]) -> [u8; 32] {
++    Sha256::digest(bytes).into()
++}
++
++fn i8_bytes(v: &[i8]) -> Vec<u8> {
++    v.iter().map(|x| *x as u8).collect()
++}
++
++fn i64_bytes(vs: &[&[i64]]) -> Vec<u8> {
++    vs.iter().flat_map(|v| v.iter().flat_map(|x| x.to_le_bytes())).collect()
++}
++
++impl LayerRecord {
++    /// The record of one block's PUBLIC statement, computed from the words
++    /// the prover and the verifier actually use.
++    pub(crate) fn of_block(index: u32, blk: &BlockPublic, source_tensors: Vec<(String, [u8; 32])>) -> LayerRecord {
++        let (a, f) = (blk.attention(), blk.feed_forward());
++        let word_sha256 = [
++            sha(&i8_bytes(&a.wq)),
++            sha(&i8_bytes(&a.wk)),
++            sha(&i8_bytes(&a.wv)),
++            sha(&i8_bytes(&a.wo)),
++            sha(&i8_bytes(&a.gamma_a)),
++            sha(&i8_bytes(&f.gamma_m)),
++            sha(&i8_bytes(&f.wg_t)),
++            sha(&i8_bytes(&f.wu_t)),
++            sha(&i8_bytes(&f.wd_t)),
++        ];
++        let act: Vec<u8> = f.act.iter().flat_map(|v| v.to_le_bytes()).collect();
++        let table_sha256 = [sha(&i64_bytes(&[&a.rope_cos, &a.rope_sin])), sha(&i64_bytes(&[&a.exp])), sha(&act)];
++        let mut source_tensors = source_tensors;
++        source_tensors.sort();
++        LayerRecord { index, block_digest: blk.digest(), word_sha256, table_sha256, source_tensors }
++    }
++}
++
++/// THE STATEMENT. Built by the importer/calibrator, pinned by whoever
++/// approves the model, handed to the verifier through its trusted policy —
++/// never read from a receipt.
++#[derive(Clone, Debug, PartialEq, Eq)]
++pub(crate) struct TrainedModelStatement {
++    pub block_profile: String,
++    pub run_profile: String,
++    /// `[tokens, width, hidden, q_heads, kv_heads, head_dim, log_cols, inv_rate, opened_cols]`
++    pub geometry: [u64; 9],
++    pub source: ModelSource,
++    pub calibration: IntegerCalibration,
++    pub layers: Vec<LayerRecord>,
++    pub coverage: String,
++}
++
++fn geometry_of(sh: &Shape) -> [u64; 9] {
++    [sh.tokens, sh.width, sh.hidden, sh.q_heads, sh.kv_heads, sh.head_dim, sh.log_cols, sh.inv_rate, sh.opened_cols].map(|v| v as u64)
++}
++
++/// the canonical field writer: `label_len || label || value_len || value`
++struct Enc(Vec<u8>);
++
++impl Enc {
++    fn field(&mut self, label: &str, value: &[u8]) {
++        self.0.extend_from_slice(&(label.len() as u64).to_le_bytes());
++        self.0.extend_from_slice(label.as_bytes());
++        self.0.extend_from_slice(&(value.len() as u64).to_le_bytes());
++        self.0.extend_from_slice(value);
++    }
++    fn u64(&mut self, label: &str, v: u64) {
++        self.field(label, &v.to_le_bytes());
++    }
++    fn i64(&mut self, label: &str, v: i64) {
++        self.field(label, &v.to_le_bytes());
++    }
++}
++
++impl TrainedModelStatement {
++    pub(crate) fn new(sh: &Shape, run_profile: &str, source: ModelSource, calibration: IntegerCalibration, layers: Vec<LayerRecord>) -> Result<TrainedModelStatement, String> {
++        let st = TrainedModelStatement {
++            block_profile: sh.profile.into(),
++            run_profile: run_profile.into(),
++            geometry: geometry_of(sh),
++            source,
++            calibration,
++            layers,
++            coverage: COVERAGE_D13.into(),
++        };
++        st.check_self(sh)?;
++        Ok(st)
++    }
++
++    fn check_self(&self, sh: &Shape) -> Result<(), String> {
++        self.source.check()?;
++        self.calibration.check_honoured_by_code(sh)?;
++        if self.layers.is_empty() {
++            return Err("trained statement: no layer is listed".into());
++        }
++        for (k, w) in self.layers.windows(2).enumerate() {
++            if w[1].index != w[0].index + 1 {
++                return Err(format!("trained statement: layer record {} is checkpoint layer {}, not {} (records are consecutive)", k + 1, w[1].index, w[0].index + 1));
++            }
++        }
++        let last = self.layers.last().map(|r| r.index).unwrap_or(0);
++        if last >= self.source.checkpoint_layers {
++            return Err(format!("trained statement: layer {last} does not exist in a {}-layer checkpoint", self.source.checkpoint_layers));
++        }
++        if self.source.kind == SourceKind::PublicSyntheticRecipe && self.block_profile.contains("tinyllama") && !self.block_profile.ends_with("-dev/1") {
++            return Err("trained statement: a synthetic recipe may not carry a trained (non-development) profile".into());
++        }
++        if self.coverage != COVERAGE_D13 {
++            return Err("trained statement: the coverage sentence is not the D13 one".into());
++        }
++        Ok(())
++    }
++
++    /// The canonical bytes. Every field is length-prefixed and labelled, in
++    /// one fixed order; nothing here depends on a hash map or a float's
++    /// formatting.
++    pub(crate) fn encode(&self) -> Vec<u8> {
++        let mut e = Enc(Vec::new());
++        e.field("schema", SCHEMA.as_bytes());
++        e.field("block-profile", self.block_profile.as_bytes());
++        e.field("run-profile", self.run_profile.as_bytes());
++        for (name, v) in ["tokens", "width", "hidden", "q-heads", "kv-heads", "head-dim", "log-cols", "inv-rate", "opened-cols"].iter().zip(self.geometry.iter()) {
++            e.u64(name, *v);
++        }
++        let s = &self.source;
++        e.field("source-kind", s.kind.tag().as_bytes());
++        e.field("source-repo", s.repo.as_bytes());
++        e.field("source-revision", s.revision.as_bytes());
++        e.field("source-weights-sha256", &s.weights_sha256);
++        e.field("source-config-sha256", &s.config_sha256);
++        e.u64("source-parameters", s.checkpoint_parameters);
++        e.u64("source-layers", u64::from(s.checkpoint_layers));
++        let c = &self.calibration;
++        e.field("calibration-label", c.label.as_bytes());
++        for (name, v) in [
++            ("norm-tn", c.norm_tn),
++            ("norm-wrho", c.norm_wrho),
++            ("sh-qkv", c.sh_qkv),
++            ("sh-rope", c.sh_rope),
++            ("sh-score", c.sh_s),
++            ("sh-o", c.sh_o),
++            ("sh-ao", c.sh_ao),
++            ("sh-gate", c.sh_g),
++            ("sh-up", c.sh_u),
++            ("sh-product", c.sh_h),
++            ("sh-down", c.sh_z),
++            ("f-e", c.f_e),
++            ("f-p", c.f_p),
++            ("f-ro", c.f_ro),
++            ("wrho-s", c.wrho_s),
++        ] {
++            e.u64(name, u64::from(v));
++        }
++        for (k, v) in c.residual_shifts.iter().enumerate() {
++            e.u64(&format!("residual-shift-{k}"), u64::from(*v));
++        }
++        e.i64("norm-cn", c.norm_cn);
++        e.i64("norm-ceps", c.norm_ceps);
++        e.i64("mask-score", c.mask_score);
++        e.i64("block-scale-in", i64::from(c.block_scales.0));
++        e.i64("block-scale-out", i64::from(c.block_scales.1));
++        e.u64("residual-unit-f64-bits", c.residual_unit_f64_bits);
++        e.field("quantizer-sha256", &c.quantizer_sha256);
++        e.field("calibration-set-sha256", &c.calibration_set_sha256);
++        e.u64("layer-records", self.layers.len() as u64);
++        for r in &self.layers {
++            e.u64("layer-index", u64::from(r.index));
++            e.field("block-digest", &r.block_digest);
++            for (k, d) in r.word_sha256.iter().enumerate() {
++                e.field(&format!("word-{k}-sha256"), d);
++            }
++            for (k, d) in r.table_sha256.iter().enumerate() {
++                e.field(&format!("table-{k}-sha256"), d);
++            }
++            e.u64("source-tensors", r.source_tensors.len() as u64);
++            for (name, d) in &r.source_tensors {
++                e.field("source-tensor-name", name.as_bytes());
++                e.field("source-tensor-sha256", d);
++            }
++        }
++        e.field("coverage", self.coverage.as_bytes());
++        e.0
++    }
++
++    /// THE ONE DIGEST a run binds (as its `"calibration"` absorb).
++    pub(crate) fn identity(&self) -> Digest {
++        let mut h = blake3::Hasher::new();
++        h.update(DOMAIN);
++        h.update(&self.encode());
++        *h.finalize().as_bytes()
++    }
++
++    /// Is this the statement of THIS run? Every check is against the run's
++    /// own quantities (never against a receipt).
++    pub(crate) fn check_against(&self, sh: &Shape, run_profile: &str, block_digests: &[Digest], block_scales: &[(i32, i32)]) -> Result<(), String> {
++        self.check_self(sh)?;
++        if self.block_profile != sh.profile || self.run_profile != run_profile {
++            return Err(format!("trained statement: it is for profiles ({}, {}), this run is ({}, {run_profile})", self.block_profile, self.run_profile, sh.profile));
++        }
++        if self.geometry != geometry_of(sh) {
++            return Err("trained statement: its geometry is not this shape's".into());
++        }
++        if self.layers.len() != block_digests.len() {
++            return Err(format!("trained statement: it lists {} layers, the run has {} blocks", self.layers.len(), block_digests.len()));
++        }
++        for (k, (r, d)) in self.layers.iter().zip(block_digests.iter()).enumerate() {
++            if r.block_digest != *d {
++                return Err(format!("trained statement: block {k}'s public digest is not the statement's layer {} digest", r.index));
++            }
++        }
++        if block_scales.iter().any(|p| *p != self.calibration.block_scales) {
++            return Err(format!("trained statement: a block declares a scale pair other than the calibration's {:?}", self.calibration.block_scales));
++        }
++        Ok(())
++    }
++}
+--- a/hashline/src/private_block/witness.rs
++++ b/hashline/src/private_block/witness.rs
+@@ -366,7 +366,8 @@
+     };
+     for t in 0..g.t {
+         let row = &x[t * g.d_pad..t * g.d_pad + g.d];
+-        let ss: i64 = NORM_CEPS + row.iter().map(|v| v * v).sum::<i64>();
++        // LANE C SCRATCH: epsilon and Cn are the SHAPE's (frozen elsewhere)
++        let ss: i64 = g.s.norm_ceps + row.iter().map(|v| v * v).sum::<i64>();
+         let d = isqrt(ss as u64) as i64;
+         let a1 = ss - d * d;
+         let a2 = 2 * d - a1;
+@@ -386,7 +387,7 @@
+             return Err(range("norm denominator"));
+         }
+         for i in 0..g.d {
+-            let num = 2 * row[i] * i64::from(gamma[i]) * NORM_CN + dv;
++            let num = 2 * row[i] * i64::from(gamma[i]) * g.s.norm_cn + dv;
+             let q = num.div_euclid(den);
+             let rho = num.rem_euclid(den);
+             let sigma = den - 1 - rho;
+@@ -591,7 +592,7 @@
+     // `Wo` reads the head-permuted `Dom::Q` axis and writes `Dom::D`: both
+     // are the PADDED width, with the padded head columns and the padded
+     // output rows zero (ruling P-2, checked at construction)
+-    let (ao, ral) = quantize(&matmul(&g, &o8, g.d_pad, &public.wo, g.d_pad, g.d_pad, g.d_pad, dl), &sup_d, SH_AO, -32768, 32767, "AO")?;
++    let (ao, ral) = quantize(&matmul(&g, &o8, g.d_pad, &public.wo, g.d_pad, g.d_pad, g.d_pad, dl), &sup_d, shape.sh_ao, -32768, 32767, "AO")?;
+ 
+     // ---- residual 1 (all three shifts are 0: xres1 = x + ao exactly) ----
+     for &idx in &sup_d {
+--- a/hashline/src/private_block.rs
++++ b/hashline/src/private_block.rs
+@@ -106,6 +106,10 @@
+ // touches no transcript, no randomness and no committed buffer, and no branch
+ // of the protocol reads it back.
+ mod timing;
++// LANE C SCRATCH PROTOTYPE (2026-09-30, not in the main tree): the separately
++// versioned trained-model / profile / calibration statement a trained run
++// binds as its calibration identity. Additive; no existing profile reads it.
++mod trained_statement;
+ mod wire;
+ mod witness;
+ // The production CLI bridge for a real multi-block run (prove / verify), over
+@@ -116,6 +120,11 @@
+ 
+ #[cfg(test)]
+ mod grow_tests;
++// LANE C SCRATCH PROTOTYPE (test-only): the TinyLlama-1.1B geometry — its
++// layout counts, the witness-builder blocker at width 2048, a dense synthetic
++// one-block proof at that geometry, and the statement binding tests.
++#[cfg(test)]
++mod lane_c_tinyllama_tests;
+ // STAGE 19 (test-only): DENSE public weights and a numerically non-trivial
+ // witness at the shaped geometries, where the diagonal fixture leaves every
+ // hidden unit above `d` with no input and no output weight.

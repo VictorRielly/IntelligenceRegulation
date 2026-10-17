@@ -1,0 +1,10 @@
+test_caller_session_scope_is_never_adopted (__main__.ScopeIdentity) ... ok
+test_exact_job_scope_from_live_pid_is_accepted (__main__.ScopeIdentity) ... ok
+test_scope_found_by_exact_unit_after_parent_exits (__main__.ScopeIdentity) ... ok
+test_tracking_requires_explicit_job_identity (__main__.ScopeIdentity) ... ok
+test_unrelated_scope_from_unit_query_is_also_refused (__main__.ScopeIdentity) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.002s
+
+OK

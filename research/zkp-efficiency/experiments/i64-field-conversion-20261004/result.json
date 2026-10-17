@@ -1,0 +1,156 @@
+{
+  "run_identity": "20261004T030146Z-711aedad",
+  "seed": 2026100421,
+  "status": "pass",
+  "signed_scalar_values": 139880,
+  "full_i16_values": 65536,
+  "boundary_values": 616,
+  "full_i64_random_values": 65536,
+  "near_extreme_values": 8192,
+  "scalar_mappings_per_value": 4,
+  "checked_byte_embeddings_per_value": 2,
+  "digest": "089097ad3536f1366d6835a4ad969a8ce03788ffb93c121f2be6f04ec4bb2bb2",
+  "vector_model_cases": 60,
+  "vector_model_words": 6800,
+  "row_copy_cases": 25,
+  "row_copy_words": 3208,
+  "controls": [
+    {
+      "label": "raw signed-to-u64 reinterpretation",
+      "counterexample": -9223372036854775808,
+      "expected": 9223372032559808513,
+      "wrong": 9223372036854775808
+    },
+    {
+      "label": "normalize raw signed-to-u64 with Fp::new",
+      "counterexample": -9223372036854775808,
+      "expected": 9223372032559808513,
+      "wrong": 9223372036854775808
+    },
+    {
+      "label": "subtract 2^32 instead of 2^32-1",
+      "counterexample": -9223372036854775808,
+      "expected": 9223372032559808513,
+      "wrong": 9223372032559808512
+    },
+    {
+      "label": "subtract epsilon from positive values",
+      "counterexample": 0,
+      "expected": 0,
+      "wrong": 18446744069414584321
+    },
+    {
+      "label": "logical shift yields 0/1, not all-ones sign mask",
+      "counterexample": -9223372036854775808,
+      "expected": 9223372032559808513,
+      "wrong": 9223372036854775807
+    },
+    {
+      "label": "truncate to signed i32 before conversion",
+      "counterexample": -9223372036854775808,
+      "expected": 9223372032559808513,
+      "wrong": 0
+    },
+    {
+      "label": "wrapping i64 magnitude cast after P subtraction",
+      "counterexample": -9223372036854775808,
+      "expected": 9223372032559808513,
+      "wrong": 27670116106269360129
+    },
+    {
+      "label": "harness i64 boundary",
+      "value": "-9223372036854775809"
+    },
+    {
+      "label": "harness i64 boundary",
+      "value": "9223372036854775808"
+    },
+    {
+      "label": "harness i64 boundary",
+      "value": "18446744069414584321"
+    },
+    {
+      "label": "harness i64 boundary",
+      "value": "-18446744069414584321"
+    },
+    {
+      "label": "harness i64 boundary",
+      "value": "True"
+    },
+    {
+      "label": "harness i64 boundary",
+      "value": "1.0"
+    },
+    {
+      "label": "harness i64 boundary",
+      "value": "'1'"
+    },
+    {
+      "label": "harness i64 boundary",
+      "value": "None"
+    },
+    {
+      "label": "u64 domain extension fails at p",
+      "counterexample": 18446744069414584321,
+      "expected": 0,
+      "wrong": 18446744069414584321
+    },
+    {
+      "label": "wrong byte endianness",
+      "counterexample": -1
+    },
+    {
+      "label": "one negative lane sign reused across vector"
+    },
+    {
+      "label": "discarding supplied internal padding"
+    },
+    {
+      "label": "nonzero imaginary Fp2 embedding"
+    }
+  ],
+  "control_count": 20,
+  "assembly_chosen_constant_counts": {
+    "0xffffffff00000001": 106961,
+    "0xfffffffe00000002": 32919
+  },
+  "assembly_negative_second_constant_count": 0,
+  "observed_conversion_loop_instruction_count": 10,
+  "observed_conversion_arithmetic_instruction_count": 9,
+  "observed_conversion_loop_integer_division_instructions": 0,
+  "source_level_removed_magnitude_modulo": true,
+  "observed_removed_division": false,
+  "candidate_native_instruction_count": null,
+  "actual_time_saved_s": null,
+  "actual_native_traffic_saved_bytes": null,
+  "added_capacity_bytes": 0,
+  "estimated_memory_mib": 64,
+  "elapsed_s": 2.2579066779981076,
+  "peak_rss_kib": 22616,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "device": "CPU only",
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "python": "3.10.12",
+  "RLIMIT_AS_mib": 512,
+  "alarm_s": 59,
+  "script_sha256": "86e59c8a245b5730296f4f1277448dca27dea33acc8032e77691347fb61b0cf4",
+  "scope": "Exact synthetic signed-i64 value/byte oracle and decoded current-ELF arithmetic; no native candidate, proof, GPU, transcript, RNG, or trained model",
+  "full_stack": {
+    "countable_tokens": 0,
+    "passes": 0,
+    "context_length": null,
+    "steady_tokens_per_s": null,
+    "total_tokens_per_s": null,
+    "startup_fraction": null,
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "proof_latency_s": null,
+    "proof_lag_s": null,
+    "pipeline_drain_s": null
+  }
+}

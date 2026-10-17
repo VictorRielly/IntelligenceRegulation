@@ -1,0 +1,11 @@
+[01:29:05Z] variant smoke_b2: {'variant': 'smoke_b2', 'T': 32, 'calib_per': 1, 'heldout_per': 1, 'layers': 3, 'margin': 0.25, 'smooth': None, 'norm': 'calibrated', 'shifts': 'free', 'tn': 10, 'f_e': 9, 'res': 'global', 'chunk': 6, 'save_weights': False, 'no_head': True}
+[01:29:05Z] exact-mm selfcheck {'int8xint8 d2048': True, 'int16xint8 f5632': True}
+[01:29:08Z] checkpoint pinned (3s): {'model.safetensors': '6e6001da2106d4757498752a021df6c2bdc332c650aae4bae6b0c004dcf14933'}
+[01:29:09Z] tokenizer selfcheck ok=True; calib (9, 32), heldout (9, 32)
+[01:29:10Z] pass 1 (float calibration stats, 3 blocks) done (5s)
+[01:29:10Z] residual scales: in ['0.00537', '0.00537', '0.00537']
+[01:29:10Z] embedding quantized at s_x 0.005366: cos mean 0.97796 min 0.8084; zero fraction 0.343
+[01:29:13Z] L00 cn 5344/8630 ceps 711 sh qkv7 s6 o9 ao8 g7 h16 z8 r20 | iso cos 0.97335 dcos 0.9578 (min 0.837) | chain cos 0.97335 dcos 0.9578 | viol iso 0 chain 0 cal 0 refused seqs h/c 0/0 (3s)
+[01:29:16Z] L01 cn 2065/8839 ceps 711 sh qkv7 s8 o9 ao7 g8 h16 z8 r20 | iso cos 0.97138 dcos 0.8868 (min 0.735) | chain cos 0.95339 dcos 0.8622 | viol iso 0 chain 0 cal 0 refused seqs h/c 0/0 (3s)
+[01:29:18Z] L02 cn 2740/5068 ceps 711 sh qkv7 s8 o9 ao7 g8 h14 z7 r20 | iso cos 0.94914 dcos 0.8513 (min 0.748) | chain cos 0.90030 dcos 0.7897 | viol iso 0 chain 0 cal 0 refused seqs h/c 0/0 (3s)
+[01:29:18Z] done (13s) -> /home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/runs/smoke_b2

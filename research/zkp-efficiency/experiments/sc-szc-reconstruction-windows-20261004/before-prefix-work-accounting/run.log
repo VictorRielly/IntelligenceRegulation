@@ -1,0 +1,1 @@
+{"status": "pass", "synthetic_case_count": 72, "round_degree_sample_comparisons": 1485, "original_cube_degree_sample_comparisons": 297, "final_table_value_comparisons": 1548, "analytic_count_checks": 288, "control_count": 14, "elapsed_seconds": 13.079545881999366, "peak_rss_kib": 19928}

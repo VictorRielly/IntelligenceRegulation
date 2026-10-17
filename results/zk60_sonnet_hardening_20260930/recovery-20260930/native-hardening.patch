@@ -1,0 +1,808 @@
+--- a/hashline/examples/zk60_private_stack.rs
++++ b/hashline/examples/zk60_private_stack.rs
+@@ -21,7 +21,19 @@
+ //! A heavy 125M run must be launched by the run owner, not by this comment.
+ 
+ fn main() {
+-    let args: Vec<String> = std::env::args().skip(1).collect();
++    // `args_os`, not `args`: a non-UTF-8 argument must be a clean exit-2 refusal, not a
++    // panic. The driver's machine-readable output names paths as JSON strings, which
++    // cannot represent non-UTF-8 bytes faithfully, so such arguments are refused up front.
++    let mut args: Vec<String> = Vec::new();
++    for a in std::env::args_os().skip(1) {
++        match a.into_string() {
++            Ok(s) => args.push(s),
++            Err(_) => {
++                eprintln!("zk60_private_stack: an argument is not valid UTF-8; refused");
++                std::process::exit(2);
++            }
++        }
++    }
+     let code = match args.first().map(String::as_str) {
+         Some("prove") => hashline::private_block::prove_command(&args[1..]),
+         Some("verify") => hashline::private_block::verify_command(&args[1..]),
+--- a/hashline/src/private_block/mvp_driver.rs
++++ b/hashline/src/private_block/mvp_driver.rs
+@@ -49,7 +49,7 @@
+ use super::witness::{self, Witness};
+ use super::{prepare_endpoints, AttentionPublic, BlockPublic, ExpectedIo, FeedForwardPublic, IoSpec};
+ use crate::merkle::Digest;
+-use std::io::Write;
++use std::io::{Read, Write};
+ use std::path::{Path, PathBuf};
+ use std::time::Instant;
+ 
+@@ -490,8 +490,12 @@
+ fn scan_artifact(dir: &Path, l: usize) -> Result<Vec<(String, u64, String)>, String> {
+     let paths = run_sink::segment_paths(dir, l)?;
+     let sdir = dir.join(run_sink::STATEMENT_DIR);
+-    if !sdir.is_dir() {
+-        return Err(format!("artifact: {} has no {} directory", dir.display(), run_sink::STATEMENT_DIR));
++    // `symlink_metadata`, not `is_dir`: a symlinked `statement` entry is refused
++    // (`is_dir` follows links, which would let a link stand in for the directory)
++    match std::fs::symlink_metadata(&sdir) {
++        Ok(md) if md.file_type().is_dir() => {}
++        Ok(_) => return Err(format!("artifact: {} is not a real directory (a symlink or file is refused)", run_sink::STATEMENT_DIR)),
++        Err(_) => return Err(format!("artifact: {} has no {} directory", dir.display(), run_sink::STATEMENT_DIR)),
+     }
+     let names = run_sink::dir_entry_names(&sdir)?;
+     if names != [MANIFEST_FILE.to_string()] {
+@@ -499,48 +503,131 @@
+     }
+     let mut out = Vec::with_capacity(l);
+     for (k, p) in paths.iter().enumerate() {
+-        let md = std::fs::symlink_metadata(p).map_err(|e| format!("artifact: segment {k}: {e}"))?;
+-        if !md.file_type().is_file() {
+-            return Err(format!("artifact: segment {k} is not a regular file"));
+-        }
+-        if md.len() > super::wire::MAX_WIRE_BYTES_ANY as u64 {
+-            return Err(format!("artifact: segment {k} is larger than the {}-byte wire bound", super::wire::MAX_WIRE_BYTES_ANY));
+-        }
+-        let bytes = std::fs::read(p).map_err(|e| format!("artifact: segment {k}: {e}"))?;
++        let bytes = read_bounded(p, super::wire::MAX_WIRE_BYTES_ANY as u64).map_err(|e| format!("artifact: segment {k}: {e}"))?;
+         out.push((run_sink::segment_file_name(k), bytes.len() as u64, run_sink::digest_hex(&bytes)));
+     }
+     Ok(out)
+ }
+ 
++/// Read everything `r` yields, but never more than `max` bytes are accepted and
++/// never more than `max + 1` are READ: a source that grows, or lies about its
++/// length, is cut off at the cap and refused, not read to its end. `hint` only
++/// sizes the first allocation.
++fn read_capped<R: Read>(r: R, max: u64, hint: u64) -> Result<Vec<u8>, String> {
++    let mut buf = Vec::with_capacity(hint.min(max) as usize);
++    r.take(max.saturating_add(1)).read_to_end(&mut buf).map_err(|e| e.to_string())?;
++    if buf.len() as u64 > max {
++        return Err(format!("larger than the {max}-byte bound"));
++    }
++    Ok(buf)
++}
++
++/// **THE BOUNDED FILE READER.** One handle for the whole read:
++///
++/// * the path must be a REGULAR FILE by `symlink_metadata` — a symlink,
++///   directory, FIFO or device is refused BEFORE it is opened (so a FIFO cannot
++///   block the open), which is the acceptance the driver always had;
++/// * it is opened once, and on unix the handle's `(dev, ino)` must be the ones
++///   just checked, so a path swapped for a symlink or another file between the
++///   check and the open is refused instead of followed;
++/// * the size cap is then enforced on the bytes actually read
++///   ([`read_capped`], `Read::take(max + 1)`), so enlargement after the
++///   metadata check cannot evade it.
+ fn read_bounded(path: &Path, max: u64) -> Result<Vec<u8>, String> {
+-    let md = std::fs::symlink_metadata(path).map_err(|e| format!("{}: {e}", path.display()))?;
++    let before = std::fs::symlink_metadata(path).map_err(|e| format!("{}: {e}", path.display()))?;
++    if !before.file_type().is_file() {
++        return Err(format!("{}: not a regular file (a symlink, directory or special file is refused)", path.display()));
++    }
++    if before.len() > max {
++        return Err(format!("{}: larger than the {max}-byte bound", path.display()));
++    }
++    let f = std::fs::File::open(path).map_err(|e| format!("{}: {e}", path.display()))?;
++    let md = f.metadata().map_err(|e| format!("{}: {e}", path.display()))?;
+     if !md.file_type().is_file() {
+         return Err(format!("{}: not a regular file", path.display()));
+     }
++    #[cfg(unix)]
++    {
++        use std::os::unix::fs::MetadataExt;
++        if md.dev() != before.dev() || md.ino() != before.ino() {
++            return Err(format!("{}: changed between the type check and the open; refused", path.display()));
++        }
++    }
+     if md.len() > max {
+         return Err(format!("{}: larger than the {max}-byte bound", path.display()));
+     }
+-    std::fs::read(path).map_err(|e| format!("{}: {e}", path.display()))
++    read_capped(f, max, md.len()).map_err(|e| format!("{}: {e}", path.display()))
+ }
+ 
+ // ---------------------------------------------------------------- json lines
+ 
++/// A JSON string literal for ANY valid Rust string: nothing is dropped,
++/// truncated or replaced. `"` and `\` are escaped, every ASCII control
++/// (U+0000..U+001F) and DEL use the short escapes or `\u00XX`, U+2028/U+2029
++/// (valid JSON, hazardous to some consumers) are `\u`-escaped, and every other
++/// character, Unicode included, is written as itself (the output is UTF-8).
+ fn js(s: &str) -> String {
+     let mut o = String::with_capacity(s.len() + 2);
+     o.push('"');
+-    for c in s.chars().take(2048) {
++    for c in s.chars() {
+         match c {
+             '"' => o.push_str("\\\""),
+             '\\' => o.push_str("\\\\"),
++            '\u{8}' => o.push_str("\\b"),
++            '\u{c}' => o.push_str("\\f"),
+             '\n' => o.push_str("\\n"),
+             '\r' => o.push_str("\\r"),
+             '\t' => o.push_str("\\t"),
+-            c if (' '..='~').contains(&c) => o.push(c),
+-            _ => o.push('?'),
++            c if (c as u32) < 0x20 || c == '\u{7f}' || c == '\u{2028}' || c == '\u{2029}' => o.push_str(&format!("\\u{:04x}", c as u32)),
++            c => o.push(c),
+         }
+     }
+     o.push('"');
+     o
++}
++
++/// A path as a JSON string. Paths are refused up front if they are not UTF-8
++/// (`resolve_new`, and `main` for arguments), so the `null` arm is
++/// unreachable in practice; it exists so a lossy rendering can never stand in
++/// for a different path.
++fn pj(p: &Path) -> String {
++    p.to_str().map(js).unwrap_or_else(|| "null".into())
++}
++
++/// POSIX-shell quoting of one word: safe words pass through unchanged, anything
++/// else (empty, whitespace, quotes, backticks, `$`, `\`, glob characters,
++/// newlines, non-ASCII) is single-quoted with `'` written as `'\''`. Nothing is
++/// executed or expanded by this function.
++fn sh_quote(s: &str) -> String {
++    if !s.is_empty() && s.bytes().all(|b| b.is_ascii_alphanumeric() || b"_@%+=:,./-".contains(&b)) {
++        return s.to_string();
++    }
++    let mut o = String::with_capacity(s.len() + 2);
++    o.push('\'');
++    for c in s.chars() {
++        if c == '\'' {
++            o.push_str("'\\''");
++        } else {
++            o.push(c);
++        }
++    }
++    o.push('\'');
++    o
++}
++
++/// the argv of the independent fresh-process verification, with the policy
++/// hash pin and the run-profile pin explicit
++fn verify_argv(artifact: &str, policy: &str, policy_sha256: &str, run_profile: &str) -> Vec<String> {
++    ["zk60_private_stack", "verify", "--artifact", artifact, "--policy", policy, "--policy-sha256", policy_sha256, "--expect-run-profile", run_profile].iter().map(|s| s.to_string()).collect()
++}
++
++/// the copy/paste form of an argv: each word POSIX-quoted, joined by spaces
++fn shell_line(argv: &[String]) -> String {
++    argv.iter().map(|w| sh_quote(w)).collect::<Vec<_>>().join(" ")
++}
++
++fn argv_json(argv: &[String]) -> String {
++    format!("[{}]", argv.iter().map(|w| js(w)).collect::<Vec<_>>().join(","))
+ }
+ 
+ fn jf(x: f64) -> String {
+@@ -551,7 +638,26 @@
+     }
+ }
+ 
++#[cfg(test)]
++thread_local! {
++    /// when `Some`, `emit` records lines here instead of printing (tests only)
++    static CAPTURE: std::cell::RefCell<Option<Vec<String>>> = const { std::cell::RefCell::new(None) };
++}
++
+ fn emit(line: &str) {
++    #[cfg(test)]
++    {
++        let taken = CAPTURE.with(|c| match c.borrow_mut().as_mut() {
++            Some(v) => {
++                v.push(line.to_string());
++                true
++            }
++            None => false,
++        });
++        if taken {
++            return;
++        }
++    }
+     let mut out = std::io::stdout().lock();
+     let _ = writeln!(out, "{line}");
+     let _ = out.flush();
+@@ -613,6 +719,9 @@
+     };
+     let parent = parent.canonicalize().map_err(|e| format!("the parent of {path:?} does not exist: {e}"))?;
+     let full = parent.join(name);
++    if full.to_str().is_none() {
++        return Err(format!("{} is not valid UTF-8; the machine-readable output could not name it faithfully", full.display()));
++    }
+     if std::fs::symlink_metadata(&full).is_ok() {
+         return Err(format!("{} already exists; this driver never overwrites", full.display()));
+     }
+@@ -880,9 +989,9 @@
+         js(a.kind.name()),
+         js(a.recipe.name()),
+         js(&a.label),
+-        js(&a.out.display().to_string()),
+-        js(&a.policy_out.display().to_string()),
+-        js(&std::env::var("HL_GPU").unwrap_or_else(|_| "unset".into()))
++        pj(&a.out),
++        pj(&a.policy_out),
++        js(&std::env::var_os("HL_GPU").map(|v| v.into_string().unwrap_or_else(|_| "<non-unicode>".into())).unwrap_or_else(|| "unset".into()))
+     ));
+ 
+     // ---- model / setup: public words and the run geometry
+@@ -991,6 +1100,8 @@
+     phase(at, "publish", t.elapsed().as_secs_f64());
+ 
+     let total = t_total.elapsed().as_secs_f64();
++    // paths are UTF-8 by construction (`resolve_new`); the run-profile and policy-hash pins are explicit
++    let vargv = verify_argv(a.out.to_str().unwrap_or_default(), a.policy_out.to_str().unwrap_or_default(), &policy_sha, run_profile);
+     let seg_json: Vec<String> = segs.iter().map(|(n, b, h)| format!("{{\"file\":{},\"bytes\":{b},\"sha256\":{}}}", js(n), js(h))).collect();
+     emit(&format!(
+         concat!(
+@@ -1004,7 +1115,7 @@
+             "\"calibration\":{{\"identity\":{},\"scales\":[{},{}],\"origin\":\"the approved fixed calibration built into this binary\"}},",
+             "\"context_label\":{},\"input_root\":{},\"output_root\":{},",
+             "\"artifact_dir\":{},\"policy_file\":{},\"policy_sha256\":{},",
+-            "\"independent_verification\":{{\"available\":true,\"performed_in_this_process\":false,\"in_process_check\":\"passed\",\"command\":{}}},",
++            "\"independent_verification\":{{\"available\":true,\"performed_in_this_process\":false,\"in_process_check\":\"passed\",\"command\":{},\"command_quoting\":\"posix-sh; every word single-quoted unless it is only [A-Za-z0-9_@%+=:,./-]; not executed\",\"argv\":{}}},",
+             "\"witness_builds\":{{\"sealing_pass\":{},\"proving_pass\":{}}},",
+             "\"timing_s\":{},\"driver_wall_s\":{},\"driver_wall_note\":\"wall time of this command from argument parsing to result; excludes process start-up and exit; the root adds process-level totals\",",
+             "\"tokens_per_s_over_driver_wall\":{},\"peak_rss_mib\":{}}}"
+@@ -1034,10 +1145,11 @@
+         js(&a.label),
+         js(&hex(&in_root)),
+         js(&hex(&out_root)),
+-        js(&a.out.display().to_string()),
+-        js(&a.policy_out.display().to_string()),
++        pj(&a.out),
++        pj(&a.policy_out),
+         js(&policy_sha),
+-        js(&format!("zk60_private_stack verify --artifact {} --policy {} --policy-sha256 {policy_sha}", a.out.display(), a.policy_out.display())),
++        js(&shell_line(&vargv)),
++        argv_json(&vargv),
+         prepass_builds,
+         prove_builds,
+         timings_json(&at.phases),
+@@ -1066,7 +1178,7 @@
+                 js(SCOPE),
+                 js(ph),
+                 js(&msg),
+-                rec.map(|p| js(&p.join(FAILED_FILE).display().to_string())).unwrap_or_else(|| "null".into()),
++                rec.map(|p| pj(&p.join(FAILED_FILE))).unwrap_or_else(|| "null".into()),
+                 timings_json(&at.phases),
+                 jf(t_total.elapsed().as_secs_f64())
+             ));
+@@ -1327,4 +1439,454 @@
+         assert_eq!(prove_command(&prove_args("2", &art, &base.join("p3.txt"))), 2);
+         std::fs::remove_dir_all(&base).unwrap();
+     }
+-}
++
++    // ------------------------------------------------ hardening tranche: test helpers
++
++    fn temp_base(tag: &str) -> PathBuf {
++        let base = std::env::temp_dir().join(format!("zk60_stack_{tag}_{}_{}", std::process::id(), std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()));
++        std::fs::create_dir_all(&base).unwrap();
++        base
++    }
++
++    /// A small STRICT JSON reader, independent of `js`: no raw control bytes in
++    /// strings, the standard escapes and `\uXXXX` (this writer never emits a
++    /// surrogate escape), and no trailing bytes. The crate has no JSON
++    /// dependency, so the round-trip is checked against this and against
++    /// trusted literals.
++    #[derive(Debug, Clone, PartialEq)]
++    enum J {
++        Null,
++        Bool(bool),
++        Num(String),
++        Str(String),
++        Arr(Vec<J>),
++        Obj(Vec<(String, J)>),
++    }
++
++    struct Rd<'a> {
++        b: &'a [u8],
++        i: usize,
++    }
++
++    fn parse_json(s: &str) -> Result<J, String> {
++        let mut p = Rd { b: s.as_bytes(), i: 0 };
++        let v = p.value()?;
++        p.ws();
++        if p.i != p.b.len() {
++            return Err("trailing bytes after the JSON value".into());
++        }
++        Ok(v)
++    }
++
++    impl Rd<'_> {
++        fn ws(&mut self) {
++            while self.i < self.b.len() && matches!(self.b[self.i], b' ' | b'\t' | b'\n' | b'\r') {
++                self.i += 1;
++            }
++        }
++        fn lit(&mut self, w: &str, v: J) -> Result<J, String> {
++            if self.b[self.i..].starts_with(w.as_bytes()) {
++                self.i += w.len();
++                Ok(v)
++            } else {
++                Err(format!("bad literal at {}", self.i))
++            }
++        }
++        fn value(&mut self) -> Result<J, String> {
++            self.ws();
++            match self.b.get(self.i).copied() {
++                Some(b'{') => self.object(),
++                Some(b'[') => self.array(),
++                Some(b'"') => Ok(J::Str(self.string()?)),
++                Some(b't') => self.lit("true", J::Bool(true)),
++                Some(b'f') => self.lit("false", J::Bool(false)),
++                Some(b'n') => self.lit("null", J::Null),
++                Some(c) if c == b'-' || c.is_ascii_digit() => {
++                    let st = self.i;
++                    while self.i < self.b.len() && (self.b[self.i].is_ascii_digit() || b"-+.eE".contains(&self.b[self.i])) {
++                        self.i += 1;
++                    }
++                    Ok(J::Num(String::from_utf8(self.b[st..self.i].to_vec()).unwrap()))
++                }
++                _ => Err(format!("no JSON value at byte {}", self.i)),
++            }
++        }
++        fn string(&mut self) -> Result<String, String> {
++            self.i += 1;
++            let mut out: Vec<u8> = Vec::new();
++            loop {
++                let c = *self.b.get(self.i).ok_or("unterminated string")?;
++                self.i += 1;
++                match c {
++                    b'"' => return String::from_utf8(out).map_err(|e| e.to_string()),
++                    b'\\' => {
++                        let e = *self.b.get(self.i).ok_or("dangling escape")?;
++                        self.i += 1;
++                        match e {
++                            b'"' => out.push(b'"'),
++                            b'\\' => out.push(b'\\'),
++                            b'/' => out.push(b'/'),
++                            b'b' => out.push(8),
++                            b'f' => out.push(12),
++                            b'n' => out.push(b'\n'),
++                            b'r' => out.push(b'\r'),
++                            b't' => out.push(b'\t'),
++                            b'u' => {
++                                let h = std::str::from_utf8(self.b.get(self.i..self.i + 4).ok_or("short \\u escape")?).map_err(|e| e.to_string())?;
++                                let cp = u32::from_str_radix(h, 16).map_err(|e| e.to_string())?;
++                                self.i += 4;
++                                let ch = char::from_u32(cp).ok_or("a surrogate \\u escape, which this writer never emits")?;
++                                let mut tmp = [0u8; 4];
++                                out.extend_from_slice(ch.encode_utf8(&mut tmp).as_bytes());
++                            }
++                            _ => return Err("unknown escape".into()),
++                        }
++                    }
++                    0..=0x1f => return Err(format!("a raw control byte {c:#04x} inside a string")),
++                    _ => out.push(c),
++                }
++            }
++        }
++        fn array(&mut self) -> Result<J, String> {
++            self.i += 1;
++            let mut v = Vec::new();
++            self.ws();
++            if self.b.get(self.i) == Some(&b']') {
++                self.i += 1;
++                return Ok(J::Arr(v));
++            }
++            loop {
++                v.push(self.value()?);
++                self.ws();
++                match self.b.get(self.i) {
++                    Some(b',') => self.i += 1,
++                    Some(b']') => {
++                        self.i += 1;
++                        return Ok(J::Arr(v));
++                    }
++                    _ => return Err("unterminated array".into()),
++                }
++            }
++        }
++        fn object(&mut self) -> Result<J, String> {
++            self.i += 1;
++            let mut v: Vec<(String, J)> = Vec::new();
++            self.ws();
++            if self.b.get(self.i) == Some(&b'}') {
++                self.i += 1;
++                return Ok(J::Obj(v));
++            }
++            loop {
++                self.ws();
++                if self.b.get(self.i) != Some(&b'"') {
++                    return Err("an object key is not a string".into());
++                }
++                let k = self.string()?;
++                self.ws();
++                if self.b.get(self.i) != Some(&b':') {
++                    return Err("no colon after a key".into());
++                }
++                self.i += 1;
++                let val = self.value()?;
++                v.push((k, val));
++                self.ws();
++                match self.b.get(self.i) {
++                    Some(b',') => self.i += 1,
++                    Some(b'}') => {
++                        self.i += 1;
++                        return Ok(J::Obj(v));
++                    }
++                    _ => return Err("unterminated object".into()),
++                }
++            }
++        }
++    }
++
++    fn field<'a>(j: &'a J, k: &str) -> &'a J {
++        match j {
++            J::Obj(m) => m.iter().find(|(e, _)| e == k).map(|(_, v)| v).unwrap_or_else(|| panic!("no field {k}")),
++            _ => panic!("not an object"),
++        }
++    }
++
++    fn as_str(j: &J) -> &str {
++        match j {
++            J::Str(s) => s,
++            other => panic!("not a string: {other:?}"),
++        }
++    }
++
++    fn strings_of(j: &J) -> Vec<String> {
++        match j {
++            J::Arr(v) => v.iter().map(|x| as_str(x).to_string()).collect(),
++            other => panic!("not an array: {other:?}"),
++        }
++    }
++
++    /// a POSIX-shell word splitter that REFUSES any unquoted expansion or
++    /// control metacharacter: it proves both that quoting round-trips and that
++    /// nothing hostile is left bare. It executes nothing.
++    fn sh_split(line: &str) -> Result<Vec<String>, String> {
++        let mut words = Vec::new();
++        let mut cur = String::new();
++        let (mut in_word, mut quoted) = (false, false);
++        let mut it = line.chars();
++        while let Some(c) = it.next() {
++            if quoted {
++                if c == '\'' {
++                    quoted = false;
++                } else {
++                    cur.push(c);
++                }
++                continue;
++            }
++            match c {
++                '\'' => {
++                    quoted = true;
++                    in_word = true;
++                }
++                ' ' | '\t' | '\n' => {
++                    if in_word {
++                        words.push(std::mem::take(&mut cur));
++                        in_word = false;
++                    }
++                }
++                '\\' => {
++                    cur.push(it.next().ok_or("a dangling backslash")?);
++                    in_word = true;
++                }
++                '$' | '`' | '"' | ';' | '&' | '|' | '<' | '>' | '(' | ')' | '*' | '?' | '[' | ']' | '~' | '#' | '!' | '{' | '}' => return Err(format!("an unquoted metacharacter {c:?}")),
++                c => {
++                    cur.push(c);
++                    in_word = true;
++                }
++            }
++        }
++        if quoted {
++            return Err("an unterminated quote".into());
++        }
++        if in_word {
++            words.push(cur);
++        }
++        Ok(words)
++    }
++
++    fn capture<T>(f: impl FnOnce() -> T) -> (T, Vec<String>) {
++        CAPTURE.with(|c| *c.borrow_mut() = Some(Vec::new()));
++        let r = f();
++        let lines = CAPTURE.with(|c| c.borrow_mut().take().unwrap());
++        (r, lines)
++    }
++
++    fn result_line(lines: &[String], event: &str) -> J {
++        let j = lines.iter().map(|l| parse_json(l).unwrap_or_else(|e| panic!("an emitted line is not valid JSON ({e}): {l}"))).filter(|j| as_str(field(j, "event")) == event).last();
++        j.unwrap_or_else(|| panic!("no {event} line"))
++    }
++
++    // ------------------------------------------------ hardening tranche: tests
++
++    /// item 1: every valid Rust string survives `js` exactly
++    #[test]
++    fn js_round_trips_unicode_controls_and_long_strings() {
++        let mut cases: Vec<String> = ["", "plain", "quote\" back\\slash", "tab\there\nnl\rcr", "héllo ☃ 𝄞 日本語 👩\u{200d}💻", "\u{2028}\u{2029}", "/tmp/with space/ünï/'q'/$x/`b`/\"d\""].iter().map(|s| s.to_string()).collect();
++        cases.push((0u32..0x20).filter_map(char::from_u32).collect());
++        cases.push("\u{7f}".into());
++        cases.push("x".repeat(10_000));
++        cases.push("é日🙂".repeat(3_000));
++        cases.push(format!("/{}/leaf", "very long directory name with ünïcode ".repeat(200)));
++        for s in &cases {
++            let j = js(s);
++            assert!(!j.bytes().any(|b| b < 0x20), "a raw control byte was written");
++            assert_eq!(parse_json(&j).unwrap(), J::Str(s.clone()), "js did not round-trip {:?}", s.chars().take(20).collect::<String>());
++        }
++    }
++
++    /// item 1: trusted expected literals, and nothing is truncated
++    #[test]
++    fn js_matches_trusted_literals_and_never_truncates() {
++        assert_eq!(js("a\"b\\c"), r#""a\"b\\c""#);
++        assert_eq!(js("\u{1}\n"), r#""\u0001\n""#);
++        assert_eq!(js("\u{8}\u{c}\t\r"), r#""\b\f\t\r""#);
++        assert_eq!(js("\u{7f}"), r#""\u007f""#);
++        assert_eq!(js("\u{2028}"), r#"" +""#);
++        assert_eq!(js("é☃𝄞"), "\"é☃𝄞\"");
++        for n in [2047usize, 2048, 2049, 4096 + 7, 100_000] {
++            assert_eq!(js(&"p".repeat(n)).len(), n + 2, "a {n}-character value was altered in length");
++        }
++        // the constants the manifest and the records embed are plain ASCII with nothing to escape,
++        // so the hardened writer emits the same bytes the earlier writer did
++        assert!(SCOPE.bytes().all(|b| (0x20..0x7f).contains(&b) && b != b'"' && b != b'\\'));
++        assert_eq!(js(SCOPE), format!("\"{SCOPE}\""));
++    }
++
++    #[test]
++    fn a_path_renders_faithfully_and_a_non_utf8_path_is_never_rendered_lossily() {
++        assert_eq!(pj(Path::new("/tmp/ünï x/日本")), js("/tmp/ünï x/日本"));
++        #[cfg(unix)]
++        {
++            use std::os::unix::ffi::OsStrExt;
++            assert_eq!(pj(Path::new(std::ffi::OsStr::from_bytes(b"/tmp/\xff\xfe"))), "null");
++        }
++    }
++
++    /// item 2: quoting round-trips through a POSIX word splitter and leaves nothing bare
++    #[test]
++    fn shell_quoting_round_trips_and_leaves_no_bare_metacharacter() {
++        assert_eq!(sh_quote("/tmp/zk60/p2x3.policy"), "/tmp/zk60/p2x3.policy", "a simple path is unchanged");
++        assert_eq!(sh_quote(""), "''");
++        assert_eq!(sh_quote("it's"), r#"'it'\''s'"#);
++        for w in [
++            "a b", "it's", "`id`", "$HOME", "a\"b", "", "new\nline", "ünï 日本", "--flag=val", "~tilde", "*glob*", "back\\slash", "a'b'c", ";rm -rf /", "$(reboot)", "tab\there", "'", "''", "x y'z\"w`v$u",
++        ] {
++            let q = sh_quote(w);
++            assert_eq!(sh_split(&q).unwrap(), vec![w.to_string()], "quoting {w:?} gave {q}");
++        }
++    }
++
++    /// item 2: the displayed command is exactly the quoted argv, and both are pinned
++    #[test]
++    fn the_verify_command_is_the_quoted_argv_and_pins_profile_and_policy_hash() {
++        let sha = "ab".repeat(32);
++        let profile = "hashline-zk-mr1/private-run-rung-p2-t32-dev/1";
++        for (art, pol) in [("/tmp/zk60/p2x3", "/tmp/zk60/p2x3.policy"), ("/tmp/a b/'q'/$x/`c`/ünï 日本", "/tmp/p o/\"l\"/;&|.policy"), ("rel/dir", "policy")] {
++            let argv = verify_argv(art, pol, &sha, profile);
++            assert_eq!(&argv[..2], &["zk60_private_stack".to_string(), "verify".to_string()][..]);
++            assert_eq!(argv[argv.iter().position(|w| w == "--artifact").unwrap() + 1], art);
++            assert_eq!(argv[argv.iter().position(|w| w == "--policy").unwrap() + 1], pol);
++            assert_eq!(argv[argv.iter().position(|w| w == "--policy-sha256").unwrap() + 1], sha);
++            assert_eq!(argv[argv.iter().position(|w| w == "--expect-run-profile").unwrap() + 1], profile);
++            assert_eq!(sh_split(&shell_line(&argv)).unwrap(), argv, "the shell line does not read back to the argv");
++            assert_eq!(parse_json(&argv_json(&argv)).unwrap(), J::Arr(argv.iter().map(|w| J::Str(w.clone())).collect()));
++        }
++    }
++
++    /// items 1, 2, 4: non-ASCII, quote/dollar/backtick paths through the real prove
++    /// and verify; every emitted line is valid JSON; the reported argv IS runnable
++    #[test]
++    fn hostile_and_non_ascii_paths_prove_verify_and_report_faithfully() {
++        let base = temp_base("paths");
++        let dir = base.join("ünï 日本 'q' $HOME `x` \"d\"");
++        std::fs::create_dir_all(&dir).unwrap();
++        let (art, pol) = (dir.join("art ☃"), dir.join("policy 日本.txt"));
++        let (code, lines) = capture(|| prove_command(&prove_args("1", &art, &pol)));
++        assert_eq!(code, 0);
++        let res = result_line(&lines, "prove_result");
++        let art_s = art.to_str().unwrap();
++        let pol_s = pol.to_str().unwrap();
++        // the canonicalised parent may differ from `base` (a symlinked temp dir), so compare by file name and by identity on disk
++        assert_eq!(as_str(field(&res, "artifact_dir")).rsplit('/').next().unwrap(), "art ☃");
++        assert_eq!(std::fs::canonicalize(as_str(field(&res, "artifact_dir"))).unwrap(), std::fs::canonicalize(art_s).unwrap());
++        assert_eq!(std::fs::canonicalize(as_str(field(&res, "policy_file"))).unwrap(), std::fs::canonicalize(pol_s).unwrap());
++        let iv = field(&res, "independent_verification");
++        let argv = strings_of(field(iv, "argv"));
++        assert_eq!(sh_split(as_str(field(iv, "command"))).unwrap(), argv, "command and argv disagree");
++        assert!(argv.contains(&"--policy-sha256".to_string()) && argv.contains(&"--expect-run-profile".to_string()));
++        assert_eq!(as_str(field(&res, "policy_sha256")), argv[argv.iter().position(|w| w == "--policy-sha256").unwrap() + 1]);
++        // the argv, taken straight from the JSON, verifies in a fresh verify call
++        let (code, vlines) = capture(|| verify_command(&argv[2..]));
++        assert_eq!(code, 0, "the reported argv does not verify");
++        assert_eq!(as_str(field(&result_line(&vlines, "verify_result"), "status")), "accepted");
++        // a wrong policy-hash pin is refused, with a valid JSON line
++        let mut bad = argv[2..].to_vec();
++        let at = bad.iter().position(|w| w == "--policy-sha256").unwrap() + 1;
++        bad[at] = "00".repeat(32);
++        let (code, rlines) = capture(|| verify_command(&bad));
++        assert_eq!(code, 1);
++        assert_eq!(as_str(field(&result_line(&rlines, "verify_result"), "status")), "refused");
++        // a refusal that names a non-ASCII path keeps it intact
++        let missing = dir.join("no such ü");
++        let (code, mlines) = capture(|| verify_command(&["--artifact".to_string(), missing.to_str().unwrap().to_string(), "--policy".to_string(), pol_s.to_string()]));
++        assert_eq!(code, 1);
++        assert_eq!(as_str(field(&result_line(&mlines, "verify_result"), "status")), "refused");
++        // a symlinked `statement` entry is refused, and the real one is accepted again
++        #[cfg(unix)]
++        {
++            // the real directory sits OUTSIDE the artifact, so the only thing that can refuse is the link itself
++            let real = dir.join("stmt_real");
++            std::fs::rename(art.join("statement"), &real).unwrap();
++            std::os::unix::fs::symlink(&real, art.join("statement")).unwrap();
++            assert_eq!(verify_command(&argv[2..]), 1, "a symlinked statement directory was accepted");
++            std::fs::remove_file(art.join("statement")).unwrap();
++            std::fs::rename(&real, art.join("statement")).unwrap();
++            assert_eq!(verify_command(&argv[2..]), 0);
++        }
++        std::fs::remove_dir_all(&base).unwrap();
++    }
++
++    /// item 3: the cap is enforced on the bytes read, not on a length someone promised
++    #[test]
++    fn the_bounded_reader_stops_a_growing_or_lying_source_at_the_cap() {
++        use std::cell::Cell;
++        use std::rc::Rc;
++        struct Count<R> {
++            r: R,
++            n: Rc<Cell<u64>>,
++        }
++        impl<R: Read> Read for Count<R> {
++            fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
++                let k = self.r.read(buf)?;
++                self.n.set(self.n.get() + k as u64);
++                Ok(k)
++            }
++        }
++        // an endless source (the limit case of a file that keeps growing) is cut at max + 1 bytes read
++        let n = Rc::new(Cell::new(0));
++        let e = read_capped(Count { r: std::io::repeat(7), n: n.clone() }, 1000, 0).unwrap_err();
++        assert!(e.contains("larger than the 1000-byte bound"), "{e}");
++        assert_eq!(n.get(), 1001, "more than max + 1 bytes were read");
++        // exactly `max` is accepted, one more is not
++        assert_eq!(read_capped(std::io::repeat(1).take(1000), 1000, 1000).unwrap().len(), 1000);
++        assert!(read_capped(std::io::repeat(1).take(1001), 1000, 1000).is_err());
++        // a wild length hint does not size an allocation past the cap
++        assert_eq!(read_capped(&b"abc"[..], 10, u64::MAX).unwrap(), b"abc");
++    }
++
++    /// item 3: type and size refusals on real files, symlinks included
++    #[test]
++    fn read_bounded_refuses_oversize_special_missing_and_symlinked_files() {
++        let base = temp_base("bounded");
++        let ok = base.join("ok.bin");
++        std::fs::write(&ok, vec![1u8; 100]).unwrap();
++        assert_eq!(read_bounded(&ok, 100).unwrap().len(), 100);
++        let e = read_bounded(&ok, 99).unwrap_err();
++        assert!(e.contains("larger than the 99-byte bound"), "{e}");
++        let e = read_bounded(&base, 1 << 20).unwrap_err();
++        assert!(e.contains("not a regular file"), "{e}");
++        assert!(read_bounded(&base.join("absent"), 10).is_err());
++        #[cfg(unix)]
++        {
++            let link = base.join("link.bin");
++            std::os::unix::fs::symlink(&ok, &link).unwrap();
++            let e = read_bounded(&link, 1 << 20).unwrap_err();
++            assert!(e.contains("not a regular file"), "a symlink was followed: {e}");
++        }
++        // the policy and manifest caps
++        let big = base.join("big.policy");
++        std::fs::write(&big, vec![b'a'; MAX_POLICY_BYTES as usize + 1]).unwrap();
++        assert!(read_bounded(&big, MAX_POLICY_BYTES).unwrap_err().contains("larger than"));
++        let (code, lines) = capture(|| verify_command(&["--artifact".to_string(), base.to_str().unwrap().to_string(), "--policy".to_string(), big.to_str().unwrap().to_string()]));
++        assert_eq!(code, 1, "an oversize policy was not refused");
++        assert!(as_str(field(&result_line(&lines, "verify_result"), "reason")).contains("larger than"));
++        std::fs::remove_dir_all(&base).unwrap();
++    }
++
++    /// item 4: the policy and manifest formats are byte-compatible with what the
++    /// verifier of the earlier tranche wrote and read
++    #[test]
++    fn the_manifest_and_policy_formats_are_unchanged() {
++        let segs = vec![("segment-000.bin".to_string(), 10u64, "aa".to_string()), ("segment-001.bin".to_string(), 20, "bb".to_string())];
++        let want = format!(
++            "{{\"schema\":\"zk60-mvp-artifact/1\",\"scope\":\"{SCOPE}\",\"policy_sha256\":\"cc\",\"blocks\":2,\"total_bytes\":30,\"segments\":[{{\"file\":\"segment-000.bin\",\"bytes\":10,\"sha256\":\"aa\"}},{{\"file\":\"segment-001.bin\",\"bytes\":20,\"sha256\":\"bb\"}}]}}\n"
++        );
++        let got = render_manifest("cc", &segs);
++        assert_eq!(got, want);
++        let j = parse_json(got.trim_end()).unwrap();
++        assert_eq!(as_str(field(&j, "schema")), MANIFEST_SCHEMA);
++        // a policy is still plain `key=value` ASCII: a non-ASCII byte anywhere is refused
++        let text = render_policy(&digests(9)).unwrap();
++        assert!(text.is_ascii());
++        assert!(parse_policy(text.replacen("mvp-diagnostic", "mvp-diagnostïc", 1).as_bytes()).is_err());
++        assert_eq!(render_policy(&parse_policy(text.as_bytes()).unwrap()).unwrap(), text);
++    }
++}
+--- a/hashline/src/private_block/run.rs
++++ b/hashline/src/private_block/run.rs
+@@ -905,8 +905,63 @@
+     for (k, p) in paths.iter().enumerate() {
+         // ONE segment's bytes are resident: read here, dropped at the end of
+         // this iteration, before the next file is opened
+-        let bytes = std::fs::read(p).map_err(|e| format!("private run: segment {k} ({}) cannot be read: {e}", p.display()))?;
++        let file = std::fs::File::open(p).map_err(|e| format!("private run: segment {k} ({}) cannot be opened: {e}", p.display()))?;
++        let metadata = file.metadata().map_err(|e| format!("private run: segment {k} metadata: {e}"))?;
++        if !metadata.is_file() || metadata.len() > wire::MAX_WIRE_BYTES_ANY as u64 {
++            return Err(format!("private run: segment {k} must be a regular file within the wire bound"));
++        }
++        // The handle may grow after metadata inspection. Cap the read itself;
++        // the decoder still enforces the exact verifier-derived segment size.
++        let bytes = read_segment_bounded(file, wire::MAX_WIRE_BYTES_ANY)
++            .map_err(|e| format!("private run: segment {k} ({}) cannot be read: {e}", p.display()))?;
+         v.step(k, &bytes)?;
+     }
+     v.finish()
+ }
++
++fn read_segment_bounded(source: impl std::io::Read, max: usize) -> Result<Vec<u8>, String> {
++    use std::io::Read;
++    let limit = u64::try_from(max).ok().and_then(|n| n.checked_add(1))
++        .ok_or_else(|| "invalid segment read bound".to_string())?;
++    let mut bytes = Vec::new();
++    source.take(limit).read_to_end(&mut bytes).map_err(|e| e.to_string())?;
++    if bytes.len() > max {
++        return Err("segment exceeds the wire bound while being read".into());
++    }
++    Ok(bytes)
++}
++
++#[cfg(test)]
++mod bounded_segment_tests {
++    use super::read_segment_bounded;
++    use std::io::{self, Read};
++
++    #[test]
++    fn a_growing_segment_cannot_make_the_reader_consume_past_its_bound() {
++        struct Growing { consumed: usize }
++        impl Read for Growing {
++            fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
++                self.consumed += buf.len();
++                assert!(self.consumed <= 33, "reader consumed beyond max + 1");
++                buf.fill(0);
++                Ok(buf.len())
++            }
++        }
++        let error = read_segment_bounded(Growing { consumed: 0 }, 32).unwrap_err();
++        assert!(error.contains("exceeds the wire bound"));
++    }
++
++    #[test]
++    fn bounded_reads_preserve_exact_bytes_and_report_io_errors() {
++        let bytes: Vec<u8> = (0..32).collect();
++        assert_eq!(read_segment_bounded(bytes.as_slice(), 32).unwrap(), bytes);
++        assert!(read_segment_bounded(bytes.as_slice(), 31).is_err());
++        struct Fails;
++        impl Read for Fails {
++            fn read(&mut self, _: &mut [u8]) -> io::Result<usize> {
++                Err(io::Error::new(io::ErrorKind::UnexpectedEof, "interrupted segment"))
++            }
++        }
++        assert!(read_segment_bounded(Fails, 32).unwrap_err().contains("interrupted segment"));
++    }
++}

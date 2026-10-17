@@ -1,0 +1,30 @@
+{
+  "header_q_is_square": true,
+  "header_o_is_square": true,
+  "header_kv_width_eq_KV_x_dh": true,
+  "header_down_is_d_by_f": true,
+  "header_blocks_eq_config_layers": true,
+  "counter_checkpoint_payload_eq_header": true,
+  "counter_one_layer_bf16_eq_header": true,
+  "counter_Q_RATE_as_assumed": true,
+  "every_probe_uses_header_geometry": true,
+  "counter_reproduces_stored_ladder": true,
+  "refusal_unchanged": true
+}
+T lc | receipt/block MiB | CPU host pre-H / slots GiB | GPU host pre-H / retained GiB | GPU device GiB
+32 12 | 11.5 | 0.53 0.59 | 0.29 0.12 | 0.17 0.16
+32 13 | 11.4 | 0.58 0.65 | 0.31 0.14 | 0.22 0.20
+64 12 | 19.0 | 0.97 1.18 | 0.52 0.25 | 0.29 0.28
+64 13 | 15.1 | 1.02 1.24 | 0.53 0.25 | 0.34 0.32
+64 14 | 18.0 | 1.12 1.37 | 0.55 0.28 | 0.46 0.41
+128 12 | 36.4 | 2.00 2.56 | 1.05 0.53 | 0.58 0.57
+128 13 | 23.9 | 2.04 2.61 | 1.06 0.53 | 0.62 0.60
+128 14 | 22.4 | 2.14 2.74 | 1.08 0.56 | 0.73 0.69
+256 12 | 85.5 | 4.88 6.44 | 2.53 1.34 | 1.39 1.38
+256 13 | 48.4 | 4.91 6.47 | 2.54 1.32 | 1.41 1.39
+256 14 | 34.7 | 5.00 6.58 | 2.57 1.33 | 1.51 1.46
+512 12 | 228.0 | 13.14 17.72 | 6.84 3.70 | 3.75 3.74
+512 13 | 119.7 | 13.14 17.68 | 6.85 3.61 | 3.70 3.68
+512 14 | 70.3 | 13.22 17.75 | 6.88 3.58 | 3.76 3.72
+refused {'tinyllama_t32_lc14_probe': 'REFUSED private block shape: the bilinear attention slots cannot serve a shape whose Kv domain is lifted by P-3 (natural log 13, lifted to the row width 14)'}
+exit=0

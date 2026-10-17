@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "python3",
+    "-B",
+    "experiments/affine-denominator-stepping-20261004/experiment.py"
+  ],
+  "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency",
+  "started_utc": "2026-10-04T18:59:38.574892+00:00",
+  "reason": "final run adds independent cross-cycle count validation; prior algebra result retained"
+}

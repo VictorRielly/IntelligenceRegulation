@@ -1,0 +1,45 @@
+{
+  "run_id": "20261004T130146Z-19e7c75c",
+  "access_date": "2026-10-04",
+  "mechanism": "Native LIVE tools.web__run; no shell networking or bypass",
+  "queries": [
+    "sumcheck split equality polynomial nested accumulation 2026 batching GPU Goldilocks",
+    "site.github.com a16z jolt split_eq_poly GruenSplitEqPolynomial inner outer accumulation",
+    "site.eprint.iacr.org 2026 batch sumcheck prover optimization equality",
+    "site.github.com/ingonyama-zk/icicle releases 2026 sumcheck batching",
+    "site.eprint.iacr.org 2026 \"sumcheck\" \"batch\" \"prover\"",
+    "site.eprint.iacr.org 2026 \"GPU\" \"batching\" proof sumcheck",
+    "site.eprint.iacr.org \"amortized\" \"sumcheck\" \"2025\" prover"
+  ],
+  "primary_urls_inspected": [
+    "https://eprint.iacr.org/2024/1210",
+    "https://eprint.iacr.org/2026/587",
+    "https://github.com/a16z/jolt/blob/main/jolt-core/src/poly/split_eq_poly.rs",
+    "https://github.com/a16z/jolt/pull/965",
+    "https://github.com/a16z/jolt/pull/970",
+    "https://github.com/a16z/jolt/releases",
+    "https://github.com/a16z/jolt/blob/main/LICENSE-MIT",
+    "https://jolt.a16zcrypto.com/how/architecture/opening-proof.html",
+    "https://github.com/ingonyama-zk/icicle/releases",
+    "https://github.com/ingonyama-zk/icicle/blob/main/wrappers/rust/icicle-core/src/sumcheck/mod.rs",
+    "https://github.com/ingonyama-zk/icicle/blob/main/LICENSE",
+    "https://github.com/ingonyama-zk/icicle/commit/6c77775",
+    "https://eprint.iacr.org/2026/1329",
+    "https://eprint.iacr.org/2025/719",
+    "https://eprint.iacr.org/2025/719.pdf"
+  ],
+  "notes": [
+    "Search snippets are not verified publication dates; dates come from primary histories.",
+    "Current remote source file commits not pinned; ICICLE abbreviated 6c77775 version-only diff inspected.",
+    "All failures and qualifications appear in source-records.json. No downloaded implementation executed."
+  ],
+  "rotation_next": [
+    "arithmetic/quantization",
+    "proof composition",
+    "GPU NTT/commitments",
+    "lookup/softmax",
+    "memory traffic",
+    "batching/amortization",
+    "sumcheck/GKR"
+  ]
+}

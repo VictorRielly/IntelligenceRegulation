@@ -1,0 +1,5 @@
+{
+  "status": "failed",
+  "reason": "Dated progress copied root-relative links; first link audit rejected its experiment link. Corrected local targets with ../ before final audit.",
+  "experiment_result_affected": false
+}

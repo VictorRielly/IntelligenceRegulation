@@ -1,0 +1,18 @@
+{
+  "status": "pass",
+  "counts": {
+    "fixtures": 199,
+    "schedules": 657,
+    "independent_words": 80367,
+    "comparisons": 657,
+    "refusal_schedules": 30,
+    "table_helpers": 32,
+    "table_helper_words": 320,
+    "split_plane_sentinel_checks": 627,
+    "formula_checks": 3135
+  },
+  "control_count": 21,
+  "elapsed_seconds": 0.7341523989962297,
+  "peak_rss_kib": 30648,
+  "digest_sha256": "f643cfebd190de73504492d8f4c9fb3f9af2c2eddf1136a83de20bb979e64643"
+}

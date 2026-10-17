@@ -1,0 +1,6 @@
+Initial inline accounting parser (2026-10-13):
+    seconds = float(line.split('|')[4])
+ValueError: could not convert string to float: '   0.6% '
+The diagnostic line splits as label|phase|half|seconds|percent|words|rss|peak.
+Corrected parser in cost_accounting.py uses field3. Main arithmetic experiment
+already passed; this accounting failure is retained and is not a proof failure.

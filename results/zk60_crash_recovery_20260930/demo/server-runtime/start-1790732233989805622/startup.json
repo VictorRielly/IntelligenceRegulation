@@ -1,0 +1,19 @@
+{
+  "state": "running",
+  "url": "http://127.0.0.1:8765",
+  "command": [
+    "/usr/bin/python3",
+    "/home/victor/IntelligenceRegulation/scripts/zk60_techweek_server.py",
+    "--port",
+    "8765",
+    "--output",
+    "/home/victor/IntelligenceRegulation/results/zk60_techweek_demo"
+  ],
+  "process": {
+    "pid": 26859,
+    "start_ticks": 285241,
+    "pid_namespace": "pid:[4026532223]",
+    "boot_id": "821442fc-3e31-457d-a742-de97ad7c8122"
+  },
+  "log": "/home/victor/IntelligenceRegulation/results/zk60_crash_recovery_20260930/demo/server-runtime/start-1790732233989805622/server.log"
+}

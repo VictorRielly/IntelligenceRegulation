@@ -1,0 +1,63 @@
+--- a/hashline/src/private_block.rs
++++ b/hashline/src/private_block.rs
+@@ -495,7 +495,7 @@
+     fn absorb_into(&self, h: &mut blake3::Hasher) {
+         for w in [&self.wq, &self.wk, &self.wv, &self.wo, &self.gamma_a] {
+             h.update(&(w.len() as u64).to_le_bytes());
+-            h.update(&w.iter().map(|v| *v as u8).collect::<Vec<u8>>());
++            absorb_i8_bounded(h, w);
+         }
+         for t in [&self.rope_cos, &self.rope_sin, &self.exp] {
+             h.update(&(t.len() as u64).to_le_bytes());
+@@ -575,7 +575,7 @@
+     fn absorb_into(&self, h: &mut blake3::Hasher) {
+         for w in [&self.gamma_m, &self.wg_t, &self.wu_t, &self.wd_t] {
+             h.update(&(w.len() as u64).to_le_bytes());
+-            h.update(&w.iter().map(|v| *v as u8).collect::<Vec<u8>>());
++            absorb_i8_bounded(h, w);
+         }
+         // the 256 activation words, little-endian i16, in the digest (E-2)
+         h.update(&(self.act.len() as u64).to_le_bytes());
+@@ -594,15 +594,29 @@
+ /// Structure is checked by the two constructors; structure is NOT provenance.
+ /// The caller must authenticate the words (approved model, registered table
+ /// digests) against the approved commitments before trusting a verdict.
++// Research candidate: same bytes with bounded safe conversion scratch.
++// Native compile/BLAKE3/frozen receipt tests and enclosing clocks are pending.
++fn absorb_i8_bounded(h: &mut blake3::Hasher, words: &[i8]) {
++    let mut scratch = [0u8; 64 * 1024];
++    for chunk in words.chunks(scratch.len()) {
++        for (out, value) in scratch.iter_mut().zip(chunk) {
++            *out = *value as u8;
++        }
++        h.update(&scratch[..chunk.len()]);
++    }
++}
++
+ #[derive(Clone)]
+ pub struct BlockPublic {
+     attention: AttentionPublic,
+     feed_forward: FeedForwardPublic,
++    // Valid only while these owned words cannot mutate after first digest.
++    public_digest: std::sync::OnceLock<Digest>,
+ }
+ 
+ impl BlockPublic {
+     pub fn new(attention: AttentionPublic, feed_forward: FeedForwardPublic) -> Self {
+-        Self { attention, feed_forward }
++        Self { attention, feed_forward, public_digest: std::sync::OnceLock::new() }
+     }
+     pub(crate) fn attention(&self) -> &AttentionPublic {
+         &self.attention
+@@ -612,6 +626,11 @@
+     }
+ 
+     pub fn digest(&self) -> Digest {
++        *self.public_digest.get_or_init(|| self.digest_uncached())
++    }
++
++    // Keep this uncached path for the owner's independent byte-identity gates.
++    fn digest_uncached(&self) -> Digest {
+         let mut h = blake3::Hasher::new();
+         h.update(b"hashline/private-block-public/1");
+         self.attention.absorb_into(&mut h);

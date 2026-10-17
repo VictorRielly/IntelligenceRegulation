@@ -1,0 +1,132 @@
+{
+  "records": [
+    {
+      "path": "/home/victor/IntelligenceRegulation/results/zk60_sumcheck_rounds_20260922/dense-ab-1/01-new.log",
+      "sha256": "d9b14575577a963607e53898800d9108f60a2c85e4a9f8af5754a90711f1447b",
+      "helper_seconds": 0.223,
+      "prove_seconds": 43.018,
+      "witness_seconds": 6.57,
+      "serialization_seconds": 0.029,
+      "verify_internal_seconds": 0.851,
+      "known_readiness_components_sum_seconds": 49.617000000000004,
+      "helper_share_prove": 0.005183876516806918,
+      "helper_share_known_readiness": 0.004494427313219259,
+      "label": "prior measured synthetic dense 125M block, shared two-thread CPU; not reproduced; accounted readiness is not enclosing wall time"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/results/zk60_sumcheck_rounds_20260922/dense-ab-1/02-new.log",
+      "sha256": "f9978614e70f6c2ba295c49fd95f6dabd3f7580ce2e6ae6bf689e5460ae4a015",
+      "helper_seconds": 0.193,
+      "prove_seconds": 38.065,
+      "witness_seconds": 5.85,
+      "serialization_seconds": 0.032,
+      "verify_internal_seconds": 0.854,
+      "known_readiness_components_sum_seconds": 43.946999999999996,
+      "helper_share_prove": 0.005070274530408512,
+      "helper_share_known_readiness": 0.004391653582724646,
+      "label": "prior measured synthetic dense 125M block, shared two-thread CPU; not reproduced; accounted readiness is not enclosing wall time"
+    }
+  ],
+  "interpretation": "Latest non-warm candidate helper phase 0.217/0.232 s: 0.54-0.58% of proving, 0.46-0.48% of known witness+prove+serialization sum. Removing entire phase is only a ceiling on this data, not a predicted gain. Grouped A/B still waiting.",
+  "native_grouped_ab": {
+    "state": "waiting-for-heavy-lock",
+    "runs": [],
+    "cpu_only": true,
+    "synthetic_dense_public_weights": true,
+    "model_scale_speed_claim": false,
+    "candidate_includes_small_slot_oracle": true,
+    "runner_sha256": "6c2bf639dcebd39fa10a78ce7eb5821bfd8b1c788aa9f18a78a6fa0b3cbb1d54"
+  },
+  "latest_r2a_records": [
+    {
+      "path": "/home/victor/IntelligenceRegulation/results/zk60_encode_allocation_20260922/dense-ab-1/00-warm-old.log",
+      "sha256": "b4212128ae45198e2127e0ae2fdec1ac3b00192c5a232d950189c952eade32be",
+      "warmup": true,
+      "candidate": false,
+      "helper_seconds": 0.207,
+      "prove_seconds": 39.486,
+      "witness_seconds": 5.55,
+      "serialization_seconds": 0.027,
+      "verify_internal_seconds": 0.94,
+      "known_readiness_components_sum_seconds": 45.062999999999995,
+      "helper_share_prove": 0.005242364382312718,
+      "helper_share_known_readiness": 0.004593569003395247,
+      "label": "latest retained R2a synthetic dense 125M block, shared two-thread CPU; compilation overlap affects comparison; not reproduced here"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/results/zk60_encode_allocation_20260922/dense-ab-1/01-warm-new.log",
+      "sha256": "d4dc4f17871f9c15ebeacad17a8a5a3c0341957f7cc59bda5f8abdfad0a1232b",
+      "warmup": true,
+      "candidate": true,
+      "helper_seconds": 0.258,
+      "prove_seconds": 40.179,
+      "witness_seconds": 14.93,
+      "serialization_seconds": 0.028,
+      "verify_internal_seconds": 0.905,
+      "known_readiness_components_sum_seconds": 55.137,
+      "helper_share_prove": 0.006421264839841708,
+      "helper_share_known_readiness": 0.0046792534958376404,
+      "label": "latest retained R2a synthetic dense 125M block, shared two-thread CPU; compilation overlap affects comparison; not reproduced here"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/results/zk60_encode_allocation_20260922/dense-ab-1/02-old.log",
+      "sha256": "87c8ae6071921f556721c91a59ef1f5e584156179a9c9227fd2ad0cd08b2e8c6",
+      "warmup": false,
+      "candidate": false,
+      "helper_seconds": 0.299,
+      "prove_seconds": 44.509,
+      "witness_seconds": 6.65,
+      "serialization_seconds": 0.024,
+      "verify_internal_seconds": 0.96,
+      "known_readiness_components_sum_seconds": 51.183,
+      "helper_share_prove": 0.006717742479049181,
+      "helper_share_known_readiness": 0.005841783404646073,
+      "label": "latest retained R2a synthetic dense 125M block, shared two-thread CPU; compilation overlap affects comparison; not reproduced here"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/results/zk60_encode_allocation_20260922/dense-ab-1/03-new.log",
+      "sha256": "9c2f7565a09cfd472eb74a71d8120f1fa225c489ecc4082b5fe2f38d34f6aaea",
+      "warmup": false,
+      "candidate": true,
+      "helper_seconds": 0.232,
+      "prove_seconds": 39.733,
+      "witness_seconds": 8.35,
+      "serialization_seconds": 0.024,
+      "verify_internal_seconds": 0.964,
+      "known_readiness_components_sum_seconds": 48.107,
+      "helper_share_prove": 0.005838975159187578,
+      "helper_share_known_readiness": 0.004822582992080155,
+      "label": "latest retained R2a synthetic dense 125M block, shared two-thread CPU; compilation overlap affects comparison; not reproduced here"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/results/zk60_encode_allocation_20260922/dense-ab-1/04-new.log",
+      "sha256": "050fe0779207e050f038d4d933ade12a5c29eab6f386c3600dcdc7c69acbc0bf",
+      "warmup": false,
+      "candidate": true,
+      "helper_seconds": 0.217,
+      "prove_seconds": 40.095,
+      "witness_seconds": 7.26,
+      "serialization_seconds": 0.027,
+      "verify_internal_seconds": 0.976,
+      "known_readiness_components_sum_seconds": 47.382,
+      "helper_share_prove": 0.005412146152886894,
+      "helper_share_known_readiness": 0.004579798235616901,
+      "label": "latest retained R2a synthetic dense 125M block, shared two-thread CPU; compilation overlap affects comparison; not reproduced here"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/results/zk60_encode_allocation_20260922/dense-ab-1/05-old.log",
+      "sha256": "c9fcffa72ed997ef09aab1b77aa7eb35e305d3ab81433ac5b37bb484df5920f4",
+      "warmup": false,
+      "candidate": false,
+      "helper_seconds": 0.221,
+      "prove_seconds": 40.272,
+      "witness_seconds": 6.83,
+      "serialization_seconds": 0.022,
+      "verify_internal_seconds": 0.914,
+      "known_readiness_components_sum_seconds": 47.123999999999995,
+      "helper_share_prove": 0.005487683750496623,
+      "helper_share_known_readiness": 0.00468975468975469,
+      "label": "latest retained R2a synthetic dense 125M block, shared two-thread CPU; compilation overlap affects comparison; not reproduced here"
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "status": "passed",
+  "seed": 2026092710,
+  "differential_cases": 138,
+  "materialized_comparisons": 828,
+  "direct_definition_points": 12912,
+  "wide_sparse_cases": [
+    {
+      "n": 1024,
+      "nn": 4096,
+      "q": 17,
+      "output_points": 4096,
+      "sha256": "c5f0afad20f423c273991fa5d7466608ef8d2801b8db63c400ff02f2f07f1652"
+    },
+    {
+      "n": 2048,
+      "nn": 8192,
+      "q": 256,
+      "output_points": 8192,
+      "sha256": "530bf4ed5a224adf612acdef39d464b6771baefc913a8e67b2c67c230b37f5a5"
+    },
+    {
+      "n": 2048,
+      "nn": 8192,
+      "q": 2051,
+      "output_points": 8192,
+      "sha256": "494d516cd3633e3aa40713abf72fe9610dd35ff141c912dd9f666840e6ddae73"
+    }
+  ],
+  "column_byte_checks": 256,
+  "flat_chunk_stride_comparisons": 16,
+  "gather_requests": [
+    63,
+    0,
+    17,
+    17,
+    1,
+    63,
+    32
+  ],
+  "negative_controls": {
+    "no_bitreversal": true,
+    "wrong_inverse_scale": true,
+    "omit_negative_pad": true,
+    "omit_positive_pad": true,
+    "no_coset": true,
+    "legacy_overlap": true,
+    "pad_chunk_offset": true,
+    "drop_duplicates": true,
+    "row_order": true,
+    "changed_pad": true,
+    "compact_stride": true,
+    "dirty_tail": true,
+    "minimal_overlap_counterexample": true
+  },
+  "independent_sector_formula": {
+    "compact": 45568,
+    "fused": 49920
+  },
+  "malformed_refusals": 6,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "python": "3.10.12",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "limits": {
+    "wall_s": 59,
+    "cpu_s": 55,
+    "address_space_mib": 512,
+    "estimated_memory_mib": 48
+  },
+  "elapsed_s": 4.062190863012802,
+  "peak_rss_kib": 20300,
+  "source_sha256": "5804449f0451e6d4971c0e396a0cc66df50c61164484208ee4c075d1d2f78ca1",
+  "proving_s": null,
+  "verification_s": null,
+  "complete_readiness_s": null,
+  "gpu_executed": false,
+  "native_compiled": false,
+  "scope": "Synthetic exact field encodes and source-address issue model; sector requests are not cache misses, DRAM bytes or time. No hashes/proof/transcript/RNG/device validation."
+}
+{"coset_multiplications_compact": 245, "coset_multiplications_fused": 245, "full_width_coset_multiplications": 448, "logical_bytes_saved": 3920, "logical_reduction_percent": 31.390134529147982, "n": 16, "nn": 64, "q": 19, "removed_scratch_bytes": 1960, "rows": 7, "sector_increase_percent": -6.751054852320671}
+{"coset_multiplications_compact": 1280, "coset_multiplications_fused": 1280, "full_width_coset_multiplications": 4096, "logical_bytes_saved": 20480, "logical_reduction_percent": 27.027027027027028, "n": 1024, "nn": 4096, "q": 256, "removed_scratch_bytes": 10240, "rows": 1, "sector_increase_percent": 15.384615384615374}
+{"coset_multiplications_compact": 2304, "coset_multiplications_fused": 2304, "full_width_coset_multiplications": 8192, "logical_bytes_saved": 36864, "logical_reduction_percent": 26.08695652173913, "n": 2048, "nn": 8192, "q": 256, "removed_scratch_bytes": 18432, "rows": 1, "sector_increase_percent": 12.5}
+{"coset_multiplications_compact": 16640, "coset_multiplications_fused": 16640, "full_width_coset_multiplications": 65536, "logical_bytes_saved": 266240, "logical_reduction_percent": 25.145067698259187, "n": 16384, "nn": 65536, "q": 256, "removed_scratch_bytes": 133120, "rows": 1, "sector_increase_percent": 9.550561797752799}
+{"coset_multiplications_compact": 49920, "coset_multiplications_fused": 49920, "full_width_coset_multiplications": 196608, "logical_bytes_saved": 798720, "logical_reduction_percent": 25.145067698259187, "n": 16384, "nn": 65536, "q": 256, "removed_scratch_bytes": 399360, "rows": 3, "sector_increase_percent": 9.550561797752799}
+{"coset_multiplications_compact": 32768, "coset_multiplications_fused": 32768, "full_width_coset_multiplications": 65536, "logical_bytes_saved": 524288, "logical_reduction_percent": 30.76923076923077, "n": 16384, "nn": 65536, "q": 16384, "removed_scratch_bytes": 262144, "rows": 1, "sector_increase_percent": 26.315789473684205}
+{"coset_multiplications_compact": 32771, "coset_multiplications_fused": 32771, "full_width_coset_multiplications": 65536, "logical_bytes_saved": 524336, "logical_reduction_percent": 30.76988080203937, "n": 16384, "nn": 65536, "q": 16387, "removed_scratch_bytes": 262168, "rows": 1, "sector_increase_percent": 26.315992342382867}

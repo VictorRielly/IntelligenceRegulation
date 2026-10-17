@@ -1,0 +1,47 @@
+{
+  "exit_code": 0,
+  "result_and_source_hash_checks": true,
+  "proposed_patch_in_memory_check": true,
+  "source_log_records_present": true,
+  "production_sources_still_match_experiment_pins": true,
+  "experiment_command": "python3 experiments/ntt-mapped-layout-20260926/experiment.py > experiments/ntt-mapped-layout-20260926/run.log 2>&1",
+  "validation_command": "python3 experiments/ntt-mapped-layout-20260926/validate.py",
+  "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency",
+  "run_identity": "20260926T185233Z-aa002e55",
+  "cycle": "0003",
+  "checkpoint_utc": "2026-09-26T19:07:15.693118+00:00",
+  "no_native_build_or_execution": true,
+  "no_gpu": true,
+  "no_git": true,
+  "no_dependencies_installed": true,
+  "no_downloaded_code_executed": true,
+  "no_runtime_writes": true,
+  "no_external_writes_or_messages": true,
+  "reference_document_sha256": {
+    "CLAUDE.md": "1551c8e66e9551d8c55e1160d8684f44daa2ecc8e1f8f64a9f80bce27fd1a656",
+    "docs/zkmatrix-poc/MVP_STATUS.md": "026b9f0ee359f2726619894f36e4d1a204bb54dd3721ff37da3e3937d02f30ff",
+    "docs/zkmatrix-poc/ZK60_DECISIONS.md": "5077bc4b590ce8d95c238c3b5e35d8122872c56e5f1e6324c81d78460e0e90c5",
+    "docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md": "78430dfb372d02d4c76a3058ceb7035444e6adb074989885718c66c9d5953a4a",
+    "docs/zkmatrix-poc/ZK60_ENCODE_CONFORMANCE_VECTORS.md": "7d1d6a4cfa15c814742b4416348bb36f1b573d5217dbace02599294ff4b4653b",
+    "results/zk60_grouped_rounds_20260926/validation-1/validation.json": "73fbb925e737b805900fa5b518acddf69d2b6cc6637f17d06f3d3692257aa4a0",
+    "results/zk60_grouped_rounds_20260926/dense-ab-1/comparison.json": "090d9d65dc2a8f75bac44c847411b486939a924281188d82edced1c19db9ab26"
+  },
+  "artifact_sha256": {
+    "result.json": "0fd9da61abf4f28acda7068f5474967b2eed7ae0d46a171b7d9f4cfed8e1b93a",
+    "validate.py": "69d71662ab954f0d572984af3815243bcf722b731457a1fdd95a5883cb18ccf6",
+    "cuda-pad-overlap.proposed.patch": "3be124dc26647f797b3c1ec9f2885b2a110198cef4f0e5acaef7f5623e6b40a1",
+    "README.md": "e26b606f12e0fe7bd2c1df2f1cc8dcc171b52775052c415cbb1fa660f59338c7",
+    "experiment.py": "5c7ed8f901c9ad06e4a393ed4ecd94ade684d5ed4ae29edaf9e3ba998224503d",
+    "run.log": "292daee05c82ec9a35df3ec3dc46bb9d39b094d70b79308702edd1c763800f6d",
+    "source-records.json": "40c32178e02216d3bbe9077892fb3e677bdecac6a8ae3fbabf288becc9d0883c",
+    "search-log.json": "79915f56282f03a57253055e08c08dcd01aef7984e0e13016db33bf8e735f444",
+    "patch-provenance.json": "afa4e05f7bf5e2710e7e595ae96813980284305b8d64d74adc4dd4e7fc0129e7"
+  },
+  "research_document_sha256": {
+    "STATE.md": "a22d525c7ac48a7c71c85e72fbea1c3791a9f607d9d1c92a592067d617aaea05",
+    "FINDINGS.md": "ce1750ed6922c8d3636ebdf80decab5ca259bfe26c9f222b4f1494602ca2f12d",
+    "sources.jsonl": "8ec898995e3c494d6c0f58e05fd4e2985ae780e59cbb441482d9fff7ff3acb56",
+    "handoffs/20260926-ntt-layout-and-pad-overlap.md": "74a4d84ba5deac5df5473ee9179be4259aa5e747a20b834496e6905616dee4d8"
+  },
+  "separate_session_result_sha256": "7b1733ebe95da0f073598bee6993beda8e9f676377a2d038bfa0a0dc08b23ee3"
+}

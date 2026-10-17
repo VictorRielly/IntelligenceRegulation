@@ -1,0 +1,168 @@
+[
+  {
+    "accessed_date": "2026-09-26",
+    "run_identity": "20260926T235233Z-5f465072",
+    "evidence_kind": "Native LIVE web inspection; no external implementation execution or reproduced timing",
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "id": "cycle8-fractional-gkr-refresh",
+    "url": "https://eprint.iacr.org/2023/1284",
+    "published": "2023-08-27",
+    "updated": "2025-02-20",
+    "date_evidence": "ePrint received/latest-revision history",
+    "assessment": "Authors propose eliminating lookup helper commitment columns using fractional GKR. Local rational-tree algebra tested independently; private masking/composition not supplied by the abstract.",
+    "access_issue": "https://eprint.iacr.org/2023/1284.pdf: (robots.txt) Fetch denied by robots.txt (OAI-SearchBot).",
+    "recorded_at_utc": "2026-09-27T00:05:49.969253+00:00",
+    "access_date_basis": "Primary URL first inspected 2026-09-26 UTC; follow-up license/version requests straddle UTC midnight. Recorded timestamp is bookkeeping, not exact fetch time.",
+    "inspection_window_utc": [
+      "2026-09-26T23:52:33.870031+00:00",
+      "2026-09-27T00:05:49.969253+00:00"
+    ]
+  },
+  {
+    "accessed_date": "2026-09-26",
+    "run_identity": "20260926T235233Z-5f465072",
+    "evidence_kind": "Native LIVE web inspection; no external implementation execution or reproduced timing",
+    "inspected_commit_id": null,
+    "implementation_license": "MIT main LICENSE-MIT inspected; version-specific license not established",
+    "id": "cycle8-plonky3-lookup-binding",
+    "url": "https://github.com/Plonky3/Plonky3/pull/1968",
+    "published": "2026-07-30",
+    "updated": "2026-09-07",
+    "date_evidence": "Opening comment and explicit merge timestamp; updated denotes merge, not guaranteed latest edit.",
+    "commit_link_only": "f7a127afdf7cd164368348be31847d4deae6fc4b",
+    "license_url": "https://raw.githubusercontent.com/Plonky3/Plonky3/main/LICENSE-MIT",
+    "assessment": "Maintainer describes fractional reduction, neutral padding and mandatory trace link. Read as a binding design reference; not a private protocol transfer or reproduced performance result.",
+    "access_issues": [
+      "Commit detail: Cache miss",
+      "https://raw.githubusercontent.com/Plonky3/Plonky3/main/multi-stark/src/lookup.rs: Cache miss"
+    ],
+    "recorded_at_utc": "2026-09-27T00:05:49.969253+00:00",
+    "access_date_basis": "Primary URL first inspected 2026-09-26 UTC; follow-up license/version requests straddle UTC midnight. Recorded timestamp is bookkeeping, not exact fetch time.",
+    "inspection_window_utc": [
+      "2026-09-26T23:52:33.870031+00:00",
+      "2026-09-27T00:05:49.969253+00:00"
+    ]
+  },
+  {
+    "accessed_date": "2026-09-26",
+    "run_identity": "20260926T235233Z-5f465072",
+    "evidence_kind": "Native LIVE web inspection; no external implementation execution or reproduced timing",
+    "inspected_commit_id": null,
+    "implementation_license": "Main MIT inspected only",
+    "id": "cycle8-plonky3-release-refresh",
+    "url": "https://github.com/Plonky3/Plonky3/releases/tag/v0.8.0",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Displayed 23 Sep 20:02 has no year in exposed text; no exact publication date asserted.",
+    "displayed_abbreviated_commit": "a21e3ed",
+    "assessment": "Recent release discovery refreshed for lookup and sumcheck integration. No new local reproduction or benchmark claim.",
+    "recorded_at_utc": "2026-09-27T00:05:49.969253+00:00",
+    "access_date_basis": "Primary URL first inspected 2026-09-26 UTC; follow-up license/version requests straddle UTC midnight. Recorded timestamp is bookkeeping, not exact fetch time.",
+    "inspection_window_utc": [
+      "2026-09-26T23:52:33.870031+00:00",
+      "2026-09-27T00:05:49.969253+00:00"
+    ]
+  },
+  {
+    "accessed_date": "2026-09-26",
+    "run_identity": "20260926T235233Z-5f465072",
+    "evidence_kind": "Native LIVE web inspection; no external implementation execution or reproduced timing",
+    "inspected_commit_id": null,
+    "implementation_license": "SP1 main Apache-2.0 text inspected; package/version-specific coverage not established",
+    "id": "cycle8-sp1-verifier-source",
+    "url": "https://docs.rs/sp1-hypercube/latest/src/sp1_hypercube/logup_gkr/verifier.rs.html",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Unversioned source page has no verified update date. Separate crate/latest page serves 6.0.2 with release date 2026-02-26; source/version association not established.",
+    "license_url": "https://raw.githubusercontent.com/succinctlabs/sp1/main/LICENSE-APACHE",
+    "inspected_urls": [
+      "https://docs.rs/crate/sp1-hypercube/latest"
+    ],
+    "assessment": "Source explicitly checks nonzero output denominators, layer claims and final numerator/denominator trace links. No surrounding ZK wrapper audited; source cannot justify publishing analogous values in this private protocol.",
+    "access_issue": "https://docs.rs/sp1-hypercube/6.0.2/src/sp1_hypercube/logup_gkr/verifier.rs.html: URL is not accessible via this tool.",
+    "recorded_at_utc": "2026-09-27T00:05:49.969253+00:00",
+    "access_date_basis": "Primary URL first inspected 2026-09-26 UTC; follow-up license/version requests straddle UTC midnight. Recorded timestamp is bookkeeping, not exact fetch time.",
+    "inspection_window_utc": [
+      "2026-09-26T23:52:33.870031+00:00",
+      "2026-09-27T00:05:49.969253+00:00"
+    ]
+  },
+  {
+    "accessed_date": "2026-09-26",
+    "run_identity": "20260926T235233Z-5f465072",
+    "evidence_kind": "Native LIVE web inspection; no external implementation execution or reproduced timing",
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "id": "cycle8-sp1-zorch-tree-memory",
+    "url": "https://github.com/fractalyze/sp1-zorch/issues/112",
+    "published": "2026-06-17",
+    "updated": null,
+    "date_evidence": "Issue opening date verified; closing/update date unverified.",
+    "assessment": "Maintainer contrasts retaining every pyramid layer with releasing/recomputing layers and reports warm-time gaps. Supports lifetime accounting; timings and closed issue are not reproduction or proof of a fix.",
+    "access_issue": "https://github.com/fractalyze/sp1-zorch/pull/114: Internal Error",
+    "recorded_at_utc": "2026-09-27T00:05:49.969253+00:00",
+    "access_date_basis": "Primary URL first inspected 2026-09-26 UTC; follow-up license/version requests straddle UTC midnight. Recorded timestamp is bookkeeping, not exact fetch time.",
+    "inspection_window_utc": [
+      "2026-09-26T23:52:33.870031+00:00",
+      "2026-09-27T00:05:49.969253+00:00"
+    ]
+  },
+  {
+    "accessed_date": "2026-09-26",
+    "run_identity": "20260926T235233Z-5f465072",
+    "evidence_kind": "Native LIVE web inspection; no external implementation execution or reproduced timing",
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "id": "cycle8-winterfell-interface-older",
+    "url": "https://github.com/facebook/winterfell/issues/292",
+    "published": "2024-07-17",
+    "updated": null,
+    "date_evidence": "Issue opening timestamp; latest update unverified.",
+    "assessment": "Newly assessed older design discussion makes LogUp queries, oracle access and final-claim computation explicit. Proposed interface, not evidence of integrated implementation; no code/license audit.",
+    "recorded_at_utc": "2026-09-27T00:05:49.969253+00:00",
+    "access_date_basis": "Primary URL first inspected 2026-09-26 UTC; follow-up license/version requests straddle UTC midnight. Recorded timestamp is bookkeeping, not exact fetch time.",
+    "inspection_window_utc": [
+      "2026-09-26T23:52:33.870031+00:00",
+      "2026-09-27T00:05:49.969253+00:00"
+    ]
+  },
+  {
+    "accessed_date": "2026-09-26",
+    "run_identity": "20260926T235233Z-5f465072",
+    "evidence_kind": "Native LIVE web inspection; no external implementation execution or reproduced timing",
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "id": "cycle8-boolean-gkr-older",
+    "url": "https://eprint.iacr.org/2025/717",
+    "published": "2025-04-21",
+    "updated": "2025-05-03",
+    "date_evidence": "ePrint received/latest-revision history",
+    "assessment": "New older technique: bit packing and binary-specific precomputation. Current Fp2 helper tables are not binary, so no direct transfer. Authors explicitly withdraw an earlier Keccak/Binius end-to-end comparison due to incorrect circuit size; no reported timing is adopted.",
+    "recorded_at_utc": "2026-09-27T00:05:49.969253+00:00",
+    "access_date_basis": "Primary URL first inspected 2026-09-26 UTC; follow-up license/version requests straddle UTC midnight. Recorded timestamp is bookkeeping, not exact fetch time.",
+    "inspection_window_utc": [
+      "2026-09-26T23:52:33.870031+00:00",
+      "2026-09-27T00:05:49.969253+00:00"
+    ]
+  },
+  {
+    "accessed_date": "2026-09-26",
+    "run_identity": "20260926T235233Z-5f465072",
+    "evidence_kind": "Native LIVE web inspection; no external implementation execution or reproduced timing",
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "id": "cycle8-jolt-atlas-discovery",
+    "url": "https://arxiv.org/abs/2602.17452",
+    "published": "2026-02-19",
+    "updated": null,
+    "date_evidence": "arXiv v1 2026-02-19 15:17:18 UTC; no revision displayed.",
+    "assessment": "Abstract-level discovery: ONNX lookup proving, streaming and BlindFold. Whole-system alternative, not reviewed compatibility with exact quantized Goldilocks attention/FFN and private endpoints. No code or timing reproduced.",
+    "recorded_at_utc": "2026-09-27T00:05:49.969253+00:00",
+    "access_date_basis": "Primary URL first inspected 2026-09-26 UTC; follow-up license/version requests straddle UTC midnight. Recorded timestamp is bookkeeping, not exact fetch time.",
+    "inspection_window_utc": [
+      "2026-09-26T23:52:33.870031+00:00",
+      "2026-09-27T00:05:49.969253+00:00"
+    ]
+  }
+]

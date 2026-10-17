@@ -1,0 +1,19 @@
+   Compiling zkp-core v0.1.0 (/tmp/zk60-sol-model-20260927/zkp-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.94s
+     Running unittests src/lib.rs (zkp-core/target/debug/deps/zkp_core-9e742492c1e1cd1d)
+
+running 2 tests
+blake3_hasher_bytes=1920
+STREAM_CASE tagged=false log_cols=2 rate=8 q=7 rows=2 chunk=1 hasher_state_bytes=61440 encoded_chunk_bytes=256 pads_bytes=112 salts_bytes=1024
+test pcs::recompute_probe::dropping_encoded_after_root_preserves_tagged_opening_bytes ... ok
+STREAM_CASE tagged=false log_cols=2 rate=8 q=16 rows=5 chunk=3 hasher_state_bytes=61440 encoded_chunk_bytes=768 pads_bytes=640 salts_bytes=1024
+STREAM_CASE tagged=false log_cols=4 rate=4 q=4 rows=3 chunk=2 hasher_state_bytes=122880 encoded_chunk_bytes=1024 pads_bytes=96 salts_bytes=2048
+STREAM_CASE tagged=false log_cols=5 rate=2 q=7 rows=9 chunk=4 hasher_state_bytes=122880 encoded_chunk_bytes=2048 pads_bytes=504 salts_bytes=2048
+STREAM_CASE tagged=true log_cols=2 rate=8 q=7 rows=2 chunk=1 hasher_state_bytes=61440 encoded_chunk_bytes=256 pads_bytes=112 salts_bytes=1024
+STREAM_CASE tagged=true log_cols=2 rate=8 q=16 rows=5 chunk=3 hasher_state_bytes=61440 encoded_chunk_bytes=768 pads_bytes=640 salts_bytes=1024
+STREAM_CASE tagged=true log_cols=4 rate=4 q=4 rows=3 chunk=2 hasher_state_bytes=122880 encoded_chunk_bytes=1024 pads_bytes=96 salts_bytes=2048
+STREAM_CASE tagged=true log_cols=5 rate=2 q=7 rows=9 chunk=4 hasher_state_bytes=122880 encoded_chunk_bytes=2048 pads_bytes=504 salts_bytes=2048
+test pcs::recompute_probe::streamed_rows_match_every_leaf_root_opening_and_rng ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 73 filtered out; finished in 0.12s
+

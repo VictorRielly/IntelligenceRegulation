@@ -1,0 +1,32 @@
+{
+ "ts_end": "2026-09-30T01:36:16Z",
+ "run_id": "709e41de9c5e",
+ "label": "stack-build-example",
+ "class": "build",
+ "cmd": [
+  "/home/victor/.rustup/toolchains/1.97.0-x86_64-unknown-linux-gnu/bin/cargo",
+  "build",
+  "--example",
+  "zk60_private_stack",
+  "--release",
+  "--offline",
+  "--locked",
+  "-j"
+ ],
+ "need_gib": 4.0,
+ "cap_gib": 5.5,
+ "exit": 70,
+ "child_rc": null,
+ "guard_killed": null,
+ "child_wall_seconds": null,
+ "refused": "could not take /tmp/zk-heavy.lock within 60s",
+ "guard_error": null,
+ "guard_pid": 25507,
+ "boot_id": "821442fc-3e31-457d-a742-de97ad7c8122",
+ "pid_ns": "pid:[4026532223]",
+ "guard_starttime_ticks": 273457,
+ "lock_ids": {
+  "heavy": "2096:129581",
+  "build": "2096:129585"
+ }
+}

@@ -1,0 +1,8 @@
+{
+  "candidate": "/tmp/zk60-sol-1b-import-20260927",
+  "base": "/tmp/zk60-sol-gpu-20260927",
+  "source_sha256": {
+    "scripts/zk60_1b_checkpoint.py": "73339779bca99326dbd5ae5ffb30fe2ff7861fb3460c9f17753df8c3f919ec23",
+    "tests/test_zk60_1b_checkpoint.py": "2c18e48ddcfc7625714f4fa1ecea513c4e3611463e23c1475bc3a60d9fff0354"
+  }
+}

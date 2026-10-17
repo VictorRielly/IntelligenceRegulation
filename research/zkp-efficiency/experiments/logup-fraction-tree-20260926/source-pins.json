@@ -1,0 +1,85 @@
+{
+  "captured_at": "2026-09-26T23:59:46.740819+00:00",
+  "files": [
+    {
+      "path": "/home/victor/IntelligenceRegulation/hashline/src/private_block/protocol.rs",
+      "sha256": "d9455a1054aab7e18e1cba0194416a83847e862db26d8b4f5b9cf982ba082d65",
+      "bytes": 22936,
+      "snapshot": "native-reference/main/hashline/src/private_block/protocol.rs"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/hashline/src/private_block/layout.rs",
+      "sha256": "6cc8f6fed8bc55ccb7cde23270976ed23912f768a6a60f3d392da08f2fcf0989",
+      "bytes": 30983,
+      "snapshot": "native-reference/main/hashline/src/private_block/layout.rs"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/hashline/src/private_block/argument.rs",
+      "sha256": "e62f46c29fe41848737e157b65c16d11d2c2c9501722b88660420a7a21a642ab",
+      "bytes": 41455,
+      "snapshot": "native-reference/main/hashline/src/private_block/argument.rs"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/zkp-core/src/field.rs",
+      "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+      "bytes": 11065,
+      "snapshot": "native-reference/main/zkp-core/src/field.rs"
+    },
+    {
+      "path": "/tmp/zk60-groups-20260926/hashline/src/private_block/protocol.rs",
+      "sha256": "ac4122375397a155d392df27a7e08f818ee78f80b38d41207565b325f5290413",
+      "bytes": 61745,
+      "snapshot": "native-reference/grouped/hashline/src/private_block/protocol.rs"
+    },
+    {
+      "path": "/tmp/zk60-groups-20260926/hashline/src/private_block/layout.rs",
+      "sha256": "14758039fbe9daa61affa1316c6e4159437b98d888d72a926f6e70e788592b30",
+      "bytes": 61217,
+      "snapshot": "native-reference/grouped/hashline/src/private_block/layout.rs"
+    },
+    {
+      "path": "/tmp/zk60-groups-20260926/hashline/src/private_block/argument.rs",
+      "sha256": "b3b02383a14a64a12194a465873b76f78406e5d3115b0c8157fde2882d22c865",
+      "bytes": 99535,
+      "snapshot": "native-reference/grouped/hashline/src/private_block/argument.rs"
+    },
+    {
+      "path": "/tmp/zk60-groups-20260926/hashline/src/private_block/shape.rs",
+      "sha256": "dbf4e2bc36e9f74c432d6e529b229e3a593e794271fd8593d1412b8312403911",
+      "bytes": 71241,
+      "snapshot": "native-reference/grouped/hashline/src/private_block/shape.rs"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+      "sha256": "e991bdd0899dc601fb33c514fdfa65880155665ff72a049d00aa84952deab162",
+      "bytes": 11398
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+      "sha256": "026b9f0ee359f2726619894f36e4d1a204bb54dd3721ff37da3e3937d02f30ff",
+      "bytes": 45569
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+      "sha256": "5077bc4b590ce8d95c238c3b5e35d8122872c56e5f1e6324c81d78460e0e90c5",
+      "bytes": 57961
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+      "sha256": "150994398a4afc55d39af625ca2836777cc6283cd2daad67555bddd0335ae956",
+      "bytes": 56161
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+      "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+      "bytes": 4941
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md",
+      "sha256": "85a2af17454c10927d6b167a30533f2f69c70773ed4df21a1b7473920fccddcf",
+      "bytes": 4769
+    }
+  ],
+  "git_used": false,
+  "external_code_executed": false
+}

@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://www.nvidia.com/en-us/data-center/h100/",
+    "kind": "primary-vendor-specification",
+    "accessed": "2026-09-26",
+    "publication_date": null,
+    "update_date": null,
+    "verified_fact": "H100 SXM: 80GB memory, 3.35TB/s memory bandwidth. Advertised peaks, not achieved prover bandwidth.",
+    "implementation_license": null,
+    "inspected_commit_id": null
+  },
+  {
+    "url": "https://developer.nvidia.com/blog/nvidia-hopper-architecture-in-depth/",
+    "kind": "primary-vendor-architecture",
+    "accessed": "2026-09-26",
+    "publication_date": "2022-03-22",
+    "update_date": null,
+    "date_basis": "Dated article header. The added AI-generated summary was not used as evidence.",
+    "verified_fact": "PCIe Gen5 x16 is 128GB/s total, 64GB/s per direction; Gen4 is 64GB/s total, 32GB/s per direction.",
+    "implementation_license": null,
+    "inspected_commit_id": null
+  },
+  {
+    "url": "https://www.usenix.org/system/files/usenixsecurity26-lu-tao.pdf",
+    "metadata_url": "https://eprint.iacr.org/2026/1250",
+    "kind": "primary-proceedings-paper",
+    "accessed": "2026-09-26",
+    "publication_date": "2026-08-12",
+    "update_date": "2026-06-16",
+    "date_basis": "Proceedings front page: August 12-14, 2026. ePrint history received June 13, revised June 16; no later update verified.",
+    "author_claim": "215.28ms at 2^25 multiplication gates; 52.9GB peak there, larger cases exceed H100 80GB. BabyBear degree-8 extension, HyperPlonk and Brakedown.",
+    "local_evidence": "Paper setup, Table 4 and scale-limit discussion inspected; no code executed or runtime reproduced.",
+    "compatibility": "Memory/warp pipeline lead; not a Goldilocks/Fp2 native commitment or full-private-8B result.",
+    "implementation_license": null,
+    "inspected_commit_id": null
+  },
+  {
+    "url": "https://hongyanz.github.io/publications/CCS_zkLLM.pdf",
+    "metadata_url": "https://arxiv.org/abs/2404.16109",
+    "kind": "primary-author-paper",
+    "accessed": "2026-09-26",
+    "publication_date": "2024-04-24",
+    "update_date": null,
+    "date_basis": "arXiv v1 submission April 24, 2024. Author PDF identifies CCS October 14-18, 2024; exact PDF update date unverified.",
+    "author_claim": "Table 1 LLaMA-2-7B: 620s prove, 2.36s verify, 183kB proof. Section 8 uses sequence length 2048 and A100 40GB.",
+    "local_evidence": "Experiment setup/table inspected, not reproduced. Ratio 2048/620 is arithmetic, not decode throughput.",
+    "compatibility": "Different model, protocol, field, numerical semantics and privacy contract; no direct substitution audited.",
+    "implementation_license": null,
+    "inspected_commit_id": null
+  },
+  {
+    "url": "https://arxiv.org/abs/2509.22684",
+    "kind": "primary-paper-abstract",
+    "accessed": "2026-09-26",
+    "publication_date": "2025-09-17",
+    "update_date": null,
+    "date_basis": "arXiv v1 submission history September 17, 2025.",
+    "author_claim": "NTT can account for up to 90% of studied GPU proof generation after MSM optimization; integer-pipeline limits and memory/computation overlap matter.",
+    "local_evidence": "Abstract/history inspected, not reproduced; no claim our private prover shares that proportion.",
+    "implementation_license": null,
+    "inspected_commit_id": null
+  },
+  {
+    "url": "https://huggingface.co/meta-llama/Meta-Llama-3-8B/blob/main/config.json",
+    "alternate_attempt": "https://huggingface.co/meta-llama/Meta-Llama-3-8B/raw/main/config.json",
+    "kind": "access-failure",
+    "accessed": "2026-09-26",
+    "publication_date": null,
+    "update_date": null,
+    "local_evidence": "Both native web opens inaccessible. No external config or exact 8B checkpoint parameter count is inferred; experiment pins only local historical Mistral geometry.",
+    "implementation_license": null,
+    "inspected_commit_id": null
+  }
+]

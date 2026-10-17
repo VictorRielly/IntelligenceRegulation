@@ -1,0 +1,6 @@
+
+running 1 test
+test private_block::tests::every_relation_family_rejects_an_inconsistent_witness ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 528 filtered out; finished in 1.62s
+

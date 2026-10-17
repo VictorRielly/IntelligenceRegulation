@@ -1,0 +1,28 @@
+{
+  "access_date": "2026-10-12",
+  "result_metadata": [
+    {
+      "header": "Internal Error ()",
+      "fetch_failures": [
+        "L0: Failed to fetch https://github.com/consensys/gnark-crypto/releases/tag/v0.22.0: Cache miss"
+      ]
+    },
+    {
+      "header": "Internal Error ()",
+      "fetch_failures": [
+        "L0: Failed to fetch https://raw.githubusercontent.com/consensys/gnark-crypto/v0.22.0/field/goldilocks/extensions/e2.go: Cache miss"
+      ]
+    },
+    {
+      "header": "Internal Error ()",
+      "fetch_failures": [
+        "L0: Failed to fetch https://raw.githubusercontent.com/0xPolygonZero/plonky2/main/LICENSE-MIT: Cache miss"
+      ]
+    },
+    {
+      "header": "[1704.02086] A Zero Knowledge Sumcheck and its Applications (https://arxiv.org/abs/1704.02086)",
+      "fetch_failures": []
+    }
+  ],
+  "record_policy": "Exact requests/URLs and fetch failures retained; full webpage text omitted. Qualified assessments in source-records.json."
+}

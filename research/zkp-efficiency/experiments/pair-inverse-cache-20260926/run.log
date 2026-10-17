@@ -1,0 +1,42 @@
+{
+  "schema": "zkp-efficiency/pair-inverse-cache/v1",
+  "status": "passed",
+  "run_identity": "20260926T195233Z-cef0b7d6",
+  "seed": 2026092604,
+  "threads": 1,
+  "cpu_affinity": [
+    0
+  ],
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "limits": {
+    "wall_s": 59,
+    "cpu_s": 55,
+    "address_space_mib": 512,
+    "estimated_memory_mib": 64
+  },
+  "differential_cases": 76,
+  "independently_solved_words": 21015,
+  "negative_controls": [
+    "index_only_cache_changes_invalid_value",
+    "negative_index_wrap",
+    "out_of_range_index_modulo",
+    "cache_reused_across_tags",
+    "cache_reused_across_challenges",
+    "eager_public_zero_changes_refusal_stage",
+    "omitting_whole_table_check_changes_acceptance",
+    "skipping_zero_multiplicity_changes_acceptance",
+    "unused_earlier_table_cannot_preempt_used_later_helper",
+    "repeating_histogram_into_padded_table_changes_helpers",
+    "dropping_multiplicities_changes_table_helpers"
+  ],
+  "experiment_sha256": "2b72ea5ef09cefb62598c370961c14cbefe5dce40b2ede9af5009962eeebd2cd",
+  "proving_seconds": null,
+  "verification_seconds": null,
+  "complete_readiness_seconds": null,
+  "native_executed": false,
+  "gpu_executed": false,
+  "script_wall_s_not_proving": 0.20745587203418836,
+  "peak_rss_kib": 26292
+}

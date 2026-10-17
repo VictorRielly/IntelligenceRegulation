@@ -1,0 +1,37 @@
+{
+  "source_model": "/home/victor/IntelligenceRegulation/results/zk60_generic_rank_lemma_shaped/model/model_m125.json",
+  "source_seam": "/tmp/zk60-groups-20260926/hashline/src/private_block/protocol.rs:565,588,633,884-907",
+  "scope": "Source-derived 125M development block. Counts are logical payload bytes, not DRAM, time, GPU 8B or proof bytes.",
+  "helper_words_by_domain": {
+    "L": 16384,
+    "D": 8912896,
+    "Q": 3670016,
+    "Kv": 786432,
+    "S": 33554432,
+    "F": 5242880
+  },
+  "helper_words_total": 52183040,
+  "looked_words_total": 98598912,
+  "baseline_temp_vec_peak_bytes": 67108864,
+  "baseline_temp_vec_write_read_bytes": 1669857280,
+  "direct_removed_temp_write_read_bytes": 1669857280,
+  "guarded_fast_path_added_payload_bytes": 0,
+  "guarded_preflight_condition": "alpha.c1 == g_u8.c1; public challenge-derived, exact for all signed i64 inputs",
+  "transactional_preflight_added_successful_proof_input_payload_bytes": 788791296,
+  "preflight_note": "A successful proof requires a full second scan of all 98,598,912 looked i64 words, another 788,791,296 logical bytes. A failed proof may stop earlier. Cache behavior is unmeasured. H plane writes, input reads for computation, table construction and all commitments remain.",
+  "latest_owner_cpu_old_arm_log_names": ["02-old.log", "05-old.log"],
+  "latest_owner_cpu_known_readiness_s": [41.462, 41.089],
+  "latest_owner_cpu_helper_phase_s": [1.189, 1.248],
+  "optimistic_eliminate_whole_phase_ceiling_percent": [2.8677, 3.0373],
+  "optimistic_eliminate_whole_phase_mean_ceiling_percent": 2.9521,
+  "ceiling_note": "Even eliminating the entire helper phase cannot save more than this share of the recorded witness+prove+serialization sum; the actual candidate retains lookup arithmetic and H writes. Owner's shared two-thread CPU synthetic 125M block with test oracles, not a GPU or 8B ceiling.",
+  "source_hashes_sha256": {
+    "protocol_rs": "ac4122375397a155d392df27a7e08f818ee78f80b38d41207565b325f5290413",
+    "layout_rs": "14758039fbe9daa61affa1316c6e4159437b98d888d72a926f6e70e788592b30",
+    "shape_rs": "dbf4e2bc36e9f74c432d6e529b229e3a593e794271fd8593d1412b8312403911",
+    "model_m125_json": "6780683478f06c71004a6ab2f0729d9789a15db19868fbd7a51bbf5d73220a7f",
+    "owner_measured_summary_json": "5f0e8f95aedaae05c327ff1c3228dd69ed839e9ddf72771196b8071693aa1330",
+    "owner_02_old_log": "baa8250db5d027f481f0205c4230c8abd7f28025fb74a458e3b0916ecf23bf80",
+    "owner_05_old_log": "e9157b6cf76c3c81f04bcbed6c66989456aa59b19cb8187cba28b76fb758d3c1"
+  }
+}

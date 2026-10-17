@@ -1,0 +1,376 @@
+--- a/zkp-core/src/sumcheck/grouped.rs
++++ b/zkp-core/src/sumcheck/grouped.rs
+@@ -27,6 +27,8 @@
+     prefix: Vec<Fp2>,
+     claims: Vec<Option<Fp2>>,
+     pending: Option<Vec<Vec<Fp2>>>,
++    ready: Option<Vec<Vec<Fp2>>>,
++    fused: bool,
+ }
+ 
+ impl<'a, F: Fn(usize, &[Fp2]) -> Fp2 + Sync> GroupedEqRounds<'a, F> {
+@@ -43,27 +45,19 @@
+         }
+         let count = groups.len();
+         Self { tables, groups, bracket, degree, n_vars, next: 0,
+-            prefix: vec![Fp2::ONE; count], claims: vec![None; count], pending: None }
+-    }
+-}
+-
+-struct RoundGroup {
+-    factor: Vec<Fp2>,
+-    left: Vec<Fp2>,
+-    right: Vec<Fp2>,
+-    suffix_len: usize,
+-    trailing: usize,
+-    inverse_one: Option<Fp2>,
+-}
+-
+-impl<F: Fn(usize, &[Fp2]) -> Fp2 + Sync> SumcheckRounds for GroupedEqRounds<'_, F> {
+-    fn n_vars(&self) -> usize { self.n_vars }
+-    fn degree(&self) -> usize { self.degree }
+-
+-    fn round(&mut self, j: usize) -> Vec<Fp2> {
+-        assert_eq!(j, self.next);
+-        assert!(j < self.n_vars && self.pending.is_none());
+-        let round_groups: Vec<_> = self.groups.iter().enumerate().map(|(g, desc)| {
++            prefix: vec![Fp2::ONE; count], claims: vec![None; count], pending: None,
++            ready: None, fused: false }
++    }
++
++    /// Select the fused fold/next-round evaluator. The ordinary evaluator
++    /// remains available as a differential oracle.
++    pub fn with_fusion(mut self, fused: bool) -> Self {
++        self.fused = fused;
++        self
++    }
++
++    fn round_groups(&self, j: usize) -> Vec<RoundGroup> {
++        self.groups.iter().enumerate().map(|(g, desc)| {
+             let end = desc.start + desc.point.len();
+             let active = j >= desc.start && j < end;
+             let factor: Vec<_> = (0..=self.degree).map(|t| {
+@@ -75,15 +69,135 @@
+             let consumed = (j + 1).saturating_sub(desc.start).min(desc.point.len());
+             let suffix = &desc.point[consumed..];
+             let split = suffix.len() / 2;
+-            // Explicit evaluation when the factor is zero; never refuse or
+-            // resample a challenge to make this arithmetic shortcut available.
+             let inverse_one = self.claims[g].and_then(|_| {
+                 if factor[1].is_zero() { None } else { Some(factor[1].inv()) }
+             });
+             RoundGroup { factor, left: eq_table_msb(&suffix[..split]),
+                 right: eq_table_msb(&suffix[split..]), suffix_len: suffix.len(),
+                 trailing: if suffix.is_empty() { 0 } else { self.n_vars - end }, inverse_one }
+-        }).collect();
++        }).collect()
++    }
++
++    fn values_from_sums(&self, mut hs: Vec<Vec<Fp2>>, round_groups: &[RoundGroup]) -> Vec<Vec<Fp2>> {
++        let mut values = Vec::with_capacity(self.groups.len());
++        for (g, rg) in round_groups.iter().enumerate() {
++            if let Some(inv) = rg.inverse_one {
++                let recovered = self.claims[g].unwrap().sub(rg.factor[0].mul(hs[g][0])).mul(inv);
++                debug_assert_eq!(recovered, hs[g][1], "group running-claim identity");
++                hs[g][1] = recovered;
++            }
++            values.push((0..=self.degree).map(|t| {
++                let h = if t < hs[g].len() { hs[g][t] }
++                    else { interpolate_eval(&hs[g], Fp2::from_u64(t as u64)) };
++                rg.factor[t].mul(h)
++            }).collect());
++        }
++        values
++    }
++}
++
++struct RoundGroup {
++    factor: Vec<Fp2>,
++    left: Vec<Fp2>,
++    right: Vec<Fp2>,
++    suffix_len: usize,
++    trailing: usize,
++    inverse_one: Option<Fp2>,
++}
++
++// Each tile owns four nonoverlapping quarter slices of every table. Splitting
++// every quarter before Rayon joins makes the parallel write ownership explicit.
++type Quarters<'a> = Vec<[&'a mut [Fp2]; 4]>;
++
++fn add_sums(mut a: Vec<Vec<Fp2>>, b: Vec<Vec<Fp2>>) -> Vec<Vec<Fp2>> {
++    for (x, y) in a.iter_mut().zip(b) {
++        for (v, w) in x.iter_mut().zip(y) { *v = v.add(w); }
++    }
++    a
++}
++
++fn fused_tile<F: Fn(usize, &[Fp2]) -> Fp2 + Sync>(
++    mut quarters: Quarters<'_>, offset: usize, r: Fp2, groups: &[EqualityGroup],
++    metadata: &[RoundGroup], bracket: &F, max_degree: usize,
++) -> Vec<Vec<Fp2>> {
++    let mut sums: Vec<_> = groups.iter().map(|g| vec![Fp2::ZERO; g.bracket_degree + 1]).collect();
++    let mut cur = vec![Fp2::ZERO; quarters.len()];
++    let mut dif = vec![Fp2::ZERO; quarters.len()];
++    let mut weights = vec![Fp2::ZERO; groups.len()];
++    for i in 0..quarters[0][0].len() {
++        for (t, qs) in quarters.iter().enumerate() {
++            let lo = qs[0][i].add(r.mul(qs[2][i].sub(qs[0][i])));
++            let hi = qs[1][i].add(r.mul(qs[3][i].sub(qs[1][i])));
++            cur[t] = lo;
++            dif[t] = hi.sub(lo);
++        }
++        for (t, qs) in quarters.iter_mut().enumerate() {
++            qs[0][i] = cur[t];
++            qs[1][i] = cur[t].add(dif[t]);
++        }
++        let row = offset + i;
++        for (g, rg) in metadata.iter().enumerate() {
++            let pos = (row >> rg.trailing) & ((1usize << rg.suffix_len) - 1);
++            weights[g] = rg.left[pos / rg.right.len()].mul(rg.right[pos % rg.right.len()]);
++        }
++        for degree in 0..=max_degree {
++            for (g, desc) in groups.iter().enumerate() {
++                if degree <= desc.bracket_degree &&
++                    (degree != 1 || metadata[g].inverse_one.is_none() || cfg!(debug_assertions)) {
++                    sums[g][degree] = sums[g][degree].add(weights[g].mul(bracket(g, &cur)));
++                }
++            }
++            if degree < max_degree {
++                for (v, d) in cur.iter_mut().zip(&dif) { *v = v.add(*d); }
++            }
++        }
++    }
++    sums
++}
++
++fn fused_parts<F: Fn(usize, &[Fp2]) -> Fp2 + Sync>(
++    quarters: Quarters<'_>, offset: usize, r: Fp2, groups: &[EqualityGroup],
++    metadata: &[RoundGroup], bracket: &F, max_degree: usize, chunk: usize,
++) -> Vec<Vec<Fp2>> {
++    let len = quarters[0][0].len();
++    if len <= chunk {
++        return fused_tile(quarters, offset, r, groups, metadata, bracket, max_degree);
++    }
++    let mid = len / 2;
++    let mut left = Vec::with_capacity(quarters.len());
++    let mut right = Vec::with_capacity(quarters.len());
++    for qs in quarters {
++        let [q0, q1, q2, q3] = qs;
++        let (a0, b0) = q0.split_at_mut(mid);
++        let (a1, b1) = q1.split_at_mut(mid);
++        let (a2, b2) = q2.split_at_mut(mid);
++        let (a3, b3) = q3.split_at_mut(mid);
++        left.push([a0, a1, a2, a3]);
++        right.push([b0, b1, b2, b3]);
++    }
++    let (a, b) = rayon::join(
++        || fused_parts(left, offset, r, groups, metadata, bracket, max_degree, chunk),
++        || fused_parts(right, offset + mid, r, groups, metadata, bracket, max_degree, chunk),
++    );
++    add_sums(a, b)
++}
++
++impl<F: Fn(usize, &[Fp2]) -> Fp2 + Sync> SumcheckRounds for GroupedEqRounds<'_, F> {
++    fn n_vars(&self) -> usize { self.n_vars }
++    fn degree(&self) -> usize { self.degree }
++
++    fn round(&mut self, j: usize) -> Vec<Fp2> {
++        assert_eq!(j, self.next);
++        assert!(j < self.n_vars && self.pending.is_none());
++        if let Some(ready) = self.ready.take() {
++            let mut result = vec![Fp2::ZERO; self.degree + 1];
++            for values in &ready {
++                for (v, w) in result.iter_mut().zip(values) { *v = v.add(*w); }
++            }
++            self.pending = Some(ready);
++            return result;
++        }
++        let round_groups = self.round_groups(j);
+         let k = self.tables.len();
+         let half = self.tables[0].len() / 2;
+         let small = half * k <= 1 << 16;
+@@ -118,7 +232,7 @@
+             }
+             sums
+         };
+-        let mut hs = if small { part(0) } else {
++        let hs = if small { part(0) } else {
+             (0..half.div_ceil(chunk)).into_par_iter().map(part).reduce(zero, |mut a, b| {
+                 for (x, y) in a.iter_mut().zip(b) {
+                     for (v, w) in x.iter_mut().zip(y) { *v = v.add(w); }
+@@ -126,21 +240,10 @@
+                 a
+             })
+         };
++        let pending = self.values_from_sums(hs, &round_groups);
+         let mut result = vec![Fp2::ZERO; self.degree + 1];
+-        let mut pending = Vec::with_capacity(self.groups.len());
+-        for (g, rg) in round_groups.iter().enumerate() {
+-            if let Some(inv) = rg.inverse_one {
+-                let recovered = self.claims[g].unwrap().sub(rg.factor[0].mul(hs[g][0])).mul(inv);
+-                debug_assert_eq!(recovered, hs[g][1], "group running-claim identity");
+-                hs[g][1] = recovered;
+-            }
+-            let values: Vec<_> = (0..=self.degree).map(|t| {
+-                let h = if t < hs[g].len() { hs[g][t] }
+-                    else { interpolate_eval(&hs[g], Fp2::from_u64(t as u64)) };
+-                rg.factor[t].mul(h)
+-            }).collect();
+-            for (v, w) in result.iter_mut().zip(&values) { *v = v.add(*w); }
+-            pending.push(values);
++        for values in &pending {
++            for (v, w) in result.iter_mut().zip(values) { *v = v.add(*w); }
+         }
+         self.pending = Some(pending);
+         result
+@@ -154,6 +257,26 @@
+                 let w = desc.point[self.next - desc.start];
+                 self.prefix[g] = self.prefix[g].mul(Fp2::ONE.sub(w).mul(Fp2::ONE.sub(r)).add(w.mul(r)));
+             }
++        }
++        if self.fused && self.next + 1 < self.n_vars {
++            let metadata = self.round_groups(self.next + 1);
++            let n = self.tables[0].len();
++            let q = n / 4;
++            let k = self.tables.len();
++            let max_degree = self.groups.iter().map(|g| g.bracket_degree).max().unwrap();
++            let chunk = if 2 * q * k <= 1 << 16 { q } else { q.min(1024) };
++            let quarters: Quarters<'_> = self.tables.iter_mut().map(|tb| {
++                let (a, b) = tb.split_at_mut(2 * q);
++                let (q0, q1) = a.split_at_mut(q);
++                let (q2, q3) = b.split_at_mut(q);
++                [q0, q1, q2, q3]
++            }).collect();
++            let hs = fused_parts(quarters, 0, r, &self.groups, &metadata,
++                &self.bracket, max_degree, chunk);
++            for tb in self.tables.iter_mut() { tb.truncate(2 * q); }
++            self.ready = Some(self.values_from_sums(hs, &metadata));
++            self.next += 1;
++            return;
+         }
+         let half = self.tables[0].len() / 2;
+         let small = half * self.tables.len() <= 1 << 16;
+@@ -172,6 +295,7 @@
+     fn finals(&self) -> Vec<Fp2> {
+         assert_eq!(self.next, self.n_vars);
+         assert!(self.pending.is_none());
++        assert!(self.ready.is_none());
+         self.tables.iter().map(|t| t[0]).collect()
+     }
+ }
+--- a/zkp-core/src/sumcheck/grouped/tests.rs
++++ b/zkp-core/src/sumcheck/grouped/tests.rs
+@@ -50,7 +50,7 @@
+     });
+     let extensions: Vec<Vec<_>> = (0..ext).map(|_| (0..tables.len()).map(|_| value(seed)).collect()).collect();
+     let mut outputs = Vec::new();
+-    for mode in 0..3 {
++    for mode in 0..4 {
+         let mut ts = tables.clone();
+         let mut tr = if tagged { Transcript::new_tagged(b"grouped", [87; 32]) } else { Transcript::new(b"grouped") };
+         let mut verifier = Transcript::clone_state(&tr);
+@@ -59,7 +59,7 @@
+             0 => sumcheck::prove(&mut ts, degree, &poly, &mut tr),
+             1 => sumcheck::prove_rounds(&mut ClosureRounds::new(&mut ts, degree, &poly).recover_one(None), &mut tr),
+             _ => sumcheck::prove_rounds(&mut GroupedEqRounds::new(&mut ts, degree, groups.clone(),
+-                |g, v: &[Fp2]| bracket(g, v, padded)), &mut tr),
++                |g, v: &[Fp2]| bracket(g, v, padded)).with_fusion(mode == 3), &mut tr),
+         };
+         let (_, mut rounds) = tr.take_masker();
+         let mut rho = out.challenges.clone();
+@@ -86,6 +86,7 @@
+     }
+     assert_eq!(outputs[0], outputs[1]);
+     assert_eq!(outputs[0], outputs[2]);
++    assert_eq!(outputs[0], outputs[3]);
+ }
+ 
+ #[test]
+@@ -121,15 +122,65 @@
+         tables[g] = (0..16).map(|i| eq_point(&desc.point, &(desc.start..desc.start + desc.point.len())
+             .map(|j| Fp2::from_u64(((i >> (3 - j)) & 1) as u64)).collect::<Vec<_>>())).collect();
+     }
+-    let mut old = tables.clone();
+     let poly = |v: &[Fp2]| (0..3).fold(Fp2::ZERO, |a, g| a.add(v[g].mul(bracket(g, v, true))));
+-    let mut ref_ev = ClosureRounds::new(&mut old, 5, poly).recover_one(None);
+-    let mut fast = GroupedEqRounds::new(&mut tables, 5, groups, |g, v: &[Fp2]| bracket(g, v, true));
+-    for (j, r) in [Fp2::ZERO, Fp2::ONE, Fp2::U, Fp2::from_u64(7)].iter().enumerate() {
+-        assert_eq!(fast.round(j), ref_ev.round(j));
+-        ref_ev.fold(*r); fast.fold(*r);
+-    }
+-    assert_eq!(fast.finals(), ref_ev.finals());
++    for fused in [false, true] {
++        let mut old = tables.clone();
++        let mut candidate = tables.clone();
++        let mut ref_ev = ClosureRounds::new(&mut old, 5, poly).recover_one(None);
++        let mut fast = GroupedEqRounds::new(&mut candidate, 5, groups.clone(),
++            |g, v: &[Fp2]| bracket(g, v, true)).with_fusion(fused);
++        for (j, r) in [Fp2::ZERO, Fp2::ONE, Fp2::U, Fp2::from_u64(7)].iter().enumerate() {
++            assert_eq!(fast.round(j), ref_ev.round(j));
++            ref_ev.fold(*r); fast.fold(*r);
++        }
++        assert_eq!(fast.finals(), ref_ev.finals());
++    }
++}
++
++#[test]
++fn middle_offsets_empty_support_and_two_row_transition_match_scalar() {
++    for n in [2usize, 5] {
++        let mut seed = 20260927 + n as u64;
++        let specs: &[(usize, usize, usize)] = if n == 2 {
++            &[(0, 2, 2), (1, 1, 1), (2, 0, 1)]
++        } else {
++            &[(2, 2, 2), (3, 1, 1), (4, 0, 1)]
++        };
++        let groups: Vec<_> = specs.iter().map(|&(start, len, bracket_degree)| EqualityGroup {
++            point: (0..len).map(|_| value(&mut seed)).collect(), start, bracket_degree,
++        }).collect();
++        let mut tables: Vec<Vec<Fp2>> = groups.iter().map(|desc| {
++            (0..1usize << n).map(|i| {
++                let x: Vec<_> = (desc.start..desc.start + desc.point.len()).map(|j|
++                    Fp2::from_u64(((i >> (n - 1 - j)) & 1) as u64)).collect();
++                eq_point(&desc.point, &x)
++            }).collect()
++        }).collect();
++        tables.extend((0..2).map(|_| (0..1usize << n).map(|_| value(&mut seed)).collect()));
++        let bracket = |g: usize, v: &[Fp2]| match g {
++            0 => v[3].mul(v[4]),
++            1 => v[4],
++            2 => v[3].add(v[4]),
++            _ => unreachable!(),
++        };
++        let poly = |v: &[Fp2]| (0..3).fold(Fp2::ZERO,
++            |a, g| a.add(v[g].mul(bracket(g, v))));
++        let challenges = [Fp2::U, Fp2::from_u64(7), Fp2::ZERO,
++            Fp2::ONE, Fp2::from_u64(11)];
++        for fused in [false, true] {
++            let mut reference = tables.clone();
++            let mut candidate = tables.clone();
++            let mut scalar = ClosureRounds::new(&mut reference, 3, poly).recover_one(None);
++            let mut grouped = GroupedEqRounds::new(&mut candidate, 3, groups.clone(), bracket)
++                .with_fusion(fused);
++            for (j, r) in challenges[..n].iter().enumerate() {
++                assert_eq!(grouped.round(j), scalar.round(j), "n={n} j={j} fused={fused}");
++                scalar.fold(*r);
++                grouped.fold(*r);
++            }
++            assert_eq!(grouped.finals(), scalar.finals());
++        }
++    }
+ }
+ 
+ #[test]
+--- a/hashline/src/private_block/argument.rs
++++ b/hashline/src/private_block/argument.rs
+@@ -550,7 +550,10 @@
+                     Some((old, old_tr, old_tables))
+                 } else { None };
+                 let result = if let Some((groups, bracket)) = &def.groups {
+-                    let mut evaluator = sumcheck::GroupedEqRounds::new(&mut tables, degree, groups.clone(), &**bracket);
++                    static FUSED: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
++                    let fused = *FUSED.get_or_init(|| std::env::var("ZK60_FUSED_ROUNDS").as_deref() == Ok("1"));
++                    let mut evaluator = sumcheck::GroupedEqRounds::new(&mut tables, degree, groups.clone(), &**bracket)
++                        .with_fusion(fused);
+                     crate::zk::masked_prove_rounds(&mut evaluator, mask, c, tr)
+                 } else {
+                     let mut evaluator = sumcheck::ClosureRounds::new(&mut tables, degree, &poly)

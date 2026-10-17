@@ -1,0 +1,99 @@
+[
+  {
+    "accessed_date": "2026-10-03",
+    "recorded_at_utc": "2026-10-03T23:14:28.983966+00:00",
+    "run_identity": "20261003T230146Z-65ad9aeb",
+    "cycle": "0017",
+    "evidence_kind": "Native LIVE primary search/inspection; no foreign code executed or author speed reproduced",
+    "inspected_commit_id": null,
+    "id": "cycle17-pico-september-record-packing",
+    "url": "https://blog.brevis.network/2026/09/30/pico-3-0-real-time-ethereum-proving-on-4-gpus-with-100-bit-provable-security/",
+    "published": "2026-09-30",
+    "updated": null,
+    "date_evidence": "Dated author announcement byline; no update date shown",
+    "implementation_license": null,
+    "author_claim": "Narrower records and larger chunks reduce PCIe transfer and recursion costs in a new four-GPU Ethereum prover.",
+    "assessment": "Record-width/lifetime analogy only. Different WHIR/GKR protocol, statement and multi-GPU configuration; no private 8B performance or source-aligned Pico3.0 code reproduced."
+  },
+  {
+    "accessed_date": "2026-10-03",
+    "recorded_at_utc": "2026-10-03T23:14:28.983966+00:00",
+    "run_identity": "20261003T230146Z-65ad9aeb",
+    "cycle": "0017",
+    "evidence_kind": "Native LIVE primary search/inspection; no foreign code executed or author speed reproduced",
+    "inspected_commit_id": null,
+    "id": "cycle17-pico-repository-date-gap",
+    "url": "https://github.com/brevis-network/pico",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Inspected history rendering shows Aug 19 2025 commit, not a verified current HEAD; no linkage to Sept2026 announcement established",
+    "implementation_license": "MIT terms in LICENSE-MIT inspected; root also advertises Apache-2.0, Apache terms not inspected",
+    "displayed_commit_abbreviation": "b52a89e",
+    "commit_note": "Commit-detail click Internal Error; no full commit content/source pin inspected",
+    "inspected_urls": [
+      "https://github.com/brevis-network/pico/blob/main/LICENSE-MIT",
+      "https://github.com/brevis-network/pico/commits/main/"
+    ],
+    "assessment": "README/license/history lead only; runtime implementation not inspected, copied or executed. Do not describe this snapshot as the Pico3.0 implementation."
+  },
+  {
+    "accessed_date": "2026-10-03",
+    "recorded_at_utc": "2026-10-03T23:14:28.983966+00:00",
+    "run_identity": "20261003T230146Z-65ad9aeb",
+    "cycle": "0017",
+    "evidence_kind": "Native LIVE primary search/inspection; no foreign code executed or author speed reproduced",
+    "inspected_commit_id": null,
+    "id": "cycle17-spartan-whir-linked-typed-witness",
+    "url": "https://github.com/ethereum/spartan-whir",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Internal benchmark filename Aug27 2026 visible, not verified README or source update date",
+    "implementation_license": null,
+    "inspected_urls": [
+      "https://github.com/ethereum/spartan-whir/blob/main/LICENSE",
+      "https://github.com/ethereum/spartan-whir/commits/main/",
+      "https://github.com/ethereum/spartan-whir/blob/main/Cargo.toml"
+    ],
+    "access_issues": [
+      "LICENSE/history/Cargo.toml returned Internal Error"
+    ],
+    "assessment": "Maintainer README describes directly filled canonical KoalaBear u32 witness buffers and witness-inclusive proving clocks. Typed-buffer API analogy only; field/PCS/statement differ, no code/license/commit audit or reproduced benchmark."
+  },
+  {
+    "accessed_date": "2026-10-03",
+    "recorded_at_utc": "2026-10-03T23:14:28.983966+00:00",
+    "run_identity": "20261003T230146Z-65ad9aeb",
+    "cycle": "0017",
+    "evidence_kind": "Native LIVE primary search/inspection; no foreign code executed or author speed reproduced",
+    "inspected_commit_id": null,
+    "id": "cycle17-streaming-zk-older-boundary",
+    "url": "https://arxiv.org/abs/2301.02161",
+    "published": "2023-01-05",
+    "updated": "2024-05-25",
+    "proceedings_publication": "2024-07-15",
+    "date_evidence": "arXiv v1/v2 submission history; CCC proceedings explicit publication date",
+    "implementation_license": null,
+    "paper_license": "CC BY4.0, inspected HTML/proceedings",
+    "inspected_urls": [
+      "https://arxiv.org/html/2301.02161v2",
+      "https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.CCC.2024.2"
+    ],
+    "assessment": "New older assessment: streaming verifier, temporal commitments and near-linear setup randomness. Does not demonstrate small-memory GPU prover or solve private cross-window state binding. Architecture watchlist, no adoption."
+  },
+  {
+    "accessed_date": "2026-10-03",
+    "recorded_at_utc": "2026-10-03T23:14:28.983966+00:00",
+    "run_identity": "20261003T230146Z-65ad9aeb",
+    "cycle": "0017",
+    "evidence_kind": "Native LIVE primary search/inspection; no foreign code executed or author speed reproduced",
+    "inspected_commit_id": null,
+    "id": "cycle17-small-value-sumcheck-provenance",
+    "url": "https://eprint.iacr.org/2026/587",
+    "published": "2026-03-24",
+    "updated": null,
+    "date_evidence": "Received March24, approved March25; no later revision displayed. Approval is not a code update.",
+    "implementation_license": null,
+    "paper_license": "CC BY",
+    "assessment": "Refreshed primary small-value/streaming abstract. Initial integer provenance can help reader storage; transcript-folded tables become full Fp2. Jolt author gains are not reproduced or transferred to this complete-model target."
+  }
+]

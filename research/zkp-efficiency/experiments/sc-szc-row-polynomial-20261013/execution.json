@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "python3",
+    "-B",
+    "experiments/sc-szc-row-polynomial-20261013/experiment.py"
+  ],
+  "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency",
+  "started_utc": "2026-10-13T04:33:59.128543+00:00",
+  "source_hashes": {
+    "polynomial_ir.py": "cab140011a769df7044aea83c38c37dd3caa9c94a5541047904b3c570385bda8",
+    "field_support.py": "8359ca44d70211cea90e9e251faadd10c4c953ced212cff3014ec3b839c59fc4",
+    "coefficients.py": "d621a30e88103fe7b38b4092613bb9f653384d121232bf17c69950a528fda66e",
+    "oracle.py": "a1c639a63dcc7175b9567dcc4e52ae71bb66a5c5e88ae18f77682adc335f2d58",
+    "row_rounds.py": "dfe567c90baf03888ff0cd86307c2356e9d198f2fb0969ceb503e6ef3cad8875",
+    "source_port.py": "7d56350bcf89aca4c6a5215a52c6dd93ab809216a493a7c4411f7d78807a914d",
+    "candidate.py": "c4bbfec8e5cf8a81e0708c8e2ff8163b3940f31323bb9873582933fdb3e1b7a5",
+    "fixtures.py": "bd7d7170c7660c8b8688ddac4f25f85fe29fa953316615ca25fa11b4c6f4b45a",
+    "polynomial_clause.py": "2517346ee064d239cd3625f16db24539469e06772a23779a577f039cd9f412d2",
+    "baseline.py": "de46f6071af385e7c0825d1827b19b8a162db31618dd74f56b6952079976f88f",
+    "experiment.py": "338026ec78a115ca74ad9f0a6232085fcaf025df322dc2d4fab407ed213fcc95",
+    "prepared.py": "8a264e5abb8db95064759731cc0c8798de630db939657f097eb38dae3fc79d7c"
+  },
+  "exit_code": 0,
+  "wall_seconds": 5.805757984999218,
+  "ended_utc": "2026-10-13T04:34:04.934696+00:00"
+}

@@ -12,6 +12,7 @@ orchestration behave as specified, not that any receipt is sound. No test
 needs network, Rust or r0vm.
 """
 import fcntl
+import hashlib
 import importlib.util
 import json
 import os
@@ -32,6 +33,23 @@ spec.loader.exec_module(demo)
 IMAGE_ID = "ab" * 32
 OTHER_IMAGE_ID = "cd" * 32
 SECRET = "MOCK-SECRET-REQUEST-7f3a"
+# The MOCK private request follows the real layout (16-byte profile tag, then
+# context, input salt and output salt of 32 bytes each, then the input words),
+# with recognisable stand-in values so a planted leak is unambiguous.
+INPUT_SALT = b"MOCK-INPUT-SALT".ljust(32, b"\x11")
+OUTPUT_SALT = b"MOCK-OUTPUT-SALT".ljust(32, b"\x22")
+
+
+def request_bytes(profile):
+    p = demo.PROFILES[profile]
+    context = SECRET.encode().ljust(32, b"\x33")
+    words = (b"MOCK-INPUT-WORDS" * 100)[:p["input_bytes"]]
+    return p["tag"] + context + INPUT_SALT + OUTPUT_SALT + words
+
+
+def output_bytes(profile):
+    # block: 512 LE i16 (1,024 bytes); token: one LE u32 token id (4 bytes).
+    return (b"MOCK-PLAINTEXT-OUTPUT-" * 64)[:1024] if profile == "block" else b"MOCK"
 
 MOCK_HOST = r'''#!{python}
 # MOCK zk60-{profile}-host: file contract only, NO proving, NO real verification.
@@ -60,8 +78,8 @@ elif a[1] in ("prepare", "prepare-input"):
     if os.path.lexists(pub) or os.path.lexists(priv):
         sys.exit("zk60 MOCK: output directories must be new and disjoint")
     os.mkdir(priv, 0o700); os.mkdir(pub)
-    put(os.path.join(priv, "request.bin"), {secret!r}.encode(), 0o600)
-    put(os.path.join(priv, {output!r}), b"MOCK-PLAINTEXT-OUTPUT", 0o600)
+    put(os.path.join(priv, "request.bin"), {request!r}, 0o600)
+    put(os.path.join(priv, {output!r}), {output_data!r}, 0o600)
     put(os.path.join(pub, "policy.bin"), {tag!r} + bytes(range(128)), 0o644)
     put(os.path.join(pub, "model.bin"), open(model, "rb").read(), 0o644)
     print('{{"prepared":true,"mock":true,"mvp_complete":false}}')
@@ -95,6 +113,10 @@ with open({calls!r}, "a") as c: c.write(" ".join(a[1:2]) + "\n")
 if a[1] == "image-id":
     print({wrap_image!r})
 elif a[1] == "wrap":
+    if image_arg and len(a) != 8:
+        sys.exit("zk60 MOCK token wrap: unsupported extra CLI flag")
+    if not image_arg and (len(a) != 9 or a[-1] != "--keep-work"):
+        sys.exit("zk60 MOCK block wrap: this runner must request retained private work")
     policy, inner, out, tools, work = [open(a[2], "rb").read()] + a[3:7]
     if mode == "hang":
         child = subprocess.Popen(["sleep", "1000"])
@@ -109,6 +131,12 @@ elif a[1] == "wrap":
     os.write(fd, b"MOCK-GROTH16" + policy); os.close(fd)
     if mode == "stray":
         open(os.path.join(os.path.dirname(out), "leak.bin"), "wb").write(b"x")
+    if mode == "leak-salt-public":
+        # a private salt appended to an already-published file
+        open(os.path.join(os.path.dirname(out), "model.bin"), "ab").write({leak_salt!r})
+    if mode == "leak-digest-log":
+        # the SHA-256 of the private output printed into this stage's log
+        print("mock diagnostic handle " + {leak_hex!r})
     print('{{"saved_groth16_receipt":true,"mock":true}}')
 elif a[1] == "verify" and len(a) == (5 if image_arg else 4):
     if image_arg and a[4] != {wrap_image!r} and mode != "lax-image":
@@ -196,11 +224,15 @@ class Fixture(unittest.TestCase):
 
     def mocks(self, host_mode="ok", wrap_mode="ok", wrap_image=IMAGE_ID):
         p = demo.PROFILES[self.mock_profile]
+        output_data = output_bytes(self.mock_profile)
         fmt = dict(python=sys.executable, lock=str(self.lock), probe=str(self.probe),
                    calls=str(self.calls), image=IMAGE_ID, secret=SECRET,
                    pidfile=str(self.pidfile), profile=self.mock_profile, tag=p["tag"],
                    output=p["private_output"], model_bytes=p["model_bytes"],
-                   image_arg=p["verify_takes_image"])
+                   image_arg=p["verify_takes_image"],
+                   request=request_bytes(self.mock_profile), output_data=output_data,
+                   leak_salt=INPUT_SALT,
+                   leak_hex=hashlib.sha256(output_data).hexdigest())
         self.host = executable(self.root / "mock-host", MOCK_HOST.format(mode=host_mode, **fmt))
         self.wrap = executable(self.root / "mock-wrap", MOCK_WRAP.format(
             mode=wrap_mode, wrap_image=wrap_image, **fmt))
@@ -220,6 +252,17 @@ class Fixture(unittest.TestCase):
 
     def stage(self, name):
         return next(s for s in self.status()["stages"] if s["name"] == name)
+
+    def scanned_files(self, public=None):
+        """Every file the secret scan had to cover: the public directory, the
+        logs and the run's own bookkeeping, minus the two files written after
+        the scan (`outcome.json` and `run.done`). Never the private directory."""
+        public = Path(public) if public else self.out / "public"
+        files = []
+        for root in (public, self.out / "logs"):
+            files += sorted(p for p in root.rglob("*") if p.is_file())
+        files += sorted(p for p in self.out.iterdir() if p.is_file())
+        return [p for p in files if p.name not in ("outcome.json", "run.done")]
 
 
 class MockedPipelineTests(Fixture):
@@ -410,6 +453,142 @@ class MockedPipelineTests(Fixture):
         self.assertFalse(os.path.lexists(self.out))
 
 
+class SecretScanTests(Fixture):
+    """The P1 privacy stage: private values, and their SHA-256 digests, must
+    not appear in anything published or logged, and every such file must
+    actually have been read."""
+
+    def private_values(self, profile="block"):
+        request = request_bytes(profile)
+        output = output_bytes(profile)
+        return (INPUT_SALT, OUTPUT_SALT, request, output,
+                request[112:112 + demo.PROFILES[profile]["input_bytes"]])
+
+    def test_clean_run_records_the_scan_and_nothing_private_is_published(self):
+        self.assertEqual(demo.main(self.argv()), 0)
+        record = self.status()["secret_scan"]
+        # Marker deduplication counts can reveal equality of private planes.
+        # No counts or per-marker findings belong in the public outcome.
+        self.assertNotIn("secret_scan", self.outcome())
+        self.assertEqual(record["found"], [])
+        self.assertEqual(record["not_scanned"], [])
+        # five private values, each searched raw and as three digest encodings
+        self.assertEqual((record["markers"], record["marker_values"],
+                          record["raw_values_too_short"]), (20, 5, 0))
+        self.assertEqual(record["files_scanned"], len(self.scanned_files()))
+        self.assertGreater(record["files_scanned"], 10)
+        self.assertTrue(self.outcome()["acceptance"]["public_secret_scan_clean"])
+        # the same check made independently of the runner's own scan
+        for path in self.scanned_files() + [self.out / "public" / "outcome.json"]:
+            data = path.read_bytes()
+            for value in self.private_values():
+                self.assertNotIn(value, data, path)
+                self.assertNotIn(hashlib.sha256(value).digest(), data, path)
+                self.assertNotIn(hashlib.sha256(value).hexdigest().encode(), data, path)
+
+    def test_salt_planted_in_a_public_file_fails_the_run(self):
+        self.mocks(wrap_mode="leak-salt-public")
+        self.assertEqual(demo.main(self.argv()), 1)
+        manifest = self.outcome()
+        self.assertEqual(manifest["failed_stage"], "secret-scan")
+        self.assertFalse(manifest["acceptance"]["public_secret_scan_clean"])
+        self.assertFalse(manifest["acceptance"]["all_passed"])
+        self.assertEqual(self.status()["secret_scan"]["found"],
+                         [{"marker": "input_salt", "file": "public/model.bin"}])
+        self.assertIn("input_salt", self.status()["error"])
+        # The planted file is the only place the value exists: the stage names
+        # the marker kind and copies the value nowhere -- not into the public
+        # manifest, the status file or any log.
+        self.assertIn(INPUT_SALT, (self.out / "public" / "model.bin").read_bytes())
+        for path in self.scanned_files() + [self.out / "public" / "outcome.json"]:
+            if path.name == "model.bin":
+                continue
+            self.assertNotIn(INPUT_SALT, path.read_bytes(), path)
+
+    def test_output_digest_hex_planted_in_a_public_log_fails_the_run(self):
+        self.mocks(wrap_mode="leak-digest-log")
+        self.assertEqual(demo.main(self.argv()), 1)
+        manifest = self.outcome()
+        self.assertEqual(manifest["failed_stage"], "secret-scan")
+        found = self.status()["secret_scan"]["found"]
+        self.assertEqual([e["marker"] for e in found], ["output_words_sha256_hex_lower"])
+        self.assertTrue(found[0]["file"].startswith("logs/"), found)
+        self.assertTrue(found[0]["file"].endswith("groth16-wrap.log"), found)
+        digest = hashlib.sha256(output_bytes("block")).hexdigest()
+        planted = self.out / "logs" / os.path.basename(found[0]["file"])
+        self.assertIn(digest, planted.read_text())
+        # a digest names the private output, so it is never republished
+        self.assertNotIn(digest, (self.out / "public" / "outcome.json").read_text())
+
+    def test_file_over_the_limit_is_reported_unscanned_not_skipped(self):
+        out = self.root / "scan-unit"
+        (out / "public").mkdir(parents=True)
+        (out / "logs").mkdir()
+        (out / "public" / "small.bin").write_bytes(b"nothing private here")
+        with open(out / "logs" / "huge.log", "wb") as f:
+            f.truncate(demo.SCAN_MAX_BYTES + 1)     # sparse: no 64 MiB is written
+        markers, short, covered = demo.secret_markers(request_bytes("block"),
+                                                      output_bytes("block"), 1024)
+        self.assertEqual((len(markers), short, covered), (20, 0, 5))
+        scanned, found, not_scanned = demo.scan_for_markers(
+            demo.scan_targets(demo.Layout(out, out / "public")), markers)
+        self.assertEqual((scanned, found, not_scanned), (1, [], ["logs/huge.log"]))
+
+    def test_run_fails_when_a_public_file_exceeds_the_scan_limit(self):
+        saved = demo.SCAN_MAX_BYTES
+        demo.SCAN_MAX_BYTES = 100      # the 6,184-byte public model now exceeds it
+        try:
+            self.assertEqual(demo.main(self.argv()), 1)
+        finally:
+            demo.SCAN_MAX_BYTES = saved
+        manifest = self.outcome()
+        self.assertEqual(manifest["failed_stage"], "secret-scan")
+        self.assertIn("public/model.bin", self.status()["secret_scan"]["not_scanned"])
+        self.assertEqual(self.status()["secret_scan"]["found"], [])
+        self.assertFalse(manifest["acceptance"]["public_secret_scan_clean"])
+        self.assertIn("not scanned", self.status()["error"])
+
+    def test_separate_public_dir_is_scanned_too(self):
+        public = self.root / "published"
+        self.assertEqual(demo.main(self.argv("run", "--public-dir", str(public))), 0)
+        record = self.status()["secret_scan"]
+        self.assertEqual(record["files_scanned"], len(self.scanned_files(public)))
+        self.assertEqual(record["found"], [])
+
+    def test_short_raw_values_are_guarded_and_only_digests_are_searched(self):
+        # A 4-byte value would match padding by chance; its digests do not.
+        markers, short, covered = demo.secret_markers(
+            request_bytes("block")[:112] + b"\x07\x00\x00\x00", b"\x09\x00\x00\x00", 4)
+        kinds = [k for k, _ in markers]
+        self.assertEqual((short, covered), (2, 5))
+        self.assertNotIn("input_words", kinds)
+        self.assertNotIn("output_words", kinds)
+        for kind in ("input_words", "output_words"):
+            for form in ("_sha256", "_sha256_hex_lower", "_sha256_hex_upper"):
+                self.assertIn(kind + form, kinds)
+        self.assertIn("input_salt", kinds)
+
+    def test_markers_cover_both_hex_cases_and_span_chunk_boundaries(self):
+        markers, _, _ = demo.secret_markers(request_bytes("block"),
+                                            output_bytes("block"), 1024)
+        upper = hashlib.sha256(INPUT_SALT).hexdigest().upper().encode()
+        self.assertIn(("input_salt_sha256_hex_upper", upper), markers)
+        path = self.root / "chunked.bin"
+        path.write_bytes(b"a" * 500 + INPUT_SALT + b"b" * 500)
+        overlap = max(len(n) for _, n in markers) - 1
+        self.assertIn("input_salt", demo.scan_one_file(path, markers, overlap, chunk=512))
+
+    def test_scan_checks_opened_file_size_and_refuses_nonregular_files(self):
+        path = self.root / "changed.bin"
+        path.write_bytes(b"x" * 65)
+        with self.assertRaises(demo.RunnerError):
+            demo.scan_one_file(path, [("fixture", b"secret")], 5, limit=64)
+        fifo = self.root / "fifo"
+        os.mkfifo(fifo)
+        with self.assertRaises(demo.RunnerError):
+            demo.scan_one_file(fifo, [("fixture", b"secret")], 5, limit=64)
+
+
 class TokenProfileTests(Fixture):
     profile = "token"
 
@@ -447,6 +626,23 @@ class TokenProfileTests(Fixture):
             self.assertNotIn(leak, text)
         self.assertNotIn('"mvp_complete": true', text)
         self.assertEqual(self.outcome()["artifacts"]["model.bin"]["bytes"], 13928)
+
+    def test_secret_scan_covers_the_four_byte_private_token(self):
+        self.assertEqual(demo.main(self.argv()), 0)
+        record = self.status()["secret_scan"]
+        # The 4-byte token is too short to search for raw (it would match
+        # padding); its three digest encodings are searched instead.
+        self.assertEqual((record["markers"], record["marker_values"],
+                          record["raw_values_too_short"]), (19, 5, 1))
+        self.assertEqual((record["found"], record["not_scanned"]), ([], []))
+        self.assertEqual(record["files_scanned"], len(self.scanned_files()))
+        self.assertTrue(self.outcome()["acceptance"]["public_secret_scan_clean"])
+        token = output_bytes("token")
+        for path in self.scanned_files() + [self.out / "public" / "outcome.json"]:
+            data = path.read_bytes()
+            self.assertNotIn(hashlib.sha256(token).digest(), data, path)
+            self.assertNotIn(hashlib.sha256(token).hexdigest().encode(), data, path)
+            self.assertNotIn(INPUT_SALT, data, path)
 
     def test_verifier_ignoring_image_argument_fails_the_image_control(self):
         self.mocks(wrap_mode="lax-image")

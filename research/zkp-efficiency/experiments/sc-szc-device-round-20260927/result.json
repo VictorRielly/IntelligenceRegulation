@@ -1,0 +1,167 @@
+{
+  "status": "passed",
+  "run_identity": "20260927T045233Z-e6183046",
+  "seed": 2026092713,
+  "profiles": [
+    {
+      "n_vars": 3,
+      "rows": 8,
+      "tables": 13,
+      "degree": 4,
+      "tile_pairs": 3,
+      "rounds": 3,
+      "total_tile_partials": 4,
+      "digest_sha256": "bef04850b76e607350fdb87f1b16700bd61f6acc9c9bddcb2c3faff6a13b0209",
+      "checks": {
+        "direct_rounds": 15,
+        "direct_terminals": 13,
+        "masked_claim_chain": 3,
+        "ragged_tile": true
+      },
+      "traffic_model": {
+        "table_upload_bytes_once": 1664,
+        "round_and_fold_logical_device_reads_bytes": 5824,
+        "fold_logical_device_write_bytes": 1456,
+        "reduced_round_vector_d2h_bytes": 240,
+        "challenge_h2d_bytes": 48,
+        "final_table_d2h_bytes": 208,
+        "unreduced_tile_partials_d2h_bytes": 320,
+        "minimum_sequential_round_trips": 3,
+        "device_round_evaluation_launches": 3,
+        "device_fold_launches": 3,
+        "extra_device_reduction_launches_if_used": 3
+      }
+    },
+    {
+      "n_vars": 5,
+      "rows": 32,
+      "tables": 26,
+      "degree": 4,
+      "tile_pairs": 7,
+      "rounds": 5,
+      "total_tile_partials": 8,
+      "digest_sha256": "3430ab4807f934f995adfa0810b427b4e85053eae8cb680fda529f188e11c94f",
+      "checks": {
+        "direct_rounds": 25,
+        "direct_terminals": 26,
+        "masked_claim_chain": 5,
+        "ragged_tile": true
+      },
+      "traffic_model": {
+        "table_upload_bytes_once": 13312,
+        "round_and_fold_logical_device_reads_bytes": 51584,
+        "fold_logical_device_write_bytes": 12896,
+        "reduced_round_vector_d2h_bytes": 400,
+        "challenge_h2d_bytes": 80,
+        "final_table_d2h_bytes": 416,
+        "unreduced_tile_partials_d2h_bytes": 640,
+        "minimum_sequential_round_trips": 5,
+        "device_round_evaluation_launches": 5,
+        "device_fold_launches": 5,
+        "extra_device_reduction_launches_if_used": 5
+      }
+    },
+    {
+      "n_vars": 7,
+      "rows": 128,
+      "tables": 26,
+      "degree": 4,
+      "tile_pairs": 16,
+      "rounds": 7,
+      "total_tile_partials": 11,
+      "digest_sha256": "15c8ae73bd862c5581a0d43a4f126b63d929fb56824b8d512584b521902635f9",
+      "checks": {
+        "direct_rounds": 35,
+        "direct_terminals": 26,
+        "masked_claim_chain": 7,
+        "ragged_tile": true
+      },
+      "traffic_model": {
+        "table_upload_bytes_once": 53248,
+        "round_and_fold_logical_device_reads_bytes": 211328,
+        "fold_logical_device_write_bytes": 52832,
+        "reduced_round_vector_d2h_bytes": 560,
+        "challenge_h2d_bytes": 112,
+        "final_table_d2h_bytes": 416,
+        "unreduced_tile_partials_d2h_bytes": 880,
+        "minimum_sequential_round_trips": 7,
+        "device_round_evaluation_launches": 7,
+        "device_fold_launches": 7,
+        "extra_device_reduction_launches_if_used": 7
+      }
+    },
+    {
+      "n_vars": 7,
+      "rows": 128,
+      "tables": 26,
+      "degree": 4,
+      "tile_pairs": 3,
+      "rounds": 7,
+      "total_tile_partials": 46,
+      "digest_sha256": "15c8ae73bd862c5581a0d43a4f126b63d929fb56824b8d512584b521902635f9",
+      "checks": {
+        "direct_rounds": 35,
+        "direct_terminals": 26,
+        "masked_claim_chain": 7,
+        "ragged_tile": true
+      },
+      "traffic_model": {
+        "table_upload_bytes_once": 53248,
+        "round_and_fold_logical_device_reads_bytes": 211328,
+        "fold_logical_device_write_bytes": 52832,
+        "reduced_round_vector_d2h_bytes": 560,
+        "challenge_h2d_bytes": 112,
+        "final_table_d2h_bytes": 416,
+        "unreduced_tile_partials_d2h_bytes": 3680,
+        "minimum_sequential_round_trips": 7,
+        "device_round_evaluation_launches": 7,
+        "device_fold_launches": 7,
+        "extra_device_reduction_launches_if_used": 7
+      }
+    }
+  ],
+  "negative_controls": [
+    "mask_round_order",
+    "omit_mask",
+    "reverse_samples",
+    "stale_round_index",
+    "swapped_extension_limbs",
+    "swapped_challenge_order",
+    "wrong_fold_pair",
+    "dropped_ragged_tile"
+  ],
+  "source_pins_sha256": {
+    "hashline/src/private_attention/argument.rs": "3343620eefa848421633971210305a356c183848ac15f566a503244ef2283a25",
+    "hashline/src/zk.rs": "ce8cc51648d0da51b56bb08109059171aca95c50828b7245b6b3b19e227de70b",
+    "zkp-core/src/sumcheck.rs": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19",
+    "zkp-core/src/transcript.rs": "31ce3c9a72da3bd3d6dcc9203c9ed7a51963cde462b59a66186467b4cb733da8",
+    "zkp-core/src/field.rs": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13"
+  },
+  "script_sha256": "f6d902ea681df000fd242d54fbcc7587f5dac9f3646fe5c988592c19aebec3fa",
+  "elapsed_s": 0.5104608539841138,
+  "peak_rss_kib": 17140,
+  "threads": 1,
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "limits": {
+    "wall_s": 59,
+    "cpu_s": 55,
+    "address_space_mib": 512,
+    "estimated_memory_mib": 8
+  },
+  "scope": "Synthetic SC_SZC-shaped degree-four polynomial and CfsMask schedule. Independent original-cube reference, no native/GPU execution, BLAKE3 transcript parity, full slot, receipt, or full-stack proof.",
+  "full_stack": {
+    "complete_model_passes": 0,
+    "countable_tokens": 0,
+    "context_length": null,
+    "steady_tokens_per_s": null,
+    "total_tokens_per_s": null,
+    "startup_fraction": null,
+    "witness_s": null,
+    "prove_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "proof_lag_s": null
+  }
+}

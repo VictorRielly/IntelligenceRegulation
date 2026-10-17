@@ -1,0 +1,28 @@
+{
+  "status": "pass",
+  "counts": {
+    "fixtures": 32,
+    "baseline_schedules": 32,
+    "independent_total_checks": 96,
+    "ordered_final_checks": 2688,
+    "private_fold_formula_checks": 384,
+    "extension_table_checks": 16128,
+    "extension_polynomial_checks": 576,
+    "group_recoveries": 483,
+    "zero_factor_explicit_fallbacks": 381,
+    "bracket_count_invariance_checks": 192,
+    "scan_count_invariance_checks": 64,
+    "schedules": 96,
+    "independent_group_samples": 2520,
+    "private_reader_original_cube_checks": 18528,
+    "candidate_group_sample_degree_checks": 7560,
+    "actual_claim_checks": 1080,
+    "terminal_claim_checks": 216,
+    "edge_reader_checks": 621,
+    "edge_fixtures": 21
+  },
+  "control_count": 24,
+  "elapsed_seconds": 14.26906267600134,
+  "peak_rss_kib": 22220,
+  "digest_sha256": "200f94aeb77700970a0f19b338ddb6eb67fa9d41bd0ca12003e8f487a4c292c5"
+}

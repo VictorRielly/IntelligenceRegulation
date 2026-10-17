@@ -1,0 +1,279 @@
+{
+  "status": "pass",
+  "run_identity": "20261004T050146Z-1f54a8f9",
+  "seed": 2026100423,
+  "matrix_schedule_cases": 259,
+  "accepted_plane_words": 9506,
+  "outcomes": {
+    "accepted": 177,
+    "FFN down": 81,
+    "residual 2": 1
+  },
+  "rounding_cases": 162,
+  "controls": [
+    {
+      "name": "round separately per K tile",
+      "expected": {
+        "y": [
+          1
+        ],
+        "rem": [
+          32
+        ]
+      },
+      "wrong": {
+        "y": [
+          2
+        ],
+        "rem": [
+          0
+        ]
+      }
+    },
+    {
+      "name": "range check incomplete K sum",
+      "expected": {
+        "y": [
+          0
+        ],
+        "rem": [
+          32
+        ]
+      },
+      "wrong": {
+        "refusal": "FFN down",
+        "first_index": 0
+      }
+    },
+    {
+      "name": "residual before all down checks",
+      "expected": {
+        "refusal": "FFN down",
+        "first_index": 1
+      },
+      "wrong": {
+        "refusal": "residual 2",
+        "first_index": 0
+      }
+    },
+    {
+      "name": "first tile completion instead of first support refusal",
+      "expected": {
+        "refusal": "FFN down",
+        "first_index": 0
+      },
+      "wrong": {
+        "refusal": "FFN down",
+        "first_index": 1
+      }
+    },
+    {
+      "name": "float32 partial changes biased remainder",
+      "expected": {
+        "y": [
+          2
+        ],
+        "rem": [
+          33
+        ]
+      },
+      "wrong": {
+        "y": [
+          2
+        ],
+        "rem": [
+          32
+        ]
+      }
+    },
+    {
+      "name": "i32 reconstruction changes range refusal",
+      "expected": {
+        "refusal": "FFN down",
+        "first_index": 0
+      },
+      "wrong": {
+        "y": [
+          -2056
+        ],
+        "rem": [
+          9216
+        ]
+      }
+    },
+    {
+      "name": "drop supplied padded K coordinate",
+      "expected": {
+        "y": [
+          11
+        ],
+        "rem": [
+          35
+        ]
+      },
+      "wrong": {
+        "y": [
+          0
+        ],
+        "rem": [
+          46
+        ]
+      }
+    },
+    {
+      "name": "requantize padded outputs adds nonzero remainder",
+      "expected": {
+        "y": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rem": [
+          32,
+          0,
+          0,
+          0
+        ]
+      },
+      "wrong": {
+        "y": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rem": [
+          32,
+          32,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "name": "pad low byte zero plus nonzero offset correction",
+      "expected": 0,
+      "wrong": 384
+    },
+    {
+      "name": "apply full weight correction once per K tile",
+      "expected": {
+        "y": [
+          0
+        ],
+        "rem": [
+          32
+        ]
+      },
+      "wrong": {
+        "y": [
+          4
+        ],
+        "rem": [
+          32
+        ]
+      }
+    },
+    {
+      "name": "skip final weight correction",
+      "expected": {
+        "y": [
+          0
+        ],
+        "rem": [
+          32
+        ]
+      },
+      "wrong": {
+        "y": [
+          -4
+        ],
+        "rem": [
+          32
+        ]
+      }
+    },
+    {
+      "name": "ties away from plus infinity",
+      "expected": [
+        0,
+        0
+      ],
+      "wrong": [
+        -1,
+        0
+      ]
+    },
+    {
+      "name": "transpose square weight matrix",
+      "expected": {
+        "y": [
+          0,
+          0
+        ],
+        "rem": [
+          45,
+          48
+        ]
+      },
+      "wrong": {
+        "y": [
+          0,
+          0
+        ],
+        "rem": [
+          43,
+          49
+        ]
+      }
+    },
+    {
+      "name": "i32 partial unsafe at K 131072",
+      "expected": false,
+      "wrong": true
+    }
+  ],
+  "control_count": 14,
+  "domain_controls": [
+    -32769,
+    32768
+  ],
+  "synthetic_work_counters": {
+    "packed_values": 391898,
+    "byte_gemm_calls": 51539,
+    "byte_products": 589658
+  },
+  "digest": "00d0156378825a4ef59e6dcfd40cb985c4710d8108d4df3e50340c86fce5db71",
+  "elapsed_s": 0.8107024650016683,
+  "peak_rss_kib": 16540,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "device": "CPU only",
+  "python": "3.10.12",
+  "estimated_memory_mib": 64,
+  "RLIMIT_AS_mib": 512,
+  "alarm_s": 59,
+  "script_sha256": "aca01f7260a3c66ef353794c4562f3abeab473e6a916dae5bb38d7d8e679de96",
+  "scope": "synthetic down/requant/residual only, not full witness/native transcript/proof; tiled GPU buffers counted only",
+  "actual_gpu_speedup": null,
+  "actual_end_to_end_saved_s": null,
+  "full_stack": {
+    "countable_tokens": 0,
+    "passes": 0,
+    "context_length": null,
+    "steady_tokens_per_s": null,
+    "total_tokens_per_s": null,
+    "startup_fraction": null,
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "proof_latency_s": null,
+    "proof_lag_s": null,
+    "pipeline_drain_s": null
+  },
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H"
+}

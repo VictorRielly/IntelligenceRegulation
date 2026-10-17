@@ -1,0 +1,16 @@
+profile: hashline-zk-mr1/private-block-t32-poc/1
+  private-block-t32/1: T32 d16 H2 KV1 dh8 F16; n=256 inv_rate=8 Q=256; P1 (weights public, no W commitment); whole block (attention, norm_m, feed-forward, residual 2)
+  A rows=455 data=213 site-pairs=120 prox-pair=(453,454)
+  H rows=384 data=280 site-pairs=51 zero-sum-pair=[278, 279] prox-pair=(382,383)
+  M rows=50 functionals=34 A-groups=35 H-groups=9 collapse=0
+  calibration: norm tn=11 cn=1024 ceps=1 wrho=29; shifts qkv=7 rope=7 score=6 o=9 ao=7 residual=0; fE=9 fP=9 fRo=7 wrhoS=14 mask=-127; classes int8=[-127,127] int16; tables U8 + exp
+  feed-forward: F=16 shifts gate=7 up=0 product=14 down=6 residual2=0; gate class int8=[-128,127]; tables U8 + exp + act
+receipt frame: 2816472 bytes (fixed by the geometry: 2816472)
+committed rows: A 455 H 384 M 50; lookups: U8 61440 exp 2048 act 512
+prove 0.068 s (shared box, diagnostic only):
+  witness planes + commit A: 0.022 s
+  commit M: 0.006 s
+  LogUp helpers + commit H: 0.015 s
+  23 masked sumchecks: 0.013 s
+  M + A + H + endpoint openings: 0.012 s
+EXPERIMENTAL: fixed synthetic toy profile; no model-scale or 5-second claim follows from this run.

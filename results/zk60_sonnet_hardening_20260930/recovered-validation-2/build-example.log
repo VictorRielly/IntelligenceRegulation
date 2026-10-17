@@ -1,0 +1,2 @@
+[zk60-guard 18:35:16] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 18:36:16] REFUSED: could not take /tmp/zk-heavy.lock within 60s

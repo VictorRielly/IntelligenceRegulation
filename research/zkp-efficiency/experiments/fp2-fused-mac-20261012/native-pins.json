@@ -1,0 +1,48 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/zkp-core/src/field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "bytes": 11065
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/zkp-core/src/sumcheck/grouped.rs",
+    "sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b",
+    "bytes": 7903
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/argument.rs",
+    "sha256": "b3b02383a14a64a12194a465873b76f78406e5d3115b0c8157fde2882d22c865",
+    "bytes": 99535
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_mvp_20260929/baseline-stack-gpu-attempt2/report.json",
+    "sha256": "ae971925a0c2ffb0c7d04a4722dc39903308639fd449708df722e14f4a69687e",
+    "bytes": 1157
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_mvp_20260929/cli-stack-gpu/report.json",
+    "sha256": "6e9bf57d050216be3110c71b67095bd6b7a7e77934196592c8cd6d0c6fd62781",
+    "bytes": 21117
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_sol_gpu_20260927/attempt-5-dense-ab/report.json",
+    "sha256": "43c6b416c2d4254d821ec304e0fc49c6b8fbfb974b9122f919fdf7663d347506",
+    "bytes": 29717
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/gpu/kernels.cu",
+    "sha256": "b59bc396fa955bbdbc8bf8bb7b047c37c7f8df1fed0992d7b15ef983e2fc3969",
+    "bytes": 78055
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/affine-denominator-stepping-20261004/result.json",
+    "sha256": "365ac648ed260f71f5127afc0cf7dc6b3f15be2da0f33448b27ab30360936008",
+    "bytes": 86997
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_sol_gpu_20260927/attempt-5-dense-ab/b2-gpu.log",
+    "sha256": "86f72477b0cda84efa0742234321a9d9eb6987701bb8d401384c9a9e227163ca",
+    "bytes": 23189,
+    "scope": "Historical synthetic125M/T512 phase clocks; read only, no rerun"
+  }
+]

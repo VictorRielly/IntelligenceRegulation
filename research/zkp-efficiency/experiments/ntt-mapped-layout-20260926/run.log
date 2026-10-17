@@ -1,0 +1,123 @@
+{
+  "schema": "zkp-efficiency/ntt-mapped-layout/v1",
+  "status": "passed",
+  "run_identity": "20260926T185233Z-aa002e55",
+  "seed": 20260926,
+  "field": "Goldilocks base field",
+  "threads": 1,
+  "cpu_affinity": [
+    0
+  ],
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "max_wall_seconds": 59,
+  "max_cpu_seconds": 55,
+  "max_address_space_mib": 512,
+  "estimated_memory_mib": 32,
+  "source_sha256": "5c7ed8f901c9ad06e4a393ed4ecd94ade684d5ed4ae29edaf9e3ba998224503d",
+  "differential_cases": 90,
+  "mapped_comparisons": 240,
+  "direct_output_points": 10560,
+  "lagrange_points": 360,
+  "conformance_vectors": [
+    "w3r4-zero",
+    "w3r4-zero_msg_seeded_pad",
+    "w3r4-delta0",
+    "w3r4-delta_last",
+    "w3r4-seeded",
+    "w4r4-zero",
+    "w4r4-zero_msg_seeded_pad",
+    "w4r4-delta0",
+    "w4r4-delta_last",
+    "w4r4-seeded",
+    "w6r4-zero",
+    "w6r4-zero_msg_seeded_pad",
+    "w6r4-delta0",
+    "w6r4-delta_last",
+    "w6r4-seeded"
+  ],
+  "column_byte_checks": 64,
+  "chunk_stream_checks": 64,
+  "gather_indices": [
+    63,
+    1,
+    1,
+    0,
+    32,
+    7,
+    63
+  ],
+  "rows": 5,
+  "negative_controls": {
+    "mapped_output_treated_as_natural": true,
+    "inverse_permutation_used_as_forward": true,
+    "missing_coset": true,
+    "inverse_scale_nn": true,
+    "missing_twiddle": true,
+    "cuda_branch_overlap": true,
+    "changed_pad_changes_encoding": true,
+    "duplicate_requests_dropped": true,
+    "row_order_changes_column_bytes": true
+  },
+  "malformed_fixture_refusals": 3,
+  "cuda_overlap_control": [
+    {
+      "n": 16,
+      "nn": 64,
+      "q": 0,
+      "mismatch_columns": 0,
+      "evidence": "scalar branch transcription, no device execution"
+    },
+    {
+      "n": 16,
+      "nn": 64,
+      "q": 8,
+      "mismatch_columns": 0,
+      "evidence": "scalar branch transcription, no device execution"
+    },
+    {
+      "n": 16,
+      "nn": 64,
+      "q": 16,
+      "mismatch_columns": 0,
+      "evidence": "scalar branch transcription, no device execution"
+    },
+    {
+      "n": 16,
+      "nn": 64,
+      "q": 19,
+      "mismatch_columns": 64,
+      "evidence": "scalar branch transcription, no device execution"
+    },
+    {
+      "n": 16,
+      "nn": 64,
+      "q": 48,
+      "mismatch_columns": 64,
+      "evidence": "scalar branch transcription, no device execution"
+    }
+  ],
+  "closed_form_overlap": {
+    "n": 8,
+    "nn": 32,
+    "q": 9,
+    "msg": "all zero",
+    "pad": "only pad[8]=1",
+    "correct": "x^16-x^8",
+    "inspected_branch": "x^16",
+    "mismatch_columns": 32
+  },
+  "conditional_restore_traffic": {
+    "basis": "Extra restore copy, ONLY if a replacement emits mapped output",
+    "removed_read_write_bytes_per_row_at_nn65536": 1048576,
+    "existing_cuda_has_separate_restore": false,
+    "runtime_gain": null
+  },
+  "proving_seconds": null,
+  "verification_seconds": null,
+  "complete_readiness_seconds": null,
+  "elapsed_seconds": 0.5112696120049804,
+  "peak_rss_kib": 16968,
+  "scope": "Exact synthetic arithmetic and byte-stream adapter only. No upstream algorithm reproduction, native execution, BLAKE3, receipt, GPU, security acceptance, or model-speed result."
+}

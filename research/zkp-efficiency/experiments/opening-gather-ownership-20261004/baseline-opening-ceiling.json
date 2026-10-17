@@ -1,0 +1,22 @@
+{
+  "scope": "synthetic dense 12-block 125M geometry",
+  "device": "RTX 4070 Laptop",
+  "context": 512,
+  "blocks": 12,
+  "samples": 1,
+  "fresh_process_verification": false,
+  "log_sha256": "a1575d1d48025978d6470b30541756bcc2372c33030cde35afee6196c4c1364a",
+  "prove_run_s": 318.22,
+  "workload_wall_s": 408.60922643699996,
+  "phases_s": {
+    "open M (zk::mask_open, ONE call)": 0.06099999999999999,
+    "open A (schedule audit + pcs::open_zk)": 8.051,
+    "open H (schedule audit + pcs::open_zk)": 3.5649999999999995
+  },
+  "A_H_open_s": 11.616,
+  "A_H_open_share_workload": 0.028428139279402624,
+  "A_H_open_share_prove_run": 0.03650304820564389,
+  "zero_cost_full_A_H_open_deletion_diagnostic_wall_s": 396.993226437,
+  "zero_cost_full_A_H_open_deletion_diagnostic_positions_s": 1.2896945486833156,
+  "disclaimer": "Counted diagnostic upper ceiling for deleting entire parent phase, not candidate saving; no accepted private8B tokens. GPU chunked/reencoding subphase not separately identified."
+}

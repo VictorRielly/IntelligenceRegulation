@@ -1,0 +1,775 @@
+binary=/tmp/zk60-sol-gpu-20260927/hashline/target/debug/deps/hashline-93006b5c927e67d1
+sha256=c0640206c387e336e6a208c40b17b9cad9781d4a43b0f56f3a6132dd1e97e05e
+args=['--test-threads=1', '--nocapture']
+
+running 509 tests
+test attention::chain_tests::norm_round_matches_the_relation ... ok
+test attention::chain_tests::requant_round_is_balanced ... ok
+test chain::tests::floor_requant_is_euclidean ... ok
+test chain::tests::matmul_small ... ok
+test chain::tests::witness_i8_matmul_preserves_prefix_overflow_behavior ... 
+thread 'chain::tests::witness_i8_matmul_preserves_prefix_overflow_behavior' (1130386) panicked at src/chain.rs:185:51:
+attempt to add with overflow
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread '<unnamed>' (1130383) panicked at src/chain.rs:54:17:
+attempt to add with overflow
+
+thread '<unnamed>' (1130382) panicked at src/chain.rs:54:17:
+attempt to add with overflow
+
+thread '<unnamed>' (1130383) panicked at src/chain.rs:54:17:
+attempt to add with overflow
+
+thread '<unnamed>' (1130382) panicked at src/chain.rs:54:17:
+attempt to add with overflow
+
+thread '<unnamed>' (1130383) panicked at src/chain.rs:54:17:
+attempt to add with overflow
+
+thread '<unnamed>' (1130382) panicked at src/chain.rs:54:17:
+attempt to add with overflow
+
+thread '<unnamed>' (1130383) panicked at src/chain.rs:54:17:
+attempt to add with overflow
+
+thread '<unnamed>' (1130382) panicked at src/chain.rs:54:17:
+attempt to add with overflow
+ok
+test chain::tests::witness_i8_matmul_scalar_oracle_signed_extremes_and_tails ... ok
+test chain::tests::witness_i8_matmul_zero_columns_still_rejects - should panic ... 
+thread 'chain::tests::witness_i8_matmul_zero_columns_still_rejects' (1130388) panicked at src/chain.rs:48:7:
+chunk_size must not be zero
+ok
+test export_v3::tests::matmul_i64_small ... ok
+test export_v3::tests::requant_round_is_the_prescaled_floor ... ok
+test export_v3::tests::witness_i64_matmul_scalar_oracle_signed_extremes_and_tails ... ok
+test export_v3::tests::witness_i64_matmul_zero_columns_still_rejects - should panic ... 
+thread 'export_v3::tests::witness_i64_matmul_zero_columns_still_rejects' (1130392) panicked at src/export_v3.rs:278:7:
+chunk_size must not be zero
+ok
+test field::verifier_hardening_tests::hardening_checked_batch_matches_legacy_and_individual_inverses ... ok
+test field::verifier_hardening_tests::hardening_checked_batch_rejects_zero_without_mutation ... ok
+test gpu::cuda::fsp4_plane_oracle::narrow_off_declines_planes_before_either_device_strategy ... ok
+test gpu::cuda::fsp4_plane_oracle::plane_fill_equals_pack_narrow_at_staging_piece_boundaries ... ok
+test gpu::cuda::fsp4_plane_oracle::plane_fill_equals_pack_narrow_at_w1 ... ok
+test gpu::planes::tests::a_shape_that_does_not_tile_is_declined ... ok
+test gpu::planes::tests::fill_bytes_is_the_packed_image_over_every_range ... ok
+test gpu::planes::tests::fill_fp_is_the_layer_buffer ... ok
+test gpu::planes::tests::invalid_ranges_are_refused_before_writing_the_destination ... 
+thread 'gpu::planes::tests::invalid_ranges_are_refused_before_writing_the_destination' (1130417) panicked at src/gpu/mod.rs:358:13:
+plane fill 18446744073709551614+2 past the buffer's 24 elements
+
+thread 'gpu::planes::tests::invalid_ranges_are_refused_before_writing_the_destination' (1130417) panicked at src/gpu/mod.rs:358:13:
+plane fill 23+2 past the buffer's 24 elements
+
+thread 'gpu::planes::tests::invalid_ranges_are_refused_before_writing_the_destination' (1130417) panicked at src/gpu/mod.rs:358:13:
+plane fill 25+0 past the buffer's 24 elements
+ok
+test gpu::planes::tests::overflowing_tiling_products_are_declined_without_large_allocations ... ok
+test norm::tests::gadget_facts_hold_on_random_rows ... ok
+test norm::tests::window_rule_examples ... ok
+test pcs_compact::tests::compact_batch_of_three_commitments ... ok
+test pcs_compact::tests::compact_commit_open_verify_and_tampers ... ok
+test pcs_compact::tests::mobius_matches_multilinear_evaluation ... ok
+test pcs_compact::tests::ntt_dif_is_bitreversed_evaluation ... ok
+test pcs_compact::tests::pieces_and_queries ... ok
+test phase_profile::tests::disabled_profiling_preserves_result_and_records_nothing ... ok
+test phase_profile::tests::nested_profile_costs_are_exclusive ... ok
+test phase_profile::tests::profile_capture_cleans_up_after_unwind ... 
+thread 'phase_profile::tests::profile_capture_cleans_up_after_unwind' (1130428) panicked at src/phase_profile.rs:162:33:
+fixture
+ok
+test private_attention::capture::native_capture_roundtrip_and_refusals ... ok
+test private_attention::capture::native_capture_saved_receipt ... ignored, requires explicit saved public-fixture receipt and expected policy paths
+test private_attention::layout::tests::declared_counts_are_self_consistent ... ok
+test private_attention::tests::an_endpoint_committed_to_other_values_is_refused ... ok
+test private_attention::tests::cached_u8_inverses_equal_reference_for_real_lookups_and_invalid_values ... ok
+test private_attention::tests::every_relation_family_rejects_an_inconsistent_witness ... ok
+test private_attention::tests::honest_receipt_verifies_in_typed_and_wire_form_with_the_declared_transcript_order ... ok
+test private_attention::tests::no_published_word_is_a_small_integer ... ok
+test private_attention::tests::opening_refusals_are_functions_of_the_challenges_only ... ok
+test private_attention::tests::receipt_field_tampers_and_statement_mismatches_are_refused ... ok
+test private_attention::tests::the_declared_schedule_is_stable_and_bound ... ok
+test private_attention::tests::the_schedule_audit_refuses_shared_missing_and_foreign_mask_rows ... ok
+test private_attention::tests::wire_frames_are_exact_canonical_and_bounded ... ok
+test private_attention::tests::witness_equals_the_independent_fixed_causal_oracle ... ok
+test private_block::boundary::tests::a_boundary_opening_on_a_shared_pair_is_refused ... ok
+test private_block::boundary::tests::a_node_shaped_boundary_column_is_refused ... ok
+test private_block::boundary::tests::a_prepared_boundary_commits_the_words_and_declares_its_reserved_rows ... ok
+test private_block::boundary::tests::a_prepared_boundary_refuses_a_different_statement ... ok
+test private_block::boundary::tests::every_row_count_but_the_derived_one_is_refused_by_name ... ok
+test private_block::boundary::tests::one_opening_carries_two_claims_at_two_points_and_verifies ... ok
+test private_block::boundary::tests::the_declared_geometry_is_what_the_spec_derives ... ok
+test private_block::boundary::tests::the_digest_is_its_own_and_moves_with_every_parameter ... ok
+test private_block::boundary::tests::the_malformed_statements_are_refused_by_name ... ok
+test private_block::boundary::tests::the_prepare_refusals_fire ... ok
+test private_block::boundary::tests::two_boundary_claims_at_one_point_trip_the_declared_group_count ... ok
+test private_block::c6_tests::a_frame_with_the_dropped_helper_claims_is_refused_before_any_draw_at_the_rung_c6 ... [ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+C6 UN-CORRECTED FRAME: slot 14 carries 54 terminals here against 56 on the arm that keeps the four lookups; a frame with the two extra helper claims is refused by the frame check before any draw — private block wire: argument shape
+ok
+test private_block::c6_tests::a_norm_top_limb_outside_its_byte_range_is_rejected_at_the_rung_c6 ... [ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+C6 NORM RANGE TAMPER norm_a rho (A_NR): top limb now negative true, limb below now at or above 256 true, recomposed remainder unchanged true — verifier rejected: H: pcs zk: group 8: <v, c> != combined claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+C6 NORM RANGE TAMPER norm_a sigma (A_NS): top limb now negative true, limb below now at or above 256 true, recomposed remainder unchanged true — verifier rejected: H: pcs zk: group 8: <v, c> != combined claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+C6 NORM RANGE TAMPER norm_m rho (A_MR): top limb now negative true, limb below now at or above 256 true, recomposed remainder unchanged true — verifier rejected: H: pcs zk: group 8: <v, c> != combined claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+C6 NORM RANGE TAMPER norm_m sigma (A_MS): top limb now negative true, limb below now at or above 256 true, recomposed remainder unchanged true — verifier rejected: H: pcs zk: group 8: <v, c> != combined claim
+C6 NORM RANGE SWEEP: 4 of 4 rejected by the VERIFIER at the H commitment's group 8 — the value-0 LogUp identity `protocol::finish_claims` pushes last — with the block's ARITHMETIC exactly satisfied, so the `byte(top)` lookup C-6 keeps is what carries the range obligation (finding S31-F1: that refusal does not name the lookup)
+ok
+test private_block::c6_tests::a_tampered_round_message_of_slot_14_is_rejected_at_the_rung_c6 ... [ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+C6 ROUND-MESSAGE TAMPER slot 14 [03 D zero-check (hosts 12, 13D)]: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+C6 ROUND-MESSAGE TAMPER slot 16 [05 KV zero-check (hosts 09K, 09V)]: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+C6 ROUND-MESSAGE TAMPER slot 18 [14 F zero-check (hosts 13G, 13U)]: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+ok
+test private_block::c6_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_c6 ... S31 CENSUS [one dense block]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live, all four TOP norm limbs live and in range
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+rung-C6 DENSE one block: prove 2.46 s, verify from bytes 0.48 s, frame 7452040 B
+ok
+test private_block::c6_tests::an_honest_three_block_fully_dense_run_verifies_from_its_segments_at_the_rung_c6 ... S31 CENSUS [run block 0]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live, all four TOP norm limbs live and in range
+S31 CENSUS [run block 1]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live, all four TOP norm limbs live and in range
+S31 CENSUS [run block 2]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live, all four TOP norm limbs live and in range
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+C6 FULLY DENSE RUN L=3 (down band 27): prove 8.76 s, verify from segments 1.39 s, segments [7259640, 7282168, 7474648] B (total 22016456 B), boundary 22 rows
+ok
+test private_block::c6_tests::only_the_125m_shape_and_the_new_one_reach_correction_c_6 ... S31 C-6 CENSUS toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)       width   16 D_max  131068 norm_wrho 29 full_byte false Dom::D 38 lookups / 19 helpers, H planes 51
+S31 C-6 CENSUS development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) width   96 D_max  321049 norm_wrho 31 full_byte false Dom::D 38 lookups / 19 helpers, H planes 52
+S31 C-6 CENSUS development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) width   96 D_max  321049 norm_wrho 31 full_byte false Dom::D 38 lookups / 19 helpers, H planes 52
+S31 C-6 CENSUS development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) width   96 D_max  321049 norm_wrho 31 full_byte false Dom::D 38 lookups / 19 helpers, H planes 52
+S31 C-6 CENSUS development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) width   96 D_max  321049 norm_wrho 31 full_byte false Dom::D 38 lookups / 19 helpers, H planes 52
+S31 C-6 CENSUS development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) width  384 D_max  642099 norm_wrho 32 full_byte true  Dom::D 34 lookups / 17 helpers, H planes 50
+S31 C-6 CENSUS 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads) width  768 D_max  908065 norm_wrho 32 full_byte true  Dom::D 34 lookups / 17 helpers, H planes 50
+ok
+test private_block::c6_tests::the_all_zero_input_is_a_degenerate_case_that_proves_and_verifies_at_the_rung_c6 ... [ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+rung-C6 ALL-ZERO (degenerate) one block: frame 7452040 B, verified
+ok
+test private_block::c6_tests::the_lookup_c6_drops_is_a_duplicate_of_one_that_stays ... S31 C-6 DUPLICATE norm_a rho top limb (A_NR): rung-C6 keeps `byte(plane)` and drops `scaled(plane, 1)`, which is the SAME Lk; rung-P2 keeps `byte(plane)` and `scaled(plane, 2)`, which is not
+S31 C-6 DUPLICATE norm_a sigma top limb (A_NS): rung-C6 keeps `byte(plane)` and drops `scaled(plane, 1)`, which is the SAME Lk; rung-P2 keeps `byte(plane)` and `scaled(plane, 2)`, which is not
+S31 C-6 DUPLICATE norm_m rho top limb (A_MR): rung-C6 keeps `byte(plane)` and drops `scaled(plane, 1)`, which is the SAME Lk; rung-P2 keeps `byte(plane)` and `scaled(plane, 2)`, which is not
+S31 C-6 DUPLICATE norm_m sigma top limb (A_MS): rung-C6 keeps `byte(plane)` and drops `scaled(plane, 1)`, which is the SAME Lk; rung-P2 keeps `byte(plane)` and `scaled(plane, 2)`, which is not
+S31 C-6 DIFFERENCE: rung-P2's Dom::D list minus rung-C6's is exactly the four scaled top-limb entries; at rung-C6 their coefficient would be 1, i.e. the byte lookup already in the list
+ok
+test private_block::c6_tests::the_named_tampers_are_rejected_at_their_own_slots_at_the_rung_c6 ... [ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+C6 TAMPER the norm square A_DSQ of norm_a (slot 02's own relation) at index 31: verifier rejected: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+C6 TAMPER the norm square A_DSQM of norm_m at index 0: verifier rejected: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+C6 TAMPER residual 2, A_X2 (slot 14 hosts it) at index 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+C6 TAMPER the key A_K8, the LAST index of the unpadded Dom::Kv at index 4095: verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+C6 TAMPER the gate A_G8, the LAST index of the unpadded Dom::F at index 16383: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+C6 TAMPER the norm square A_DSQ at index 0 of the unpadded Dom::T at index 0: verifier rejected: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+C6 TAMPER SWEEP: 6 of 6 rejected by the VERIFIER at the slot under test, 0 by the prover, 0 accepted
+ok
+test private_block::c6_tests::the_new_shape_is_rung_p2_with_the_head_dimension_moved ... S31 rung-C6: T32/d384/f512, 12 heads of 32 over 4 KV heads, pads (32, 512, 16, 512), lkv 2, D_max 642099 -> norm_wrho 32 -> C-6 ON, unpadded T/Kv/F, largest L 77, receipt 7452040 B
+ok
+test private_block::c6_tests::the_norm_range_tamper_rejects_at_the_same_slot_on_both_arms ... [ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+C6 BOTH ARMS development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) (full_byte true): H: pcs zk: group 8: <v, c> != combined claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+C6 BOTH ARMS development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) (full_byte false): H: pcs zk: group 8: <v, c> != combined claim
+C6 BOTH ARMS: the arm that DROPS the scaled lookup and the arm that keeps it reject the identical out-of-range top limb with the identical message
+ok
+test private_block::c6_tests::the_pinned_rung_c6_chain_band_is_the_first_admissible_one ... C6 DENSE RUN band 29: the witness builder refused a block of the chain: fixed oracle range refusal: residual 2
+C6 DENSE RUN band 28: the witness builder refused a block of the chain: fixed oracle range refusal: residual 2
+C6 DENSE RUN: the first admissible three-block down band is 27 (the recipe's single-block band is 29)
+ok
+test private_block::c6_tests::the_rows_and_lookups_c6_drops_are_absent_here_and_present_at_rung_k4 ... S31 SIDE BY SIDE   shape | full_byte | pad_on per domain | A rows | H rows | Dom::D lookups | slot 14 terms | lkv | head_dim | row width
+S31   development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) false | T:1 Ht:1 L:1 D:1 Q:1 Kv:1 S:1 F:1 Tab:1 | A   727 | H   720 | D 38 lookups / 19 helpers | slot 14 terms 56 | lkv 2 | head_dim  8 | 2^10
+S31   development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) false | T:0 Ht:1 L:1 D:1 Q:1 Kv:0 S:1 F:0 Tab:1 | A   727 | H   720 | D 38 lookups / 19 helpers | slot 14 terms 56 | lkv 2 | head_dim  8 | 2^10
+S31   development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) true  | T:0 Ht:1 L:1 D:1 Q:1 Kv:0 S:1 F:0 Tab:1 | A  1337 | H  1408 | D 34 lookups / 17 helpers | slot 14 terms 54 | lkv 2 | head_dim 32 | 2^10
+S31   125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads) true  | T:0 Ht:1 L:1 D:1 Q:1 Kv:0 S:1 F:0 Tab:1 | A  5681 | H  7120 | D 34 lookups / 17 helpers | slot 14 terms 54 | lkv 2 | head_dim 64 | 2^14
+ok
+test private_block::capture::native_capture_roundtrip_and_refusals ... ok
+test private_block::capture::native_capture_saved_receipt ... ignored, requires explicit saved public-fixture receipt and expected policy paths
+test private_block::dense_tests::a_perturbation_in_the_second_key_value_group_of_the_dense_witness_is_rejected_at_the_rung_g ... [ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+SECOND GROUP A_QR8, the rotated query of a non-first head of the second group: verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+SECOND GROUP A_KR8, the rotated key of the second key-value group: verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+SECOND GROUP A_P, a causally live softmax weight of a non-first head of the second group: verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+SECOND GROUP A_V8, the value of the second key-value group: verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+SECOND-GROUP SWEEP at the rung-G shape: 0 refused by the prover, 4 rejected by the verifier, 0 accepted
+ok
+test private_block::dense_tests::a_shared_kv_head_perturbation_of_the_dense_witness_is_rejected_at_the_rung_g ... [ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+SHARED KV an off-diagonal score of a query head in the shared group: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+SHARED KV the rotated key of the shared key-value head: verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+SHARED KV the value of the shared key-value head: verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+ok
+test private_block::dense_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_g ... [ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) DENSE one block: prove 1.92 s, verify from bytes 0.29 s, frame 4234984 B
+ok
+test private_block::dense_tests::an_honest_dense_feed_forward_block_proves_and_verifies_from_bytes_at_the_rung_g ... [ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) DENSE-FF one block: prove 1.90 s, verify from bytes 0.29 s, frame 4234984 B
+ok
+test private_block::dense_tests::every_upper_hidden_half_perturbation_of_the_dense_witness_is_rejected_at_the_rung_g ... [ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+UPPER HALF Dom::F plane 69 (toy id 67) at token 1, hidden index 103: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+UPPER HALF Dom::F plane 70 (toy id 68) at token 1, hidden index 103: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+UPPER HALF Dom::F plane 71 (toy id 69) at token 1, hidden index 103: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+UPPER HALF Dom::F plane 72 (toy id 70) at token 1, hidden index 103: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+UPPER HALF Dom::F plane 73 (toy id 71) at token 1, hidden index 103: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+UPPER HALF Dom::F plane 74 (toy id 72) at token 1, hidden index 103: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+UPPER HALF Dom::F plane 75 (toy id 73) at token 1, hidden index 103: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+UPPER HALF Dom::F plane 76 (toy id 74) at token 1, hidden index 103: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+UPPER HALF Dom::F plane 77 (toy id 75) at token 1, hidden index 103: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+UPPER HALF Dom::F plane 78 (toy id 76) at token 1, hidden index 103: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+UPPER HALF Dom::F plane 79 (toy id 77) at token 1, hidden index 103: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+UPPER-HALF SWEEP at the rung-G shape: 0 refused by the prover, 11 rejected by the verifier, 0 accepted
+ok
+test private_block::dense_tests::exchanging_the_two_key_value_groups_keys_is_rejected_at_the_rung_g ... [ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+GQA DENSE: the two key-value groups' key family exchanged (1458 positions differ): verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+ok
+test private_block::dense_tests::s19_f1_an_honest_proof_of_the_fixture_with_one_input_word_moved_is_accepted ... [ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+ok
+test private_block::dense_tests::stage19_bisect_the_dense_failure ... [ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+BISECT 00 all tame, tame input (the control): checkable relations HOLD, VERIFIED
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+BISECT 01 all dense, dense input: checkable relations HOLD, VERIFIED
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+BISECT 02 dense attention, tame feed-forward, dense input: checkable relations HOLD, VERIFIED
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+BISECT 03 tame attention, dense feed-forward, dense input: checkable relations HOLD, VERIFIED
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+BISECT 04 all dense but both gains tame (64), dense input: checkable relations HOLD, VERIFIED
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+BISECT 05 all dense, TAME input: checkable relations HOLD, VERIFIED
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+BISECT 06 all tame, DENSE input: checkable relations HOLD, VERIFIED
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+BISECT 07 dense with attention band 1: checkable relations HOLD, VERIFIED
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+BISECT 07 dense with attention band 8: checkable relations HOLD, VERIFIED
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+BISECT 07 dense with attention band 24: checkable relations HOLD, VERIFIED
+BISECT the dense recipe at the rung-G shape: 10 verified, 0 refused before a proof existed, 0 REJECTED
+ok
+test private_block::dense_tests::stage19_bisect_the_head_axis ... [ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+HEAD i   query heads FLAT, key-value heads FLAT (the fixture's regime): VERIFIED
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+HEAD ii  query heads VARY WITHIN a group, key-value heads FLAT: VERIFIED
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+HEAD iii query heads FLAT, key-value heads VARY (the review's distinct-KV regime): VERIFIED
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+HEAD iv  query heads vary ONLY BETWEEN groups, key-value heads VARY: VERIFIED
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+HEAD v   query heads VARY WITHIN a group, key-value heads VARY: VERIFIED
+HEAD review distinct_kv_case at development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): ACCEPTED
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+HEAD review distinct_kv_case at development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): ACCEPTED
+ok
+test private_block::dense_tests::stage19_bisect_the_hidden_input ... [ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+INPUT H the tame fixture input, unchanged (the control): norm_a takes 2 distinct values, A_RQL takes 1 ([0]), RoPE partner halves AGREE everywhere; VERIFIED
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+INPUT A |x| constant, signs alternating by i parity (the fixture's pattern, no ramp): norm_a takes 2 distinct values, A_RQL takes 1 ([0]), RoPE partner halves AGREE everywhere; VERIFIED
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+INPUT B |x| constant, signs from a seeded stream: norm_a takes 2 distinct values, A_RQL takes 1 ([0]), RoPE partner halves differ; VERIFIED
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+INPUT C |x| constant, every sign +: norm_a takes 1 distinct values, A_RQL takes 1 ([0]), RoPE partner halves AGREE everywhere; VERIFIED
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+INPUT D |x| constant, sign blocks of head_dim (RoPE partner halves AGREE): norm_a takes 2 distinct values, A_RQL takes 1 ([0]), RoPE partner halves AGREE everywhere; VERIFIED
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+INPUT E |x| constant, sign blocks of half a head (RoPE partner halves DISAGREE): norm_a takes 2 distinct values, A_RQL takes 1 ([0]), RoPE partner halves differ; VERIFIED
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+INPUT F the fixture input with x[0] set to 0: norm_a takes 3 distinct values, A_RQL takes 2 ([0, 64]), RoPE partner halves differ; VERIFIED
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+INPUT G the fixture input with x[0] + 1: norm_a takes 2 distinct values, A_RQL takes 1 ([0]), RoPE partner halves AGREE everywhere; VERIFIED
+ok
+test private_block::dense_tests::the_dense_feed_forward_witness_is_admissible_and_non_trivial_at_the_rung_g ... development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): gate g8 on [96, 192): 2250 of 2304 nonzero (97%), peak |v| 63
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): up u16 on [96, 192): 2304 of 2304 nonzero (100%), peak |v| 8623
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): activation a16 on [96, 192): 2250 of 2304 nonzero (97%), peak |v| 14580
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): product h16 on [96, 192): 2229 of 2304 nonzero (96%), peak |v| 4015
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom norm_a y: peak |v| 3 of 127 (42x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom q8: peak |v| 2 of 127 (63x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom k8: peak |v| 2 of 127 (63x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom v8: peak |v| 2 of 127 (63x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom qr8: peak |v| 3 of 127 (42x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom kr8: peak |v| 3 of 127 (42x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom s8: peak |v| 1 of 127 (127x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom o8: peak |v| 2 of 127 (63x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom ao: peak |v| 1 of 32767 (32767x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom xres1: peak |v| 24201 of 32767 (1x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom norm_m y: peak |v| 6 of 127 (21x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom g8: peak |v| 63 of 128 (2x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom u16: peak |v| 8623 of 32767 (3x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom h16: peak |v| 4015 of 32767 (8x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom z16: peak |v| 383 of 32767 (85x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom xres2: peak |v| 24506 of 32767 (1x)
+ok
+test private_block::dense_tests::the_dense_public_statements_construct_at_125m ... 125M: the dense statements construct; down band 14
+ok
+test private_block::dense_tests::the_dense_recipe_is_dense_deterministic_and_reaches_the_upper_hidden_half ... development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): dense recipe bands attn 56 / gate 96 / down 48 / gain (40, 127) / input 6000
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): dense recipe bands attn 56 / gate 96 / down 48 / gain (40, 127) / input 6000
+ok
+test private_block::dense_tests::the_dense_recipes_are_admissible_and_non_trivial_at_125m ... 125M dense witness built in 51.91 s
+125M dense: gate g8 on [768, 2048): 641815 of 655360 nonzero (97%), peak |v| 104
+125M dense: up u16 on [768, 2048): 655255 of 655360 nonzero (99%), peak |v| 12217
+125M dense: activation a16 on [768, 2048): 641812 of 655360 nonzero (97%), peak |v| 24320
+125M dense: product h16 on [768, 2048): 636923 of 655360 nonzero (97%), peak |v| 8614
+125M dense: headroom q8: peak |v| 53 of 127
+125M dense: headroom s8: peak |v| 99 of 127
+125M dense: headroom g8: peak |v| 104 of 128
+125M dense: headroom u16: peak |v| 12217 of 32767
+125M dense: headroom h16: peak |v| 8614 of 32767
+125M dense: headroom z16: peak |v| 15449 of 32767
+125M dense: headroom xres2: peak |v| 18790 of 32767
+125M dense-ff witness built in 51.66 s
+125M dense-ff: gate g8 on [768, 2048): 642778 of 655360 nonzero (98%), peak |v| 63
+125M dense-ff: up u16 on [768, 2048): 655230 of 655360 nonzero (99%), peak |v| 7879
+125M dense-ff: activation a16 on [768, 2048): 642778 of 655360 nonzero (98%), peak |v| 16122
+125M dense-ff: product h16 on [768, 2048): 638671 of 655360 nonzero (97%), peak |v| 5400
+125M dense-ff: headroom q8: peak |v| 1 of 127
+125M dense-ff: headroom s8: peak |v| 1 of 127
+125M dense-ff: headroom g8: peak |v| 63 of 128
+125M dense-ff: headroom u16: peak |v| 7879 of 32767
+125M dense-ff: headroom h16: peak |v| 5400 of 32767
+125M dense-ff: headroom z16: peak |v| 1759 of 32767
+125M dense-ff: headroom xres2: peak |v| 25942 of 32767
+ok
+test private_block::dense_tests::the_dense_recipes_public_stream_is_consumed_entirely_by_public_words ... S22 STREAM SPLIT at development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): 80064 public draws, stream exhausted, the input is an independent stream
+S22 STREAM SPLIT at development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): 80064 public draws, stream exhausted, the input is an independent stream
+S22 STREAM SPLIT at 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads): 6292992 public draws, stream exhausted, the input is an independent stream
+ok
+test private_block::dense_tests::the_dense_witness_is_admissible_and_non_trivial_at_the_rung_g ... development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): gate g8 on [96, 192): 2255 of 2304 nonzero (97%), peak |v| 84
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): up u16 on [96, 192): 2304 of 2304 nonzero (100%), peak |v| 8538
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): activation a16 on [96, 192): 2255 of 2304 nonzero (97%), peak |v| 19967
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): product h16 on [96, 192): 2234 of 2304 nonzero (96%), peak |v| 5957
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom norm_a y: peak |v| 11 of 127 (11x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom q8: peak |v| 37 of 127 (3x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom k8: peak |v| 39 of 127 (3x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom v8: peak |v| 38 of 127 (3x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom qr8: peak |v| 37 of 127 (3x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom kr8: peak |v| 37 of 127 (3x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom s8: peak |v| 33 of 127 (3x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom o8: peak |v| 37 of 127 (3x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom ao: peak |v| 91 of 32767 (360x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom xres1: peak |v| 6040 of 32767 (5x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom norm_m y: peak |v| 12 of 127 (10x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom g8: peak |v| 84 of 128 (1x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom u16: peak |v| 8538 of 32767 (3x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom h16: peak |v| 5957 of 32767 (5x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom z16: peak |v| 11714 of 32767 (2x)
+development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): headroom xres2: peak |v| 16914 of 32767 (1x)
+ok
+test private_block::dense_tests::the_recipe_strings_this_build_writes_describe_public_weights_only ... S22 DENY-LIST: the stage-21 dense recipe string is caught on "hidden input"
+ok
+test private_block::dense_tests::the_two_bilinear_identities_hold_at_a_synthetic_four_key_value_head_geometry ... IDENTITY T8/H4/dh4/KV4: new == lhs on both; old != lhs
+IDENTITY T8/H8/dh4/KV4: new == lhs on both; old != lhs
+IDENTITY T8/H4/dh4/KV2: new == lhs on both; old != lhs
+IDENTITY T8/H2/dh4/KV1: new == lhs on both; old == lhs
+ok
+test private_block::dense_tests::the_two_bilinear_identities_hold_independently_of_the_argument_at_the_rung_g ... IDENTITY FULLY DENSE (generic): SCORE new == lhs, PV new == lhs; SCORE old != lhs, PV old != lhs
+IDENTITY tame_case (the degenerate fixture): SCORE new == lhs, PV new == lhs; SCORE old == lhs, PV old == lhs
+ok
+test private_block::dense_tests::the_two_bilinear_identities_hold_independently_of_the_argument_at_the_rung_k4 ... K4 IDENTITY FULLY DENSE (generic): SCORE new == lhs, PV new == lhs; SCORE old != lhs, PV old != lhs
+K4 IDENTITY tame_case (the degenerate fixture): SCORE new == lhs, PV new == lhs; SCORE old == lhs, PV old == lhs
+ok
+test private_block::e32_tests::a_moved_word_in_a_high_boundary_row_is_refused_in_a_two_block_run_at_the_rung_e32 ... [ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+S33 BOUNDARY TAMPER [boundary data row 16] (index 16384 = row 16): the VERIFIER rejected: slot 22 [IO-out endpoint equality]: sumcheck round 0: s(0) + s(1) != claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+S33 BOUNDARY TAMPER [the last boundary data row 31, last column] (index 32767 = row 31): the VERIFIER rejected: slot 22 [IO-out endpoint equality]: sumcheck round 0: s(0) + s(1) != claim
+ok
+test private_block::e32_tests::a_tamper_in_a_high_endpoint_row_is_rejected_at_its_own_slot_at_the_rung_e32 ... [ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+S33 TAMPER residual 2 at the first word of endpoint data row 16 (index 16384 = commitment row 16 column 0): verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+S33 TAMPER residual 2 at the last TRUE word of the last endpoint data row (index 32511 = commitment row 31 column 767): verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+ok
+test private_block::e32_tests::a_verifier_statement_with_a_moved_word_in_a_high_endpoint_row_is_refused_at_the_rung_e32 ... [ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+S33 ENDPOINT TAMPER [data row 0, the row every shape has (the control)] (index 0 = row 0 column 0): private block wire: expected statement mismatch
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+S33 ENDPOINT TAMPER [data row 16, a row only a 32-row endpoint has] (index 16384 = row 16 column 0): private block wire: expected statement mismatch
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+S33 ENDPOINT TAMPER [the LAST data row 31, last column] (index 32767 = row 31 column 1023): private block wire: expected statement mismatch
+ok
+test private_block::e32_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_e32 ... S33 CENSUS [one dense block]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live, all 16 upper endpoint data rows live
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+rung-E32 DENSE one block: prove 4.14 s, verify from bytes 0.74 s, frame 11368824 B
+ok
+test private_block::e32_tests::an_honest_two_block_fully_dense_run_verifies_from_its_segments_at_the_rung_e32 ... S33 CENSUS [run block 0]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live, all 16 upper endpoint data rows live
+S33 CENSUS [run block 1]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live, all 16 upper endpoint data rows live
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+S33 FULLY DENSE RUN L=2 (down band 20): prove 11.75 s, verify from segments 1.35 s, segments [11143656, 11391432] B (total 22535088 B), boundary 38 rows
+ok
+test private_block::e32_tests::only_the_125m_shape_and_the_new_one_reach_the_thirty_two_row_endpoint ... S33 ENDPOINT CENSUS (cube words / endpoint log / DATA rows / COMMITMENT rows / column digest B):
+    toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) 2^9  /  8 /  2 /  7 /   56
+    development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) 2^12 /  8 / 16 / 21 /  168
+    development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) 2^12 / 10 /  4 /  9 /   72
+    development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) 2^12 / 10 /  4 /  9 /   72
+    development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) 2^12 / 10 /  4 /  9 /   72
+    development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) 2^14 / 10 / 16 / 21 /  168
+    development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) 2^16 / 14 /  4 /  9 /   72
+    development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) 2^15 / 10 / 32 / 37 /  296
+    125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads) 2^19 / 14 / 32 / 37 /  296
+S33 GAP: 32 endpoint data rows and 37 commitment rows are reached by 125M and rung-E32 and by nothing else; the endpoint LOG 14 is still 125M's and rung-W14's
+ok
+test private_block::e32_tests::the_all_zero_input_is_a_degenerate_case_that_proves_and_verifies_at_the_rung_e32 ... [ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+rung-E32 ALL-ZERO (degenerate) one block: frame 11368824 B, verified
+ok
+test private_block::e32_tests::the_endpoint_geometry_is_125ms_row_count_over_a_narrower_row ... S33 ENDPOINT: cube 2^15 at log 10 — 32 data rows and 37 commitment rows, column digest 296 B (125M's own row count and digest length), Merkle depth 12 against 125M's 16; A / H columns 17672 / 19328 B
+ok
+test private_block::e32_tests::the_new_shape_is_125ms_endpoint_row_count_at_a_ten_log_endpoint ... S33 SHAPE: rung-E32 is 32 tokens of width 768 over 12 heads of 64 in 4 groups at a row width of 2^10 — endpoint cube 2^15, 32 data rows, 37 commitment rows (125M's own), column digest 296 B, endpoint log 10 against 125M's 14
+ok
+test private_block::endpoint_g::tests::a_node_shaped_endpoint_column_is_unreachable_and_still_refused ... ok
+test private_block::endpoint_g::tests::a_prepared_plane_commits_the_words_and_declares_the_frozen_mask_rows ... ok
+test private_block::endpoint_g::tests::a_prepared_plane_refuses_a_different_statement ... ok
+test private_block::endpoint_g::tests::one_changed_word_changes_the_root ... ok
+test private_block::endpoint_g::tests::the_declared_geometry_is_what_the_spec_derives ... ok
+test private_block::endpoint_g::tests::the_digest_is_its_own_and_moves_with_every_parameter ... ok
+test private_block::endpoint_g::tests::the_frozen_seam_refuses_a_plane_past_its_ceiling_and_this_module_does_not ... ok
+test private_block::endpoint_g::tests::the_malformed_statements_are_refused_by_name ... ok
+test private_block::endpoint_g::tests::the_prepare_refusals_fire ... ok
+test private_block::grow_tests::a_shape_wider_than_the_ntt_tables_is_refused_by_name ... a 2^21 shape is refused at construction: private block shape: the bilinear attention slots cannot serve a shape whose Kv domain is lifted by P-3 (natural log 17, lifted to the row width 19)
+ok
+test private_block::grow_tests::an_inexpressible_shape_is_refused_at_construction_by_name ... ok
+test private_block::grow_tests::an_out_of_class_lookup_value_falls_into_bucket_zero ... ok
+test private_block::grow_tests::every_opened_column_of_an_honest_receipt_carries_its_own_salt ... ok
+test private_block::grow_tests::every_shape_has_its_own_profile_id ... ok
+test private_block::grow_tests::no_commitment_column_and_no_domain_label_can_be_confused_with_a_hash_input ... ok
+test private_block::grow_tests::the_125m_receipt_is_reproduced_part_by_part ... ok
+test private_block::grow_tests::the_125m_shape_constructs_and_what_still_refuses_says_so_by_name ... ok
+test private_block::grow_tests::the_byte_table_length_is_split_from_the_row_width ... ok
+test private_block::grow_tests::the_codec_length_is_the_models_at_every_shape ... ok
+test private_block::grow_tests::the_h_plane_ids_are_the_toys_at_the_toy_and_each_shapes_elsewhere ... ok
+test private_block::grow_tests::the_integer_windows_come_from_the_shape ... ok
+test private_block::grow_tests::the_layout_is_built_from_a_shape_and_the_toy_is_one_instance ... ok
+test private_block::grow_tests::the_lift_is_a_no_op_at_the_toy ... ok
+test private_block::grow_tests::the_lifted_u8_table_proves_exactly_256_values ... ok
+test private_block::grow_tests::the_logup_sum_claim_has_one_column_weight_key_at_the_rung ... ok
+test private_block::grow_tests::the_norm_window_of_the_toy_refuses_an_honest_rung_witness ... ok
+test private_block::grow_tests::the_pad_count_is_at_least_the_number_of_opened_columns ... ok
+test private_block::grow_tests::the_pcs_parameters_come_from_the_shape_and_the_pad_count_tracks_the_opened_columns ... ok
+test private_block::grow_tests::the_plane_id_map_expresses_a_third_sigma_s_limb ... ok
+test private_block::grow_tests::the_reconstructed_sum_claim_equals_the_modules_own_at_the_toy ... ok
+test private_block::grow_tests::the_repaired_bilinear_schedule_agrees_with_the_independent_model_at_every_shape ... ok
+test private_block::grow_tests::the_rung_at_its_own_calibration_has_an_honest_witness ... ok
+test private_block::grow_tests::the_rung_g_profile_is_the_rung_with_a_different_endpoint ... ok
+test private_block::grow_tests::the_shape_driven_layout_matches_the_python_model_at_the_rung_and_at_125m ... ok
+test private_block::grow_tests::the_shape_driven_layout_reproduces_the_toy_exactly ... ok
+test private_block::grow_tests::the_shape_driven_lookup_list_matches_the_counted_one ... ok
+test private_block::grow_tests::the_slot_definitions_are_built_from_the_shape ... ok
+test private_block::grow_tests::the_softmax_window_of_the_toy_refuses_an_honest_rung_witness ... ok
+test private_block::grow_tests::the_toy_parameter_line_is_the_frozen_literal ... ok
+test private_block::grow_tests::the_toy_schedule_digest_is_frozen ... ok
+test private_block::grow_tests::the_unlifted_rung_sum_claim_raises_three_keys_and_is_refused ... ok
+test private_block::hash_domain::tests::a_frame_one_path_entry_short_is_refused_at_decode ... ok
+test private_block::hash_domain::tests::a_short_or_long_merkle_path_is_refused_by_the_core_verifier_by_name ... ok
+test private_block::hash_domain::tests::a_short_or_long_merkle_path_is_refused_by_the_whole_verifier_by_name ... ok
+test private_block::hash_domain::tests::every_absorb_label_on_the_path_is_in_the_table ... ok
+test private_block::hash_domain::tests::every_dangerous_row_count_is_refused_by_name_at_every_shape ... ok
+test private_block::hash_domain::tests::no_commitment_of_any_shape_collides_and_the_toy_is_clear ... ok
+test private_block::hash_domain::tests::the_completed_guard_refuses_geometries_the_constructions_can_actually_reach ... ok
+test private_block::hash_domain::tests::the_computed_length_set_is_pinned_at_every_shape ... ok
+test private_block::hash_domain::tests::the_constructors_guard_is_unchanged_under_the_legacy_rule ... ok
+test private_block::hash_domain::tests::the_constructors_guard_refuses_every_shape_free_dangerous_count ... ok
+test private_block::hash_domain::tests::the_length_formulas_are_still_the_ones_zkp_core_hashes ... ok
+test private_block::hash_domain::tests::the_length_guard_does_not_fire_at_a_tagged_profiles_statement_constructors ... ok
+test private_block::hash_domain::tests::the_runs_own_parameter_line_enters_the_length_set ... ok
+test private_block::hash_domain::tests::the_shape_free_dangerous_row_counts_are_the_memos_eight ... ok
+test private_block::hash_domain::tests::the_tree_depth_is_the_wire_formats_own_number ... ok
+test private_block::hash_tag_tests::a_rung_g_proof_is_refused_under_the_other_hash_rule_in_both_directions ... [ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+STAGE 17 cross-rule refusals at rung-G:
+  tagged proof, legacy verifier: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+  legacy proof, tagged verifier: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+ok
+test private_block::hash_tag_tests::the_test_hook_can_only_force_the_legacy_rule ... ok
+test private_block::hash_tag_tests::the_toy_and_the_frozen_seam_rung_are_legacy_and_the_other_two_are_tagged ... ok
+test private_block::k4_tests::a_perturbation_in_the_third_or_fourth_key_value_group_is_rejected_at_the_rung_k4 ... [ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+K4 GROUP TAMPER A_KR8, the rotated key of the THIRD key-value group: verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+K4 GROUP TAMPER A_V8, the value of the THIRD key-value group: verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+K4 GROUP TAMPER A_KR8, the rotated key of the FOURTH key-value group: verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted

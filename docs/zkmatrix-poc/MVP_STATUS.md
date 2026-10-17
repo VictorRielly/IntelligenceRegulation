@@ -1,12 +1,220 @@
 # Where the MVP stands, in plain words
 
-**Updated 2026-09-20, after combined host/private correctness gates, by the Codex/Fable
+**2026-09-30 01:27 UTC: the box froze on 2026-09-29 (17:40 PDT); heavy work now goes through one
+guard.** The machine died with five heavy jobs live, including the first
+production 12-block GPU stack run, which therefore has **no result** (its log
+stops after a GPU commitment; nothing was published). The exact cause is not
+proven (no out-of-memory or GPU-memory error was logged); the fix is that
+every build, proof, calibration and benchmark now runs through
+`scripts/zk60_resource_guard.py`: one heavy job at a time, kernel-enforced
+memory caps, GPU-idle checks and a permanent record of measured peaks
+([rules and limits](ZK60_RESOURCE_PROTOCOL.md); 45 tests pass; Codex found and
+we fixed a bug where the guard could have adopted its caller's session scope).
+Nothing about proof speed changed. Best measured number is still the earlier
+**synthetic** 12-block, 125M-geometry stack on this laptop's 4070:
+1.25 proved positions/s over the whole test wall, about **40x short** of 50.
+No trained 1B block or stack has been proved. Lane status: TinyLlama
+calibration (Python reference) and the trained-profile prototype (five-limb
+norm; its lost scratch work was recovered from a transcript, 7 fast tests pass)
+are running again behind the guard; the production stack run waits for the
+guard's small-shape canary. This is a stability fix, not a milestone.
+
+**September 29, Tech Week demonstration:** the local browser demo now uses
+real retained 785-byte Groth16 receipts for the small block and synthetic
+two-block token model. Fresh-process verification and proof/policy tampering
+controls pass. The HTTP path passes 32 checks across all three modes,
+including artifact downloads and request boundaries; 69 demo and existing
+zkVM-runner tests pass. Saved verification does not generate a new proof.
+The live native synthetic-block option also passes, generating a 2,816,472-byte
+proof and independently verifying it with tamper controls. Its 0.256-second
+complete check is a shared-machine toy diagnostic, not a trained-model rate.
+It uses a public fixture and the shared heavy-job lock; its first attempt
+deferred while another proof held that lock. Trained
+calibration/import and model-scale privacy/performance remain outstanding.
+[Run the demo and review its exact scope](ZK60_TECHWEEK_DEMO.md).
+GPT-6.1-Sol supplied the demo backend/readiness review; the existing Sonnet 5.5
+lane supplies the separate native stack CLI. The hourly research supervisor
+was confirmed alive and unpaused on the host at 00:12 UTC September 30
+(17:12 PDT September 29); its next cycle is due at 17:45 PDT.
+
+**Latest direction, 2026-09-26.** Target a complete private **8B-parameter
+forward-pass proof at >=50 proved tokens/s on an RTX 5090 or another high-end
+GPU**. Victor explicitly permits more tokens to amortize initialization and
+initial prefill. The old 512-token / 10.24-second window is a reference, not
+a mandatory latency limit. Measure larger workloads, report both sustained
+and total-workload throughput, and retain setup, witness, proof and verification
+clocks. [Current target and workload accounting](ZK60_THROUGHPUT_TARGET.md).
+D13's first MVP still covers the hidden transformer blocks; token generation
+is the following milestone. No complete private 8B timing exists yet.
+
+**2026-09-27 UTC, Sol team checkpoint.** Three GPT-6 Sol agents completed
+their native fusion, keyed GPU commitment and memory/model-readiness batches. The
+fusion candidate passes core debug/release, 512 native tests (17 ignored),
+fresh/cross-version receipt verification and nine corruption refusals. Its
+six-run CPU A/B completed: the fused evaluator was 1.66% slower in mean
+proving and 10.38% slower in the softmax slot (two non-warm samples per arm).
+It is demoted; the grouped baseline stays in place. The keyed GPU candidate
+now passes resident, forced streaming, compact-pad and complete small tagged
+block CPU/GPU receipt checks on the RTX 4070 Laptop. The first streaming
+launch failure is retained separately; the corrected attempt passed and all
+source/binary/log hashes were rechecked. Independent review found no concrete
+static defect; core debug/release pass 74 unit + 2 integration tests each.
+The broader device oracle passes all 189 cases. Native GPU-feature release
+coverage is 491 passing tests plus one successful missing-fixture rerun,
+17 ignored; it is not a single full-suite pass. All eight frozen legacy
+proofs now match exactly across resident/forced-chunk configurations. One
+runner falsely rejected v3's success marker; its failed report is preserved,
+with an explicit source/log/proof-hash adjudication and six passing remaining
+cases. Root rechecked the 184 source, six binary and six continuation log
+hashes. The six-run dense CPU/GPU A/B is complete and all receipts verify.
+Two non-warm samples per arm give mean proving **32.95 s CPU / 17.13 s GPU**
+and whole test-process elapsed **39.895 s / 30.055 s**. Mean peak host RSS
+falls from **10,524 MiB to 4,411.5 MiB**; VRAM peak was not measured.
+This is one synthetic 125M block, two CPU threads, RTX 4070 Laptop, shared
+host. One GPU witness build took 10.66 s versus 5.77 s in the other sample;
+the hourly researcher was active. Each sample uses a fresh process, so
+startup and verification remain in whole-process elapsed. This is not
+steady-state throughput or a complete-model rate. Softmax proof work remains
+roughly half the GPU-assisted prover's time. See the
+[A/B evidence](../../results/zk60_sol_gpu_20260927/attempt-5-dense-ab/report.json).
+No 5090, full trained 8B or larger-profile privacy result is established.
+[Team/evidence map](ZK60_SOL_TEAM_20260927.md).
+
+An allocation-free audit of the historical 7.24B Mistral geometry counts
+25.70 GiB retained payload at 512 tokens and 70.57 GiB at 1,024 tokens,
+before weights and some scratch. These are lower bounds for unregistered
+layouts, not measured peak memory or 8B proofs. All 256 historical FFN
+export tensor files are missing; their manifest survives. A trained full-
+block importer/calibration and a literal 8B checkpoint remain outstanding.
+[Model and memory audit](../../results/zk60_sol_model_20260927/layout-readiness.md).
+
+Victor has both the RTX 5090 machine and the 512 GB M3 Ultra available.
+The 5090 machine needs a fresh Linux installation; neither new machine has
+been validated remotely. The [setup guide](ZK60_HARDWARE_SETUP.md) starts
+with a USB Ubuntu installer made on the Mac, followed by driver and read-only
+host checks. The Mac's first role is CPU reference/witness work; there is no
+Metal proof backend. Memory-bounded commitments are an active follow-up.
+A small CPU streaming-root/recomputed-opening prototype passes eight legacy
+and tagged fixtures: identical leaves, roots, opening bytes, transcripts and
+RNG continuation, with mutation refusals. Releasing A/H codewords would
+reduce the T512 retained floor to 5.35 GiB. This is a test-only prototype;
+production lifetimes, measured peaks and throughput still need validation.
+The successful **GPU chunked path already streams codewords and recomputes
+queried columns**. Its separate A/H retained bounds are 5.18/14.23 GiB on
+host and 5.17/14.22 GiB in VRAM at T512/T1024; the earlier 25.70/70.57 GiB
+floors describe materialized storage or CPU fallback. Host witness/helper
+overlap remains at least 9.86/27.17 GiB before other scratch.
+[Updated tier-specific audit](../../results/zk60_sol_model_20260927/gpu-chunked-memory-audit.md).
+
+The persistent hourly research supervisor was resumed and its host process
+confirmed alive; its first sandbox restart failed before research began, and
+the host restart retains the hourly schedule. A separate session research
+agent completed a [resource-budget handoff](../../research/zkp-efficiency/handoffs/20260926-forward-budget-and-traffic.md).
+Its 14 arithmetic checks are not prover or GPU measurements. Raw-log correction:
+the historical FFN-only 196.79 s is internal wall time; enclosing process elapsed
+is 200.09 s. Both exclude the earlier witness export/inference work.
+
+Implementation has resumed in an isolated Rust candidate: the research lane's
+grouped-equality softmax evaluator is wired into the real SC_SZC slot. Core
+debug/release tests pass (73 unit + 2 integration each), including masked
+bytes/challenges/finals and a release work-count check (1,403 -> 1,148 expensive
+bracket calls). Eight targeted native tests also pass: dense/padded block and
+three-block-run verification, inconsistent-witness refusals, and independent
+polynomial oracles at every registered shape. Fresh/archived receipts cross-
+verify in four processes with nine corruption refusals. **The full native suite
+has now passed: 512 tests, 17 explicitly ignored.** All nine validation steps
+pass; 183 source hashes, three binaries and all nine log hashes were rechecked.
+The dense grouped A/B has completed: all six proofs verify at 40,783,352
+bytes. Two non-warm runs per arm show proving 37.63 / 36.84 s before versus
+34.86 / 33.31 s after: about 8.5% less proving time on average in this
+shared two-thread CPU diagnostic. The full softmax slot falls about 18.4%;
+the known witness+prove+serialization sum falls about 7.2%. Warmup proving
+times were nearly equal (34.69 / 34.38 s), and two samples per arm do not
+establish a stable production speed factor or p95. Both binaries include
+small-slot test oracles; no GPU/8B or privacy-scope result follows.
+[Retained candidate and validation](../../results/zk60_grouped_rounds_20260926/README.md)
+record the evidence and audited phase summary.
+
+**Live work checked at 05:41 UTC:** the hourly GPT-6 Sol research supervisor
+is alive and unpaused, idle between cycles; cycle 0013 completed and the next
+is due at 05:52:33 UTC. The earlier implementation/benchmark batches are
+finished; no full 8B proof or 5090 benchmark is running. Cycle 0013 tests a
+synthetic device-round schedule for softmax sumcheck: 110 round-point checks,
+91 final-table checks and eight mutation controls pass on CPU. It does not
+implement the actual native polynomial, BLAKE3 transcript or CUDA path.
+The next implementation gate is exact native masked-transcript parity before
+a device round/fold implementation and whole-proof timing. The eleventh
+cycle's direct-helper experiment has a roughly 3% parent-phase ceiling in
+the cited earlier CPU workload. The ninth cycle's fused fold/next-round
+proposal was implemented and measured above, then demoted after slower
+results despite lower counted table traffic.
+Victor requested periodic updates; active sessions report here in chat, and
+each background cycle must refresh the durable
+[progress report](../../research/zkp-efficiency/PROGRESS.md). Local reports
+are not automatic chat notifications.
+
+The separate R2a allocation A/B completed: all six dense 125M proofs verify
+at 40,783,352 bytes. Non-warm proving seconds: old 44.51 / 40.27, new
+39.73 / 40.10, two CPU threads. Native compilation overlapped part of this
+shared-box measurement; no reliable end-to-end gain is established. These
+conditions differ from the earlier 17.4–19.4 s CPU runs, which they do not
+replace. No new privacy acceptance or private-model speed is claimed.
+
+**Updated 2026-09-22, during shaped-block integration, by the Codex/Fable
 loop (after the 01:04 laptop restart; see §3 item 4).** This page
 answers three questions and is refreshed whenever the loop produces news.
 Rulings are in [the decisions register](ZK60_DECISIONS.md); measurements
 carry their labels ([MEASURED] a run happened, [COUNTED] arithmetic on
 measured pieces, [MODEL] an estimate). Nothing here is a quiesced benchmark;
 the laptop is shared with other jobs.
+
+**Current speed and completeness (2026-09-22).** The latest dense synthetic
+block at the 125M geometry proves in **17.4–19.4 seconds on CPU**, down from
+27.7 seconds; its receipt is 40,783,352 bytes and verification takes
+1.15–1.34 seconds [MEASURED, shared box]. The 17.40-second run separately
+spent 5.24 seconds preparing the witness, so it is at least 22.64 seconds
+before verification. The latest twelve-block dense run remains **397.71
+seconds**, with 14.45-second verification and 484,107,456 receipt bytes; it
+predates the latest speed changes and has not been re-timed with them. The
+five-second goal concerns a model pass; the single-block clock alone does
+not establish its distance from that goal.
+
+All transformer-block operations and twelve-block chaining are implemented
+and exercised on synthetic public weights with hidden activations. The
+grouped-attention completeness repair has been independently reviewed.
+Whole-proof privacy acceptance remains confined to the small CPU toy block;
+the larger profiles' privacy argument, trained-model integration and the
+production run interface remain unfinished. Main's host optimization is
+accepted; the combined larger-block source at lane `fee1a8d` has passed its
+16-step CPU integration baseline in `/tmp/wt-zk60-shaped-20260920`, with
+source-pinned results under `results/zk60_shaped_integration_20260922/baseline/`
+there. The retained logs and all 179 source hashes were checked again: no
+mismatch. This is not final integration acceptance; device checks, wider
+privacy acceptance and the production model run remain outstanding. No new
+model-scale or GPU timing is implied by that integration work.
+
+**2026-09-22, isolated sumcheck candidate:** an additive evaluator interface
+and redundant-evaluation shortcut pass core debug/release checks, all 512
+native tests across a full run plus a fixture-only rerun, and old/new receipt
+verification. Four dense 125M block proofs also pass at the unchanged receipt
+size. On two Rayon threads, the softmax sumcheck phase measured 9.05–9.26 s
+before versus 8.55–8.59 s after (two samples each). Whole proving time varied
+from 38.96–61.79 s before and 38.06–43.02 s after, so no reliable end-to-end
+speedup is established. The candidate test binary includes extra small-slot
+oracle checks. This is not yet integrated into main or a new privacy/GPU
+acceptance; it does not replace the earlier differently situated CPU clocks
+or the 8B target. [Source, tests and retained measurements](../../results/zk60_sumcheck_rounds_20260922/README.md).
+
+**Target reaffirmed by Victor, 2026-09-22:** five seconds for an **8B-parameter
+model on better hardware with a GPU**. The 125M CPU runs are development
+measurements, not the target workload/hardware. Retain the current 512-token
+prefill window when comparing throughput, and report proof generation,
+witness preparation and complete readiness separately. The recorded public
+Mistral-7B measurement is **58.40 seconds for FFN only**, or **8.77 proved
+tokens/s** over that window; attention is excluded. Its complete logged wall
+time is 196.79 seconds (2.60 tokens/s). There is no measured 54-second
+FFN-plus-attention result. Five seconds over the same window would be 102.4
+proved tokens/s; none of these rates measures autoregressive generation.
 
 **Latest integrated speed work:** corrected direct-plane GPU uploads and
 private host buffer/fold reuse pass 43 isolated validation steps, including
@@ -358,10 +566,12 @@ item 1).
 
 ## 2. How slow are we against the target?
 
-The written target is **5 to 15 seconds per proof of an 8B model's
-feed-forward blocks over 512 tokens, on one consumer GPU** (p95 over 20
-warm runs, idle machine). The only line that can approach it is the custom
-prover.
+The active target is **five seconds for an 8B model on better GPU hardware**,
+reaffirmed by Victor on 2026-09-22. The older written 5–15-second FFN-only
+contract remains a historical component benchmark; it does not establish
+completion of the private model pass including attention. Keep the 512-token
+prefill workload and the p95-over-20-warm-runs, idle-machine reporting rules.
+The custom prover is the speed path; the 125M CPU clocks are development data.
 
 | What was proven | Where | Time | Distance from 5 s | Label |
 |---|---|---|---|---|
@@ -530,3 +740,74 @@ Public artifacts of today's Groth16 receipt are retained under
 receipt, public model, stage records, hashes); the `/tmp` originals do not
 survive a reboot and a new randomized receipt would have different bytes. The loop's own
 record is `ZK60_MVP_LOOP_20260918.md`.
+
+## 2026-09-29 (PDT): VC readiness snapshot for Tech Week SF
+
+Added 17:40 PDT on 2026-09-29 (00:40 UTC on 09-30) by the Lane D agent.
+This section repeats the facts in
+[`results/zk60_vc_readiness_20260929/READINESS.md`](../../results/zk60_vc_readiness_20260929/READINESS.md).
+That note also has a one-page `DEMO_SCRIPT.md`, the projection arithmetic
+(`extrapolate.py` → `extrapolation.json`) and a light rehearsal script. No
+heavy proof ran. Nothing in this section is a new ruling or privacy
+acceptance.
+
+**What can be shown truthfully now.** Everything below was re-checked on the
+laptop CPU between 17:18 and 17:24 PDT (`rehearsal-20260930T002413Z.json`):
+- Both retained 785-byte Groth16 receipts verify in fresh processes, with
+  exit 0 in about 0.08 s each including the wrapper. One is the tiny complete
+  block; the other is the synthetic two-block token model.
+- A one-bit-flipped copy of the block receipt is refused.
+- The toy native private block (the D22 profile) proves in 0.10-0.11 s.
+  A fresh process verifies it in 0.05-0.06 s and refuses three corrupted
+  copies [MEASURED].
+
+Before quoting D22 on stage, confirm that the 2026-09-20 example binary
+matches D22's source pins. The integrator's browser demo
+(`ZK60_TECHWEEK_DEMO.md`) is the stage vehicle for these checks.
+
+The scale evidence is unchanged:
+- One synthetic 125M-geometry block: 17.13 s GPU-arm proving versus 32.95 s
+  on a 2-thread CPU.
+- The twelve-block 125M-geometry run: 397.71 s on CPU, or **1.29 proved
+  tokens/s**. This is the only measured complete-stack rate: synthetic
+  weights, CPU, one run.
+- A twelve-block GPU attempt today (`results/zk60_mvp_20260929/baseline-stack-gpu/`)
+  failed at harness setup because its receipt directory was missing. It was
+  not a proof failure.
+
+**Projection, labelled [MODEL].** Each measured phase of the 125M A/B is
+scaled by its own layout domain. This gives 2.18x per block at the TinyLlama
+1B geometry and 3.09x at the Llama-3-8B block geometry. Plain row counts give
+2.25x and 3.25x. Prove-only rates for 512 tokens:
+
+| Configuration | Stack prove | Proved tokens/s |
+|---|---:|---:|
+| 1B, 22 blocks, laptop GPU arm | 822 s | **0.62** |
+| 8B, 32 blocks, laptop GPU arm (does not fit this laptop) | 1,692 s | **0.30** |
+| 8B, RTX 5090 with today's code | — | 0.62-1.23 |
+| 8B, 5090 with every proof sumcheck on the GPU (not built) | — | 5.1-12.6 |
+| 1B, 5090 with every proof sumcheck on the GPU (not built) | — | 10.5-26.1 |
+
+The witness build must also move to the GPU. At 8B it is 27-285 s per block
+on CPU [MODEL band]. The gap to 50 at 8B is 165x on the laptop today and
+4-10x in the best counted scenario. **No recorded assumption reaches 50
+proved tokens/s for a private 8B stack.** Larger workloads amortize under 1%
+today, because per-token proof work dominates.
+
+**Claims to avoid** are listed in READINESS §3. In short: no full or trained
+model has been proved privately; no private rate exists at 1B or 8B; D22
+covers only the CPU toy; the 97-bit, Groth16-setup and unreproduced-image
+qualifiers travel with the 785-byte receipts; the fast line's receipts are
+about 41 MB per 125M block; there are no 5090 numbers; and there has been no
+third-party audit.
+
+**Next measurements** (the READINESS §4 week plan, aligned with the
+integrator's gates):
+1. Retry the twelve-block 125M GPU run.
+2. One synthetic TinyLlama-geometry block on the 4070. It is projected at
+   37 s, and the counted floors are about 3.7 GiB VRAM and 6.9 GiB host.
+3. The 22-block 1B-geometry run.
+4. Laptop thread scaling.
+5. The first 5090 A/B, only if Linux is installed by about 10-02.
+
+The trained TinyLlama block is the integrator's 10-02 stretch gate.

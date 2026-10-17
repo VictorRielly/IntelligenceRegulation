@@ -1,0 +1,48 @@
+{
+  "status": "passed",
+  "independent_slice_comparisons": 88,
+  "elapsed_s": 0.09795791700003065,
+  "peak_rss_kib": 37096,
+  "negative_controls": [
+    "mutation_in_returned_tile",
+    "mutation_outside_all_requested_tiles",
+    "late_tensor_mutation",
+    "truncated_payload",
+    "mutation_during_scan_no_partial_return",
+    "unsafe_skip_rehash_accepts_outside_corruption",
+    "ten_invalid_batches_refused_before_io",
+    "wrong_pin_even_for_zero_length_tile"
+  ],
+  "source_counted_geometry": {
+    "tinyllama_1_1b": {
+      "layers": 22,
+      "tile_bytes": 1048576,
+      "batch_tiles": 8,
+      "proved_stack_raw_bf16_bytes": 1937948672,
+      "baseline_full_tensor_scan_bytes": 36494819328,
+      "candidate_full_tensor_scan_bytes": 4983013376,
+      "existing_read_bytes_single_scan_bytes": 1937948672,
+      "largest_existing_read_bytes_payload": 23068672,
+      "source_counted_scan_byte_reduction_fraction": 0.863459705575885,
+      "tile_requests": 1892,
+      "candidate_full_scans": 330,
+      "initial_inventory_bytes_excluded": true,
+      "assumption": "Each block tensor is tiled completely exactly once; no measured caller uses this schedule yet."
+    },
+    "llama3_8b": {
+      "layers": 32,
+      "tile_bytes": 1048576,
+      "batch_tiles": 8,
+      "proved_stack_raw_bf16_bytes": 13959168000,
+      "baseline_full_tensor_scan_bytes": 1335735353344,
+      "candidate_full_tensor_scan_bytes": 166967377920,
+      "existing_read_bytes_single_scan_bytes": 13959168000,
+      "largest_existing_read_bytes_payload": 117440512,
+      "source_counted_scan_byte_reduction_fraction": 0.8749996565547218,
+      "tile_requests": 13376,
+      "candidate_full_scans": 1728,
+      "initial_inventory_bytes_excluded": true,
+      "assumption": "Each block tensor is tiled completely exactly once; no measured caller uses this schedule yet."
+    }
+  }
+}

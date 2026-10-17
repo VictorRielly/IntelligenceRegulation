@@ -1,0 +1,2 @@
+python3 /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/tiled-down-requant-20261004/experiment.py
+# runner timeout 60 s, script alarm 59 s, one pinned CPU, nice +10, RLIMIT_AS 512 MiB

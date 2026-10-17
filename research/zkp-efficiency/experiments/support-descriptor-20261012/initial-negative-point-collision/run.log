@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/support-descriptor-20261012/experiment.py", line 206, in <module>
+    if __name__=='__main__':main()
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/support-descriptor-20261012/experiment.py", line 132, in main
+    assert oracle.mle(bad,list(map(tup,point)))!=oracle.mle(ows,list(map(tup,point)))
+AssertionError

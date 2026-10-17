@@ -1,0 +1,14 @@
+{
+  "STATE.md": {
+    "bytes": 6393,
+    "sha256": "a96c0173a31691428f20e44082ad95123122b4e6af83913630d6d62b39884802"
+  },
+  "FINDINGS.md": {
+    "bytes": 52382,
+    "sha256": "fb8bbd7af2535687aab497f186fb62b142e282077d8c3065e836ba4eb755e802"
+  },
+  "sources.jsonl": {
+    "bytes": 42269,
+    "sha256": "7896d3f92f8be5e4bd8637ed11746dacd8cea7024041bee0f487c0088b4dfad1"
+  }
+}

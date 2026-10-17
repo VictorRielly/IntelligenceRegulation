@@ -1,0 +1,10 @@
+{
+  "baseline_sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+  "candidate_sha256": "901cc1f8186bc71d3f700d5e30bacd5cdc7ea976ec16ecccf11c7bd7dd3d116b",
+  "patch_sha256": "b36a616b1047a7715cb05b51cc6c5a7bceb8900270ea6e161945cb10b7dbe223",
+  "source": "zkp-core/src/field.rs",
+  "matches_grouped_candidate": true,
+  "applied_to_production": false,
+  "compiled": false,
+  "note": "Review candidate for Karatsuba plus two-product square; add-chain-by-seven variant remains Python-only"
+}

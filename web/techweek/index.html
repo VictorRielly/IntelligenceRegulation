@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Intelligence Regulation · Private computation, verifiable</title>
+<style>
+:root { color-scheme: dark; --bg:#101510; --panel:#192019; --ink:#f0f2e8; --muted:#a2b09e; --line:#354235; --accent:#c6fa82; --red:#ffae9d; }
+* { box-sizing:border-box; } body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 system-ui,sans-serif; }
+main { max-width:1160px; margin:auto; padding:32px 40px 60px; } header { display:flex; justify-content:space-between; gap:18px; align-items:center; border-bottom:1px solid var(--line); padding-bottom:24px; }
+.brand { font-weight:650; letter-spacing:-.03em; } .badge,.eyebrow { font:11px/1.5 ui-monospace,monospace; text-transform:uppercase; letter-spacing:.13em; color:var(--accent); } .badge { border:1px solid var(--line); border-radius:20px; padding:6px 12px; }
+.hero { display:grid; grid-template-columns:1.3fr 1fr; gap:60px; align-items:end; padding:58px 0 40px; } h1 { font-size:clamp(38px,5.5vw,66px); line-height:1.04; letter-spacing:-.055em; font-weight:550; margin:14px 0 0; } h1 span { color:var(--accent); } .intro { color:var(--muted); font-size:17px; margin:0; max-width:430px; } .intro strong { color:var(--ink); font-weight:500; }
+.flow { display:grid; grid-template-columns:1fr auto 1fr auto 1fr; gap:16px; align-items:center; padding:25px 0 34px; border-top:1px solid var(--line); } .step { padding:16px 18px; border:1px solid var(--line); border-radius:8px; } .step small { color:var(--muted); display:block; font-size:12px; margin-top:5px; } .arrow { color:var(--accent); }
+.workspace { display:grid; grid-template-columns:360px 1fr; gap:22px; } .panel { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:26px; } h2 { font-size:19px; letter-spacing:-.025em; margin:0 0 18px; font-weight:550; } label { display:block; padding:14px 0; border-bottom:1px solid var(--line); cursor:pointer; } label:last-of-type { border:0; } input { accent-color:var(--accent); margin:0 8px 0 0; } label small { display:block; color:var(--muted); padding-left:24px; font-size:12px; margin-top:4px; } button { width:100%; cursor:pointer; background:var(--accent); border:0; color:#15220c; border-radius:6px; padding:14px; margin-top:22px; font-size:14px; font-weight:650; } button:hover { background:#d6ffab; } button:disabled { opacity:.5; cursor:wait; } button:focus-visible,a:focus-visible,input:focus-visible { outline:2px solid white; outline-offset:4px; }
+.scope { margin:18px 0 0; font-size:12px; color:var(--muted); } .status { display:flex; align-items:center; gap:9px; color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.08em; } .dot { width:7px; height:7px; border-radius:50%; background:var(--muted); } .success .dot { background:var(--accent); } .failed .dot { background:var(--red); } .running .dot { background:var(--accent); animation:pulse 1.2s infinite; } @keyframes pulse { 50% { opacity:.25; } }
+#result-title { margin-top:18px; font-size:28px; line-height:1.2; letter-spacing:-.035em; } #result-copy { color:var(--muted); font-size:14px; min-height:42px; } .metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; padding:22px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); } .metric strong { display:block; font-size:27px; font-weight:500; font-variant-numeric:tabular-nums; } .metric small { font-size:11px; color:var(--muted); }
+#checks { padding:0; margin:20px 0 0; list-style:none; } #checks li { display:flex; align-items:baseline; justify-content:space-between; gap:16px; padding:8px 0; font-size:13px; border-bottom:1px solid #2b362b; } .pass { color:var(--accent); } .fail { color:var(--red); } .download { display:inline-block; margin-top:18px; color:var(--accent); font-size:13px; text-decoration:none; border-bottom:1px solid var(--accent); } [hidden] { display:none !important; }
+.footnotes { display:grid; grid-template-columns:1fr 1fr; gap:35px; padding-top:32px; color:var(--muted); font-size:12px; } .footnotes strong { color:var(--ink); font-weight:550; } footer { border-top:1px solid var(--line); padding-top:22px; margin-top:30px; display:flex; justify-content:space-between; gap:20px; font-size:11px; color:var(--muted); }
+@media(max-width:800px) { main { padding:24px 20px; } .hero { grid-template-columns:1fr; gap:24px; padding-top:36px; } .workspace { grid-template-columns:1fr; } .flow { gap:8px; } .step { padding:10px; font-size:12px; } .step small { font-size:10px; } .footnotes { grid-template-columns:1fr; gap:12px; } header .badge { font-size:9px; } }
+@media(prefers-reduced-motion:reduce) { .running .dot { animation:none; } }
+</style>
+</head>
+<body><main>
+<header><div class="brand">Intelligence Regulation<span style="color:var(--accent)"> / </span></div><div class="badge">Tech Week · working prototype</div></header>
+<section class="hero"><div><div class="eyebrow">Zero-knowledge AI computation</div><h1>Keep the data private.<br><span>Make the proof public.</span></h1></div><p class="intro">Verify that a specific computation was performed without seeing its private inputs or outputs. <strong>Run the verifier yourself. Then change a proof and watch it fail.</strong></p></section>
+<div class="flow" aria-label="Private computation produces a public proof for independent verification"><div class="step">01 / Private computation<small>Inputs and activations stay with the prover</small></div><span class="arrow" aria-hidden="true">→</span><div class="step">02 / Public proof<small>Bound to a program and endpoint commitments</small></div><span class="arrow" aria-hidden="true">→</span><div class="step">03 / Independent check<small>A separate process verifies the receipt</small></div></div>
+<section class="workspace"><div class="panel"><h2>Choose a demonstration</h2>
+<label><input type="radio" name="mode" value="token" checked>Verify a private token computation<small>Real, previously generated Groth16 proof. Two complete blocks and a greedy token step.</small></label>
+<label><input type="radio" name="mode" value="block">Verify a private transformer block<small>Real, previously generated Groth16 proof. Attention, normalization, feed-forward and residuals.</small></label>
+<label><input type="radio" name="mode" value="native">Generate a new synthetic-block proof<small>Live CPU proving with fresh randomness. Uses a public synthetic input fixture.</small></label>
+<button id="run" type="button">Verify proof & test tampering ↗</button><p id="mode-note" class="scope">Verification runs locally against saved proof bytes and pinned expectations. This option does not generate a new proof.</p></div>
+<div class="panel" aria-live="polite" aria-busy="false" id="result"><div class="status" id="status"><span class="dot"></span><span id="status-text">Ready to verify</span></div><h2 id="result-title">Evidence you can check.</h2><p id="result-copy">Run a demonstration to see actual verification results and rejection controls. No simulated success states.</p><div class="metrics"><div class="metric"><strong id="bytes">—</strong><small>Receipt size</small></div><div class="metric"><strong id="elapsed">—</strong><small>Total check time</small></div><div class="metric"><strong id="passed">—</strong><small>Checks passed</small></div></div><ul id="checks"></ul><div id="downloads" hidden><a id="download" class="download">Verification report ↓</a><span aria-hidden="true"> · </span><a id="proof-download" class="download">Proof ↓</a><span aria-hidden="true"> · </span><a id="policy-download" class="download">Policy ↓</a></div></div></section>
+<div class="footnotes"><p><strong>What this proves today</strong><br>These are fixed, small, synthetic model profiles. The Groth16 receipts cover hidden inputs, outputs and activations under the project's recorded assumptions. The live native example uses a public fixture and demonstrates proof generation and verification.</p><p><strong>What funding moves forward</strong><br>Trained-model calibration and integration, broader privacy validation, and measured GPU performance. The target is a complete private 8B stack at ≥50 proved tokens/s. That target has not been demonstrated.</p></div>
+<details class="scope"><summary>Proof assumptions and scope</summary><p>Groth16 uses a trusted setup and the accepted underlying zkVM soundness assumption (about 97 conjectured bits). Endpoint hiding relies on secret salts. The program images are locally built, unreproduced; timing is declared leakage. Public weights are allowed. The model is untrained, and successful verification is not an approval of a model's safety or quality.</p></details>
+<footer><span>Local verification · No cloud prover · No wallet required</span><span>Research prototype / September 2026</span></footer>
+</main>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+let csrf = '', currentJob = null;
+function status(kind, text) { $('status').className='status '+kind; $('status-text').textContent=text; }
+function busy(value) { $('run').disabled=value; document.querySelectorAll('input[name="mode"]').forEach(x=>x.disabled=value); $('result').setAttribute('aria-busy',String(value)); }
+function setMode() { const native=document.querySelector('input[name="mode"]:checked').value==='native'; $('run').textContent=native?'Generate proof & verify ↗':'Verify proof & test tampering ↗'; $('mode-note').textContent=native?'Generates a new proof of a small public synthetic block, then verifies it in a separate process. May wait for the shared proof lock.':'Verification runs locally against saved proof bytes and pinned expectations. This option does not generate a new proof.'; }
+document.querySelectorAll('input[name="mode"]').forEach(x=>x.addEventListener('change',setMode));
+async function request(path,options) { const response=await fetch(path,options); const data=await response.json(); if(!response.ok) throw new Error(data.error||'Request failed'); return data; }
+function renderReport(report) {
+ const checks=Array.isArray(report.checks)?report.checks:[];
+ const passed=checks.filter(x=>x.passed===true).length;
+ const okay=(report.status==='passed'||report.passed===true)&&checks.length>0&&passed===checks.length;
+ status(okay?'success':'failed',okay?'Verification and controls passed':'Check did not pass');
+ $('result-title').textContent=okay?'Valid proof. Tampering rejected.':'The evidence needs attention.';
+ $('result-copy').textContent=!okay?(report.error||'One or more checks did not pass. Review the downloaded report; this run is not accepted.'):(report.new_proof_generated?'A new proof was generated from the public synthetic fixture. A fresh verifier process checked it and the rejection controls.':'The saved proof was checked in a fresh process. Altered proof and policy copies were tested separately. No new proof was generated.');
+ const bytes=report.receipt_bytes; $('bytes').textContent=Number.isFinite(bytes)?(bytes<10000?bytes.toLocaleString()+' B':(bytes/1048576).toFixed(2)+' MiB'):'—';
+ $('elapsed').textContent=Number.isFinite(report.elapsed_seconds)?report.elapsed_seconds.toFixed(2)+' s':'—';
+ $('passed').textContent=passed+' / '+checks.length;
+ $('checks').replaceChildren();
+ checks.forEach(check=>{ const li=document.createElement('li'),name=document.createElement('span'),mark=document.createElement('span'); name.textContent=check.name.replaceAll('_',' ').replaceAll('-',' '); mark.textContent=check.passed?'PASS':'FAIL'; mark.className=check.passed?'pass':'fail'; li.append(name,mark); $('checks').append(li); });
+ $('download').href='/api/jobs/'+currentJob+'/report.json'; $('downloads').hidden=false; $('proof-download').hidden=!okay; $('policy-download').hidden=!okay; $('proof-download').href='/api/jobs/'+currentJob+'/receipt.bin'; $('policy-download').href='/api/jobs/'+currentJob+'/policy.bin';
+}
+async function poll() {
+ try { const job=await request('/api/jobs/'+currentJob); if(job.state==='complete') { renderReport(job.report); busy(false); } else if(job.state==='failed') { throw new Error(job.error); } else { setTimeout(poll,1000); } }
+ catch(error) { status('failed','Unable to complete'); $('result-title').textContent='No success claimed.'; $('result-copy').textContent=error.message; busy(false); }
+}
+$('run').addEventListener('click',async()=>{
+ busy(true); $('downloads').hidden=true; $('checks').replaceChildren(); ['bytes','elapsed','passed'].forEach(x=>$(x).textContent='—'); status('running','Running real verification'); $('result-title').textContent='Checking the evidence…'; $('result-copy').textContent='The prover and verifier run locally. This panel will show their actual result.';
+ try { if(!csrf) csrf=(await request('/api/status')).token; const job=await request('/api/run',{method:'POST',headers:{'Content-Type':'application/json','X-Demo-Token':csrf},body:JSON.stringify({mode:document.querySelector('input[name="mode"]:checked').value})}); currentJob=job.id; poll(); }
+ catch(error) { status('failed','Unable to start'); $('result-title').textContent='No check started.'; $('result-copy').textContent=error.message; busy(false); }
+});
+request('/api/status').then(data=>{csrf=data.token;if(data.active_job){currentJob=data.active_job;busy(true);status('running','Reconnecting to active check');poll();}}).catch(()=>{status('failed','Local server unavailable');$('result-copy').textContent='Start python3 scripts/zk60_techweek_server.py and open its localhost address.';});
+</script></body></html>

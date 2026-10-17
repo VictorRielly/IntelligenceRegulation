@@ -1,0 +1,18 @@
+{
+  "checked_at": "2026-09-26T18:07:32.841756+00:00",
+  "launcher_identity_matches": true,
+  "worker_host_pid": 1080298,
+  "paused": false,
+  "status": {
+    "state": "idle",
+    "pid": 2,
+    "run_id": "20260926T175233Z-9db24b68",
+    "started_at": "2026-09-26T17:52:33.835222+00:00",
+    "heartbeat": "2026-09-26T18:07:32.650137+00:00",
+    "last_completed_run": "20260924T024433Z-0c043a75",
+    "interval_seconds": 3600,
+    "timeout_seconds": 1200,
+    "last_outcome": "failed",
+    "next_due_unix": 1790448753.8352017
+  }
+}

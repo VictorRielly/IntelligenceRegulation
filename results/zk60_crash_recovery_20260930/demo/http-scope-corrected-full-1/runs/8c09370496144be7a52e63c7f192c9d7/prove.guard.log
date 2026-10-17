@@ -1,0 +1,2 @@
+[zk60-guard 18:31:14] START demo-prove class=cpu need=1G cap=2G enforce=cgroup+watchdog waited=0s run=c88de35cf8ce
+[zk60-guard 18:31:14] END demo-prove exit=0 child_wall=0s peak_rss=0.00G min_avail=13.84G

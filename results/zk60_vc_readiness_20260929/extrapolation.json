@@ -1,0 +1,361 @@
+{
+  "inputs": {
+    "T": 512,
+    "target_tokens_per_s": 50.0,
+    "log_sha256": {
+      "warm-cpu.log": "e4deac6ee9b2b8701793e5b19b96e75c93e726dc8f0e94558aa60c69247f19f8",
+      "warm-gpu.log": "8bcdd5dd796af42afd5762caaa3dd2bee089decf5aa2c488c270139e1e28e8bf",
+      "a1-cpu.log": "446c0decacae98926526d206b2cf73f8fa12ba10bfc94400bf6da9cf56aebe97",
+      "b1-gpu.log": "0261aeb41802f4da38d4ea704b25f1971495fa0d28007f8300e282080267a4ea",
+      "b2-gpu.log": "86f72477b0cda84efa0742234321a9d9eb6987701bb8d401384c9a9e227163ca",
+      "a2-cpu.log": "34d229abbc74a461656a9650a87df8ddb43d36024dad59569f73299129e941a4"
+    },
+    "measured_arm_means": {
+      "cpu": {
+        "wall_seconds": 39.89535499102203,
+        "witness_seconds": 5.845,
+        "prove_seconds": 32.95,
+        "verify_seconds": 0.905,
+        "serialize_and_other_seconds": 0.19535499102203008,
+        "peak_rss_mib": 10524.0
+      },
+      "gpu": {
+        "wall_seconds": 30.054917880013818,
+        "witness_seconds": 8.215,
+        "prove_seconds": 17.13,
+        "verify_seconds": 0.815,
+        "serialize_and_other_seconds": 3.8949178800138187,
+        "peak_rss_mib": 4411.5
+      }
+    }
+  },
+  "geometry": {
+    "m125": {
+      "d": 768,
+      "d_pad": 1024,
+      "f": 2048,
+      "f_pad": 2048,
+      "H": 12,
+      "H_pad": 16,
+      "KV": 4,
+      "dh": 64,
+      "L": 12,
+      "A": 5681,
+      "Hr": 7120,
+      "ep": 37,
+      "receipt": 40783352
+    },
+    "1B_tinyllama": {
+      "d": 2048,
+      "d_pad": 2048,
+      "f": 5632,
+      "f_pad": 8192,
+      "H": 32,
+      "H_pad": 32,
+      "KV": 4,
+      "dh": 64,
+      "L": 22,
+      "A": 12729,
+      "Hr": 16088,
+      "ep": 69,
+      "receipt": 73714744
+    },
+    "8B_llama3": {
+      "d": 4096,
+      "d_pad": 4096,
+      "f": 14336,
+      "f_pad": 16384,
+      "H": 32,
+      "H_pad": 32,
+      "KV": 8,
+      "dh": 128,
+      "L": 32,
+      "A": 18633,
+      "Hr": 23032,
+      "ep": 133,
+      "receipt": 100290760
+    }
+  },
+  "per_block": {
+    "cpu/m125": {
+      "prove_s": 32.948499999999996,
+      "gpu_share_s": 0,
+      "cpu_share_s": 32.948499999999996,
+      "verify_s": 0.8889999999999999,
+      "witness_rows_scaled_s": 5.845,
+      "witness_macs_scaled_s": 5.845,
+      "prove_growth_vs_125m": 1.0,
+      "rows_growth_vs_125m": 1.0,
+      "receipt_bytes_counted": 40783352
+    },
+    "cpu/1B_tinyllama": {
+      "prove_s": 72.95030930314809,
+      "gpu_share_s": 0,
+      "cpu_share_s": 72.95030930314809,
+      "verify_s": 1.8331988448476881,
+      "witness_rows_scaled_s": 13.096462770638972,
+      "witness_macs_scaled_s": 40.915,
+      "prove_growth_vs_125m": 2.2140707256217462,
+      "rows_growth_vs_125m": 2.251152253730177,
+      "receipt_bytes_counted": 73714744
+    },
+    "cpu/8B_llama3": {
+      "prove_s": 104.21118383803731,
+      "gpu_share_s": 0,
+      "cpu_share_s": 104.21118383803731,
+      "verify_s": 2.307483662541181,
+      "witness_rows_scaled_s": 19.17090036965323,
+      "witness_macs_scaled_s": 202.62666666666667,
+      "prove_growth_vs_125m": 3.1628506256138316,
+      "rows_growth_vs_125m": 3.2548238418873527,
+      "receipt_bytes_counted": 100290760
+    },
+    "gpu/m125": {
+      "prove_s": 17.1275,
+      "gpu_share_s": 0.7955,
+      "cpu_share_s": 16.332,
+      "verify_s": 0.7974999999999999,
+      "witness_rows_scaled_s": 8.215,
+      "witness_macs_scaled_s": 8.215,
+      "prove_growth_vs_125m": 1.0,
+      "rows_growth_vs_125m": 1.0,
+      "receipt_bytes_counted": 40783352
+    },
+    "gpu/1B_tinyllama": {
+      "prove_s": 37.37221824365619,
+      "gpu_share_s": 1.790565244190669,
+      "cpu_share_s": 35.581652999465526,
+      "verify_s": 1.6454830675188439,
+      "witness_rows_scaled_s": 18.406747931702164,
+      "witness_macs_scaled_s": 57.504999999999995,
+      "prove_growth_vs_125m": 2.1820007732393045,
+      "rows_growth_vs_125m": 2.251152253730177,
+      "receipt_bytes_counted": 73714744
+    },
+    "gpu/8B_llama3": {
+      "prove_s": 52.86085460715745,
+      "gpu_share_s": 2.589751254328938,
+      "cpu_share_s": 50.27110335282851,
+      "verify_s": 2.068337424285179,
+      "witness_rows_scaled_s": 26.944216687202957,
+      "witness_macs_scaled_s": 284.7866666666667,
+      "prove_growth_vs_125m": 3.0863146756477855,
+      "rows_growth_vs_125m": 3.2548238418873527,
+      "receipt_bytes_counted": 100290760
+    }
+  },
+  "stack": {
+    "cpu/m125": {
+      "blocks": 12,
+      "prove_only_s": 395.38199999999995,
+      "prove_only_tok_s": 1.2949502000596893,
+      "gap_prove_only_x": 38.6115234375,
+      "end_to_end_s_range": [
+        465.717354991022,
+        465.717354991022
+      ],
+      "end_to_end_tok_s_range": [
+        1.099379257639798,
+        1.099379257639798
+      ],
+      "verify_stack_s": 10.668,
+      "receipt_stack_bytes_counted": 489400224
+    },
+    "cpu/1B_tinyllama": {
+      "blocks": 22,
+      "prove_only_s": 1604.906804669258,
+      "prove_only_tok_s": 0.3190216394562012,
+      "gap_prove_only_x": 156.72918014348224,
+      "end_to_end_s_range": [
+        1893.2243406143373,
+        2505.23215966028
+      ],
+      "end_to_end_tok_s_range": [
+        0.2043722766473784,
+        0.2704381034071534
+      ],
+      "verify_stack_s": 40.33037458664914,
+      "receipt_stack_bytes_counted": 1621724368
+    },
+    "cpu/8B_llama3": {
+      "blocks": 32,
+      "prove_only_s": 3334.757882817194,
+      "prove_only_tok_s": 0.15353438480141288,
+      "gap_prove_only_x": 325.65994949386663,
+      "end_to_end_s_range": [
+        3948.4220496371195,
+        9819.006571141548
+      ],
+      "end_to_end_tok_s_range": [
+        0.05214376793521948,
+        0.12967205470019486
+      ],
+      "verify_stack_s": 73.83947720131779,
+      "receipt_stack_bytes_counted": 3209304320
+    },
+    "gpu/m125": {
+      "blocks": 12,
+      "prove_only_s": 205.53000000000003,
+      "prove_only_tok_s": 2.491120517685982,
+      "gap_prove_only_x": 20.071289062500004,
+      "end_to_end_s_range": [
+        308.0049178800138,
+        308.0049178800138
+      ],
+      "end_to_end_tok_s_range": [
+        1.6623111199784621,
+        1.6623111199784621
+      ],
+      "verify_stack_s": 9.569999999999999,
+      "receipt_stack_bytes_counted": 489400224
+    },
+    "gpu/1B_tinyllama": {
+      "blocks": 22,
+      "prove_only_s": 822.1888013604362,
+      "prove_only_tok_s": 0.6227280147246208,
+      "gap_prove_only_x": 80.2918751328551,
+      "end_to_end_s_range": [
+        1231.0321737378977,
+        2091.1937192404503
+      ],
+      "end_to_end_tok_s_range": [
+        0.24483623649461098,
+        0.41591114425983416
+      ],
+      "verify_stack_s": 36.200627485414564,
+      "receipt_stack_bytes_counted": 1621724368
+    },
+    "gpu/8B_llama3": {
+      "blocks": 32,
+      "prove_only_s": 1691.5473474290384,
+      "prove_only_tok_s": 0.30268144771601124,
+      "gap_prove_only_x": 165.19017064736704,
+      "end_to_end_s_range": [
+        2557.657199299547,
+        10808.615598642387
+      ],
+      "end_to_end_tok_s_range": [
+        0.04736961873862085,
+        0.20018319896044667
+      ],
+      "verify_stack_s": 66.18679757712573,
+      "receipt_stack_bytes_counted": 3209304320
+    }
+  },
+  "scenarios": {
+    "S1_5090_box_todays_code/1B_tinyllama": {
+      "what": "commitments on the 5090 (4-6x the laptop GPU, START_HERE's recorded board factor, never measured); all other phases on a desktop host CPU with more threads (2-4x the 2-thread A/B, unmeasured)",
+      "per_block_prove_s_range": [
+        9.193840790564826,
+        18.23846781078043
+      ],
+      "stack_prove_s_range": [
+        202.26449739242616,
+        401.2462918371695
+      ],
+      "prove_only_tok_s_range": [
+        1.2760242534721684,
+        2.531338947767172
+      ],
+      "gap_to_50_x_range": [
+        19.752392323479118,
+        39.18420818722358
+      ]
+    },
+    "S1_5090_box_todays_code/8B_llama3": {
+      "what": "commitments on the 5090 (4-6x the laptop GPU, START_HERE's recorded board factor, never measured); all other phases on a desktop host CPU with more threads (2-4x the 2-thread A/B, unmeasured)",
+      "per_block_prove_s_range": [
+        12.999401047261951,
+        25.78298948999649
+      ],
+      "stack_prove_s_range": [
+        415.98083351238245,
+        825.0556636798876
+      ],
+      "prove_only_tok_s_range": [
+        0.620564190440671,
+        1.2308259389666312
+      ],
+      "gap_to_50_x_range": [
+        40.6231282726936,
+        80.57184215623903
+      ]
+    },
+    "S2_4070_all_sumchecks_on_device/1B_tinyllama": {
+      "what": "every CPU phase ported to the laptop GPU at 5-10x the 2-thread CPU (basis: the legacy public FFN line, 285 s CPU 8-thread vs 38.6 s GPU activation side on this laptop = 7.4x); NOT BUILT",
+      "per_block_prove_s_range": [
+        5.348730544137222,
+        8.906895844083774
+      ],
+      "stack_prove_s_range": [
+        117.67207197101888,
+        195.95170856984302
+      ],
+      "prove_only_tok_s_range": [
+        2.612888674137322,
+        4.351074910333006
+      ],
+      "gap_to_50_x_range": [
+        11.491413278419813,
+        19.135909040023733
+      ]
+    },
+    "S2_4070_all_sumchecks_on_device/8B_llama3": {
+      "what": "every CPU phase ported to the laptop GPU at 5-10x the 2-thread CPU (basis: the legacy public FFN line, 285 s CPU 8-thread vs 38.6 s GPU activation side on this laptop = 7.4x); NOT BUILT",
+      "per_block_prove_s_range": [
+        7.616861589611789,
+        12.64397192489464
+      ],
+      "stack_prove_s_range": [
+        243.73957086757724,
+        404.60710159662847
+      ],
+      "prove_only_tok_s_range": [
+        1.2654251444910043,
+        2.1006026972869645
+      ],
+      "gap_to_50_x_range": [
+        23.80269246753684,
+        39.512412265295744
+      ]
+    },
+    "S3_5090_all_sumchecks_on_device/1B_tinyllama": {
+      "what": "S2 then the 5090 board factor 4-6x on everything; NOT BUILT, never measured",
+      "per_block_prove_s_range": [
+        0.8914550906895369,
+        2.2267239610209435
+      ],
+      "stack_prove_s_range": [
+        19.612011995169812,
+        48.987927142460755
+      ],
+      "prove_only_tok_s_range": [
+        10.451554696549287,
+        26.106449461998036
+      ],
+      "gap_to_50_x_range": [
+        1.9152355464033022,
+        4.783977260005933
+      ]
+    },
+    "S3_5090_all_sumchecks_on_device/8B_llama3": {
+      "what": "S2 then the 5090 board factor 4-6x on everything; NOT BUILT, never measured",
+      "per_block_prove_s_range": [
+        1.269476931601965,
+        3.16099298122366
+      ],
+      "stack_prove_s_range": [
+        40.62326181126288,
+        101.15177539915712
+      ],
+      "prove_only_tok_s_range": [
+        5.061700577964017,
+        12.603616183721785
+      ],
+      "gap_to_50_x_range": [
+        3.967115411256141,
+        9.878103066323936
+      ]
+    }
+  }
+}

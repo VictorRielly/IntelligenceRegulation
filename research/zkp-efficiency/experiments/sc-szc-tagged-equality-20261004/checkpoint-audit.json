@@ -1,0 +1,21 @@
+{
+  "run_id": "20261004T120146Z-d7433b90",
+  "checked_at_utc": "2026-10-04T12:20:52.890706+00:00",
+  "status": "pass",
+  "checks": [
+    "executed final source field_support.py",
+    "executed final source oracle.py",
+    "executed final source candidate.py",
+    "executed final source experiment.py",
+    "executed initial source field_support.py",
+    "executed initial source oracle.py",
+    "executed initial source candidate.py",
+    "executed initial source experiment.py",
+    "all 13 source pins still equal; native source unmodified",
+    "prior findings prefix preserved",
+    "prior sources prefix preserved; six new JSONL records parse",
+    "progress current and dated copy equal",
+    "bounded experiment limits and zero proved-token accounting"
+  ],
+  "fetch_scope_clarification": "PR953 merge-commit link displayed f164b4a returned Internal Error; full target SHA was not recovered. Source record short URL names displayed commit only, not a fully pinned inspected target. inspected_commit_id remains null."
+}

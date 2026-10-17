@@ -1,0 +1,16 @@
+{
+  "status": "pass",
+  "seed": 2026101345,
+  "counts": {
+    "fixtures": 15,
+    "round_samples": 150,
+    "ordered_finals": 45,
+    "actual_claims": 30,
+    "used_eq_not_elided": 15,
+    "generic_total_checks": 15
+  },
+  "elapsed_seconds": 0.01660943300157669,
+  "peak_rss_kib": 17548,
+  "source_sha256": "f07b031ce4a2c185e413e7ccecf012a118bb03142c56c4218f986db3ca461e62",
+  "limits": "One thread59s/512MiB. Synthetic Eq-dependent bracket; no native/masked proof."
+}

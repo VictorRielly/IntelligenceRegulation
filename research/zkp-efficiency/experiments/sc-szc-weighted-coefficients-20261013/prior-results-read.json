@@ -1,0 +1,91 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-szc-row-polynomial-20261013/result.json",
+    "sha256": "19e0df2492b7742d49d681506cefde907e97e856919c14a9a705c5d3e72623bf",
+    "status": "passed",
+    "scope": "synthetic source-derived algebra and literal operation census; no native proof",
+    "counts": {
+      "identical_clause_body_checks": 1,
+      "final_values": 20736,
+      "schedules": 768,
+      "independent_row_polynomial_values": 1536,
+      "fixtures": 128,
+      "round_samples": 6912,
+      "convolution_count_checks": 25,
+      "independent_convolution_values": 100,
+      "general_denominator_samples": 948,
+      "prior_native_loop_census_checks": 48
+    },
+    "negative_controls": [
+      "drop_high",
+      "swap_support",
+      "shift_sample",
+      "stale_row",
+      "exempt_E",
+      "wrong_plane_order",
+      "restart_zeta",
+      "gate_helpers",
+      "drop_odd",
+      "drop_c2"
+    ]
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-reciprocal-plan-20261013/result.json",
+    "sha256": "1f157d2a7a410299eb121c51b0cc86ce7eaa7e5c9c551c91abae7b761b6c09f6",
+    "status": "pass",
+    "scope": null,
+    "counts": {
+      "fixtures": 203,
+      "schedules": 669,
+      "independent_words": 81968,
+      "comparisons": 669,
+      "refusal_schedules": 30,
+      "table_helpers": 32,
+      "table_helper_words": 320,
+      "split_plane_sentinel_checks": 639,
+      "formula_checks": 3195,
+      "whole_attempt_schedules": 44,
+      "whole_attempt_refusals": 36,
+      "padded_geometry_words": 1601
+    },
+    "negative_controls": null
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/native-twiddle-shifts-20261013/result.json",
+    "sha256": "ac2da182635a604307601034d5ac1b4cae10721a6a916de1913b2b69bc3dc3df",
+    "status": "pass",
+    "scope": null,
+    "counts": {
+      "shift_integer_checks": 38592,
+      "native_reducer_checks": 4096,
+      "general_fallback_checks": 4096,
+      "power2_order_checks": 2,
+      "power2_exact_order_checks": 2,
+      "stage_major_native_checks": 8190,
+      "eligibility_checks": 8190,
+      "stage_dispatch_exponent_checks": 8190,
+      "native_twiddle_arithmetic_checks": 24570,
+      "stage_dispatch_arithmetic_checks": 24570,
+      "unique_count_checks": 24,
+      "large_eligible_samples": 1280,
+      "large_ineligible_samples": 1280,
+      "large_stage_dispatch_checks": 1280,
+      "large_stage_arithmetic_checks": 1280,
+      "large_stage_fallback_checks": 1280,
+      "inverse_scale_exponent_checks": 33,
+      "baseline_forward_checks": 40,
+      "roundtrip_checks": 40,
+      "independent_forward_checks": 32,
+      "independent_inverse_checks": 32,
+      "runtime_count_checks": 80,
+      "rs_encode_checks": 6,
+      "hiding_baseline_checks": 33,
+      "hiding_lagrange_checks": 33,
+      "hiding_output_values": 1496,
+      "native_tile_forward_checks": 3,
+      "native_tile_inverse_checks": 3,
+      "native_tile_horner_checks": 48
+    },
+    "negative_controls": null
+  }
+]

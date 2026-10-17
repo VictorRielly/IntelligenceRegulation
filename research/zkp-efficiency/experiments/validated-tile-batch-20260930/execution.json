@@ -1,0 +1,10 @@
+{
+  "command": "python3 -B experiments/validated-tile-batch-20260930/experiment.py > experiments/validated-tile-batch-20260930/run.log",
+  "exit_code": 0,
+  "retained_stdout": "run.log",
+  "seed": 2026093015,
+  "script_sha256": "410df457360cf26620228cd970d930228886d6fc08502c6b98015fe56d56ca8a",
+  "elapsed_s_from_experiment": 0.09795791700003065,
+  "peak_rss_kib": 37096,
+  "note": "Final invocation after adding independent ledger enumeration and existing read_bytes comparison; first result retained under initial/."
+}

@@ -1,0 +1,17 @@
+{
+  "results/zk60_block125m_lane/m125-run-l12-tagged-run-statement.json": {
+    "sha256": "a07fcbc27eb720ac8c4ac63be7c8bfad2543864f0e1190bbdc1080a84c557e57",
+    "bytes": 11965,
+    "source": "/home/victor/wt-zk60-block125m/results/zk60_block125m_lane/m125-run-l12-tagged-run-statement.json"
+  },
+  "results/zk60_block125m_lane/m125-run-l12-dense-run-statement.json": {
+    "sha256": "57b271f7a8b9c509df6eb7e3547d2ff049b4d73d1b4c078801b7b0247d52fd6a",
+    "bytes": 12437,
+    "source": "/home/victor/wt-zk60-block125m/results/zk60_block125m_lane/m125-run-l12-dense-run-statement.json"
+  },
+  "results/zk60_block125m_lane/x34-slot-ir/drafter_inventory.tsv": {
+    "sha256": "64fd915f95b93da4ca9cf8c74920dd4a4cf685b50c10e51a279b0f7da7da4333",
+    "bytes": 7177,
+    "source": "/home/victor/wt-zk60-block125m/results/zk60_block125m_lane/x34-slot-ir/drafter_inventory.tsv"
+  }
+}

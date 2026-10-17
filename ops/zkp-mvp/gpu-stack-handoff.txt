@@ -1,0 +1,62 @@
+GPU benchmark lane, September 29 PDT / September 30 UTC
+
+Owner of this file is the GPU benchmark Codex session working directly with
+Claude Sonnet 5.5. We read techweek-handoff.txt and the September 30 team map.
+The original candidate stays fixed for queued production measurements.
+No edits to sonnet-hardening, Claude calibration/profile lanes, meeting UI
+or their source/pin records are made here. Please keep candidate sources and
+the stack CLI binary fixed until cli-stack-gpu/run.done exists.
+
+New retained results:
+- results/zk60_mvp_20260929/device-gates: resident, streamed and compact
+  actual-device keyed commitment parity passed on RTX4070 Laptop 8188MiB.
+- baseline-stack-gpu-attempt2/report.json: all 12 synthetic dense m125
+  blocks prove and verify in process, 512 positions counted ONCE;
+  408.609s enclosing test wall, 318.22s prove_run, 12.15s internal verify,
+  484107456 receipt bytes, 37 keyed GPU dispatches, sampled VRAM peak2113MiB.
+  1.253 positions/s over full enclosing wall. Test oracles and shared-host
+  conditions are included; no independent fresh verifier or 8B claim.
+  First attempt failed because the harness required a precreated receipt
+  directory; its failed marker/log remain, corrected attempt is separate.
+- driver-tests: all 4 CPU driver tests pass, including copied public recipe
+  parity, two complete stacks, fresh randomness and mutation/policy controls.
+- Native production CLI compiled with offline locked gpu-cuda + storage.
+- cli-stack-gpu: production m125/L12 proving and fresh verification with
+  trusted policy SHA and four rejection controls, detached and queued under
+  heavy lock; report/marker determine actual outcome. Never infer completion
+  from the queue. The benchmark measures all witness passes and recurrent
+  work and explicitly leaves trained_8b_tokens_per_second=null.
+- regression/python-suite.log: full main Python regression is running under
+  the shared heavy lock; this session owns its handle, do not duplicate it.
+
+Model acquisition:
+- TinyLlama is fully downloaded and verified at fe8a4ea1, original pinned
+  SHA256 6e6001da..., 201 tensors, 1100048384 parameters. Config/index/tensor
+  identities and a verified bounded tile are in tinyllama-1.1b/source.json
+  and inventory.json. The full checkpoint is in the established local-models
+  destination used by lanes B/C. Source/config identities match their pins.
+- scripts/zk60_1b_checkpoint.py is now in main. Added iter_tiles() to stream
+  each BF16 tensor in one pass with SHA checking at iterator completion;
+  finish before publishing a derived result. Original read_tile/read_bytes
+  semantics are unchanged. Six importer tests pass, including bounded stream
+  and changed-payload refusal. Existing lanes' importer source-pin records
+  need an explicit updated pin if they adopt this additive API.
+- A 1MiB-tile calibration readiness scan read ALL TinyLlama tensors and
+  rechecked each digest, no trained proof. Unit-output-scale direct native
+  gain hypothesis yields2014 int8 overflows; report is conditional on that
+  output scale, not a claim that no calibration exists.
+- Actual8B checkpoint selected: NousResearch/Meta-Llama-3-8B, immutable
+  315b20096dc791d381d514deb5f8bd9c8d6d3061, 8030261248 total parameters,
+  ungated BF16, width4096/FFN14336/Q32/KV8/dh128/32blocks, no RoPE scaling,
+  theta500000, eps1e-5. Four verified/resumable shard downloads are underway
+  in local-models/zk60-llama3-8b; source.json records verified progress. Do not
+  duplicate them. No claimed native trained8B profile or proof readiness.
+
+Sonnet's driver overlay and delivery records are durable in ops/zkp-mvp.
+Its norm spec has independent corrections in the September30 contract
+review; those corrections take precedence over its approximate arithmetic.
+Additional option worth analyzing (not a ruling or implementation): a new
+profile's smaller NORM_TN may change the derived window while preserving
+four limbs; it must be propagated to all kernel/argument/IR/layout sites,
+bound in calibration, and proved complete for the full signed int16 domain.
+Do not silently use a 32-bit override or clamp a refused trained witness.

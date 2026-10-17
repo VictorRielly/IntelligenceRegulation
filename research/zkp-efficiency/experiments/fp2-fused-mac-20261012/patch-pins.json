@@ -1,0 +1,9 @@
+{
+  "cuda-arithmetic.unapplied.patch": "2ad547e0adaea80c6292e22d92cb5d014595dd79cdb047ceca72919b48177574",
+  "weighted-only.unapplied.patch": "f1a25349f3c564448bf1ffb43ae686cf2c7f1624e92d7061f914743d4a22b3d8",
+  "product-only.unapplied.patch": "c7d6912456a56851c6e568cb71d8450bb11c4e8313bf4fbaa7927bd20a5860bf",
+  "combined.unapplied.patch": "102b5575448a3c5f6627289178487b3f39694cec7a604843b51710cc7b760051",
+  "candidate/grouped.rs": "ab2d4d18ad04878092b7d30bbfcd42f6d5145f361a0a203b0972633b30736a5f",
+  "candidate/field.rs": "ee086fb81664465936b5514fef253cc1a16084f5820c812ecedc99d5749b2d7c",
+  "candidate/kernels.cu": "aadde0a83cfd0c934cd4738ebf94ca5a5f984f18b4f8ab701dbe0d326571a4e5"
+}

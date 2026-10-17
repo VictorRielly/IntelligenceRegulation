@@ -1,0 +1,12 @@
+{
+  "status": "failed",
+  "checks": [],
+  "real_localhost_sockets": true,
+  "model_scale_run": false,
+  "gpu_run": false,
+  "error": "[Errno 1] Operation not permitted",
+  "source_sha256": {
+    "scripts/zk60_techweek_server.py": "d0df20810e16abbe9e5ee61122924eb03223a4d4d8fef364d39af0ff3bfbe9a1",
+    "scripts/zk60_techweek_demo.py": "69697e21c74d72dcc5a84efedd72f181f6e390e6e6dcc8d883451d7816251f16"
+  }
+}

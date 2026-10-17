@@ -1,0 +1,13 @@
+
+running 1 test
+test private_block::p2_tests::a_tamper_inside_an_unpadded_domain_is_rejected_at_that_domains_zero_check_at_the_rung_p2 ... P2 UNPADDED TAMPER Dom::T, the norm square A_DSQ at the LAST index of the domain (31): verifier rejected: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+P2 UNPADDED TAMPER Dom::T, the norm square A_DSQ at index 0 (0): verifier rejected: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+P2 UNPADDED TAMPER Dom::Kv, the key A_K8 at the LAST index of the domain (1023): verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+P2 UNPADDED TAMPER Dom::Kv, the key A_K8 at index 0 (0): verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+P2 UNPADDED TAMPER Dom::F, the gate A_G8 at the LAST index of the domain (8191): verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+P2 UNPADDED TAMPER Dom::F, the gate A_G8 at index 0 (0): verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+P2 UNPADDED TAMPER SWEEP: 6 of 6 rejected by the VERIFIER, each at its own domain's zero-check, 0 by the prover, 0 accepted
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 528 filtered out; finished in 2.30s
+

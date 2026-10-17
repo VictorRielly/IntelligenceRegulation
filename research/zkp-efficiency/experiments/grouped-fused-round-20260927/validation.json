@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "artifact_hashes": 24,
+  "source_and_snapshot_pairs": 7,
+  "original_history_prefixes": 2,
+  "previous_state_preserved": true,
+  "agenda_unchanged": true,
+  "owner_logs_rechecked": 4,
+  "appended_source_records": 8,
+  "arithmetic_accounting": true,
+  "result_source_bindings": true,
+  "scope": "Artifact/provenance check; no native proof or code-sketch compilation"
+}

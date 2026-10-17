@@ -1,0 +1,40 @@
+{
+ "ts_end": "2026-09-30T01:17:13Z",
+ "run_id": "1acc31c18259",
+ "label": "demo-tampered_receipt_rejected",
+ "class": "light",
+ "cmd": [
+  "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_private_block",
+  "verify",
+  "/home/victor/IntelligenceRegulation/results/zk60_crash_recovery_20260930/demo/http-guarded-full-1/runs/acdc3d949c9942c793858cc8b083192c/tampered_receipt_rejected"
+ ],
+ "need_gib": 0.5,
+ "cap_gib": 1.5,
+ "exit": 1,
+ "child_rc": 1,
+ "guard_killed": null,
+ "child_wall_seconds": 0.5010137557983398,
+ "refused": null,
+ "guard_error": null,
+ "guard_pid": 15793,
+ "boot_id": "821442fc-3e31-457d-a742-de97ad7c8122",
+ "pid_ns": "pid:[4026532223]",
+ "guard_starttime_ticks": 165152,
+ "lock_ids": {
+  "heavy": "2096:129581",
+  "build": "2096:129585"
+ },
+ "enforcement": "cgroup+watchdog",
+ "waited_s": 0.0,
+ "guard_wall_s": 0.5,
+ "stragglers_killed": 0,
+ "hard_killed": 0,
+ "peak_rss_gib": 0.0,
+ "peak_cgroup_gib": null,
+ "peak_vram_mib": null,
+ "min_mem_available_gib": 13.84,
+ "vram_drain_s": null,
+ "gpu_drain_failed": false,
+ "gpu_telemetry_lost": false,
+ "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+}

@@ -1,0 +1,42 @@
+{
+ "ts_end": "2026-09-30T01:17:09Z",
+ "run_id": "ff1abac00b51",
+ "label": "demo-wrong_policy_rejected",
+ "class": "light",
+ "cmd": [
+  "/home/victor/IntelligenceRegulation/zkvm-block/target/release/zk60-token-wrap",
+  "verify",
+  "/home/victor/IntelligenceRegulation/results/zk60_crash_recovery_20260930/demo/http-guarded-full-1/runs/0b88a6864bfc4a42af418e8403095cdc/wrong-policy.bin",
+  "/home/victor/IntelligenceRegulation/results/zk60_crash_recovery_20260930/demo/http-guarded-full-1/runs/0b88a6864bfc4a42af418e8403095cdc/receipt.bin",
+  "3c0631ee629a40a78421e03cd5c6ac9ffdafa026a1289aa9207fcce6c016430b"
+ ],
+ "need_gib": 0.5,
+ "cap_gib": 1.5,
+ "exit": 1,
+ "child_rc": 1,
+ "guard_killed": null,
+ "child_wall_seconds": 0.5012214183807373,
+ "refused": null,
+ "guard_error": null,
+ "guard_pid": 15719,
+ "boot_id": "821442fc-3e31-457d-a742-de97ad7c8122",
+ "pid_ns": "pid:[4026532223]",
+ "guard_starttime_ticks": 164724,
+ "lock_ids": {
+  "heavy": "2096:129581",
+  "build": "2096:129585"
+ },
+ "enforcement": "cgroup+watchdog",
+ "waited_s": 0.0,
+ "guard_wall_s": 0.5,
+ "stragglers_killed": 0,
+ "hard_killed": 0,
+ "peak_rss_gib": 0.0,
+ "peak_cgroup_gib": null,
+ "peak_vram_mib": null,
+ "min_mem_available_gib": 13.85,
+ "vram_drain_s": null,
+ "gpu_drain_failed": false,
+ "gpu_telemetry_lost": false,
+ "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+}

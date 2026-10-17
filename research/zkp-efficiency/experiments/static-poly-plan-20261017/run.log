@@ -1,0 +1,88 @@
+{
+  "status": "passed",
+  "run_id": "20261017T012624Z-ea61e714",
+  "cycle": "0051",
+  "seed": 2026101751,
+  "counts": {
+    "independent_convolution_values": 400,
+    "convolution_schedules": 100,
+    "executed_row_census_checks": 600,
+    "independent_final_values": 16272,
+    "full_schedules": 600,
+    "fixtures": 100,
+    "independent_round_samples": 5832,
+    "independent_clause_extension_values": 40,
+    "value_independent_schedule_checks": 8
+  },
+  "controls": [
+    "wrong_sign-independent-convolution",
+    "dropped_tail-independent-convolution",
+    "zero-random-private-values-and-public-challenges-identical-schema-and-counts",
+    "wrong_sign-full-round-rejection",
+    "dropped_tail-full-round-rejection",
+    "wrong_order-full-round-rejection"
+  ],
+  "recoveries": 888,
+  "zero_factor_fallbacks": 660,
+  "executed_row_counter_delta": {
+    "mul": -10452,
+    "add": 10452,
+    "mul_base": 0,
+    "sub": 20904
+  },
+  "test_preparation_totals": {
+    "pattern_compilations": 792,
+    "width_classifications": 22068,
+    "trace_denominator_dispatch": 11880,
+    "trace_axis_tests": 1656,
+    "trace_mul_base": 7812,
+    "trace_add": 68244,
+    "trace_mul": 79080,
+    "trace_sub": 33996
+  },
+  "max_test_plan_pointer_bytes": 1728,
+  "output_sha256": "b3fc0d94669e5a2985d1967b05e906d8f1bba5e12b454a33f7a64ef4be69688e",
+  "wall_seconds": 12.121455481000112,
+  "max_rss_kib": 23164,
+  "hardware": {
+    "device": "CPU only",
+    "threads": 1,
+    "affinity": [
+      0
+    ],
+    "nice": 19,
+    "cpu_model": "Intel(R) Core(TM) Ultra 9 185H"
+  },
+  "limits": {
+    "wall_seconds": 59,
+    "cpu_seconds": 59,
+    "address_space_bytes": 536870912,
+    "estimated_bytes": 67108864
+  },
+  "proof_accounting": {
+    "accepted_complete_private_8b_proofs": 0,
+    "proved_tokens": 0,
+    "passes": 0,
+    "context_length": null,
+    "steady_tokens_per_second": null,
+    "total_workload_tokens_per_second": null,
+    "startup_seconds": null,
+    "startup_fraction": null,
+    "witness_seconds": null,
+    "proof_seconds": null,
+    "serialization_seconds": null,
+    "independent_verification_seconds": null,
+    "proof_latency_seconds": null,
+    "proof_lag_seconds": null,
+    "pipeline_drain_seconds": null,
+    "prefill": null,
+    "resident_passes": null,
+    "decode": null
+  }
+}
+CENSUS {"shape": {"head_pad": 16, "kv_heads": 4, "query_heads": 12, "token_pad": 512, "tokens": 512}, "limbs": 2, "cube_log": 22, "baseline": "cycle50 fixed2x2 Karatsuba public-axis weighted factory", "before": {"mul_base": 77857017, "add": 1263316808, "mul": 850657070, "sub": 640941939}, "after": {"mul_base": 77857017, "add": 1289793344, "mul": 824180534, "sub": 693895011}, "cold_after_with_trace": {"mul_base": 77857066, "add": 1289793775, "mul": 824181039, "sub": 693895235}, "delta": {"mul": -26476536, "add": 26476536, "mul_base": 0, "sub": 52953072}, "base_products_before": 4408999384, "base_products_after": 4276616704, "base_product_fraction_removed": 0.03002556101060231, "api_before": 2832772834, "api_after": 2885725906, "api_fraction_change": 0.018693017443699476, "baseline_dispatch": {"public_width_tests": 205520847, "affine_products": 47710197}, "candidate_dispatch": {"public_pattern_lookups": 4194303, "plan_cursor_steps": 205520847, "interpreter_opcode_steps": 937688850, "schoolbook": 131334114, "affine22": 47710197, "blocked32": 26476536}, "break_even": "saved_Fp2mul_cost > added_Fp2add + 2*added_Fp2sub per blocked32; plus trace/plan/cursor/code/scratch delta", "limits": "Field API census only. Cursor and interpreter opcodes remain; native unrolling is untested. No register/time prediction."}
+CENSUS {"shape": {"head_pad": 16, "kv_heads": 4, "query_heads": 12, "token_pad": 512, "tokens": 512}, "limbs": 3, "cube_log": 22, "baseline": "cycle50 fixed2x2 Karatsuba public-axis weighted factory", "before": {"mul_base": 94634229, "add": 1401728807, "mul": 934543130, "sub": 708050789}, "after": {"mul_base": 94634229, "add": 1432399646, "mul": 903872291, "sub": 769392467}, "cold_after_with_trace": {"mul_base": 94634290, "add": 1432400128, "mul": 903872850, "sub": 769392715}, "delta": {"mul": -30670839, "add": 30670839, "mul_base": 0, "sub": 61341678}, "base_products_before": 4861984108, "base_products_after": 4708629913, "base_product_fraction_removed": 0.03154148421580978, "api_before": 3138956955, "api_after": 3200298633, "api_fraction_change": 0.019542057721527437, "baseline_dispatch": {"public_width_tests": 226492362, "affine_products": 51904500}, "candidate_dispatch": {"public_pattern_lookups": 4194303, "plan_cursor_steps": 226492362, "interpreter_opcode_steps": 1042546425, "schoolbook": 143917023, "affine22": 51904500, "blocked32": 30670839}, "break_even": "saved_Fp2mul_cost > added_Fp2add + 2*added_Fp2sub per blocked32; plus trace/plan/cursor/code/scratch delta", "limits": "Field API census only. Cursor and interpreter opcodes remain; native unrolling is untested. No register/time prediction."}
+CENSUS {"shape": {"head_pad": 32, "kv_heads": 8, "query_heads": 32, "token_pad": 512, "tokens": 512}, "limbs": 2, "cube_log": 23, "baseline": "cycle50 fixed2x2 Karatsuba public-axis weighted factory", "before": {"mul_base": 155451653, "add": 2511167305, "mul": 1688993582, "sub": 1271660403}, "after": {"mul_base": 155451653, "add": 2562023233, "mul": 1638137654, "sub": 1373372259}, "cold_after_with_trace": {"mul_base": 155451686, "add": 2562023520, "mul": 1638137989, "sub": 1373372408}, "delta": {"mul": -50855928, "add": 50855928, "mul_base": 0, "sub": 101711856}, "base_products_before": 8755871216, "base_products_after": 8501591576, "base_product_fraction_removed": 0.02904104385813068, "api_before": 5627272943, "api_after": 5728984799, "api_fraction_change": 0.018074804088990145, "baseline_dispatch": {"public_width_tests": 411041743, "affine_products": 92274677}, "candidate_dispatch": {"public_pattern_lookups": 8388607, "plan_cursor_steps": 411041743, "interpreter_opcode_steps": 1842085650, "schoolbook": 267911138, "affine22": 92274677, "blocked32": 50855928}, "break_even": "saved_Fp2mul_cost > added_Fp2add + 2*added_Fp2sub per blocked32; plus trace/plan/cursor/code/scratch delta", "limits": "Field API census only. Cursor and interpreter opcodes remain; native unrolling is untested. No register/time prediction."}
+CENSUS {"shape": {"head_pad": 32, "kv_heads": 8, "query_heads": 32, "token_pad": 512, "tokens": 512}, "limbs": 3, "cube_log": 23, "baseline": "cycle50 fixed2x2 Karatsuba public-axis weighted factory", "before": {"mul_base": 189006081, "add": 2787991336, "mul": 1856765722, "sub": 1405878117}, "after": {"mul_base": 189006081, "add": 2847235871, "mul": 1797521187, "sub": 1524367187}, "cold_after_with_trace": {"mul_base": 189006122, "add": 2847236192, "mul": 1797521558, "sub": 1524367352}, "delta": {"mul": -59244535, "add": 59244535, "mul_base": 0, "sub": 118489070}, "base_products_before": 9661840772, "base_products_after": 9365618097, "base_product_fraction_removed": 0.030659030922808504, "api_before": 6239641256, "api_after": 6358130326, "api_fraction_change": 0.018989724751573123, "baseline_dispatch": {"public_width_tests": 452984778, "affine_products": 100663284}, "candidate_dispatch": {"public_pattern_lookups": 8388607, "plan_cursor_steps": 452984778, "interpreter_opcode_steps": 2051800825, "schoolbook": 293076959, "affine22": 100663284, "blocked32": 59244535}, "break_even": "saved_Fp2mul_cost > added_Fp2add + 2*added_Fp2sub per blocked32; plus trace/plan/cursor/code/scratch delta", "limits": "Field API census only. Cursor and interpreter opcodes remain; native unrolling is untested. No register/time prediction."}
+CENSUS {"shape": {"head_pad": 32, "kv_heads": 8, "query_heads": 24, "token_pad": 1024, "tokens": 769}, "limbs": 2, "cube_log": 25, "baseline": "cycle50 fixed2x2 Karatsuba public-axis weighted factory", "before": {"mul_base": 621805853, "add": 10080318276, "mul": 6782188328, "sub": 5111804784}, "after": {"mul_base": 621805853, "add": 10286887740, "mul": 6575618864, "sub": 5524943712}, "cold_after_with_trace": {"mul_base": 621805919, "add": 10286888334, "mul": 6575619558, "sub": 5524944015}, "delta": {"mul": -206569464, "add": 206569464, "mul_base": 0, "sub": 413138928}, "base_products_before": 35154553346, "base_products_after": 34121706026, "base_product_fraction_removed": 0.02938018611229264, "api_before": 22596117241, "api_after": 23009256169, "api_fraction_change": 0.018283624730463487, "baseline_dispatch": {"public_width_tests": 1644167119, "affine_products": 377486324}, "candidate_dispatch": {"public_pattern_lookups": 33554431, "plan_cursor_steps": 1644167119, "interpreter_opcode_steps": 7443835653, "schoolbook": 1060111331, "affine22": 377486324, "blocked32": 206569464}, "break_even": "saved_Fp2mul_cost > added_Fp2add + 2*added_Fp2sub per blocked32; plus trace/plan/cursor/code/scratch delta", "limits": "Field API census only. Cursor and interpreter opcodes remain; native unrolling is untested. No register/time prediction."}
+CENSUS {"shape": {"head_pad": 32, "kv_heads": 8, "query_heads": 24, "token_pad": 1024, "tokens": 769}, "limbs": 3, "cube_log": 25, "baseline": "cycle50 fixed2x2 Karatsuba public-axis weighted factory", "before": {"mul_base": 756023577, "add": 11187614499, "mul": 7453276948, "sub": 5648675682}, "after": {"mul_base": 756023577, "add": 11427738394, "mul": 7213153053, "sub": 6128923472}, "cold_after_with_trace": {"mul_base": 756023659, "add": 11427739056, "mul": 7213153819, "sub": 6128923807}, "delta": {"mul": -240123895, "add": 240123895, "mul_base": 0, "sub": 480247790}, "base_products_before": 38778431894, "base_products_after": 37577812419, "base_product_fraction_removed": 0.030961011478800052, "api_before": 25045590706, "api_after": 25525838496, "api_fraction_change": 0.019174943631293566, "baseline_dispatch": {"public_width_tests": 1811939274, "affine_products": 411040755}, "candidate_dispatch": {"public_pattern_lookups": 33554431, "plan_cursor_steps": 1811939274, "interpreter_opcode_steps": 8282696428, "schoolbook": 1160774624, "affine22": 411040755, "blocked32": 240123895}, "break_even": "saved_Fp2mul_cost > added_Fp2add + 2*added_Fp2sub per blocked32; plus trace/plan/cursor/code/scratch delta", "limits": "Field API census only. Cursor and interpreter opcodes remain; native unrolling is untested. No register/time prediction."}

@@ -1,0 +1,21 @@
+# ZKP efficiency explorer — durable state
+
+Cycle0019 complete; run `20261004T010146Z-23455eeb`, checkpoint 2026-10-04T01:19:50.577935+00:00. Deadline01:21:46UTC. Prior STATE preserved in experiments/opening-gather-ownership-20261004/state-on-pickup.md. Read AGENDA and requested durable memory every cycle. No further cycle before02:01:46UTC,2026-10-04. Writes research only excluding runtime; no GPU/build/install/Git/external messages, CPU1thread<=60s/512MiB.
+
+No accepted complete private8B proof/rate. Existing synthetic12-blockT512 onecold RTX4070Laptop8188MiB diagnostic408.609s wall,318.22s run-prover includeswitness/serialization,12.15s in-process verify,484107456B, independentverificationfalse. No liveness inference/relaunch from stale reports. Larger workloads allowed,512/10.24s reference only. Preserve privacy/exactness/fresh masks and prefillT²/resident/decode distinction.
+
+Cycle0019 opening-gather prototype passed98cases/101868raw words/636direct hiding-row words/15controls, seed2026100419, CPU0.276861s/RSS18720KiB/1lowpriority thread. Independent directDFT/query-major/byte oracle, fused/pruned/unfused/duplicate ownership, malformed/empty/range plans, row128/256tails, rawbit preservation. Initial passing script/log/result retained. Native GPU/transcript/RNG/proof not tested.
+
+Counted m125 per-opening hoststage anddeviceoutput savingA10.846MiB/H13.656MiB atB128,Q256distinct; finaloutput/D2H unchanged, downloadcalls1->45/56. Peaks separate, not summed; commonNTTpools/scratch/data/receipt storage omitted. Native biggerchunks enlarge scratch. Single-chunk zero saving. Five-limb8B rows count-only; native ln!=4 refuses.
+
+Decisive negative: A/H opening parent sums11.616s=2.8428% of408.609wall,3.6503% run-prover. Zero-cost whole-phase deletion diagnostic ceiling396.993s/1.2897arithmetic positions/s; not countable tokens/candidate improvement. Speed-demote opening idea, keep capacity handoff. Existing run already flushes/drops owned per-block receipt segments; no full-run buffer to eliminate.
+
+Ranked hypotheses:
+1. Owner actual GPU SC_SZC then witness recurrence: highest measured cost; no duplicate native lane. Slower fusion retained.
+2. Lazy/typed/public-last-read consumers and A construction: synthetic exactness passes, native Rust ownership/refusal/RNG/byte/RSS/phase gates pending. N/(T-M+C), actual benefit unknown.
+3. NEW next CPU experiment: public A-row coverage at protocol.rs allocate/plane-copy/hist/mask rows and layout.rs a_off packing. Parent A allocation+witness-fill86.691s (21.22% diagnostic wall), lookup+hist4.231s, exp/act0.587s. Compare zero-then-scatter with checked write-once coverage, independent per-row reference and missing/duplicate/padding/hist/mask controls. Eliminate overwritten zero stores only; add coverage metadata/assembly. Zero-fill may already be optimized/lazy calloc, actual removed traffic/time unknown. No unsafe native uninit, changed refusal/RNG/private scheduling. Falsify coverage/proof-byte/refusal/RNG mismatch, no actual redundant traffic or overhead>=saving. Parent deletion not candidate saving; trained8B ceiling unknown.
+4. Chunk-local opening capacity: handoff review-only, same interface/output/queries, extra sync may regress; native device/fullproof clocks and actualpeak needed.
+5. Resident fixed-context fresh complete passes: measured initialization/recurrence/verification/drain/lag needed; no mask/opening reuse. Continuousdecode needs private authenticated state, longerprefill quadratic.
+6. Private authenticated composition: high obligations/integration cost; no compatible reproduced code.
+
+This cycle complete-stack passes/tokens0, modelcontextnull/deviceCPU; steady/total rates/startup fraction/all witness/proof/serialization/verification clocks/lag/drain null. >=50/s unachieved. Source search covered new olderZKProphet, ICICLE MIT/concurrency/history/fullversioncommit dated2025 and TensorZKP dates/32-bitdegree4 field refresh;3records appended. Tensor artifact Zenodo redirectInternalError recorded,no bypass. No externalcode run. Nextrotationlookup/softmax+Aconstruction ->sumcheck/GKR ->batching/amortization ->quantization/arithmetic ->composition. Reports/handoff saved; file creation is not evidence of user delivery. Preserve all prior findings.

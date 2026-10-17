@@ -1,0 +1,290 @@
+{
+  "illustrative": {
+    "n": 23,
+    "ls": 3,
+    "padded": true,
+    "recovery": true,
+    "debug": false,
+    "chunk": 1024,
+    "policy": "public_half",
+    "baseline": "cycle47 selective row coefficients plus identical binary part reduction census",
+    "before": {
+      "mul_base": 314572765,
+      "add": 2957073930,
+      "mul": 2118123271,
+      "sub": 1245708155
+    },
+    "after": {
+      "mul_base": 197132545,
+      "add": 2843828012,
+      "mul": 2122317573,
+      "sub": 1245708155
+    },
+    "delta": {
+      "mul": 4194302,
+      "mul_base": -117440220,
+      "add": -113245918
+    },
+    "base_mul_before": 11219761885,
+    "base_mul_after": 11005852955,
+    "base_mul_fraction_removed": 0.019065371635558555,
+    "api_before": 6635478121,
+    "api_after": 6408986285,
+    "api_fraction_removed": 0.034133461352724125,
+    "weighted_rows": 8388606,
+    "weighted_rounds": 22,
+    "part_reduction_adds": 89958,
+    "old_horner_base_mul": 117440500,
+    "new_horner_base_mul": 280,
+    "schedule": [
+      {
+        "round": 0,
+        "rows": 4194304,
+        "parts": 4096,
+        "samples": 5,
+        "weighted": true,
+        "old_horner_base_mul": 67108864,
+        "new_horner_base_mul": 16
+      },
+      {
+        "round": 1,
+        "rows": 2097152,
+        "parts": 2048,
+        "samples": 4,
+        "weighted": true,
+        "old_horner_base_mul": 25165824,
+        "new_horner_base_mul": 12
+      },
+      {
+        "round": 2,
+        "rows": 1048576,
+        "parts": 1024,
+        "samples": 4,
+        "weighted": true,
+        "old_horner_base_mul": 12582912,
+        "new_horner_base_mul": 12
+      },
+      {
+        "round": 3,
+        "rows": 524288,
+        "parts": 512,
+        "samples": 4,
+        "weighted": true,
+        "old_horner_base_mul": 6291456,
+        "new_horner_base_mul": 12
+      },
+      {
+        "round": 4,
+        "rows": 262144,
+        "parts": 256,
+        "samples": 4,
+        "weighted": true,
+        "old_horner_base_mul": 3145728,
+        "new_horner_base_mul": 12
+      },
+      {
+        "round": 5,
+        "rows": 131072,
+        "parts": 128,
+        "samples": 4,
+        "weighted": true,
+        "old_horner_base_mul": 1572864,
+        "new_horner_base_mul": 12
+      },
+      {
+        "round": 6,
+        "rows": 65536,
+        "parts": 64,
+        "samples": 4,
+        "weighted": true,
+        "old_horner_base_mul": 786432,
+        "new_horner_base_mul": 12
+      },
+      {
+        "round": 7,
+        "rows": 32768,
+        "parts": 32,
+        "samples": 4,
+        "weighted": true,
+        "old_horner_base_mul": 393216,
+        "new_horner_base_mul": 12
+      },
+      {
+        "round": 8,
+        "rows": 16384,
+        "parts": 16,
+        "samples": 4,
+        "weighted": true,
+        "old_horner_base_mul": 196608,
+        "new_horner_base_mul": 12
+      },
+      {
+        "round": 9,
+        "rows": 8192,
+        "parts": 8,
+        "samples": 4,
+        "weighted": true,
+        "old_horner_base_mul": 98304,
+        "new_horner_base_mul": 12
+      },
+      {
+        "round": 10,
+        "rows": 4096,
+        "parts": 4,
+        "samples": 4,
+        "weighted": true,
+        "old_horner_base_mul": 49152,
+        "new_horner_base_mul": 12
+      },
+      {
+        "round": 11,
+        "rows": 2048,
+        "parts": 2,
+        "samples": 4,
+        "weighted": true,
+        "old_horner_base_mul": 24576,
+        "new_horner_base_mul": 12
+      },
+      {
+        "round": 12,
+        "rows": 1024,
+        "parts": 1,
+        "samples": 4,
+        "weighted": true,
+        "old_horner_base_mul": 12288,
+        "new_horner_base_mul": 12
+      },
+      {
+        "round": 13,
+        "rows": 512,
+        "parts": 1,
+        "samples": 4,
+        "weighted": true,
+        "old_horner_base_mul": 6144,
+        "new_horner_base_mul": 12
+      },
+      {
+        "round": 14,
+        "rows": 256,
+        "parts": 1,
+        "samples": 4,
+        "weighted": true,
+        "old_horner_base_mul": 3072,
+        "new_horner_base_mul": 12
+      },
+      {
+        "round": 15,
+        "rows": 128,
+        "parts": 1,
+        "samples": 4,
+        "weighted": true,
+        "old_horner_base_mul": 1536,
+        "new_horner_base_mul": 12
+      },
+      {
+        "round": 16,
+        "rows": 64,
+        "parts": 1,
+        "samples": 4,
+        "weighted": true,
+        "old_horner_base_mul": 768,
+        "new_horner_base_mul": 12
+      },
+      {
+        "round": 17,
+        "rows": 32,
+        "parts": 1,
+        "samples": 4,
+        "weighted": true,
+        "old_horner_base_mul": 384,
+        "new_horner_base_mul": 12
+      },
+      {
+        "round": 18,
+        "rows": 16,
+        "parts": 1,
+        "samples": 4,
+        "weighted": true,
+        "old_horner_base_mul": 192,
+        "new_horner_base_mul": 12
+      },
+      {
+        "round": 19,
+        "rows": 8,
+        "parts": 1,
+        "samples": 4,
+        "weighted": true,
+        "old_horner_base_mul": 96,
+        "new_horner_base_mul": 12
+      },
+      {
+        "round": 20,
+        "rows": 4,
+        "parts": 1,
+        "samples": 4,
+        "weighted": true,
+        "old_horner_base_mul": 48,
+        "new_horner_base_mul": 12
+      },
+      {
+        "round": 21,
+        "rows": 2,
+        "parts": 1,
+        "samples": 4,
+        "weighted": true,
+        "old_horner_base_mul": 24,
+        "new_horner_base_mul": 12
+      },
+      {
+        "round": 22,
+        "rows": 1,
+        "parts": 1,
+        "samples": 4,
+        "weighted": false,
+        "old_horner_base_mul": 12,
+        "new_horner_base_mul": 12
+      }
+    ],
+    "retained_group0_part_output_bytes": 80,
+    "incremental_group0_part_output_bytes": 0,
+    "excluded": [
+      "Eq construction",
+      "group factor setup",
+      "inverse/recovery/high-sample interpolation; part reduction is counted",
+      "native allocation/temporaries/register pressure",
+      "mask extensions",
+      "witness",
+      "PCS",
+      "transfers",
+      "serialization",
+      "verification"
+    ],
+    "reduction_limit": "P-1 binary merges counted; rayon identity folds/compiler behavior unmeasured; equal width in both arms"
+  },
+  "measurement_scope": "Literal operation census, not native timing",
+  "combined_vs_cycle33_base_product_fraction_removed": 0.16565974447909748,
+  "historical_scope": "Synthetic 125M geometry, one block, T512, one pass, RTX4070Laptop, two CPU threads, shared host",
+  "historical_whole_wall_seconds": 27.523873283003923,
+  "historical_prove_seconds": 16.864,
+  "historical_sc_szc_seconds": 7.794,
+  "entire_sc_szc_removal_whole_wall_fraction": 0.283172354408884,
+  "accepted_8b_ceiling": null,
+  "formula": "N/(T - C_per_row_sample_Horner_and_weight + C_weighted_coefficients + C_round_Horner + C_changed_reduction_and_scratch)",
+  "proof_accounting": {
+    "accepted_complete_private_8b_proofs": 0,
+    "proved_tokens": 0,
+    "passes": 0,
+    "context_length": null,
+    "steady_tokens_per_second": null,
+    "total_workload_tokens_per_second": null,
+    "startup_seconds": null,
+    "startup_fraction": null,
+    "witness_seconds": null,
+    "proof_seconds": null,
+    "serialization_seconds": null,
+    "independent_verification_seconds": null,
+    "prefill": null,
+    "resident_passes": null,
+    "decode": null
+  }
+}

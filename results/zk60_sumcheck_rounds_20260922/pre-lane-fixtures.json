@@ -1,0 +1,14 @@
+[
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_rowfold_20260919/integration/native-block-0/block_receipt.bin",
+    "baseline_copy": "/tmp/wt-zk60-shaped-20260920/results/zk60_rowfold_20260919/integration/native-block-0/block_receipt.bin",
+    "candidate_copy": "/tmp/zk60-rounds-20260922/results/zk60_rowfold_20260919/integration/native-block-0/block_receipt.bin",
+    "sha256": "d97f1a36f749d926d5c48dea473e0fbc5ae7249bf63b3184945d38d2b2a398d5"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_rowfold_20260919/integration/native-block-0/block_expected.bin",
+    "baseline_copy": "/tmp/wt-zk60-shaped-20260920/results/zk60_rowfold_20260919/integration/native-block-0/block_expected.bin",
+    "candidate_copy": "/tmp/zk60-rounds-20260922/results/zk60_rowfold_20260919/integration/native-block-0/block_expected.bin",
+    "sha256": "5fe6f004500ef206d84d822535ef3de76a5229e1e6e0fabe6550ee4bf297ef2f"
+  }
+]

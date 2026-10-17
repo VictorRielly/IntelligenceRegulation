@@ -1,0 +1,9 @@
+{
+  "run_id": "20261004T090146Z-73c03938",
+  "cycle": "0027",
+  "started_utc": "2026-10-04T09:01:46.272484+00:00",
+  "deadline_utc": "2026-10-04T09:21:46Z",
+  "checkpoint_utc": "2026-10-04T09:04:58.649373+00:00",
+  "resources": "one thread <=60s <=512MiB per experiment; no GPU/build/install/Git/external writes; research only excluding runtime",
+  "question": "Can immutable whole-block public digest memoization remove repeated full-model scans while preserving the complete preimage and outer statement bindings?"
+}

@@ -1,0 +1,84 @@
+[
+  {
+    "access_date": "2026-10-12",
+    "recorded_at_utc": "2026-10-12T23:38:59.519260+00:00",
+    "run_id": "20261012T232555Z-fecd435a",
+    "cycle": "0042",
+    "evidence_kind": "Native LIVE primary-source search/inspection; no foreign code executed and no author performance reproduced",
+    "id": "cycle42-plonky3-current-release-fusion-refresh",
+    "title": "Plonky3 v0.8.0 release: ordinary/hiding fusion and periodic-column ownership",
+    "url": "https://github.com/Plonky3/Plonky3/releases/tag/v0.8.0",
+    "published": "2026-09-23",
+    "updated": null,
+    "inspected_commit_id": "a21e3ed42905040ad49c519e402f018381c12d0c",
+    "inspected_urls": [
+      "https://github.com/Plonky3/Plonky3/commit/a21e3ed42905040ad49c519e402f018381c12d0c",
+      "https://github.com/Plonky3/Plonky3/blob/main/LICENSE-APACHE"
+    ],
+    "implementation_license": "MIT OR Apache-2.0 declaration inspected in Cargo diff; Apache-2.0 license text inspected. No code copied.",
+    "date_evidence": "Release displays Sep23 without year; visible release CHANGELOG diff explicitly 2026-09-23. Commit timestamp unknown; not a current HEAD or runtime-code pin.",
+    "assessment": "Refreshed recent release and visible version/CHANGELOG diff, including repeating-period column packing and ownership contracts. Initial host collapse preserves native mixed-factor messages. Existing native fusion was slower; do not repeat its speed claim. Exact PR2036/2038 file fetches failed; no new GPU speed reproduced.",
+    "access_issues": [
+      "PR2036/2038 and their files fetches Internal Error",
+      "Versioned sumcheck CHANGELOG fetch Internal Error"
+    ]
+  },
+  {
+    "access_date": "2026-10-12",
+    "recorded_at_utc": "2026-10-12T23:38:59.519260+00:00",
+    "run_id": "20261012T232555Z-fecd435a",
+    "cycle": "0042",
+    "evidence_kind": "Native LIVE primary-source search/inspection; no foreign code executed and no author performance reproduced",
+    "id": "cycle42-plonky3-versioned-strategy-ownership",
+    "title": "Version-addressed Plonky3 sumcheck strategy: pending binding and reader settlement",
+    "url": "https://docs.rs/p3-sumcheck/0.8.0/src/p3_sumcheck/strategy.rs.html",
+    "published": null,
+    "updated": null,
+    "inspected_commit_id": null,
+    "implementation_license": "Associated repository MIT OR Apache-2.0; Apache text inspected separately. No source copied.",
+    "date_evidence": "Version-addressed documentation shows no page publication/update timestamp; release date is not a verified runtime-source update.",
+    "assessment": "Inspected source thresholds, fused 4096-byte blocks, pending challenge, settle-before-reader/finals and fused-vs-two-pass tests. Future private leading reader must settle before every observation. Pair-product evaluator and projective message changes are not direct generic degree5 SZC substitution; no author timing reproduced."
+  },
+  {
+    "access_date": "2026-10-12",
+    "recorded_at_utc": "2026-10-12T23:38:59.519260+00:00",
+    "run_id": "20261012T232555Z-fecd435a",
+    "cycle": "0042",
+    "evidence_kind": "Native LIVE primary-source search/inspection; no foreign code executed and no author performance reproduced",
+    "id": "cycle42-new-older-bcs-composition",
+    "title": "Sumcheck Arguments and their Applications: older commitment/folding architecture filter",
+    "url": "https://eprint.iacr.org/2021/333",
+    "published": "2021-03-14",
+    "updated": "2021-06-09",
+    "inspected_commit_id": null,
+    "implementation_license": "Paper CC BY; no implementation repository/code/license inspected.",
+    "inspected_urls": [
+      "https://research.ibm.com/publications/sumcheck-arguments-and-their-applications"
+    ],
+    "date_evidence": "ePrint history: received2021-03-14, revised2021-06-09; official IBM publication date2021-08-15 for CRYPTO2021.",
+    "assessment": "New URL relative to prior225-record inventory. Primary abstract/metadata links sumcheck to bilinear commitments/Pedersen folding and R1CS over rings. High-cost PCS/commitment migration; abstract does not establish a ready Goldilocks2 private8B GPU implementation or joint hiding. Useful architecture queue filter only; not padding a kernel result with paper speedups.",
+    "access_issues": [
+      "ePrint PDF403 Forbidden; no bypass; assessment limited to primary metadata/abstract"
+    ]
+  },
+  {
+    "access_date": "2026-10-12",
+    "recorded_at_utc": "2026-10-12T23:38:59.519260+00:00",
+    "run_id": "20261012T232555Z-fecd435a",
+    "cycle": "0042",
+    "evidence_kind": "Native LIVE primary-source search/inspection; no foreign code executed and no author performance reproduced",
+    "id": "cycle42-packed-mask-author-scope-filter",
+    "title": "Author experiment repository for Packing Breaks the Mask: fixed-suffix privacy boundary",
+    "url": "https://github.com/ls-rm-rf/sumcheck",
+    "published": null,
+    "updated": null,
+    "inspected_commit_id": null,
+    "implementation_license": "Root reports MIT; license text fetch Internal Error, not independently inspected. No implementation code copied/executed.",
+    "date_evidence": "Publication/update/commit dates unavailable. Seed20260913 in README is not a publication date.",
+    "assessment": "Primary README inspected: author claims first-round attack on separable packed-secret-sharing masks and excludes ground-truth validation from recovery clocks. This is not a test of native masks and no native vulnerability is inferred. Local host optimization uses unmasked arithmetic only, preserves existing joint mask/extension equations, and cannot license mask flattening/reuse. No attack reproduced.",
+    "access_issues": [
+      "License text fetch Internal Error",
+      "No paper metadata or commit ID established"
+    ]
+  }
+]

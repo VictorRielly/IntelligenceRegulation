@@ -1,0 +1,67 @@
+{
+  "checked_utc": "2026-10-13T00:40:23.033243+00:00",
+  "native_pins": [
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/argument.rs",
+      "matches_start_pin": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/pad.rs",
+      "matches_start_pin": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/shape.rs",
+      "matches_start_pin": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/witness.rs",
+      "matches_start_pin": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/layout.rs",
+      "matches_start_pin": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/zkp-core/src/sumcheck/grouped.rs",
+      "matches_start_pin": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/zkp-core/src/sumcheck.rs",
+      "matches_start_pin": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/zk.rs",
+      "matches_start_pin": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/zkp-core/src/sumcheck/rounds.rs",
+      "matches_start_pin": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/results/zk60_sol_gpu_20260927/attempt-5-dense-ab/report.json",
+      "matches_start_pin": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/results/zk60_sol_gpu_20260927/attempt-5-dense-ab/b2-gpu.log",
+      "matches_start_pin": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/results/zk60_mvp_20260929/baseline-stack-gpu-attempt2/report.json",
+      "matches_start_pin": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/results/zk60_mvp_20260929/cli-stack-gpu/report.json",
+      "matches_start_pin": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/zkp-core/src/field.rs",
+      "matches_start_pin": true
+    }
+  ],
+  "agenda_unchanged": true,
+  "source_records": 233,
+  "findings_cycle43_present": true,
+  "artifact_count": 59,
+  "executed_code_hashes_match": true,
+  "final_reports_present": true
+}

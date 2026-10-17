@@ -1,0 +1,10 @@
+test_orientation_corruption_and_payload_bounds (test_zk60_1b_checkpoint.ImportTests) ... ok
+test_overlap_and_duplicate_json_keys (test_zk60_1b_checkpoint.ImportTests) ... ok
+test_sharded_index_and_source_pins (test_zk60_1b_checkpoint.ImportTests) ... ok
+test_single_shard_layer_boundary_and_bounded_reads (test_zk60_1b_checkpoint.ImportTests) ... ok
+test_unsupported_architecture_and_unsafe_index (test_zk60_1b_checkpoint.ImportTests) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.008s
+
+OK

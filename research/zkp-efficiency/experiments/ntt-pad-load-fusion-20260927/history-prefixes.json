@@ -1,0 +1,22 @@
+{
+  "STATE.md": {
+    "bytes": 5140,
+    "sha256": "01d51c63d9cd657e5fd110c0293f8e51d2f119a435ba5201869078fd3f7457a2"
+  },
+  "FINDINGS.md": {
+    "bytes": 69084,
+    "sha256": "4f55ecb3680d4dc21eef86ab1852790ba9a572dc3b6cfc1b07fd702fe74aacd0"
+  },
+  "sources.jsonl": {
+    "bytes": 58414,
+    "sha256": "9f43ed6a33b4f53ddbecc5130c2fb1b55857c27527b4052d4fe831f7fb0b9c20"
+  },
+  "AGENDA.md": {
+    "bytes": 5603,
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139"
+  },
+  "PROGRESS.md": {
+    "bytes": 1962,
+    "sha256": "bb5ff4bdbd91c78d7bcbdc59a0129a5cf79c76bd263ae7bb4324e0acf4ac3689"
+  }
+}

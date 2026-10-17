@@ -1,5 +1,36 @@
 # START HERE — the proof project in plain words
 
+**Latest, 2026-09-26:** the current goal is a complete private 8B forward-pass
+proof at **at least 50 proved tokens/s on an RTX 5090 or another high-end GPU**.
+Victor permits larger workloads to amortize startup and initial prefill; the
+512-token / 10.24-second window is now a comparison point, not a latency limit.
+See [the current workload/clock definition](ZK60_THROUGHPUT_TARGET.md).
+There is no measured complete private 8B pass yet. The hourly researcher is
+resumed; the native grouped-equality candidate passes its full CPU validation
+(512 native tests, 17 ignored). Its six-run dense CPU A/B is complete:
+two non-warm samples per arm show about 8.5% less proving time on average.
+This shared-machine synthetic-block diagnostic is not an 8B/GPU result.
+See [current status](MVP_STATUS.md) and
+[the new candidate](../../results/zk60_grouped_rounds_20260926/README.md).
+
+**2026-09-27 UTC:** three Sol agents are advancing native fusion, keyed GPU
+commitments and memory/model readiness; see [the team map](ZK60_SOL_TEAM_20260927.md).
+Victor's 5090 PC needs a fresh Linux installation, and the M3 Ultra is also
+available. [The hardware guide](ZK60_HARDWARE_SETUP.md) covers creating the
+Ubuntu USB installer on the Mac, then device and toolchain bring-up. No
+5090/Mac proof timing has been measured. The materialized Mistral-layout
+payload floor grows from 25.70 GiB at T512 to 70.57 GiB at T1024. The keyed
+GPU candidate's chunked route already avoids those full codewords; its A/H
+bounds are 5.18/14.23 GiB host and 5.17/14.22 GiB VRAM, before other live
+allocations. Longer contexts still require memory work alongside startup
+amortization. Device correctness now includes 189 legacy cases and all eight
+frozen-proof comparisons. No complete private 8B proof has been measured.
+The matched synthetic-block A/B now averages 32.95 s CPU versus 17.13 s
+GPU proving, with whole-test time 39.895 versus 30.055 s and much lower host
+RSS. These are two non-warm samples per arm on the shared RTX 4070 Laptop;
+they do not establish sustained 8B throughput. Details and limitations are
+in [current status](MVP_STATUS.md).
+
 **Latest, 2026-09-19:** exact integer row folds pass all twelve frozen
 CPU/GPU proof-byte gates and repaired-private checks. Dense synthetic folds
 improve 2.32–2.42x; sparse ratios are mixed and full-model speed is unmeasured.
@@ -144,21 +175,32 @@ holds the design memos and the task board. Ledgers named
 
 ## 2. The one number that matters: seconds per proof
 
-The written contract (`docs/zkmatrix-poc/TARGET_CONTRACT.md`) defines
+**Active target reaffirmed by Victor, 2026-09-22: five seconds for an
+8B-parameter model on better hardware involving a GPU.** The 125M CPU block
+is a development workload. An FFN-only proof does not demonstrate the
+complete model pass with attention. At the existing 512-token prefill window,
+five seconds would mean 102.4 proved tokens/s; this is batch proof throughput,
+not generated-token latency. Always report witness/preparation and complete
+readiness alongside the proving phase.
+
+The older component contract (`docs/zkmatrix-poc/TARGET_CONTRACT.md`) defines
 the headline as: **5-15 seconds, p95 over at least 20 warm runs, on
 one consumer GPU of at most 450 W, on an otherwise idle machine**, for
 one proof of the **feed-forward blocks** of a 7-8B-parameter model
 over a **512-token window** (32 blocks, width 4096, hidden 11008 in
 the contract's surrogate; 14336 for the real Mistral-7B used since).
 
-Plain reading: "a proof" today means the feed-forward half of every
+The historical 8B measurements below prove the feed-forward half of every
 transformer layer, for one 512-token prefill. The attention half is
 designed and proven at toy scale (§4) but is **not** in any 8B proof
 on either line — including the hash line's 2026-09-03 Mistral-7B
 run, which was feed-forward only (no attention, no norms, no
 embeddings, and each layer's input committed from the export rather
 than derived from the previous layer). Any write-up must say
-"FFN-only" until round 12's lane AE lands the full layer.
+"FFN-only" until a complete model-scale proof is implemented and measured.
+The current public Mistral-7B record is 58.40 seconds of proving, or 8.77
+proved tokens/s for those FFN relations only; 196.79 seconds complete logged
+wall time (2.60 tokens/s). No 54-second FFN-plus-attention result is measured.
 
 **The goal as restated by Victor on 2026-09-02: at least 50 proven
 tokens per second for a 30B-class model on ONE GPU** (a very large

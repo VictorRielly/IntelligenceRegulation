@@ -1,0 +1,8 @@
+{
+  "checked_at_unix": 1790730851.5329142,
+  "guard_sha256": "1b4caae473481137985e3b81224c6b179234516c46ba4baeb8260b5220f7721b",
+  "test": "unrelated inherited scope must never be adopted for job cleanup",
+  "passed": false,
+  "adopted_cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/session-7.scope",
+  "processes_launched_or_signaled": false
+}

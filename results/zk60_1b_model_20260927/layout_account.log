@@ -1,0 +1,15 @@
+tinyllama_t32_lc12_probe cpu_mat 0.591 host_streamed 0.124 gpu_streamed+scratch 0.169 host_preH+one_layer 0.294
+tinyllama_t32_lc13_probe cpu_mat 0.654 host_streamed 0.135 gpu_streamed+scratch 0.225 host_preH+one_layer 0.305
+tinyllama_t64_lc12_probe cpu_mat 1.181 host_streamed 0.247 gpu_streamed+scratch 0.292 host_preH+one_layer 0.519
+tinyllama_t64_lc13_probe cpu_mat 1.24 host_streamed 0.255 gpu_streamed+scratch 0.344 host_preH+one_layer 0.531
+tinyllama_t64_lc14_probe cpu_mat 1.368 host_streamed 0.28 gpu_streamed+scratch 0.459 host_preH+one_layer 0.554
+tinyllama_t128_lc12_probe cpu_mat 2.562 host_streamed 0.535 gpu_streamed+scratch 0.579 host_preH+one_layer 1.046
+tinyllama_t128_lc13_probe cpu_mat 2.612 host_streamed 0.534 gpu_streamed+scratch 0.623 host_preH+one_layer 1.058
+tinyllama_t128_lc14_probe cpu_mat 2.735 host_streamed 0.555 gpu_streamed+scratch 0.734 host_preH+one_layer 1.081
+tinyllama_t256_lc12_probe cpu_mat 6.442 host_streamed 1.345 gpu_streamed+scratch 1.389 host_preH+one_layer 2.53
+tinyllama_t256_lc13_probe cpu_mat 6.468 host_streamed 1.32 gpu_streamed+scratch 1.41 host_preH+one_layer 2.541
+tinyllama_t256_lc14_probe cpu_mat 6.582 host_streamed 1.33 gpu_streamed+scratch 1.509 host_preH+one_layer 2.565
+tinyllama_t512_lc12_probe cpu_mat 17.72 host_streamed 3.703 gpu_streamed+scratch 3.748 host_preH+one_layer 6.841
+tinyllama_t512_lc13_probe cpu_mat 17.676 host_streamed 3.609 gpu_streamed+scratch 3.699 host_preH+one_layer 6.852
+tinyllama_t512_lc14_probe cpu_mat 17.754 host_streamed 3.584 gpu_streamed+scratch 3.763 host_preH+one_layer 6.876
+refused {'tinyllama_t32_lc14_probe': 'REFUSED private block shape: the bilinear attention slots cannot serve a shape whose Kv domain is lifted by P-3 (natural log 13, lifted to the row width 14)'}

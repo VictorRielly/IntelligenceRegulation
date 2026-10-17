@@ -1,0 +1,14 @@
+{
+  "native_and_report_pins": 14,
+  "startup_snapshots": 10,
+  "prior_findings_sources_preserved": true,
+  "final_experiment_code_hashes": 4,
+  "initial_experiment_code_hashes": 3,
+  "final_log_result_match": true,
+  "new_note_url_unassessed_before": true,
+  "new_september_url_unassessed_before": true,
+  "independent_count_formula_checks": 8,
+  "artifacts_hashed": 51,
+  "checked_at_utc": "2026-10-13T02:45:14.423726+00:00",
+  "status": "pass"
+}

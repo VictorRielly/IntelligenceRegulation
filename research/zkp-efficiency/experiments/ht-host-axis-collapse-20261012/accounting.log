@@ -1,0 +1,65 @@
+{
+  "formula_checks": 16,
+  "T512": {
+    "context": 512,
+    "t_pad": 512,
+    "h_pad": 16,
+    "cube_log": 22,
+    "ht_log": 13,
+    "debug": false,
+    "conditional_nonzero_recovery": true,
+    "baseline_bracket_calls": [
+      18874364,
+      10485758,
+      10485758
+    ],
+    "collapsed_bracket_calls": [
+      18874364,
+      20487,
+      10485758
+    ],
+    "host_calls_removed": 10465271,
+    "extra_host_endpoint_reads": 32782,
+    "multiplicity_scalings": 66,
+    "host_weight_multiplications_before": 4194303,
+    "host_weight_multiplications_after": 8191,
+    "other_group_calls_unchanged": true,
+    "full_row_scan_and_all_folds_unchanged": true,
+    "note": "Counts, not time. Initial data rounds only; no extensions/masks/PCS. Zero-factor fallback changes release sample counts.",
+    "per_bracket_literal_API_counts": [
+      {
+        "mul_base": 21,
+        "add": 65,
+        "mul": 54,
+        "sub": 33
+      },
+      {
+        "mul": 2,
+        "add": 1
+      },
+      {
+        "mul_base": 1,
+        "add": 1,
+        "sub": 1,
+        "mul": 2
+      }
+    ],
+    "unchanged_private_Eq_public_fold_Fp2_muls": 125829090,
+    "Fp2_mul_API_before": 1239416567,
+    "Fp2_mul_API_after": 1203834633,
+    "Fp2_mul_API_removed": 35581934,
+    "Fp2_mul_API_fraction_removed": 0.028708615769212967,
+    "five_reduction_base_mul_before": 7010777639,
+    "five_reduction_base_mul_after": 6832868101,
+    "five_reduction_base_mul_fraction_removed": 0.025376576916419872,
+    "base_multiplicity_scalings_added": 66,
+    "extra_host_differences": 16382,
+    "extra_host_sample_additions": 32764,
+    "extra_reader_payload_bytes": 524512,
+    "peak_scratch": "O(degree) scalars, no compact private table allocated; split equality tables unchanged",
+    "exclusions": [
+      "Full-row differences/sample advances, factor/preparation/inversion, group interpolation/recovery/reduction, extensions, construction/census/verifier, masks/PCS/witness/transfer/serialization/independent verification",
+      "Literal API counts: optimizer may remove constants/zero operations. Five-base-multiply lowering is a conditional source model, not measured instructions or time."
+    ]
+  }
+}

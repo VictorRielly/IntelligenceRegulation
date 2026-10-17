@@ -1,0 +1,68 @@
+{
+  "status": "passed",
+  "seed": 2026101347,
+  "scope": "synthetic source-derived algebra and literal operation census; no native proof",
+  "counts": {
+    "identical_clause_body_checks": 1,
+    "final_values": 20736,
+    "schedules": 768,
+    "independent_row_polynomial_values": 1536,
+    "fixtures": 128,
+    "round_samples": 6912,
+    "convolution_count_checks": 25,
+    "independent_convolution_values": 100,
+    "general_denominator_samples": 948,
+    "prior_native_loop_census_checks": 48
+  },
+  "rows": 2112,
+  "recoveries": 1080,
+  "zero_factor_fallbacks": 648,
+  "negative_controls": [
+    "drop_high",
+    "swap_support",
+    "shift_sample",
+    "stale_row",
+    "exempt_E",
+    "wrong_plane_order",
+    "restart_zeta",
+    "gate_helpers",
+    "drop_odd",
+    "drop_c2"
+  ],
+  "output_sha256": "55055fb452e17b2350f4599fdc8e023e4f36cb1b20f88e51cac03fbbaff29b86",
+  "wall_seconds": 5.737249174999306,
+  "max_rss_kib": 17764,
+  "hardware": {
+    "cpu_model": "Intel(R) Core(TM) Ultra 9 185H",
+    "affinity": [
+      0
+    ],
+    "threads": 1,
+    "nice": 19,
+    "device": "CPU only"
+  },
+  "limits": {
+    "wall_seconds": 59,
+    "cpu_seconds": 59,
+    "address_space_bytes": 536870912,
+    "estimated_bytes": 67108864
+  },
+  "proof_accounting": {
+    "accepted_complete_private_8b_proofs": 0,
+    "proved_tokens": 0,
+    "passes": 0,
+    "context_length": null,
+    "steady_tokens_per_second": null,
+    "total_workload_tokens_per_second": null,
+    "startup_seconds": null,
+    "startup_fraction": null,
+    "witness_seconds": null,
+    "proof_seconds": null,
+    "serialization_seconds": null,
+    "independent_verification_seconds": null,
+    "prefill": null,
+    "resident_passes": null,
+    "decode": null
+  }
+}
+ILLUSTRATIVE_PROJECTION {"n": 23, "ls": 3, "padded": true, "recovery": true, "debug": false, "policy": "padded_zero", "tables": 30, "rows": 8388607, "coefficient_lengths": [5, 0, 0], "logical_retained_output_bytes": 80, "coefficient_setup_per_row": {"mul_base": 21, "add": 174, "mul": 200, "sub": 86}, "before_brackets": [{"mul_base": 10, "add": 51, "mul": 54, "sub": 32}, {"mul": 2, "add": 1}, {"mul_base": 1, "add": 1, "sub": 1, "mul": 2}], "loop_before": {"mul_base": 398458838, "add": 3305111186, "mul": 2478833399, "sub": 1732247377}, "loop_after": {"mul_base": 314572765, "add": 2956983972, "mul": 2118123271, "sub": 1245708155}, "base_mul_before": 13191084671, "base_mul_after": 11219761885, "base_mul_fraction_removed": 0.14944357004499134, "api_before": 7914650800, "api_after": 6635388163, "api_fraction_removed": 0.16163222728664162, "calls": 79691768, "dispatch_before": 566230980, "dispatch_after": 251658210, "excluded": ["Eq construction", "group factor setup", "inverse/recovery/interpolation/reduction", "native allocation/temporaries/register pressure", "mask extensions", "witness", "PCS", "transfers", "serialization", "verification"]}

@@ -1,0 +1,10 @@
+{
+  "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency",
+  "experiment": [
+    "python3",
+    "experiments/logup-fraction-tree-20260926/experiment.py"
+  ],
+  "stdout_stderr": "experiments/logup-fraction-tree-20260926/run.log",
+  "exit_code": 0,
+  "initial_correction": "Initial arithmetic tests passed. Corrected flat tree base-row estimate from floor 65535 to ceil 65536; initial source/result/log preserved. Final arithmetic digest unchanged."
+}

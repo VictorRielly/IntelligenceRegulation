@@ -1,0 +1,91 @@
+{
+  "state": "passed",
+  "runs": [
+    {
+      "name": "00-old",
+      "arm": "old",
+      "command": [
+        "/tmp/wt-zk60-shaped-20260920/hashline/target/release/deps/hashline-9f3c1f3b663ee6b0",
+        "--ignored",
+        "--exact",
+        "private_block::rulings_tests::private_block_125m_one_block",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 69.6528158239671,
+      "log_sha256": "2e69f75c2a9a0fae158e9f35a4c98026edd5e3bce19661c83f37ecefb790389a",
+      "prove_seconds": 61.79,
+      "verify_seconds": 2.12,
+      "receipt_bytes": 40783352,
+      "peak_rss_mib": 10526.0,
+      "witness_seconds": 5.17
+    },
+    {
+      "name": "01-new",
+      "arm": "new",
+      "command": [
+        "/tmp/zk60-rounds-20260922/hashline/target/release/deps/hashline-78b3e1325db8bd38",
+        "--ignored",
+        "--exact",
+        "private_block::rulings_tests::private_block_125m_one_block",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 50.772809343994595,
+      "log_sha256": "d9b14575577a963607e53898800d9108f60a2c85e4a9f8af5754a90711f1447b",
+      "prove_seconds": 43.02,
+      "verify_seconds": 0.88,
+      "receipt_bytes": 40783352,
+      "peak_rss_mib": 10520.0,
+      "witness_seconds": 6.57
+    },
+    {
+      "name": "02-new",
+      "arm": "new",
+      "command": [
+        "/tmp/zk60-rounds-20260922/hashline/target/release/deps/hashline-78b3e1325db8bd38",
+        "--ignored",
+        "--exact",
+        "private_block::rulings_tests::private_block_125m_one_block",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 45.00269276002655,
+      "log_sha256": "f9978614e70f6c2ba295c49fd95f6dabd3f7580ce2e6ae6bf689e5460ae4a015",
+      "prove_seconds": 38.06,
+      "verify_seconds": 0.87,
+      "receipt_bytes": 40783352,
+      "peak_rss_mib": 10471.0,
+      "witness_seconds": 5.85
+    },
+    {
+      "name": "03-old",
+      "arm": "old",
+      "command": [
+        "/tmp/wt-zk60-shaped-20260920/hashline/target/release/deps/hashline-9f3c1f3b663ee6b0",
+        "--ignored",
+        "--exact",
+        "private_block::rulings_tests::private_block_125m_one_block",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 46.126385060022585,
+      "log_sha256": "24487172307ebd86205db11d6799f705e10c25142d84da27e83cc451cced88ee",
+      "prove_seconds": 38.96,
+      "verify_seconds": 0.82,
+      "receipt_bytes": 40783352,
+      "peak_rss_mib": 10580.0,
+      "witness_seconds": 6.14
+    }
+  ],
+  "cpu_only": true,
+  "synthetic_dense_public_weights": true,
+  "model_scale_speed_claim": false,
+  "candidate_includes_small_slot_oracle": true,
+  "runner_sha256": "e3bb58b2f2c4cf1f08bd6159b27f92153d6a521de08290cac35ef17f1788fb5a",
+  "current": null
+}

@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "checked_at_utc": "2026-10-13T05:43:47.668061+00:00",
+  "checks": {
+    "executed_source_hashes_and_initial_revision": true,
+    "startup_and_native_snapshot_pins": true,
+    "native_sources_unchanged_since_pin": true,
+    "concurrent_native_changes": [],
+    "source_append_and_prior_findings_preserved": true,
+    "dated_progress_matches_current_report": true,
+    "result_scope_counters_controls_caps_and_negative": true,
+    "current_source_review_line_numbers": true,
+    "rust_sketch_uncompiled": true
+  },
+  "scope": "Research artifact integrity; no native proof verification"
+}

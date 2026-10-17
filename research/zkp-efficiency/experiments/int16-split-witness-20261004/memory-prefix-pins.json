@@ -1,0 +1,18 @@
+{
+  "STATE.md": {
+    "sha256": "edbfce79291287116bb8531549e9351bc61dab21e4178d6ee40743db8d0d4078",
+    "bytes": 4581
+  },
+  "FINDINGS.md": {
+    "sha256": "2c73f29ab3f130243b9b3c28e76089115f59a14af51f101a8689ae96b15517fd",
+    "bytes": 147193
+  },
+  "sources.jsonl": {
+    "sha256": "7e35f3b944ecbd545596b570d9e2af6a81778554db90ca9785f9ca6ea4849053",
+    "bytes": 110902
+  },
+  "AGENDA.md": {
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603
+  }
+}

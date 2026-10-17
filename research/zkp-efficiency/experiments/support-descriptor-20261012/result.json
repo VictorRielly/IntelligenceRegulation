@@ -1,0 +1,2245 @@
+{
+  "run_id": "20261012T192555Z-2488fec6",
+  "cycle": "0038",
+  "status": "pass",
+  "seed": 2026101238,
+  "counts": {
+    "fixtures": 84,
+    "endpoints": 113792,
+    "samples": 398272,
+    "folded_states": 568,
+    "direct_mles": 2009,
+    "factored_mles": 84,
+    "terminals": 84,
+    "public_extension_values": 336,
+    "support_sensitive_round_sums": 70,
+    "independent_sensitive_points": 105
+  },
+  "controls": [
+    "flat_head_prefix_changes_grouped_support",
+    "S_support_replaces_Ht_host_and_forces_true_rows_zero_at_padded_j",
+    "coarse_tile_on_trailing_coordinates",
+    "merged_causal_and_support_MLE_changes_native_offdomain_product",
+    "stale_boolean_threshold_at_terminal",
+    "lifted_support_must_zero_high_positions_not_repeat_table_values",
+    "drop_extension_component",
+    "mutate_partial_endpoint",
+    "overlapping_predicate_axes",
+    "axis_outside_cube",
+    "invalid_bound",
+    "noninteger_dimension",
+    "negative_index",
+    "oversized_index",
+    "premature_terminal",
+    "overbind",
+    "non_tiling_coarse_indicator",
+    "native_S_row_lift_refusal",
+    "native_Q_row_lift_refusal",
+    "native_Kv_row_lift_refusal",
+    "head_group_divisibility"
+  ],
+  "control_count": 21,
+  "fixtures": [
+    {
+      "name": "small-T",
+      "mode": "full",
+      "dom": "T",
+      "n": 2,
+      "own_log": 2,
+      "natural_log": 2,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 4,
+      "dense_folds": 3,
+      "candidate_bind_lerps": 2,
+      "endpoint_reads": 6,
+      "integer_tests": 6
+    },
+    {
+      "name": "small-T",
+      "mode": "base",
+      "dom": "T",
+      "n": 2,
+      "own_log": 2,
+      "natural_log": 2,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 4,
+      "dense_folds": 3,
+      "candidate_bind_lerps": 2,
+      "endpoint_reads": 6,
+      "integer_tests": 6
+    },
+    {
+      "name": "small-T",
+      "mode": "bool",
+      "dom": "T",
+      "n": 2,
+      "own_log": 2,
+      "natural_log": 2,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 4,
+      "dense_folds": 3,
+      "candidate_bind_lerps": 2,
+      "endpoint_reads": 6,
+      "integer_tests": 6
+    },
+    {
+      "name": "small-T",
+      "mode": "zero",
+      "dom": "T",
+      "n": 2,
+      "own_log": 2,
+      "natural_log": 2,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 4,
+      "dense_folds": 3,
+      "candidate_bind_lerps": 2,
+      "endpoint_reads": 6,
+      "integer_tests": 6
+    },
+    {
+      "name": "small-Ht",
+      "mode": "full",
+      "dom": "Ht",
+      "n": 5,
+      "own_log": 5,
+      "natural_log": 5,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 1,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 3,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 32,
+      "dense_folds": 31,
+      "candidate_bind_lerps": 4,
+      "endpoint_reads": 62,
+      "integer_tests": 104
+    },
+    {
+      "name": "small-Ht",
+      "mode": "base",
+      "dom": "Ht",
+      "n": 5,
+      "own_log": 5,
+      "natural_log": 5,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 1,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 3,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 32,
+      "dense_folds": 31,
+      "candidate_bind_lerps": 4,
+      "endpoint_reads": 62,
+      "integer_tests": 104
+    },
+    {
+      "name": "small-Ht",
+      "mode": "bool",
+      "dom": "Ht",
+      "n": 5,
+      "own_log": 5,
+      "natural_log": 5,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 1,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 3,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 32,
+      "dense_folds": 31,
+      "candidate_bind_lerps": 4,
+      "endpoint_reads": 62,
+      "integer_tests": 104
+    },
+    {
+      "name": "small-Ht",
+      "mode": "zero",
+      "dom": "Ht",
+      "n": 5,
+      "own_log": 5,
+      "natural_log": 5,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 1,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 3,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 32,
+      "dense_folds": 31,
+      "candidate_bind_lerps": 4,
+      "endpoint_reads": 62,
+      "integer_tests": 104
+    },
+    {
+      "name": "small-S",
+      "mode": "full",
+      "dom": "S",
+      "n": 7,
+      "own_log": 7,
+      "natural_log": 7,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 1,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 3,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 5,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 128,
+      "dense_folds": 127,
+      "candidate_bind_lerps": 6,
+      "endpoint_reads": 254,
+      "integer_tests": 566
+    },
+    {
+      "name": "small-S",
+      "mode": "base",
+      "dom": "S",
+      "n": 7,
+      "own_log": 7,
+      "natural_log": 7,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 1,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 3,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 5,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 128,
+      "dense_folds": 127,
+      "candidate_bind_lerps": 6,
+      "endpoint_reads": 254,
+      "integer_tests": 566
+    },
+    {
+      "name": "small-S",
+      "mode": "bool",
+      "dom": "S",
+      "n": 7,
+      "own_log": 7,
+      "natural_log": 7,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 1,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 3,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 5,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 128,
+      "dense_folds": 127,
+      "candidate_bind_lerps": 6,
+      "endpoint_reads": 254,
+      "integer_tests": 566
+    },
+    {
+      "name": "small-S",
+      "mode": "zero",
+      "dom": "S",
+      "n": 7,
+      "own_log": 7,
+      "natural_log": 7,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 1,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 3,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 5,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 128,
+      "dense_folds": 127,
+      "candidate_bind_lerps": 6,
+      "endpoint_reads": 254,
+      "integer_tests": 566
+    },
+    {
+      "name": "small-D",
+      "mode": "full",
+      "dom": "D",
+      "n": 6,
+      "own_log": 6,
+      "natural_log": 6,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 2,
+          "bits": 4,
+          "limit": 12
+        }
+      ],
+      "dense_words": 64,
+      "dense_folds": 63,
+      "candidate_bind_lerps": 6,
+      "endpoint_reads": 126,
+      "integer_tests": 198
+    },
+    {
+      "name": "small-D",
+      "mode": "base",
+      "dom": "D",
+      "n": 6,
+      "own_log": 6,
+      "natural_log": 6,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 2,
+          "bits": 4,
+          "limit": 12
+        }
+      ],
+      "dense_words": 64,
+      "dense_folds": 63,
+      "candidate_bind_lerps": 6,
+      "endpoint_reads": 126,
+      "integer_tests": 198
+    },
+    {
+      "name": "small-D",
+      "mode": "bool",
+      "dom": "D",
+      "n": 6,
+      "own_log": 6,
+      "natural_log": 6,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 2,
+          "bits": 4,
+          "limit": 12
+        }
+      ],
+      "dense_words": 64,
+      "dense_folds": 63,
+      "candidate_bind_lerps": 6,
+      "endpoint_reads": 126,
+      "integer_tests": 198
+    },
+    {
+      "name": "small-D",
+      "mode": "zero",
+      "dom": "D",
+      "n": 6,
+      "own_log": 6,
+      "natural_log": 6,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 2,
+          "bits": 4,
+          "limit": 12
+        }
+      ],
+      "dense_words": 64,
+      "dense_folds": 63,
+      "candidate_bind_lerps": 6,
+      "endpoint_reads": 126,
+      "integer_tests": 198
+    },
+    {
+      "name": "small-Q",
+      "mode": "full",
+      "dom": "Q",
+      "n": 6,
+      "own_log": 6,
+      "natural_log": 6,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 3,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 64,
+      "dense_folds": 63,
+      "candidate_bind_lerps": 4,
+      "endpoint_reads": 126,
+      "integer_tests": 196
+    },
+    {
+      "name": "small-Q",
+      "mode": "base",
+      "dom": "Q",
+      "n": 6,
+      "own_log": 6,
+      "natural_log": 6,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 3,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 64,
+      "dense_folds": 63,
+      "candidate_bind_lerps": 4,
+      "endpoint_reads": 126,
+      "integer_tests": 196
+    },
+    {
+      "name": "small-Q",
+      "mode": "bool",
+      "dom": "Q",
+      "n": 6,
+      "own_log": 6,
+      "natural_log": 6,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 3,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 64,
+      "dense_folds": 63,
+      "candidate_bind_lerps": 4,
+      "endpoint_reads": 126,
+      "integer_tests": 196
+    },
+    {
+      "name": "small-Q",
+      "mode": "zero",
+      "dom": "Q",
+      "n": 6,
+      "own_log": 6,
+      "natural_log": 6,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 3,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 64,
+      "dense_folds": 63,
+      "candidate_bind_lerps": 4,
+      "endpoint_reads": 126,
+      "integer_tests": 196
+    },
+    {
+      "name": "small-Kv",
+      "mode": "full",
+      "dom": "Kv",
+      "n": 4,
+      "own_log": 4,
+      "natural_log": 4,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 16,
+      "dense_folds": 15,
+      "candidate_bind_lerps": 2,
+      "endpoint_reads": 30,
+      "integer_tests": 24
+    },
+    {
+      "name": "small-Kv",
+      "mode": "base",
+      "dom": "Kv",
+      "n": 4,
+      "own_log": 4,
+      "natural_log": 4,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 16,
+      "dense_folds": 15,
+      "candidate_bind_lerps": 2,
+      "endpoint_reads": 30,
+      "integer_tests": 24
+    },
+    {
+      "name": "small-Kv",
+      "mode": "bool",
+      "dom": "Kv",
+      "n": 4,
+      "own_log": 4,
+      "natural_log": 4,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 16,
+      "dense_folds": 15,
+      "candidate_bind_lerps": 2,
+      "endpoint_reads": 30,
+      "integer_tests": 24
+    },
+    {
+      "name": "small-Kv",
+      "mode": "zero",
+      "dom": "Kv",
+      "n": 4,
+      "own_log": 4,
+      "natural_log": 4,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 16,
+      "dense_folds": 15,
+      "candidate_bind_lerps": 2,
+      "endpoint_reads": 30,
+      "integer_tests": 24
+    },
+    {
+      "name": "small-F",
+      "mode": "full",
+      "dom": "F",
+      "n": 5,
+      "own_log": 5,
+      "natural_log": 5,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 2,
+          "bits": 3,
+          "limit": 5
+        }
+      ],
+      "dense_words": 32,
+      "dense_folds": 31,
+      "candidate_bind_lerps": 5,
+      "endpoint_reads": 62,
+      "integer_tests": 92
+    },
+    {
+      "name": "small-F",
+      "mode": "base",
+      "dom": "F",
+      "n": 5,
+      "own_log": 5,
+      "natural_log": 5,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 2,
+          "bits": 3,
+          "limit": 5
+        }
+      ],
+      "dense_words": 32,
+      "dense_folds": 31,
+      "candidate_bind_lerps": 5,
+      "endpoint_reads": 62,
+      "integer_tests": 92
+    },
+    {
+      "name": "small-F",
+      "mode": "bool",
+      "dom": "F",
+      "n": 5,
+      "own_log": 5,
+      "natural_log": 5,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 2,
+          "bits": 3,
+          "limit": 5
+        }
+      ],
+      "dense_words": 32,
+      "dense_folds": 31,
+      "candidate_bind_lerps": 5,
+      "endpoint_reads": 62,
+      "integer_tests": 92
+    },
+    {
+      "name": "small-F",
+      "mode": "zero",
+      "dom": "F",
+      "n": 5,
+      "own_log": 5,
+      "natural_log": 5,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 2,
+          "bits": 3,
+          "limit": 5
+        }
+      ],
+      "dense_words": 32,
+      "dense_folds": 31,
+      "candidate_bind_lerps": 5,
+      "endpoint_reads": 62,
+      "integer_tests": 92
+    },
+    {
+      "name": "small-L",
+      "mode": "full",
+      "dom": "L",
+      "n": 6,
+      "own_log": 6,
+      "natural_log": 6,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 4,
+          "limit": 9
+        },
+        {
+          "start": 4,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 64,
+      "dense_folds": 63,
+      "candidate_bind_lerps": 6,
+      "endpoint_reads": 126,
+      "integer_tests": 216
+    },
+    {
+      "name": "small-L",
+      "mode": "base",
+      "dom": "L",
+      "n": 6,
+      "own_log": 6,
+      "natural_log": 6,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 4,
+          "limit": 9
+        },
+        {
+          "start": 4,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 64,
+      "dense_folds": 63,
+      "candidate_bind_lerps": 6,
+      "endpoint_reads": 126,
+      "integer_tests": 216
+    },
+    {
+      "name": "small-L",
+      "mode": "bool",
+      "dom": "L",
+      "n": 6,
+      "own_log": 6,
+      "natural_log": 6,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 4,
+          "limit": 9
+        },
+        {
+          "start": 4,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 64,
+      "dense_folds": 63,
+      "candidate_bind_lerps": 6,
+      "endpoint_reads": 126,
+      "integer_tests": 216
+    },
+    {
+      "name": "small-L",
+      "mode": "zero",
+      "dom": "L",
+      "n": 6,
+      "own_log": 6,
+      "natural_log": 6,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 4,
+          "limit": 9
+        },
+        {
+          "start": 4,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 64,
+      "dense_folds": 63,
+      "candidate_bind_lerps": 6,
+      "endpoint_reads": 126,
+      "integer_tests": 216
+    },
+    {
+      "name": "small-Tab",
+      "mode": "full",
+      "dom": "Tab",
+      "n": 8,
+      "own_log": 8,
+      "natural_log": 8,
+      "lift_bits": 0,
+      "axes": [],
+      "dense_words": 256,
+      "dense_folds": 255,
+      "candidate_bind_lerps": 0,
+      "endpoint_reads": 510,
+      "integer_tests": 0
+    },
+    {
+      "name": "small-Tab",
+      "mode": "base",
+      "dom": "Tab",
+      "n": 8,
+      "own_log": 8,
+      "natural_log": 8,
+      "lift_bits": 0,
+      "axes": [],
+      "dense_words": 256,
+      "dense_folds": 255,
+      "candidate_bind_lerps": 0,
+      "endpoint_reads": 510,
+      "integer_tests": 0
+    },
+    {
+      "name": "small-Tab",
+      "mode": "bool",
+      "dom": "Tab",
+      "n": 8,
+      "own_log": 8,
+      "natural_log": 8,
+      "lift_bits": 0,
+      "axes": [],
+      "dense_words": 256,
+      "dense_folds": 255,
+      "candidate_bind_lerps": 0,
+      "endpoint_reads": 510,
+      "integer_tests": 0
+    },
+    {
+      "name": "small-Tab",
+      "mode": "zero",
+      "dom": "Tab",
+      "n": 8,
+      "own_log": 8,
+      "natural_log": 8,
+      "lift_bits": 0,
+      "axes": [],
+      "dense_words": 256,
+      "dense_folds": 255,
+      "candidate_bind_lerps": 0,
+      "endpoint_reads": 510,
+      "integer_tests": 0
+    },
+    {
+      "name": "small-Ht-in-S",
+      "mode": "full",
+      "dom": "Ht",
+      "n": 7,
+      "own_log": 5,
+      "natural_log": 5,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 1,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 3,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 128,
+      "dense_folds": 127,
+      "candidate_bind_lerps": 4,
+      "endpoint_reads": 254,
+      "integer_tests": 416
+    },
+    {
+      "name": "small-Ht-in-S",
+      "mode": "base",
+      "dom": "Ht",
+      "n": 7,
+      "own_log": 5,
+      "natural_log": 5,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 1,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 3,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 128,
+      "dense_folds": 127,
+      "candidate_bind_lerps": 4,
+      "endpoint_reads": 254,
+      "integer_tests": 416
+    },
+    {
+      "name": "small-Ht-in-S",
+      "mode": "bool",
+      "dom": "Ht",
+      "n": 7,
+      "own_log": 5,
+      "natural_log": 5,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 1,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 3,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 128,
+      "dense_folds": 127,
+      "candidate_bind_lerps": 4,
+      "endpoint_reads": 254,
+      "integer_tests": 416
+    },
+    {
+      "name": "small-Ht-in-S",
+      "mode": "zero",
+      "dom": "Ht",
+      "n": 7,
+      "own_log": 5,
+      "natural_log": 5,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 1,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 3,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 128,
+      "dense_folds": 127,
+      "candidate_bind_lerps": 4,
+      "endpoint_reads": 254,
+      "integer_tests": 416
+    },
+    {
+      "name": "small-T-lift",
+      "mode": "full",
+      "dom": "T",
+      "n": 6,
+      "own_log": 2,
+      "natural_log": 2,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 64,
+      "dense_folds": 63,
+      "candidate_bind_lerps": 2,
+      "endpoint_reads": 126,
+      "integer_tests": 96
+    },
+    {
+      "name": "small-T-lift",
+      "mode": "base",
+      "dom": "T",
+      "n": 6,
+      "own_log": 2,
+      "natural_log": 2,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 64,
+      "dense_folds": 63,
+      "candidate_bind_lerps": 2,
+      "endpoint_reads": 126,
+      "integer_tests": 96
+    },
+    {
+      "name": "small-T-lift",
+      "mode": "bool",
+      "dom": "T",
+      "n": 6,
+      "own_log": 2,
+      "natural_log": 2,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 64,
+      "dense_folds": 63,
+      "candidate_bind_lerps": 2,
+      "endpoint_reads": 126,
+      "integer_tests": 96
+    },
+    {
+      "name": "small-T-lift",
+      "mode": "zero",
+      "dom": "T",
+      "n": 6,
+      "own_log": 2,
+      "natural_log": 2,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 64,
+      "dense_folds": 63,
+      "candidate_bind_lerps": 2,
+      "endpoint_reads": 126,
+      "integer_tests": 96
+    },
+    {
+      "name": "ragged1-S",
+      "mode": "full",
+      "dom": "S",
+      "n": 0,
+      "own_log": 0,
+      "natural_log": 0,
+      "lift_bits": 0,
+      "axes": [],
+      "dense_words": 1,
+      "dense_folds": 0,
+      "candidate_bind_lerps": 0,
+      "endpoint_reads": 0,
+      "integer_tests": 0
+    },
+    {
+      "name": "ragged1-S",
+      "mode": "base",
+      "dom": "S",
+      "n": 0,
+      "own_log": 0,
+      "natural_log": 0,
+      "lift_bits": 0,
+      "axes": [],
+      "dense_words": 1,
+      "dense_folds": 0,
+      "candidate_bind_lerps": 0,
+      "endpoint_reads": 0,
+      "integer_tests": 0
+    },
+    {
+      "name": "ragged1-S",
+      "mode": "bool",
+      "dom": "S",
+      "n": 0,
+      "own_log": 0,
+      "natural_log": 0,
+      "lift_bits": 0,
+      "axes": [],
+      "dense_words": 1,
+      "dense_folds": 0,
+      "candidate_bind_lerps": 0,
+      "endpoint_reads": 0,
+      "integer_tests": 0
+    },
+    {
+      "name": "ragged1-S",
+      "mode": "zero",
+      "dom": "S",
+      "n": 0,
+      "own_log": 0,
+      "natural_log": 0,
+      "lift_bits": 0,
+      "axes": [],
+      "dense_words": 1,
+      "dense_folds": 0,
+      "candidate_bind_lerps": 0,
+      "endpoint_reads": 0,
+      "integer_tests": 0
+    },
+    {
+      "name": "ragged2-S",
+      "mode": "full",
+      "dom": "S",
+      "n": 4,
+      "own_log": 4,
+      "natural_log": 4,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 16,
+      "dense_folds": 15,
+      "candidate_bind_lerps": 2,
+      "endpoint_reads": 30,
+      "integer_tests": 24
+    },
+    {
+      "name": "ragged2-S",
+      "mode": "base",
+      "dom": "S",
+      "n": 4,
+      "own_log": 4,
+      "natural_log": 4,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 16,
+      "dense_folds": 15,
+      "candidate_bind_lerps": 2,
+      "endpoint_reads": 30,
+      "integer_tests": 24
+    },
+    {
+      "name": "ragged2-S",
+      "mode": "bool",
+      "dom": "S",
+      "n": 4,
+      "own_log": 4,
+      "natural_log": 4,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 16,
+      "dense_folds": 15,
+      "candidate_bind_lerps": 2,
+      "endpoint_reads": 30,
+      "integer_tests": 24
+    },
+    {
+      "name": "ragged2-S",
+      "mode": "zero",
+      "dom": "S",
+      "n": 4,
+      "own_log": 4,
+      "natural_log": 4,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 16,
+      "dense_folds": 15,
+      "candidate_bind_lerps": 2,
+      "endpoint_reads": 30,
+      "integer_tests": 24
+    },
+    {
+      "name": "ragged5-S",
+      "mode": "full",
+      "dom": "S",
+      "n": 10,
+      "own_log": 10,
+      "natural_log": 10,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 1,
+          "bits": 3,
+          "limit": 5
+        },
+        {
+          "start": 4,
+          "bits": 3,
+          "limit": 5
+        },
+        {
+          "start": 7,
+          "bits": 3,
+          "limit": 5
+        }
+      ],
+      "dense_words": 1024,
+      "dense_folds": 1023,
+      "candidate_bind_lerps": 9,
+      "endpoint_reads": 2046,
+      "integer_tests": 4066
+    },
+    {
+      "name": "ragged5-S",
+      "mode": "bool",
+      "dom": "S",
+      "n": 10,
+      "own_log": 10,
+      "natural_log": 10,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 1,
+          "bits": 3,
+          "limit": 5
+        },
+        {
+          "start": 4,
+          "bits": 3,
+          "limit": 5
+        },
+        {
+          "start": 7,
+          "bits": 3,
+          "limit": 5
+        }
+      ],
+      "dense_words": 1024,
+      "dense_folds": 1023,
+      "candidate_bind_lerps": 9,
+      "endpoint_reads": 2046,
+      "integer_tests": 4066
+    },
+    {
+      "name": "ragged7-S",
+      "mode": "full",
+      "dom": "S",
+      "n": 10,
+      "own_log": 10,
+      "natural_log": 10,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 2,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 4,
+          "bits": 3,
+          "limit": 7
+        },
+        {
+          "start": 7,
+          "bits": 3,
+          "limit": 7
+        }
+      ],
+      "dense_words": 1024,
+      "dense_folds": 1023,
+      "candidate_bind_lerps": 8,
+      "endpoint_reads": 2046,
+      "integer_tests": 5294
+    },
+    {
+      "name": "ragged7-S",
+      "mode": "bool",
+      "dom": "S",
+      "n": 10,
+      "own_log": 10,
+      "natural_log": 10,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 2,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 4,
+          "bits": 3,
+          "limit": 7
+        },
+        {
+          "start": 7,
+          "bits": 3,
+          "limit": 7
+        }
+      ],
+      "dense_words": 1024,
+      "dense_folds": 1023,
+      "candidate_bind_lerps": 8,
+      "endpoint_reads": 2046,
+      "integer_tests": 5294
+    },
+    {
+      "name": "ragged4-S",
+      "mode": "full",
+      "dom": "S",
+      "n": 6,
+      "own_log": 6,
+      "natural_log": 6,
+      "lift_bits": 0,
+      "axes": [],
+      "dense_words": 64,
+      "dense_folds": 63,
+      "candidate_bind_lerps": 0,
+      "endpoint_reads": 126,
+      "integer_tests": 0
+    },
+    {
+      "name": "ragged4-S",
+      "mode": "base",
+      "dom": "S",
+      "n": 6,
+      "own_log": 6,
+      "natural_log": 6,
+      "lift_bits": 0,
+      "axes": [],
+      "dense_words": 64,
+      "dense_folds": 63,
+      "candidate_bind_lerps": 0,
+      "endpoint_reads": 126,
+      "integer_tests": 0
+    },
+    {
+      "name": "ragged4-S",
+      "mode": "bool",
+      "dom": "S",
+      "n": 6,
+      "own_log": 6,
+      "natural_log": 6,
+      "lift_bits": 0,
+      "axes": [],
+      "dense_words": 64,
+      "dense_folds": 63,
+      "candidate_bind_lerps": 0,
+      "endpoint_reads": 126,
+      "integer_tests": 0
+    },
+    {
+      "name": "ragged4-S",
+      "mode": "zero",
+      "dom": "S",
+      "n": 6,
+      "own_log": 6,
+      "natural_log": 6,
+      "lift_bits": 0,
+      "axes": [],
+      "dense_words": 64,
+      "dense_folds": 63,
+      "candidate_bind_lerps": 0,
+      "endpoint_reads": 126,
+      "integer_tests": 0
+    },
+    {
+      "name": "row-lift-D",
+      "mode": "full",
+      "dom": "D",
+      "n": 9,
+      "own_log": 9,
+      "natural_log": 6,
+      "lift_bits": 3,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 3,
+          "limit": 1
+        },
+        {
+          "start": 3,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 5,
+          "bits": 4,
+          "limit": 12
+        }
+      ],
+      "dense_words": 512,
+      "dense_folds": 511,
+      "candidate_bind_lerps": 9,
+      "endpoint_reads": 1022,
+      "integer_tests": 2270
+    },
+    {
+      "name": "row-lift-D",
+      "mode": "base",
+      "dom": "D",
+      "n": 9,
+      "own_log": 9,
+      "natural_log": 6,
+      "lift_bits": 3,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 3,
+          "limit": 1
+        },
+        {
+          "start": 3,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 5,
+          "bits": 4,
+          "limit": 12
+        }
+      ],
+      "dense_words": 512,
+      "dense_folds": 511,
+      "candidate_bind_lerps": 9,
+      "endpoint_reads": 1022,
+      "integer_tests": 2270
+    },
+    {
+      "name": "row-lift-D",
+      "mode": "bool",
+      "dom": "D",
+      "n": 9,
+      "own_log": 9,
+      "natural_log": 6,
+      "lift_bits": 3,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 3,
+          "limit": 1
+        },
+        {
+          "start": 3,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 5,
+          "bits": 4,
+          "limit": 12
+        }
+      ],
+      "dense_words": 512,
+      "dense_folds": 511,
+      "candidate_bind_lerps": 9,
+      "endpoint_reads": 1022,
+      "integer_tests": 2270
+    },
+    {
+      "name": "row-lift-D",
+      "mode": "zero",
+      "dom": "D",
+      "n": 9,
+      "own_log": 9,
+      "natural_log": 6,
+      "lift_bits": 3,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 3,
+          "limit": 1
+        },
+        {
+          "start": 3,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 5,
+          "bits": 4,
+          "limit": 12
+        }
+      ],
+      "dense_words": 512,
+      "dense_folds": 511,
+      "candidate_bind_lerps": 9,
+      "endpoint_reads": 1022,
+      "integer_tests": 2270
+    },
+    {
+      "name": "row-lift-F",
+      "mode": "full",
+      "dom": "F",
+      "n": 9,
+      "own_log": 9,
+      "natural_log": 5,
+      "lift_bits": 4,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 4,
+          "limit": 1
+        },
+        {
+          "start": 4,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 6,
+          "bits": 3,
+          "limit": 5
+        }
+      ],
+      "dense_words": 512,
+      "dense_folds": 511,
+      "candidate_bind_lerps": 9,
+      "endpoint_reads": 1022,
+      "integer_tests": 2222
+    },
+    {
+      "name": "row-lift-F",
+      "mode": "base",
+      "dom": "F",
+      "n": 9,
+      "own_log": 9,
+      "natural_log": 5,
+      "lift_bits": 4,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 4,
+          "limit": 1
+        },
+        {
+          "start": 4,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 6,
+          "bits": 3,
+          "limit": 5
+        }
+      ],
+      "dense_words": 512,
+      "dense_folds": 511,
+      "candidate_bind_lerps": 9,
+      "endpoint_reads": 1022,
+      "integer_tests": 2222
+    },
+    {
+      "name": "row-lift-F",
+      "mode": "bool",
+      "dom": "F",
+      "n": 9,
+      "own_log": 9,
+      "natural_log": 5,
+      "lift_bits": 4,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 4,
+          "limit": 1
+        },
+        {
+          "start": 4,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 6,
+          "bits": 3,
+          "limit": 5
+        }
+      ],
+      "dense_words": 512,
+      "dense_folds": 511,
+      "candidate_bind_lerps": 9,
+      "endpoint_reads": 1022,
+      "integer_tests": 2222
+    },
+    {
+      "name": "row-lift-F",
+      "mode": "zero",
+      "dom": "F",
+      "n": 9,
+      "own_log": 9,
+      "natural_log": 5,
+      "lift_bits": 4,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 4,
+          "limit": 1
+        },
+        {
+          "start": 4,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 6,
+          "bits": 3,
+          "limit": 5
+        }
+      ],
+      "dense_words": 512,
+      "dense_folds": 511,
+      "candidate_bind_lerps": 9,
+      "endpoint_reads": 1022,
+      "integer_tests": 2222
+    },
+    {
+      "name": "row-lift-L",
+      "mode": "full",
+      "dom": "L",
+      "n": 9,
+      "own_log": 9,
+      "natural_log": 6,
+      "lift_bits": 3,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 3,
+          "limit": 1
+        },
+        {
+          "start": 3,
+          "bits": 4,
+          "limit": 9
+        },
+        {
+          "start": 7,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 512,
+      "dense_folds": 511,
+      "candidate_bind_lerps": 9,
+      "endpoint_reads": 1022,
+      "integer_tests": 1994
+    },
+    {
+      "name": "row-lift-L",
+      "mode": "base",
+      "dom": "L",
+      "n": 9,
+      "own_log": 9,
+      "natural_log": 6,
+      "lift_bits": 3,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 3,
+          "limit": 1
+        },
+        {
+          "start": 3,
+          "bits": 4,
+          "limit": 9
+        },
+        {
+          "start": 7,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 512,
+      "dense_folds": 511,
+      "candidate_bind_lerps": 9,
+      "endpoint_reads": 1022,
+      "integer_tests": 1994
+    },
+    {
+      "name": "row-lift-L",
+      "mode": "bool",
+      "dom": "L",
+      "n": 9,
+      "own_log": 9,
+      "natural_log": 6,
+      "lift_bits": 3,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 3,
+          "limit": 1
+        },
+        {
+          "start": 3,
+          "bits": 4,
+          "limit": 9
+        },
+        {
+          "start": 7,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 512,
+      "dense_folds": 511,
+      "candidate_bind_lerps": 9,
+      "endpoint_reads": 1022,
+      "integer_tests": 1994
+    },
+    {
+      "name": "row-lift-L",
+      "mode": "zero",
+      "dom": "L",
+      "n": 9,
+      "own_log": 9,
+      "natural_log": 6,
+      "lift_bits": 3,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 3,
+          "limit": 1
+        },
+        {
+          "start": 3,
+          "bits": 4,
+          "limit": 9
+        },
+        {
+          "start": 7,
+          "bits": 2,
+          "limit": 3
+        }
+      ],
+      "dense_words": 512,
+      "dense_folds": 511,
+      "candidate_bind_lerps": 9,
+      "endpoint_reads": 1022,
+      "integer_tests": 1994
+    },
+    {
+      "name": "row-lift-Tab",
+      "mode": "full",
+      "dom": "Tab",
+      "n": 9,
+      "own_log": 9,
+      "natural_log": 8,
+      "lift_bits": 1,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 1,
+          "limit": 1
+        }
+      ],
+      "dense_words": 512,
+      "dense_folds": 511,
+      "candidate_bind_lerps": 1,
+      "endpoint_reads": 1022,
+      "integer_tests": 512
+    },
+    {
+      "name": "row-lift-Tab",
+      "mode": "base",
+      "dom": "Tab",
+      "n": 9,
+      "own_log": 9,
+      "natural_log": 8,
+      "lift_bits": 1,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 1,
+          "limit": 1
+        }
+      ],
+      "dense_words": 512,
+      "dense_folds": 511,
+      "candidate_bind_lerps": 1,
+      "endpoint_reads": 1022,
+      "integer_tests": 512
+    },
+    {
+      "name": "row-lift-Tab",
+      "mode": "bool",
+      "dom": "Tab",
+      "n": 9,
+      "own_log": 9,
+      "natural_log": 8,
+      "lift_bits": 1,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 1,
+          "limit": 1
+        }
+      ],
+      "dense_words": 512,
+      "dense_folds": 511,
+      "candidate_bind_lerps": 1,
+      "endpoint_reads": 1022,
+      "integer_tests": 512
+    },
+    {
+      "name": "row-lift-Tab",
+      "mode": "zero",
+      "dom": "Tab",
+      "n": 9,
+      "own_log": 9,
+      "natural_log": 8,
+      "lift_bits": 1,
+      "axes": [
+        {
+          "start": 0,
+          "bits": 1,
+          "limit": 1
+        }
+      ],
+      "dense_words": 512,
+      "dense_folds": 511,
+      "candidate_bind_lerps": 1,
+      "endpoint_reads": 1022,
+      "integer_tests": 512
+    },
+    {
+      "name": "native-toy-S",
+      "mode": "full",
+      "dom": "S",
+      "n": 11,
+      "own_log": 11,
+      "natural_log": 11,
+      "lift_bits": 0,
+      "axes": [],
+      "dense_words": 2048,
+      "dense_folds": 2047,
+      "candidate_bind_lerps": 0,
+      "endpoint_reads": 4094,
+      "integer_tests": 0
+    },
+    {
+      "name": "native-toy-S",
+      "mode": "bool",
+      "dom": "S",
+      "n": 11,
+      "own_log": 11,
+      "natural_log": 11,
+      "lift_bits": 0,
+      "axes": [],
+      "dense_words": 2048,
+      "dense_folds": 2047,
+      "candidate_bind_lerps": 0,
+      "endpoint_reads": 4094,
+      "integer_tests": 0
+    },
+    {
+      "name": "native-toy-Ht-in-S",
+      "mode": "full",
+      "dom": "Ht",
+      "n": 11,
+      "own_log": 6,
+      "natural_log": 6,
+      "lift_bits": 0,
+      "axes": [],
+      "dense_words": 2048,
+      "dense_folds": 2047,
+      "candidate_bind_lerps": 0,
+      "endpoint_reads": 4094,
+      "integer_tests": 0
+    },
+    {
+      "name": "native-toy-Ht-in-S",
+      "mode": "bool",
+      "dom": "Ht",
+      "n": 11,
+      "own_log": 6,
+      "natural_log": 6,
+      "lift_bits": 0,
+      "axes": [],
+      "dense_words": 2048,
+      "dense_folds": 2047,
+      "candidate_bind_lerps": 0,
+      "endpoint_reads": 4094,
+      "integer_tests": 0
+    },
+    {
+      "name": "native-rung-S",
+      "mode": "full",
+      "dom": "S",
+      "n": 13,
+      "own_log": 13,
+      "natural_log": 13,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 1,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 3,
+          "bits": 5,
+          "limit": 24
+        },
+        {
+          "start": 8,
+          "bits": 5,
+          "limit": 24
+        }
+      ],
+      "dense_words": 8192,
+      "dense_folds": 8191,
+      "candidate_bind_lerps": 12,
+      "endpoint_reads": 16382,
+      "integer_tests": 36686
+    },
+    {
+      "name": "native-rung-S",
+      "mode": "bool",
+      "dom": "S",
+      "n": 13,
+      "own_log": 13,
+      "natural_log": 13,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 1,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 3,
+          "bits": 5,
+          "limit": 24
+        },
+        {
+          "start": 8,
+          "bits": 5,
+          "limit": 24
+        }
+      ],
+      "dense_words": 8192,
+      "dense_folds": 8191,
+      "candidate_bind_lerps": 12,
+      "endpoint_reads": 16382,
+      "integer_tests": 36686
+    },
+    {
+      "name": "native-rung-Ht-in-S",
+      "mode": "full",
+      "dom": "Ht",
+      "n": 13,
+      "own_log": 8,
+      "natural_log": 8,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 1,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 3,
+          "bits": 5,
+          "limit": 24
+        }
+      ],
+      "dense_words": 8192,
+      "dense_folds": 8191,
+      "candidate_bind_lerps": 7,
+      "endpoint_reads": 16382,
+      "integer_tests": 27072
+    },
+    {
+      "name": "native-rung-Ht-in-S",
+      "mode": "bool",
+      "dom": "Ht",
+      "n": 13,
+      "own_log": 8,
+      "natural_log": 8,
+      "lift_bits": 0,
+      "axes": [
+        {
+          "start": 1,
+          "bits": 2,
+          "limit": 3
+        },
+        {
+          "start": 3,
+          "bits": 5,
+          "limit": 24
+        }
+      ],
+      "dense_words": 8192,
+      "dense_folds": 8191,
+      "candidate_bind_lerps": 7,
+      "endpoint_reads": 16382,
+      "integer_tests": 27072
+    }
+  ],
+  "cost_rows": [
+    {
+      "label": "native-m125-heads",
+      "context": 512,
+      "h_pad": 16,
+      "N": 4194304,
+      "SZC_two_support_payload_bytes": 134217728,
+      "RS_one_support_payload_bytes": 67108864,
+      "SZC_dense_lerps": 8388606,
+      "SZC_candidate_lerps": 4,
+      "candidate_retained_field_words_per_support": 3,
+      "candidate_transient_field_words_bound_per_support": 6,
+      "candidate_axis_metadata_count_SZC": 2,
+      "endpoint_reads_for_two_supports": 16777212,
+      "integer_comparisons_upper_bound": 16777212,
+      "per_endpoint_field_operations": 0
+    },
+    {
+      "label": "native-m125-heads",
+      "context": 1024,
+      "h_pad": 16,
+      "N": 16777216,
+      "SZC_two_support_payload_bytes": 536870912,
+      "RS_one_support_payload_bytes": 268435456,
+      "SZC_dense_lerps": 33554430,
+      "SZC_candidate_lerps": 4,
+      "candidate_retained_field_words_per_support": 3,
+      "candidate_transient_field_words_bound_per_support": 6,
+      "candidate_axis_metadata_count_SZC": 2,
+      "endpoint_reads_for_two_supports": 67108860,
+      "integer_comparisons_upper_bound": 67108860,
+      "per_endpoint_field_operations": 0
+    },
+    {
+      "label": "native-m125-heads",
+      "context": 2048,
+      "h_pad": 16,
+      "N": 67108864,
+      "SZC_two_support_payload_bytes": 2147483648,
+      "RS_one_support_payload_bytes": 1073741824,
+      "SZC_dense_lerps": 134217726,
+      "SZC_candidate_lerps": 4,
+      "candidate_retained_field_words_per_support": 3,
+      "candidate_transient_field_words_bound_per_support": 6,
+      "candidate_axis_metadata_count_SZC": 2,
+      "endpoint_reads_for_two_supports": 268435452,
+      "integer_comparisons_upper_bound": 268435452,
+      "per_endpoint_field_operations": 0
+    },
+    {
+      "label": "native-m125-heads",
+      "context": 4096,
+      "h_pad": 16,
+      "N": 268435456,
+      "SZC_two_support_payload_bytes": 8589934592,
+      "RS_one_support_payload_bytes": 4294967296,
+      "SZC_dense_lerps": 536870910,
+      "SZC_candidate_lerps": 4,
+      "candidate_retained_field_words_per_support": 3,
+      "candidate_transient_field_words_bound_per_support": 6,
+      "candidate_axis_metadata_count_SZC": 2,
+      "endpoint_reads_for_two_supports": 1073741820,
+      "integer_comparisons_upper_bound": 1073741820,
+      "per_endpoint_field_operations": 0
+    },
+    {
+      "label": "illustrative-32-slots",
+      "context": 512,
+      "h_pad": 32,
+      "N": 8388608,
+      "SZC_two_support_payload_bytes": 268435456,
+      "RS_one_support_payload_bytes": 134217728,
+      "SZC_dense_lerps": 16777214,
+      "SZC_candidate_lerps": 4,
+      "candidate_retained_field_words_per_support": 3,
+      "candidate_transient_field_words_bound_per_support": 6,
+      "candidate_axis_metadata_count_SZC": 2,
+      "endpoint_reads_for_two_supports": 33554428,
+      "integer_comparisons_upper_bound": 33554428,
+      "per_endpoint_field_operations": 0
+    },
+    {
+      "label": "illustrative-32-slots",
+      "context": 1024,
+      "h_pad": 32,
+      "N": 33554432,
+      "SZC_two_support_payload_bytes": 1073741824,
+      "RS_one_support_payload_bytes": 536870912,
+      "SZC_dense_lerps": 67108862,
+      "SZC_candidate_lerps": 4,
+      "candidate_retained_field_words_per_support": 3,
+      "candidate_transient_field_words_bound_per_support": 6,
+      "candidate_axis_metadata_count_SZC": 2,
+      "endpoint_reads_for_two_supports": 134217724,
+      "integer_comparisons_upper_bound": 134217724,
+      "per_endpoint_field_operations": 0
+    },
+    {
+      "label": "illustrative-32-slots",
+      "context": 2048,
+      "h_pad": 32,
+      "N": 134217728,
+      "SZC_two_support_payload_bytes": 4294967296,
+      "RS_one_support_payload_bytes": 2147483648,
+      "SZC_dense_lerps": 268435454,
+      "SZC_candidate_lerps": 4,
+      "candidate_retained_field_words_per_support": 3,
+      "candidate_transient_field_words_bound_per_support": 6,
+      "candidate_axis_metadata_count_SZC": 2,
+      "endpoint_reads_for_two_supports": 536870908,
+      "integer_comparisons_upper_bound": 536870908,
+      "per_endpoint_field_operations": 0
+    },
+    {
+      "label": "illustrative-32-slots",
+      "context": 4096,
+      "h_pad": 32,
+      "N": 536870912,
+      "SZC_two_support_payload_bytes": 17179869184,
+      "RS_one_support_payload_bytes": 8589934592,
+      "SZC_dense_lerps": 1073741822,
+      "SZC_candidate_lerps": 4,
+      "candidate_retained_field_words_per_support": 3,
+      "candidate_transient_field_words_bound_per_support": 6,
+      "candidate_axis_metadata_count_SZC": 2,
+      "endpoint_reads_for_two_supports": 2147483644,
+      "integer_comparisons_upper_bound": 2147483644,
+      "per_endpoint_field_operations": 0
+    }
+  ],
+  "digest_sha256": "aa1d612c7793af9b0a71d0aed4fe2a8a0a4078a6fb627cf3663c21444c6e5660",
+  "elapsed_seconds": 1.586441542999637,
+  "peak_rss_kib": 18332,
+  "hardware": {
+    "device": "CPU only",
+    "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+    "affinity": [
+      0
+    ],
+    "threads": 1,
+    "nice": 19,
+    "python": "3.10.12"
+  },
+  "resource_limits": {
+    "wall_seconds": 59,
+    "cpu_seconds": 59,
+    "address_space_mib": 512,
+    "estimated_memory_mib": 32
+  },
+  "code_hashes": {
+    "descriptor.py": "5044b13ecc3a93eb0bc5ea4c55d036ebcc297716324fcabfeab78aade6a55031",
+    "experiment.py": "c85678446d13eaba2dca6e430ee8441b8583319d1ce301944b219e77a45cc6e3",
+    "field.py": "333ef103f77d3ec8f8bf5c7cbee9ca68704efb97b93c1fba7534c20d117550d1",
+    "oracle.py": "bd3588f0be61c006910468701eb303846d8783c8209795b97843e140650f88c7",
+    "reference.py": "e93b91ba7d2398f53655d3a377f8a8843d01ff728bd99fc8ca65ae479c4226b7"
+  },
+  "proof_accounting": {
+    "context_length": null,
+    "passes": 0,
+    "device": "CPU only",
+    "countable_tokens": 0,
+    "accepted_complete_private8b_proofs": 0,
+    "steady_state_tokens_per_s": null,
+    "total_workload_tokens_per_s": null,
+    "startup_seconds": null,
+    "startup_fraction": null,
+    "witness_seconds": null,
+    "proof_seconds": null,
+    "serialization_seconds": null,
+    "independent_verification_seconds": null,
+    "proof_latency_seconds": null,
+    "proof_lag_seconds": null,
+    "pipeline_drain_seconds": null,
+    "prefill": "none",
+    "resident_passes": "none",
+    "decode": "none"
+  },
+  "limits": [
+    "Synthetic public support algebra, no native speed or honest witness",
+    "Small synthetic geometries are not registered/admitted profiles",
+    "Native profile gate, mask/RNG/transcript/bytes/refusals/PCS/device/privacy unexecuted",
+    "No production changes/build/GPU/install/Git/downloaded-code execution"
+  ]
+}

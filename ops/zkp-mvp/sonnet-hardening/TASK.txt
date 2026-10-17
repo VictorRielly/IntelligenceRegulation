@@ -1,0 +1,16 @@
+Victor explicitly requests GPT-6.1-Sol and Claude Sonnet 5.5 collaboration for next week's ZKP MVP. You are Sonnet 5.5. Your previous source delivery is copied here into an isolated unpromoted candidate, with baseline-pins.json. Other lanes are active: Claude B is trained calibration, Claude C is trained profile, Sol independent arithmetic review, and Sol CLI integration review. Root owns integration and builds. Do not duplicate these tasks or launch agents.
+
+Your exclusive implementation lane IN THIS COPY ONLY:
+  hashline/src/private_block/mvp_driver.rs
+  hashline/examples/zk60_private_stack.rs
+  HARDENING_DELIVERY.txt (new)
+  tests in the same owned Rust module
+All other files, including original ../candidate, are read-only. No Bash/builds/network/git/settings. You may Read/Glob/Grep/Edit/Write inside this directory only.
+
+Task: finish real native CLI artifact-boundary hardening before meeting integration.
+1. js() currently replaces Unicode with '?' and truncates output. Render correct JSON escaping preserving arbitrary valid Rust strings, including Unicode, ASCII controls and long paths. No new dependency unless already cached and already in crate (prefer narrow std implementation). Do not silently truncate machine-readable identifiers or values.
+2. A generated copy/paste verify command embeds unquoted paths. Prefer also emitting a machine-readable argv array; preserve existing consumers if feasible. Any displayed shell command must be POSIX-shell quoted for whitespace, quotes, backticks and dollar characters, without executing anything. Existing valid simple paths should continue to work. Keep command profile and policy pin explicit.
+3. The driver's bounded readers use metadata length then fs::read, so concurrent enlargement can evade the cap. Read from a single handle with Read::take(max+1), refuse any excess, and retain clear size/type errors; inspect symlink behavior and avoid broadening acceptance. Preserve existing no-overwrite/publication behavior. Do not alter run_sink.rs or protocol code; if those have further issues, report precise sites instead.
+4. Add meaningful tests for JSON roundtrips (use existing serde dependency if available or compare trusted expected), non-ASCII paths, shell quoting/argv identity, oversize data refusal and ordinary policy/manifest compatibility. Keep the existing negative-control tests.
+
+No proof relation, profile/calibration registry, witness, randomness, transcript or serialization change is authorized in this hardening tranche. Root runs bounded offline locked compilation/tests with shared build/heavy locks after your source delivery. Send a concise delivery with changed functions, test names, remaining gaps, and say explicitly whether compiled/run (you cannot run here).

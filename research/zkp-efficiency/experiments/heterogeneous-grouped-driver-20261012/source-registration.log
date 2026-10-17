@@ -1,0 +1,3 @@
+Initial append preparation raised KeyError because older source schemas omit id.
+No source records had been appended. Corrected duplicate check uses get(id);
+five cycle0040 records appended once. Existing source rows preserved.

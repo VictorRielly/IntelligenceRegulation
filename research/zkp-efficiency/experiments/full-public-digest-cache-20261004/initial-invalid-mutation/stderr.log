@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/full-public-digest-cache-20261004/experiment.py", line 337, in <module>
+    main()
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/full-public-digest-cache-20261004/experiment.py", line 250, in main
+    assert reference(alt) != ref and hashlib.sha256(reference(alt)).digest() != dg
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/full-public-digest-cache-20261004/experiment.py", line 62, in reference
+    out.extend(struct.pack('<' + str(len(v)) + 'b', *v))
+struct.error: byte format requires -128 <= number <= 127

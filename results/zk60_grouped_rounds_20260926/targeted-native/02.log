@@ -1,0 +1,8 @@
+
+running 1 test
+test private_block::p2_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_p2 ... S30 CENSUS [one dense block]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live, the last position of T / Kv / F inside the true support
+rung-P2 DENSE one block: prove 0.35 s, verify from bytes 0.03 s, frame 4742728 B
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 528 filtered out; finished in 0.42s
+

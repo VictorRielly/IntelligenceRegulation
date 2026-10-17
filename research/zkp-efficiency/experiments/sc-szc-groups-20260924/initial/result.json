@@ -1,0 +1,547 @@
+{
+  "schema": "zkp-efficiency/sc-szc-groups/v1",
+  "status": "passed",
+  "seed": 20260924,
+  "run_identity": "20260924T024433Z-0c043a75",
+  "source_sha256": "f21198e2839043a832dc38188aef9d9339babd28a00746adc6332f1e49578f2a",
+  "source_pins": {
+    "/tmp/zk60-rounds-20260922/hashline/src/private_block/argument.rs": "f71be0d3d6a78814c25c85a89c2fdcd9a538b49891af974853149e53d6f3506c",
+    "/tmp/zk60-rounds-20260922/hashline/src/private_block/slot_ir.rs": "734cd0e0e03b5ea61da6e50aff98f53d35ec686b47bd317dcade29ee85adee9e",
+    "/tmp/zk60-rounds-20260922/zkp-core/src/sumcheck/rounds.rs": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df",
+    "/tmp/zk60-rounds-20260922/zkp-core/src/field.rs": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "/tmp/zk60-rounds-20260922/private-block-kernel/src/lib.rs": "9e7c9bff10790c643ab26dcd6335991a016e62d9cc19ae217a92de60e27d4cf6"
+  },
+  "python": "3.10.12",
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "threads": 1,
+  "cpu_affinity": [
+    0
+  ],
+  "max_address_space_mib": 512,
+  "max_wall_seconds": 59,
+  "max_cpu_seconds": 55,
+  "estimated_memory_mib": 32,
+  "field": "Goldilocks Fp2, u^2=7",
+  "cases": [
+    {
+      "n": 2,
+      "padded": false,
+      "tables": 20,
+      "direct_points": 10,
+      "reference_group_evaluations": [
+        14,
+        14,
+        14
+      ],
+      "grouped_evaluations": [
+        11,
+        5,
+        5
+      ],
+      "grouped_without_claim_recovery": [
+        12,
+        6,
+        6
+      ],
+      "zero_factor_fallbacks": 0,
+      "peak_group_split_eq_entries": 3,
+      "digest": "ff6deb7d294f528de656b6d9159f8472a21c14a5711cf79aac7c44e8f179f33b"
+    },
+    {
+      "n": 2,
+      "padded": false,
+      "tables": 20,
+      "direct_points": 10,
+      "reference_group_evaluations": [
+        14,
+        14,
+        14
+      ],
+      "grouped_evaluations": [
+        11,
+        5,
+        5
+      ],
+      "grouped_without_claim_recovery": [
+        12,
+        6,
+        6
+      ],
+      "zero_factor_fallbacks": 0,
+      "peak_group_split_eq_entries": 3,
+      "digest": "bcb3bffe7dfc05b1dc122083a1572add150dbdfdd6efb85e117a69db791f0f61"
+    },
+    {
+      "n": 2,
+      "padded": false,
+      "tables": 20,
+      "direct_points": 10,
+      "reference_group_evaluations": [
+        14,
+        14,
+        14
+      ],
+      "grouped_evaluations": [
+        11,
+        5,
+        5
+      ],
+      "grouped_without_claim_recovery": [
+        12,
+        6,
+        6
+      ],
+      "zero_factor_fallbacks": 0,
+      "peak_group_split_eq_entries": 3,
+      "digest": "12adbadd0aea235b3749e437fd89a28633088116a4789e2d0f93df3036506271"
+    },
+    {
+      "n": 2,
+      "padded": true,
+      "tables": 20,
+      "direct_points": 12,
+      "reference_group_evaluations": [
+        17,
+        17,
+        17
+      ],
+      "grouped_evaluations": [
+        14,
+        8,
+        8
+      ],
+      "grouped_without_claim_recovery": [
+        15,
+        9,
+        9
+      ],
+      "zero_factor_fallbacks": 0,
+      "peak_group_split_eq_entries": 3,
+      "digest": "2e68ac7209a7f210615b998bffff5ba40d79f6d2a0fe8354ed9c772e9b99b00a"
+    },
+    {
+      "n": 2,
+      "padded": true,
+      "tables": 20,
+      "direct_points": 12,
+      "reference_group_evaluations": [
+        17,
+        17,
+        17
+      ],
+      "grouped_evaluations": [
+        14,
+        8,
+        8
+      ],
+      "grouped_without_claim_recovery": [
+        15,
+        9,
+        9
+      ],
+      "zero_factor_fallbacks": 0,
+      "peak_group_split_eq_entries": 3,
+      "digest": "ce7a16358b0b3a29055f8b5b009c0fdecd0642d30001e4168c04b37d017a1a18"
+    },
+    {
+      "n": 2,
+      "padded": true,
+      "tables": 20,
+      "direct_points": 12,
+      "reference_group_evaluations": [
+        17,
+        17,
+        17
+      ],
+      "grouped_evaluations": [
+        14,
+        8,
+        8
+      ],
+      "grouped_without_claim_recovery": [
+        15,
+        9,
+        9
+      ],
+      "zero_factor_fallbacks": 0,
+      "peak_group_split_eq_entries": 3,
+      "digest": "d546ac1f9d9cb9f0f29fe8c9110090f7e5466f8bbe6af68b42807c690ab40282"
+    },
+    {
+      "n": 3,
+      "padded": false,
+      "tables": 19,
+      "direct_points": 15,
+      "reference_group_evaluations": [
+        32,
+        32,
+        32
+      ],
+      "grouped_evaluations": [
+        25,
+        11,
+        11
+      ],
+      "grouped_without_claim_recovery": [
+        28,
+        14,
+        14
+      ],
+      "zero_factor_fallbacks": 0,
+      "peak_group_split_eq_entries": 4,
+      "digest": "24e9767e5593563b1e25ee982fab19f8be89051b76e9b28edea933aa38c66675"
+    },
+    {
+      "n": 3,
+      "padded": false,
+      "tables": 19,
+      "direct_points": 15,
+      "reference_group_evaluations": [
+        32,
+        32,
+        32
+      ],
+      "grouped_evaluations": [
+        25,
+        11,
+        11
+      ],
+      "grouped_without_claim_recovery": [
+        28,
+        14,
+        14
+      ],
+      "zero_factor_fallbacks": 0,
+      "peak_group_split_eq_entries": 4,
+      "digest": "6156730c57ab9f1e0d363d440383bf080a231319cfa9278a2fc3587ab6425ed9"
+    },
+    {
+      "n": 3,
+      "padded": false,
+      "tables": 19,
+      "direct_points": 15,
+      "reference_group_evaluations": [
+        32,
+        32,
+        32
+      ],
+      "grouped_evaluations": [
+        25,
+        11,
+        11
+      ],
+      "grouped_without_claim_recovery": [
+        28,
+        14,
+        14
+      ],
+      "zero_factor_fallbacks": 0,
+      "peak_group_split_eq_entries": 4,
+      "digest": "e60bcc2618df077e16954e2d866f340bdd7b043c9328bd92f097029c0e2518c2"
+    },
+    {
+      "n": 3,
+      "padded": true,
+      "tables": 19,
+      "direct_points": 18,
+      "reference_group_evaluations": [
+        39,
+        39,
+        39
+      ],
+      "grouped_evaluations": [
+        32,
+        18,
+        18
+      ],
+      "grouped_without_claim_recovery": [
+        35,
+        21,
+        21
+      ],
+      "zero_factor_fallbacks": 0,
+      "peak_group_split_eq_entries": 4,
+      "digest": "3b238ce7afc7ee9feafcce903ac39499f67a27bd89c61f7d724ea63d4b27ac6f"
+    },
+    {
+      "n": 3,
+      "padded": true,
+      "tables": 19,
+      "direct_points": 18,
+      "reference_group_evaluations": [
+        39,
+        39,
+        39
+      ],
+      "grouped_evaluations": [
+        32,
+        18,
+        18
+      ],
+      "grouped_without_claim_recovery": [
+        35,
+        21,
+        21
+      ],
+      "zero_factor_fallbacks": 0,
+      "peak_group_split_eq_entries": 4,
+      "digest": "07261804cd347cd6848d4dfcce190b7c3d60097339ad4ac4234b46ba0712047a"
+    },
+    {
+      "n": 3,
+      "padded": true,
+      "tables": 19,
+      "direct_points": 18,
+      "reference_group_evaluations": [
+        39,
+        39,
+        39
+      ],
+      "grouped_evaluations": [
+        32,
+        18,
+        18
+      ],
+      "grouped_without_claim_recovery": [
+        35,
+        21,
+        21
+      ],
+      "zero_factor_fallbacks": 0,
+      "peak_group_split_eq_entries": 4,
+      "digest": "7fbc2a0402e84df2099d573f6f1a32f190eef303241a4a271cac31995bebf2b4"
+    },
+    {
+      "n": 5,
+      "padded": false,
+      "tables": 23,
+      "direct_points": 0,
+      "reference_group_evaluations": [
+        140,
+        140,
+        140
+      ],
+      "grouped_evaluations": [
+        109,
+        47,
+        47
+      ],
+      "grouped_without_claim_recovery": [
+        124,
+        62,
+        62
+      ],
+      "zero_factor_fallbacks": 0,
+      "peak_group_split_eq_entries": 8,
+      "digest": "b3a5713447afc5d77dc5cd73d59040e281ed0d6fa1632a4450aa36b324e37dd1"
+    },
+    {
+      "n": 5,
+      "padded": false,
+      "tables": 23,
+      "direct_points": 0,
+      "reference_group_evaluations": [
+        140,
+        140,
+        140
+      ],
+      "grouped_evaluations": [
+        109,
+        47,
+        47
+      ],
+      "grouped_without_claim_recovery": [
+        124,
+        62,
+        62
+      ],
+      "zero_factor_fallbacks": 0,
+      "peak_group_split_eq_entries": 8,
+      "digest": "ee91add66f0d32b9c1e69ee087ecab26051d0b029510eb4c4243c1a1a01d4a64"
+    },
+    {
+      "n": 5,
+      "padded": false,
+      "tables": 23,
+      "direct_points": 0,
+      "reference_group_evaluations": [
+        140,
+        140,
+        140
+      ],
+      "grouped_evaluations": [
+        109,
+        47,
+        47
+      ],
+      "grouped_without_claim_recovery": [
+        124,
+        62,
+        62
+      ],
+      "zero_factor_fallbacks": 0,
+      "peak_group_split_eq_entries": 8,
+      "digest": "277978c7b3f37d4c23e302ceb75fea8bb65c3ce2ddb5ba19636613b776ebbc4c"
+    },
+    {
+      "n": 5,
+      "padded": true,
+      "tables": 23,
+      "direct_points": 0,
+      "reference_group_evaluations": [
+        171,
+        171,
+        171
+      ],
+      "grouped_evaluations": [
+        140,
+        78,
+        78
+      ],
+      "grouped_without_claim_recovery": [
+        155,
+        93,
+        93
+      ],
+      "zero_factor_fallbacks": 0,
+      "peak_group_split_eq_entries": 8,
+      "digest": "d38b9a64ad307f765b788160ee5e669d3145342383dabeb879bec551bd3e33df"
+    },
+    {
+      "n": 5,
+      "padded": true,
+      "tables": 23,
+      "direct_points": 0,
+      "reference_group_evaluations": [
+        171,
+        171,
+        171
+      ],
+      "grouped_evaluations": [
+        140,
+        78,
+        78
+      ],
+      "grouped_without_claim_recovery": [
+        155,
+        93,
+        93
+      ],
+      "zero_factor_fallbacks": 0,
+      "peak_group_split_eq_entries": 8,
+      "digest": "72b5ee555b1a54d0be1ae4b5a504cacb0f37581e598676f90957399071059451"
+    },
+    {
+      "n": 5,
+      "padded": true,
+      "tables": 23,
+      "direct_points": 0,
+      "reference_group_evaluations": [
+        171,
+        171,
+        171
+      ],
+      "grouped_evaluations": [
+        140,
+        78,
+        78
+      ],
+      "grouped_without_claim_recovery": [
+        155,
+        93,
+        93
+      ],
+      "zero_factor_fallbacks": 0,
+      "peak_group_split_eq_entries": 8,
+      "digest": "017425dbe007ca53b4af1cc8c1dcd93a015d4d5df450a77f674f9bdd9d8c4168"
+    },
+    {
+      "n": 4,
+      "padded": true,
+      "tables": 20,
+      "direct_points": 24,
+      "reference_group_evaluations": [
+        83,
+        83,
+        83
+      ],
+      "grouped_evaluations": [
+        75,
+        42,
+        38
+      ],
+      "grouped_without_claim_recovery": [
+        75,
+        45,
+        45
+      ],
+      "zero_factor_fallbacks": 4,
+      "peak_group_split_eq_entries": 6,
+      "digest": "feae7e993bff136d1408faecfb2926eb1471306c892c96b5720e3c20fb1104fc"
+    }
+  ],
+  "counted_cases": [
+    {
+      "n": 8,
+      "padded": false,
+      "tables": 23,
+      "direct_points": 0,
+      "reference_group_evaluations": [
+        1148,
+        1148,
+        1148
+      ],
+      "grouped_evaluations": [
+        893,
+        383,
+        383
+      ],
+      "grouped_without_claim_recovery": [
+        1020,
+        510,
+        510
+      ],
+      "zero_factor_fallbacks": 0,
+      "peak_group_split_eq_entries": 24,
+      "digest": "cf73f75c0652ead3434920c2d040fb03d66d768aa213422b175bb7581566131e"
+    },
+    {
+      "n": 8,
+      "padded": true,
+      "tables": 23,
+      "direct_points": 0,
+      "reference_group_evaluations": [
+        1403,
+        1403,
+        1403
+      ],
+      "grouped_evaluations": [
+        1148,
+        638,
+        638
+      ],
+      "grouped_without_claim_recovery": [
+        1275,
+        765,
+        765
+      ],
+      "zero_factor_fallbacks": 0,
+      "peak_group_split_eq_entries": 24,
+      "digest": "a03a7a1fccd538fde01c520531e5da71ed0991ee7100449bafd0d9446aae0a6f"
+    }
+  ],
+  "differential_cases": 21,
+  "direct_round_points": 189,
+  "negative_controls": {
+    "combined_claim_is_not_subgroup_claim": true,
+    "score_gate_cannot_replace_lifted_ht_gate": true,
+    "pht_is_not_full_coordinate_equality": true,
+    "changed_limb_changes_round": true,
+    "wrong_single_equality_factor_detected": true
+  },
+  "malformed_refusals": 2,
+  "elapsed_seconds": 2.3076685769483447,
+  "peak_rss_kib": 24172,
+  "scope": "Source-derived SC_SZC polynomial with synthetic lookup/plane maps; independent original-cube MLE oracle. No native closure/IR execution, CFS/RNG parity, honest model witness, receipt, GPU, privacy or model-speed result."
+}

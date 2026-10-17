@@ -1,0 +1,8 @@
+
+running 1 test
+test private_block::s35_tests::the_two_rewritten_closures_equal_the_parent_closure_at_every_registered_shape ... S35 differential: 72 (point, slot) comparisons on this walk alone, 72 in the process so far
+S35 differential: slot 17's pad branch is taken at 8 registered shapes and not taken at 1
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 528 filtered out; finished in 0.32s
+

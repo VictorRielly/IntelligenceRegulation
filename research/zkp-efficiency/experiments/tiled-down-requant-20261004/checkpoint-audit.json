@@ -1,0 +1,101 @@
+{
+  "run_identity": "20261004T050146Z-1f54a8f9",
+  "checkpoint_utc": "2026-10-04T05:18:37.895658+00:00",
+  "status": "pass",
+  "checks": [
+    {
+      "check": "final exit/status",
+      "pass": true
+    },
+    {
+      "check": "result binds final script",
+      "pass": true
+    },
+    {
+      "check": "snapshot ops/zkp-mvp/candidate/hashline/src/private_block/witness.rs",
+      "pass": true
+    },
+    {
+      "check": "live source unchanged ops/zkp-mvp/candidate/hashline/src/private_block/witness.rs",
+      "pass": true
+    },
+    {
+      "check": "snapshot ops/zkp-mvp/candidate/hashline/src/private_block/layout.rs",
+      "pass": true
+    },
+    {
+      "check": "live source unchanged ops/zkp-mvp/candidate/hashline/src/private_block/layout.rs",
+      "pass": true
+    },
+    {
+      "check": "snapshot ops/zkp-mvp/candidate/hashline/src/private_block/shape.rs",
+      "pass": true
+    },
+    {
+      "check": "live source unchanged ops/zkp-mvp/candidate/hashline/src/private_block/shape.rs",
+      "pass": true
+    },
+    {
+      "check": "snapshot ops/zkp-mvp/candidate/private-block-kernel/src/lib.rs",
+      "pass": true
+    },
+    {
+      "check": "live source unchanged ops/zkp-mvp/candidate/private-block-kernel/src/lib.rs",
+      "pass": true
+    },
+    {
+      "check": "snapshot results/zk60_mvp_20260929/baseline-stack-gpu-attempt2/report.json",
+      "pass": true
+    },
+    {
+      "check": "live source unchanged results/zk60_mvp_20260929/baseline-stack-gpu-attempt2/report.json",
+      "pass": true
+    },
+    {
+      "check": "snapshot results/zk60_mvp_20260929/llama3-8b/config.json",
+      "pass": true
+    },
+    {
+      "check": "live source unchanged results/zk60_mvp_20260929/llama3-8b/config.json",
+      "pass": true
+    },
+    {
+      "check": "snapshot research/zkp-efficiency/experiments/int16-split-witness-20261004/cost-accounting.json",
+      "pass": true
+    },
+    {
+      "check": "live source unchanged research/zkp-efficiency/experiments/int16-split-witness-20261004/cost-accounting.json",
+      "pass": true
+    },
+    {
+      "check": "snapshot ops/zkp-mvp/candidate/hashline/src/gpu/cuda.rs",
+      "pass": true
+    },
+    {
+      "check": "live source unchanged ops/zkp-mvp/candidate/hashline/src/gpu/cuda.rs",
+      "pass": true
+    },
+    {
+      "check": "prior prefix preserved FINDINGS.md",
+      "pass": true
+    },
+    {
+      "check": "prior prefix preserved sources.jsonl",
+      "pass": true
+    },
+    {
+      "check": "four appended LIVE records",
+      "pass": true
+    },
+    {
+      "check": "resource bounds",
+      "pass": true
+    },
+    {
+      "check": "intermediate source reconstructed with verified result hash",
+      "pass": true
+    }
+  ],
+  "failed": [],
+  "note": "Static artifact/hash audit only. No second proof or speed claim; production/runtime writes absent by command scope."
+}

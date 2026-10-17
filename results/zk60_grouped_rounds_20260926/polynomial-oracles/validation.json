@@ -1,0 +1,46 @@
+{
+  "state": "passed",
+  "binary": "/tmp/zk60-groups-20260926/hashline/target/release/deps/hashline-903cb4da45f9493b",
+  "binary_sha256": "13d29680f77b3a351442c49f97caabfa89a6413a8f74c0becb1ddb32d47c05c8",
+  "runs": [
+    {
+      "name": "private_block::s35_tests::the_two_rewritten_closures_equal_the_parent_closure_at_every_registered_shape",
+      "command": [
+        "/tmp/zk60-groups-20260926/hashline/target/release/deps/hashline-903cb4da45f9493b",
+        "--exact",
+        "private_block::s35_tests::the_two_rewritten_closures_equal_the_parent_closure_at_every_registered_shape",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.3657750909915194,
+      "log_sha256": "1e62c19eb988eac061342fe4fed9e163cecca70a276e9041db8d8c8a188316b9"
+    },
+    {
+      "name": "private_block::s35_tests::the_two_rewritten_closures_equal_the_stage_34_ir_at_every_registered_shape",
+      "command": [
+        "/tmp/zk60-groups-20260926/hashline/target/release/deps/hashline-903cb4da45f9493b",
+        "--exact",
+        "private_block::s35_tests::the_two_rewritten_closures_equal_the_stage_34_ir_at_every_registered_shape",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.3153225109563209,
+      "log_sha256": "1910fce49a3b5ed725bc350a0dd8058977f23bd009dfc9c6b03a0626b43e5969"
+    },
+    {
+      "name": "private_block::s35_tests::the_table_list_the_order_and_the_declared_degree_of_the_two_slots_are_where_they_were",
+      "command": [
+        "/tmp/zk60-groups-20260926/hashline/target/release/deps/hashline-903cb4da45f9493b",
+        "--exact",
+        "private_block::s35_tests::the_table_list_the_order_and_the_declared_degree_of_the_two_slots_are_where_they_were",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.36710491398116574,
+      "log_sha256": "12366faff41c93293e5c83adc1d254730ef570a942b55803e042e1db6ec0b21e"
+    }
+  ]
+}

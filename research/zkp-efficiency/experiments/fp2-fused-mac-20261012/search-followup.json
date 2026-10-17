@@ -1,0 +1,49 @@
+{
+  "access_date": "2026-10-12",
+  "request": {
+    "open": [
+      {
+        "ref_id": "https://arxiv.org/html/2610.08258v1"
+      },
+      {
+        "ref_id": "https://arxiv.org/html/1704.02086v1"
+      },
+      {
+        "ref_id": "https://github.com/Consensys-Incorporated/gnark-crypto/blob/master/LICENSE"
+      },
+      {
+        "ref_id": "https://github.com/Consensys-Incorporated/gnark-crypto/blob/master/field/goldilocks/extensions/e2.go"
+      }
+    ],
+    "click": [
+      {
+        "ref_id": "turn4view0",
+        "id": 75
+      }
+    ],
+    "response_length": "long"
+  },
+  "result_metadata": [
+    {
+      "header": "zkLLMPoT: Efficient Zero Knowledge Proof of Training for Large Language Models (https://arxiv.org/html/2610.08258v1)",
+      "fetch_failures": []
+    },
+    {
+      "header": "A Zero Knowledge Sumcheck and its Applications (https://arxiv.org/html/1704.02086v1)",
+      "fetch_failures": []
+    },
+    {
+      "header": "Internal Error ()",
+      "fetch_failures": []
+    },
+    {
+      "header": "Internal Error ()",
+      "fetch_failures": []
+    },
+    {
+      "header": "v0.22.0 (#903) \u00b7 Consensys-Incorporated/gnark-crypto@550a513 \u00b7 GitHub (https://github.com/Consensys-Incorporated/gnark-crypto/commit/550a513d798df79d8324697332e085498285bb63)",
+      "fetch_failures": []
+    }
+  ],
+  "record_policy": "Exact requests/URLs and fetch failures retained; full webpage text omitted. Qualified assessments in source-records.json."
+}

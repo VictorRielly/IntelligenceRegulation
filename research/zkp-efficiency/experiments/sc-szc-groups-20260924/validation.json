@@ -1,0 +1,37 @@
+{
+  "run_identity": "20260924T024433Z-0c043a75",
+  "cycle": "0002",
+  "exit_code": 0,
+  "command": "python3 experiments/sc-szc-groups-20260924/experiment.py > experiments/sc-szc-groups-20260924/run.log 2>&1",
+  "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency",
+  "source_pins_rechecked": true,
+  "result_checks_passed": true,
+  "no_native_execution": true,
+  "no_gpu": true,
+  "no_git_operations": true,
+  "dependencies_installed": false,
+  "prior_result": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-szc-groups-20260924/initial/result.json",
+  "reference_docs_sha256": {
+    "/home/victor/IntelligenceRegulation/CLAUDE.md": "cc0567669408ccee9453983b414fa7f7706b97bef18b89df1c5e382a30a57c10",
+    "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md": "f91c0f67dff03a044cff92794593c8745eb9d96b36fe062c6677adbfc19221c0",
+    "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md": "7a7104f6dd67664171fd3085700d088674a378bdf6fc33ba64c8f52bda2d06f3",
+    "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md": "797d181d7b2b167ca03303ed91a720e57d4e6eefcd7cdf18696b1c4f5b6ac21c",
+    "/home/victor/IntelligenceRegulation/results/zk60_sumcheck_rounds_20260922/measured-summary.json": "90314eafb48a961b829c3fae613984773eae0f769ebd40b6081477b4c0123184",
+    "/home/victor/wt-zk60-block125m-review/results/zk60_stage05_commit_split/LEDGER.md": "3a5df3e1de8f36de8ace40b401e8fca9c356767f01c15a1e247108e3a64573ba"
+  },
+  "artifact_sha256": {
+    "experiment.py": "1004e5365effe100fd9793606d7c2b0435429d13264425da70cfa258f082061f",
+    "result.json": "fff5d5c6553525463b2c16af2db1d9980b9d19fafb3c63c31bcddba33e8c7d03",
+    "run.log": "d859b480c7cdb38a05d2cde5ff6c76b7d8a804e7f564eab3a0336e482a8e3808",
+    "README.md": "f68628ea9e743fe4b054a4d645b7271fb58059608700c336b42557dc7694ad41",
+    "source-records.json": "958bc910008b07e19398f0cc3c4682d31bcbc3e21eddbad68186f2a8e5d75397",
+    "search-log.json": "ce3500ca86276da2997a196fba40a73dcfd6b0c21c7f0c2492383f7579c6e811"
+  },
+  "checkpoint_utc": "2026-09-24 02:59 UTC",
+  "research_document_sha256": {
+    "STATE.md": "17da5c8c6961a1a3ee7549cb0ee6bfd563df47849d8f8eaa36d8b467bc49f8ff",
+    "FINDINGS.md": "c26bde127c551b9feb8d11272316ac5a4018c99a414aa7f459ca0efafa10a700",
+    "sources.jsonl": "a2de1ebfa80ca4b9413844841f6d2f5a1db85f0d2154be0e6f02915d655ebec3",
+    "handoffs/20260924-sc-szc-groups.md": "f76614d01da10ced539e10b78314f4abaa2ef3f0d9b6c16827132e37c8219d80"
+  }
+}

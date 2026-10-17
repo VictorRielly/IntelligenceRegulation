@@ -1,0 +1,31 @@
+[Unit]
+Description=Persistent ZKP efficiency literature and PoC explorer
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=600
+StartLimitBurst=3
+
+[Service]
+Type=simple
+WorkingDirectory=/home/victor/IntelligenceRegulation/research/zkp-efficiency
+ExecStart=/usr/bin/python3 /home/victor/IntelligenceRegulation/scripts/zk60_explorer.py serve --codex /home/victor/.nvm/versions/node/v22.22.3/bin/codex
+Restart=on-failure
+RestartSec=60
+KillMode=control-group
+TimeoutStopSec=30
+Nice=15
+CPUWeight=10
+CPUQuota=100%
+MemoryHigh=2G
+MemoryMax=3G
+TasksMax=128
+UMask=0077
+Environment=PATH=/home/victor/.nvm/versions/node/v22.22.3/bin:/usr/local/bin:/usr/bin:/bin
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/victor/IntelligenceRegulation/research/zkp-efficiency /home/victor/.codex /tmp
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=default.target
+

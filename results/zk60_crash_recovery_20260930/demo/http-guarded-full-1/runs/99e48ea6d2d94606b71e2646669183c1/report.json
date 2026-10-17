@@ -1,0 +1,50 @@
+{
+  "status": "passed",
+  "mode": "saved-zkvm-verification",
+  "scope": {
+    "profile": "block",
+    "synthetic": true,
+    "private_inputs": true,
+    "private_outputs": true,
+    "coverage": "one fixed T32/d16/f16 integer transformer block, reexecuted in the RISC Zero zkVM",
+    "proof_origin": "retained proof generated 2026-09-18",
+    "qualifiers": [
+      "Groth16 trusted setup",
+      "approximately 97-bit conjectured security",
+      "salt secrecy; build-directory-dependent image identity; timing leakage"
+    ]
+  },
+  "receipt_bytes": 785,
+  "checks": [
+    {
+      "name": "trusted_image_id",
+      "passed": true
+    },
+    {
+      "name": "fresh_process_verify",
+      "passed": true
+    },
+    {
+      "name": "tampered_receipt_rejected",
+      "passed": true
+    },
+    {
+      "name": "wrong_policy_rejected",
+      "passed": true
+    },
+    {
+      "name": "trusted_artifacts_unchanged",
+      "passed": true
+    }
+  ],
+  "new_proof_generated": false,
+  "trained_model": false,
+  "model_scale_mvp": false,
+  "benchmark": false,
+  "started_at": "2026-09-30T01:17:09.538722+00:00",
+  "binary_sha256": "3e7b1cd90c4399effc3a812d8e47702a04853a435f9f183aac3b1cffadd5cb59",
+  "receipt_sha256": "6c67e05c70e6785023f5fd671770e95bc9de197c83558fc044817df4f16432e7",
+  "policy_sha256": "6447e9909a38a90dd8e8f23c9d9e1959f862e04c6323421b49e9a5b3b8748f43",
+  "image_id": "8d74aab3d58c1a713045dfd1ea4ffa15e61439e61af58b72a5fdb792111998d9",
+  "elapsed_seconds": 2.280004317000021
+}

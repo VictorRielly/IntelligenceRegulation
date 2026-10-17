@@ -1,0 +1,67 @@
+[
+  {
+    "source": "experiments/sc-szc-weighted-coefficients-20261013/field_support.py",
+    "destination": "field_support.py",
+    "sha256": "8359ca44d70211cea90e9e251faadd10c4c953ced212cff3014ec3b839c59fc4"
+  },
+  {
+    "source": "experiments/sc-szc-weighted-coefficients-20261013/oracle.py",
+    "destination": "oracle.py",
+    "sha256": "a1c639a63dcc7175b9567dcc4e52ae71bb66a5c5e88ae18f77682adc335f2d58"
+  },
+  {
+    "source": "experiments/sc-szc-weighted-coefficients-20261013/source_port.py",
+    "destination": "source_port.py",
+    "sha256": "7d56350bcf89aca4c6a5215a52c6dd93ab809216a493a7c4411f7d78807a914d"
+  },
+  {
+    "source": "experiments/sc-szc-weighted-coefficients-20261013/prepared.py",
+    "destination": "prepared.py",
+    "sha256": "8a264e5abb8db95064759731cc0c8798de630db939657f097eb38dae3fc79d7c"
+  },
+  {
+    "source": "experiments/sc-szc-weighted-coefficients-20261013/baseline.py",
+    "destination": "baseline.py",
+    "sha256": "de46f6071af385e7c0825d1827b19b8a162db31618dd74f56b6952079976f88f"
+  },
+  {
+    "source": "experiments/sc-szc-weighted-coefficients-20261013/fixtures.py",
+    "destination": "fixtures.py",
+    "sha256": "bd7d7170c7660c8b8688ddac4f25f85fe29fa953316615ca25fa11b4c6f4b45a"
+  },
+  {
+    "source": "experiments/sc-szc-weighted-coefficients-20261013/candidate.py",
+    "destination": "candidate.py",
+    "sha256": "c4bbfec8e5cf8a81e0708c8e2ff8163b3940f31323bb9873582933fdb3e1b7a5"
+  },
+  {
+    "source": "experiments/sc-szc-weighted-coefficients-20261013/coefficients.py",
+    "destination": "coefficients.py",
+    "sha256": "d621a30e88103fe7b38b4092613bb9f653384d121232bf17c69950a528fda66e"
+  },
+  {
+    "source": "experiments/sc-szc-weighted-coefficients-20261013/polynomial_clause.py",
+    "destination": "polynomial_clause.py",
+    "sha256": "2517346ee064d239cd3625f16db24539469e06772a23779a577f039cd9f412d2"
+  },
+  {
+    "source": "experiments/sc-szc-weighted-coefficients-20261013/polynomial_ir.py",
+    "destination": "polynomial_ir.py",
+    "sha256": "cab140011a769df7044aea83c38c37dd3caa9c94a5541047904b3c570385bda8"
+  },
+  {
+    "source": "experiments/sc-szc-weighted-coefficients-20261013/row_rounds.py",
+    "destination": "row_rounds.py",
+    "sha256": "dfe567c90baf03888ff0cd86307c2356e9d198f2fb0969ceb503e6ef3cad8875"
+  },
+  {
+    "source": "experiments/sc-szc-weighted-coefficients-20261013/weighted_rounds.py",
+    "destination": "weighted_rounds.py",
+    "sha256": "b7e17c8e69acf9bb68b406b09f739e50503c240b7400ae3344a1318d31097760"
+  },
+  {
+    "source": "experiments/sc-szc-weighted-coefficients-20261013/prior_experiment.py",
+    "destination": "prior_experiment.py",
+    "sha256": "338026ec78a115ca74ad9f0a6232085fcaf025df322dc2d4fab407ed213fcc95"
+  }
+]

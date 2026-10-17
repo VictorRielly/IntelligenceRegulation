@@ -1,0 +1,78 @@
+{
+  "final_python_hashes": {
+    "oracle.py": true,
+    "experiment.py": true,
+    "descriptor.py": true,
+    "field.py": true
+  },
+  "intermediate_python_hashes": {
+    "initial-before-extension-controls": {
+      "oracle.py": true,
+      "experiment.py": true,
+      "descriptor.py": true,
+      "field.py": true
+    },
+    "before-ht-support-round-sums": {
+      "oracle.py": true,
+      "experiment.py": true,
+      "descriptor.py": true,
+      "field.py": true
+    }
+  },
+  "memory-pins.json_snapshots": {
+    "AGENDA.md": true,
+    "STATE.md": true,
+    "FINDINGS.md": true,
+    "PROGRESS.md": true,
+    "sources.jsonl": true,
+    "CLAUDE.md": true,
+    "ZK60_THROUGHPUT_TARGET.md": true,
+    "MVP_STATUS.md": true,
+    "ZK60_DECISIONS.md": true,
+    "ZK60_CODEX_FABLE_COORDINATION.md": true
+  },
+  "native-pins.json_snapshots": {
+    "hashline__src__private_block__argument.rs": true,
+    "hashline__src__private_block__shape.rs": true,
+    "hashline__src__private_block__pad.rs": true,
+    "zkp-core__src__mle.rs": true,
+    "zkp-core__src__sumcheck__grouped.rs": true,
+    "results__zk60_sol_gpu_20260927__attempt-5-dense-ab__report.json": true,
+    "results__zk60_sol_gpu_20260927__attempt-5-dense-ab__b2-gpu.log": true,
+    "results__zk60_mvp_20260929__baseline-stack-gpu-attempt2__report.json": true,
+    "results__zk60_mvp_20260929__cli-stack-gpu__report.json": true,
+    "ops__zkp-mvp__candidate__hashline__src__private_block__layout.rs": true
+  },
+  "native_current_hashes": {
+    "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/argument.rs": true,
+    "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/shape.rs": true,
+    "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/pad.rs": true,
+    "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/zkp-core/src/mle.rs": true,
+    "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/zkp-core/src/sumcheck/grouped.rs": true,
+    "/home/victor/IntelligenceRegulation/results/zk60_sol_gpu_20260927/attempt-5-dense-ab/report.json": true,
+    "/home/victor/IntelligenceRegulation/results/zk60_sol_gpu_20260927/attempt-5-dense-ab/b2-gpu.log": true,
+    "/home/victor/IntelligenceRegulation/results/zk60_mvp_20260929/baseline-stack-gpu-attempt2/report.json": true,
+    "/home/victor/IntelligenceRegulation/results/zk60_mvp_20260929/cli-stack-gpu/report.json": true,
+    "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/layout.rs": true
+  },
+  "six_unique_appends": {
+    "cycle37-new-older-jolt-comparator-mle": true,
+    "cycle37-new-cuda-qingming-layout-filter": true,
+    "cycle37-new-cubutterfly-residence-boundary": true,
+    "cycle37-current-lattice-jolt-privacy-filter": true,
+    "cycle37-small-space-prefix-suffix-scope": true,
+    "cycle37-september-round-batching-refresh": true
+  },
+  "source_count": 203,
+  "exit_code_zero": true,
+  "resource_limits": true,
+  "required_reports": {
+    "STATE.md": true,
+    "FINDINGS.md": true,
+    "PROGRESS.md": true,
+    "progress/20261012T182555Z-4bc569b3.md": true,
+    "handoffs/20261012-causal-mask-descriptor.md": true
+  },
+  "sketch_sha256": "7b348cc3ce589eca107b97ebf9d694ae614418771ed587c0d54c7c97f1d4ef43",
+  "checked_utc": "2026-10-12T18:42:30.538622+00:00"
+}

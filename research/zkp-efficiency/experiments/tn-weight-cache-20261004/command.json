@@ -1,0 +1,11 @@
+{
+  "command": [
+    "python3",
+    "experiments/tn-weight-cache-20261004/experiment.py"
+  ],
+  "started_utc": "2026-10-04T07:11:23.186431+00:00",
+  "timeout_s": 60,
+  "threads": 1,
+  "estimated_memory_mib": 64,
+  "memory_cap_mib": 512
+}

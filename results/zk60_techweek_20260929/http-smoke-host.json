@@ -1,0 +1,206 @@
+{
+  "checks": [
+    {
+      "name": "page_loaded",
+      "passed": true
+    },
+    {
+      "name": "status_loaded",
+      "passed": true
+    },
+    {
+      "name": "foreign_host_refused",
+      "passed": true
+    },
+    {
+      "name": "missing_csrf_refused",
+      "passed": true
+    },
+    {
+      "name": "foreign_origin_refused",
+      "passed": true
+    },
+    {
+      "name": "unknown_mode_refused",
+      "passed": true
+    },
+    {
+      "name": "private_paths_unserved",
+      "passed": true
+    },
+    {
+      "name": "token_started",
+      "passed": true
+    },
+    {
+      "name": "token_poll",
+      "passed": true
+    },
+    {
+      "name": "token_complete",
+      "passed": true
+    },
+    {
+      "name": "token_all_real_checks_passed",
+      "passed": true
+    },
+    {
+      "name": "token_download_receipt.bin",
+      "passed": true
+    },
+    {
+      "name": "token_download_policy.bin",
+      "passed": true
+    },
+    {
+      "name": "token_report_download",
+      "passed": true
+    },
+    {
+      "name": "token_private_log_unserved",
+      "passed": true
+    },
+    {
+      "name": "block_started",
+      "passed": true
+    },
+    {
+      "name": "block_poll",
+      "passed": true
+    },
+    {
+      "name": "block_complete",
+      "passed": true
+    },
+    {
+      "name": "block_all_real_checks_passed",
+      "passed": true
+    },
+    {
+      "name": "block_download_receipt.bin",
+      "passed": true
+    },
+    {
+      "name": "block_download_policy.bin",
+      "passed": true
+    },
+    {
+      "name": "block_report_download",
+      "passed": true
+    },
+    {
+      "name": "block_private_log_unserved",
+      "passed": true
+    }
+  ],
+  "runs": [
+    {
+      "job_id": "362785f9297f48b786855cf95de7675b",
+      "mode": "token",
+      "report": {
+        "status": "passed",
+        "mode": "saved-zkvm-verification",
+        "scope": {
+          "profile": "token",
+          "synthetic": true,
+          "private_inputs": true,
+          "private_outputs": true,
+          "coverage": "synthetic-T32-V32-two-block-greedy-token: one greedy next token of a fixed synthetic (untrained) two-block integer model, reexecuted in the RISC Zero zkVM; the token stays private",
+          "proof_origin": "retained proof generated 2026-09-18",
+          "qualifiers": [
+            "Groth16 trusted setup",
+            "approximately 97-bit conjectured security",
+            "salt secrecy; build-directory-dependent image identity; timing leakage"
+          ]
+        },
+        "receipt_bytes": 785,
+        "checks": [
+          {
+            "name": "trusted_image_id",
+            "passed": true
+          },
+          {
+            "name": "fresh_process_verify",
+            "passed": true
+          },
+          {
+            "name": "tampered_receipt_rejected",
+            "passed": true
+          },
+          {
+            "name": "wrong_policy_rejected",
+            "passed": true
+          },
+          {
+            "name": "trusted_artifacts_unchanged",
+            "passed": true
+          }
+        ],
+        "new_proof_generated": false,
+        "trained_model": false,
+        "model_scale_mvp": false,
+        "benchmark": false,
+        "binary_sha256": "338eb2a7b16a8698c646c3d05bb885dcc6f40566f7dd3378acefc7c65d4fa7a7",
+        "receipt_sha256": "94f3ce1438b41b34a086cabd2eafcabf75c492dc2eed9da6555493f1cb9b2cb0",
+        "policy_sha256": "f8177d93f57f00a813a142c1d3993b6de377e4f6ae87313e5a903c68ed82240b",
+        "image_id": "3c0631ee629a40a78421e03cd5c6ac9ffdafa026a1289aa9207fcce6c016430b",
+        "elapsed_seconds": 0.09498175400017317
+      }
+    },
+    {
+      "job_id": "bb41dbb699f74493a54ea75c47fadf9b",
+      "mode": "block",
+      "report": {
+        "status": "passed",
+        "mode": "saved-zkvm-verification",
+        "scope": {
+          "profile": "block",
+          "synthetic": true,
+          "private_inputs": true,
+          "private_outputs": true,
+          "coverage": "one fixed T32/d16/f16 integer transformer block, reexecuted in the RISC Zero zkVM",
+          "proof_origin": "retained proof generated 2026-09-18",
+          "qualifiers": [
+            "Groth16 trusted setup",
+            "approximately 97-bit conjectured security",
+            "salt secrecy; build-directory-dependent image identity; timing leakage"
+          ]
+        },
+        "receipt_bytes": 785,
+        "checks": [
+          {
+            "name": "trusted_image_id",
+            "passed": true
+          },
+          {
+            "name": "fresh_process_verify",
+            "passed": true
+          },
+          {
+            "name": "tampered_receipt_rejected",
+            "passed": true
+          },
+          {
+            "name": "wrong_policy_rejected",
+            "passed": true
+          },
+          {
+            "name": "trusted_artifacts_unchanged",
+            "passed": true
+          }
+        ],
+        "new_proof_generated": false,
+        "trained_model": false,
+        "model_scale_mvp": false,
+        "benchmark": false,
+        "binary_sha256": "3e7b1cd90c4399effc3a812d8e47702a04853a435f9f183aac3b1cffadd5cb59",
+        "receipt_sha256": "6c67e05c70e6785023f5fd671770e95bc9de197c83558fc044817df4f16432e7",
+        "policy_sha256": "6447e9909a38a90dd8e8f23c9d9e1959f862e04c6323421b49e9a5b3b8748f43",
+        "image_id": "8d74aab3d58c1a713045dfd1ea4ffa15e61439e61af58b72a5fdb792111998d9",
+        "elapsed_seconds": 0.09228413899995758
+      }
+    }
+  ],
+  "status": "passed",
+  "real_verifiers": true
+}

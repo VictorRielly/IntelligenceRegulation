@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "python3",
+    "-B",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/ht-host-axis-collapse-20261012/accounting.py"
+  ],
+  "exit_code": 0,
+  "log": "accounting.log",
+  "source_hash": "76c09558ed1ed6d1d20316584ac2be24a0eda84da9c1276f0caf8d84b3297d1d"
+}

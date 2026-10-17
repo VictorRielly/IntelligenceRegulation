@@ -1,0 +1,546 @@
+{
+  "schema": "zk60-trained-norm-contract-review/1",
+  "privacy_acceptance": false,
+  "trained_execution_or_proof": false,
+  "checks": "all assertions passed",
+  "cases": [
+    {
+      "width": 2048,
+      "x": 32767,
+      "gain": 0,
+      "d": 1482865,
+      "ss": 2198889039873,
+      "den": 6073815040,
+      "max_rho": 3036907520,
+      "max_sigma": 3036907519,
+      "output_in_range": true,
+      "window_pass": true
+    },
+    {
+      "width": 2048,
+      "x": 32767,
+      "gain": 1,
+      "d": 1482865,
+      "ss": 2198889039873,
+      "den": 6073815040,
+      "max_rho": 3104014336,
+      "max_sigma": 2969800703,
+      "output_in_range": true,
+      "window_pass": true
+    },
+    {
+      "width": 2048,
+      "x": 32767,
+      "gain": 127,
+      "d": 1482865,
+      "ss": 2198889039873,
+      "den": 6073815040,
+      "max_rho": 5485658112,
+      "max_sigma": 588156927,
+      "output_in_range": true,
+      "window_pass": false
+    },
+    {
+      "width": 2048,
+      "x": 32767,
+      "gain": -128,
+      "d": 1482865,
+      "ss": 2198889039873,
+      "den": 6073815040,
+      "max_rho": 521050112,
+      "max_sigma": 5552764927,
+      "output_in_range": true,
+      "window_pass": false
+    },
+    {
+      "width": 2048,
+      "x": -32768,
+      "gain": 0,
+      "d": 1482910,
+      "ss": 2199023255553,
+      "den": 6073999360,
+      "max_rho": 3036999680,
+      "max_sigma": 3036999679,
+      "output_in_range": true,
+      "window_pass": true
+    },
+    {
+      "width": 2048,
+      "x": -32768,
+      "gain": 1,
+      "d": 1482910,
+      "ss": 2199023255553,
+      "den": 6073999360,
+      "max_rho": 2969890816,
+      "max_sigma": 3104108543,
+      "output_in_range": true,
+      "window_pass": true
+    },
+    {
+      "width": 2048,
+      "x": -32768,
+      "gain": 127,
+      "d": 1482910,
+      "ss": 2199023255553,
+      "den": 6073999360,
+      "max_rho": 588173312,
+      "max_sigma": 5485826047,
+      "output_in_range": true,
+      "window_pass": false
+    },
+    {
+      "width": 2048,
+      "x": -32768,
+      "gain": -128,
+      "d": 1482910,
+      "ss": 2199023255553,
+      "den": 6073999360,
+      "max_rho": 5552934912,
+      "max_sigma": 521064447,
+      "output_in_range": true,
+      "window_pass": false
+    },
+    {
+      "width": 4096,
+      "x": 32767,
+      "gain": 0,
+      "d": 2097088,
+      "ss": 4397778079745,
+      "den": 8589672448,
+      "max_rho": 4294836224,
+      "max_sigma": 4294836223,
+      "output_in_range": true,
+      "window_pass": true
+    },
+    {
+      "width": 4096,
+      "x": 32767,
+      "gain": 1,
+      "d": 2097088,
+      "ss": 4397778079745,
+      "den": 8589672448,
+      "max_rho": 4361943040,
+      "max_sigma": 4227729407,
+      "output_in_range": true,
+      "window_pass": false
+    },
+    {
+      "width": 4096,
+      "x": 32767,
+      "gain": 127,
+      "d": 2097088,
+      "ss": 4397778079745,
+      "den": 8589672448,
+      "max_rho": 4227729408,
+      "max_sigma": 4361943039,
+      "output_in_range": true,
+      "window_pass": false
+    },
+    {
+      "width": 4096,
+      "x": 32767,
+      "gain": -128,
+      "d": 2097088,
+      "ss": 4397778079745,
+      "den": 8589672448,
+      "max_rho": 4294836224,
+      "max_sigma": 4294836223,
+      "output_in_range": true,
+      "window_pass": true
+    },
+    {
+      "width": 4096,
+      "x": -32768,
+      "gain": 0,
+      "d": 2097152,
+      "ss": 4398046511105,
+      "den": 8589934592,
+      "max_rho": 4294967296,
+      "max_sigma": 4294967295,
+      "output_in_range": true,
+      "window_pass": false
+    },
+    {
+      "width": 4096,
+      "x": -32768,
+      "gain": 1,
+      "d": 2097152,
+      "ss": 4398046511105,
+      "den": 8589934592,
+      "max_rho": 4227858432,
+      "max_sigma": 4362076159,
+      "output_in_range": true,
+      "window_pass": false
+    },
+    {
+      "width": 4096,
+      "x": -32768,
+      "gain": 127,
+      "d": 2097152,
+      "ss": 4398046511105,
+      "den": 8589934592,
+      "max_rho": 4362076160,
+      "max_sigma": 4227858431,
+      "output_in_range": true,
+      "window_pass": false
+    },
+    {
+      "width": 4096,
+      "x": -32768,
+      "gain": -128,
+      "d": 2097152,
+      "ss": 4398046511105,
+      "den": 8589934592,
+      "max_rho": 4294967296,
+      "max_sigma": 4294967295,
+      "output_in_range": true,
+      "window_pass": false
+    }
+  ],
+  "counterexamples": {
+    "four_limb_pass_above_claimed_cutoff": {
+      "d": 1482865,
+      "ss": 2198889039873,
+      "den": 6073815040,
+      "max_rho": 3036907520,
+      "max_sigma": 3036907519,
+      "output_in_range": true,
+      "window_pass": true
+    },
+    "four_limb_individual_window_failure": {
+      "width": 2048,
+      "x": 32767,
+      "gain": 127,
+      "d": 1482865,
+      "ss": 2198889039873,
+      "den": 6073815040,
+      "max_rho": 5485658112,
+      "max_sigma": 588156927,
+      "output_in_range": true,
+      "window_pass": false
+    },
+    "signed_int16_endpoint_pair_impossible": {
+      "d": 2097152,
+      "ss": 4398046511105,
+      "den": 8589934592,
+      "max_rho": 4294967296,
+      "max_sigma": 4294967295,
+      "output_in_range": true,
+      "window_pass": false
+    },
+    "epsilon_changes_sufficient_row_bound": {
+      "d": 1048577,
+      "ss": 1099513724929,
+      "den": 4294971392,
+      "max_rho": 2147485696,
+      "max_sigma": 2147485695,
+      "output_in_range": true,
+      "window_pass": true
+    },
+    "unbounded_coefficient_field_alias": {
+      "cn": 9223372034707292160,
+      "integer_residual": 18446744069414584321,
+      "field_residual": 0
+    }
+  },
+  "exact_obligations": {
+    "full_domain": "use 32768 absolute signed-int16 bound; 8B wrho=34 at eps=1, TinyLlama wrho=33; both require 5 limbs",
+    "four_limb_actual_acceptance": "max(rho,sigma)<2^32 for every channel of both norms; D<=2^20 sufficient, not necessary",
+    "pair_possible": "den<=2*(2^32)-1 necessary and sufficient for some remainder pair",
+    "all_remainders_fit": "den<=2^32 necessary and sufficient for every legal remainder",
+    "restricted_row_bound": "sum(x^2)+Ceps < (2^20+1)^2 sufficient for all remainder pairs at tn=11",
+    "no_wrap": "reported absolute bounds < Goldilocks p, for cn<=65536 and eps in tested positive range; arbitrary coefficients not accepted"
+  },
+  "bounds": [
+    {
+      "width": 2048,
+      "eps": 1,
+      "cn": 1024,
+      "dmax": 1482910,
+      "norm_bits": 33,
+      "norm_limbs": 5,
+      "norm_clause_absolute_bound": 791614787583,
+      "isqrt_clause_absolute_bound": 283673983188993,
+      "remainder_pair_absolute_bound": 85899341823
+    },
+    {
+      "width": 2048,
+      "eps": 1,
+      "cn": 65536,
+      "dmax": 1482910,
+      "norm_bits": 33,
+      "norm_limbs": 5,
+      "norm_clause_absolute_bound": 1332780666879,
+      "isqrt_clause_absolute_bound": 283673983188993,
+      "remainder_pair_absolute_bound": 85899341823
+    },
+    {
+      "width": 2048,
+      "eps": 1342,
+      "cn": 1024,
+      "dmax": 1482910,
+      "norm_bits": 33,
+      "norm_limbs": 5,
+      "norm_clause_absolute_bound": 791614787583,
+      "isqrt_clause_absolute_bound": 283673983190334,
+      "remainder_pair_absolute_bound": 85899341823
+    },
+    {
+      "width": 2048,
+      "eps": 1342,
+      "cn": 65536,
+      "dmax": 1482910,
+      "norm_bits": 33,
+      "norm_limbs": 5,
+      "norm_clause_absolute_bound": 1332780666879,
+      "isqrt_clause_absolute_bound": 283673983190334,
+      "remainder_pair_absolute_bound": 85899341823
+    },
+    {
+      "width": 2048,
+      "eps": 2684,
+      "cn": 1024,
+      "dmax": 1482910,
+      "norm_bits": 33,
+      "norm_limbs": 5,
+      "norm_clause_absolute_bound": 791614787583,
+      "isqrt_clause_absolute_bound": 283673983191676,
+      "remainder_pair_absolute_bound": 85899341823
+    },
+    {
+      "width": 2048,
+      "eps": 2684,
+      "cn": 65536,
+      "dmax": 1482910,
+      "norm_bits": 33,
+      "norm_limbs": 5,
+      "norm_clause_absolute_bound": 1332780666879,
+      "isqrt_clause_absolute_bound": 283673983191676,
+      "remainder_pair_absolute_bound": 85899341823
+    },
+    {
+      "width": 4096,
+      "eps": 1,
+      "cn": 1024,
+      "dmax": 2097152,
+      "norm_bits": 34,
+      "norm_limbs": 5,
+      "norm_clause_absolute_bound": 1120986464255,
+      "isqrt_clause_absolute_bound": 285873006444545,
+      "remainder_pair_absolute_bound": 103079211007
+    },
+    {
+      "width": 4096,
+      "eps": 1,
+      "cn": 65536,
+      "dmax": 2097152,
+      "norm_bits": 34,
+      "norm_limbs": 5,
+      "norm_clause_absolute_bound": 1662152343551,
+      "isqrt_clause_absolute_bound": 285873006444545,
+      "remainder_pair_absolute_bound": 103079211007
+    },
+    {
+      "width": 4096,
+      "eps": 1342,
+      "cn": 1024,
+      "dmax": 2097152,
+      "norm_bits": 34,
+      "norm_limbs": 5,
+      "norm_clause_absolute_bound": 1120986464255,
+      "isqrt_clause_absolute_bound": 285873006445886,
+      "remainder_pair_absolute_bound": 103079211007
+    },
+    {
+      "width": 4096,
+      "eps": 1342,
+      "cn": 65536,
+      "dmax": 2097152,
+      "norm_bits": 34,
+      "norm_limbs": 5,
+      "norm_clause_absolute_bound": 1662152343551,
+      "isqrt_clause_absolute_bound": 285873006445886,
+      "remainder_pair_absolute_bound": 103079211007
+    },
+    {
+      "width": 4096,
+      "eps": 2684,
+      "cn": 1024,
+      "dmax": 2097152,
+      "norm_bits": 34,
+      "norm_limbs": 5,
+      "norm_clause_absolute_bound": 1120986464255,
+      "isqrt_clause_absolute_bound": 285873006447228,
+      "remainder_pair_absolute_bound": 103079211007
+    },
+    {
+      "width": 4096,
+      "eps": 2684,
+      "cn": 65536,
+      "dmax": 2097152,
+      "norm_bits": 34,
+      "norm_limbs": 5,
+      "norm_clause_absolute_bound": 1662152343551,
+      "isqrt_clause_absolute_bound": 285873006447228,
+      "remainder_pair_absolute_bound": 103079211007
+    }
+  ],
+  "parameter_sites": {
+    "ops/zkp-mvp/candidate/hashline/src/private_block/shape.rs": [
+      {
+        "line": 44,
+        "text": "const NORM_TN: u32 = 11;"
+      },
+      {
+        "line": 45,
+        "text": "const NORM_CEPS: i128 = 1;"
+      },
+      {
+        "line": 196,
+        "text": "let d_max = isqrt_i128(NORM_CEPS + width as i128 * INT16_MAX * INT16_MAX);"
+      },
+      {
+        "line": 228,
+        "text": "norm_wrho: norm_wrho.unwrap_or(NORM_TN + 1 + bit_length(d_max)),"
+      },
+      {
+        "line": 640,
+        "text": "/// `norm_wrho = NORM_TN + 1 + bit_length(D_max)` is a multiple of eight,"
+      }
+    ],
+    "ops/zkp-mvp/candidate/hashline/src/private_block/layout.rs": [
+      {
+        "line": 62,
+        "text": "pub(crate) const NORM_TN: u32 = 11;"
+      },
+      {
+        "line": 63,
+        "text": "pub(crate) const NORM_CN: i64 = 1024;"
+      },
+      {
+        "line": 64,
+        "text": "pub(crate) const NORM_CEPS: i64 = 1;"
+      },
+      {
+        "line": 1267,
+        "text": "\"calibration: norm tn={NORM_TN} cn={NORM_CN} ceps={NORM_CEPS} wrho={}; shifts qkv={SH_QKV} rope={SH_ROPE} score={SH_S} o={SH_O} ao={SH_AO} residual=0; fE={} fP={F_P} fRo={F_RO} wrhoS={} mask={MASK_SCORE}; classes int8=[-127,127] int16; tables U8 + exp\","
+      }
+    ],
+    "ops/zkp-mvp/candidate/hashline/src/private_block/witness.rs": [
+      {
+        "line": 369,
+        "text": "let ss: i64 = NORM_CEPS + row.iter().map(|v| v * v).sum::<i64>();"
+      },
+      {
+        "line": 383,
+        "text": "let dv = d << NORM_TN;"
+      },
+      {
+        "line": 389,
+        "text": "let num = 2 * row[i] * i64::from(gamma[i]) * NORM_CN + dv;"
+      }
+    ],
+    "ops/zkp-mvp/candidate/hashline/src/private_block/slot_ir.rs": [
+      {
+        "line": 1007,
+        "text": "b.sum(lab.to_string(), vec![st(Coef::one(), vec![ft(dsq)]), st(Coef::one(), vec![fnd(a1)]), st(Coef::base(-NORM_CEPS, \"NORM_CEPS\"), vec![])])"
+      },
+      {
+        "line": 1009,
+        "text": "let host_t = host(&mut b, \"host SC_SS: dsq + a1 - NORM_CEPS\", i_dsq, a1);"
+      },
+      {
+        "line": 1010,
+        "text": "let host_tm = host(&mut b, \"host SC_SSM: dsq_m + a1_m - NORM_CEPS\", i_dsqm, a1m);"
+      },
+      {
+        "line": 1162,
+        "text": "let (k_num, k_dv, k_den) = (2 * NORM_CN, 1i64 << NORM_TN, 1i64 << (NORM_TN + 1));"
+      },
+      {
+        "line": 1175,
+        "text": "st(Coef::base(k_num, \"2 * NORM_CN\"), vec![ft(ig), ft(at(A_X))]),"
+      },
+      {
+        "line": 1176,
+        "text": "st(Coef::base(k_dv, \"2^NORM_TN\"), vec![ft(id)]),"
+      },
+      {
+        "line": 1177,
+        "text": "st(Coef::base(-k_den, \"2^(NORM_TN+1)\"), vec![ft(at(A_Y)), ft(id)]),"
+      },
+      {
+        "line": 1183,
+        "text": "vec![st(Coef::one(), vec![fnd(ns)]), st(Coef::one(), vec![fnd(nr)]), st(Coef::one(), vec![]), st(Coef::base(-k_den, \"2^(NORM_TN+1)\"), vec![ft(id)])],"
+      },
+      {
+        "line": 1195,
+        "text": "st(Coef::base(k_num, \"2 * NORM_CN\"), vec![ft(igm), ft(at(A_X1))]),"
+      },
+      {
+        "line": 1196,
+        "text": "st(Coef::base(k_dv, \"2^NORM_TN\"), vec![ft(idm)]),"
+      },
+      {
+        "line": 1197,
+        "text": "st(Coef::base(-k_den, \"2^(NORM_TN+1)\"), vec![ft(at(A_YM)), ft(idm)]),"
+      },
+      {
+        "line": 1203,
+        "text": "vec![st(Coef::one(), vec![fnd(ms)]), st(Coef::one(), vec![fnd(mr)]), st(Coef::one(), vec![]), st(Coef::base(-k_den, \"2^(NORM_TN+1)\"), vec![ft(idm)])],"
+      }
+    ],
+    "ops/zkp-mvp/candidate/hashline/src/private_block/argument.rs": [
+      {
+        "line": 1209,
+        "text": "// and a padded row's claimed sum is zero, not `NORM_CEPS`"
+      },
+      {
+        "line": 1237,
+        "text": ".add(nu[0].mul(v[i_rt]).mul(g).mul(dsq.add(a1).sub(k(NORM_CEPS))))"
+      },
+      {
+        "line": 1238,
+        "text": ".add(nu[1].mul(v[i_rt2]).mul(g).mul(dsqm.add(a1m).sub(k(NORM_CEPS))))"
+      },
+      {
+        "line": 1466,
+        "text": "let (k_num, k_dv, k_den) = (k(2 * NORM_CN), k(1 << NORM_TN), k(1 << (NORM_TN + 1)));"
+      }
+    ],
+    "ops/zkp-mvp/candidate/private-block-kernel-shaped/src/lib.rs": [
+      {
+        "line": 63,
+        "text": "pub const NORM_TN: u32 = 11;"
+      },
+      {
+        "line": 64,
+        "text": "pub const NORM_CN: i64 = 1024;"
+      },
+      {
+        "line": 65,
+        "text": "pub const NORM_CEPS: i64 = 1;"
+      },
+      {
+        "line": 553,
+        "text": "let mut ss = NORM_CEPS;"
+      },
+      {
+        "line": 559,
+        "text": "let dv = shl(d, NORM_TN, \"norm\")?;"
+      },
+      {
+        "line": 565,
+        "text": "let num = add(mul(mul(mul(2, row[i], \"norm\")?, i64::from(g[i]), \"norm\")?, NORM_CN, \"norm\")?, dv, \"norm\")?;"
+      }
+    ]
+  },
+  "source_sha256": {
+    "ops/zkp-mvp/candidate/hashline/src/private_block/shape.rs": "dbf4e2bc36e9f74c432d6e529b229e3a593e794271fd8593d1412b8312403911",
+    "ops/zkp-mvp/candidate/hashline/src/private_block/layout.rs": "14758039fbe9daa61affa1316c6e4159437b98d888d72a926f6e70e788592b30",
+    "ops/zkp-mvp/candidate/hashline/src/private_block/witness.rs": "b9b66c024e7ca68d2a0ae4ba46241eb2abbccc8c8d94fe828041abbc710850ad",
+    "ops/zkp-mvp/candidate/hashline/src/private_block/slot_ir.rs": "734cd0e0e03b5ea61da6e50aff98f53d35ec686b47bd317dcade29ee85adee9e",
+    "ops/zkp-mvp/candidate/hashline/src/private_block/argument.rs": "b3b02383a14a64a12194a465873b76f78406e5d3115b0c8157fde2882d22c865",
+    "ops/zkp-mvp/candidate/private-block-kernel-shaped/src/lib.rs": "dc2096e2315bb671ca1f61a4b8e61dd099ef1ea235ada1c518f3611d62115b29"
+  }
+}

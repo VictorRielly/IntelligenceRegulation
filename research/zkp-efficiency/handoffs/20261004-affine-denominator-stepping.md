@@ -1,0 +1,13 @@
+# Row stepping disposition — demoted pending native timing
+
+Run `20261004T185034Z-0cf2c35e`, cycle0034, 2026-10-04. Owner/Claude reviews and integrates; nothing applied or merged. [Experiment and evidence](../experiments/affine-denominator-stepping-20261004/README.md).
+
+Source-derived complete SC_SZC algebra passes128 fixtures/768 schedules, independent expanded original-cube checks,20,736 direct-MLE finals and11 negative controls. Final11.575187s/17,332KiB RSS, one low-priority CPU thread. No native speed or accepted full-stack proof is measured.
+
+Compared with cycle0033's compiled denominator plan, illustrated padded n23/ls3/release stepping removes1.271860% of counted scan/fold base multiplications, increases API operations1.324854%, and adds480B logical per-part current/slope scratch. No full Fp2 multiplications are removed. A rewrite based on this count alone is not recommended. Setup is per row/round, not reusable model startup. Scratch accesses may stay in registers but spill/locality behavior is unmeasured.
+
+Native seam: owner's argument.rs:894 helper_sum and SC_SZC:1724/1782; zkp-core/src/sumcheck/grouped.rs:86 part/row preparation and:110 sample advance. Current GroupPoly at argument.rs:76 is immutable Fn+Send+Sync. A prospective additive adapter needs immutable proof-definition plan and separate scratch per part. Interface would have begin_row(cur,dif), denominator(index), advance_sample(), end_row(); it must advance over skipped1 and reset on every row/round/ragged part. Keep the default closure path and generic verifier oracle. Never use shared mutable row scratch in the Arc closure. Python implementation is stepping.py/row_rounds.py, not a compilable native patch.
+
+Before reconsidering: owner clocks denominator evaluation separately from helper products, other brackets, data interpolation, weighting/folds/recovery and both witness builds; inspect optimized compiler and CUDA register/occupancy costs. If measured costs justify it, require actual masked native round/final/challenge/RNG/extension/transcript parity, frozen receipt bytes, honest/padded/zero/refusal cases and fresh independent verifier controls, then guarded enclosing A/B including all initialization/serialization/drain. Privacy and whole-proof soundness obligations remain. Zero-denominator algebra is not a refusal/privacy proof.
+
+Next local seam is separate: delayed reduction of terminal weighted sums at grouped.rs:110, backed by native Fp2::mul/Goldilocks reduce128 in field.rs:55/100/158. Canonical products almost fill u128; accumulating several unreduced products requires a proved wider bound/carry/reduction implementation. Vega's different-field implementation is a lead, not permission or a speed factor. No heavy/build/GPU action queued.

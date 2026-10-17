@@ -1,0 +1,243 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "kind": "run_source",
+      "name": "axis_factory.py",
+      "ok": true
+    },
+    {
+      "kind": "run_source",
+      "name": "baseline.py",
+      "ok": true
+    },
+    {
+      "kind": "run_source",
+      "name": "candidate.py",
+      "ok": true
+    },
+    {
+      "kind": "run_source",
+      "name": "coefficients.py",
+      "ok": true
+    },
+    {
+      "kind": "run_source",
+      "name": "experiment.py",
+      "ok": true
+    },
+    {
+      "kind": "run_source",
+      "name": "field_support.py",
+      "ok": true
+    },
+    {
+      "kind": "run_source",
+      "name": "fixtures.py",
+      "ok": true
+    },
+    {
+      "kind": "run_source",
+      "name": "karatsuba_factory.py",
+      "ok": true
+    },
+    {
+      "kind": "run_source",
+      "name": "oracle.py",
+      "ok": true
+    },
+    {
+      "kind": "run_source",
+      "name": "polynomial_clause.py",
+      "ok": true
+    },
+    {
+      "kind": "run_source",
+      "name": "polynomial_ir.py",
+      "ok": true
+    },
+    {
+      "kind": "run_source",
+      "name": "prepared.py",
+      "ok": true
+    },
+    {
+      "kind": "run_source",
+      "name": "prior_axis_experiment.py",
+      "ok": true
+    },
+    {
+      "kind": "run_source",
+      "name": "prior_experiment.py",
+      "ok": true
+    },
+    {
+      "kind": "run_source",
+      "name": "prior_experiment50.py",
+      "ok": true
+    },
+    {
+      "kind": "run_source",
+      "name": "row_rounds.py",
+      "ok": true
+    },
+    {
+      "kind": "run_source",
+      "name": "run.py",
+      "ok": true
+    },
+    {
+      "kind": "run_source",
+      "name": "source_port.py",
+      "ok": true
+    },
+    {
+      "kind": "run_source",
+      "name": "static_plan.py",
+      "ok": true
+    },
+    {
+      "kind": "run_source",
+      "name": "weighted_experiment.py",
+      "ok": true
+    },
+    {
+      "kind": "run_source",
+      "name": "weighted_rounds.py",
+      "ok": true
+    },
+    {
+      "kind": "native_pin",
+      "name": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/zkp-core/src/sumcheck/grouped.rs",
+      "ok": true
+    },
+    {
+      "kind": "native_pin",
+      "name": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/zkp-core/src/field.rs",
+      "ok": true
+    },
+    {
+      "kind": "native_pin",
+      "name": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/argument.rs",
+      "ok": true
+    },
+    {
+      "kind": "native_pin",
+      "name": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/protocol.rs",
+      "ok": true
+    },
+    {
+      "kind": "native_pin",
+      "name": "/home/victor/IntelligenceRegulation/results/zk60_sol_gpu_20260927/attempt-5-dense-ab/report.json",
+      "ok": true
+    },
+    {
+      "kind": "native_pin",
+      "name": "/home/victor/IntelligenceRegulation/results/zk60_sol_gpu_20260927/attempt-5-dense-ab/b2-gpu.log",
+      "ok": true
+    },
+    {
+      "kind": "native_pin",
+      "name": "/home/victor/IntelligenceRegulation/results/zk60_mvp_20260929/baseline-stack-gpu-attempt2/report.json",
+      "ok": true
+    },
+    {
+      "kind": "native_pin",
+      "name": "/home/victor/IntelligenceRegulation/results/zk60_mvp_20260929/cli-stack-gpu/report.json",
+      "ok": true
+    },
+    {
+      "kind": "native_pin",
+      "name": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/pad.rs",
+      "ok": true
+    },
+    {
+      "kind": "native_pin",
+      "name": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/shape.rs",
+      "ok": true
+    },
+    {
+      "kind": "cost_identity",
+      "name": "{'head_pad': 16, 'kv_heads': 4, 'query_heads': 12, 'token_pad': 512, 'tokens': 512}2",
+      "ok": true
+    },
+    {
+      "kind": "cost_identity",
+      "name": "{'head_pad': 16, 'kv_heads': 4, 'query_heads': 12, 'token_pad': 512, 'tokens': 512}3",
+      "ok": true
+    },
+    {
+      "kind": "cost_identity",
+      "name": "{'head_pad': 32, 'kv_heads': 8, 'query_heads': 32, 'token_pad': 512, 'tokens': 512}2",
+      "ok": true
+    },
+    {
+      "kind": "cost_identity",
+      "name": "{'head_pad': 32, 'kv_heads': 8, 'query_heads': 32, 'token_pad': 512, 'tokens': 512}3",
+      "ok": true
+    },
+    {
+      "kind": "cost_identity",
+      "name": "{'head_pad': 32, 'kv_heads': 8, 'query_heads': 24, 'token_pad': 1024, 'tokens': 769}2",
+      "ok": true
+    },
+    {
+      "kind": "cost_identity",
+      "name": "{'head_pad': 32, 'kv_heads': 8, 'query_heads': 24, 'token_pad': 1024, 'tokens': 769}3",
+      "ok": true
+    },
+    {
+      "kind": "actual_exit",
+      "ok": true
+    },
+    {
+      "kind": "original_evidence_kept",
+      "ok": true
+    },
+    {
+      "kind": "source_records",
+      "ok": true
+    },
+    {
+      "kind": "checkpoint_exists",
+      "name": "STATE.md",
+      "ok": true
+    },
+    {
+      "kind": "checkpoint_exists",
+      "name": "PROGRESS.md",
+      "ok": true
+    },
+    {
+      "kind": "checkpoint_exists",
+      "name": "progress/20261017T012624Z-ea61e714.md",
+      "ok": true
+    },
+    {
+      "kind": "checkpoint_exists",
+      "name": "handoffs/20261017-static-polynomial-plan.md",
+      "ok": true
+    }
+  ],
+  "result_sha256": "d41e10f161fa7b2b51dda8d0c24a250e51d051428e7aafcdc03c8f6eda205ec2",
+  "proof_accounting": {
+    "accepted_complete_private_8b_proofs": 0,
+    "proved_tokens": 0,
+    "passes": 0,
+    "context_length": null,
+    "steady_tokens_per_second": null,
+    "total_workload_tokens_per_second": null,
+    "startup_seconds": null,
+    "startup_fraction": null,
+    "witness_seconds": null,
+    "proof_seconds": null,
+    "serialization_seconds": null,
+    "independent_verification_seconds": null,
+    "proof_latency_seconds": null,
+    "proof_lag_seconds": null,
+    "pipeline_drain_seconds": null,
+    "prefill": null,
+    "resident_passes": null,
+    "decode": null
+  }
+}

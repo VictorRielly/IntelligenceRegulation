@@ -1,0 +1,31 @@
+{
+  "run_id": "20261004T130146Z-19e7c75c",
+  "time_utc": "2026-10-04T13:20:54.319299+00:00",
+  "status": "pass",
+  "checks": {
+    "final_executed_sources_match": true,
+    "first_pass_sources_match": true,
+    "unmodified_input_pins_match": true,
+    "findings_prefix_preserved": true,
+    "sources_prefix_preserved": true,
+    "seven_valid_source_records": true,
+    "progress_copies_identical": true,
+    "resource_caps_respected": true,
+    "no_accepted_proof_claim": true,
+    "guard_counter_bounded": true,
+    "within_deadline": true
+  },
+  "hashed_artifacts": 51,
+  "native_build": false,
+  "gpu_job": false,
+  "external_write": false,
+  "limitations": [
+    "Synthetic generic grouped polynomial gate, no native SC_SZC closure/IR execution",
+    "Exact tuple-field expanded-cube oracle independently computes every expected sample/final",
+    "Baseline is prior tagged-Eq prototype; native still materializes/folds Eq tables",
+    "No native CFS/RNG/mask/extension/PCS/receipt/refusal/privacy or parallel scheduler test",
+    "Operation counts are not native CPU/GPU timing, peak memory, bandwidth or complete proof rates",
+    "Chunk1 regression retained; common data scan/bracket/fold work unchanged",
+    "No foreign code run, real private values, GPU, build or installed dependencies"
+  ]
+}

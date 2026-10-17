@@ -1,0 +1,98 @@
+{
+  "access_date": "2026-10-12",
+  "queries": [
+    "multilinear extension less than comparison causal mask sumcheck 2026 prover github",
+    "GPU Goldilocks NTT github release September October 2026",
+    "2025 proving CPU executions small space sumcheck prefix suffix virtual polynomial",
+    "site.github.com GPU NTT 2026 Goldilocks CUDA",
+    "site.eprint.iacr.org 2026 multilinear comparison",
+    "site.github.com/a16z/jolt less_than polynomial eq evaluation lt",
+    "cuButterfly v0.8.0 September 2026",
+    "2026 virtual polynomials sumcheck",
+    "multilinear less-than Jolt polynomial"
+  ],
+  "blockers": [
+    {
+      "url": "https://eprint.iacr.org/2025/611.pdf",
+      "action": "open",
+      "error": "403 Forbidden"
+    },
+    {
+      "url": "https://eprint.iacr.org/2023/1217.pdf",
+      "action": "open",
+      "error": "403 Forbidden"
+    },
+    {
+      "url": "https://eprint.iacr.org/2023/1217/20230810:142018",
+      "action": "open guessed historical version path",
+      "error": "Internal Error; no date inferred"
+    },
+    {
+      "url": "https://github.com/a16z/jolt/blob/main/crates/jolt-poly/src/lt.rs",
+      "action": "open",
+      "error": "Internal Error"
+    },
+    {
+      "url": "https://github.com/a16z/jolt/blob/main/LICENSE",
+      "action": "open",
+      "error": "Cache miss"
+    },
+    {
+      "url": "https://github.com/uulong950/qingming-g64-ntt-cuda/commits/main/",
+      "action": "click wrapper commit5413c0d",
+      "error": "Internal Error; no inspected commit"
+    },
+    {
+      "url": "https://github.com/TruNcat3/cuButterfly/commits/main/",
+      "action": "open",
+      "error": "Internal Error / Cache miss"
+    },
+    {
+      "url": "https://github.com/TruNcat3/cuButterfly/releases",
+      "action": "open",
+      "error": "Internal Error / Cache miss"
+    },
+    {
+      "url": "https://github.com/TruNcat3/cuButterfly/blob/main/LICENSE",
+      "action": "open",
+      "error": "Internal Error / Cache miss"
+    },
+    {
+      "url": "https://github.com/TruNcat3/cuButterfly/blob/main/CITATION.cff",
+      "action": "open",
+      "error": "Internal Error / Cache miss"
+    },
+    {
+      "url": "https://github.com/TruNcat3/cuButterfly/blob/main/CHANGELOG.md",
+      "action": "open",
+      "error": "Internal Error / Cache miss"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/TruNcat3/cuButterfly/main/LICENSE",
+      "action": "open",
+      "error": "Cache miss / Internal Error"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/TruNcat3/cuButterfly/master/LICENSE",
+      "action": "open",
+      "error": "Cache miss / Internal Error"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/TruNcat3/cuButterfly/main/LICENSE.txt",
+      "action": "open",
+      "error": "Cache miss / Internal Error"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/TruNcat3/cuButterfly/main/CITATION.cff",
+      "action": "open",
+      "error": "Cache miss / Internal Error"
+    },
+    {
+      "referring_url": "https://github.com/TruNcat3/cuButterfly",
+      "action": "click official Capability Matrix link id122",
+      "error": "Internal Error; destination URL not returned, no guessed exact URL asserted"
+    }
+  ],
+  "irrelevant_result": "FairwindsOps/goldilocks is Kubernetes tooling; excluded",
+  "limits": "Native LIVE web used; no alternative network/sandbox bypass, foreign code execution or external messages. Search-indexed primary excerpts distinguished from successfully opened sections."
+}

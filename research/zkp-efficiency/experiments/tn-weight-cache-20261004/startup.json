@@ -1,0 +1,30 @@
+{
+  "run_identity": "20261004T070146Z-edcb9b00",
+  "checkpoint_utc": "2026-10-04T07:03:19.606198+00:00",
+  "prior_prefixes": {
+    "AGENDA.md": {
+      "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+      "bytes": 5603
+    },
+    "STATE.md": {
+      "sha256": "2f9860ee56bee6f9f9baacb91fa7eb4b48ab81ffb3a8d9aec6fe1db353b1af88",
+      "bytes": 5151
+    },
+    "FINDINGS.md": {
+      "sha256": "b667acb5a37020080d5bd471a883bc28c6039f413506ff655df8fe2a1efc8d92",
+      "bytes": 169899
+    },
+    "sources.jsonl": {
+      "sha256": "1a7c09248fcc6aebd1867dd0b426497db3ad66577614ee7cc51f80282bbc54a8",
+      "bytes": 129561
+    },
+    "PROGRESS.md": {
+      "sha256": "66ce67a7e389d623089839113811428c834f8b00eacfa6ad37013b67a9dae3f6",
+      "bytes": 2014
+    },
+    "experiments/grouped-down-schedule-20261004/result.json": {
+      "sha256": "6e5d0870328e314f80c9721df6f584a1116ccc08d9aff2c26fb58525cd599107",
+      "bytes": 8269
+    }
+  }
+}

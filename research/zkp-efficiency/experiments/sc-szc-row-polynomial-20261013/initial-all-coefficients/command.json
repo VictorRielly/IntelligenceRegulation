@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "python3",
+    "-B",
+    "experiments/sc-szc-row-polynomial-20261013/experiment.py"
+  ],
+  "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency",
+  "note": "stdout initially returned by tool; result JSON retained, run.log is result snapshot, not raw stdout"
+}

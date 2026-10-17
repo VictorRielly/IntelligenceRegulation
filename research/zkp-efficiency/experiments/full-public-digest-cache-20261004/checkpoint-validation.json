@@ -1,0 +1,21 @@
+{
+  "validated_at": "2026-10-04T09:19:57.623276+00:00",
+  "checks": {
+    "pass_exit": true,
+    "current_script_matches_result_and_command": true,
+    "syntax": true,
+    "one_thread_caps": true,
+    "no_target_token_claim": true,
+    "findings_prefix_preserved": true,
+    "sources_prefix_preserved": true,
+    "five_sources_appended": true,
+    "snapshot_hashes": true,
+    "production_pins_unchanged": true,
+    "progress_same": true,
+    "agenda_unchanged": true,
+    "state_complete": true,
+    "diff_review_only": true
+  },
+  "production_changes_observed": [],
+  "all_pass": true
+}

@@ -1,0 +1,107 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-szc-tagged-equality-20261004/candidate.py",
+    "sha256": "5852eb4b4e202f8179e5e1b3ee30b09aa854f6c4a206467761c9569842037d2a",
+    "bytes": 6824
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-szc-tagged-equality-20261004/oracle.py",
+    "sha256": "a1c639a63dcc7175b9567dcc4e52ae71bb66a5c5e88ae18f77682adc335f2d58",
+    "bytes": 2382
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-szc-tagged-equality-20261004/field_support.py",
+    "sha256": "8359ca44d70211cea90e9e251faadd10c4c953ced212cff3014ec3b839c59fc4",
+    "bytes": 2104
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-szc-tagged-equality-20261004/experiment.py",
+    "sha256": "54667867a53fe043a78428ad5c397d18b3a90366448cfd7bca9cb87faaee46e5",
+    "bytes": 13024
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-szc-tagged-equality-20261004/highdegree-control.py",
+    "sha256": "afcdcb0beb47fe295f37c3520fd11c1b08dfa24aa931fe1406b0432a8a719b6c",
+    "bytes": 1943
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-szc-tagged-equality-20261004/result.json",
+    "sha256": "2bc198c2a1481b5be86789fdffa60a9c22dd8757ca218650ccb6b721f5c744df",
+    "bytes": 26153
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-szc-tagged-equality-20261004/run.log",
+    "sha256": "7e5f911e5c8ada7bfd34b027ec2b9d6654561f04ec5ad4bb6227ed693ad311a9",
+    "bytes": 2746
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-szc-tagged-equality-20261004/highdegree-control.json",
+    "sha256": "7611fc4018f85d3b7c80b11fbb2b297b41fb28d6af468d32746df065936395fe",
+    "bytes": 1751
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-szc-tagged-equality-20261004/highdegree-control.log",
+    "sha256": "7611fc4018f85d3b7c80b11fbb2b297b41fb28d6af468d32746df065936395fe",
+    "bytes": 1751
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-szc-tagged-equality-20261004/source-pins.json",
+    "sha256": "e428d4bbc6150a4d2edf327298fa9de8f1f1e61fbf8dddf072ebf52b8701900a",
+    "bytes": 3635
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-szc-tagged-equality-20261004/startup-pins.json",
+    "sha256": "5e9a7ce75a7dca678784943a00741102a2ed4003b39810513ead1a3b30469aaa",
+    "bytes": 3801
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-szc-tagged-equality-20261004/source-records.json",
+    "sha256": "04bedcfdd6788484eb655dc0f0b90316fddabb73575d9f930c49d820e684e06d",
+    "bytes": 8401
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-szc-tagged-equality-20261004/README.md",
+    "sha256": "2722ee7705252a631a357a8a66e835c0590060a04f91e811ac4785f88d0cff13",
+    "bytes": 10560
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-szc-tagged-equality-20261004/execution.json",
+    "sha256": "26cc3228d9d0f19499e21234e99e2a91b10272e580d8034cb9c06bb93171331d",
+    "bytes": 1358
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-szc-tagged-equality-20261004/checkpoint-audit.json",
+    "sha256": "e2ce44327de43000b9c15cd2534ae47d68740ab8e7e2121a6940d46d072f3bfb",
+    "bytes": 1027
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/STATE.md",
+    "sha256": "b35784ac67286c1b1c90dcd8942ed2bb0445ce282ee26bb6e49a86795b2adc59",
+    "bytes": 4823
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/PROGRESS.md",
+    "sha256": "d3b6575523cbf42f3a65c3898898778583352052b5c2b4ef8e1addc58b2768e3",
+    "bytes": 2340
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/progress/20261004T120146Z-d7433b90.md",
+    "sha256": "d3b6575523cbf42f3a65c3898898778583352052b5c2b4ef8e1addc58b2768e3",
+    "bytes": 2340
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/handoffs/20261004-sc-szc-tagged-equality.md",
+    "sha256": "44e953c4928fbc9fda3935e8332cac7e0b6f7a196f6f642d6ad186382dc498b3",
+    "bytes": 5724
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/FINDINGS.md",
+    "sha256": "78fc653262df5a87ece51a6987eb43c39ec23a5eeaf4ff583422a2b4edcfe2d7",
+    "bytes": 211638
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/sources.jsonl",
+    "sha256": "3d7714170fbe7cdd878fc85ce33ab3bb3baf77ba7a58571861b44455b1e2c792",
+    "bytes": 176716
+  }
+]

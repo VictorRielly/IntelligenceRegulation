@@ -1,0 +1,15 @@
+{
+  "ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/layout.rs": "14758039fbe9daa61affa1316c6e4159437b98d888d72a926f6e70e788592b30",
+  "ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/shape.rs": "dbf4e2bc36e9f74c432d6e529b229e3a593e794271fd8593d1412b8312403911",
+  "ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/protocol.rs": "ac4122375397a155d392df27a7e08f818ee78f80b38d41207565b325f5290413",
+  "ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/witness.rs": "b9b66c024e7ca68d2a0ae4ba46241eb2abbccc8c8d94fe828041abbc710850ad",
+  "ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/run.rs": "2d43bc335d176b533589a587a916ac766cc810536e7b14832273b2a9fa8c3cae",
+  "ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/mvp_driver.rs": "906c6349daa641c07d1eb74f2e52fa6a5f83caeaa909879c16fc5eb07eee760d",
+  "results/zk60_sol_model_20260927/layout_account.json": "b8bb59de927e96ea64779ba1b35693c8d8fd57ed6f8abbf4270f24d601ba342c",
+  "results/zk60_sol_model_20260927/gpu-chunked-memory-audit.md": "f709dc8403523a95a367070254ded2ad07cd44c26b0887908b81ae92153a3e20",
+  "results/zk60_mvp_20260929/baseline-stack-gpu-attempt2/report.json": "ae971925a0c2ffb0c7d04a4722dc39903308639fd449708df722e14f4a69687e",
+  "results/zk60_mvp_20260929/cli-stack-gpu/report.json": "6e9bf57d050216be3110c71b67095bd6b7a7e77934196592c8cd6d0c6fd62781",
+  "research/zkp-efficiency/experiments/typed-witness-readers-20261003/result.json": "475ff1fd07c0fe4645728dd733a6358f94f8c00a39b3934891248b914e8ca50b",
+  "ops/zkp-mvp/sonnet-hardening/zkp-core/src/field.rs": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+  "ops/zkp-mvp/sonnet-hardening/hashline/src/gpu/cuda.rs": "8fe2a2a39e0796254be37d0d7507d7fc22ea3af141d97d35cd93754d505072c9"
+}

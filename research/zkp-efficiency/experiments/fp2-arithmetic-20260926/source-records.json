@@ -1,0 +1,100 @@
+[
+  {
+    "accessed_date": "2026-09-26",
+    "accessed_at_utc": "2026-09-26 23:03:32 UTC",
+    "run_identity": "20260926T225233Z-f66107c9",
+    "evidence_kind": "Primary source inspected via native LIVE web; external performance claims not reproduced",
+    "inspected_commit_id": null,
+    "id": "cycle7-quadratic-arithmetic-older",
+    "url": "https://eprint.iacr.org/2006/471",
+    "inspected_urls": [
+      "https://eprint.iacr.org/2006/471.pdf"
+    ],
+    "published": "2006-12-14",
+    "updated": "2007-02-20",
+    "date_evidence": "ePrint received/revised history",
+    "paper_license": "CC BY indicated on ePrint metadata",
+    "implementation_license": null,
+    "assessment": "Section 3 gives quadratic Karatsuba and complex squaring; local experiment tests canonical Goldilocks variants, not the paper's large-prime timing claims. Specializing beta=7 combines v0+beta*v0 as 8*v0 with reused doubles."
+  },
+  {
+    "accessed_date": "2026-09-26",
+    "accessed_at_utc": "2026-09-26 23:03:32 UTC",
+    "run_identity": "20260926T225233Z-f66107c9",
+    "evidence_kind": "Primary source inspected via native LIVE web; external performance claims not reproduced",
+    "inspected_commit_id": null,
+    "id": "cycle7-plonky3-goldilocks-pr",
+    "url": "https://github.com/Plonky3/Plonky3/pull/2098",
+    "published": "2026-09-09",
+    "updated": "2026-09-09",
+    "date_evidence": "PR comment and merged timestamps explicitly include year; updated denotes merge, not guaranteed last edit",
+    "implementation_license": "MIT text inspected on main; version-specific license not verified",
+    "license_url": "https://raw.githubusercontent.com/Plonky3/Plonky3/main/LICENSE-MIT",
+    "displayed_abbreviated_commit": "4faefa9",
+    "commit_content_status": "Linked merge commit and abbreviated /commit/4faefa9 fetches returned Internal Error; no commit content inspected.",
+    "assessment": "Author reports incremental scalar/packed Goldilocks gains and explicitly excludes combined whole-prover speed claims. This is neither a Goldilocks Fp2 Karatsuba adoption claim nor a local reproduction."
+  },
+  {
+    "accessed_date": "2026-09-26",
+    "accessed_at_utc": "2026-09-26 23:03:32 UTC",
+    "run_identity": "20260926T225233Z-f66107c9",
+    "evidence_kind": "Primary source inspected via native LIVE web; external performance claims not reproduced",
+    "inspected_commit_id": null,
+    "id": "cycle7-plonky3-quadratic-implementation",
+    "url": "https://raw.githubusercontent.com/Plonky3/Plonky3/main/field/src/extension/binomial_extension.rs",
+    "inspected_urls": [
+      "https://raw.githubusercontent.com/Plonky3/Plonky3/main/goldilocks/src/extension.rs",
+      "https://raw.githubusercontent.com/Plonky3/Plonky3/main/field/src/extension/mod.rs",
+      "https://raw.githubusercontent.com/Plonky3/Plonky3/main/LICENSE-MIT"
+    ],
+    "published": null,
+    "updated": null,
+    "date_evidence": "Main raw sources exposed no verified commit/update date; not assumed revision-aligned with PR2098",
+    "implementation_license": "MIT, main LICENSE-MIT text inspected; repository also advertises Apache-2.0, not separately read",
+    "assessment": "Goldilocks quadratic reducer is X^2-7. Current binomial code uses field dot products for quadratic multiplication and squaring, rather than the tested Karatsuba form. Competing deferred-reduction/SIMD lead, not code adopted or executed."
+  },
+  {
+    "accessed_date": "2026-09-26",
+    "accessed_at_utc": "2026-09-26 23:03:32 UTC",
+    "run_identity": "20260926T225233Z-f66107c9",
+    "evidence_kind": "Primary source inspected via native LIVE web; external performance claims not reproduced",
+    "inspected_commit_id": null,
+    "id": "cycle7-prime-ir-addition-cost",
+    "url": "https://github.com/fractalyze/prime-ir/issues/409",
+    "published": "2026-07-29",
+    "updated": null,
+    "date_evidence": "Issue opened timestamp includes year; last update date not verified",
+    "implementation_license": null,
+    "assessment": "Issue author reports Goldilocks carry/add instruction dominance in RTX5090 Poseidon2 workload and proposes wider accumulation. No local reproduction; this prover uses BLAKE3 and no hash timing transfers. Supports testing added arithmetic rather than treating multiply count as speed."
+  },
+  {
+    "accessed_date": "2026-09-26",
+    "accessed_at_utc": "2026-09-26 23:03:32 UTC",
+    "run_identity": "20260926T225233Z-f66107c9",
+    "evidence_kind": "Primary source inspected via native LIVE web; external performance claims not reproduced",
+    "inspected_commit_id": null,
+    "id": "cycle7-instruction-wall-refresh",
+    "url": "https://arxiv.org/abs/2608.13696",
+    "published": "2026-08-13",
+    "updated": "2026-08-13",
+    "date_evidence": "arXiv submission history lists v1 Thu Aug13 18:41:04 UTC 2026",
+    "implementation_license": null,
+    "assessment": "Abstract refreshed; GPU database study motivates explicit instruction/dependency accounting. It is not a finite-field or proving benchmark and supplies no speed estimate for this experiment."
+  },
+  {
+    "accessed_date": "2026-09-26",
+    "accessed_at_utc": "2026-09-26 23:03:32 UTC",
+    "run_identity": "20260926T225233Z-f66107c9",
+    "evidence_kind": "Primary source inspected via native LIVE web; external performance claims not reproduced",
+    "inspected_commit_id": null,
+    "id": "cycle7-plonky3-release-arithmetic-refresh",
+    "url": "https://github.com/Plonky3/Plonky3/releases/tag/v0.8.0",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Exposed release timestamp 23 Sep20:02 omits year; no exact release date asserted",
+    "implementation_license": "Main MIT inspected, release-specific license not pinned",
+    "displayed_abbreviated_commit": "a21e3ed",
+    "assessment": "Release lists Goldilocks PR2098, dot-product dispatch and sumcheck followups. Used for discovery; not a reproduced release benchmark or justification to replace protocol/transcript code."
+  }
+]
+

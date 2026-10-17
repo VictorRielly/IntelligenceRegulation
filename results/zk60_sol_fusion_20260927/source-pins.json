@@ -1,0 +1,14 @@
+{
+  "zkp-core/src/sumcheck/grouped.rs": {
+    "baseline_sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b",
+    "candidate_sha256": "1084c773943e0a92011c9b8be207ce425c9af4a9bbbe878330cdd7edeaa1f70d"
+  },
+  "zkp-core/src/sumcheck/grouped/tests.rs": {
+    "baseline_sha256": "6e63ae85d28a3db968dddc57f2659dbeb0134acd2fc43ad33c15b63edff95997",
+    "candidate_sha256": "3ee89ad7b4397b6e6557e8fb9bc083aaaff9504dd3b1102bb7c4022e2c099e85"
+  },
+  "hashline/src/private_block/argument.rs": {
+    "baseline_sha256": "b3b02383a14a64a12194a465873b76f78406e5d3115b0c8157fde2882d22c865",
+    "candidate_sha256": "7bd3d6417ce702aa6b7c04d173b7d04095671516fcd59d724ce42818a88d9944"
+  }
+}

@@ -1,0 +1,459 @@
+--- a/zkp-core/src/sumcheck.rs
++++ b/zkp-core/src/sumcheck.rs
+@@ -15,6 +15,8 @@
+ 
+ mod rounds;
+ pub use rounds::{prove_rounds, ClosureRounds, SumcheckRounds};
++mod grouped;
++pub use grouped::{EqualityGroup, GroupedEqRounds};
+ 
+ #[derive(Clone, Debug, Default)]
+ pub struct SumcheckProof {
+--- /dev/null
++++ b/zkp-core/src/sumcheck/grouped.rs
+@@ -0,0 +1,180 @@
++//! Experimental equality-factored round evaluator. No transcript or RNG access.
++use super::SumcheckRounds;
++use crate::field::Fp2;
++use crate::mle::{eq_table_msb, interpolate_eval};
++use rayon::prelude::*;
++
++/// A term eq(point, x[start..]) * bracket(tables). The bracket must have
++/// the declared degree after linear interpolation of every table. The caller
++/// retains the original equality tables and their positions for final openings.
++#[derive(Clone, Debug)]
++pub struct EqualityGroup {
++    pub point: Vec<Fp2>,
++    pub start: usize,
++    pub bracket_degree: usize,
++}
++
++/// Group claims are obtained only from actual preceding UNMASKED group rounds.
++/// In particular, an asserted host sum is never used to seed recovery.
++/// Every table (including equality tables) is folded in the original order.
++pub struct GroupedEqRounds<'a, F> {
++    tables: &'a mut Vec<Vec<Fp2>>,
++    groups: Vec<EqualityGroup>,
++    bracket: F,
++    degree: usize,
++    n_vars: usize,
++    next: usize,
++    prefix: Vec<Fp2>,
++    claims: Vec<Option<Fp2>>,
++    pending: Option<Vec<Vec<Fp2>>>,
++}
++
++impl<'a, F: Fn(usize, &[Fp2]) -> Fp2 + Sync> GroupedEqRounds<'a, F> {
++    pub fn new(tables: &'a mut Vec<Vec<Fp2>>, degree: usize,
++               groups: Vec<EqualityGroup>, bracket: F) -> Self {
++        assert!(!tables.is_empty() && !groups.is_empty() && degree >= 1);
++        let len = tables[0].len();
++        assert!(len.is_power_of_two() && tables.iter().all(|t| t.len() == len));
++        let n_vars = len.trailing_zeros() as usize;
++        for g in &groups {
++            assert!(g.start <= n_vars && g.point.len() <= n_vars - g.start);
++            assert!(g.bracket_degree >= 1);
++            assert!(g.bracket_degree <= degree - usize::from(!g.point.is_empty()));
++        }
++        let count = groups.len();
++        Self { tables, groups, bracket, degree, n_vars, next: 0,
++            prefix: vec![Fp2::ONE; count], claims: vec![None; count], pending: None }
++    }
++}
++
++struct RoundGroup {
++    factor: Vec<Fp2>,
++    left: Vec<Fp2>,
++    right: Vec<Fp2>,
++    suffix_len: usize,
++    trailing: usize,
++    inverse_one: Option<Fp2>,
++}
++
++impl<F: Fn(usize, &[Fp2]) -> Fp2 + Sync> SumcheckRounds for GroupedEqRounds<'_, F> {
++    fn n_vars(&self) -> usize { self.n_vars }
++    fn degree(&self) -> usize { self.degree }
++
++    fn round(&mut self, j: usize) -> Vec<Fp2> {
++        assert_eq!(j, self.next);
++        assert!(j < self.n_vars && self.pending.is_none());
++        let round_groups: Vec<_> = self.groups.iter().enumerate().map(|(g, desc)| {
++            let end = desc.start + desc.point.len();
++            let active = j >= desc.start && j < end;
++            let factor: Vec<_> = (0..=self.degree).map(|t| {
++                if active {
++                    let w = desc.point[j - desc.start];
++                    self.prefix[g].mul(Fp2::ONE.sub(w).add(w.double().sub(Fp2::ONE).mul(Fp2::from_u64(t as u64))))
++                } else { self.prefix[g] }
++            }).collect();
++            let consumed = (j + 1).saturating_sub(desc.start).min(desc.point.len());
++            let suffix = &desc.point[consumed..];
++            let split = suffix.len() / 2;
++            // Explicit evaluation when the factor is zero; never refuse or
++            // resample a challenge to make this arithmetic shortcut available.
++            let inverse_one = self.claims[g].and_then(|_| {
++                if factor[1].is_zero() { None } else { Some(factor[1].inv()) }
++            });
++            RoundGroup { factor, left: eq_table_msb(&suffix[..split]),
++                right: eq_table_msb(&suffix[split..]), suffix_len: suffix.len(),
++                trailing: if suffix.is_empty() { 0 } else { self.n_vars - end }, inverse_one }
++        }).collect();
++        let k = self.tables.len();
++        let half = self.tables[0].len() / 2;
++        let small = half * k <= 1 << 16;
++        let chunk = if small { half.max(1) } else { half.min(1024) };
++        let max_degree = self.groups.iter().map(|g| g.bracket_degree).max().unwrap();
++        let zero = || self.groups.iter().map(|g| vec![Fp2::ZERO; g.bracket_degree + 1]).collect::<Vec<_>>();
++        let part = |ci: usize| {
++            let mut sums = zero();
++            let mut cur = vec![Fp2::ZERO; k];
++            let mut dif = vec![Fp2::ZERO; k];
++            let mut weights = vec![Fp2::ZERO; self.groups.len()];
++            for i in ci * chunk..((ci + 1) * chunk).min(half) {
++                for (t, tb) in self.tables.iter().enumerate() {
++                    cur[t] = tb[i];
++                    dif[t] = tb[i + half].sub(tb[i]);
++                }
++                for (g, rg) in round_groups.iter().enumerate() {
++                    let pos = (i >> rg.trailing) & ((1usize << rg.suffix_len) - 1);
++                    weights[g] = rg.left[pos / rg.right.len()].mul(rg.right[pos % rg.right.len()]);
++                }
++                for t in 0..=max_degree {
++                    for g in 0..self.groups.len() {
++                        if t <= self.groups[g].bracket_degree &&
++                            (t != 1 || round_groups[g].inverse_one.is_none() || cfg!(debug_assertions)) {
++                            sums[g][t] = sums[g][t].add(weights[g].mul((self.bracket)(g, &cur)));
++                        }
++                    }
++                    if t != max_degree {
++                        for (v, d) in cur.iter_mut().zip(&dif) { *v = v.add(*d); }
++                    }
++                }
++            }
++            sums
++        };
++        let mut hs = if small { part(0) } else {
++            (0..half.div_ceil(chunk)).into_par_iter().map(part).reduce(zero, |mut a, b| {
++                for (x, y) in a.iter_mut().zip(b) {
++                    for (v, w) in x.iter_mut().zip(y) { *v = v.add(w); }
++                }
++                a
++            })
++        };
++        let mut result = vec![Fp2::ZERO; self.degree + 1];
++        let mut pending = Vec::with_capacity(self.groups.len());
++        for (g, rg) in round_groups.iter().enumerate() {
++            if let Some(inv) = rg.inverse_one {
++                let recovered = self.claims[g].unwrap().sub(rg.factor[0].mul(hs[g][0])).mul(inv);
++                debug_assert_eq!(recovered, hs[g][1], "group running-claim identity");
++                hs[g][1] = recovered;
++            }
++            let values: Vec<_> = (0..=self.degree).map(|t| {
++                let h = if t < hs[g].len() { hs[g][t] }
++                    else { interpolate_eval(&hs[g], Fp2::from_u64(t as u64)) };
++                rg.factor[t].mul(h)
++            }).collect();
++            for (v, w) in result.iter_mut().zip(&values) { *v = v.add(*w); }
++            pending.push(values);
++        }
++        self.pending = Some(pending);
++        result
++    }
++
++    fn fold(&mut self, r: Fp2) {
++        let pending = self.pending.take().expect("fold needs a round");
++        for (g, desc) in self.groups.iter().enumerate() {
++            self.claims[g] = Some(interpolate_eval(&pending[g], r));
++            if self.next >= desc.start && self.next < desc.start + desc.point.len() {
++                let w = desc.point[self.next - desc.start];
++                self.prefix[g] = self.prefix[g].mul(Fp2::ONE.sub(w).mul(Fp2::ONE.sub(r)).add(w.mul(r)));
++            }
++        }
++        let half = self.tables[0].len() / 2;
++        let small = half * self.tables.len() <= 1 << 16;
++        for tb in self.tables.iter_mut() {
++            let (lo, hi) = tb.split_at_mut(half);
++            if small {
++                for (a, b) in lo.iter_mut().zip(&hi[..half]) { *a = a.add(r.mul(b.sub(*a))); }
++            } else {
++                lo.par_iter_mut().zip(hi[..half].par_iter()).for_each(|(a, b)| { *a = a.add(r.mul(b.sub(*a))); });
++            }
++            tb.truncate(half);
++        }
++        self.next += 1;
++    }
++
++    fn finals(&self) -> Vec<Fp2> {
++        assert_eq!(self.next, self.n_vars);
++        assert!(self.pending.is_none());
++        self.tables.iter().map(|t| t[0]).collect()
++    }
++}
++
++#[cfg(test)]
++mod tests;
+--- /dev/null
++++ b/zkp-core/src/sumcheck/grouped/tests.rs
+@@ -0,0 +1,172 @@
++use super::*;
++use crate::field::Fp;
++use crate::mle::eq_point;
++use crate::rng::ZkRng;
++use crate::sumcheck::{self, CfsMask, CfsMasker, ClosureRounds, SumcheckProof};
++use crate::transcript::Transcript;
++use std::sync::atomic::{AtomicUsize, Ordering};
++
++fn value(s: &mut u64) -> Fp2 {
++    *s = s.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
++    let a = *s;
++    *s = s.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
++    Fp2::new(Fp::new(a), Fp::new(*s))
++}
++
++fn fixture(n: usize, padded: bool, s: &mut u64) -> (Vec<Vec<Fp2>>, Vec<EqualityGroup>) {
++    let groups: Vec<_> = [(0, n, if padded { 4 } else { 3 }),
++        (0, n.saturating_sub(1), if padded { 2 } else { 1 }),
++        (n.min(1), n.saturating_sub(2), 1)].iter().map(|&(start, len, degree)| EqualityGroup {
++            point: (0..len).map(|_| value(s)).collect(), start, bracket_degree: degree,
++        }).collect();
++    let mut tables: Vec<Vec<Fp2>> = groups.iter().map(|g| (0..1usize << n).map(|i| {
++        let point: Vec<_> = (g.start..g.start + g.point.len()).map(|j|
++            Fp2::from_u64(((i >> (n - 1 - j)) & 1) as u64)).collect();
++        eq_point(&g.point, &point)
++    }).collect()).collect();
++    tables.extend((0..5).map(|_| (0..1usize << n).map(|_| value(s)).collect()));
++    (tables, groups)
++}
++
++fn bracket(g: usize, v: &[Fp2], padded: bool) -> Fp2 {
++    let gate = if padded { v[7] } else { Fp2::ONE };
++    match g {
++        0 => gate.mul(v[3].mul(v[4]).mul(v[5]).add(v[6])),
++        1 => gate.mul(v[4].add(Fp2::from_u64(17))),
++        2 => v[5].sub(v[6]),
++        _ => unreachable!(),
++    }
++}
++
++fn case(n: usize, padded: bool, tagged: bool, ext: usize, seed: &mut u64) {
++    let (tables, groups) = fixture(n, padded, seed);
++    let degree = if padded { 5 } else { 4 };
++    let poly = |v: &[Fp2]| (0..3).fold(Fp2::ZERO, |a, g| a.add(v[g].mul(bracket(g, v, padded))));
++    let mut rng = ZkRng::new(*seed, b"grouped-native-oracle");
++    let mask = CfsMask::random(&mut rng, n + ext, degree);
++    let c = value(seed);
++    let initial = (0..1usize << n).fold(Fp2::ZERO, |a, i| {
++        a.add(poly(&tables.iter().map(|t| t[i]).collect::<Vec<_>>()))
++    });
++    let extensions: Vec<Vec<_>> = (0..ext).map(|_| (0..tables.len()).map(|_| value(seed)).collect()).collect();
++    let mut outputs = Vec::new();
++    for mode in 0..3 {
++        let mut ts = tables.clone();
++        let mut tr = if tagged { Transcript::new_tagged(b"grouped", [87; 32]) } else { Transcript::new(b"grouped") };
++        let mut verifier = Transcript::clone_state(&tr);
++        tr.set_masker(Box::new(CfsMasker { mask: mask.clone(), c, challenges: Vec::new() }));
++        let out = match mode {
++            0 => sumcheck::prove(&mut ts, degree, &poly, &mut tr),
++            1 => sumcheck::prove_rounds(&mut ClosureRounds::new(&mut ts, degree, &poly).recover_one(None), &mut tr),
++            _ => sumcheck::prove_rounds(&mut GroupedEqRounds::new(&mut ts, degree, groups.clone(),
++                |g, v: &[Fp2]| bracket(g, v, padded)), &mut tr),
++        };
++        let (_, mut rounds) = tr.take_masker();
++        let mut rho = out.challenges.clone();
++        let mut finals = out.finals.clone();
++        for e in &extensions {
++            let mut sk = sumcheck::extension_round(&finals, e, degree, &poly);
++            for (x, g) in sk.iter_mut().zip(mask.round(rho.len(), &rho)) { *x = x.add(c.mul(g)); }
++            tr.absorb_fp2(b"sc-round", &sk);
++            rounds.push(sk);
++            let r = tr.challenge_fp2();
++            for (v, e) in finals.iter_mut().zip(e) { *v = sumcheck::masked_terminal(*v, *e, r); }
++            rho.push(r);
++        }
++        let proof = SumcheckProof { rounds };
++        // Arbitrary extension vectors are used only to check exact parity:
++        // they need not satisfy the profile's zero-extension identity.
++        if ext == 0 {
++            let (fin, vrho) = sumcheck::verify(initial.add(c.mul(mask.total())), degree, n, &proof, &mut verifier).unwrap();
++            assert_eq!(vrho, rho);
++            assert_eq!(fin, poly(&finals).add(c.mul(mask.eval(&rho))));
++        }
++        let mut bytes = Vec::new(); proof.write_bytes(&mut bytes);
++        outputs.push((bytes, out.proof.rounds, rho, finals, ts, tr.state(), tr.challenge_fp2()));
++    }
++    assert_eq!(outputs[0], outputs[1]);
++    assert_eq!(outputs[0], outputs[2]);
++}
++
++#[test]
++fn native_masked_bytes_folds_finals_and_extensions_match() {
++    let mut seed = 20260926;
++    for padded in [false, true] {
++        for tagged in [false, true] {
++            for ext in [0, 1, 2] {
++                // The existing CFS mask requires at least one main/extension round.
++                for n in [0, 1, 2, 4, 8] {
++                    if n + ext > 0 { case(n, padded, tagged, ext, &mut seed); }
++                }
++            }
++        }
++    }
++}
++
++#[test]
++fn parallel_rounds_match_original_on_one_and_two_threads() {
++    for threads in [1, 2] {
++        rayon::ThreadPoolBuilder::new().num_threads(threads).build().unwrap().install(|| {
++            case(15, true, true, 0, &mut 742);
++        });
++    }
++}
++
++#[test]
++fn zero_factors_and_prefixes_use_explicit_rounds() {
++    let (mut tables, mut groups) = fixture(4, true, &mut 197);
++    groups[0].point[0] = Fp2::ONE;
++    groups[1].point[1] = Fp2::ZERO;
++    for (g, desc) in groups.iter().enumerate() {
++        tables[g] = (0..16).map(|i| eq_point(&desc.point, &(desc.start..desc.start + desc.point.len())
++            .map(|j| Fp2::from_u64(((i >> (3 - j)) & 1) as u64)).collect::<Vec<_>>())).collect();
++    }
++    let mut old = tables.clone();
++    let poly = |v: &[Fp2]| (0..3).fold(Fp2::ZERO, |a, g| a.add(v[g].mul(bracket(g, v, true))));
++    let mut ref_ev = ClosureRounds::new(&mut old, 5, poly).recover_one(None);
++    let mut fast = GroupedEqRounds::new(&mut tables, 5, groups, |g, v: &[Fp2]| bracket(g, v, true));
++    for (j, r) in [Fp2::ZERO, Fp2::ONE, Fp2::U, Fp2::from_u64(7)].iter().enumerate() {
++        assert_eq!(fast.round(j), ref_ev.round(j));
++        ref_ev.fold(*r); fast.fold(*r);
++    }
++    assert_eq!(fast.finals(), ref_ev.finals());
++}
++
++#[test]
++fn expensive_group_calls_are_reduced_without_changing_bytes() {
++    let (tables, groups) = fixture(8, true, &mut 123);
++    let old_count = AtomicUsize::new(0);
++    let new_count = AtomicUsize::new(0);
++    let mut old = tables.clone();
++    let mut new = tables;
++    let mut old_tr = Transcript::new(b"count");
++    let mut new_tr = Transcript::new(b"count");
++    let a = sumcheck::prove_rounds(&mut ClosureRounds::new(&mut old, 5, |v: &[Fp2]| {
++        old_count.fetch_add(1, Ordering::Relaxed);
++        (0..3).fold(Fp2::ZERO, |a, g| a.add(v[g].mul(bracket(g, v, true))))
++    }).recover_one(None), &mut old_tr);
++    let b = sumcheck::prove_rounds(&mut GroupedEqRounds::new(&mut new, 5, groups, |g, v: &[Fp2]| {
++        if g == 0 { new_count.fetch_add(1, Ordering::Relaxed); }
++        bracket(g, v, true)
++    }), &mut new_tr);
++    assert_eq!(a.proof.rounds, b.proof.rounds);
++    assert_eq!(a.challenges, b.challenges);
++    assert_eq!(old_tr.state(), new_tr.state());
++    assert!(new_count.load(Ordering::Relaxed) < old_count.load(Ordering::Relaxed));
++    if !cfg!(debug_assertions) {
++        assert_eq!(old_count.load(Ordering::Relaxed), 1403);
++        assert_eq!(new_count.load(Ordering::Relaxed), 1148);
++    }
++}
++
++#[test]
++fn wrong_support_is_detected_by_original_round_oracle() {
++    let (tables, mut groups) = fixture(4, true, &mut 918);
++    groups[1].point.push(Fp2::from_u64(7));
++    let mut old = tables.clone();
++    let mut new = tables;
++    let mut oracle = ClosureRounds::new(&mut old, 5, |v: &[Fp2]|
++        (0..3).fold(Fp2::ZERO, |a, g| a.add(v[g].mul(bracket(g, v, true)))));
++    let mut bad = GroupedEqRounds::new(&mut new, 5, groups, |g, v: &[Fp2]| bracket(g, v, true));
++    assert_ne!(oracle.round(0), bad.round(0));
++}
+--- a/hashline/src/private_block/argument.rs
++++ b/hashline/src/private_block/argument.rs
+@@ -73,11 +73,15 @@
+ }
+ 
+ pub(crate) type Poly = Box<dyn Fn(&[Fp2]) -> Fp2 + Send + Sync>;
++type GroupPoly = std::sync::Arc<dyn Fn(usize, &[Fp2]) -> Fp2 + Send + Sync>;
+ 
+ pub(crate) struct SlotDef {
+     pub slot: usize,
+     pub tabs: Vec<Tab>,
+     pub poly: Poly,
++    /// Experimental prover arithmetic only; the original polynomial remains
++    /// the verifier/extension oracle. No extra transcript or blinding draws.
++    groups: Option<(Vec<sumcheck::EqualityGroup>, GroupPoly)>,
+     /// (hosted private slot, nu * kappa)
+     pub hosted: Vec<(usize, Fp2)>,
+     /// **STEP C.** The slot schedule this definition was built against, so
+@@ -545,9 +549,14 @@
+                     let old = crate::zk::masked_prove(&mut old_tables, degree, &poly, mask, c, &mut old_tr);
+                     Some((old, old_tr, old_tables))
+                 } else { None };
+-                let mut evaluator = sumcheck::ClosureRounds::new(&mut tables, degree, &poly)
+-                    .recover_one(unmasked_claim);
+-                let result = crate::zk::masked_prove_rounds(&mut evaluator, mask, c, tr);
++                let result = if let Some((groups, bracket)) = &def.groups {
++                    let mut evaluator = sumcheck::GroupedEqRounds::new(&mut tables, degree, groups.clone(), &**bracket);
++                    crate::zk::masked_prove_rounds(&mut evaluator, mask, c, tr)
++                } else {
++                    let mut evaluator = sumcheck::ClosureRounds::new(&mut tables, degree, &poly)
++                        .recover_one(unmasked_claim);
++                    crate::zk::masked_prove_rounds(&mut evaluator, mask, c, tr)
++                };
+                 #[cfg(test)]
+                 if let Some((old, mut old_tr, old_tables)) = oracle {
+                     assert_eq!(result, old, "R1d actual slot {s}: masked rounds/challenges/finals");
+@@ -811,7 +820,7 @@
+         if self.ak != self.lay.a_sites()[self.slot] || self.hk != self.lay.h_sites()[self.slot] {
+             return Err(format!("private block: slot {} uses {} A / {} H sites, schedule declares {} / {}", self.slot, self.ak, self.hk, self.lay.a_sites()[self.slot], self.lay.h_sites()[self.slot]));
+         }
+-        Ok(SlotDef { slot: self.slot, tabs: self.tabs, poly, hosted, sh: self.lay.shape().clone() })
++        Ok(SlotDef { slot: self.slot, tabs: self.tabs, poly, groups: None, hosted, sh: self.lay.shape().clone() })
+     }
+ }
+ 
+@@ -1771,8 +1780,21 @@
+                 ght: super::s35_tests::Gate(ght.0),
+                 pz: super::s35_tests::PadTerm { groups: pz.groups.clone(), mu: pz.mu },
+             };
+-            let poly = move |v: &[Fp2]| {
++            let groups = vec![
++                sumcheck::EqualityGroup { point: tau, start: 0, bracket_degree: if pad_on { 4 } else { 3 } },
++                sumcheck::EqualityGroup { point: pts.p_ht.clone(), start: 0, bracket_degree: if pad_on { 2 } else { 1 } },
++                sumcheck::EqualityGroup { point: pts.p_s.clone(), start: 0, bracket_degree: if pad_on { 2 } else { 1 } },
++            ];
++            let bracket: GroupPoly = std::sync::Arc::new(move |group: usize, v: &[Fp2]| {
+                 let at = |p: usize| v[idx[p]];
++                if group == 1 {
++                    return nu[0].mul(ght.at(v)).mul(v[isum].add(lam));
++                }
++                if group == 2 {
++                    let host_s = at(A_S8).mul_base(b_shs).add(at(A_RSL)).sub(k(1 << (SH_S - 1)));
++                    return nu[1].mul(gs.at(v)).mul(host_s);
++                }
++                assert_eq!(group, 0);
+                 // `limbs` with base weights and the `256^0` multiply by one
+                 // dropped — the same `lb` as in `SC_DZC`
+                 let lb = |w: &[(usize, Fp)]| match w.split_first() {
+@@ -1800,13 +1822,16 @@
+                     clauses = clauses.add(m.mul(c));
+                 }
+                 let zc = helper_sum(v, &lks, h0, alpha, &mu[5..5 + n_help]).add(mu[5 + n_help].mul(cx)).add(pz.eval(v)).add(g.mul(clauses));
+-                let host_rs = sum.add(lam);
+-                let host_s = s8.mul_base(b_shs).add(at(A_RSL)).sub(k(1 << (SH_S - 1)));
+-                v[0].mul(zc).add(nu[0].mul(v[1]).mul(ght.at(v)).mul(host_rs)).add(nu[1].mul(v[2]).mul(g).mul(host_s))
+-            };
++                zc
++            });
++            let poly_bracket = bracket.clone();
++            let poly = move |v: &[Fp2]| (0..3).fold(Fp2::ZERO,
++                |a, group| a.add(v[group].mul(poly_bracket(group, v))));
+             #[cfg(test)]
+             s35.check(b.tabs.len(), &poly);
+-            b.finish(Box::new(poly), hosted)
++            let mut def = b.finish(Box::new(poly), hosted)?;
++            def.groups = Some((groups, bracket));
++            Ok(def)
+         }
+         // three (multiplicity, helper, public values) triples now: U8, exp and
+         // the activation table under TAG_ACT (T2 section C.1)

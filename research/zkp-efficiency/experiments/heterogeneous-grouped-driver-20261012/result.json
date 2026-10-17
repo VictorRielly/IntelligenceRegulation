@@ -1,0 +1,848 @@
+{
+  "run_id": "20261012T212555Z-0814839f",
+  "cycle": "0040",
+  "status": "pass",
+  "seed": 2026101240,
+  "counts": {
+    "fixtures": 32,
+    "independent_table_finals": 896,
+    "candidate_table_finals": 2688,
+    "schedules": 96,
+    "extension_table_checks": 8064,
+    "extension_polynomial_checks": 288,
+    "dense_grouped_schedules": 32,
+    "independent_group_samples": 2520,
+    "dense_reference_samples": 720,
+    "candidate_group_samples": 7560,
+    "actual_group_claim_checks": 1080,
+    "terminal_group_claim_checks": 216,
+    "split_eq_entries_built": 5568,
+    "split_eq_peak_entries": 16,
+    "table_endpoint_reads": 259392,
+    "bracket_calls_0": 22332,
+    "bracket_calls_1": 13108,
+    "bracket_calls_2": 13114,
+    "group_recoveries": 489,
+    "zero_factor_explicit_fallbacks": 375,
+    "offset_round_samples": 112,
+    "offset_fixtures": 7
+  },
+  "control_count": 18,
+  "controls": [
+    "false_combined_host_seed",
+    "debug_false_group_seed",
+    "wrong_short_equality_point",
+    "underdeclared_bracket_degree",
+    "causal_zero_placeholder",
+    "Ht_replaced_by_S",
+    "table_positions_swapped",
+    "lookup_helpers_wrongly_support_gated",
+    "early_finals",
+    "bind_without_round",
+    "wrong_round_index",
+    "duplicate_pending_round",
+    "pending_finals",
+    "negative_start",
+    "outside_group_extent",
+    "empty_groups",
+    "zero_bracket_degree",
+    "excess_degree"
+  ],
+  "cost_rows": [
+    {
+      "context": 1,
+      "t_pad": 1,
+      "h_pad": 1,
+      "cube_log": 0,
+      "mode": "full",
+      "tables": 26,
+      "dense_public_lerps_before": 0,
+      "descriptor_bind_lerps": 0,
+      "descriptor_reads": 1,
+      "integer_predicates": 0,
+      "grouped_calls": [
+        0,
+        0,
+        0
+      ],
+      "generic_explicit_group_calls": [
+        0,
+        0,
+        0
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 1,
+      "t_pad": 1,
+      "h_pad": 1,
+      "cube_log": 0,
+      "mode": "full",
+      "tables": 30,
+      "dense_public_lerps_before": 0,
+      "descriptor_bind_lerps": 0,
+      "descriptor_reads": 1,
+      "integer_predicates": 0,
+      "grouped_calls": [
+        0,
+        0,
+        0
+      ],
+      "generic_explicit_group_calls": [
+        0,
+        0,
+        0
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 1,
+      "t_pad": 1,
+      "h_pad": 1,
+      "cube_log": 0,
+      "mode": "base",
+      "tables": 26,
+      "dense_public_lerps_before": 0,
+      "descriptor_bind_lerps": 0,
+      "descriptor_reads": 1,
+      "integer_predicates": 0,
+      "grouped_calls": [
+        0,
+        0,
+        0
+      ],
+      "generic_explicit_group_calls": [
+        0,
+        0,
+        0
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 1,
+      "t_pad": 1,
+      "h_pad": 1,
+      "cube_log": 0,
+      "mode": "base",
+      "tables": 30,
+      "dense_public_lerps_before": 0,
+      "descriptor_bind_lerps": 0,
+      "descriptor_reads": 1,
+      "integer_predicates": 0,
+      "grouped_calls": [
+        0,
+        0,
+        0
+      ],
+      "generic_explicit_group_calls": [
+        0,
+        0,
+        0
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 1,
+      "t_pad": 1,
+      "h_pad": 1,
+      "cube_log": 0,
+      "mode": "boolean",
+      "tables": 26,
+      "dense_public_lerps_before": 0,
+      "descriptor_bind_lerps": 0,
+      "descriptor_reads": 1,
+      "integer_predicates": 0,
+      "grouped_calls": [
+        0,
+        0,
+        0
+      ],
+      "generic_explicit_group_calls": [
+        0,
+        0,
+        0
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 1,
+      "t_pad": 1,
+      "h_pad": 1,
+      "cube_log": 0,
+      "mode": "boolean",
+      "tables": 30,
+      "dense_public_lerps_before": 0,
+      "descriptor_bind_lerps": 0,
+      "descriptor_reads": 1,
+      "integer_predicates": 0,
+      "grouped_calls": [
+        0,
+        0,
+        0
+      ],
+      "generic_explicit_group_calls": [
+        0,
+        0,
+        0
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 1,
+      "t_pad": 1,
+      "h_pad": 1,
+      "cube_log": 0,
+      "mode": "zero",
+      "tables": 26,
+      "dense_public_lerps_before": 0,
+      "descriptor_bind_lerps": 0,
+      "descriptor_reads": 1,
+      "integer_predicates": 0,
+      "grouped_calls": [
+        0,
+        0,
+        0
+      ],
+      "generic_explicit_group_calls": [
+        0,
+        0,
+        0
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 1,
+      "t_pad": 1,
+      "h_pad": 1,
+      "cube_log": 0,
+      "mode": "zero",
+      "tables": 30,
+      "dense_public_lerps_before": 0,
+      "descriptor_bind_lerps": 0,
+      "descriptor_reads": 1,
+      "integer_predicates": 0,
+      "grouped_calls": [
+        0,
+        0,
+        0
+      ],
+      "generic_explicit_group_calls": [
+        0,
+        0,
+        0
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 2,
+      "t_pad": 2,
+      "h_pad": 1,
+      "cube_log": 2,
+      "mode": "full",
+      "tables": 26,
+      "dense_public_lerps_before": 9,
+      "descriptor_bind_lerps": 2,
+      "descriptor_reads": 19,
+      "integer_predicates": 4,
+      "grouped_calls": [
+        14,
+        8,
+        8
+      ],
+      "generic_explicit_group_calls": [
+        18,
+        18,
+        18
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 2,
+      "t_pad": 2,
+      "h_pad": 1,
+      "cube_log": 2,
+      "mode": "full",
+      "tables": 30,
+      "dense_public_lerps_before": 9,
+      "descriptor_bind_lerps": 2,
+      "descriptor_reads": 19,
+      "integer_predicates": 4,
+      "grouped_calls": [
+        14,
+        8,
+        8
+      ],
+      "generic_explicit_group_calls": [
+        18,
+        18,
+        18
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 2,
+      "t_pad": 2,
+      "h_pad": 1,
+      "cube_log": 2,
+      "mode": "base",
+      "tables": 26,
+      "dense_public_lerps_before": 9,
+      "descriptor_bind_lerps": 2,
+      "descriptor_reads": 19,
+      "integer_predicates": 4,
+      "grouped_calls": [
+        14,
+        8,
+        8
+      ],
+      "generic_explicit_group_calls": [
+        18,
+        18,
+        18
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 2,
+      "t_pad": 2,
+      "h_pad": 1,
+      "cube_log": 2,
+      "mode": "base",
+      "tables": 30,
+      "dense_public_lerps_before": 9,
+      "descriptor_bind_lerps": 2,
+      "descriptor_reads": 19,
+      "integer_predicates": 4,
+      "grouped_calls": [
+        14,
+        8,
+        8
+      ],
+      "generic_explicit_group_calls": [
+        18,
+        18,
+        18
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 2,
+      "t_pad": 2,
+      "h_pad": 1,
+      "cube_log": 2,
+      "mode": "boolean",
+      "tables": 26,
+      "dense_public_lerps_before": 9,
+      "descriptor_bind_lerps": 2,
+      "descriptor_reads": 19,
+      "integer_predicates": 4,
+      "grouped_calls": [
+        15,
+        9,
+        9
+      ],
+      "generic_explicit_group_calls": [
+        18,
+        18,
+        18
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 2,
+      "t_pad": 2,
+      "h_pad": 1,
+      "cube_log": 2,
+      "mode": "boolean",
+      "tables": 30,
+      "dense_public_lerps_before": 9,
+      "descriptor_bind_lerps": 2,
+      "descriptor_reads": 19,
+      "integer_predicates": 4,
+      "grouped_calls": [
+        15,
+        9,
+        8
+      ],
+      "generic_explicit_group_calls": [
+        18,
+        18,
+        18
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 2,
+      "t_pad": 2,
+      "h_pad": 1,
+      "cube_log": 2,
+      "mode": "zero",
+      "tables": 26,
+      "dense_public_lerps_before": 9,
+      "descriptor_bind_lerps": 2,
+      "descriptor_reads": 19,
+      "integer_predicates": 4,
+      "grouped_calls": [
+        15,
+        8,
+        9
+      ],
+      "generic_explicit_group_calls": [
+        18,
+        18,
+        18
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 2,
+      "t_pad": 2,
+      "h_pad": 1,
+      "cube_log": 2,
+      "mode": "zero",
+      "tables": 30,
+      "dense_public_lerps_before": 9,
+      "descriptor_bind_lerps": 2,
+      "descriptor_reads": 19,
+      "integer_predicates": 4,
+      "grouped_calls": [
+        15,
+        8,
+        9
+      ],
+      "generic_explicit_group_calls": [
+        18,
+        18,
+        18
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 3,
+      "t_pad": 4,
+      "h_pad": 4,
+      "cube_log": 6,
+      "mode": "full",
+      "tables": 26,
+      "dense_public_lerps_before": 189,
+      "descriptor_bind_lerps": 16,
+      "descriptor_reads": 379,
+      "integer_predicates": 582,
+      "grouped_calls": [
+        284,
+        158,
+        158
+      ],
+      "generic_explicit_group_calls": [
+        378,
+        378,
+        378
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 3,
+      "t_pad": 4,
+      "h_pad": 4,
+      "cube_log": 6,
+      "mode": "full",
+      "tables": 30,
+      "dense_public_lerps_before": 189,
+      "descriptor_bind_lerps": 16,
+      "descriptor_reads": 379,
+      "integer_predicates": 582,
+      "grouped_calls": [
+        284,
+        158,
+        158
+      ],
+      "generic_explicit_group_calls": [
+        378,
+        378,
+        378
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 3,
+      "t_pad": 4,
+      "h_pad": 4,
+      "cube_log": 6,
+      "mode": "base",
+      "tables": 26,
+      "dense_public_lerps_before": 189,
+      "descriptor_bind_lerps": 16,
+      "descriptor_reads": 379,
+      "integer_predicates": 582,
+      "grouped_calls": [
+        284,
+        158,
+        158
+      ],
+      "generic_explicit_group_calls": [
+        378,
+        378,
+        378
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 3,
+      "t_pad": 4,
+      "h_pad": 4,
+      "cube_log": 6,
+      "mode": "base",
+      "tables": 30,
+      "dense_public_lerps_before": 189,
+      "descriptor_bind_lerps": 16,
+      "descriptor_reads": 379,
+      "integer_predicates": 582,
+      "grouped_calls": [
+        284,
+        158,
+        158
+      ],
+      "generic_explicit_group_calls": [
+        378,
+        378,
+        378
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 3,
+      "t_pad": 4,
+      "h_pad": 4,
+      "cube_log": 6,
+      "mode": "boolean",
+      "tables": 26,
+      "dense_public_lerps_before": 189,
+      "descriptor_bind_lerps": 16,
+      "descriptor_reads": 379,
+      "integer_predicates": 582,
+      "grouped_calls": [
+        285,
+        189,
+        189
+      ],
+      "generic_explicit_group_calls": [
+        378,
+        378,
+        378
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 3,
+      "t_pad": 4,
+      "h_pad": 4,
+      "cube_log": 6,
+      "mode": "boolean",
+      "tables": 30,
+      "dense_public_lerps_before": 189,
+      "descriptor_bind_lerps": 16,
+      "descriptor_reads": 379,
+      "integer_predicates": 582,
+      "grouped_calls": [
+        311,
+        189,
+        185
+      ],
+      "generic_explicit_group_calls": [
+        378,
+        378,
+        378
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 3,
+      "t_pad": 4,
+      "h_pad": 4,
+      "cube_log": 6,
+      "mode": "zero",
+      "tables": 26,
+      "dense_public_lerps_before": 189,
+      "descriptor_bind_lerps": 16,
+      "descriptor_reads": 379,
+      "integer_predicates": 582,
+      "grouped_calls": [
+        315,
+        186,
+        189
+      ],
+      "generic_explicit_group_calls": [
+        378,
+        378,
+        378
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 3,
+      "t_pad": 4,
+      "h_pad": 4,
+      "cube_log": 6,
+      "mode": "zero",
+      "tables": 30,
+      "dense_public_lerps_before": 189,
+      "descriptor_bind_lerps": 16,
+      "descriptor_reads": 379,
+      "integer_predicates": 582,
+      "grouped_calls": [
+        315,
+        186,
+        189
+      ],
+      "generic_explicit_group_calls": [
+        378,
+        378,
+        378
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 3,
+      "t_pad": 4,
+      "h_pad": 8,
+      "cube_log": 7,
+      "mode": "full",
+      "tables": 26,
+      "dense_public_lerps_before": 381,
+      "descriptor_bind_lerps": 16,
+      "descriptor_reads": 763,
+      "integer_predicates": 1230,
+      "grouped_calls": [
+        572,
+        318,
+        318
+      ],
+      "generic_explicit_group_calls": [
+        762,
+        762,
+        762
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 3,
+      "t_pad": 4,
+      "h_pad": 8,
+      "cube_log": 7,
+      "mode": "full",
+      "tables": 30,
+      "dense_public_lerps_before": 381,
+      "descriptor_bind_lerps": 16,
+      "descriptor_reads": 763,
+      "integer_predicates": 1230,
+      "grouped_calls": [
+        572,
+        318,
+        318
+      ],
+      "generic_explicit_group_calls": [
+        762,
+        762,
+        762
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 3,
+      "t_pad": 4,
+      "h_pad": 8,
+      "cube_log": 7,
+      "mode": "base",
+      "tables": 26,
+      "dense_public_lerps_before": 381,
+      "descriptor_bind_lerps": 16,
+      "descriptor_reads": 763,
+      "integer_predicates": 1230,
+      "grouped_calls": [
+        572,
+        318,
+        318
+      ],
+      "generic_explicit_group_calls": [
+        762,
+        762,
+        762
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 3,
+      "t_pad": 4,
+      "h_pad": 8,
+      "cube_log": 7,
+      "mode": "base",
+      "tables": 30,
+      "dense_public_lerps_before": 381,
+      "descriptor_bind_lerps": 16,
+      "descriptor_reads": 763,
+      "integer_predicates": 1230,
+      "grouped_calls": [
+        572,
+        318,
+        318
+      ],
+      "generic_explicit_group_calls": [
+        762,
+        762,
+        762
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 3,
+      "t_pad": 4,
+      "h_pad": 8,
+      "cube_log": 7,
+      "mode": "boolean",
+      "tables": 26,
+      "dense_public_lerps_before": 381,
+      "descriptor_bind_lerps": 16,
+      "descriptor_reads": 763,
+      "integer_predicates": 1230,
+      "grouped_calls": [
+        635,
+        381,
+        375
+      ],
+      "generic_explicit_group_calls": [
+        762,
+        762,
+        762
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 3,
+      "t_pad": 4,
+      "h_pad": 8,
+      "cube_log": 7,
+      "mode": "boolean",
+      "tables": 30,
+      "dense_public_lerps_before": 381,
+      "descriptor_bind_lerps": 16,
+      "descriptor_reads": 763,
+      "integer_predicates": 1230,
+      "grouped_calls": [
+        635,
+        381,
+        381
+      ],
+      "generic_explicit_group_calls": [
+        762,
+        762,
+        762
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 3,
+      "t_pad": 4,
+      "h_pad": 8,
+      "cube_log": 7,
+      "mode": "zero",
+      "tables": 26,
+      "dense_public_lerps_before": 381,
+      "descriptor_bind_lerps": 16,
+      "descriptor_reads": 763,
+      "integer_predicates": 1230,
+      "grouped_calls": [
+        635,
+        378,
+        381
+      ],
+      "generic_explicit_group_calls": [
+        762,
+        762,
+        762
+      ],
+      "grouped_counts_match_dense_representation": true
+    },
+    {
+      "context": 3,
+      "t_pad": 4,
+      "h_pad": 8,
+      "cube_log": 7,
+      "mode": "zero",
+      "tables": 30,
+      "dense_public_lerps_before": 381,
+      "descriptor_bind_lerps": 16,
+      "descriptor_reads": 763,
+      "integer_predicates": 1230,
+      "grouped_calls": [
+        635,
+        378,
+        381
+      ],
+      "generic_explicit_group_calls": [
+        762,
+        762,
+        762
+      ],
+      "grouped_counts_match_dense_representation": true
+    }
+  ],
+  "digest_sha256": "637269cba6b357686b315b41e040f6ed89cfdb374fd78b0e10bca286acadbd27",
+  "elapsed_seconds": 14.444178964000457,
+  "peak_rss_kib": 22808,
+  "hardware": {
+    "device": "CPU only",
+    "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+    "threads": 1,
+    "affinity": [
+      0
+    ],
+    "nice": 19,
+    "python": "3.10.12"
+  },
+  "resource_limits": {
+    "wall_seconds": 59,
+    "cpu_seconds": 59,
+    "address_space_mib": 512,
+    "estimated_memory_mib": 64
+  },
+  "code_hashes": {
+    "causal.py": "d557f9c87cc61e4b83d23c8b9c815189eb4f9b85ad287fcb5389ae9b6082ca39",
+    "driver.py": "bab4e9bed35338aebc4c1fa2837109879c1b73c19f939d844bdbd8c9a72c8042",
+    "experiment.py": "a54fcea126d892728261d80097c627fa729168b684d6176e8234bf405562c5a9",
+    "field.py": "7c96b879d97197cb09180d5e2a0f2fc62287e1ff500b8e8694aa0eb4592508e9",
+    "fixture.py": "6b4bfb6bdaef838344323d348812821ad81617cef727fdb7d267cba88854a646",
+    "full_oracle.py": "a1c639a63dcc7175b9567dcc4e52ae71bb66a5c5e88ae18f77682adc335f2d58",
+    "grouped.py": "bcd9adc68247bd7bcbcf366c7206f64c5c95f85decc4fc3782a1db03a9452904",
+    "oracle.py": "bd3588f0be61c006910468701eb303846d8783c8209795b97843e140650f88c7",
+    "polynomial_ir.py": "94a6924997315d02cb083205aa3f8c95c53f0357359c96bae5f3be43da08ccc0",
+    "source_port.py": "8d4d614b93530e3b374ad870adf7ebe8ee887282d571da0629bf51863abb8232",
+    "support.py": "5044b13ecc3a93eb0bc5ea4c55d036ebcc297716324fcabfeab78aade6a55031",
+    "support_reference.py": "e93b91ba7d2398f53655d3a377f8a8843d01ff728bd99fc8ca65ae479c4226b7"
+  },
+  "proof_accounting": {
+    "context_length": null,
+    "passes": 0,
+    "device": "CPU only",
+    "countable_tokens": 0,
+    "accepted_complete_private8b_proofs": 0,
+    "steady_state_tokens_per_s": null,
+    "total_workload_tokens_per_s": null,
+    "startup_seconds": null,
+    "startup_fraction": null,
+    "witness_seconds": null,
+    "proof_seconds": null,
+    "serialization_seconds": null,
+    "independent_verification_seconds": null,
+    "proof_latency_seconds": null,
+    "proof_lag_seconds": null,
+    "pipeline_drain_seconds": null,
+    "prefill": "none",
+    "resident_passes": "none",
+    "decode": "none"
+  },
+  "limits": [
+    "Source-derived synthetic inconsistent planes; not an honest witness or native proof",
+    "Native source, mask/RNG/transcript/refusal/PCS/receipt/device/privacy unchanged and unexecuted",
+    "Serial chunks; no native compiler/parallel/phase/peak performance tested"
+  ]
+}

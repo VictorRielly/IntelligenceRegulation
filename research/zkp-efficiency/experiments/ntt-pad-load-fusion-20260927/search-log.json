@@ -1,0 +1,25 @@
+{
+  "run_identity": "20260927T015233Z-c29b434c",
+  "accessed_date": "2026-09-27",
+  "mechanism": "Native LIVE web search and open/find tools only",
+  "queries": [
+    "GPU NTT zero knowledge proof coset fusion memory Goldilocks 2026",
+    "GitHub GPU NTT Goldilocks 2026 September release",
+    "GPU NTT on the fly twiddle memory fusion 2024 2025 paper",
+    "\"UniNTT\" github NTT",
+    "\"yrrid/GoldilocksNTT\" 2024 2023",
+    "site:docs.nvidia.com cuda best practices global memory 32 byte segments coalesced access",
+    "site:nvidia.github.io/cuPQC/releases/v0.6 \"August 28, 2026\"",
+    "site:dl.acm.org/doi/10.1145/3669940.3707241 \"Published\"",
+    "\"Accelerating Number Theoretic Transform with Multi-GPU\" \"2025\" \"March\"",
+    "site:github.com \"UniNTT\" NTT CUDA",
+    "site:arxiv.org \"NTT\" GPU \"2026\" \"September\""
+  ],
+  "exact_assessed_urls_and_failures": "source-records.json",
+  "additional_blocker": "https://doi.org/10.1145/3669940.3707241 direct open: Internal Error; primary publisher abstract and date readable in native search result.",
+  "operational_notes": [
+    "Several broad read/search outputs were truncated; relevant local sections and primary facts reread with narrower calls.",
+    "No login, approval request, shell network client, dependency install, downloaded script execution or bypass attempted.",
+    "No external performance claim reproduced. Experiment source was written locally using the pinned project semantics."
+  ]
+}

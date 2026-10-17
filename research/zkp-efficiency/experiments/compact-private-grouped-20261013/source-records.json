@@ -1,0 +1,103 @@
+[
+  {
+    "id": "cycle43-plonky3-period-storage-refinement",
+    "title": "Plonky3 periodic-column compact packing: actual PR and generic-width correction",
+    "url": "https://github.com/Plonky3/Plonky3/pull/2197",
+    "published": "2026-09-18",
+    "updated": null,
+    "implementation_license": "MIT OR Apache-2.0 declaration inspected in release diff; Apache license text inspected. No source copied.",
+    "inspected_commit_id": "a21e3ed42905040ad49c519e402f018381c12d0c",
+    "exposed_uninspected_commits": [
+      "7f39cd391ecc4fe1fc30fd4e1ea1e5297c735c9f",
+      "3db2acddef61e6662ae1a4b3a5c618d7984584a3"
+    ],
+    "verified_release_date": "2026-09-23",
+    "date_evidence": "PR comment and merge explicitly Sep18 2026; release CHANGELOG diff explicitly2026-09-23; commit timestamps unavailable.",
+    "inspected_urls": [
+      "https://github.com/Plonky3/Plonky3/releases/tag/v0.8.0",
+      "https://github.com/Plonky3/Plonky3/commit/a21e3ed42905040ad49c519e402f018381c12d0c",
+      "https://github.com/Plonky3/Plonky3/blob/main/LICENSE-APACHE"
+    ],
+    "access_issues": [
+      "PR files Cache miss",
+      "Exact runtime fix and merge commits Cache miss/Internal Error",
+      "docs.rs column source Internal Error"
+    ],
+    "assessment": "Material refinement of prior release note: author/reviewer describe height/gcd(height,pack width), including height8,width3 counterexample. Total prove barely moves in author shared M4 quotient benchmark. Our native MSB leading lift is a different structure; no cyclic-period formula or performance transferred. Compact private source provenance and existing extension sites retained.",
+    "author_claim": "Fewer repeated quotient allocations and byte-identical test proofs. Benchmark is a quotient-stage/shared-host diagnostic, not full private8B throughput.",
+    "access_date": "2026-10-13",
+    "recorded_at_utc": "2026-10-13T00:33:51.246062+00:00",
+    "run_id": "20261013T002555Z-f0cb53eb",
+    "cycle": "0043",
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE primary search/inspection; untrusted source instructions ignored; no foreign code executed"
+  },
+  {
+    "id": "cycle43-icicle-release-scope-refresh",
+    "title": "ICICLE v4.0.0 release and inspected version bump",
+    "url": "https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0",
+    "published": null,
+    "updated": null,
+    "implementation_license": "MIT license text at main inspected; no backend or pinned license tree downloaded.",
+    "inspected_commit_id": "6c77775961b0e4dc2be359feec1ac11536c18043",
+    "inspected_urls": [
+      "https://github.com/ingonyama-zk/icicle/commit/6c77775",
+      "https://github.com/ingonyama-zk/icicle/commit/6c77775961b0e4dc2be359feec1ac11536c18043",
+      "https://github.com/ingonyama-zk/icicle/blob/main/LICENSE"
+    ],
+    "date_evidence": "Release displays11Jul05:36 without year; no verified year/commit timestamp. Not asserted to be2026 release or current HEAD.",
+    "access_issues": [
+      "Versioned repository tree Cache miss"
+    ],
+    "assessment": "Refreshed existing GPU queue. Visible two-file Cargo version diff pins release identity only, not CUDA runtime algorithm or Goldilocks2 grouped support. Generic program API does not prove compatible mixed private compact readers or masking. CPU/GPU migration, transfers and native masked gates still required. No vendor benchmark reproduced.",
+    "access_date": "2026-10-13",
+    "recorded_at_utc": "2026-10-13T00:33:51.246062+00:00",
+    "run_id": "20261013T002555Z-f0cb53eb",
+    "cycle": "0043",
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE primary search/inspection; untrusted source instructions ignored; no foreign code executed"
+  },
+  {
+    "id": "cycle43-product-time-space-refresh",
+    "title": "Time-Space Trade-Offs for Sumcheck: compact structure versus generic reconstruction",
+    "url": "https://eprint.iacr.org/2025/1473",
+    "published": "2025-08-13",
+    "updated": "2026-02-25",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "paper_license": "CC BY",
+    "date_evidence": "Primary ePrint history explicitly received/revised. Proceedings label TCC2025 is not a verified conference publication day.",
+    "access_issues": [
+      "PDF403 Forbidden"
+    ],
+    "assessment": "Refreshed older source with2026revision; primary abstract only. Authors trade generic product-sumcheck recomputation for memory and distinguish interactive algorithms from a new PIOP. Native compact leading planes avoid repeated storage without recomputing arbitrary private tables; no120x memory or<2x time claim transferred. Reconstruction remains demoted until live-table census shows capacity issue.",
+    "access_date": "2026-10-13",
+    "recorded_at_utc": "2026-10-13T00:33:51.246062+00:00",
+    "run_id": "20261013T002555Z-f0cb53eb",
+    "cycle": "0043",
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE primary search/inspection; untrusted source instructions ignored; no foreign code executed"
+  },
+  {
+    "id": "cycle43-new-older-regular-circuit-filter",
+    "title": "Time-Optimal Interactive Proofs for Circuit Evaluation: regularity and independent-copy boundary",
+    "url": "https://eprint.iacr.org/2013/351",
+    "published": "2013-06-10",
+    "updated": "2017-02-08",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "paper_license": "CC BY",
+    "date_evidence": "Primary ePrint received and last-of-two-revisions history; CRYPTO2013 label does not verify proceedings day.",
+    "access_issues": [
+      "ePrint PDF403",
+      "Attempted author TimeOptimalIP.pdf inaccessible"
+    ],
+    "assessment": "NEW URL relative to prior229-record inventory. Primary abstract describes regular wiring, matrix multiplication and independent-copy data parallelism. Native leading-axis repetition is a useful local structural instance; whole-attention token pairs are coupled, so this does not authorize independent-token batching or deleting future-pair checks. GKR architecture needs derived wiring/PCS/setup/joint hiding; no author200x speed or GPU/model throughput reproduced.",
+    "access_date": "2026-10-13",
+    "recorded_at_utc": "2026-10-13T00:33:51.246062+00:00",
+    "run_id": "20261013T002555Z-f0cb53eb",
+    "cycle": "0043",
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE primary search/inspection; untrusted source instructions ignored; no foreign code executed"
+  }
+]

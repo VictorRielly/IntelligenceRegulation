@@ -49,3 +49,10 @@ results/zk60_round22_captures/
 
 # Fresh randomized MVP component artifacts; retain the validation manifests.
 results/zk60_mvp_20260915_demo/
+
+# Public model cache for the trained 1B checkpoint; source pins live in results.
+local-models/zk60-tinyllama-1.1b-chat-v1.0/
+local-models/zk60-llama3-8b/
+
+# Recoverable native MVP candidate; reviewed overlays and hashes are retained.
+ops/zkp-mvp/candidate/

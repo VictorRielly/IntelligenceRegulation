@@ -1,0 +1,14 @@
+binary=/tmp/zk60-sol-gpu-20260927/hashline/target/release/deps/hashline-5f8ce7ea29af9a49
+sha256=314fd717838f5d99a0385f250a79e8a4285d73b3cafe433ff35f80a4d6befdc3
+args=['private_block::review_tests::a_toy_receipt_made_before_the_lane_still_verifies', '--exact', '--test-threads=1', '--nocapture']
+
+running 1 test
+test private_block::review_tests::a_toy_receipt_made_before_the_lane_still_verifies ... PRE-LANE /../results/zk60_rowfold_20260919/integration/native-block-0: 2816472 B, verify = Ok(())
+PRE-LANE /../results/zk60_rowfold_20260919/integration/native-block-1: absent, skipped
+PRE-LANE /../results/zk60_private_block_evidence/owner_run1: absent, skipped
+PRE-LANE /../results/zk60_attention_integration_20260919/block_public: absent, skipped
+PRE-LANE: 1 archived toy receipts still verify under the lane's verifier
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 508 filtered out; finished in 0.03s
+

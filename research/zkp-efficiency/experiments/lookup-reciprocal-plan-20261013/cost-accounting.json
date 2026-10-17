@@ -1,0 +1,238 @@
+{
+  "source_census": {
+    "native_SC_SZC_byte_lookups_at_m125": 15,
+    "native_SC_SZC_paired_byte_helpers": 8,
+    "native_SC_SZC_exp_pair_helpers": 1,
+    "byte_reciprocals": "Already cached across six lookup domains per proof atprotocol889",
+    "exp_act_reciprocals": "Still full occurrence batch at908..911; no SC_SZC bracket inversions",
+    "table_helper_inversion_actual_rows_per_family": 256,
+    "table_helper_timing_mark_rows_per_family": 16384,
+    "table_helper_mark_warning": "mark reports3*sh.size(Tab); helpers call toy-size table_values* then write256 rows into zero-padded H; SC_TAB public tables expand16k separately"
+  },
+  "executed_rows": [
+    {
+      "case": "256/31/0/valid",
+      "N": 31,
+      "M": 256,
+      "native_batch_mul": 93,
+      "native_field_inversions": 1,
+      "prior_cycle4_field_inversions": 1,
+      "prior_cycle4_batch_mul": 768,
+      "candidate": {
+        "denominators": 31,
+        "batch_elements": 31,
+        "batch_mul": 93,
+        "inversions": 1,
+        "cache_hits": 0,
+        "fallback": 31,
+        "value_comparisons": 0,
+        "destination_writes": 31,
+        "chunks": 1,
+        "fallback_chunks": 1,
+        "max_fallback_words": 31,
+        "cache_entries": 0,
+        "short_bypass": 1
+      }
+    },
+    {
+      "case": "large/valid",
+      "N": 16384,
+      "M": 256,
+      "native_batch_mul": 49152,
+      "native_field_inversions": 1,
+      "prior_cycle4_field_inversions": 1,
+      "prior_cycle4_batch_mul": 768,
+      "candidate": {
+        "denominators": 256,
+        "batch_elements": 256,
+        "batch_mul": 768,
+        "inversions": 1,
+        "cache_hits": 16384,
+        "fallback": 0,
+        "value_comparisons": 16384,
+        "destination_writes": 16384,
+        "chunks": 16,
+        "fallback_chunks": 0,
+        "max_fallback_words": 0,
+        "cache_entries": 256,
+        "short_bypass": 0
+      }
+    },
+    {
+      "case": "large/mixed",
+      "N": 16385,
+      "M": 256,
+      "native_batch_mul": 49155,
+      "native_field_inversions": 1,
+      "prior_cycle4_field_inversions": 864,
+      "prior_cycle4_batch_mul": 768,
+      "candidate": {
+        "denominators": 1119,
+        "batch_elements": 1119,
+        "batch_mul": 3357,
+        "inversions": 17,
+        "cache_hits": 15522,
+        "fallback": 863,
+        "value_comparisons": 16385,
+        "destination_writes": 16385,
+        "chunks": 17,
+        "fallback_chunks": 16,
+        "max_fallback_words": 54,
+        "cache_entries": 256,
+        "short_bypass": 0
+      }
+    },
+    {
+      "case": "large/invalid",
+      "N": 257,
+      "M": 256,
+      "native_batch_mul": 771,
+      "native_field_inversions": 1,
+      "prior_cycle4_field_inversions": 258,
+      "prior_cycle4_batch_mul": 768,
+      "candidate": {
+        "denominators": 513,
+        "batch_elements": 513,
+        "batch_mul": 1539,
+        "inversions": 2,
+        "cache_hits": 0,
+        "fallback": 257,
+        "value_comparisons": 257,
+        "destination_writes": 257,
+        "chunks": 1,
+        "fallback_chunks": 1,
+        "max_fallback_words": 257,
+        "cache_entries": 256,
+        "short_bypass": 0
+      }
+    }
+  ],
+  "geometry_counts": [
+    {
+      "label": "native_m125",
+      "T": 512,
+      "h_pad": 16,
+      "f_pad": 2048,
+      "exp_occurrences": 4194304,
+      "act_occurrences": 1048576,
+      "pair_occurrences": 5242880,
+      "native_batch_multiplications": 15728640,
+      "candidate_all_hit_batch_multiplications": 1536,
+      "native_beta_products": 5242880,
+      "candidate_all_hit_beta_products": 512,
+      "native_field_inversions": 2,
+      "candidate_all_hit_field_inversions": 2,
+      "unchanged_H_output_bytes": 83886080,
+      "native_peak_den_plus_prefix_payload_bytes": 134217728,
+      "candidate_scratch_logical_payload_bound_bytes": 45360,
+      "activation_conversion_bytes": 2048,
+      "notes": [
+        "arithmetic/payload not actual peak or speed; headers/allocator/compiler stack unpriced",
+        "prefix16N + in-place denominators16N; sequential exp/act peaks cannot be added",
+        "native literal full Fp2 beta products; compiler specialization unmeasured",
+        "all tablehelpers/masks/PCS/polynomials/extensions/witness retained"
+      ]
+    },
+    {
+      "label": "unadmitted8B_arithmetic_only",
+      "T": 512,
+      "h_pad": 32,
+      "f_pad": 16384,
+      "exp_occurrences": 8388608,
+      "act_occurrences": 8388608,
+      "pair_occurrences": 16777216,
+      "native_batch_multiplications": 50331648,
+      "candidate_all_hit_batch_multiplications": 1536,
+      "native_beta_products": 16777216,
+      "candidate_all_hit_beta_products": 512,
+      "native_field_inversions": 2,
+      "candidate_all_hit_field_inversions": 2,
+      "unchanged_H_output_bytes": 268435456,
+      "native_peak_den_plus_prefix_payload_bytes": 268435456,
+      "candidate_scratch_logical_payload_bound_bytes": 45360,
+      "activation_conversion_bytes": 2048,
+      "notes": [
+        "arithmetic/payload not actual peak or speed; headers/allocator/compiler stack unpriced",
+        "prefix16N + in-place denominators16N; sequential exp/act peaks cannot be added",
+        "native literal full Fp2 beta products; compiler specialization unmeasured",
+        "all tablehelpers/masks/PCS/polynomials/extensions/witness retained"
+      ]
+    },
+    {
+      "label": "unadmitted8B_T1024",
+      "T": 1024,
+      "h_pad": 32,
+      "f_pad": 16384,
+      "exp_occurrences": 33554432,
+      "act_occurrences": 16777216,
+      "pair_occurrences": 50331648,
+      "native_batch_multiplications": 150994944,
+      "candidate_all_hit_batch_multiplications": 1536,
+      "native_beta_products": 50331648,
+      "candidate_all_hit_beta_products": 512,
+      "native_field_inversions": 2,
+      "candidate_all_hit_field_inversions": 2,
+      "unchanged_H_output_bytes": 805306368,
+      "native_peak_den_plus_prefix_payload_bytes": 1073741824,
+      "candidate_scratch_logical_payload_bound_bytes": 45360,
+      "activation_conversion_bytes": 2048,
+      "notes": [
+        "arithmetic/payload not actual peak or speed; headers/allocator/compiler stack unpriced",
+        "prefix16N + in-place denominators16N; sequential exp/act peaks cannot be added",
+        "native literal full Fp2 beta products; compiler specialization unmeasured",
+        "all tablehelpers/masks/PCS/polynomials/extensions/witness retained"
+      ]
+    }
+  ],
+  "profiles": [
+    {
+      "run": "a1-cpu",
+      "pair_helper_seconds": 0.199,
+      "raw_line": "PB-TIMING prove | H: exp + activation helper inverses          | commit       |    0.199 |   0.6% |  5242880 words |      6015 |      6125 |",
+      "scope": "shared synthetic125M one-block/T512 twoCPU threads RTX4070Laptop GPU arms; retained, not reproduced"
+    },
+    {
+      "run": "a2-cpu",
+      "pair_helper_seconds": 0.207,
+      "raw_line": "PB-TIMING prove | H: exp + activation helper inverses          | commit       |    0.207 |   0.6% |  5242880 words |      6018 |      6129 |",
+      "scope": "shared synthetic125M one-block/T512 twoCPU threads RTX4070Laptop GPU arms; retained, not reproduced"
+    },
+    {
+      "run": "b1-gpu",
+      "pair_helper_seconds": 0.202,
+      "raw_line": "PB-TIMING prove | H: exp + activation helper inverses          | commit       |    0.202 |   1.2% |  5242880 words |      3433 |      3560 |",
+      "scope": "shared synthetic125M one-block/T512 twoCPU threads RTX4070Laptop GPU arms; retained, not reproduced"
+    },
+    {
+      "run": "b2-gpu",
+      "pair_helper_seconds": 0.197,
+      "raw_line": "PB-TIMING prove | H: exp + activation helper inverses          | commit       |    0.197 |   1.2% |  5242880 words |      3436 |      3562 |",
+      "scope": "shared synthetic125M one-block/T512 twoCPU threads RTX4070Laptop GPU arms; retained, not reproduced"
+    }
+  ],
+  "ceiling": {
+    "reference_b2_pair_phase_seconds": 0.197,
+    "reference_b2_prove_seconds": 16.864,
+    "reference_b2_whole_test_seconds": 27.523873283003923,
+    "ideal_prove_removal_fraction": 0.01168168880455408,
+    "ideal_enclosing_removal_fraction": 0.007157422866121394,
+    "ideal_enclosing_seconds_after_deleting_entire_phase": 27.326873283003923,
+    "accepted8b_numeric_ceiling": null,
+    "formula": "Nproved/(Ttotal-Cpair_old+Cplan+Creads+Cfallback+Cscatter)",
+    "scope": "Phase deletion bounds historical synthetic oneblock only; not complete-model throughput",
+    "other_clocks": {
+      "external_witness_seconds": 5.77,
+      "serialization_seconds": 0.028,
+      "inprocess_byte_verification_seconds": 0.82,
+      "startup_seconds": null
+    }
+  },
+  "tradeoffs": [
+    "Short N31 bypass avoids prior768vs93 setup batchmul atK1024; K1 still31 inversions",
+    "Invalid257 K1024 candidate2 inversions vs prior258 vs native1; candidate1539batchmul vs native771",
+    "Sparse invalid rows incur one inversion per occupied input chunk, not ceil(U/K)",
+    "Padded S and future positions still carry exp table pairs; never delete them",
+    "SC_SZC7.794s is largely unaffected; helper phase is distinct commitment preparation",
+    "Construct privately in same attempt; no cross-challenge/table reciprocal reuse"
+  ]
+}

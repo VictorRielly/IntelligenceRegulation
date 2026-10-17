@@ -1,0 +1,22 @@
+{
+  "status": "pass",
+  "scalar_products": 393216,
+  "dot_cases": 42,
+  "dot_terms": 192132,
+  "matrix_cases": 72,
+  "matrix_output_words": 1680,
+  "quant_cases": 6162,
+  "suffix_cases": 106,
+  "suffix_outcomes": {
+    "accepted": 98,
+    "FFN gate": 4,
+    "FFN up": 1,
+    "FFN product": 1,
+    "FFN down": 1,
+    "residual 2": 1
+  },
+  "control_count": 17,
+  "elapsed_s": 0.6597414660027425,
+  "peak_rss_kib": 16900,
+  "digest": "221cbf38fee740ab4f15e3891251c5e0646efb8d6a95e62464ec941321d77c1c"
+}

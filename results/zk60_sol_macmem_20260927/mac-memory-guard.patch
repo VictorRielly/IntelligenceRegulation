@@ -1,0 +1,263 @@
+--- a/hashline/Cargo.lock
++++ b/hashline/Cargo.lock
+@@ -198,6 +198,7 @@
+  "blake3",
+  "chacha20poly1305",
+  "cudarc",
++ "libc",
+  "private-block-kernel",
+  "private-block-kernel-shaped",
+  "rayon",
+--- a/hashline/Cargo.toml
++++ b/hashline/Cargo.toml
+@@ -34,6 +34,9 @@
+ # [UPERF3-XX] optional, only with `--features gpu-cuda` (see above).
+ cudarc = { version = "0.13", default-features = false, features = ["driver", "nvrtc", "cuda-12040", "dynamic-linking", "std"], optional = true }
+ 
++[target.'cfg(target_os = "macos")'.dependencies]
++libc = "0.2"
++
+ [dev-dependencies]
+ # [ZK60 private block] the portable exact-integer reference kernel, used ONLY by
+ # tests (witness-vs-kernel parity of the private block, disposition condition 6).
+--- a/hashline/src/private_block.rs
++++ b/hashline/src/private_block.rs
+@@ -82,6 +82,7 @@
+ // check of the verifier). It reads no witness and moves no proof byte.
+ mod hash_domain;
+ mod layout;
++mod memory;
+ // STEP S9: the pad rule of ruling P-1 — the support indicators, the per-plane
+ // ZERO / EXEMPT table and the slot map. Part 4 built the term itself in
+ // `argument::define`, so this module is no longer `cfg(test)`: it is now
+--- /dev/null
++++ b/hashline/src/private_block/memory.rs
+@@ -0,0 +1,104 @@
++//! Process RSS telemetry for diagnostics and bounded heavy tests.
++//! Missing or invalid observations remain NaN so callers can fail closed.
++
++#[cfg(target_os = "linux")]
++fn linux_field_mib(status: &str, name: &str) -> f64 {
++    status
++        .lines()
++        .find(|line| line.starts_with(name))
++        .and_then(|line| line.split_whitespace().nth(1))
++        .and_then(|value| value.parse::<f64>().ok())
++        .map(|kb| kb / 1024.0)
++        .unwrap_or(f64::NAN)
++}
++
++#[cfg(target_os = "macos")]
++fn macos_peak_rss_mib() -> f64 {
++    let mut usage = std::mem::MaybeUninit::<libc::rusage>::uninit();
++    // SAFETY: getrusage initializes `usage` on success; it is not read on
++    // failure. RUSAGE_SELF queries this process, including its peak RSS.
++    if unsafe { libc::getrusage(libc::RUSAGE_SELF, usage.as_mut_ptr()) } != 0 {
++        return f64::NAN;
++    }
++    // Current XNU stores resident_size_max in bytes in ru_maxrss. A zero or
++    // negative result is not a usable memory ceiling observation.
++    let bytes = unsafe { usage.assume_init() }.ru_maxrss;
++    peak_bytes_to_mib(bytes as i64)
++}
++
++#[cfg(any(target_os = "macos", test))]
++fn peak_bytes_to_mib(bytes: i64) -> f64 {
++    if bytes <= 0 {
++        f64::NAN
++    } else {
++        bytes as f64 / (1024.0 * 1024.0)
++    }
++}
++
++pub(super) fn process_memory_mib() -> (f64, f64) {
++    #[cfg(target_os = "linux")]
++    {
++        let Ok(status) = std::fs::read_to_string("/proc/self/status") else {
++            return (f64::NAN, f64::NAN);
++        };
++        return (
++            linux_field_mib(&status, "VmRSS:"),
++            linux_field_mib(&status, "VmHWM:"),
++        );
++    }
++    #[cfg(target_os = "macos")]
++    {
++        // The phase recorder can show a process peak; current RSS was never
++        // needed for the heavy-test ceiling and has no portable std API.
++        return (f64::NAN, macos_peak_rss_mib());
++    }
++    #[cfg(not(any(target_os = "linux", target_os = "macos")))]
++    {
++        (f64::NAN, f64::NAN)
++    }
++}
++
++pub(super) fn peak_rss_mib() -> f64 {
++    process_memory_mib().1
++}
++
++/// A ceiling must never turn an unavailable reading into a pass.
++pub(super) fn required_peak_rss_mib(observed: f64) -> Result<f64, &'static str> {
++    if observed.is_finite() && observed > 0.0 {
++        Ok(observed)
++    } else {
++        Err("peak RSS telemetry is unavailable; refusing the bounded 125M run")
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++
++    #[test]
++    fn unavailable_peak_never_passes_the_heavy_test_guard() {
++        for value in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY, 0.0, -1.0] {
++            assert!(required_peak_rss_mib(value).is_err());
++        }
++        assert_eq!(required_peak_rss_mib(11.0).unwrap(), 11.0);
++    }
++
++    #[test]
++    fn macos_peak_bytes_are_converted_without_linux_kib_scaling() {
++        assert_eq!(peak_bytes_to_mib(1024 * 1024), 1.0);
++        assert_eq!(peak_bytes_to_mib(11 * 1024 * 1024), 11.0);
++        assert!(peak_bytes_to_mib(0).is_nan());
++    }
++
++    #[cfg(target_os = "linux")]
++    #[test]
++    fn linux_proc_fields_keep_the_existing_kib_to_mib_conversion() {
++        let status = "Name:\tprover\nVmRSS:\t2048 kB\nVmHWM:\t4096 kB\n";
++        assert_eq!(linux_field_mib(status, "VmRSS:"), 2.0);
++        assert_eq!(linux_field_mib(status, "VmHWM:"), 4.0);
++        assert!(linux_field_mib("VmRSS: invalid kB\n", "VmRSS:").is_nan());
++        let (current, peak) = process_memory_mib();
++        assert!(current.is_finite() && current > 0.0);
++        assert!(peak.is_finite() && peak >= current);
++    }
++}
+--- a/hashline/src/private_block/run.rs
++++ b/hashline/src/private_block/run.rs
+@@ -444,17 +444,13 @@
+     out
+ }
+ 
+-/// Process resident high-water mark in MiB, from Linux `/proc/self/status`.
++/// Process resident high-water mark in MiB, from platform telemetry.
+ /// A whole-process figure on a shared box: it BOUNDS a stage's cost from
+ /// above and is not a measurement of it. A mark that RISES across stages of a
+ /// run is the sign of allocator fragmentation (the check's OMITTED CONDITION
+ /// 3); it is reported, never repaired here.
+ pub(crate) fn peak_rss_mib() -> f64 {
+-    std::fs::read_to_string("/proc/self/status")
+-        .ok()
+-        .and_then(|s| s.lines().find(|l| l.starts_with("VmHWM:")).and_then(|l| l.split_whitespace().nth(1).and_then(|v| v.parse::<f64>().ok())))
+-        .map(|kb| kb / 1024.0)
+-        .unwrap_or(f64::NAN)
++    super::memory::peak_rss_mib()
+ }
+ 
+ /// The private inputs of a run, asked for ONE STAGE AT A TIME so that a
+--- a/hashline/src/private_block/run_tests.rs
++++ b/hashline/src/private_block/run_tests.rs
+@@ -1386,6 +1386,8 @@
+     let l = 12usize;
+     let which = std::env::var("HL_PB_WEIGHTS").unwrap_or_else(|_| "tame".into());
+     let dir = heavy_run_dir("HL_PB_RUN_DIR");
++    super::memory::required_peak_rss_mib(run::peak_rss_mib())
++        .expect("125M RUN L=12: peak RSS must be available before building the chain");
+     eprintln!("125M RUN L=12 [HL_PB_WEIGHTS={which}]: segments go to {}; {}", dir.display(), malloc_threshold_note());
+     let t0 = std::time::Instant::now();
+     let (mut c, blocks, recipe) = match which.as_str() {
+@@ -1406,7 +1408,8 @@
+     let want = counted_segment_bytes(&sh, l, rows);
+     assert_eq!(want.iter().sum::<usize>(), 484_100_736 + 12 * super::grow_tests::s20_bilinear_delta(&sh).1, "the counted receipt moved");
+     let mut disk = DirSink::create(&dir, l).unwrap_or_else(|e| panic!("125M RUN L=12: {e}"));
+-    let mut prev_hwm = run::peak_rss_mib();
++    let mut prev_hwm = super::memory::required_peak_rss_mib(run::peak_rss_mib())
++        .expect("125M RUN L=12: peak RSS must be available before proving");
+     let mut tick = std::time::Instant::now();
+     let t1 = std::time::Instant::now();
+     let stats = run::prove_run(&st, &blocks, &mut c, owners, &mut |k, bytes: Vec<u8>| {
+@@ -1415,7 +1418,9 @@
+             return Err(format!("STOP at block {k}: the segment is {n} B and the counted length is {} B", want[k]));
+         }
+         disk.accept(k, bytes)?;
+-        let (hwm, stage_s) = (run::peak_rss_mib(), tick.elapsed().as_secs_f64());
++        let hwm = super::memory::required_peak_rss_mib(run::peak_rss_mib())
++            .map_err(|e| format!("STOP at block {k}: {e}"))?;
++        let stage_s = tick.elapsed().as_secs_f64();
+         let (d, pct) = (hwm - prev_hwm, 100.0 * (hwm - prev_hwm) / prev_hwm);
+         eprintln!(
+             "125M RUN L=12: block {k}: stage {stage_s:.2} s, segment {n} B (the counted length), high-water mark {:.2} GiB ({:+.3} GiB, {pct:+.2}%){}",
+--- a/hashline/src/private_block/rulings_tests.rs
++++ b/hashline/src/private_block/rulings_tests.rs
+@@ -339,14 +339,10 @@
+ // example links against the crate's PUBLIC API only. Making any of it `pub` to
+ // suit a benchmark would widen the library's surface for no reason.
+ 
+-/// Peak resident memory of this process in MiB, from Linux `VmHWM`. It is a
++/// Peak resident memory of this process in MiB. It is a
+ /// whole-process high-water mark, so it bounds the proof's cost from above.
+ fn peak_rss_mib() -> f64 {
+-    std::fs::read_to_string("/proc/self/status")
+-        .ok()
+-        .and_then(|s| s.lines().find(|l| l.starts_with("VmHWM:")).and_then(|l| l.split_whitespace().nth(1).and_then(|v| v.parse::<f64>().ok())))
+-        .map(|kb| kb / 1024.0)
+-        .unwrap_or(f64::NAN)
++    super::memory::peak_rss_mib()
+ }
+ 
+ /// **STAGE 19: which PUBLIC WEIGHTS the heavy tests use.** The default is the
+--- a/hashline/src/private_block/rung_tests.rs
++++ b/hashline/src/private_block/rung_tests.rs
+@@ -55,19 +55,11 @@
+ /// `the_codec_length_is_the_models_at_every_shape` all agree on it.
+ const RUNG_G_BYTES_BEFORE_S20: usize = 4_234_648;
+ 
+-/// Peak resident memory of this process, in MiB — Linux `VmHWM`, read for the
++/// Peak resident memory of this process, in MiB, read for the
+ /// record only. It is a whole-process high-water mark on a SHARED box, so it
+ /// bounds this proof's cost from above and is not a measurement of it.
+ fn peak_rss_mib() -> f64 {
+-    std::fs::read_to_string("/proc/self/status")
+-        .ok()
+-        .and_then(|s| {
+-            s.lines()
+-                .find(|l| l.starts_with("VmHWM:"))
+-                .and_then(|l| l.split_whitespace().nth(1).and_then(|v| v.parse::<f64>().ok()))
+-        })
+-        .map(|kb| kb / 1024.0)
+-        .unwrap_or(f64::NAN)
++    super::memory::peak_rss_mib()
+ }
+ 
+ fn rung_context() -> Digest {
+--- a/hashline/src/private_block/timing.rs
++++ b/hashline/src/private_block/timing.rs
+@@ -165,20 +165,11 @@
+     Half::Endpoint, // 22 SC_IO_OUT output endpoint equality
+ ];
+ 
+-/// Process resident memory and its high-water mark, in MiB, from Linux
+-/// `/proc/self/status`. Whole-process figures: they BOUND a phase's cost from
+-/// above and are not a measurement of it. `NaN` where the file cannot be read
+-/// (the recorder never fails a proof over a missing `/proc`).
++/// Process resident memory and high-water mark in MiB. Linux reports both;
++/// macOS reports the high-water mark and leaves current RSS unavailable.
++/// The recorder never fails a proof over missing telemetry.
+ fn mem_mib() -> (f64, f64) {
+-    let Ok(s) = std::fs::read_to_string("/proc/self/status") else { return (f64::NAN, f64::NAN) };
+-    let field = |k: &str| -> f64 {
+-        s.lines()
+-            .find(|l| l.starts_with(k))
+-            .and_then(|l| l.split_whitespace().nth(1).and_then(|v| v.parse::<f64>().ok()))
+-            .map(|kb| kb / 1024.0)
+-            .unwrap_or(f64::NAN)
+-    };
+-    (field("VmRSS:"), field("VmHWM:"))
++    super::memory::process_memory_mib()
+ }
+ 
+ struct Row {

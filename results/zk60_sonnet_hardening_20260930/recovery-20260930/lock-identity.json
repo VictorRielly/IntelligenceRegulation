@@ -1,0 +1,10 @@
+{
+  "checked_at_unix": 1790730416.990224,
+  "host_and_sandbox_match": true,
+  "source": "two stat invocations, one sandbox and one host",
+  "locks": {
+    "/tmp/zk-heavy.lock": "2096:129581",
+    "/tmp/zk-build.lock": "2096:129585",
+    "/tmp/zk-guard/admit.lock": "2096:122538"
+  }
+}

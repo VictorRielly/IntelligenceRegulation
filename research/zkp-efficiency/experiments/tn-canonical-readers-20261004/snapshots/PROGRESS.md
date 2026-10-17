@@ -1,0 +1,13 @@
+# ZKP efficiency progress
+
+Cycle0025 — `20261004T070146Z-edcb9b00`, checkpoint 2026-10-04T07:17:56.512872+00:00.
+
+Exact TN weight preprocessing passed972 synthetic arithmetic cases,24138 raw dots,162864 physical byte outputs,120 independent residency cases and23 controls in2.393366s/22068KiB RSS on one CPU thread. No proving improvement was measured. [Experiment](experiments/tn-weight-cache-20261004/README.md) · [Owner handoff](handoffs/20261004-tn-weight-cache.md).
+
+Useful negative: the CLI seals all layers before rebuilding them for proving. A one-layer cache misses on both scans for distinct model weights. Counted32layer down caches require2048.5MiB extra to persist all preprocessing, while original weights remain needed by proof/digest consumers. A128column tile uses2MiB but row-first traversal can rebuild8times. These are unadmitted geometry/traffic counts, not GPU or whole-builder peaks.
+
+LIVE primary search checked [cuBLAS](https://docs.nvidia.com/cuda/cublas/index.html), gemmlowp packing/history/license, September CUTLASS release, older ZKTorch and FICS/FACS composition, and UIUC repo scope. Six qualified source records saved; fetch failures and unrelated commit/date scopes retained. No author gain reproduced.
+
+0 accepted complete private8B passes/0 countabletokens,CPUonly/contextnull. Steady/total rates,startupfraction,witness/proof/serialization/independentverification and latency/lag/drain clocksunmeasured. No prefill,resident-pass or decode proof.50/s remains unachieved; larger workloads allowed, fresh masks/privacy unchanged.
+
+Next local: test an orientation-aware public fold/digest reader to assess eliminating duplicated original down weights. Owner first measures both witness/down and preprocessing clocks, then native/device exactness and independently verified full-stack A/B under sharedlocks. Native algorithm support, whole-proof cost and high-endGPU evidence remain unknown. Saved reports are local artifacts, not notification-delivery evidence.

@@ -1,0 +1,179 @@
+{
+  "validated_at": "2026-10-04T08:19:01.895418+00:00",
+  "status": "pass",
+  "check_count": 43,
+  "checks": [
+    {
+      "name": "experiment exit zero",
+      "passed": true
+    },
+    {
+      "name": "differential experiment pass",
+      "passed": true
+    },
+    {
+      "name": "bounded one-thread experiment",
+      "passed": true
+    },
+    {
+      "name": "final tested source hash",
+      "passed": true
+    },
+    {
+      "name": "all negative controls detected",
+      "passed": true
+    },
+    {
+      "name": "required canonical fold/witness/identity evidence",
+      "passed": true
+    },
+    {
+      "name": "zero counted target tokens",
+      "passed": true
+    },
+    {
+      "name": "prior FINDINGS.md prefix preserved",
+      "passed": true
+    },
+    {
+      "name": "prior sources.jsonl prefix preserved",
+      "passed": true
+    },
+    {
+      "name": "agenda unchanged",
+      "passed": true
+    },
+    {
+      "name": "five valid LIVE records",
+      "passed": true
+    },
+    {
+      "name": "progress reports equal",
+      "passed": true
+    },
+    {
+      "name": "state marked complete",
+      "passed": true
+    },
+    {
+      "name": "production pin unchanged CLAUDE.md",
+      "passed": true
+    },
+    {
+      "name": "production pin unchanged docs/zkmatrix-poc/START_HERE.md",
+      "passed": true
+    },
+    {
+      "name": "production pin unchanged docs/zkmatrix-poc/MVP_STATUS.md",
+      "passed": true
+    },
+    {
+      "name": "production pin unchanged docs/zkmatrix-poc/ZK60_DECISIONS.md",
+      "passed": true
+    },
+    {
+      "name": "production pin unchanged docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+      "passed": true
+    },
+    {
+      "name": "production pin unchanged docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+      "passed": true
+    },
+    {
+      "name": "production pin unchanged ops/zkp-mvp/candidate/hashline/src/private_block.rs",
+      "passed": true
+    },
+    {
+      "name": "production pin unchanged ops/zkp-mvp/candidate/hashline/src/private_block/argument.rs",
+      "passed": true
+    },
+    {
+      "name": "production pin unchanged ops/zkp-mvp/candidate/hashline/src/private_block/witness.rs",
+      "passed": true
+    },
+    {
+      "name": "production pin unchanged ops/zkp-mvp/candidate/zkp-core/src/mle.rs",
+      "passed": true
+    },
+    {
+      "name": "production pin unchanged ops/zkp-mvp/candidate/zkp-core/src/field.rs",
+      "passed": true
+    },
+    {
+      "name": "production pin unchanged ops/zkp-mvp/candidate/hashline/src/private_block/mvp_driver.rs",
+      "passed": true
+    },
+    {
+      "name": "production pin unchanged results/zk60_mvp_20260929/baseline-stack-gpu-attempt2/report.json",
+      "passed": true
+    },
+    {
+      "name": "production pin unchanged results/zk60_mvp_20260929/cli-stack-gpu/report.json",
+      "passed": true
+    },
+    {
+      "name": "production pin unchanged results/zk60_mvp_20260929/llama3-8b/config.json",
+      "passed": true
+    },
+    {
+      "name": "production pin unchanged ops/zkp-mvp/candidate/hashline/src/private_block/run.rs",
+      "passed": true
+    },
+    {
+      "name": "production pin unchanged ops/zkp-mvp/candidate/hashline/src/private_block/protocol.rs",
+      "passed": true
+    },
+    {
+      "name": "production pin unchanged ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/argument.rs",
+      "passed": true
+    },
+    {
+      "name": "production pin unchanged ops/zkp-mvp/sonnet-hardening/hashline/src/private_block.rs",
+      "passed": true
+    },
+    {
+      "name": "production pin unchanged ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/witness.rs",
+      "passed": true
+    },
+    {
+      "name": "candidate and sonnet read seams hash-equivalent",
+      "passed": true
+    },
+    {
+      "name": "artifact exists README.md",
+      "passed": true
+    },
+    {
+      "name": "artifact exists experiment.py",
+      "passed": true
+    },
+    {
+      "name": "artifact exists result.json",
+      "passed": true
+    },
+    {
+      "name": "artifact exists source-records.json",
+      "passed": true
+    },
+    {
+      "name": "artifact exists source-pins.json",
+      "passed": true
+    },
+    {
+      "name": "artifact exists stdout.log",
+      "passed": true
+    },
+    {
+      "name": "artifact exists stderr.log",
+      "passed": true
+    },
+    {
+      "name": "artifact exists command.json",
+      "passed": true
+    },
+    {
+      "name": "artifact exists execution.json",
+      "passed": true
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+
+running 1 test
+test private_block::lane_c_tinyllama_tests::lane_c_one_dense_block_proves_and_verifies_at_the_tinyllama_dev_shape ... TinyLlama dev dense witness built in 6.59 s; upper hidden half gate 97.9% / act 97.9% nonzero; peak RSS 156 MiB
+LANE C TinyLlama dev shape, ONE dense synthetic block: prove 2.51 s, verify from bytes 0.29 s, receipt 11627208 B (counted 11627208), peak RSS after prove 835 MiB, at end 835 MiB (shared box, diagnostic only; NOT a trained model)
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 517 filtered out; finished in 10.66s
+
+	Command being timed: "/tmp/zk60-lane-c-20260929/hashline/target/release/deps/hashline-404f05c993cc3d92 --ignored --exact private_block::lane_c_tinyllama_tests::lane_c_one_dense_block_proves_and_verifies_at_the_tinyllama_dev_shape --nocapture --test-threads=1"
+	User time (seconds): 22.92
+	System time (seconds): 8.01
+	Percent of CPU this job got: 289%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:10.69
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 854860
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 362549
+	Voluntary context switches: 383415
+	Involuntary context switches: 16790
+	Swaps: 0
+	File system inputs: 24360
+	File system outputs: 16
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

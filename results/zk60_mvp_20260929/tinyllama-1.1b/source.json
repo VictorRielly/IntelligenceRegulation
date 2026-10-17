@@ -1,0 +1,28 @@
+{
+  "schema": "zk60-checkpoint-source/1",
+  "model": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+  "revision": "fe8a4ea1ffedaf415f4da2f062534de366a451e6",
+  "provider_metadata_sha256": "4b3f15821f4a61355dd2eaaf148b46ce9e81132f9e1c7ca4ad1e4e57a4cc58db",
+  "parameter_count": 1100048384,
+  "files": {
+    "config.json": {
+      "size": 608,
+      "sha256": "486bedda3a6988332e60d9638a09ca4b260d34ebcf1b19e22cf3b140b63d8fe9",
+      "git_blob": "4ea05f1bc289d48ba9b92eea2f58ad8acd3dce5d",
+      "local_verified": true
+    },
+    "model.safetensors": {
+      "size": 2200119864,
+      "sha256": "6e6001da2106d4757498752a021df6c2bdc332c650aae4bae6b0c004dcf14933",
+      "git_blob": "2590fdb91785d0aba3e45388b12cf95f5f29a219",
+      "local_verified": true
+    }
+  },
+  "state": "raw-checkpoint-verified",
+  "proof_ready": false,
+  "proof_produced": false,
+  "tensor_count": 201,
+  "bounded_tile_bytes": 4096,
+  "bounded_tile_sha256": "e7595117a037269c89af6a9259b37916693007060f9088b69272a3a1b262c4f5",
+  "inventory_sha256": "b84628bf4811dbf845bd699ec4e58ba6143c4d9b15b05093b68cc03496705d9a"
+}

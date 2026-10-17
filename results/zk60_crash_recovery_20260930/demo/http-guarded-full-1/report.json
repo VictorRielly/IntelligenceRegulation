@@ -1,0 +1,31 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "four_stalled_clients_admitted",
+      "passed": true
+    },
+    {
+      "name": "fifth_client_refused_with_503",
+      "passed": true
+    },
+    {
+      "name": "stalled_clients_expire_and_service_recovers",
+      "passed": true
+    },
+    {
+      "name": "real_receipt_http_smoke",
+      "passed": true
+    }
+  ],
+  "real_localhost_sockets": true,
+  "model_scale_run": false,
+  "gpu_run": false,
+  "live_toy_proof": true,
+  "saved_smoke_checks": 64,
+  "saved_smoke_runs": 3,
+  "source_sha256": {
+    "scripts/zk60_techweek_server.py": "d0df20810e16abbe9e5ee61122924eb03223a4d4d8fef364d39af0ff3bfbe9a1",
+    "scripts/zk60_techweek_demo.py": "7e0b1078c830211a5da8ba965908eaf10db6a1d8e1223ef3139bab63a48b739a"
+  }
+}

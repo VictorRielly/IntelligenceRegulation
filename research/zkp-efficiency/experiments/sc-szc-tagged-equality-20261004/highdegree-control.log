@@ -1,0 +1,97 @@
+{
+  "run_id": "20261004T120146Z-d7433b90",
+  "status": "expected negative observed",
+  "seed": "deterministic explicit endpoints",
+  "endpoint0": [
+    [
+      2,
+      0
+    ],
+    [
+      3,
+      0
+    ],
+    [
+      11,
+      0
+    ]
+  ],
+  "endpoint1": [
+    [
+      5,
+      0
+    ],
+    [
+      7,
+      0
+    ],
+    [
+      13,
+      0
+    ]
+  ],
+  "samples": [
+    {
+      "t": 0,
+      "full_product": [
+        66,
+        0
+      ],
+      "collapsed_product": [
+        66,
+        0
+      ],
+      "equal": true
+    },
+    {
+      "t": 1,
+      "full_product": [
+        455,
+        0
+      ],
+      "collapsed_product": [
+        455,
+        0
+      ],
+      "equal": true
+    },
+    {
+      "t": 2,
+      "full_product": [
+        1320,
+        0
+      ],
+      "collapsed_product": [
+        1192,
+        0
+      ],
+      "equal": false
+    },
+    {
+      "t": 3,
+      "full_product": [
+        2805,
+        0
+      ],
+      "collapsed_product": [
+        2277,
+        0
+      ],
+      "equal": false
+    }
+  ],
+  "device": "CPU only",
+  "threads": 1,
+  "countable_tokens": 0,
+  "elapsed_seconds": 0.00013156399654690176,
+  "peak_rss_kib": 14484,
+  "script_sha256": "afcdcb0beb47fe295f37c3520fd11c1b08dfa24aa931fe1406b0432a8a719b6c",
+  "reference_sha256": "a1c639a63dcc7175b9567dcc4e52ae71bb66a5c5e88ae18f77682adc335f2d58",
+  "scope": "Naive pre-multiplication then multilinear extension loses the original degree-3 round polynomial. Does not assert TensorZKP implements only this or establish a paper defect; additional mechanism must be inspected/reproduced before native transfer.",
+  "resources": {
+    "wall_cap_seconds": 59,
+    "cpu_cap_seconds": 59,
+    "address_space_cap_mib": 512,
+    "estimated_memory_mib": 32
+  }
+}

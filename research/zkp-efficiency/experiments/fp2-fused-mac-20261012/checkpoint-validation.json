@@ -1,0 +1,32 @@
+{
+  "validated_utc": "2026-10-12T17:45:06.160424+00:00",
+  "experiment_hashes_match": {
+    "polynomial_ir.py": true,
+    "field_support.py": true,
+    "oracle.py": true,
+    "source_port.py": true,
+    "wide_rounds.py": true,
+    "fixtures.py": true,
+    "baseline.py": true,
+    "experiment.py": true,
+    "cuda_limb_model.py": true,
+    "fused4.py": true,
+    "accumulator.py": true,
+    "prepared.py": true
+  },
+  "native_read_only_pins_match": {
+    "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/zkp-core/src/field.rs": true,
+    "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/zkp-core/src/sumcheck/grouped.rs": true,
+    "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/argument.rs": true,
+    "/home/victor/IntelligenceRegulation/results/zk60_mvp_20260929/baseline-stack-gpu-attempt2/report.json": true,
+    "/home/victor/IntelligenceRegulation/results/zk60_mvp_20260929/cli-stack-gpu/report.json": true,
+    "/home/victor/IntelligenceRegulation/results/zk60_sol_gpu_20260927/attempt-5-dense-ab/report.json": true,
+    "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/gpu/kernels.cu": true,
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/affine-denominator-stepping-20261004/result.json": true,
+    "/home/victor/IntelligenceRegulation/results/zk60_sol_gpu_20260927/attempt-5-dense-ab/b2-gpu.log": true
+  },
+  "sources_records": 197,
+  "exit_code": 0,
+  "negative_controls": 19,
+  "durable_reports_present": true
+}

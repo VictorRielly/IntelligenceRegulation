@@ -1,0 +1,13 @@
+{
+  "checked_at": "2026-10-12T19:39:38.512559+00:00",
+  "status": "pass",
+  "experiment_exit": 0,
+  "sources_total": 209,
+  "cycle_sources": 6,
+  "native_source_pins_unchanged": 6,
+  "python_source_hashes_verified": 5,
+  "progress_matches_dated_report": true,
+  "accepted_complete_private8b_proofs": 0,
+  "countable_tokens": 0,
+  "no_heavy_job_queued": true
+}

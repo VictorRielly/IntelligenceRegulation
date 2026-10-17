@@ -1,0 +1,2 @@
+python3 experiments/opening-gather-ownership-20261004/experiment.py
+Built-in limits: RLIMIT_AS512MiB, CPU55s, alarm59s, affinity1core, nice19.

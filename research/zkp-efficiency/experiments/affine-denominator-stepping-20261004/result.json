@@ -1,0 +1,3251 @@
+{
+  "run_id": "20261004T185034Z-0cf2c35e",
+  "cycle": "0034",
+  "status": "pass",
+  "seed": 2026100434,
+  "counts": {
+    "prepared_baseline_fixtures": 128,
+    "direct_mle_final_values": 20736,
+    "candidate_schedules": 768,
+    "independent_row_counter_checks": 5376,
+    "recoveries": 1098,
+    "zero_factor_fallbacks": 630,
+    "complete_clause_fixtures": 128,
+    "independent_cube_samples": 1152,
+    "stepped_cube_samples": 6912,
+    "ragged_schedules": 384,
+    "general_lookup_rows": 160,
+    "general_denominator_values": 3798,
+    "zero_denominator_checks": 1,
+    "prior_baseline_census_checks": 48
+  },
+  "controls": [
+    {
+      "name": "reverse_delta",
+      "detected": "independent full-clause original-cube mismatch"
+    },
+    {
+      "name": "skip_step_one",
+      "detected": "independent full-clause original-cube mismatch"
+    },
+    {
+      "name": "drop_ragged",
+      "detected": "independent full-clause original-cube mismatch"
+    },
+    {
+      "name": "stale_alpha",
+      "detected": "independent full-clause original-cube mismatch"
+    },
+    {
+      "name": "stale_tag",
+      "detected": "independent full-clause original-cube mismatch"
+    },
+    {
+      "name": "wrong_coefficient",
+      "detected": "independent full-clause original-cube mismatch"
+    },
+    {
+      "name": "tag_in_delta",
+      "detected": "independent full-clause original-cube mismatch"
+    },
+    {
+      "name": "unfinished row",
+      "detected": "unfinished row"
+    },
+    {
+      "name": "step outside row",
+      "detected": "step outside row"
+    },
+    {
+      "name": "denominator outside row",
+      "detected": "denominator outside row"
+    },
+    {
+      "name": "end outside row",
+      "detected": "end outside row"
+    }
+  ],
+  "control_count": 11,
+  "round_digest_sha256": "eeff4691d0e429aed67045d333b5310765a6458501185ba927711dcd5e4b4a8f",
+  "projections": [
+    {
+      "n": 0,
+      "ls": 2,
+      "padded": false,
+      "recovery": false,
+      "debug": false,
+      "logical_tables": 25,
+      "lookups": 13,
+      "rows": 0,
+      "zero_check_calls": 0,
+      "before": {
+        "sub": 13
+      },
+      "after": {
+        "sub": 13
+      },
+      "delta_after_minus_before": {
+        "sub": 0
+      },
+      "counted_base_mul_before": 0,
+      "counted_base_mul_after": 0,
+      "counted_base_mul_fraction_removed": 0,
+      "api_operation_fraction_removed": 0.0,
+      "prepared_coefficient_dispatches": 0,
+      "stepped_coefficient_dispatches": 0,
+      "scratch_reads": 0,
+      "scratch_writes": 0,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 0,
+      "ls": 2,
+      "padded": false,
+      "recovery": false,
+      "debug": true,
+      "logical_tables": 25,
+      "lookups": 13,
+      "rows": 0,
+      "zero_check_calls": 0,
+      "before": {
+        "sub": 13
+      },
+      "after": {
+        "sub": 13
+      },
+      "delta_after_minus_before": {
+        "sub": 0
+      },
+      "counted_base_mul_before": 0,
+      "counted_base_mul_after": 0,
+      "counted_base_mul_fraction_removed": 0,
+      "api_operation_fraction_removed": 0.0,
+      "prepared_coefficient_dispatches": 0,
+      "stepped_coefficient_dispatches": 0,
+      "scratch_reads": 0,
+      "scratch_writes": 0,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 0,
+      "ls": 2,
+      "padded": false,
+      "recovery": true,
+      "debug": false,
+      "logical_tables": 25,
+      "lookups": 13,
+      "rows": 0,
+      "zero_check_calls": 0,
+      "before": {
+        "sub": 13
+      },
+      "after": {
+        "sub": 13
+      },
+      "delta_after_minus_before": {
+        "sub": 0
+      },
+      "counted_base_mul_before": 0,
+      "counted_base_mul_after": 0,
+      "counted_base_mul_fraction_removed": 0,
+      "api_operation_fraction_removed": 0.0,
+      "prepared_coefficient_dispatches": 0,
+      "stepped_coefficient_dispatches": 0,
+      "scratch_reads": 0,
+      "scratch_writes": 0,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 0,
+      "ls": 2,
+      "padded": false,
+      "recovery": true,
+      "debug": true,
+      "logical_tables": 25,
+      "lookups": 13,
+      "rows": 0,
+      "zero_check_calls": 0,
+      "before": {
+        "sub": 13
+      },
+      "after": {
+        "sub": 13
+      },
+      "delta_after_minus_before": {
+        "sub": 0
+      },
+      "counted_base_mul_before": 0,
+      "counted_base_mul_after": 0,
+      "counted_base_mul_fraction_removed": 0,
+      "api_operation_fraction_removed": 0.0,
+      "prepared_coefficient_dispatches": 0,
+      "stepped_coefficient_dispatches": 0,
+      "scratch_reads": 0,
+      "scratch_writes": 0,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 0,
+      "ls": 2,
+      "padded": true,
+      "recovery": false,
+      "debug": false,
+      "logical_tables": 27,
+      "lookups": 13,
+      "rows": 0,
+      "zero_check_calls": 0,
+      "before": {
+        "sub": 13
+      },
+      "after": {
+        "sub": 13
+      },
+      "delta_after_minus_before": {
+        "sub": 0
+      },
+      "counted_base_mul_before": 0,
+      "counted_base_mul_after": 0,
+      "counted_base_mul_fraction_removed": 0,
+      "api_operation_fraction_removed": 0.0,
+      "prepared_coefficient_dispatches": 0,
+      "stepped_coefficient_dispatches": 0,
+      "scratch_reads": 0,
+      "scratch_writes": 0,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 0,
+      "ls": 2,
+      "padded": true,
+      "recovery": false,
+      "debug": true,
+      "logical_tables": 27,
+      "lookups": 13,
+      "rows": 0,
+      "zero_check_calls": 0,
+      "before": {
+        "sub": 13
+      },
+      "after": {
+        "sub": 13
+      },
+      "delta_after_minus_before": {
+        "sub": 0
+      },
+      "counted_base_mul_before": 0,
+      "counted_base_mul_after": 0,
+      "counted_base_mul_fraction_removed": 0,
+      "api_operation_fraction_removed": 0.0,
+      "prepared_coefficient_dispatches": 0,
+      "stepped_coefficient_dispatches": 0,
+      "scratch_reads": 0,
+      "scratch_writes": 0,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 0,
+      "ls": 2,
+      "padded": true,
+      "recovery": true,
+      "debug": false,
+      "logical_tables": 27,
+      "lookups": 13,
+      "rows": 0,
+      "zero_check_calls": 0,
+      "before": {
+        "sub": 13
+      },
+      "after": {
+        "sub": 13
+      },
+      "delta_after_minus_before": {
+        "sub": 0
+      },
+      "counted_base_mul_before": 0,
+      "counted_base_mul_after": 0,
+      "counted_base_mul_fraction_removed": 0,
+      "api_operation_fraction_removed": 0.0,
+      "prepared_coefficient_dispatches": 0,
+      "stepped_coefficient_dispatches": 0,
+      "scratch_reads": 0,
+      "scratch_writes": 0,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 0,
+      "ls": 2,
+      "padded": true,
+      "recovery": true,
+      "debug": true,
+      "logical_tables": 27,
+      "lookups": 13,
+      "rows": 0,
+      "zero_check_calls": 0,
+      "before": {
+        "sub": 13
+      },
+      "after": {
+        "sub": 13
+      },
+      "delta_after_minus_before": {
+        "sub": 0
+      },
+      "counted_base_mul_before": 0,
+      "counted_base_mul_after": 0,
+      "counted_base_mul_fraction_removed": 0,
+      "api_operation_fraction_removed": 0.0,
+      "prepared_coefficient_dispatches": 0,
+      "stepped_coefficient_dispatches": 0,
+      "scratch_reads": 0,
+      "scratch_writes": 0,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 0,
+      "ls": 3,
+      "padded": false,
+      "recovery": false,
+      "debug": false,
+      "logical_tables": 28,
+      "lookups": 15,
+      "rows": 0,
+      "zero_check_calls": 0,
+      "before": {
+        "sub": 15
+      },
+      "after": {
+        "sub": 15
+      },
+      "delta_after_minus_before": {
+        "sub": 0
+      },
+      "counted_base_mul_before": 0,
+      "counted_base_mul_after": 0,
+      "counted_base_mul_fraction_removed": 0,
+      "api_operation_fraction_removed": 0.0,
+      "prepared_coefficient_dispatches": 0,
+      "stepped_coefficient_dispatches": 0,
+      "scratch_reads": 0,
+      "scratch_writes": 0,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 0,
+      "ls": 3,
+      "padded": false,
+      "recovery": false,
+      "debug": true,
+      "logical_tables": 28,
+      "lookups": 15,
+      "rows": 0,
+      "zero_check_calls": 0,
+      "before": {
+        "sub": 15
+      },
+      "after": {
+        "sub": 15
+      },
+      "delta_after_minus_before": {
+        "sub": 0
+      },
+      "counted_base_mul_before": 0,
+      "counted_base_mul_after": 0,
+      "counted_base_mul_fraction_removed": 0,
+      "api_operation_fraction_removed": 0.0,
+      "prepared_coefficient_dispatches": 0,
+      "stepped_coefficient_dispatches": 0,
+      "scratch_reads": 0,
+      "scratch_writes": 0,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 0,
+      "ls": 3,
+      "padded": false,
+      "recovery": true,
+      "debug": false,
+      "logical_tables": 28,
+      "lookups": 15,
+      "rows": 0,
+      "zero_check_calls": 0,
+      "before": {
+        "sub": 15
+      },
+      "after": {
+        "sub": 15
+      },
+      "delta_after_minus_before": {
+        "sub": 0
+      },
+      "counted_base_mul_before": 0,
+      "counted_base_mul_after": 0,
+      "counted_base_mul_fraction_removed": 0,
+      "api_operation_fraction_removed": 0.0,
+      "prepared_coefficient_dispatches": 0,
+      "stepped_coefficient_dispatches": 0,
+      "scratch_reads": 0,
+      "scratch_writes": 0,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 0,
+      "ls": 3,
+      "padded": false,
+      "recovery": true,
+      "debug": true,
+      "logical_tables": 28,
+      "lookups": 15,
+      "rows": 0,
+      "zero_check_calls": 0,
+      "before": {
+        "sub": 15
+      },
+      "after": {
+        "sub": 15
+      },
+      "delta_after_minus_before": {
+        "sub": 0
+      },
+      "counted_base_mul_before": 0,
+      "counted_base_mul_after": 0,
+      "counted_base_mul_fraction_removed": 0,
+      "api_operation_fraction_removed": 0.0,
+      "prepared_coefficient_dispatches": 0,
+      "stepped_coefficient_dispatches": 0,
+      "scratch_reads": 0,
+      "scratch_writes": 0,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 0,
+      "ls": 3,
+      "padded": true,
+      "recovery": false,
+      "debug": false,
+      "logical_tables": 30,
+      "lookups": 15,
+      "rows": 0,
+      "zero_check_calls": 0,
+      "before": {
+        "sub": 15
+      },
+      "after": {
+        "sub": 15
+      },
+      "delta_after_minus_before": {
+        "sub": 0
+      },
+      "counted_base_mul_before": 0,
+      "counted_base_mul_after": 0,
+      "counted_base_mul_fraction_removed": 0,
+      "api_operation_fraction_removed": 0.0,
+      "prepared_coefficient_dispatches": 0,
+      "stepped_coefficient_dispatches": 0,
+      "scratch_reads": 0,
+      "scratch_writes": 0,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 0,
+      "ls": 3,
+      "padded": true,
+      "recovery": false,
+      "debug": true,
+      "logical_tables": 30,
+      "lookups": 15,
+      "rows": 0,
+      "zero_check_calls": 0,
+      "before": {
+        "sub": 15
+      },
+      "after": {
+        "sub": 15
+      },
+      "delta_after_minus_before": {
+        "sub": 0
+      },
+      "counted_base_mul_before": 0,
+      "counted_base_mul_after": 0,
+      "counted_base_mul_fraction_removed": 0,
+      "api_operation_fraction_removed": 0.0,
+      "prepared_coefficient_dispatches": 0,
+      "stepped_coefficient_dispatches": 0,
+      "scratch_reads": 0,
+      "scratch_writes": 0,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 0,
+      "ls": 3,
+      "padded": true,
+      "recovery": true,
+      "debug": false,
+      "logical_tables": 30,
+      "lookups": 15,
+      "rows": 0,
+      "zero_check_calls": 0,
+      "before": {
+        "sub": 15
+      },
+      "after": {
+        "sub": 15
+      },
+      "delta_after_minus_before": {
+        "sub": 0
+      },
+      "counted_base_mul_before": 0,
+      "counted_base_mul_after": 0,
+      "counted_base_mul_fraction_removed": 0,
+      "api_operation_fraction_removed": 0.0,
+      "prepared_coefficient_dispatches": 0,
+      "stepped_coefficient_dispatches": 0,
+      "scratch_reads": 0,
+      "scratch_writes": 0,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 0,
+      "ls": 3,
+      "padded": true,
+      "recovery": true,
+      "debug": true,
+      "logical_tables": 30,
+      "lookups": 15,
+      "rows": 0,
+      "zero_check_calls": 0,
+      "before": {
+        "sub": 15
+      },
+      "after": {
+        "sub": 15
+      },
+      "delta_after_minus_before": {
+        "sub": 0
+      },
+      "counted_base_mul_before": 0,
+      "counted_base_mul_after": 0,
+      "counted_base_mul_fraction_removed": 0,
+      "api_operation_fraction_removed": 0.0,
+      "prepared_coefficient_dispatches": 0,
+      "stepped_coefficient_dispatches": 0,
+      "scratch_reads": 0,
+      "scratch_writes": 0,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 2,
+      "padded": false,
+      "recovery": false,
+      "debug": false,
+      "logical_tables": 25,
+      "lookups": 13,
+      "rows": 1048575,
+      "zero_check_calls": 4194300,
+      "before": {
+        "mul_base": 35651550,
+        "add": 247463700,
+        "mul": 192937800,
+        "sub": 167772013
+      },
+      "after": {
+        "mul_base": 27262950,
+        "add": 286260975,
+        "mul": 192937800,
+        "sub": 142606213
+      },
+      "delta_after_minus_before": {
+        "mul_base": -8388600,
+        "add": 38797275,
+        "mul": 0,
+        "sub": -25165800
+      },
+      "counted_base_mul_before": 1035992100,
+      "counted_base_mul_after": 1019214900,
+      "counted_base_mul_fraction_removed": 0.016194331983805668,
+      "api_operation_fraction_removed": -0.008143322311141529,
+      "prepared_coefficient_dispatches": 54525900,
+      "stepped_coefficient_dispatches": 27262950,
+      "scratch_reads": 54525900,
+      "scratch_writes": 68157375,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 2,
+      "padded": false,
+      "recovery": false,
+      "debug": true,
+      "logical_tables": 25,
+      "lookups": 13,
+      "rows": 1048575,
+      "zero_check_calls": 4194300,
+      "before": {
+        "mul_base": 35651550,
+        "add": 247463700,
+        "mul": 192937800,
+        "sub": 167772013
+      },
+      "after": {
+        "mul_base": 27262950,
+        "add": 286260975,
+        "mul": 192937800,
+        "sub": 142606213
+      },
+      "delta_after_minus_before": {
+        "mul_base": -8388600,
+        "add": 38797275,
+        "mul": 0,
+        "sub": -25165800
+      },
+      "counted_base_mul_before": 1035992100,
+      "counted_base_mul_after": 1019214900,
+      "counted_base_mul_fraction_removed": 0.016194331983805668,
+      "api_operation_fraction_removed": -0.008143322311141529,
+      "prepared_coefficient_dispatches": 54525900,
+      "stepped_coefficient_dispatches": 27262950,
+      "scratch_reads": 54525900,
+      "scratch_writes": 68157375,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 2,
+      "padded": false,
+      "recovery": true,
+      "debug": false,
+      "logical_tables": 25,
+      "lookups": 13,
+      "rows": 1048575,
+      "zero_check_calls": 3670013,
+      "before": {
+        "mul_base": 30932967,
+        "add": 228589368,
+        "mul": 170917746,
+        "sub": 153091977
+      },
+      "after": {
+        "mul_base": 24641515,
+        "add": 267910930,
+        "mul": 170917746,
+        "sub": 134217621
+      },
+      "delta_after_minus_before": {
+        "mul_base": -6291452,
+        "add": 39321562,
+        "mul": 0,
+        "sub": -18874356
+      },
+      "counted_base_mul_before": 916454664,
+      "counted_base_mul_after": 903871760,
+      "counted_base_mul_fraction_removed": 0.013729979773445727,
+      "api_operation_fraction_removed": -0.02425874261050453,
+      "prepared_coefficient_dispatches": 47710169,
+      "stepped_coefficient_dispatches": 27262950,
+      "scratch_reads": 47710169,
+      "scratch_writes": 68157375,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 2,
+      "padded": false,
+      "recovery": true,
+      "debug": true,
+      "logical_tables": 25,
+      "lookups": 13,
+      "rows": 1048575,
+      "zero_check_calls": 4194300,
+      "before": {
+        "mul_base": 35651550,
+        "add": 247463700,
+        "mul": 192937800,
+        "sub": 167772013
+      },
+      "after": {
+        "mul_base": 27262950,
+        "add": 286260975,
+        "mul": 192937800,
+        "sub": 142606213
+      },
+      "delta_after_minus_before": {
+        "mul_base": -8388600,
+        "add": 38797275,
+        "mul": 0,
+        "sub": -25165800
+      },
+      "counted_base_mul_before": 1035992100,
+      "counted_base_mul_after": 1019214900,
+      "counted_base_mul_fraction_removed": 0.016194331983805668,
+      "api_operation_fraction_removed": -0.008143322311141529,
+      "prepared_coefficient_dispatches": 54525900,
+      "stepped_coefficient_dispatches": 27262950,
+      "scratch_reads": 54525900,
+      "scratch_writes": 68157375,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 2,
+      "padded": true,
+      "recovery": false,
+      "debug": false,
+      "logical_tables": 27,
+      "lookups": 13,
+      "rows": 1048575,
+      "zero_check_calls": 5242875,
+      "before": {
+        "mul_base": 45088725,
+        "add": 395312775,
+        "mul": 312475350,
+        "sub": 211812163
+      },
+      "after": {
+        "mul_base": 32505825,
+        "add": 446692950,
+        "mul": 312475350,
+        "sub": 174063463
+      },
+      "delta_after_minus_before": {
+        "mul_base": -12582900,
+        "add": 51380175,
+        "mul": 0,
+        "sub": -37748700
+      },
+      "counted_base_mul_before": 1652554200,
+      "counted_base_mul_after": 1627388400,
+      "counted_base_mul_fraction_removed": 0.015228426395939087,
+      "api_operation_fraction_removed": -0.0010869565070914724,
+      "prepared_coefficient_dispatches": 68157375,
+      "stepped_coefficient_dispatches": 27262950,
+      "scratch_reads": 68157375,
+      "scratch_writes": 81788850,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 2,
+      "padded": true,
+      "recovery": false,
+      "debug": true,
+      "logical_tables": 27,
+      "lookups": 13,
+      "rows": 1048575,
+      "zero_check_calls": 5242875,
+      "before": {
+        "mul_base": 45088725,
+        "add": 395312775,
+        "mul": 312475350,
+        "sub": 211812163
+      },
+      "after": {
+        "mul_base": 32505825,
+        "add": 446692950,
+        "mul": 312475350,
+        "sub": 174063463
+      },
+      "delta_after_minus_before": {
+        "mul_base": -12582900,
+        "add": 51380175,
+        "mul": 0,
+        "sub": -37748700
+      },
+      "counted_base_mul_before": 1652554200,
+      "counted_base_mul_after": 1627388400,
+      "counted_base_mul_fraction_removed": 0.015228426395939087,
+      "api_operation_fraction_removed": -0.0010869565070914724,
+      "prepared_coefficient_dispatches": 68157375,
+      "stepped_coefficient_dispatches": 27262950,
+      "scratch_reads": 68157375,
+      "scratch_writes": 81788850,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 2,
+      "padded": true,
+      "recovery": true,
+      "debug": false,
+      "logical_tables": 27,
+      "lookups": 13,
+      "rows": 1048575,
+      "zero_check_calls": 4718588,
+      "before": {
+        "mul_base": 40370142,
+        "add": 369098425,
+        "mul": 283115278,
+        "sub": 196083553
+      },
+      "after": {
+        "mul_base": 29884390,
+        "add": 421002887,
+        "mul": 283115278,
+        "sub": 164626297
+      },
+      "delta_after_minus_before": {
+        "mul_base": -10485752,
+        "add": 51904462,
+        "mul": 0,
+        "sub": -31457256
+      },
+      "counted_base_mul_before": 1496316674,
+      "counted_base_mul_after": 1475345170,
+      "counted_base_mul_fraction_removed": 0.014015418236260327,
+      "api_operation_fraction_removed": -0.011209428884663551,
+      "prepared_coefficient_dispatches": 61341644,
+      "stepped_coefficient_dispatches": 27262950,
+      "scratch_reads": 61341644,
+      "scratch_writes": 81788850,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 2,
+      "padded": true,
+      "recovery": true,
+      "debug": true,
+      "logical_tables": 27,
+      "lookups": 13,
+      "rows": 1048575,
+      "zero_check_calls": 5242875,
+      "before": {
+        "mul_base": 45088725,
+        "add": 395312775,
+        "mul": 312475350,
+        "sub": 211812163
+      },
+      "after": {
+        "mul_base": 32505825,
+        "add": 446692950,
+        "mul": 312475350,
+        "sub": 174063463
+      },
+      "delta_after_minus_before": {
+        "mul_base": -12582900,
+        "add": 51380175,
+        "mul": 0,
+        "sub": -37748700
+      },
+      "counted_base_mul_before": 1652554200,
+      "counted_base_mul_after": 1627388400,
+      "counted_base_mul_fraction_removed": 0.015228426395939087,
+      "api_operation_fraction_removed": -0.0010869565070914724,
+      "prepared_coefficient_dispatches": 68157375,
+      "stepped_coefficient_dispatches": 27262950,
+      "scratch_reads": 68157375,
+      "scratch_writes": 81788850,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 3,
+      "padded": false,
+      "recovery": false,
+      "debug": false,
+      "logical_tables": 28,
+      "lookups": 15,
+      "rows": 1048575,
+      "zero_check_calls": 4194300,
+      "before": {
+        "mul_base": 44040150,
+        "add": 276823800,
+        "mul": 208666425,
+        "sub": 186646365
+      },
+      "after": {
+        "mul_base": 35651550,
+        "add": 321912525,
+        "mul": 208666425,
+        "sub": 157286265
+      },
+      "delta_after_minus_before": {
+        "mul_base": -8388600,
+        "add": 45088725,
+        "mul": 0,
+        "sub": -29360100
+      },
+      "counted_base_mul_before": 1131412425,
+      "counted_base_mul_after": 1114635225,
+      "counted_base_mul_fraction_removed": 0.014828544949026877,
+      "api_operation_fraction_removed": -0.010248901688708852,
+      "prepared_coefficient_dispatches": 62914500,
+      "stepped_coefficient_dispatches": 31457250,
+      "scratch_reads": 62914500,
+      "scratch_writes": 78643125,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 3,
+      "padded": false,
+      "recovery": false,
+      "debug": true,
+      "logical_tables": 28,
+      "lookups": 15,
+      "rows": 1048575,
+      "zero_check_calls": 4194300,
+      "before": {
+        "mul_base": 44040150,
+        "add": 276823800,
+        "mul": 208666425,
+        "sub": 186646365
+      },
+      "after": {
+        "mul_base": 35651550,
+        "add": 321912525,
+        "mul": 208666425,
+        "sub": 157286265
+      },
+      "delta_after_minus_before": {
+        "mul_base": -8388600,
+        "add": 45088725,
+        "mul": 0,
+        "sub": -29360100
+      },
+      "counted_base_mul_before": 1131412425,
+      "counted_base_mul_after": 1114635225,
+      "counted_base_mul_fraction_removed": 0.014828544949026877,
+      "api_operation_fraction_removed": -0.010248901688708852,
+      "prepared_coefficient_dispatches": 62914500,
+      "stepped_coefficient_dispatches": 31457250,
+      "scratch_reads": 62914500,
+      "scratch_writes": 78643125,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 3,
+      "padded": false,
+      "recovery": true,
+      "debug": false,
+      "logical_tables": 28,
+      "lookups": 15,
+      "rows": 1048575,
+      "zero_check_calls": 3670013,
+      "before": {
+        "mul_base": 38272993,
+        "add": 255852320,
+        "mul": 185073510,
+        "sub": 170393468
+      },
+      "after": {
+        "mul_base": 31981541,
+        "add": 301465332,
+        "mul": 185073510,
+        "sub": 148373386
+      },
+      "delta_after_minus_before": {
+        "mul_base": -6291452,
+        "add": 45613012,
+        "mul": 0,
+        "sub": -22020082
+      },
+      "counted_base_mul_before": 1001913536,
+      "counted_base_mul_after": 989330632,
+      "counted_base_mul_fraction_removed": 0.012558872146029175,
+      "api_operation_fraction_removed": -0.0266343647233954,
+      "prepared_coefficient_dispatches": 55050195,
+      "stepped_coefficient_dispatches": 31457250,
+      "scratch_reads": 55050195,
+      "scratch_writes": 78643125,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 3,
+      "padded": false,
+      "recovery": true,
+      "debug": true,
+      "logical_tables": 28,
+      "lookups": 15,
+      "rows": 1048575,
+      "zero_check_calls": 4194300,
+      "before": {
+        "mul_base": 44040150,
+        "add": 276823800,
+        "mul": 208666425,
+        "sub": 186646365
+      },
+      "after": {
+        "mul_base": 35651550,
+        "add": 321912525,
+        "mul": 208666425,
+        "sub": 157286265
+      },
+      "delta_after_minus_before": {
+        "mul_base": -8388600,
+        "add": 45088725,
+        "mul": 0,
+        "sub": -29360100
+      },
+      "counted_base_mul_before": 1131412425,
+      "counted_base_mul_after": 1114635225,
+      "counted_base_mul_fraction_removed": 0.014828544949026877,
+      "api_operation_fraction_removed": -0.010248901688708852,
+      "prepared_coefficient_dispatches": 62914500,
+      "stepped_coefficient_dispatches": 31457250,
+      "scratch_reads": 62914500,
+      "scratch_writes": 78643125,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 3,
+      "padded": true,
+      "recovery": false,
+      "debug": false,
+      "logical_tables": 30,
+      "lookups": 15,
+      "rows": 1048575,
+      "zero_check_calls": 5242875,
+      "before": {
+        "mul_base": 55574475,
+        "add": 442498650,
+        "mul": 341835450,
+        "sub": 233832240
+      },
+      "after": {
+        "mul_base": 42991575,
+        "add": 502267425,
+        "mul": 341835450,
+        "sub": 189792090
+      },
+      "delta_after_minus_before": {
+        "mul_base": -12582900,
+        "add": 59768775,
+        "mul": 0,
+        "sub": -44040150
+      },
+      "counted_base_mul_before": 1820326200,
+      "counted_base_mul_after": 1795160400,
+      "counted_base_mul_fraction_removed": 0.013824884792626729,
+      "api_operation_fraction_removed": -0.0029296874590727,
+      "prepared_coefficient_dispatches": 78643125,
+      "stepped_coefficient_dispatches": 31457250,
+      "scratch_reads": 78643125,
+      "scratch_writes": 94371750,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 3,
+      "padded": true,
+      "recovery": false,
+      "debug": true,
+      "logical_tables": 30,
+      "lookups": 15,
+      "rows": 1048575,
+      "zero_check_calls": 5242875,
+      "before": {
+        "mul_base": 55574475,
+        "add": 442498650,
+        "mul": 341835450,
+        "sub": 233832240
+      },
+      "after": {
+        "mul_base": 42991575,
+        "add": 502267425,
+        "mul": 341835450,
+        "sub": 189792090
+      },
+      "delta_after_minus_before": {
+        "mul_base": -12582900,
+        "add": 59768775,
+        "mul": 0,
+        "sub": -44040150
+      },
+      "counted_base_mul_before": 1820326200,
+      "counted_base_mul_after": 1795160400,
+      "counted_base_mul_fraction_removed": 0.013824884792626729,
+      "api_operation_fraction_removed": -0.0029296874590727,
+      "prepared_coefficient_dispatches": 78643125,
+      "stepped_coefficient_dispatches": 31457250,
+      "scratch_reads": 78643125,
+      "scratch_writes": 94371750,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 3,
+      "padded": true,
+      "recovery": true,
+      "debug": false,
+      "logical_tables": 30,
+      "lookups": 15,
+      "rows": 1048575,
+      "zero_check_calls": 4718588,
+      "before": {
+        "mul_base": 49807318,
+        "add": 413138578,
+        "mul": 309853943,
+        "sub": 216530769
+      },
+      "after": {
+        "mul_base": 39321566,
+        "add": 473431640,
+        "mul": 309853943,
+        "sub": 179830637
+      },
+      "delta_after_minus_before": {
+        "mul_base": -10485752,
+        "add": 60293062,
+        "mul": 0,
+        "sub": -36700132
+      },
+      "counted_base_mul_before": 1648884351,
+      "counted_base_mul_after": 1627912847,
+      "counted_base_mul_fraction_removed": 0.0127186021186273,
+      "api_operation_fraction_removed": -0.013248531778974334,
+      "prepared_coefficient_dispatches": 70778820,
+      "stepped_coefficient_dispatches": 31457250,
+      "scratch_reads": 70778820,
+      "scratch_writes": 94371750,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 3,
+      "padded": true,
+      "recovery": true,
+      "debug": true,
+      "logical_tables": 30,
+      "lookups": 15,
+      "rows": 1048575,
+      "zero_check_calls": 5242875,
+      "before": {
+        "mul_base": 55574475,
+        "add": 442498650,
+        "mul": 341835450,
+        "sub": 233832240
+      },
+      "after": {
+        "mul_base": 42991575,
+        "add": 502267425,
+        "mul": 341835450,
+        "sub": 189792090
+      },
+      "delta_after_minus_before": {
+        "mul_base": -12582900,
+        "add": 59768775,
+        "mul": 0,
+        "sub": -44040150
+      },
+      "counted_base_mul_before": 1820326200,
+      "counted_base_mul_after": 1795160400,
+      "counted_base_mul_fraction_removed": 0.013824884792626729,
+      "api_operation_fraction_removed": -0.0029296874590727,
+      "prepared_coefficient_dispatches": 78643125,
+      "stepped_coefficient_dispatches": 31457250,
+      "scratch_reads": 78643125,
+      "scratch_writes": 94371750,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 2,
+      "padded": false,
+      "recovery": false,
+      "debug": false,
+      "logical_tables": 25,
+      "lookups": 13,
+      "rows": 8388607,
+      "zero_check_calls": 33554428,
+      "before": {
+        "mul_base": 285212638,
+        "add": 1979711252,
+        "mul": 1543503688,
+        "sub": 1342177133
+      },
+      "after": {
+        "mul_base": 218103782,
+        "add": 2290089711,
+        "mul": 1543503688,
+        "sub": 1140850565
+      },
+      "delta_after_minus_before": {
+        "mul_base": -67108856,
+        "add": 310378459,
+        "mul": 0,
+        "sub": -201326568
+      },
+      "counted_base_mul_before": 8287943716,
+      "counted_base_mul_after": 8153726004,
+      "counted_base_mul_fraction_removed": 0.016194331983805668,
+      "api_operation_fraction_removed": -0.008143322455016486,
+      "prepared_coefficient_dispatches": 436207564,
+      "stepped_coefficient_dispatches": 218103782,
+      "scratch_reads": 436207564,
+      "scratch_writes": 545259455,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 2,
+      "padded": false,
+      "recovery": false,
+      "debug": true,
+      "logical_tables": 25,
+      "lookups": 13,
+      "rows": 8388607,
+      "zero_check_calls": 33554428,
+      "before": {
+        "mul_base": 285212638,
+        "add": 1979711252,
+        "mul": 1543503688,
+        "sub": 1342177133
+      },
+      "after": {
+        "mul_base": 218103782,
+        "add": 2290089711,
+        "mul": 1543503688,
+        "sub": 1140850565
+      },
+      "delta_after_minus_before": {
+        "mul_base": -67108856,
+        "add": 310378459,
+        "mul": 0,
+        "sub": -201326568
+      },
+      "counted_base_mul_before": 8287943716,
+      "counted_base_mul_after": 8153726004,
+      "counted_base_mul_fraction_removed": 0.016194331983805668,
+      "api_operation_fraction_removed": -0.008143322455016486,
+      "prepared_coefficient_dispatches": 436207564,
+      "stepped_coefficient_dispatches": 218103782,
+      "scratch_reads": 436207564,
+      "scratch_writes": 545259455,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 2,
+      "padded": false,
+      "recovery": true,
+      "debug": false,
+      "logical_tables": 25,
+      "lookups": 13,
+      "rows": 8388607,
+      "zero_check_calls": 29360125,
+      "before": {
+        "mul_base": 247463911,
+        "add": 1828716344,
+        "mul": 1367342962,
+        "sub": 1224736649
+      },
+      "after": {
+        "mul_base": 197132267,
+        "add": 2143289106,
+        "mul": 1367342962,
+        "sub": 1073741717
+      },
+      "delta_after_minus_before": {
+        "mul_base": -50331644,
+        "add": 314572762,
+        "mul": 0,
+        "sub": -150994932
+      },
+      "counted_base_mul_before": 7331642632,
+      "counted_base_mul_after": 7230979344,
+      "counted_base_mul_fraction_removed": 0.013729977448797179,
+      "api_operation_fraction_removed": -0.024258757920654284,
+      "prepared_coefficient_dispatches": 381681625,
+      "stepped_coefficient_dispatches": 218103782,
+      "scratch_reads": 381681625,
+      "scratch_writes": 545259455,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 2,
+      "padded": false,
+      "recovery": true,
+      "debug": true,
+      "logical_tables": 25,
+      "lookups": 13,
+      "rows": 8388607,
+      "zero_check_calls": 33554428,
+      "before": {
+        "mul_base": 285212638,
+        "add": 1979711252,
+        "mul": 1543503688,
+        "sub": 1342177133
+      },
+      "after": {
+        "mul_base": 218103782,
+        "add": 2290089711,
+        "mul": 1543503688,
+        "sub": 1140850565
+      },
+      "delta_after_minus_before": {
+        "mul_base": -67108856,
+        "add": 310378459,
+        "mul": 0,
+        "sub": -201326568
+      },
+      "counted_base_mul_before": 8287943716,
+      "counted_base_mul_after": 8153726004,
+      "counted_base_mul_fraction_removed": 0.016194331983805668,
+      "api_operation_fraction_removed": -0.008143322455016486,
+      "prepared_coefficient_dispatches": 436207564,
+      "stepped_coefficient_dispatches": 218103782,
+      "scratch_reads": 436207564,
+      "scratch_writes": 545259455,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 2,
+      "padded": true,
+      "recovery": false,
+      "debug": false,
+      "logical_tables": 27,
+      "lookups": 13,
+      "rows": 8388607,
+      "zero_check_calls": 41943035,
+      "before": {
+        "mul_base": 360710101,
+        "add": 3162504839,
+        "mul": 2499804886,
+        "sub": 1694498627
+      },
+      "after": {
+        "mul_base": 260046817,
+        "add": 3573546582,
+        "mul": 2499804886,
+        "sub": 1392508775
+      },
+      "delta_after_minus_before": {
+        "mul_base": -100663284,
+        "add": 411041743,
+        "mul": 0,
+        "sub": -301989852
+      },
+      "counted_base_mul_before": 13220444632,
+      "counted_base_mul_after": 13019118064,
+      "counted_base_mul_fraction_removed": 0.015228426395939087,
+      "api_operation_fraction_removed": -0.0010869565199081747,
+      "prepared_coefficient_dispatches": 545259455,
+      "stepped_coefficient_dispatches": 218103782,
+      "scratch_reads": 545259455,
+      "scratch_writes": 654311346,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 2,
+      "padded": true,
+      "recovery": false,
+      "debug": true,
+      "logical_tables": 27,
+      "lookups": 13,
+      "rows": 8388607,
+      "zero_check_calls": 41943035,
+      "before": {
+        "mul_base": 360710101,
+        "add": 3162504839,
+        "mul": 2499804886,
+        "sub": 1694498627
+      },
+      "after": {
+        "mul_base": 260046817,
+        "add": 3573546582,
+        "mul": 2499804886,
+        "sub": 1392508775
+      },
+      "delta_after_minus_before": {
+        "mul_base": -100663284,
+        "add": 411041743,
+        "mul": 0,
+        "sub": -301989852
+      },
+      "counted_base_mul_before": 13220444632,
+      "counted_base_mul_after": 13019118064,
+      "counted_base_mul_fraction_removed": 0.015228426395939087,
+      "api_operation_fraction_removed": -0.0010869565199081747,
+      "prepared_coefficient_dispatches": 545259455,
+      "stepped_coefficient_dispatches": 218103782,
+      "scratch_reads": 545259455,
+      "scratch_writes": 654311346,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 2,
+      "padded": true,
+      "recovery": true,
+      "debug": false,
+      "logical_tables": 27,
+      "lookups": 13,
+      "rows": 8388607,
+      "zero_check_calls": 37748732,
+      "before": {
+        "mul_base": 322961374,
+        "add": 2952789689,
+        "mul": 2264923918,
+        "sub": 1568669537
+      },
+      "after": {
+        "mul_base": 239075302,
+        "add": 3368025735,
+        "mul": 2264923918,
+        "sub": 1317011321
+      },
+      "delta_after_minus_before": {
+        "mul_base": -83886072,
+        "add": 415236046,
+        "mul": 0,
+        "sub": -251658216
+      },
+      "counted_base_mul_before": 11970542338,
+      "counted_base_mul_after": 11802770194,
+      "counted_base_mul_fraction_removed": 0.014015417118355127,
+      "api_operation_fraction_removed": -0.011209438197604591,
+      "prepared_coefficient_dispatches": 490733516,
+      "stepped_coefficient_dispatches": 218103782,
+      "scratch_reads": 490733516,
+      "scratch_writes": 654311346,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 2,
+      "padded": true,
+      "recovery": true,
+      "debug": true,
+      "logical_tables": 27,
+      "lookups": 13,
+      "rows": 8388607,
+      "zero_check_calls": 41943035,
+      "before": {
+        "mul_base": 360710101,
+        "add": 3162504839,
+        "mul": 2499804886,
+        "sub": 1694498627
+      },
+      "after": {
+        "mul_base": 260046817,
+        "add": 3573546582,
+        "mul": 2499804886,
+        "sub": 1392508775
+      },
+      "delta_after_minus_before": {
+        "mul_base": -100663284,
+        "add": 411041743,
+        "mul": 0,
+        "sub": -301989852
+      },
+      "counted_base_mul_before": 13220444632,
+      "counted_base_mul_after": 13019118064,
+      "counted_base_mul_fraction_removed": 0.015228426395939087,
+      "api_operation_fraction_removed": -0.0010869565199081747,
+      "prepared_coefficient_dispatches": 545259455,
+      "stepped_coefficient_dispatches": 218103782,
+      "scratch_reads": 545259455,
+      "scratch_writes": 654311346,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 3,
+      "padded": false,
+      "recovery": false,
+      "debug": false,
+      "logical_tables": 28,
+      "lookups": 15,
+      "rows": 8388607,
+      "zero_check_calls": 33554428,
+      "before": {
+        "mul_base": 352321494,
+        "add": 2214592248,
+        "mul": 1669332793,
+        "sub": 1493172061
+      },
+      "after": {
+        "mul_base": 285212638,
+        "add": 2575302349,
+        "mul": 1669332793,
+        "sub": 1258291065
+      },
+      "delta_after_minus_before": {
+        "mul_base": -67108856,
+        "add": 360710101,
+        "mul": 0,
+        "sub": -234880996
+      },
+      "counted_base_mul_before": 9051306953,
+      "counted_base_mul_after": 8917089241,
+      "counted_base_mul_fraction_removed": 0.014828544949026877,
+      "api_operation_fraction_removed": -0.010248901876535188,
+      "prepared_coefficient_dispatches": 503316420,
+      "stepped_coefficient_dispatches": 251658210,
+      "scratch_reads": 503316420,
+      "scratch_writes": 629145525,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 3,
+      "padded": false,
+      "recovery": false,
+      "debug": true,
+      "logical_tables": 28,
+      "lookups": 15,
+      "rows": 8388607,
+      "zero_check_calls": 33554428,
+      "before": {
+        "mul_base": 352321494,
+        "add": 2214592248,
+        "mul": 1669332793,
+        "sub": 1493172061
+      },
+      "after": {
+        "mul_base": 285212638,
+        "add": 2575302349,
+        "mul": 1669332793,
+        "sub": 1258291065
+      },
+      "delta_after_minus_before": {
+        "mul_base": -67108856,
+        "add": 360710101,
+        "mul": 0,
+        "sub": -234880996
+      },
+      "counted_base_mul_before": 9051306953,
+      "counted_base_mul_after": 8917089241,
+      "counted_base_mul_fraction_removed": 0.014828544949026877,
+      "api_operation_fraction_removed": -0.010248901876535188,
+      "prepared_coefficient_dispatches": 503316420,
+      "stepped_coefficient_dispatches": 251658210,
+      "scratch_reads": 503316420,
+      "scratch_writes": 629145525,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 3,
+      "padded": false,
+      "recovery": true,
+      "debug": false,
+      "logical_tables": 28,
+      "lookups": 15,
+      "rows": 8388607,
+      "zero_check_calls": 29360125,
+      "before": {
+        "mul_base": 306184161,
+        "add": 2046820128,
+        "mul": 1480589158,
+        "sub": 1363148668
+      },
+      "after": {
+        "mul_base": 255852517,
+        "add": 2411724532,
+        "mul": 1480589158,
+        "sub": 1186987914
+      },
+      "delta_after_minus_before": {
+        "mul_base": -50331644,
+        "add": 364904404,
+        "mul": 0,
+        "sub": -176160754
+      },
+      "counted_base_mul_before": 8015314112,
+      "counted_base_mul_after": 7914650824,
+      "counted_base_mul_fraction_removed": 0.012558870007264415,
+      "api_operation_fraction_removed": -0.026634380336188763,
+      "prepared_coefficient_dispatches": 440401875,
+      "stepped_coefficient_dispatches": 251658210,
+      "scratch_reads": 440401875,
+      "scratch_writes": 629145525,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 3,
+      "padded": false,
+      "recovery": true,
+      "debug": true,
+      "logical_tables": 28,
+      "lookups": 15,
+      "rows": 8388607,
+      "zero_check_calls": 33554428,
+      "before": {
+        "mul_base": 352321494,
+        "add": 2214592248,
+        "mul": 1669332793,
+        "sub": 1493172061
+      },
+      "after": {
+        "mul_base": 285212638,
+        "add": 2575302349,
+        "mul": 1669332793,
+        "sub": 1258291065
+      },
+      "delta_after_minus_before": {
+        "mul_base": -67108856,
+        "add": 360710101,
+        "mul": 0,
+        "sub": -234880996
+      },
+      "counted_base_mul_before": 9051306953,
+      "counted_base_mul_after": 8917089241,
+      "counted_base_mul_fraction_removed": 0.014828544949026877,
+      "api_operation_fraction_removed": -0.010248901876535188,
+      "prepared_coefficient_dispatches": 503316420,
+      "stepped_coefficient_dispatches": 251658210,
+      "scratch_reads": 503316420,
+      "scratch_writes": 629145525,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 3,
+      "padded": true,
+      "recovery": false,
+      "debug": false,
+      "logical_tables": 30,
+      "lookups": 15,
+      "rows": 8388607,
+      "zero_check_calls": 41943035,
+      "before": {
+        "mul_base": 444596171,
+        "add": 3539992154,
+        "mul": 2734685882,
+        "sub": 1870659376
+      },
+      "after": {
+        "mul_base": 343932887,
+        "add": 4018142753,
+        "mul": 2734685882,
+        "sub": 1518337882
+      },
+      "delta_after_minus_before": {
+        "mul_base": -100663284,
+        "add": 478150599,
+        "mul": 0,
+        "sub": -352321494
+      },
+      "counted_base_mul_before": 14562621752,
+      "counted_base_mul_after": 14361295184,
+      "counted_base_mul_fraction_removed": 0.013824884792626729,
+      "api_operation_fraction_removed": -0.002929687494884092,
+      "prepared_coefficient_dispatches": 629145525,
+      "stepped_coefficient_dispatches": 251658210,
+      "scratch_reads": 629145525,
+      "scratch_writes": 754974630,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 3,
+      "padded": true,
+      "recovery": false,
+      "debug": true,
+      "logical_tables": 30,
+      "lookups": 15,
+      "rows": 8388607,
+      "zero_check_calls": 41943035,
+      "before": {
+        "mul_base": 444596171,
+        "add": 3539992154,
+        "mul": 2734685882,
+        "sub": 1870659376
+      },
+      "after": {
+        "mul_base": 343932887,
+        "add": 4018142753,
+        "mul": 2734685882,
+        "sub": 1518337882
+      },
+      "delta_after_minus_before": {
+        "mul_base": -100663284,
+        "add": 478150599,
+        "mul": 0,
+        "sub": -352321494
+      },
+      "counted_base_mul_before": 14562621752,
+      "counted_base_mul_after": 14361295184,
+      "counted_base_mul_fraction_removed": 0.013824884792626729,
+      "api_operation_fraction_removed": -0.002929687494884092,
+      "prepared_coefficient_dispatches": 629145525,
+      "stepped_coefficient_dispatches": 251658210,
+      "scratch_reads": 629145525,
+      "scratch_writes": 754974630,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 3,
+      "padded": true,
+      "recovery": true,
+      "debug": false,
+      "logical_tables": 30,
+      "lookups": 15,
+      "rows": 8388607,
+      "zero_check_calls": 37748732,
+      "before": {
+        "mul_base": 398458838,
+        "add": 3305111186,
+        "mul": 2478833399,
+        "sub": 1732247377
+      },
+      "after": {
+        "mul_base": 314572766,
+        "add": 3787456088,
+        "mul": 2478833399,
+        "sub": 1438646125
+      },
+      "delta_after_minus_before": {
+        "mul_base": -83886072,
+        "add": 482344902,
+        "mul": 0,
+        "sub": -293601252
+      },
+      "counted_base_mul_before": 13191084671,
+      "counted_base_mul_after": 13023312527,
+      "counted_base_mul_fraction_removed": 0.012718601099486491,
+      "api_operation_fraction_removed": -0.013248541300141758,
+      "prepared_coefficient_dispatches": 566230980,
+      "stepped_coefficient_dispatches": 251658210,
+      "scratch_reads": 566230980,
+      "scratch_writes": 754974630,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 3,
+      "padded": true,
+      "recovery": true,
+      "debug": true,
+      "logical_tables": 30,
+      "lookups": 15,
+      "rows": 8388607,
+      "zero_check_calls": 41943035,
+      "before": {
+        "mul_base": 444596171,
+        "add": 3539992154,
+        "mul": 2734685882,
+        "sub": 1870659376
+      },
+      "after": {
+        "mul_base": 343932887,
+        "add": 4018142753,
+        "mul": 2734685882,
+        "sub": 1518337882
+      },
+      "delta_after_minus_before": {
+        "mul_base": -100663284,
+        "add": 478150599,
+        "mul": 0,
+        "sub": -352321494
+      },
+      "counted_base_mul_before": 14562621752,
+      "counted_base_mul_after": 14361295184,
+      "counted_base_mul_fraction_removed": 0.013824884792626729,
+      "api_operation_fraction_removed": -0.002929687494884092,
+      "prepared_coefficient_dispatches": 629145525,
+      "stepped_coefficient_dispatches": 251658210,
+      "scratch_reads": 629145525,
+      "scratch_writes": 754974630,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 2,
+      "padded": false,
+      "recovery": false,
+      "debug": false,
+      "logical_tables": 25,
+      "lookups": 13,
+      "rows": 33554431,
+      "zero_check_calls": 134217724,
+      "before": {
+        "mul_base": 1140850654,
+        "add": 7918845716,
+        "mul": 6174015304,
+        "sub": 5368708973
+      },
+      "after": {
+        "mul_base": 872415206,
+        "add": 9160359663,
+        "mul": 6174015304,
+        "sub": 4563402629
+      },
+      "delta_after_minus_before": {
+        "mul_base": -268435448,
+        "add": 1241513947,
+        "mul": 0,
+        "sub": -805306344
+      },
+      "counted_base_mul_before": 33151777828,
+      "counted_base_mul_after": 32614906932,
+      "counted_base_mul_fraction_removed": 0.016194331983805668,
+      "api_operation_fraction_removed": -0.008143322470431646,
+      "prepared_coefficient_dispatches": 1744830412,
+      "stepped_coefficient_dispatches": 872415206,
+      "scratch_reads": 1744830412,
+      "scratch_writes": 2181038015,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 2,
+      "padded": false,
+      "recovery": false,
+      "debug": true,
+      "logical_tables": 25,
+      "lookups": 13,
+      "rows": 33554431,
+      "zero_check_calls": 134217724,
+      "before": {
+        "mul_base": 1140850654,
+        "add": 7918845716,
+        "mul": 6174015304,
+        "sub": 5368708973
+      },
+      "after": {
+        "mul_base": 872415206,
+        "add": 9160359663,
+        "mul": 6174015304,
+        "sub": 4563402629
+      },
+      "delta_after_minus_before": {
+        "mul_base": -268435448,
+        "add": 1241513947,
+        "mul": 0,
+        "sub": -805306344
+      },
+      "counted_base_mul_before": 33151777828,
+      "counted_base_mul_after": 32614906932,
+      "counted_base_mul_fraction_removed": 0.016194331983805668,
+      "api_operation_fraction_removed": -0.008143322470431646,
+      "prepared_coefficient_dispatches": 1744830412,
+      "stepped_coefficient_dispatches": 872415206,
+      "scratch_reads": 1744830412,
+      "scratch_writes": 2181038015,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 2,
+      "padded": false,
+      "recovery": true,
+      "debug": false,
+      "logical_tables": 25,
+      "lookups": 13,
+      "rows": 33554431,
+      "zero_check_calls": 117440509,
+      "before": {
+        "mul_base": 989855719,
+        "add": 7314865976,
+        "mul": 5469372274,
+        "sub": 4898946953
+      },
+      "after": {
+        "mul_base": 788529131,
+        "add": 8573157138,
+        "mul": 5469372274,
+        "sub": 4294967189
+      },
+      "delta_after_minus_before": {
+        "mul_base": -201326588,
+        "add": 1258291162,
+        "mul": 0,
+        "sub": -603979764
+      },
+      "counted_base_mul_before": 29326572808,
+      "counted_base_mul_after": 28923919632,
+      "counted_base_mul_fraction_removed": 0.013729977199727893,
+      "api_operation_fraction_removed": -0.024258759561026147,
+      "prepared_coefficient_dispatches": 1526726617,
+      "stepped_coefficient_dispatches": 872415206,
+      "scratch_reads": 1526726617,
+      "scratch_writes": 2181038015,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 2,
+      "padded": false,
+      "recovery": true,
+      "debug": true,
+      "logical_tables": 25,
+      "lookups": 13,
+      "rows": 33554431,
+      "zero_check_calls": 134217724,
+      "before": {
+        "mul_base": 1140850654,
+        "add": 7918845716,
+        "mul": 6174015304,
+        "sub": 5368708973
+      },
+      "after": {
+        "mul_base": 872415206,
+        "add": 9160359663,
+        "mul": 6174015304,
+        "sub": 4563402629
+      },
+      "delta_after_minus_before": {
+        "mul_base": -268435448,
+        "add": 1241513947,
+        "mul": 0,
+        "sub": -805306344
+      },
+      "counted_base_mul_before": 33151777828,
+      "counted_base_mul_after": 32614906932,
+      "counted_base_mul_fraction_removed": 0.016194331983805668,
+      "api_operation_fraction_removed": -0.008143322470431646,
+      "prepared_coefficient_dispatches": 1744830412,
+      "stepped_coefficient_dispatches": 872415206,
+      "scratch_reads": 1744830412,
+      "scratch_writes": 2181038015,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 2,
+      "padded": true,
+      "recovery": false,
+      "debug": false,
+      "logical_tables": 27,
+      "lookups": 13,
+      "rows": 33554431,
+      "zero_check_calls": 167772155,
+      "before": {
+        "mul_base": 1442840533,
+        "add": 12650020487,
+        "mul": 9999220438,
+        "sub": 6777995075
+      },
+      "after": {
+        "mul_base": 1040187361,
+        "add": 14294187606,
+        "mul": 9999220438,
+        "sub": 5570035559
+      },
+      "delta_after_minus_before": {
+        "mul_base": -402653172,
+        "add": 1644167119,
+        "mul": 0,
+        "sub": -1207959516
+      },
+      "counted_base_mul_before": 52881783256,
+      "counted_base_mul_after": 52076476912,
+      "counted_base_mul_fraction_removed": 0.015228426395939087,
+      "api_operation_fraction_removed": -0.0010869565212813916,
+      "prepared_coefficient_dispatches": 2181038015,
+      "stepped_coefficient_dispatches": 872415206,
+      "scratch_reads": 2181038015,
+      "scratch_writes": 2617245618,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 2,
+      "padded": true,
+      "recovery": false,
+      "debug": true,
+      "logical_tables": 27,
+      "lookups": 13,
+      "rows": 33554431,
+      "zero_check_calls": 167772155,
+      "before": {
+        "mul_base": 1442840533,
+        "add": 12650020487,
+        "mul": 9999220438,
+        "sub": 6777995075
+      },
+      "after": {
+        "mul_base": 1040187361,
+        "add": 14294187606,
+        "mul": 9999220438,
+        "sub": 5570035559
+      },
+      "delta_after_minus_before": {
+        "mul_base": -402653172,
+        "add": 1644167119,
+        "mul": 0,
+        "sub": -1207959516
+      },
+      "counted_base_mul_before": 52881783256,
+      "counted_base_mul_after": 52076476912,
+      "counted_base_mul_fraction_removed": 0.015228426395939087,
+      "api_operation_fraction_removed": -0.0010869565212813916,
+      "prepared_coefficient_dispatches": 2181038015,
+      "stepped_coefficient_dispatches": 872415206,
+      "scratch_reads": 2181038015,
+      "scratch_writes": 2617245618,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 2,
+      "padded": true,
+      "recovery": true,
+      "debug": false,
+      "logical_tables": 27,
+      "lookups": 13,
+      "rows": 33554431,
+      "zero_check_calls": 150994940,
+      "before": {
+        "mul_base": 1291845598,
+        "add": 11811159737,
+        "mul": 9059696398,
+        "sub": 6274678625
+      },
+      "after": {
+        "mul_base": 956301286,
+        "add": 13472104071,
+        "mul": 9059696398,
+        "sub": 5268045689
+      },
+      "delta_after_minus_before": {
+        "mul_base": -335544312,
+        "add": 1660944334,
+        "mul": 0,
+        "sub": -1006632936
+      },
+      "counted_base_mul_before": 47882173186,
+      "counted_base_mul_after": 47211084562,
+      "counted_base_mul_fraction_removed": 0.014015416998579668,
+      "api_operation_fraction_removed": -0.011209439195418874,
+      "prepared_coefficient_dispatches": 1962934220,
+      "stepped_coefficient_dispatches": 872415206,
+      "scratch_reads": 1962934220,
+      "scratch_writes": 2617245618,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 2,
+      "padded": true,
+      "recovery": true,
+      "debug": true,
+      "logical_tables": 27,
+      "lookups": 13,
+      "rows": 33554431,
+      "zero_check_calls": 167772155,
+      "before": {
+        "mul_base": 1442840533,
+        "add": 12650020487,
+        "mul": 9999220438,
+        "sub": 6777995075
+      },
+      "after": {
+        "mul_base": 1040187361,
+        "add": 14294187606,
+        "mul": 9999220438,
+        "sub": 5570035559
+      },
+      "delta_after_minus_before": {
+        "mul_base": -402653172,
+        "add": 1644167119,
+        "mul": 0,
+        "sub": -1207959516
+      },
+      "counted_base_mul_before": 52881783256,
+      "counted_base_mul_after": 52076476912,
+      "counted_base_mul_fraction_removed": 0.015228426395939087,
+      "api_operation_fraction_removed": -0.0010869565212813916,
+      "prepared_coefficient_dispatches": 2181038015,
+      "stepped_coefficient_dispatches": 872415206,
+      "scratch_reads": 2181038015,
+      "scratch_writes": 2617245618,
+      "logical_scratch_bytes_per_part": 416,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 3,
+      "padded": false,
+      "recovery": false,
+      "debug": false,
+      "logical_tables": 28,
+      "lookups": 15,
+      "rows": 33554431,
+      "zero_check_calls": 134217724,
+      "before": {
+        "mul_base": 1409286102,
+        "add": 8858369784,
+        "mul": 6677331769,
+        "sub": 5972688733
+      },
+      "after": {
+        "mul_base": 1140850654,
+        "add": 10301210317,
+        "mul": 6677331769,
+        "sub": 5033164665
+      },
+      "delta_after_minus_before": {
+        "mul_base": -268435448,
+        "add": 1442840533,
+        "mul": 0,
+        "sub": -939524068
+      },
+      "counted_base_mul_before": 36205231049,
+      "counted_base_mul_after": 35668360153,
+      "counted_base_mul_fraction_removed": 0.014828544949026877,
+      "api_operation_fraction_removed": -0.01024890189665942,
+      "prepared_coefficient_dispatches": 2013265860,
+      "stepped_coefficient_dispatches": 1006632930,
+      "scratch_reads": 2013265860,
+      "scratch_writes": 2516582325,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 3,
+      "padded": false,
+      "recovery": false,
+      "debug": true,
+      "logical_tables": 28,
+      "lookups": 15,
+      "rows": 33554431,
+      "zero_check_calls": 134217724,
+      "before": {
+        "mul_base": 1409286102,
+        "add": 8858369784,
+        "mul": 6677331769,
+        "sub": 5972688733
+      },
+      "after": {
+        "mul_base": 1140850654,
+        "add": 10301210317,
+        "mul": 6677331769,
+        "sub": 5033164665
+      },
+      "delta_after_minus_before": {
+        "mul_base": -268435448,
+        "add": 1442840533,
+        "mul": 0,
+        "sub": -939524068
+      },
+      "counted_base_mul_before": 36205231049,
+      "counted_base_mul_after": 35668360153,
+      "counted_base_mul_fraction_removed": 0.014828544949026877,
+      "api_operation_fraction_removed": -0.01024890189665942,
+      "prepared_coefficient_dispatches": 2013265860,
+      "stepped_coefficient_dispatches": 1006632930,
+      "scratch_reads": 2013265860,
+      "scratch_writes": 2516582325,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 3,
+      "padded": false,
+      "recovery": true,
+      "debug": false,
+      "logical_tables": 28,
+      "lookups": 15,
+      "rows": 33554431,
+      "zero_check_calls": 117440509,
+      "before": {
+        "mul_base": 1224736737,
+        "add": 8187281184,
+        "mul": 5922357094,
+        "sub": 5452595068
+      },
+      "after": {
+        "mul_base": 1023410149,
+        "add": 9646898932,
+        "mul": 5922357094,
+        "sub": 4747952010
+      },
+      "delta_after_minus_before": {
+        "mul_base": -201326588,
+        "add": 1459617748,
+        "mul": 0,
+        "sub": -704643058
+      },
+      "counted_base_mul_before": 32061258944,
+      "counted_base_mul_after": 31658605768,
+      "counted_base_mul_fraction_removed": 0.01255886977811123,
+      "api_operation_fraction_removed": -0.026634382008986702,
+      "prepared_coefficient_dispatches": 1761607635,
+      "stepped_coefficient_dispatches": 1006632930,
+      "scratch_reads": 1761607635,
+      "scratch_writes": 2516582325,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 3,
+      "padded": false,
+      "recovery": true,
+      "debug": true,
+      "logical_tables": 28,
+      "lookups": 15,
+      "rows": 33554431,
+      "zero_check_calls": 134217724,
+      "before": {
+        "mul_base": 1409286102,
+        "add": 8858369784,
+        "mul": 6677331769,
+        "sub": 5972688733
+      },
+      "after": {
+        "mul_base": 1140850654,
+        "add": 10301210317,
+        "mul": 6677331769,
+        "sub": 5033164665
+      },
+      "delta_after_minus_before": {
+        "mul_base": -268435448,
+        "add": 1442840533,
+        "mul": 0,
+        "sub": -939524068
+      },
+      "counted_base_mul_before": 36205231049,
+      "counted_base_mul_after": 35668360153,
+      "counted_base_mul_fraction_removed": 0.014828544949026877,
+      "api_operation_fraction_removed": -0.01024890189665942,
+      "prepared_coefficient_dispatches": 2013265860,
+      "stepped_coefficient_dispatches": 1006632930,
+      "scratch_reads": 2013265860,
+      "scratch_writes": 2516582325,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 3,
+      "padded": true,
+      "recovery": false,
+      "debug": false,
+      "logical_tables": 30,
+      "lookups": 15,
+      "rows": 33554431,
+      "zero_check_calls": 167772155,
+      "before": {
+        "mul_base": 1778384843,
+        "add": 14159969882,
+        "mul": 10938744506,
+        "sub": 7482638128
+      },
+      "after": {
+        "mul_base": 1375731671,
+        "add": 16072572449,
+        "mul": 10938744506,
+        "sub": 6073352026
+      },
+      "delta_after_minus_before": {
+        "mul_base": -402653172,
+        "add": 1912602567,
+        "mul": 0,
+        "sub": -1409286102
+      },
+      "counted_base_mul_before": 58250492216,
+      "counted_base_mul_after": 57445185872,
+      "counted_base_mul_fraction_removed": 0.013824884792626729,
+      "api_operation_fraction_removed": -0.002929687498721023,
+      "prepared_coefficient_dispatches": 2516582325,
+      "stepped_coefficient_dispatches": 1006632930,
+      "scratch_reads": 2516582325,
+      "scratch_writes": 3019898790,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 3,
+      "padded": true,
+      "recovery": false,
+      "debug": true,
+      "logical_tables": 30,
+      "lookups": 15,
+      "rows": 33554431,
+      "zero_check_calls": 167772155,
+      "before": {
+        "mul_base": 1778384843,
+        "add": 14159969882,
+        "mul": 10938744506,
+        "sub": 7482638128
+      },
+      "after": {
+        "mul_base": 1375731671,
+        "add": 16072572449,
+        "mul": 10938744506,
+        "sub": 6073352026
+      },
+      "delta_after_minus_before": {
+        "mul_base": -402653172,
+        "add": 1912602567,
+        "mul": 0,
+        "sub": -1409286102
+      },
+      "counted_base_mul_before": 58250492216,
+      "counted_base_mul_after": 57445185872,
+      "counted_base_mul_fraction_removed": 0.013824884792626729,
+      "api_operation_fraction_removed": -0.002929687498721023,
+      "prepared_coefficient_dispatches": 2516582325,
+      "stepped_coefficient_dispatches": 1006632930,
+      "scratch_reads": 2516582325,
+      "scratch_writes": 3019898790,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 3,
+      "padded": true,
+      "recovery": true,
+      "debug": false,
+      "logical_tables": 30,
+      "lookups": 15,
+      "rows": 33554431,
+      "zero_check_calls": 150994940,
+      "before": {
+        "mul_base": 1593835478,
+        "add": 13220445842,
+        "mul": 9915334391,
+        "sub": 6928990033
+      },
+      "after": {
+        "mul_base": 1258291166,
+        "add": 15149825624,
+        "mul": 9915334391,
+        "sub": 5754584941
+      },
+      "delta_after_minus_before": {
+        "mul_base": -335544312,
+        "add": 1929379782,
+        "mul": 0,
+        "sub": -1174405092
+      },
+      "counted_base_mul_before": 52764342911,
+      "counted_base_mul_after": 52093254287,
+      "counted_base_mul_fraction_removed": 0.012718600990292924,
+      "api_operation_fraction_removed": -0.013248542320265991,
+      "prepared_coefficient_dispatches": 2264924100,
+      "stepped_coefficient_dispatches": 1006632930,
+      "scratch_reads": 2264924100,
+      "scratch_writes": 3019898790,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 3,
+      "padded": true,
+      "recovery": true,
+      "debug": true,
+      "logical_tables": 30,
+      "lookups": 15,
+      "rows": 33554431,
+      "zero_check_calls": 167772155,
+      "before": {
+        "mul_base": 1778384843,
+        "add": 14159969882,
+        "mul": 10938744506,
+        "sub": 7482638128
+      },
+      "after": {
+        "mul_base": 1375731671,
+        "add": 16072572449,
+        "mul": 10938744506,
+        "sub": 6073352026
+      },
+      "delta_after_minus_before": {
+        "mul_base": -402653172,
+        "add": 1912602567,
+        "mul": 0,
+        "sub": -1409286102
+      },
+      "counted_base_mul_before": 58250492216,
+      "counted_base_mul_after": 57445185872,
+      "counted_base_mul_fraction_removed": 0.013824884792626729,
+      "api_operation_fraction_removed": -0.002929687498721023,
+      "prepared_coefficient_dispatches": 2516582325,
+      "stepped_coefficient_dispatches": 1006632930,
+      "scratch_reads": 2516582325,
+      "scratch_writes": 3019898790,
+      "logical_scratch_bytes_per_part": 480,
+      "excluded": [
+        "table/Eq construction",
+        "part factor setup",
+        "inversions",
+        "interpolation recovery and reduction",
+        "mask extension",
+        "transcript",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    }
+  ],
+  "elapsed_seconds": 11.57518667000113,
+  "peak_rss_kib": 17332,
+  "hardware": {
+    "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+    "device": "CPU only",
+    "threads": 1,
+    "affinity": [
+      0
+    ],
+    "nice": 19,
+    "python": "3.10.12"
+  },
+  "resource_limits": {
+    "wall_seconds": 59,
+    "cpu_seconds": 59,
+    "address_space_mib": 512,
+    "estimated_memory_mib": 64
+  },
+  "code_hashes": {
+    "polynomial_ir.py": "cab140011a769df7044aea83c38c37dd3caa9c94a5541047904b3c570385bda8",
+    "field_support.py": "8359ca44d70211cea90e9e251faadd10c4c953ced212cff3014ec3b839c59fc4",
+    "oracle.py": "a1c639a63dcc7175b9567dcc4e52ae71bb66a5c5e88ae18f77682adc335f2d58",
+    "stepping.py": "f4cab981aea1143409f48e9847de54cb5047bd57cd10cfbe139e69d9204d812b",
+    "row_rounds.py": "e1a0459abd6e3daf8b89cb19a8f0cf8ee90c105078c772c231048f0c876b1eb4",
+    "source_port.py": "7d56350bcf89aca4c6a5215a52c6dd93ab809216a493a7c4411f7d78807a914d",
+    "fixtures.py": "bd7d7170c7660c8b8688ddac4f25f85fe29fa953316615ca25fa11b4c6f4b45a",
+    "baseline.py": "de46f6071af385e7c0825d1827b19b8a162db31618dd74f56b6952079976f88f",
+    "experiment.py": "cc303a74e7e2ce9cf8514f26fece7acfd8473e28f6074225d192c31b8d484fb3",
+    "prepared.py": "8a264e5abb8db95064759731cc0c8798de630db939657f097eb38dae3fc79d7c"
+  },
+  "proof_accounting": {
+    "accepted_complete_private8b_proofs": 0,
+    "countable_tokens": 0,
+    "context_length": null,
+    "passes": 0,
+    "device": "CPU only",
+    "steady_state_tokens_per_s": null,
+    "total_workload_tokens_per_s": null,
+    "startup_seconds": null,
+    "startup_fraction": null,
+    "witness_seconds": null,
+    "proof_seconds": null,
+    "serialization_seconds": null,
+    "independent_verification_seconds": null,
+    "proof_latency_seconds": null,
+    "proof_lag_seconds": null,
+    "pipeline_drain_seconds": null,
+    "prefill": "none",
+    "resident_passes": "none",
+    "decode": "none"
+  },
+  "limits": [
+    "source-derived Python only; no Rust/CUDA execution or native speed measurement",
+    "synthetic data, not honest witnesses or proofs",
+    "independent tuple-field expanded original-cube oracle; shared copied scheduling driver",
+    "native folds counted unchanged in projection; symbolic Eq gains excluded",
+    "all API counts are algebra, not time or compiled instructions",
+    "no native mask/RNG/transcript/extension/PCS/refusal/privacy parity"
+  ]
+}

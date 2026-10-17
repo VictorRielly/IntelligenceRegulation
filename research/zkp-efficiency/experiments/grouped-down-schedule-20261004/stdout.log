@@ -1,0 +1,41 @@
+{
+  "run_identity": "20261004T060146Z-96d1ccac",
+  "seed": 2026100424,
+  "status": "pass",
+  "schedules": 576,
+  "independent_raw_dots": 11232,
+  "accepted_plane_words": 1152,
+  "outcomes": {
+    "FFN down": 192,
+    "residual 2": 312,
+    "accepted": 72
+  },
+  "control_count": 16,
+  "synthetic_counters": {
+    "packed_values": 81792,
+    "gemm_problems": 10836,
+    "batch_calls": 8676,
+    "peak_local_bytes": 496512,
+    "reduction_writes": 38484,
+    "completion_checks": 10836,
+    "column_major_words": 88272,
+    "necessary_integer_api_layout_pass": 2304,
+    "necessary_integer_api_layout_fail": 8532
+  },
+  "digest": "081ae55efaae287ea948693eb1c6124926c5f8d2e54d6489ca09eaa8f8b76cf3",
+  "elapsed_s": 0.6423465189998296,
+  "peak_rss_kib": 17156,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "device": "CPU only",
+  "estimated_memory_mib": 64,
+  "RLIMIT_AS_mib": 512,
+  "alarm_s": 59,
+  "script_sha256": "36b023e0ea32e9edb1595f3a5e02f852954c6ed50aadd75042ab57eaced1c0e1",
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "scope": "synthetic scheduling/ownership/arithmetic; no cuBLAS/CUDA/native witness/PCS/RNG/transcript/proof",
+  "actual_gpu_speedup": null,
+  "actual_end_to_end_saved_s": null
+}

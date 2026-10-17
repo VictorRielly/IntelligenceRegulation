@@ -1,0 +1,48 @@
+checkpoint pinned in 3.0s, 201 tensors
+9 sequences of 128
+embed: absmax 0.1494 rms 0.01491 p99.9 0.04517
+L00 x_in absmax    0.110 med|x| 0.0050 p99.9   0.052 rms/token [0.002,0.017] top ch [2014, 223, 1508, 411] [0.1, 0.1, 0.1, 0.1] | gam_a [-0.582,0.77] gam_m [-0.000402,0.738] | xhat_a max 17.3 xhat_m max 26.9 q 13.59 k 13.71 v 0.28 raw_all 156.1 raw_causal 156.1 o 0.28 ao 0.3 gate 2.08 up 1.23 h 0.62 z 0.4 x2 0.6 (319s)
+     xhat*gamma_a max 5.35 xhat max 17.27 gamma_a entries below max/64: 1826
+L01 x_in absmax    0.567 med|x| 0.0065 p99.9   0.191 rms/token [0.010,0.026] top ch [1454, 411, 2014, 223] [0.6, 0.5, 0.5, 0.2] | gam_a [-0.00696,0.551] gam_m [-0.00087,0.35] | xhat_a max 26.3 xhat_m max 25.4 q 7.94 k 10.25 v 0.60 raw_all 188.0 raw_causal 188.0 o 0.29 ao 0.2 gate 2.63 up 1.07 h 1.02 z 0.6 x2 0.9 (320s)
+     xhat*gamma_a max 10.14 xhat max 26.29 gamma_a entries below max/64: 176
+L02 x_in absmax    0.923 med|x| 0.0090 p99.9   0.228 rms/token [0.015,0.038] top ch [411, 1454, 2014, 5] [0.9, 0.7, 0.5, 0.4] | gam_a [-0.000198,0.676] gam_m [-0.000473,0.24] | xhat_a max 27.7 xhat_m max 23.9 q 6.56 k 10.42 v 0.46 raw_all 144.3 raw_causal 144.3 o 0.34 ao 0.5 gate 17.98 up 9.69 h 166.24 z 140.3 x2 140.7 (321s)
+     xhat*gamma_a max 9.14 xhat max 27.68 gamma_a entries below max/64: 2
+L03 x_in absmax  140.672 med|x| 0.0122 p99.9   0.281 rms/token [0.016,3.893] top ch [624, 1661, 758, 834] [140.7, 102.6, 21.6, 10.1] | gam_a [-0.000275,0.645] gam_m [-0.00034,0.22] | xhat_a max 36.1 xhat_m max 36.1 q 7.83 k 15.23 v 1.03 raw_all 136.5 raw_causal 136.5 o 0.46 ao 0.2 gate 2.20 up 1.42 h 1.61 z 0.3 x2 140.7 (322s)
+     xhat*gamma_a max 6.78 xhat max 36.14 gamma_a entries below max/64: 2
+L04 x_in absmax  140.717 med|x| 0.0167 p99.9   0.284 rms/token [0.021,3.894] top ch [624, 1661, 758, 834] [140.7, 102.6, 21.6, 10.1] | gam_a [-5.53e-05,0.746] gam_m [-0.000252,0.22] | xhat_a max 36.1 xhat_m max 36.1 q 8.47 k 16.93 v 1.24 raw_all 132.1 raw_causal 127.3 o 0.85 ao 0.3 gate 6.12 up 2.73 h 1.65 z 0.4 x2 140.8 (323s)
+     xhat*gamma_a max 6.95 xhat max 36.14 gamma_a entries below max/64: 2
+L05 x_in absmax  140.752 med|x| 0.0214 p99.9   0.327 rms/token [0.026,3.894] top ch [624, 1661, 758, 834] [140.8, 102.6, 21.6, 10.1] | gam_a [6.96e-05,0.754] gam_m [-5.53e-05,0.242] | xhat_a max 36.1 xhat_m max 36.1 q 8.46 k 16.73 v 1.74 raw_all 134.6 raw_causal 134.6 o 0.61 ao 0.5 gate 2.71 up 1.96 h 1.38 z 0.5 x2 140.8 (324s)
+     xhat*gamma_a max 6.66 xhat max 36.14 gamma_a entries below max/64: 2
+L06 x_in absmax  140.806 med|x| 0.0268 p99.9   0.364 rms/token [0.033,3.896] top ch [624, 1661, 758, 834] [140.8, 102.7, 21.6, 10.1] | gam_a [-0.000269,0.738] gam_m [-4.17e-05,0.248] | xhat_a max 36.1 xhat_m max 36.2 q 10.40 k 18.20 v 1.10 raw_all 195.3 raw_causal 195.3 o 0.64 ao 0.5 gate 3.53 up 2.14 h 1.74 z 0.6 x2 140.9 (324s)
+     xhat*gamma_a max 6.81 xhat max 36.14 gamma_a entries below max/64: 1
+L07 x_in absmax  140.876 med|x| 0.0317 p99.9   0.413 rms/token [0.040,3.897] top ch [624, 1661, 758, 834] [140.9, 102.7, 21.5, 10.1] | gam_a [-4.41e-05,0.801] gam_m [-0.000116,0.268] | xhat_a max 36.2 xhat_m max 36.2 q 11.13 k 17.73 v 1.98 raw_all 146.9 raw_causal 146.0 o 1.16 ao 0.6 gate 25.26 up 7.20 h 181.86 z 185.9 x2 186.4 (325s)
+     xhat*gamma_a max 8.64 xhat max 36.15 gamma_a entries below max/64: 1
+L08 x_in absmax  186.439 med|x| 0.0382 p99.9   0.737 rms/token [0.050,5.029] top ch [624, 1661, 411, 758] [186.4, 122.3, 23.4, 21.1] | gam_a [5.89e-05,1.27] gam_m [-1.23e-05,0.295] | xhat_a max 37.1 xhat_m max 37.1 q 11.44 k 21.98 v 1.66 raw_all 373.8 raw_causal 373.8 o 1.58 ao 0.6 gate 4.60 up 2.60 h 2.15 z 0.6 x2 186.4 (326s)
+     xhat*gamma_a max 15.24 xhat max 37.09 gamma_a entries below max/64: 1
+L09 x_in absmax  186.374 med|x| 0.0441 p99.9   0.769 rms/token [0.055,5.027] top ch [624, 1661, 411, 758] [186.4, 122.3, 23.4, 21.1] | gam_a [-0.000298,0.836] gam_m [-0.000191,0.316] | xhat_a max 37.1 xhat_m max 37.1 q 8.73 k 19.86 v 1.71 raw_all 139.3 raw_causal 139.3 o 0.99 ao 0.5 gate 3.67 up 2.56 h 3.59 z 0.6 x2 186.3 (327s)
+     xhat*gamma_a max 10.76 xhat max 37.08 gamma_a entries below max/64: 1
+L10 x_in absmax  186.333 med|x| 0.0528 p99.9   0.803 rms/token [0.067,5.026] top ch [624, 1661, 411, 758] [186.3, 122.2, 23.4, 21.0] | gam_a [0.000111,0.883] gam_m [-6.25e-05,0.322] | xhat_a max 37.1 xhat_m max 37.1 q 9.86 k 18.94 v 1.52 raw_all 136.1 raw_causal 136.1 o 1.21 ao 0.6 gate 3.80 up 2.78 h 1.92 z 0.8 x2 186.3 (328s)
+     xhat*gamma_a max 9.39 xhat max 37.09 gamma_a entries below max/64: 1
+L11 x_in absmax  186.286 med|x| 0.0605 p99.9   0.840 rms/token [0.075,5.023] top ch [624, 1661, 411, 758] [186.3, 122.2, 23.1, 21.0] | gam_a [0.0962,0.988] gam_m [-0.000359,0.361] | xhat_a max 37.1 xhat_m max 37.1 q 10.44 k 20.80 v 2.28 raw_all 200.4 raw_causal 189.8 o 1.32 ao 0.6 gate 3.85 up 3.66 h 2.73 z 0.7 x2 186.2 (329s)
+     xhat*gamma_a max 11.80 xhat max 37.09 gamma_a entries below max/64: 0
+L12 x_in absmax  186.200 med|x| 0.0665 p99.9   0.889 rms/token [0.082,5.020] top ch [624, 1661, 411, 758] [186.2, 122.1, 22.8, 20.9] | gam_a [0.0786,0.895] gam_m [-0.000144,0.443] | xhat_a max 37.1 xhat_m max 37.1 q 10.53 k 20.92 v 2.82 raw_all 139.2 raw_causal 139.2 o 0.92 ao 0.6 gate 5.52 up 2.86 h 4.33 z 1.3 x2 186.1 (329s)
+     xhat*gamma_a max 9.79 xhat max 37.10 gamma_a entries below max/64: 0
+L13 x_in absmax  186.126 med|x| 0.0752 p99.9   0.952 rms/token [0.094,5.017] top ch [624, 1661, 411, 758] [186.1, 122.1, 22.3, 20.9] | gam_a [0.0938,0.984] gam_m [0.0598,0.438] | xhat_a max 37.1 xhat_m max 37.1 q 11.28 k 21.29 v 1.62 raw_all 185.2 raw_causal 185.2 o 1.37 ao 0.8 gate 5.30 up 3.75 h 3.07 z 0.9 x2 186.0 (330s)
+     xhat*gamma_a max 10.46 xhat max 37.11 gamma_a entries below max/64: 0
+L14 x_in absmax  186.010 med|x| 0.0870 p99.9   1.044 rms/token [0.110,5.013] top ch [624, 1661, 411, 758] [186.0, 122.0, 22.1, 20.8] | gam_a [0.084,0.906] gam_m [0.0645,0.408] | xhat_a max 37.1 xhat_m max 37.1 q 12.56 k 21.95 v 1.77 raw_all 210.0 raw_causal 210.0 o 1.40 ao 1.1 gate 4.03 up 3.53 h 4.36 z 1.4 x2 185.9 (331s)
+     xhat*gamma_a max 10.24 xhat max 37.11 gamma_a entries below max/64: 0
+L15 x_in absmax  185.874 med|x| 0.0966 p99.9   1.243 rms/token [0.122,5.009] top ch [624, 1661, 411, 758] [185.9, 121.9, 21.7, 20.7] | gam_a [0.0515,0.891] gam_m [0.0669,0.449] | xhat_a max 37.1 xhat_m max 37.1 q 10.87 k 21.20 v 1.86 raw_all 275.1 raw_causal 247.0 o 1.37 ao 1.3 gate 5.12 up 4.43 h 6.28 z 1.7 x2 185.7 (332s)
+     xhat*gamma_a max 10.56 xhat max 37.12 gamma_a entries below max/64: 0
+L16 x_in absmax  185.702 med|x| 0.1105 p99.9   1.429 rms/token [0.132,5.004] top ch [624, 1661, 411, 758] [185.7, 121.8, 21.4, 20.7] | gam_a [0.0598,0.969] gam_m [0.082,0.512] | xhat_a max 37.1 xhat_m max 37.1 q 11.01 k 20.20 v 2.15 raw_all 195.8 raw_causal 195.8 o 1.73 ao 1.1 gate 6.53 up 3.48 h 9.13 z 2.5 x2 185.5 (333s)
+     xhat*gamma_a max 12.07 xhat max 37.12 gamma_a entries below max/64: 0
+L17 x_in absmax  185.498 med|x| 0.1388 p99.9   1.740 rms/token [0.159,4.998] top ch [624, 1661, 411, 758] [185.5, 121.7, 21.2, 20.6] | gam_a [0.0781,1.11] gam_m [0.0854,0.479] | xhat_a max 37.1 xhat_m max 37.1 q 11.92 k 22.48 v 2.89 raw_all 156.1 raw_causal 156.1 o 1.75 ao 1.3 gate 6.21 up 3.78 h 7.10 z 2.2 x2 185.2 (334s)
+     xhat*gamma_a max 11.27 xhat max 37.13 gamma_a entries below max/64: 0
+L18 x_in absmax  185.167 med|x| 0.1640 p99.9   2.073 rms/token [0.183,4.990] top ch [624, 1661, 411, 758] [185.2, 121.5, 21.0, 20.5] | gam_a [0.0879,1.12] gam_m [0.0854,0.523] | xhat_a max 37.1 xhat_m max 37.1 q 12.59 k 20.33 v 3.69 raw_all 159.6 raw_causal 159.6 o 2.35 ao 2.0 gate 7.10 up 5.69 h 11.04 z 3.2 x2 184.7 (335s)
+     xhat*gamma_a max 11.60 xhat max 37.13 gamma_a entries below max/64: 0
+L19 x_in absmax  184.687 med|x| 0.2056 p99.9   2.522 rms/token [0.211,4.977] top ch [624, 1661, 411, 758] [184.7, 121.1, 20.9, 20.5] | gam_a [0.115,1.22] gam_m [0.0864,0.559] | xhat_a max 37.1 xhat_m max 37.1 q 13.21 k 22.22 v 4.28 raw_all 150.3 raw_causal 150.3 o 2.08 ao 2.7 gate 8.06 up 4.69 h 10.45 z 3.9 x2 183.4 (335s)
+     xhat*gamma_a max 11.08 xhat max 37.12 gamma_a entries below max/64: 0
+L20 x_in absmax  183.398 med|x| 0.2471 p99.9   3.041 rms/token [0.263,4.944] top ch [624, 1661, 411, 758] [183.4, 120.2, 20.5, 20.4] | gam_a [0.137,1.23] gam_m [0.121,0.605] | xhat_a max 37.1 xhat_m max 37.1 q 13.86 k 20.39 v 3.64 raw_all 199.1 raw_causal 199.1 o 2.70 ao 2.5 gate 10.46 up 5.43 h 18.02 z 6.9 x2 181.7 (336s)
+     xhat*gamma_a max 9.73 xhat max 37.10 gamma_a entries below max/64: 0
+L21 x_in absmax  181.668 med|x| 0.2988 p99.9   3.676 rms/token [0.315,4.899] top ch [624, 1661, 758, 411] [181.7, 118.8, 20.2, 19.2] | gam_a [0.114,1.23] gam_m [0.118,0.73] | xhat_a max 37.1 xhat_m max 37.1 q 12.43 k 21.92 v 3.69 raw_all 135.7 raw_causal 135.7 o 3.42 ao 8.9 gate 29.73 up 20.37 h 154.81 z 175.2 x2 42.8 (337s)
+     xhat*gamma_a max 8.44 xhat max 37.10 gamma_a entries below max/64: 0
+final x absmax 42.84

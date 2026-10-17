@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "at_utc": "2026-10-03T22:21:36.660840+00:00",
+  "checks": [
+    "script and ten source/report/config pins plus snapshots match",
+    "all report/experiment/handoff local links resolve",
+    "five qualified source records match retained source ledger"
+  ],
+  "artifact_hashes": {
+    "experiments/witness-suffix-replay-20261003/experiment.py": "79596b913d7138b8204810af64a9e9252e9bd150c86aa94659b162233154bc24",
+    "experiments/witness-suffix-replay-20261003/result.json": "e02a76fae8f841c82750f7f3b110e3e4dc0934ddf16a9a6385585a0c8709bfc5",
+    "experiments/witness-suffix-replay-20261003/stdout.log": "ded5d6ee34c65017f58ba8f933df8f0e10fb28e2c8828632f8a30fd81d061c6b",
+    "experiments/witness-suffix-replay-20261003/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/witness-suffix-replay-20261003/source-records.json": "18829bedeb80bf5bc029e385ddfa3b9c016938a2ae5ab32efd1ca7993b18662e"
+  }
+}

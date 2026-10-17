@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/tiled-down-requant-20261004/experiment.py", line 366, in <module>
+    main()
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/tiled-down-requant-20261004/experiment.py", line 313, in main
+    negative('i32 reconstruction changes range refusal',candidate(*args),candidate(*args,mutant='i32_reconstruct'))
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/tiled-down-requant-20261004/experiment.py", line 292, in negative
+    assert exact != wrong, name
+AssertionError: i32 reconstruction changes range refusal

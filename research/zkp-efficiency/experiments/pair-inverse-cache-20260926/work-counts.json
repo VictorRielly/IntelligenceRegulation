@@ -1,0 +1,91 @@
+{
+  "label": "COUNTED from source; not hardware traffic or runtime",
+  "synthetic_executed": {
+    "name": "counted_16384_valid",
+    "table_len": 256,
+    "words": 16384,
+    "outcome": "ok",
+    "reference": {
+      "batch_elements": 16384,
+      "batch_multiplications": 49152,
+      "field_inversions": 1,
+      "denominators": 16384,
+      "hits": 0,
+      "fallback": 0
+    },
+    "candidate": {
+      "batch_elements": 256,
+      "batch_multiplications": 768,
+      "field_inversions": 1,
+      "denominators": 256,
+      "hits": 16384,
+      "fallback": 0
+    },
+    "digest": "e4ec2474cc8caa5d93fbfaa246ec0da2d631051d29ee05887e7301785158aba4"
+  },
+  "production_shape_arithmetic_only": {
+    "helper_words": 5242880,
+    "public_rows_per_table": 256,
+    "reference_batch_multiplications": 15728640,
+    "candidate_cache_batch_multiplications": 1536,
+    "original_helper_field_inversions": 2,
+    "candidate_all_valid_helper_field_inversions": 2,
+    "original_exp_prefix_bytes": 67108864,
+    "helper_output_payload_bytes_unchanged": 83886080,
+    "unchanged_public_table_batch_multiplications": 147456
+  },
+  "traffic_model_per_valid_helper_N_M": {
+    "removed_prefix_array": "16*N bytes capacity; writes then reads, 32*N logical bytes",
+    "new_cache_build": "O(M) nonzero batch and Option storage, exact Rust representation unmeasured",
+    "unchanged": "Read both i64 inputs, construct N Fp2 output words, write_h and H commitment",
+    "added": "N table-value comparisons and N cache reads; CPU cache/memory traffic not measured"
+  },
+  "negative_counted_examples": [
+    {
+      "name": "m256-n31-valid",
+      "table_len": 256,
+      "words": 31,
+      "outcome": "ok",
+      "reference": {
+        "batch_elements": 31,
+        "batch_multiplications": 93,
+        "field_inversions": 1,
+        "denominators": 31,
+        "hits": 0,
+        "fallback": 0
+      },
+      "candidate": {
+        "batch_elements": 256,
+        "batch_multiplications": 768,
+        "field_inversions": 1,
+        "denominators": 256,
+        "hits": 31,
+        "fallback": 0
+      },
+      "digest": "8d12672ad4f744322d7a99778a175ce1a29c1165b93ea23e1ba4ee4f278fda1f"
+    },
+    {
+      "name": "m256-n257-all_invalid",
+      "table_len": 256,
+      "words": 257,
+      "outcome": "ok",
+      "reference": {
+        "batch_elements": 257,
+        "batch_multiplications": 771,
+        "field_inversions": 1,
+        "denominators": 257,
+        "hits": 0,
+        "fallback": 0
+      },
+      "candidate": {
+        "batch_elements": 256,
+        "batch_multiplications": 768,
+        "field_inversions": 258,
+        "denominators": 513,
+        "hits": 0,
+        "fallback": 257
+      },
+      "digest": "92120305dbc73cf275de31bdd0e380a8404ae30fab4d844cd55c4897842abd46"
+    }
+  ]
+}

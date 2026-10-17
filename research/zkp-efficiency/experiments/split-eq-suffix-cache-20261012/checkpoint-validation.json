@@ -1,0 +1,15 @@
+{
+  "FINDINGS.md_prior_prefix_preserved": true,
+  "sources.jsonl_prior_prefix_preserved": true,
+  "sources_jsonl_records": 225,
+  "appended_source_ids_unique": true,
+  "experiment_source_hashes_match": true,
+  "input_snapshots_match": true,
+  "production_inputs_still_match": true,
+  "execution_exit_zero": true,
+  "bounds_observed": true,
+  "proof_tokens_zero": true,
+  "dated_report_matches": true,
+  "rust_sketch_uncompiled": true,
+  "finished_utc": "2026-10-12T22:39:09.061813+00:00"
+}

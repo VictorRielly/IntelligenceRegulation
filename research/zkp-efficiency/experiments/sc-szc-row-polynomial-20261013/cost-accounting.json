@@ -1,0 +1,100 @@
+{
+  "illustrative": {
+    "n": 23,
+    "ls": 3,
+    "padded": true,
+    "recovery": true,
+    "debug": false,
+    "policy": "padded_zero",
+    "tables": 30,
+    "rows": 8388607,
+    "coefficient_lengths": [
+      5,
+      0,
+      0
+    ],
+    "logical_retained_output_bytes": 80,
+    "coefficient_setup_per_row": {
+      "mul_base": 21,
+      "add": 174,
+      "mul": 200,
+      "sub": 86
+    },
+    "before_brackets": [
+      {
+        "mul_base": 10,
+        "add": 51,
+        "mul": 54,
+        "sub": 32
+      },
+      {
+        "mul": 2,
+        "add": 1
+      },
+      {
+        "mul_base": 1,
+        "add": 1,
+        "sub": 1,
+        "mul": 2
+      }
+    ],
+    "loop_before": {
+      "mul_base": 398458838,
+      "add": 3305111186,
+      "mul": 2478833399,
+      "sub": 1732247377
+    },
+    "loop_after": {
+      "mul_base": 314572765,
+      "add": 2956983972,
+      "mul": 2118123271,
+      "sub": 1245708155
+    },
+    "base_mul_before": 13191084671,
+    "base_mul_after": 11219761885,
+    "base_mul_fraction_removed": 0.14944357004499134,
+    "api_before": 7914650800,
+    "api_after": 6635388163,
+    "api_fraction_removed": 0.16163222728664162,
+    "calls": 79691768,
+    "dispatch_before": 566230980,
+    "dispatch_after": 251658210,
+    "excluded": [
+      "Eq construction",
+      "group factor setup",
+      "inverse/recovery/interpolation/reduction",
+      "native allocation/temporaries/register pressure",
+      "mask extensions",
+      "witness",
+      "PCS",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  "measurement_scope": "Literal source-derived operation census, not native timing",
+  "historical_scope": "Synthetic 125M geometry, one block, T512, one pass, RTX4070Laptop, two CPU threads, shared host",
+  "historical_whole_wall_seconds": 27.523873283003923,
+  "historical_prove_seconds": 16.864,
+  "historical_sc_szc_seconds": 7.794,
+  "entire_sc_szc_removal_whole_wall_fraction": 0.283172354408884,
+  "accepted_8b_ceiling": null,
+  "formula": "N/(T - C_repeated_bracket + C_coefficients + C_horner + C_scratch + C_dispatch)",
+  "proof_accounting": {
+    "accepted_complete_private_8b_proofs": 0,
+    "proved_tokens": 0,
+    "passes": 0,
+    "context_length": null,
+    "steady_tokens_per_second": null,
+    "total_workload_tokens_per_second": null,
+    "startup_seconds": null,
+    "startup_fraction": null,
+    "witness_seconds": null,
+    "proof_seconds": null,
+    "serialization_seconds": null,
+    "independent_verification_seconds": null,
+    "prefill": null,
+    "resident_passes": null,
+    "decode": null
+  }
+}

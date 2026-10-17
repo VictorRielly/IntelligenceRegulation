@@ -1,0 +1,15 @@
+
+running 1 test
+test private_block::run_tests::private_run_125m_twelve_blocks ... 
+thread 'private_block::run_tests::private_run_125m_twelve_blocks' (16520) panicked at src/private_block/run_tests.rs:1338:51:
+HL_PB_RUN_DIR = /home/victor/IntelligenceRegulation/results/zk60_mvp_20260929/baseline-stack-gpu/receipt does not exist (the orchestrator creates it): No such file or directory (os error 2)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    private_block::run_tests::private_run_125m_twelve_blocks
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 528 filtered out; finished in 0.00s
+

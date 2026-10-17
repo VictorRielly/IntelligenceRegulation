@@ -1,0 +1,9 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "experiments/sc-szc-clause-census-20261004/experiment.py"
+  ],
+  "exit_code": 0,
+  "enclosing_seconds": 6.7956092880012875
+}

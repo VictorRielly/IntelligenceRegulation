@@ -1,0 +1,171 @@
+   Compiling hashline v0.1.0 (/tmp/zk60-sol-model-20260927/hashline)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:687:13
+    |
+687 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:865:4
+    |
+865 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:460:5
+    |
+453 | struct Rec {
+    |        --- field in this struct
+...
+460 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:562:15
+    |
+562 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 15 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.09s
+     Running unittests src/lib.rs (/tmp/zk60-sol-model-20260927/hashline/target/debug/deps/hashline-2997f0977f7714b9)
+
+running 1 test
+PROBE toy T=32 d=16 f=16 Hheads=2 KV=1 dh=8 cols=256 rate=8 A=455 Adata=213 Hrows=384 Hdata=280 M=50 Asites=120 Hsites=51 receipt=2816472 largest_slot=50 a_planes=81 h_planes=51 endpoint_rows=7 u8_lookups=61440
+DOMAIN toy T natural=5 lifted=5 size=32 rows_per_plane=1 Aplanes=4 Hplanes=0
+DOMAIN toy Ht natural=6 lifted=6 size=64 rows_per_plane=1 Aplanes=2 Hplanes=0
+DOMAIN toy L natural=9 lifted=9 size=512 rows_per_plane=2 Aplanes=2 Hplanes=1
+DOMAIN toy D natural=9 lifted=9 size=512 rows_per_plane=2 Aplanes=35 Hplanes=19
+DOMAIN toy Q natural=9 lifted=9 size=512 rows_per_plane=2 Aplanes=7 Hplanes=7
+DOMAIN toy Kv natural=8 lifted=8 size=256 rows_per_plane=1 Aplanes=6 Hplanes=6
+DOMAIN toy S natural=11 lifted=11 size=2048 rows_per_plane=8 Aplanes=11 Hplanes=8
+DOMAIN toy F natural=9 lifted=9 size=512 rows_per_plane=2 Aplanes=11 Hplanes=6
+DOMAIN toy Tab natural=8 lifted=8 size=256 rows_per_plane=1 Aplanes=3 Hplanes=4
+SEAMS m125 endpoint=Ok(37) boundary=Ok(38)
+PROBE m125 T=512 d=768 f=2048 Hheads=12 KV=4 dh=64 cols=16384 rate=4 A=5681 Adata=5435 Hrows=7120 Hdata=7018 M=50 Asites=122 Hsites=50 receipt=40783352 largest_slot=117 a_planes=83 h_planes=50 endpoint_rows=37 u8_lookups=98598912
+DOMAIN m125 T natural=9 lifted=9 size=512 rows_per_plane=1 Aplanes=4 Hplanes=0
+DOMAIN m125 Ht natural=13 lifted=13 size=8192 rows_per_plane=1 Aplanes=2 Hplanes=0
+DOMAIN m125 L natural=13 lifted=14 size=16384 rows_per_plane=1 Aplanes=2 Hplanes=1
+DOMAIN m125 D natural=19 lifted=19 size=524288 rows_per_plane=32 Aplanes=35 Hplanes=17
+DOMAIN m125 Q natural=19 lifted=19 size=524288 rows_per_plane=32 Aplanes=7 Hplanes=7
+DOMAIN m125 Kv natural=17 lifted=17 size=131072 rows_per_plane=8 Aplanes=6 Hplanes=6
+DOMAIN m125 S natural=22 lifted=22 size=4194304 rows_per_plane=256 Aplanes=13 Hplanes=9
+DOMAIN m125 F natural=20 lifted=20 size=1048576 rows_per_plane=64 Aplanes=11 Hplanes=6
+DOMAIN m125 Tab natural=8 lifted=14 size=16384 rows_per_plane=1 Aplanes=3 Hplanes=4
+SEAMS mistral_t512_probe endpoint=Ok(133) boundary=Ok(134)
+PROBE mistral_t512_probe T=512 d=4096 f=14336 Hheads=32 KV=8 dh=128 cols=16384 rate=4 A=18633 Adata=18379 Hrows=23032 Hdata=22922 M=50 Asites=126 Hsites=54 receipt=100290760 largest_slot=122 a_planes=87 h_planes=54 endpoint_rows=133 u8_lookups=322994176
+DOMAIN mistral_t512_probe T natural=9 lifted=9 size=512 rows_per_plane=1 Aplanes=4 Hplanes=0
+DOMAIN mistral_t512_probe Ht natural=14 lifted=14 size=16384 rows_per_plane=1 Aplanes=2 Hplanes=0
+DOMAIN mistral_t512_probe L natural=13 lifted=14 size=16384 rows_per_plane=1 Aplanes=2 Hplanes=1
+DOMAIN mistral_t512_probe D natural=21 lifted=21 size=2097152 rows_per_plane=128 Aplanes=39 Hplanes=21
+DOMAIN mistral_t512_probe Q natural=21 lifted=21 size=2097152 rows_per_plane=128 Aplanes=7 Hplanes=7
+DOMAIN mistral_t512_probe Kv natural=19 lifted=19 size=524288 rows_per_plane=32 Aplanes=6 Hplanes=6
+DOMAIN mistral_t512_probe S natural=23 lifted=23 size=8388608 rows_per_plane=512 Aplanes=13 Hplanes=9
+DOMAIN mistral_t512_probe F natural=23 lifted=23 size=8388608 rows_per_plane=512 Aplanes=11 Hplanes=6
+DOMAIN mistral_t512_probe Tab natural=8 lifted=14 size=16384 rows_per_plane=1 Aplanes=3 Hplanes=4
+SEAMS mistral_t1024_probe endpoint=Ok(261) boundary=Ok(262)
+PROBE mistral_t1024_probe T=1024 d=4096 f=14336 Hheads=32 KV=8 dh=128 cols=16384 rate=4 A=50315 Adata=50061 Hrows=64376 Hdata=64266 M=50 Asites=126 Hsites=54 receipt=250373272 largest_slot=127 a_planes=87 h_planes=54 endpoint_rows=261 u8_lookups=897613824
+DOMAIN mistral_t1024_probe T natural=10 lifted=10 size=1024 rows_per_plane=1 Aplanes=4 Hplanes=0
+DOMAIN mistral_t1024_probe Ht natural=15 lifted=15 size=32768 rows_per_plane=2 Aplanes=2 Hplanes=0
+DOMAIN mistral_t1024_probe L natural=14 lifted=14 size=16384 rows_per_plane=1 Aplanes=2 Hplanes=1
+DOMAIN mistral_t1024_probe D natural=22 lifted=22 size=4194304 rows_per_plane=256 Aplanes=39 Hplanes=21
+DOMAIN mistral_t1024_probe Q natural=22 lifted=22 size=4194304 rows_per_plane=256 Aplanes=7 Hplanes=7
+DOMAIN mistral_t1024_probe Kv natural=20 lifted=20 size=1048576 rows_per_plane=64 Aplanes=6 Hplanes=6
+DOMAIN mistral_t1024_probe S natural=25 lifted=25 size=33554432 rows_per_plane=2048 Aplanes=13 Hplanes=9
+DOMAIN mistral_t1024_probe F natural=24 lifted=24 size=16777216 rows_per_plane=1024 Aplanes=11 Hplanes=6
+DOMAIN mistral_t1024_probe Tab natural=8 lifted=14 size=16384 rows_per_plane=1 Aplanes=3 Hplanes=4
+test private_block::shape::sol_layout_probe::count_without_proof_allocation ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 509 filtered out; finished in 0.00s
+

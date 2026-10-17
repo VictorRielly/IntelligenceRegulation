@@ -1,0 +1,9 @@
+{
+  "hashline/src/gpu/cuda.rs": "8fe2a2a39e0796254be37d0d7507d7fc22ea3af141d97d35cd93754d505072c9",
+  "hashline/src/gpu/kernels.cu": "b59bc396fa955bbdbc8bf8bb7b047c37c7f8df1fed0992d7b15ef983e2fc3969",
+  "hashline/src/gpu/mod.rs": "21ca440f0ada2f8bc911266d996eb0a699aa0eaa69592365f69d9b1005e358c3",
+  "hashline/src/pcs.rs": "c83a7f9d4913bc71a078c54550dea0eb0ebc65444b967bb466cf8e1a3b1a44cc",
+  "hashline/tests/zk60_tagged_gpu_commit.rs": "04f55dc81bc2c416e24090891bb82a15cac9ae053dec8dc0d2cada85953fca80",
+  "zkp-core/src/pcs.rs": "5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495",
+  "zkp-core/src/pcs/backend.rs": "ff2cb5c1806b34653f8a44ad82f54201fb5d9f6ba2602afe5efeae4d104e0103"
+}

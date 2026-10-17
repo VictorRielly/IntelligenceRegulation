@@ -1,0 +1,25 @@
+{
+  "accessed": "2026-09-26",
+  "run_identity": "20260926T205233Z-79c00f5e",
+  "method": "native LIVE web__run search and open only; no shell-network fallback",
+  "queries": [
+    "sumcheck fused bind measure Plonky3 2036 2038",
+    "sumcheck memory bandwidth fusion folding 2026 GPU paper",
+    "sumcheck linear time constant memory Thaler 2013 time optimal interactive proofs circuit evaluation",
+    "site.github.com/Plonky3/Plonky3 bind and measure Aug",
+    "site:github.com/Plonky3/Plonky3 bind_and_measure"
+  ],
+  "query_note": "Last two searches returned unrelated results; none used as evidence. Successful primary results and their exact URLs are in source-records.json.",
+  "blocked_fetches": [
+    {"url": "https://github.com/Plonky3/Plonky3/pull/2036", "error": "Cache miss"},
+    {"url": "https://github.com/Plonky3/Plonky3/pull/2038", "error": "Cache miss"},
+    {"url": "https://github.com/Plonky3/Plonky3/pull/2055", "error": "Cache miss"},
+    {"url": "https://github.com/Plonky3/Plonky3/pull/2195", "error": "Internal Error"},
+    {"url": "https://github.com/Plonky3/Plonky3/pull/2213", "error": "Internal Error"},
+    {"url": "https://github.com/Plonky3/Plonky3/releases/tag/p3-sumcheck-v0.8.0", "error": "Internal Error"},
+    {"url": "https://docs.rs/p3-sumcheck/latest/src/p3_sumcheck/prover.rs.html", "error": "Internal Error"},
+    {"url": "https://docs.rs/crate/p3-sumcheck/latest", "error": "Internal Error"},
+    {"url": "https://github.com/Plonky3/Plonky3/commit/a21e3ed42905040ad49c519e402f018381c12d0c", "error": "Internal Error", "note": "Clicked release hyperlink; full target also retained in cycle 0004. No commit contents inspected."}
+  ],
+  "code_execution": "No downloaded code or scripts executed. Independent local Python experiment completed."
+}

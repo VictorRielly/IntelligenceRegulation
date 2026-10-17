@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/heterogeneous-public-driver-20261012/experiment.py"
+  ],
+  "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency",
+  "start_utc": "2026-10-12T20:35:06.730491+00:00",
+  "timeout_seconds": 60,
+  "threads": 1,
+  "seed": 2026101239
+}

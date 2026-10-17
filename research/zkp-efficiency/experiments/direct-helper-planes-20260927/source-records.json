@@ -1,0 +1,62 @@
+[
+  {
+    "id": "cycle11-logup-original",
+    "url": "https://eprint.iacr.org/2022/1530",
+    "published": "2022-11-04",
+    "updated": "2025-02-20",
+    "date_evidence": "ePrint metadata: received 2022-11-04, last of three revisions 2025-02-20.",
+    "implementation_license": null,
+    "paper_license": "CC BY, as listed by ePrint",
+    "inspected_commit_id": null,
+    "assessment": "Primary abstract describes logarithmic-derivative multi-column lookup and multiplicity argument. Its 1.5–4x comparison is a paper-pencil author estimate for a different protocol, not a reproduced result or this direct writer's gain. The current experiment keeps the native LogUp relation unchanged.",
+    "accessed_date": "2026-09-27",
+    "run_identity": "20260927T025233Z-f22c1025",
+    "cycle": "0011",
+    "evidence_kind": "native LIVE primary metadata/abstract; no paper speed reproduced"
+  },
+  {
+    "id": "cycle11-jolt-atlas-paper",
+    "url": "https://arxiv.org/abs/2602.17452",
+    "published": "2026-02-19",
+    "updated": null,
+    "date_evidence": "arXiv submission history shows v1 2026-02-19 15:17:18 UTC and no later revision.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "assessment": "Author abstract proposes lookup-centric ONNX proofs with streaming and zero knowledge via BlindFold. These are author claims; no full private 8B attention-plus-FFN benchmark or compatible construction was verified here. Streaming motivates memory accounting, not a transplant into frozen LogUp.",
+    "accessed_date": "2026-09-27",
+    "run_identity": "20260927T025233Z-f22c1025",
+    "cycle": "0011",
+    "evidence_kind": "native LIVE primary paper abstract; no implementation executed"
+  },
+  {
+    "id": "cycle11-jolt-atlas-repository-license",
+    "url": "https://github.com/ICME-Lab/jolt-atlas",
+    "inspected_urls": ["https://github.com/ICME-Lab/jolt-atlas/blob/main/LICENSE"],
+    "published": null,
+    "updated": null,
+    "date_evidence": "No repository commit/history date verified; README benchmark date not exposed.",
+    "implementation_license": "ICME custom restricted evaluation/platform-use license; not an open-source reuse grant, per inspected LICENSE section 2",
+    "inspected_commit_id": null,
+    "assessment": "README claims GPT-2 125M prove 14.889 s, setup+prove+verify 16.930 s on M3 16GB; neither benchmark nor code was reproduced or inspected. Its workload/security/profile differs from the private 8B target. The inspected license rules out assuming code can be reused; our experiment contains no code from this repository.",
+    "accessed_date": "2026-09-27",
+    "run_identity": "20260927T025233Z-f22c1025",
+    "cycle": "0011",
+    "evidence_kind": "native LIVE primary README and LICENSE text; no code executed"
+  },
+  {
+    "id": "cycle11-plonky3-v080-release",
+    "url": "https://github.com/Plonky3/Plonky3/releases/tag/v0.8.0",
+    "published": null,
+    "updated": null,
+    "date_evidence": "GitHub release page says 23 Sep 20:02 without year; exact year not verified. Advertises tag commit a21e3ed, but commit fetch failed.",
+    "implementation_license": null,
+    "license_note": "LICENSE fetch failed; no code inspected or license inferred.",
+    "inspected_commit_id": null,
+    "assessment": "Release notes advertise in-place fold_matrix, fused hiding LDE, bind-and-measure sumcheck and lookup refactor. These are upstream release claims for different seams, not measured complete private block gains. The source was not inspected or run; prior cycle's source assessment remains separate.",
+    "access_issues": ["https://github.com/Plonky3/Plonky3/commit/a21e3ed42905040ad49c519e402f018381c12d0c: Cache miss", "https://github.com/Plonky3/Plonky3/blob/main/LICENSE: Internal Error"],
+    "accessed_date": "2026-09-27",
+    "run_identity": "20260927T025233Z-f22c1025",
+    "cycle": "0011",
+    "evidence_kind": "native LIVE primary release page; no implementation inspected or performance reproduced"
+  }
+]

@@ -1,0 +1,109 @@
+[
+  {
+    "id": "cycle50-new-older-hyperplonk-affine-karatsuba",
+    "title": "HyperPlonk high-degree sumcheck coefficient multiplication and Karatsuba",
+    "url": "https://eprint.iacr.org/2022/1355",
+    "inspected_urls": [
+      "https://chancharles92.github.io/slides/hyperplonk.pdf",
+      "https://eprint.iacr.org/2022/1355.pdf"
+    ],
+    "published": "2022-10-10",
+    "updated": "2023-12-21",
+    "date_evidence": "Primary ePrint history: received October10,2022; last of2 revisions December21,2023. Slide deck publication/update date not exposed; do not assign paper dates to slides.",
+    "paper_license": "ePrint metadata declares CC BY; slide license not verified",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "assessment": "NEW older technique absent from253-record startup inventory. Author slide24 specifically proposes Karatsuba for coefficient multiplication. Local experiment tests only fixed affine products inside the existing mixed SC_SZC relation, retains original wire samples, and makes no high-degree protocol/PCS migration. Author performance and security claims not reproduced.",
+    "access_issues": [
+      "ePrint PDF open returned Internal Error; primary slide PDF and metadata available"
+    ],
+    "access_date": "2026-10-14",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-14T20:43:41.891147+00:00",
+    "cycle": "0050",
+    "run_id": "20261014T203626Z-4afb917a",
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE primary search/inspection; source instructions ignored; no foreign code executed"
+  },
+  {
+    "id": "cycle50-plonky3-october-release-and-equality-traffic",
+    "title": "Plonky3 October11 release, packed equality traffic and fresh mask sampler boundary",
+    "url": "https://github.com/Plonky3/Plonky3/releases/tag/p3-sumcheck-v0.9.0-rc.1",
+    "inspected_urls": [
+      "https://github.com/Plonky3/Plonky3/releases",
+      "https://github.com/Plonky3/Plonky3/commit/5b23a4fbf7768136797f52263e4ae0bef3841dfe",
+      "https://github.com/Plonky3/Plonky3/pull/2305",
+      "https://github.com/Plonky3/Plonky3/pull/2260",
+      "https://github.com/Plonky3/Plonky3/blob/main/LICENSE-MIT"
+    ],
+    "published": "2026-10-11",
+    "updated": null,
+    "date_evidence": "Primary release displays Oct11 04:11; preceding package metadata confirms2026. PR2305 merged Sep23,2026; PR2260 merged Sep20,2026. Commit page inspects Cargo version changes, not date or implementation.",
+    "implementation_license": "Inspected release commit Cargo.toml declares MIT OR Apache-2.0; main LICENSE-MIT viewed. Exact pinned license fetch failed. No foreign implementation copied.",
+    "inspected_commit_id": "5b23a4fbf7768136797f52263e4ae0bef3841dfe",
+    "commit_inspection_scope": "Release workspace version/manifest diff only; no claim of inspecting all implementation at this commit",
+    "exposed_uninspected_commits": [
+      "cdb48a0",
+      "05b1c11"
+    ],
+    "assessment": "Material refinement over cycle48 metadata: exact release and Cargo diff now inspectable. PR2305 claims single-allocation contiguous equality halves and one product per entry; reports that parallel packed base-field expansion lost2-5x on its tested shapes. This motivates public schedule/scratch accounting, not copied timings. PR2260 documents CryptoRng bounds for hiding mask draws. Local deterministic synthetic algebra is not a mask generator or privacy result; native fresh mask/RNG gates remain mandatory. No author runtime, test or security claim reproduced.",
+    "access_issues": [
+      "Exact release-commit LICENSE-MIT open Internal Error",
+      "PR2305 merge commit cdb48a0 click Internal Error",
+      "PR2260 merge commit05b1c11 click Internal Error"
+    ],
+    "access_date": "2026-10-14",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-14T20:43:41.891147+00:00",
+    "cycle": "0050",
+    "run_id": "20261014T203626Z-4afb917a",
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE primary search/inspection; source instructions ignored; no foreign code executed"
+  },
+  {
+    "id": "cycle50-hardware-locality-cost-model-refresh",
+    "title": "Matched NTT/SumCheck locality, pipeline and arithmetic comparison boundary",
+    "url": "https://arxiv.org/abs/2606.16146",
+    "inspected_urls": [
+      "https://arxiv.org/html/2606.16146v1"
+    ],
+    "published": "2026-06-15",
+    "updated": null,
+    "date_evidence": "Primary submission history v1 June15,2026 03:03:54 UTC; no later revision shown.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "assessment": "Refined full-text sections4/5: comparison uses a simulator and synthesized255-bit Montgomery engines with scaled SRAM/area, not a measured Goldilocks5090 kernel. Concurrent tables and streaming alter locality; fewer coefficient products do not establish critical-path savings. Require row construction, folds, equality generation, scratch/peak and enclosing clocks. No author timing reproduced. This reinforces preserving the earlier slower native fusion negative.",
+    "access_date": "2026-10-14",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-14T20:43:41.891147+00:00",
+    "cycle": "0050",
+    "run_id": "20261014T203626Z-4afb917a",
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE primary search/inspection; source instructions ignored; no foreign code executed"
+  },
+  {
+    "id": "cycle50-icicle-release-refresh-no-ntt-migration",
+    "title": "ICICLE current displayed v4 release and interface migration scope",
+    "url": "https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0",
+    "inspected_urls": [
+      "https://github.com/ingonyama-zk/icicle/releases",
+      "https://github.com/ingonyama-zk/icicle/blob/main/LICENSE"
+    ],
+    "published": null,
+    "updated": null,
+    "date_evidence": "Primary displays July11 05:36 and Latest for v4.0.0; year not verified in this cycle. Do not infer a2026 release or current HEAD from crawl time.",
+    "implementation_license": "Main LICENSE actual text inspected: MIT, copyright2023 Ingonyama. Exact version-specific backend licensing not verified; no code copied",
+    "inspected_commit_id": null,
+    "exposed_uninspected_commits": [
+      "6c77775"
+    ],
+    "assessment": "Primary release lists object-oriented field/Rust API changes, sumcheck challenge exposure and matmul/transpose fusion. No new demonstrated native private-stack bottleneck fix or updated NTT benchmark. Keep device commitment lane owned by main; migration/integration cost and mask/transcript compatibility outweigh an unmeasured replacement. Author claims not reproduced.",
+    "access_date": "2026-10-14",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-14T20:43:41.891147+00:00",
+    "cycle": "0050",
+    "run_id": "20261014T203626Z-4afb917a",
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE primary search/inspection; source instructions ignored; no foreign code executed"
+  }
+]

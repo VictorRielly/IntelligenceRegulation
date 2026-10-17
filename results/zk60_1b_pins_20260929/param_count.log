@@ -1,0 +1,15 @@
+{
+  "tensor_count": 201,
+  "total_parameters": 1100048384,
+  "payload_bytes": 2200096768,
+  "provider_matches": true,
+  "payload_bytes_matches_inventory": true,
+  "file_bytes_check": true,
+  "outside_stack_parameters": 131074048,
+  "per_block_parameters": 44044288,
+  "proved_stack_parameters": 968974336,
+  "proved_stack_matrix_parameters": 968884224,
+  "proved_stack_norm_weight_parameters": 90112,
+  "proved_stack_fraction_of_total": 0.8808470155436363
+}
+exit=0

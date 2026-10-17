@@ -8,6 +8,19 @@ back. Keep this file short enough to read in five minutes.
 
 ## At a glance
 
+**2026-09-26 performance direction, clarified by Victor in this session:**
+continue the PoC and background researcher toward an **8B-parameter
+forward-pass proof at >=50 proved tokens/s on an RTX 5090 or another high-end
+GPU**. More tokens are explicitly acceptable to amortize initialization and
+initial prefill. The earlier same-day 512-token / <=10.24-second interpretation
+is a reference fixture, not an acceptance restriction. Sustained throughput
+takes priority over the former five-second latency objective. Report startup,
+workload shape, warm and total-workload rates, proof latency and verification;
+count only positions covered by verified complete-stack proofs.
+[Current workload and clock rules](ZK60_THROUGHPUT_TARGET.md). D1's privacy
+scope and D13's block-only MVP boundary stand; no pending security/privacy
+proposal is accepted by this performance direction. No speed result is claimed.
+
 | ID | Decision | Status | Date | Decided by |
 |---|---|---|---|---|
 | D1 | Privacy scope: P1 hides inputs, outputs, activations (weights may be public); P3 also hides weights | **standing** | 2026-09-09 | Victor |

@@ -1,0 +1,52 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-szc-weighted-coefficients-20261013/result.json",
+    "sha256": "1e5613790ef702cb074270877ee67ac9b30b87091343c8ad720261573a49d749",
+    "status": "passed",
+    "counts": {
+      "independent_final_values": 41472,
+      "schedules": 1536,
+      "fixtures": 128,
+      "independent_round_samples": 13824,
+      "independent_weighted_polynomial_values": 60,
+      "executed_counter_census_checks": 144,
+      "executed_singleton_regressions": 1
+    }
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-szc-row-polynomial-20261013/result.json",
+    "sha256": "19e0df2492b7742d49d681506cefde907e97e856919c14a9a705c5d3e72623bf",
+    "status": "passed",
+    "counts": {
+      "identical_clause_body_checks": 1,
+      "final_values": 20736,
+      "schedules": 768,
+      "independent_row_polynomial_values": 1536,
+      "fixtures": 128,
+      "round_samples": 6912,
+      "convolution_count_checks": 25,
+      "independent_convolution_values": 100,
+      "general_denominator_samples": 948,
+      "prior_native_loop_census_checks": 48
+    }
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-reciprocal-plan-20261013/result.json",
+    "sha256": "1f157d2a7a410299eb121c51b0cc86ce7eaa7e5c9c551c91abae7b761b6c09f6",
+    "status": "pass",
+    "counts": {
+      "fixtures": 203,
+      "schedules": 669,
+      "independent_words": 81968,
+      "comparisons": 669,
+      "refusal_schedules": 30,
+      "table_helpers": 32,
+      "table_helper_words": 320,
+      "split_plane_sentinel_checks": 639,
+      "formula_checks": 3195,
+      "whole_attempt_schedules": 44,
+      "whole_attempt_refusals": 36,
+      "padded_geometry_words": 1601
+    }
+  }
+]

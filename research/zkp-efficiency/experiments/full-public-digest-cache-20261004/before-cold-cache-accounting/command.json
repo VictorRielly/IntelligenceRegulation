@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "python3",
+    "-B",
+    "experiments/full-public-digest-cache-20261004/experiment.py"
+  ],
+  "timeout_seconds": 60,
+  "started_at": "2026-10-04T09:09:36.086509+00:00",
+  "python": "3.10.12",
+  "script_sha256": "59297bc3fac63cdbcb3fb883c1d2c2d0e158d01b3968c41885e2d660ba548893",
+  "cpu_model": "Intel(R) Core(TM) Ultra 9 185H"
+}

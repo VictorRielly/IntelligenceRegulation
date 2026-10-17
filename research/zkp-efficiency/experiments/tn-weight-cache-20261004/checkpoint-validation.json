@@ -1,0 +1,154 @@
+{
+  "checked_utc": "2026-10-04T07:18:43.013612+00:00",
+  "status": "pass",
+  "checks": [
+    {
+      "name": "snapshot AGENDA.md",
+      "pass": true
+    },
+    {
+      "name": "snapshot STATE.md",
+      "pass": true
+    },
+    {
+      "name": "snapshot FINDINGS.md",
+      "pass": true
+    },
+    {
+      "name": "preserved prefix FINDINGS.md",
+      "pass": true
+    },
+    {
+      "name": "snapshot sources.jsonl",
+      "pass": true
+    },
+    {
+      "name": "preserved prefix sources.jsonl",
+      "pass": true
+    },
+    {
+      "name": "snapshot PROGRESS.md",
+      "pass": true
+    },
+    {
+      "name": "snapshot experiments/grouped-down-schedule-20261004/result.json",
+      "pass": true
+    },
+    {
+      "name": "script pin",
+      "pass": true
+    },
+    {
+      "name": "execution exit",
+      "pass": true
+    },
+    {
+      "name": "caps",
+      "pass": true
+    },
+    {
+      "name": "scope",
+      "pass": true
+    },
+    {
+      "name": "positive controls",
+      "pass": true
+    },
+    {
+      "name": "stdout counters",
+      "pass": true
+    },
+    {
+      "name": "source append",
+      "pass": true
+    },
+    {
+      "name": "production read pin CLAUDE.md",
+      "pass": true
+    },
+    {
+      "name": "production read pin docs/zkmatrix-poc/MVP_STATUS.md",
+      "pass": true
+    },
+    {
+      "name": "production read pin docs/zkmatrix-poc/ZK60_DECISIONS.md",
+      "pass": true
+    },
+    {
+      "name": "production read pin docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+      "pass": true
+    },
+    {
+      "name": "production read pin docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+      "pass": true
+    },
+    {
+      "name": "production read pin ops/zkp-mvp/candidate/hashline/src/private_block/witness.rs",
+      "pass": true
+    },
+    {
+      "name": "production read pin ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/witness.rs",
+      "pass": true
+    },
+    {
+      "name": "production read pin ops/zkp-mvp/candidate/hashline/src/gpu/cuda.rs",
+      "pass": true
+    },
+    {
+      "name": "production read pin results/zk60_mvp_20260929/baseline-stack-gpu-attempt2/report.json",
+      "pass": true
+    },
+    {
+      "name": "production read pin results/zk60_mvp_20260929/llama3-8b/config.json",
+      "pass": true
+    },
+    {
+      "name": "production read pin ops/zkp-mvp/candidate/hashline/src/private_block/mvp_driver.rs",
+      "pass": true
+    },
+    {
+      "name": "production read pin ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/mvp_driver.rs",
+      "pass": true
+    },
+    {
+      "name": "production read pin ops/zkp-mvp/candidate/hashline/src/private_block/run.rs",
+      "pass": true
+    },
+    {
+      "name": "production read pin ops/zkp-mvp/candidate/hashline/src/private_block.rs",
+      "pass": true
+    },
+    {
+      "name": "production read pin ops/zkp-mvp/candidate/hashline/src/private_block/argument.rs",
+      "pass": true
+    },
+    {
+      "name": "report STATE.md",
+      "pass": true
+    },
+    {
+      "name": "report PROGRESS.md",
+      "pass": true
+    },
+    {
+      "name": "report progress/20261004T070146Z-edcb9b00.md",
+      "pass": true
+    },
+    {
+      "name": "report handoffs/20261004-tn-weight-cache.md",
+      "pass": true
+    },
+    {
+      "name": "failure retained",
+      "pass": true
+    },
+    {
+      "name": "intermediate retained",
+      "pass": true
+    },
+    {
+      "name": "checkpoint complete",
+      "pass": true
+    }
+  ]
+}

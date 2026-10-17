@@ -1,0 +1,11 @@
+# Public witness lifetime schedule — review only
+
+Interface proposal: `ReleasePlan` indexed by Layout::Ids plane with a public `ReleasePhase`; plane storage uses owned optional slots, reads fail if released. Derive last readers from ordered lookup term sets, plus explicit exp/activation dependencies. Release after A_COPY for A-only planes, after last domain H helper for looked-only planes, after H_EXP for S8/MX/E, after H_ACT for G8/A16. Preserve actual L,D,F,Q,Kv,S helper order and all table denominator checks. No changes to transcript, private masks, randomness, commitments, relation or receipt format.
+
+Patch location: research/zkp-efficiency/experiments/public-witness-lifetimes-20261004/experiment.py (prototype only; no native Rust patch). Native seam: hashline/src/private_block/protocol.rs witness-to-A construction and H helper loops; layout.rs Ids/lookups_at. This composes with cycle0017 lazy-reader proposal rather than assuming it already integrated.
+
+Validation: separate materialized named-catalog oracle, independent Fp2 inversion,12 synthetic fixtures,356 lookup specs,91,076 words,110,444 reads,10 controls. Source pins/commands/logs/result retained in experiment. Do not treat Python parity as native block/PCS/proof acceptance.
+
+Potential benefit: counted m125 raw-lazy chunked-host maximum2423.611 ->2203.283MiB including exp/act batch-inversion prefixes; typed1867.584 ->1784.228. Partial payload only. CPU retained codewords dominate and maximum does not improve. Runtime/scratch/M/weights/receipts omitted; no VRAM fit or rate conclusion. Costs include ownership, metadata, lazy loads and optional packing overlap.
+
+Owner gates: native differential A/H and independent kernel/refusal comparison; fresh RNG stream/mask and exact transcript/proof-byte parity; malformed/unused-table zero-denominator controls; demonstrate actual ownership releases storage and measure RSS/VRAM across full workload; independently verify completed full-stack receipts. Benchmark witness/proof/serialization/verification and startup/drain separately under shared heavy locks. 8B five-limb counting shapes require registered shape/range approval; current native builder refuses them. Main agent reviews and integrates, researcher does not merge.

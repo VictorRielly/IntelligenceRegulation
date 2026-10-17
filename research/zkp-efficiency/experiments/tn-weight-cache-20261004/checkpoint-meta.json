@@ -1,0 +1,15 @@
+{
+  "run_identity": "20261004T070146Z-edcb9b00",
+  "checkpoint_utc": "2026-10-04T07:17:56.512872+00:00",
+  "completed": true,
+  "files": [
+    "STATE.md",
+    "FINDINGS.md",
+    "sources.jsonl",
+    "PROGRESS.md",
+    "progress/20261004T070146Z-edcb9b00.md",
+    "handoffs/20261004-tn-weight-cache.md"
+  ],
+  "final_checkpoint_utc": "2026-10-04T07:19:46.260935+00:00",
+  "validation_checks": 37
+}

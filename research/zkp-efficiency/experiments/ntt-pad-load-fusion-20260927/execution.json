@@ -1,0 +1,23 @@
+{
+  "run_identity": "20260927T015233Z-c29b434c",
+  "command": "python3 experiments/ntt-pad-load-fusion-20260927/experiment.py > experiments/ntt-pad-load-fusion-20260927/run.log 2>&1",
+  "final_exit_code": 0,
+  "initial_exit_code": 0,
+  "initial_retained": "initial/",
+  "final_resource_figures": {
+    "elapsed_s": 4.062190863012802,
+    "peak_rss_kib": 20300,
+    "limits": {
+      "wall_s": 59,
+      "cpu_s": 55,
+      "address_space_mib": 512,
+      "estimated_memory_mib": 48
+    },
+    "threads": 1,
+    "affinity": [
+      0
+    ],
+    "source_sha256": "5804449f0451e6d4971c0e396a0cc66df50c61164484208ee4c075d1d2f78ca1"
+  },
+  "cpu_only": true
+}

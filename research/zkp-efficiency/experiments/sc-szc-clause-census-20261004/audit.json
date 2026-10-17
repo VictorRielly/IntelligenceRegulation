@@ -1,0 +1,9 @@
+{
+  "audit_utc": "2026-10-04T14:21:27.239171+00:00",
+  "issues": [],
+  "source_records": 177,
+  "result_code_hashes_match": true,
+  "native_pins_still_match": true,
+  "runtime_writes": false,
+  "reports_present": true
+}

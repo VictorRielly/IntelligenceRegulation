@@ -1,0 +1,27 @@
+{
+  "base": "R1d candidate-v1",
+  "files": [
+    {
+      "path": "zkp-core/src/pcs.rs",
+      "sha256": "227ecbdd72a3d4e4e0487ede3d0c13341f82deda67695c34eb4bcfc51fdbbb5c",
+      "base_sha256": "6b8d1bfa1a69293e0ea82df46a8b231d896043577e62ab3a837d3fbf743db81a"
+    },
+    {
+      "path": "zkp-core/src/pcs/encode_buffer.rs",
+      "sha256": "3c01433d84507cddadcf5c1387c08948fd3efe853a066d74690c0a6e1ce3dd70",
+      "base_sha256": null
+    },
+    {
+      "path": "zkp-core/src/pcs/encode_buffer/tests.rs",
+      "sha256": "41787bbc3896d7539e531beca3384555b0081153d6cb1cef1ace9adb4ca93bb2",
+      "base_sha256": null
+    },
+    {
+      "path": "zkp-core/src/pcs/encode_conformance_tests.rs",
+      "sha256": "fba8290077db6c5f335c75fc66f0f68a695f2b310e124b53e115e6fd3d886df8",
+      "base_sha256": null
+    }
+  ],
+  "conformance_source": "3257c33:zkp-core/src/pcs/encode_conformance_tests.rs plus additive optimized-buffer test",
+  "status": "core debug and release passed; native tests pending"
+}

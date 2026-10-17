@@ -1,0 +1,13 @@
+{
+  "status": "pass",
+  "validated_at_utc": "2026-10-13T03:45:04.786330+00:00",
+  "pin_checks": 24,
+  "artifact_hashes": 54,
+  "prior_findings_sources_prefixes_preserved": true,
+  "initial_final_code_result_hashes_match": true,
+  "all_source_json_valid": true,
+  "report_run_identity": true,
+  "accepted_complete_private8b_tokens": 0,
+  "no_native_build_or_gpu": true,
+  "no_production_runtime_git_external_writes": true
+}

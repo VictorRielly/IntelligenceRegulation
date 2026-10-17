@@ -1,0 +1,72 @@
+{
+  "run_id": "20261012T212555Z-0814839f",
+  "access_date": "2026-10-12",
+  "method": "native LIVE web search and primary opens/finds; no network CLI or foreign execution",
+  "queries": [
+    "sumcheck structured polynomials memory efficient GPU 2026 October sumcheck",
+    "site.github.com sumcheck split equality polynomial memory 2026",
+    "site.eprint.iacr.org sumcheck data parallel memory 2023 streaming GKR",
+    "site.github.com/LayerZero-Labs/akita eq-factored sumcheck GruenSplitEq",
+    "site.eprint.iacr.org \"sumcheck\" \"2026-10\"",
+    "site.eprint.iacr.org \"sumcheck\" \"time-space tradeoffs\"",
+    "Justin Thaler Time-Optimal Interactive Proofs for Circuit Evaluation 2013 data parallel GKR",
+    "site.github.com/LayerZero-Labs/akita/releases 2026",
+    "site.github.com/LayerZero-Labs/akita \"split_eq.rs\"",
+    "deVirgo distributed sumcheck data parallel 2022 paper memory prover Zero Knowledge Github",
+    "site.eprint.iacr.org \"2026\" \"sumcheck\" \"October\"",
+    "site.github.com/LayerZero-Labs/akita \"LICENSE-MIT\""
+  ],
+  "records": [
+    {
+      "url": "https://layerzero-labs.github.io/akita/foundations/eq-factored-sumcheck.html",
+      "inspected_urls": [
+        "https://github.com/LayerZero-Labs/akita",
+        "https://github.com/LayerZero-Labs/akita/blob/main/book/src/foundations/eq-factored-sumcheck.md",
+        "https://github.com/LayerZero-Labs/akita/blob/main/crates/akita-algebra/src/split_eq.rs"
+      ],
+      "blocker": "Book direct fetch Internal Error; GitHub eq-factored document/split_eq.rs Cache miss; LICENSE-MIT and LICENSE-APACHE Internal Error."
+    },
+    {
+      "url": "https://github.com/LayerZero-Labs/akita/commit/029ceceaba879a0d9bf80a47d2e08534e630457d",
+      "inspected_urls": [
+        "https://github.com/LayerZero-Labs/akita/releases/tag/v0.1.0",
+        "https://a16zcrypto.com/posts/article/lattice-snarks-jolt-post-quantum-faster/"
+      ],
+      "blocker": null
+    },
+    {
+      "url": "https://developer.nvidia.com/blog/?p=119649",
+      "inspected_urls": [
+        "https://docs.nvidia.com/cuda/parallel-thread-execution/#integer-arithmetic-instructions-clmad"
+      ],
+      "blocker": null
+    },
+    {
+      "url": "https://github.com/quangvdao/monomial-sumcheck-benchmarks",
+      "inspected_urls": [
+        "https://github.com/quangvdao/monomial-sumcheck-benchmarks/commits/main/"
+      ],
+      "blocker": "Cargo.toml Cache miss; direct b2e6df5 commit Internal Error."
+    },
+    {
+      "url": "https://arxiv.org/abs/2210.00264",
+      "inspected_urls": [
+        "https://arxiv.org/pdf/2210.00264",
+        "https://github.com/PolyhedraZK/Expander",
+        "https://github.com/PolyhedraZK/Expander/blob/main/LICENSE"
+      ],
+      "blocker": null
+    }
+  ],
+  "also_refreshed_previously_assessed": [
+    "https://arxiv.org/abs/2504.00693",
+    "https://arxiv.org/abs/2301.02161",
+    "https://eprint.iacr.org/2024/524",
+    "https://arxiv.org/abs/1304.3812",
+    "https://arxiv.org/pdf/1304.3812",
+    "https://people.cs.georgetown.edu/jthaler/Tcode.htm"
+  ],
+  "non_primary_search_results": "Not relied on",
+  "accidental_unrelated_click": "GitHub advanced-security navigation link opened; not relied on, no action executed",
+  "foreign_instructions": "Ignored; no external AGENTS/skills/build commands adopted"
+}

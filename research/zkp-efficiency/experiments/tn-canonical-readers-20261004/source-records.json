@@ -1,0 +1,126 @@
+[
+  {
+    "cycle": "0026",
+    "run_id": "20261004T080146Z-55b15f9d",
+    "accessed": "2026-10-04T08:13:45.727090+00:00",
+    "access_date": "2026-10-04",
+    "evidence_kind": "Native LIVE primary search and inspection; no foreign code executed",
+    "reproduced_performance": false,
+    "id": "cycle26-cuda-zkp-ntt-release-negative-filter",
+    "title": "cuda-zkp-ntt v5.0.0 and negative results",
+    "url": "https://github.com/Artemarius/cuda-zkp-ntt",
+    "inspected_urls": [
+      "https://github.com/Artemarius/cuda-zkp-ntt/releases",
+      "https://github.com/Artemarius/cuda-zkp-ntt/blob/main/LICENSE"
+    ],
+    "published": null,
+    "updated": null,
+    "date_status": "Release display16Mar21:42 omits year; LICENSE copyright2026 is not a publication date",
+    "implementation_license": "MIT",
+    "license_scope": "main LICENSE terms inspected, not pinned tag source",
+    "inspected_commit": null,
+    "exposed_commit_url": "https://github.com/Artemarius/cuda-zkp-ntt/commit/7b1e6b9ce865ea45f6c601a33118512dd98e1149",
+    "claim": "Maintainer says hierarchical GEMM-NTT decomposition is incorrect; v4 TensorCore method2-12x slower. Goldilocks kernel figures are3060Laptop author measurements.",
+    "assessment": "Reject incomplete full transform as an optimization candidate. DFT16 stage/fullNTT ratios do not establish speed relative to its corresponding scalar stage. No native hiding-row equivalence or author performance reproduced.",
+    "access_issues": [
+      "https://github.com/Artemarius/cuda-zkp-ntt/commits/main/: Internal Error",
+      "https://github.com/Artemarius/cuda-zkp-ntt/commit/7b1e6b9ce865ea45f6c601a33118512dd98e1149: Cache miss",
+      "https://api.github.com/repos/Artemarius/cuda-zkp-ntt/commits/7b1e6b9ce865ea45f6c601a33118512dd98e1149: Internal Error",
+      "https://github.com/Artemarius/cuda-zkp-ntt/blob/v5.0.0/src/bb_gemm_ntt.cu: Cache miss"
+    ]
+  },
+  {
+    "cycle": "0026",
+    "run_id": "20261004T080146Z-55b15f9d",
+    "accessed": "2026-10-04T08:13:45.727090+00:00",
+    "access_date": "2026-10-04",
+    "evidence_kind": "Native LIVE primary search and inspection; no foreign code executed",
+    "reproduced_performance": false,
+    "id": "cycle26-small-characteristic-older-negative",
+    "title": "The Sum-Check Protocol over Fields of Small Characteristic",
+    "url": "https://eprint.iacr.org/2024/1046",
+    "inspected_urls": [
+      "https://eprint.iacr.org/2024/1046.pdf"
+    ],
+    "published": "2024-06-27",
+    "updated": null,
+    "date_status": "ePrint receivedJun27/approvedJun28 2024; no later revision displayed",
+    "implementation_license": null,
+    "paper_license": "CC BY",
+    "inspected_commit": null,
+    "claim": "Authors exchange extension products for more base products; their BabyBear degree4 implementation makes Algorithms3/4 slower than existing algorithms. Large gains concern much cheaper base operations/tower extensions.",
+    "assessment": "New older technique reviewed through intro/costs/implementation discussion; Goldilocks degree2 and challenge-weighted SC_SZC tables do not inherit binary-tower savings. Retain provenance and native timing gates."
+  },
+  {
+    "cycle": "0026",
+    "run_id": "20261004T080146Z-55b15f9d",
+    "accessed": "2026-10-04T08:13:45.727090+00:00",
+    "access_date": "2026-10-04",
+    "evidence_kind": "Native LIVE primary search and inspection; no foreign code executed",
+    "reproduced_performance": false,
+    "id": "cycle26-smallfield-implementation-scope",
+    "title": "smallfield-super-sumcheck repository",
+    "url": "https://github.com/ingonyama-zk/smallfield-super-sumcheck",
+    "published": null,
+    "updated": null,
+    "date_status": "No source update/HEAD date verified",
+    "implementation_license": null,
+    "license_scope": "LICENSE inaccessible; no license established",
+    "inspected_commit": null,
+    "claim": "README describes collapsing arrays versus precomputation space/time tradeoffs and a proof-of-concept status.",
+    "assessment": "README-only source filter; no native backend, committed final-oracle binding or performance reproduced.",
+    "access_issues": [
+      "https://github.com/ingonyama-zk/smallfield-super-sumcheck/blob/main/LICENSE: Internal Error",
+      "https://github.com/ingonyama-zk/smallfield-super-sumcheck/commits/main/: Cache miss",
+      "https://github.com/ingonyama-zk/smallfield-super-sumcheck/blob/main/src/lib.rs: Cache miss"
+    ]
+  },
+  {
+    "cycle": "0026",
+    "run_id": "20261004T080146Z-55b15f9d",
+    "accessed": "2026-10-04T08:13:45.727090+00:00",
+    "access_date": "2026-10-04",
+    "evidence_kind": "Native LIVE primary search and inspection; no foreign code executed",
+    "reproduced_performance": false,
+    "id": "cycle26-august-batch-polynomial-PCS-cost-filter",
+    "title": "Interactive Proofs for Batch Polynomial Evaluation",
+    "url": "https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ITC.2026.3",
+    "inspected_urls": [
+      "https://drops.dagstuhl.de/storage/00lipics/lipics-vol385-itc2026/LIPIcs.ITC.2026.3/LIPIcs.ITC.2026.3.pdf",
+      "https://eprint.iacr.org/2026/448"
+    ],
+    "published": "2026-08-12",
+    "updated": null,
+    "preprint_received": "2026-03-04",
+    "preprint_revised": "2026-03-05",
+    "date_status": "DROPS proceedings publication date and ePrint history verified separately",
+    "implementation_license": null,
+    "paper_license": "CC BY4.0",
+    "inspected_commit": null,
+    "claim": "Authors give linear verifier batch evaluation and univariate PCS compiler with extra round/polynomial. Intro theorem1 hasO(dm) prover work; multilinear linear-time adaptation remains open.",
+    "assessment": "New recent composition lead, sections1/2 inspected. No implementation found or compatible hiding/PCS model proven. Demote as drop-in native MLE prover optimization; privacy/soundness/transcript costs owed."
+  },
+  {
+    "cycle": "0026",
+    "run_id": "20261004T080146Z-55b15f9d",
+    "accessed": "2026-10-04T08:13:45.727090+00:00",
+    "access_date": "2026-10-04",
+    "evidence_kind": "Native LIVE primary search and inspection; no foreign code executed",
+    "reproduced_performance": false,
+    "id": "cycle26-packed-mask-scope-filter",
+    "title": "Packing Breaks the Mask accompanying repository",
+    "url": "https://github.com/ls-rm-rf/sumcheck",
+    "published": null,
+    "updated": null,
+    "date_status": "README uses seed20260913 but no publication/update date or associated paper date verified",
+    "implementation_license": null,
+    "license_scope": "README advertisesMIT; actual LICENSE inaccessible, not verified",
+    "inspected_commit": null,
+    "claim": "Author tests first-round packed-secret-sharing attacks under separable masks, not later sumcheck or an MPC protocol.",
+    "assessment": "Scope filter only; not evidence of a defect in our distinct native hiding construction. No attack reproduced or code executed; large script exceeds lane memory cap.",
+    "access_issues": [
+      "https://github.com/ls-rm-rf/sumcheck/commits/main/: Cache miss",
+      "https://github.com/ls-rm-rf/sumcheck/blob/main/LICENSE: Cache miss"
+    ]
+  }
+]

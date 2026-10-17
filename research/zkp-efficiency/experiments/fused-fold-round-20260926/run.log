@@ -1,0 +1,60 @@
+{
+  "status": "passed",
+  "run_identity": "20260926T205233Z-79c00f5e",
+  "seed": 2026092605,
+  "threads": 1,
+  "cpu_affinity": [
+    0
+  ],
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "estimated_memory_mib": 32,
+  "limits": {
+    "wall_s": 59,
+    "cpu_s": 55,
+    "address_space_mib": 512
+  },
+  "differential_cases": 108,
+  "independent_round_oracles": 180,
+  "independent_final_mles": 432,
+  "synthetic_masked_driver_cases": 54,
+  "negative_controls": {
+    "wrong_adjacent_pairing": true,
+    "drop_extension_limb": true,
+    "wrong_quarters": true,
+    "swapped_output_halves": true,
+    "dropped_partial_chunk": true,
+    "stale_cached_round": true,
+    "masked_claim_used_for_recovery": true,
+    "final_table_order": true
+  },
+  "schedule_refusals": {
+    "Separate_fold_without_round": true,
+    "Separate_wrong_round_index": true,
+    "Separate_premature_finals": true,
+    "Separate_double_round": true,
+    "Separate_double_fold": true,
+    "Fused_fold_without_round": true,
+    "Fused_wrong_round_index": true,
+    "Fused_premature_finals": true,
+    "Fused_double_round": true,
+    "Fused_double_fold": true
+  },
+  "malformed_fixture_refusals": 8,
+  "field": "Goldilocks Fp2, u^2=7",
+  "tables": 4,
+  "script_wall_s_not_proving": 2.743250941974111,
+  "peak_rss_kib": 17700,
+  "experiment_sha256": "202cac2fb27a3fa24f7832f26f2741d9087978d45f449e9bd17048d97299a356",
+  "proving_seconds": null,
+  "verification_seconds": null,
+  "complete_readiness_seconds": null,
+  "native_executed": false,
+  "gpu_executed": false,
+  "limitations": [
+    "Logical loads/stores, not measured DRAM bytes or runtime speedup",
+    "Synthetic degree-2/3 polynomials; full SC_SZC grouped evaluator not ported",
+    "Driver schedule model does not test native CFS masking, RNG, extension rounds, PCS or receipts"
+  ]
+}

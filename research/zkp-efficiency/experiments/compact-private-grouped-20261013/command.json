@@ -1,0 +1,11 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "experiments/compact-private-grouped-20261013/experiment.py"
+  ],
+  "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency",
+  "started_utc": "2026-10-13T00:29:29.947738+00:00",
+  "code_sha256": "d95a906e828c0d83ab38c817bdb150f1c96c54024e9f3264319f45a4e0c12ceb",
+  "timeout_seconds": 60
+}

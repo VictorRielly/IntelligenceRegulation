@@ -1,0 +1,22 @@
+--- a/zkp-core/src/field.rs
++++ b/zkp-core/src/field.rs
+@@ -156,11 +156,14 @@
+     pub fn neg(self) -> Fp2 { Fp2 { c0: self.c0.neg(), c1: self.c1.neg() } }
+     #[inline(always)]
+     pub fn mul(self, r: Fp2) -> Fp2 {
+-        let ac = self.c0.mul(r.c0);
+-        let bd = self.c1.mul(r.c1);
+-        let ad = self.c0.mul(r.c1);
+-        let bc = self.c1.mul(r.c0);
+-        Fp2 { c0: ac.add(bd.mul(Fp(NONRESIDUE))), c1: ad.add(bc) }
++        // Canonical limbs, p=2^64-2^32+1 and NONRESIDUE=7.
++        // (p-1)^2 + 7*(p-1) < 2^128; no pair of raw products is added.
++        let bd = reduce128(self.c1.0 as u128 * r.c1.0 as u128);
++        let c0 = reduce128(self.c0.0 as u128 * r.c0.0 as u128
++                          + NONRESIDUE as u128 * bd.0 as u128);
++        let ad = reduce128(self.c0.0 as u128 * r.c1.0 as u128);
++        let c1 = reduce128(self.c1.0 as u128 * r.c0.0 as u128 + ad.0 as u128);
++        Fp2 { c0, c1 }
+     }
+     #[inline(always)]
+     pub fn mul_base(self, r: Fp) -> Fp2 { Fp2 { c0: self.c0.mul(r), c1: self.c1.mul(r) } }

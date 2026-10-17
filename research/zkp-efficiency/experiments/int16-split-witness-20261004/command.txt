@@ -1,0 +1,1 @@
+python3 /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/int16-split-witness-20261004/experiment.py

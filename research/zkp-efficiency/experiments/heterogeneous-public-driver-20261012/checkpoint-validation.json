@@ -1,0 +1,41 @@
+{
+  "run_id": "20261012T202555Z-550cccf0",
+  "checkpoint_utc": "2026-10-12T20:43:48.690928+00:00",
+  "checks": {
+    "final_experiment_passed": true,
+    "final_code_hashes_match": true,
+    "native_source_pins_unchanged": true,
+    "measurement_pins_unchanged": true,
+    "source_history_prefix_preserved": true,
+    "sources_total_215": true,
+    "six_source_ids_unique": true,
+    "findings_history_preserved": true,
+    "agenda_unchanged_since_start": true,
+    "progress_report_matches": true,
+    "required_proof_clocks_explicit_null": true,
+    "no_complete_proofs_counted": true,
+    "cpu_light_caps": true,
+    "within_20_minutes": true,
+    "initial_and_error_attempts_retained": true
+  },
+  "experiment": {
+    "fixtures": 32,
+    "independent_table_finals": 896,
+    "generic_total_checks": 384,
+    "candidate_table_finals": 3584,
+    "descriptor_bind_calls": 1440,
+    "recoveries": 216,
+    "schedules": 128,
+    "independent_extension_table_samples": 43008,
+    "extension_polynomial_samples": 1536,
+    "public_extension_terminals": 1536,
+    "RS_generic_total_checks": 32,
+    "RS_independent_table_finals": 160,
+    "independent_round_samples": 720,
+    "candidate_round_samples": 2880,
+    "RS_independent_round_samples": 600,
+    "all_public_explicit_cube_check": 1
+  },
+  "controls": 24,
+  "accepted_complete_private8b_tokens": 0
+}

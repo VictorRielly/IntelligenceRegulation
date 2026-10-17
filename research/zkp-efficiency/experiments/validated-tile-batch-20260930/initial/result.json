@@ -1,0 +1,157 @@
+{
+  "run_identity": "20260930T004944Z-77f0d93d",
+  "seed": 2026093015,
+  "status": "passed",
+  "baseline": "Actual inspected local TensorRef.read_tile imported with bytecode writes disabled",
+  "cases": [
+    {
+      "tensor_bytes": 2,
+      "requests": 12,
+      "returned_bytes": 8,
+      "baseline_read_bytes": 24,
+      "candidate_read_bytes": 2,
+      "baseline_read_calls": 12,
+      "candidate_read_calls": 1,
+      "return_sha256": "21aac466b47280129790fc2940f8c94c857c20b0b53d62763d60aaaf69c90765"
+    },
+    {
+      "tensor_bytes": 30,
+      "requests": 12,
+      "returned_bytes": 144,
+      "baseline_read_bytes": 360,
+      "candidate_read_bytes": 30,
+      "baseline_read_calls": 12,
+      "candidate_read_calls": 1,
+      "return_sha256": "f848e85d7274cd7fc879be3bb21d481f503b63bf7b979be287f7f65c41a8c9b2"
+    },
+    {
+      "tensor_bytes": 4098,
+      "requests": 12,
+      "returned_bytes": 3892,
+      "baseline_read_bytes": 49176,
+      "candidate_read_bytes": 4098,
+      "baseline_read_calls": 12,
+      "candidate_read_calls": 1,
+      "return_sha256": "d3576f2c0d421acfe7f6021aa9266913b8d03e8df60936ac414c670e6d81e533"
+    },
+    {
+      "tensor_bytes": 131074,
+      "requests": 12,
+      "returned_bytes": 3954,
+      "baseline_read_bytes": 1572888,
+      "candidate_read_bytes": 131074,
+      "baseline_read_calls": 12,
+      "candidate_read_calls": 1,
+      "return_sha256": "37153fd38fd6f3275248c1854cbab8ccf51168a0aca0a0d50e83f9202370c29d"
+    },
+    {
+      "tensor_bytes": 1048574,
+      "requests": 12,
+      "returned_bytes": 3084,
+      "baseline_read_bytes": 12582888,
+      "candidate_read_bytes": 1048574,
+      "baseline_read_calls": 12,
+      "candidate_read_calls": 1,
+      "return_sha256": "39620960fabab6ff470c8d328b9f8634024854ece09e256d3e4029d8b76fc618"
+    },
+    {
+      "tensor_bytes": 1048578,
+      "requests": 14,
+      "returned_bytes": 1053042,
+      "baseline_read_bytes": 14680092,
+      "candidate_read_bytes": 1048578,
+      "baseline_read_calls": 28,
+      "candidate_read_calls": 2,
+      "return_sha256": "ca7bb2ffec81f7b84733b6ac5ad609ccda0763c2c221d6432acb18fe906084a3"
+    },
+    {
+      "tensor_bytes": 2097158,
+      "requests": 14,
+      "returned_bytes": 1055230,
+      "baseline_read_bytes": 29360212,
+      "candidate_read_bytes": 2097158,
+      "baseline_read_calls": 42,
+      "candidate_read_calls": 3,
+      "return_sha256": "3d5eff013362a7bbaa24f5ccc10a675718309f8545f48620a9290a21c4dc80e6"
+    }
+  ],
+  "independent_slice_comparisons": 88,
+  "negative_controls": [
+    "mutation_in_returned_tile",
+    "mutation_outside_all_requested_tiles",
+    "late_tensor_mutation",
+    "truncated_payload",
+    "mutation_during_scan_no_partial_return",
+    "unsafe_skip_rehash_accepts_outside_corruption",
+    "ten_invalid_batches_refused_before_io",
+    "wrong_pin_even_for_zero_length_tile"
+  ],
+  "invalid_batch_cases": 10,
+  "source_counted_geometry": {
+    "tinyllama_1_1b": {
+      "layers": 22,
+      "tile_bytes": 1048576,
+      "batch_tiles": 8,
+      "proved_stack_raw_bf16_bytes": 1937948672,
+      "baseline_full_tensor_scan_bytes": 36494819328,
+      "candidate_full_tensor_scan_bytes": 4983013376,
+      "source_counted_scan_byte_reduction_fraction": 0.863459705575885,
+      "tile_requests": 1892,
+      "candidate_full_scans": 330,
+      "initial_inventory_bytes_excluded": true,
+      "assumption": "Each block tensor is tiled completely exactly once; no measured caller uses this schedule yet."
+    },
+    "llama3_8b": {
+      "layers": 32,
+      "tile_bytes": 1048576,
+      "batch_tiles": 8,
+      "proved_stack_raw_bf16_bytes": 13959168000,
+      "baseline_full_tensor_scan_bytes": 1335735353344,
+      "candidate_full_tensor_scan_bytes": 166967377920,
+      "source_counted_scan_byte_reduction_fraction": 0.8749996565547218,
+      "tile_requests": 13376,
+      "candidate_full_scans": 1728,
+      "initial_inventory_bytes_excluded": true,
+      "assumption": "Each block tensor is tiled completely exactly once; no measured caller uses this schedule yet."
+    }
+  },
+  "source_pins_sha256": {
+    "results/zk60_1b_checkpoint_20260927/importer_zk60_1b_checkpoint.py": "73339779bca99326dbd5ae5ffb30fe2ff7861fb3460c9f17753df8c3f919ec23",
+    "results/zk60_mvp_20260929/tinyllama-1.1b/config.json": "486bedda3a6988332e60d9638a09ca4b260d34ebcf1b19e22cf3b140b63d8fe9",
+    "results/zk60_mvp_20260929/llama3-8b/config.json": "2430cee764b6530ff8673cf9ba8561e1d5a33152d503cd0de909ff5718261441",
+    "ops/zkp-mvp/driver-overlay/hashline/src/private_block/mvp_driver.rs": "5782211834b899e08ff3d4097b4a40a652156768e1d479476adbfdfa54a20260",
+    "ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/run.rs": "2d43bc335d176b533589a587a916ac766cc810536e7b14832273b2a9fa8c3cae",
+    "results/zk60_mvp_20260929/baseline-stack-gpu-attempt2/report.json": "ae971925a0c2ffb0c7d04a4722dc39903308639fd449708df722e14f4a69687e"
+  },
+  "script_sha256": "6965a9cba6e4d7a694e6e1df84060ed952e42006c6ec4f41c660818b9c2ce9d3",
+  "elapsed_s": 0.11478978200000256,
+  "peak_rss_kib": 37460,
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "device": "CPU only; no accelerator",
+  "threads": 1,
+  "python": "3.10.12",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "limits": {
+    "wall_s": 59,
+    "cpu_s": 55,
+    "address_space_mib": 512,
+    "estimated_memory_mib": 32
+  },
+  "candidate_max_requested_payload_mib": 8,
+  "candidate_buffer_bound_note": "At most 8 MiB bytearrays + 8 MiB final bytes + 2 MiB transient scan chunks, plus Python overhead; no retained model",
+  "scope": "Synthetic exact raw BF16 byte slicing and full-tensor SHA-256 refusal; no quantization, calibrated import, native witness/proof or GPU speed measured",
+  "full_stack": {
+    "completed_independently_verified_model_passes": 0,
+    "countable_tokens": 0,
+    "context_length": null,
+    "passes": 0,
+    "steady_tokens_per_s": null,
+    "total_tokens_per_s": null,
+    "startup_fraction": null,
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "proof_lag_s": null
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "queries": [
+    "sumcheck fused folding next round GPU equality polynomial 2026",
+    "site.github.com sumcheck \"fuse\" \"2026\"",
+    "sumcheck 2025 GPU folding memory coalescing implementation",
+    "site.github.com/Plonky3/Plonky3/pull/2055 \"2026\"",
+    "site.github.com/Plonky3/Plonky3/pull/2036 \"2026\""
+  ],
+  "tool": "native LIVE web.run",
+  "date": "2026-09-27",
+  "blockers": [
+    {
+      "url": "https://github.com/Plonky3/Plonky3/pull/2055",
+      "error": "Failed to fetch: Cache miss"
+    },
+    {
+      "url": "https://github.com/Plonky3/Plonky3/pull/2036",
+      "error": "Internal Error"
+    },
+    {
+      "url": "https://github.com/Plonky3/Plonky3/pull/2038",
+      "error": "Internal Error"
+    },
+    {
+      "url": "https://docs.rs/crate/p3-sumcheck/latest",
+      "error": "Internal Error"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/ingonyama-zk/icicle/main/LICENSE",
+      "error": "Internal Error; GitHub blob LICENSE subsequently readable"
+    },
+    {
+      "url": "https://github.com/Plonky3/Plonky3/pull/1900",
+      "error": "(400) Timeout fetching"
+    },
+    {
+      "url": "https://github.com/Plonky3/Plonky3/commit/a21e3ed",
+      "error": "Failed to fetch: Cache miss"
+    }
+  ],
+  "local_path_errors": [
+    {
+      "path": "/home/victor/IntelligenceRegulation/zkp-cuda",
+      "error": "No such file or directory; rg found actual hashline/src/gpu paths"
+    },
+    {
+      "path": "experiments/ntt-mapped-layout-20260926/source-pins.json",
+      "error": "No such file or directory; current native CUDA source read directly"
+    }
+  ],
+  "resolution": "No permission/network bypass; independent local CPU experiment completed. No external code executed."
+}

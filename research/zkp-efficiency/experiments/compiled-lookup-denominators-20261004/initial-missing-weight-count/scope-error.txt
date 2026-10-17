@@ -1,0 +1,1 @@
+Initial passing algebra result omitted weight*bracket products from projection common mul. Preserved result is not the final census. Final adds products and validates against independent prior literal-loop census.

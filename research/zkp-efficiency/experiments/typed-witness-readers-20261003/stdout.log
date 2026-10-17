@@ -1,0 +1,1 @@
+{"status": "passed", "vector_cases": 66, "indexed_field_word_comparisons": 1952, "helper_limb_comparisons": 65816, "refusal_cases": 20, "elapsed_s": 2.4316335640000943, "peak_rss_kib": 23200}

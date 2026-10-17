@@ -1,0 +1,8 @@
+
+running 3 tests
+test private_block::memory::tests::macos_peak_bytes_are_converted_without_linux_kib_scaling ... ok
+test private_block::memory::tests::unavailable_peak_never_passes_the_heavy_test_guard ... ok
+test private_block::memory::tests::linux_proc_fields_keep_the_existing_kib_to_mib_conversion ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 509 filtered out; finished in 0.00s
+

@@ -1,0 +1,37 @@
+[
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-szc-groups-20260924/experiment.py",
+    "snapshot": "oracle_groups.py",
+    "sha256": "1004e5365effe100fd9793606d7c2b0435429d13264425da70cfa258f082061f"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/fused-fold-round-20260926/experiment.py",
+    "snapshot": "oracle_fusion.py",
+    "sha256": "202cac2fb27a3fa24f7832f26f2741d9087978d45f449e9bd17048d97299a356"
+  },
+  {
+    "source": "/tmp/zk60-groups-20260926/zkp-core/src/sumcheck/grouped.rs",
+    "snapshot": "source-snapshots/grouped.rs",
+    "sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b"
+  },
+  {
+    "source": "/tmp/zk60-groups-20260926/zkp-core/src/sumcheck/rounds.rs",
+    "snapshot": "source-snapshots/rounds.rs",
+    "sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df"
+  },
+  {
+    "source": "/tmp/zk60-groups-20260926/hashline/src/private_block/argument.rs",
+    "snapshot": "source-snapshots/argument.rs",
+    "sha256": "b3b02383a14a64a12194a465873b76f78406e5d3115b0c8157fde2882d22c865"
+  },
+  {
+    "source": "/tmp/zk60-groups-20260926/hashline/src/private_block/slot_ir.rs",
+    "snapshot": "source-snapshots/slot_ir.rs",
+    "sha256": "734cd0e0e03b5ea61da6e50aff98f53d35ec686b47bd317dcade29ee85adee9e"
+  },
+  {
+    "source": "/tmp/zk60-groups-20260926/zkp-core/src/field.rs",
+    "snapshot": "source-snapshots/field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13"
+  }
+]

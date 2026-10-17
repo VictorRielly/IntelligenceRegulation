@@ -1,0 +1,420 @@
+{
+  "run_id": "20261004T090146Z-73c03938",
+  "seed": 2026100427,
+  "status": "pass",
+  "cases": 27,
+  "chunk_comparisons": 216,
+  "canonical_bytes_compared": 696744,
+  "owner_digest_comparisons": 486,
+  "model_root_comparisons": 81,
+  "tensor_mutations": 351,
+  "outer_binding_mutations": 189,
+  "controls": [
+    {
+      "name": "omit attention half",
+      "detected": "independent mismatch"
+    },
+    {
+      "name": "physical/endian format change",
+      "detected": "independent mismatch"
+    },
+    {
+      "name": "domain version change",
+      "detected": "independent mismatch"
+    },
+    {
+      "name": "swap equal-sized gate/up tensors",
+      "detected": "independent mismatch"
+    },
+    {
+      "name": "i64 byte-count instead of element-count frame",
+      "detected": "independent mismatch"
+    },
+    {
+      "name": "cached caller identity reused for new content",
+      "detected": "independent mismatch"
+    },
+    {
+      "name": "unsafe internal mutation after initialized clone is stale",
+      "detected": "independent mismatch"
+    },
+    {
+      "name": "fresh-process/import independently hashes content",
+      "detected": "one new scan"
+    },
+    {
+      "name": "constructor copies caller-mutable arrays",
+      "detected": "snapshot unchanged"
+    },
+    {
+      "name": "short weight buffer",
+      "detected": "weight shape"
+    },
+    {
+      "name": "dirty padded query head",
+      "detected": "support"
+    },
+    {
+      "name": "dirty padded FFN width",
+      "detected": "support"
+    },
+    {
+      "name": "invalid i8 value",
+      "detected": "i8 domain"
+    },
+    {
+      "name": "wrong rope shape",
+      "detected": "table shape"
+    },
+    {
+      "name": "invalid rope first row",
+      "detected": "rope structure"
+    },
+    {
+      "name": "invalid exp calibration scale",
+      "detected": "exp structure"
+    },
+    {
+      "name": "invalid activation endpoint",
+      "detected": "act domain/shape"
+    },
+    {
+      "name": "invalid activation length",
+      "detected": "act domain/shape"
+    },
+    {
+      "name": "empty chunk cap",
+      "detected": "chunk cap"
+    },
+    {
+      "name": "model block order",
+      "detected": "independent mismatch"
+    },
+    {
+      "name": "model block multiplicity",
+      "detected": "independent mismatch"
+    },
+    {
+      "name": "shape excluded from block hash still bound outside it",
+      "detected": "independent mismatch"
+    }
+  ],
+  "control_count": 22,
+  "synthetic_shapes": [
+    {
+      "tokens": 1,
+      "width": 4,
+      "d": 4,
+      "hidden": 8,
+      "f": 8,
+      "hd": 2,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 1,
+      "width": 6,
+      "d": 8,
+      "hidden": 11,
+      "f": 16,
+      "hd": 2,
+      "kv": 2,
+      "slots": [
+        0,
+        2,
+        3
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 1,
+      "width": 8,
+      "d": 8,
+      "hidden": 16,
+      "f": 16,
+      "hd": 4,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 3,
+      "width": 4,
+      "d": 4,
+      "hidden": 8,
+      "f": 8,
+      "hd": 2,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 3,
+      "width": 6,
+      "d": 8,
+      "hidden": 11,
+      "f": 16,
+      "hd": 2,
+      "kv": 2,
+      "slots": [
+        0,
+        2,
+        3
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 3,
+      "width": 8,
+      "d": 8,
+      "hidden": 16,
+      "f": 16,
+      "hd": 4,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 8,
+      "width": 4,
+      "d": 4,
+      "hidden": 8,
+      "f": 8,
+      "hd": 2,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 8,
+      "width": 6,
+      "d": 8,
+      "hidden": 11,
+      "f": 16,
+      "hd": 2,
+      "kv": 2,
+      "slots": [
+        0,
+        2,
+        3
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 8,
+      "width": 8,
+      "d": 8,
+      "hidden": 16,
+      "f": 16,
+      "hd": 4,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    }
+  ],
+  "count_only_unadmitted_model": [
+    {
+      "context_count_only": 512,
+      "layers": 32,
+      "per_block_preimage_bytes": 243804807,
+      "model_preimage_bytes": 7801753824,
+      "i8_cast_payload_per_scan_bytes": 7784890368,
+      "largest_current_cast_vector_bytes": 67108864,
+      "candidate_Rust_scratch_bytes": 65536,
+      "cached_digest_payload_bytes": 1024,
+      "OnceLock_layout_overhead_bytes": null
+    },
+    {
+      "context_count_only": 1024,
+      "layers": 32,
+      "per_block_preimage_bytes": 244329095,
+      "model_preimage_bytes": 7818531040,
+      "i8_cast_payload_per_scan_bytes": 7784890368,
+      "largest_current_cast_vector_bytes": 67108864,
+      "candidate_Rust_scratch_bytes": 65536,
+      "cached_digest_payload_bytes": 1024,
+      "OnceLock_layout_overhead_bytes": null
+    },
+    {
+      "context_count_only": 2048,
+      "layers": 32,
+      "per_block_preimage_bytes": 245377671,
+      "model_preimage_bytes": 7852085472,
+      "i8_cast_payload_per_scan_bytes": 7784890368,
+      "largest_current_cast_vector_bytes": 67108864,
+      "candidate_Rust_scratch_bytes": 65536,
+      "cached_digest_payload_bytes": 1024,
+      "OnceLock_layout_overhead_bytes": null
+    },
+    {
+      "context_count_only": 4096,
+      "layers": 32,
+      "per_block_preimage_bytes": 247474823,
+      "model_preimage_bytes": 7919194336,
+      "i8_cast_payload_per_scan_bytes": 7784890368,
+      "largest_current_cast_vector_bytes": 67108864,
+      "candidate_Rust_scratch_bytes": 65536,
+      "cached_digest_payload_bytes": 1024,
+      "OnceLock_layout_overhead_bytes": null
+    }
+  ],
+  "count_only_scan_schedules": [
+    {
+      "mode": "cold-CLI-prover-build-model-and-statement-per-pass",
+      "passes_count_only": 1,
+      "baseline_full_model_scans": 2,
+      "cache_full_model_scans": 1,
+      "eliminated_logical_scan_bytes": 7801753824,
+      "limits": "count-only call pattern, no masks/proofs/DRAM clocks; fixed endpoints not fresh independent passes"
+    },
+    {
+      "mode": "resident-model-root-once-fresh-statement-per-pass",
+      "passes_count_only": 1,
+      "baseline_full_model_scans": 2,
+      "cache_full_model_scans": 1,
+      "eliminated_logical_scan_bytes": 7801753824,
+      "limits": "count-only call pattern, no masks/proofs/DRAM clocks; fixed endpoints not fresh independent passes"
+    },
+    {
+      "mode": "fixed-existing-statement-diagnostic-no-rebuild",
+      "passes_count_only": 1,
+      "baseline_full_model_scans": 2,
+      "cache_full_model_scans": 1,
+      "eliminated_logical_scan_bytes": 7801753824,
+      "limits": "count-only call pattern, no masks/proofs/DRAM clocks; fixed endpoints not fresh independent passes"
+    },
+    {
+      "mode": "cold-CLI-prover-build-model-and-statement-per-pass",
+      "passes_count_only": 2,
+      "baseline_full_model_scans": 4,
+      "cache_full_model_scans": 1,
+      "eliminated_logical_scan_bytes": 23405261472,
+      "limits": "count-only call pattern, no masks/proofs/DRAM clocks; fixed endpoints not fresh independent passes"
+    },
+    {
+      "mode": "resident-model-root-once-fresh-statement-per-pass",
+      "passes_count_only": 2,
+      "baseline_full_model_scans": 3,
+      "cache_full_model_scans": 1,
+      "eliminated_logical_scan_bytes": 15603507648,
+      "limits": "count-only call pattern, no masks/proofs/DRAM clocks; fixed endpoints not fresh independent passes"
+    },
+    {
+      "mode": "fixed-existing-statement-diagnostic-no-rebuild",
+      "passes_count_only": 2,
+      "baseline_full_model_scans": 2,
+      "cache_full_model_scans": 1,
+      "eliminated_logical_scan_bytes": 7801753824,
+      "limits": "count-only call pattern, no masks/proofs/DRAM clocks; fixed endpoints not fresh independent passes"
+    },
+    {
+      "mode": "cold-CLI-prover-build-model-and-statement-per-pass",
+      "passes_count_only": 8,
+      "baseline_full_model_scans": 16,
+      "cache_full_model_scans": 1,
+      "eliminated_logical_scan_bytes": 117026307360,
+      "limits": "count-only call pattern, no masks/proofs/DRAM clocks; fixed endpoints not fresh independent passes"
+    },
+    {
+      "mode": "resident-model-root-once-fresh-statement-per-pass",
+      "passes_count_only": 8,
+      "baseline_full_model_scans": 9,
+      "cache_full_model_scans": 1,
+      "eliminated_logical_scan_bytes": 62414030592,
+      "limits": "count-only call pattern, no masks/proofs/DRAM clocks; fixed endpoints not fresh independent passes"
+    },
+    {
+      "mode": "fixed-existing-statement-diagnostic-no-rebuild",
+      "passes_count_only": 8,
+      "baseline_full_model_scans": 2,
+      "cache_full_model_scans": 1,
+      "eliminated_logical_scan_bytes": 7801753824,
+      "limits": "count-only call pattern, no masks/proofs/DRAM clocks; fixed endpoints not fresh independent passes"
+    },
+    {
+      "mode": "cold-CLI-prover-build-model-and-statement-per-pass",
+      "passes_count_only": 32,
+      "baseline_full_model_scans": 64,
+      "cache_full_model_scans": 1,
+      "eliminated_logical_scan_bytes": 491510490912,
+      "limits": "count-only call pattern, no masks/proofs/DRAM clocks; fixed endpoints not fresh independent passes"
+    },
+    {
+      "mode": "resident-model-root-once-fresh-statement-per-pass",
+      "passes_count_only": 32,
+      "baseline_full_model_scans": 33,
+      "cache_full_model_scans": 1,
+      "eliminated_logical_scan_bytes": 249656122368,
+      "limits": "count-only call pattern, no masks/proofs/DRAM clocks; fixed endpoints not fresh independent passes"
+    },
+    {
+      "mode": "fixed-existing-statement-diagnostic-no-rebuild",
+      "passes_count_only": 32,
+      "baseline_full_model_scans": 2,
+      "cache_full_model_scans": 1,
+      "eliminated_logical_scan_bytes": 7801753824,
+      "limits": "count-only call pattern, no masks/proofs/DRAM clocks; fixed endpoints not fresh independent passes"
+    }
+  ],
+  "elapsed_seconds": 0.12582603900045797,
+  "peak_rss_kib": 17868,
+  "resources": {
+    "threads": 1,
+    "affinity": [
+      0
+    ],
+    "nice": 19,
+    "wall_alarm_s": 59,
+    "CPU_limit_s": 59,
+    "address_space_cap_MiB": 512,
+    "estimated_memory_MiB": 64
+  },
+  "script_sha256": "59297bc3fac63cdbcb3fb883c1d2c2d0e158d01b3968c41885e2d660ba548893",
+  "proof_accounting": {
+    "context_length": null,
+    "steady_state_tokens_per_s": null,
+    "total_workload_tokens_per_s": null,
+    "startup_fraction": null,
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "independent_verification_s": null,
+    "proof_latency_s": null,
+    "proof_lag_s": null,
+    "pipeline_drain_s": null,
+    "accepted_complete_private8b_passes": 0,
+    "countable_tokens": 0,
+    "passes": 0,
+    "device": "CPU only",
+    "prefill": "none",
+    "resident_passes": "none",
+    "decode": "none"
+  },
+  "limits": [
+    "Exact public preimage oracle, not native BLAKE3/RNG/transcript/PCS/proof",
+    "SHA256 diagnostic only",
+    "Python owner privacy models do not enforce Rust child-module immutability or concurrent initialization",
+    "No real weights/tokens/activations",
+    "No actual speed/DRAM/peak-memory gain measured",
+    "Outer binding is a diagnostic projection, not native header bytes"
+  ]
+}

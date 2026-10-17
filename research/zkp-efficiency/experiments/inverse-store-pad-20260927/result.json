@@ -1,0 +1,243 @@
+{
+  "status": "passed",
+  "seed": 2026092712,
+  "cases": 56,
+  "multirow_chunk_checks": 16,
+  "branch_counts": {
+    "p1": 46,
+    "p2": 10,
+    "q_lt_n": 29,
+    "q_eq_n": 10,
+    "q_gt_n": 17
+  },
+  "independent_direct_points": 816,
+  "negative_controls": {
+    "wrong_scale": true,
+    "missing_negative": true,
+    "missing_tail_negative": true,
+    "missing_coset": true,
+    "legacy_q_gt_n": true,
+    "wrong_row_stride": true,
+    "dirty_pool_tail": true,
+    "in_place_widened_stride_alias": true
+  },
+  "digest_sha256": "c593e38510dba08ec549f7bded6d9201a009d5dfb9e4651d80960223f05481d4",
+  "profiles": [
+    {
+      "n": 1024,
+      "q": 256,
+      "nn": 4096,
+      "rows": 1,
+      "branch": "p1",
+      "baseline_logical_bytes": 49152,
+      "fused_logical_bytes": 32768,
+      "removed_bytes": 16384,
+      "scratch_peak_baseline_bytes": 18432,
+      "scratch_peak_fused_bytes": 10240,
+      "sectors": {
+        "baseline": {
+          "by_op": {
+            "inverse_read": 1024,
+            "inverse_write": 256,
+            "coef_read": 256,
+            "neg_pad_read": 64,
+            "pos_pad_read": 64,
+            "power_read": 320,
+            "out_write": 320
+          },
+          "total": 2304
+        },
+        "fused": {
+          "by_op": {
+            "inverse_read": 1024,
+            "inverse_write": 0,
+            "coef_read": 0,
+            "neg_pad_read": 64,
+            "pos_pad_read": 64,
+            "power_read": 320,
+            "out_write": 320
+          },
+          "total": 1792
+        }
+      }
+    },
+    {
+      "n": 16384,
+      "q": 256,
+      "nn": 65536,
+      "rows": 1,
+      "branch": "p2",
+      "baseline_logical_bytes": 663552,
+      "fused_logical_bytes": 401408,
+      "removed_bytes": 262144,
+      "scratch_peak_baseline_bytes": 264192,
+      "scratch_peak_fused_bytes": 264192,
+      "sectors": {
+        "baseline": {
+          "by_op": {
+            "inverse_read": 4096,
+            "inverse_write": 4096,
+            "coef_read": 4096,
+            "neg_pad_read": 64,
+            "pos_pad_read": 64,
+            "power_read": 4160,
+            "out_write": 4160
+          },
+          "total": 20736
+        },
+        "fused": {
+          "by_op": {
+            "inverse_read": 4096,
+            "inverse_write": 0,
+            "coef_read": 0,
+            "neg_pad_read": 64,
+            "pos_pad_read": 64,
+            "power_read": 4160,
+            "out_write": 4160
+          },
+          "total": 12544
+        }
+      }
+    },
+    {
+      "n": 16384,
+      "q": 257,
+      "nn": 65536,
+      "rows": 3,
+      "branch": "p2",
+      "baseline_logical_bytes": 1990752,
+      "fused_logical_bytes": 1204320,
+      "removed_bytes": 786432,
+      "scratch_peak_baseline_bytes": 792600,
+      "scratch_peak_fused_bytes": 792600,
+      "sectors": {
+        "baseline": {
+          "by_op": {
+            "inverse_read": 12288,
+            "inverse_write": 12288,
+            "coef_read": 12288,
+            "neg_pad_read": 211,
+            "pos_pad_read": 211,
+            "power_read": 12483,
+            "out_write": 13523
+          },
+          "total": 63292
+        },
+        "fused": {
+          "by_op": {
+            "inverse_read": 12288,
+            "inverse_write": 0,
+            "coef_read": 0,
+            "neg_pad_read": 211,
+            "pos_pad_read": 218,
+            "power_read": 12507,
+            "out_write": 13530
+          },
+          "total": 38754
+        }
+      }
+    },
+    {
+      "n": 16384,
+      "q": 16384,
+      "nn": 65536,
+      "rows": 1,
+      "branch": "p2",
+      "baseline_logical_bytes": 1179648,
+      "fused_logical_bytes": 917504,
+      "removed_bytes": 262144,
+      "scratch_peak_baseline_bytes": 393216,
+      "scratch_peak_fused_bytes": 393216,
+      "sectors": {
+        "baseline": {
+          "by_op": {
+            "inverse_read": 4096,
+            "inverse_write": 4096,
+            "coef_read": 4096,
+            "neg_pad_read": 4096,
+            "pos_pad_read": 4096,
+            "power_read": 8192,
+            "out_write": 8192
+          },
+          "total": 36864
+        },
+        "fused": {
+          "by_op": {
+            "inverse_read": 4096,
+            "inverse_write": 0,
+            "coef_read": 0,
+            "neg_pad_read": 4096,
+            "pos_pad_read": 4096,
+            "power_read": 8192,
+            "out_write": 8192
+          },
+          "total": 28672
+        }
+      }
+    },
+    {
+      "n": 16384,
+      "q": 16387,
+      "nn": 65536,
+      "rows": 1,
+      "branch": "p2",
+      "baseline_logical_bytes": 1179744,
+      "fused_logical_bytes": 917600,
+      "removed_bytes": 262144,
+      "scratch_peak_baseline_bytes": 393240,
+      "scratch_peak_fused_bytes": 393240,
+      "sectors": {
+        "baseline": {
+          "by_op": {
+            "inverse_read": 4096,
+            "inverse_write": 4096,
+            "coef_read": 4096,
+            "neg_pad_read": 4097,
+            "pos_pad_read": 4097,
+            "power_read": 8193,
+            "out_write": 8193
+          },
+          "total": 36868
+        },
+        "fused": {
+          "by_op": {
+            "inverse_read": 4096,
+            "inverse_write": 0,
+            "coef_read": 0,
+            "neg_pad_read": 4097,
+            "pos_pad_read": 4483,
+            "power_read": 8579,
+            "out_write": 8579
+          },
+          "total": 29834
+        }
+      }
+    }
+  ],
+  "source_pins": {
+    "hashline/src/gpu/cuda.rs": "a0ed0b3af7e38bd9a842cc0c024f9c12cc988c81fa586d2e4a67d5c7c5c11e9d",
+    "hashline/src/gpu/kernels.cu": "bd00229fd61e86ae2bc0e037d5fa9cd90acc8a8a0f0fbf5583d501d2caf7b6aa",
+    "zkp-core/src/pcs.rs": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d",
+    "zkp-core/src/ntt.rs": "97572d4f242637d21a089388abad4b5b39136c62036faa17ae94b3ba6f170890"
+  },
+  "source_sha256": "eeaf5d1204adb111e5dbdb6629007a142e5a0f593d62f13395dea8ef06ff897f",
+  "elapsed_s": 1.3943127170205116,
+  "peak_rss_kib": 29704,
+  "threads": 1,
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "limits": {
+    "wall_s": 59,
+    "cpu_s": 55,
+    "address_space_mib": 512,
+    "estimated_memory_mib": 40
+  },
+  "clocks": {
+    "witness_s": null,
+    "prove_s": null,
+    "serialization_s": null,
+    "verify_s": null
+  },
+  "scope": "Synthetic exact arithmetic, block ownership and source-address model. No CUDA/native compilation, GPU timings, hashing, receipt, full-stack proof or privacy review."
+}

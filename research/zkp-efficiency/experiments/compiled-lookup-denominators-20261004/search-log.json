@@ -1,0 +1,206 @@
+{
+  "run_id": "20261004T150146Z-0acf7ff8",
+  "access_date": "2026-10-04",
+  "method": "native LIVE web search and primary inspection",
+  "calls": [
+    {
+      "id": "search33a",
+      "args": {
+        "search_query": [
+          {
+            "q": "sumcheck lookup prover linear combination constant folding Goldilocks 2026 github"
+          },
+          {
+            "q": "LogUp GKR lookup denominator preprocessing coefficients sumcheck 2025 2026"
+          },
+          {
+            "q": "site.github.com/Plonky3/Plonky3 \"lookup\" \"2026\" \"September\""
+          },
+          {
+            "q": "site.eprint.iacr.org \"LogUp\" \"2026\""
+          }
+        ],
+        "response_length": "long"
+      }
+    },
+    {
+      "id": "search33b",
+      "args": {
+        "open": [
+          {
+            "ref_id": "https://arxiv.org/abs/2504.00693"
+          },
+          {
+            "ref_id": "https://docs.rs/p3-security/latest/p3_security/logup/index.html"
+          },
+          {
+            "ref_id": "https://github.com/Plonky3/Plonky3/pulls?q=is%3Apr+is%3Amerged+lookup"
+          },
+          {
+            "ref_id": "https://openvm.dev/swirl.pdf"
+          }
+        ],
+        "response_length": "long"
+      }
+    },
+    {
+      "id": "search33c",
+      "args": {
+        "search_query": [
+          {
+            "q": "site.github.com/Plonky3/Plonky3 \"lookup\" \"precompute\" \"2026\""
+          },
+          {
+            "q": "site.github.com/Plonky3/Plonky3 \"constant\" \"lookup\" \"Sep\" \"2026\""
+          },
+          {
+            "q": "site.github.com/Plonky3/Plonky3/releases \"0.8.0\""
+          },
+          {
+            "q": "site.github.com/openvm-org/openvm \"swirl\" \"2026\""
+          }
+        ],
+        "open": [
+          {
+            "ref_id": "https://docs.rs/crate/p3-security/0.8.0"
+          },
+          {
+            "ref_id": "https://github.com/Plonky3/Plonky3/blob/main/lookup/src/folder.rs"
+          },
+          {
+            "ref_id": "https://github.com/Plonky3/Plonky3/blob/main/LICENSE-MIT"
+          },
+          {
+            "ref_id": "https://arxiv.org/html/2504.00693v1"
+          }
+        ],
+        "response_length": "long"
+      }
+    },
+    {
+      "id": "search33d",
+      "args": {
+        "open": [
+          {
+            "ref_id": "https://docs.rs/crate/p3-security/latest"
+          },
+          {
+            "ref_id": "https://docs.rs/p3-lookup/0.8.0/src/p3_lookup/folder.rs.html"
+          },
+          {
+            "ref_id": "https://github.com/Plonky3/Plonky3/pull/1968"
+          },
+          {
+            "ref_id": "https://github.com/openvm-org/openvm/commit/15a7ab6"
+          },
+          {
+            "ref_id": "https://github.com/openvm-org/openvm/blob/main/LICENSE-MIT"
+          }
+        ],
+        "find": [
+          {
+            "ref_id": "https://arxiv.org/html/2504.00693v1",
+            "pattern": "complexity"
+          },
+          {
+            "ref_id": "https://openvm.dev/swirl.pdf",
+            "pattern": "3.4. Interactions"
+          },
+          {
+            "ref_id": "https://github.com/Plonky3/Plonky3/blob/main/LICENSE-MIT",
+            "pattern": "Permission is hereby"
+          }
+        ],
+        "response_length": "long"
+      }
+    },
+    {
+      "id": "search33e",
+      "args": {
+        "search_query": [
+          {
+            "q": "site:github.com/Plonky3/Plonky3/pull \"lookup\" \"simplify\""
+          },
+          {
+            "q": "site:github.com/Plonky3/Plonky3/pull \"lookup\" \"precompute\""
+          },
+          {
+            "q": "site:github.com/Plonky3/Plonky3/pull \"constant\" \"coefficient\" \"2026\""
+          }
+        ],
+        "open": [
+          {
+            "ref_id": "https://github.com/Plonky3/Plonky3/releases"
+          },
+          {
+            "ref_id": "https://docs.rs/crate/p3-lookup/0.8.0"
+          },
+          {
+            "ref_id": "https://github.com/openvm-org/openvm/releases"
+          }
+        ],
+        "find": [
+          {
+            "ref_id": "https://github.com/Plonky3/Plonky3/pull/1968",
+            "pattern": "merged"
+          },
+          {
+            "ref_id": "https://github.com/openvm-org/openvm/blob/main/LICENSE-MIT",
+            "pattern": "Permission is hereby"
+          }
+        ],
+        "response_length": "long"
+      }
+    },
+    {
+      "id": "search33f",
+      "args": {
+        "open": [
+          {
+            "ref_id": "https://docs.rs/crate/p3-zk-codes/0.8.0"
+          },
+          {
+            "ref_id": "https://github.com/Plonky3/Plonky3/pull/1968",
+            "lineno": 160
+          },
+          {
+            "ref_id": "https://arxiv.org/html/2504.00693v1",
+            "lineno": 421
+          },
+          {
+            "ref_id": "https://github.com/Plonky3/Plonky3/releases",
+            "lineno": 180
+          }
+        ],
+        "response_length": "long"
+      }
+    }
+  ],
+  "opened_primary_pages": [
+    "https://arxiv.org/abs/2504.00693",
+    "https://arxiv.org/html/2504.00693v1",
+    "https://docs.rs/p3-security/latest/p3_security/logup/index.html",
+    "https://openvm.dev/swirl.pdf",
+    "https://github.com/Plonky3/Plonky3/pull/1968",
+    "https://github.com/Plonky3/Plonky3/releases",
+    "https://github.com/Plonky3/Plonky3/blob/main/LICENSE-MIT",
+    "https://github.com/openvm-org/openvm/releases",
+    "https://github.com/openvm-org/openvm/blob/main/LICENSE-MIT"
+  ],
+  "blocked_urls": [
+    "https://github.com/Plonky3/Plonky3/pulls?q=is%3Apr+is%3Amerged+lookup: Cache miss",
+    "https://docs.rs/crate/p3-security/0.8.0: Internal Error",
+    "https://docs.rs/crate/p3-security/latest: Internal Error",
+    "https://github.com/Plonky3/Plonky3/blob/main/lookup/src/folder.rs: Internal Error",
+    "https://docs.rs/p3-lookup/0.8.0/src/p3_lookup/folder.rs.html: Internal Error",
+    "https://docs.rs/crate/p3-lookup/0.8.0: Internal Error",
+    "https://docs.rs/crate/p3-zk-codes/0.8.0: Internal Error",
+    "https://github.com/openvm-org/openvm/commit/15a7ab6: Internal Error"
+  ],
+  "notes": [
+    "Search snippet SWIRL Jan29 differs from opened PDF datedMar13; no verified publication/revision date inferred from that discrepancy.",
+    "Search p3-security snippet0.7.0 differs from opened latest0.8.0; current source/version and update date unpinned.",
+    "Official docs.rs p3-zk-codes/latest search version listing states0.8.0 Sep23 2026; direct pinned page fetch failed.",
+    "No paper/repository performance reproduced; no foreign code executed, no bypass."
+  ]
+}

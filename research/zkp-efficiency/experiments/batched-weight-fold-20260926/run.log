@@ -1,0 +1,39 @@
+{
+  "status": "passed",
+  "run_identity": "20260926T215233Z-c6bf3a4b",
+  "seed": 2026092606,
+  "threads": 1,
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "cpu_affinity": [
+    0
+  ],
+  "estimated_memory_mib": 32,
+  "limits": {
+    "wall_s": 59,
+    "cpu_s": 55,
+    "address_space_mib": 512
+  },
+  "differential_cases": 385,
+  "field_outputs_compared": 29290,
+  "independent_eq_entries": 13260,
+  "independent_matrix_mles": 360,
+  "negative_controls": {
+    "stale_challenge": true,
+    "unsigned": true,
+    "drop_extension": true,
+    "drop_tail": true,
+    "mixed_model_reuse": true,
+    "dirty_padding": true,
+    "proof_order_swap": true,
+    "model_key_digest": true
+  },
+  "fixture_refusals": 6,
+  "elapsed_s": 3.209313214989379,
+  "peak_rss_kib": 16300,
+  "proving_s": null,
+  "verification_s": null,
+  "complete_readiness_s": null,
+  "source_sha256": "c9c90710fff2cbb86896edc652dff4392ed8c9e21b3ddbdfba4b2783c88eb8e7"
+}

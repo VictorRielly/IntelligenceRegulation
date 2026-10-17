@@ -1,0 +1,1 @@
+{"status": "pass", "cases": 324, "fresh_fold_comparisons": 3888, "fold_output_words": 40824, "canonical_FFN_bytes_compared": 1157652, "padded_support_refusals": 315, "independent_line_accounting_cases": 576, "control_count": 17, "elapsed_seconds": 0.41910403499969107, "peak_rss_kib": 17192}

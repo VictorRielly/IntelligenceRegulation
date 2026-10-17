@@ -1,0 +1,11 @@
+--- /tmp/zk60-groups-20260926/zkp-core/src/pcs.rs	2026-09-22 20:50:39.558761504 -0700
++++ /tmp/zk60-sol-model-20260927/zkp-core/src/pcs.rs	2026-09-26 19:45:40.296291709 -0700
+@@ -39,6 +39,8 @@
+ mod encode_buffer;
+ #[cfg(test)]
+ mod encode_conformance_tests;
++#[cfg(test)]
++mod recompute_probe;
+ pub use backend::{Backend, Cpu, EncodedStore, NoExternal};
+ 
+ #[derive(Clone, Copy, Debug)]

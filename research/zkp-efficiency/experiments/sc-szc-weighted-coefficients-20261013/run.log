@@ -1,0 +1,74 @@
+{
+  "status": "passed",
+  "seed": 2026101348,
+  "scope": "synthetic source-derived algebra and literal operation accounting; no native proof",
+  "counts": {
+    "independent_final_values": 41472,
+    "schedules": 1536,
+    "fixtures": 128,
+    "independent_round_samples": 13824,
+    "independent_weighted_polynomial_values": 60,
+    "executed_counter_census_checks": 144,
+    "executed_singleton_regressions": 1
+  },
+  "rows": 4224,
+  "part_chunks": 3072,
+  "recoveries": 2124,
+  "zero_factor_fallbacks": 1332,
+  "weighted_rounds": 576,
+  "baseline_rounds": 1728,
+  "negative_controls": [
+    "omit_suffix_weight",
+    "reverse_coefficients",
+    "drop_part",
+    "drop_ragged",
+    "unfinished_finals",
+    "fold_without_round",
+    "double_round"
+  ],
+  "retained_negative": {
+    "singleton_always_policy_delta": {
+      "add": 1,
+      "mul": 1,
+      "sub": 0,
+      "mul_base": 0
+    },
+    "extra_native_base_products": 5
+  },
+  "output_sha256": "2c6ec5d105e4b707ee4dfac86ee3c6296bdf8466ced2132108d81f52db27723e",
+  "wall_seconds": 10.936207589998958,
+  "max_rss_kib": 20788,
+  "hardware": {
+    "cpu_model": "Intel(R) Core(TM) Ultra 9 185H",
+    "affinity": [
+      0
+    ],
+    "threads": 1,
+    "nice": 19,
+    "device": "CPU only"
+  },
+  "limits": {
+    "wall_seconds": 59,
+    "cpu_seconds": 59,
+    "address_space_bytes": 536870912,
+    "estimated_bytes": 67108864
+  },
+  "proof_accounting": {
+    "accepted_complete_private_8b_proofs": 0,
+    "proved_tokens": 0,
+    "passes": 0,
+    "context_length": null,
+    "steady_tokens_per_second": null,
+    "total_workload_tokens_per_second": null,
+    "startup_seconds": null,
+    "startup_fraction": null,
+    "witness_seconds": null,
+    "proof_seconds": null,
+    "serialization_seconds": null,
+    "independent_verification_seconds": null,
+    "prefill": null,
+    "resident_passes": null,
+    "decode": null
+  }
+}
+ILLUSTRATIVE {"n": 23, "ls": 3, "padded": true, "recovery": true, "debug": false, "chunk": 1024, "policy": "public_half", "baseline": "cycle47 selective row coefficients plus identical binary part reduction census", "before": {"mul_base": 314572765, "add": 2957073930, "mul": 2118123271, "sub": 1245708155}, "after": {"mul_base": 197132545, "add": 2843828012, "mul": 2122317573, "sub": 1245708155}, "delta": {"mul": 4194302, "mul_base": -117440220, "add": -113245918}, "base_mul_before": 11219761885, "base_mul_after": 11005852955, "base_mul_fraction_removed": 0.019065371635558555, "api_before": 6635478121, "api_after": 6408986285, "api_fraction_removed": 0.034133461352724125, "weighted_rows": 8388606, "weighted_rounds": 22, "part_reduction_adds": 89958, "old_horner_base_mul": 117440500, "new_horner_base_mul": 280, "retained_group0_part_output_bytes": 80, "incremental_group0_part_output_bytes": 0, "excluded": ["Eq construction", "group factor setup", "inverse/recovery/high-sample interpolation; part reduction is counted", "native allocation/temporaries/register pressure", "mask extensions", "witness", "PCS", "transfers", "serialization", "verification"], "reduction_limit": "P-1 binary merges counted; rayon identity folds/compiler behavior unmeasured; equal width in both arms"}

@@ -1,0 +1,13 @@
+# ZKP efficiency progress
+
+Cycle0023 — `20261004T050146Z-1f54a8f9`, checkpoint 2026-10-04T05:19:49.396495+00:00.
+
+The exact row-tiled FFN-down experiment passed260 schedules,3380 independent raw-dot comparisons,9508 accepted output/remainder words,162 rounding edges,14 mutation and2 domain controls. Final execution1.252728s/23096KiB RSS on one low-priority CoreUltra9 185H thread. No proving improvement was measured. Initial overflow-control failure is retained; final controls detect changed remainder and first refusal as well as accumulator errors.
+
+The source seam is `private_block/witness.rs:685`: consume complete down dots into the same z16 and biased-remainder planes. The raw accumulator is temporary. At counted, unadmitted T5128B geometry, coarse64-row/full-width/full-K staging uses36MiB local payload versus48MiB materialized split, with8 conceptual GEMMs. Narrow output tiles save only1.94MiB more but need256 GEMMs; splitK needs4096 calls and512MiB packing. Final32MiB output/remainder remains. Workspace, mirrors, other witness planes/preallocated destinations, cache and actual peaks are omitted; these are counts, not memory or speed measurements. [Experiment](experiments/tiled-down-requant-20261004/README.md) · [Owner review handoff](handoffs/20261004-tiled-down-requant.md).
+
+This cycleCPUonly,acceptedcompleteprivate8Bpasses0/countabletokens0/contextnull. Steady-state and total-workload rates, startup fraction, witness/proof/serialization/independent-verification, latency/lag/drain clocks unmeasured. The previous n1cold synthetic12-block125M/T512 RTX4070Laptop diagnostic remains408.609226s total,318.22s runprover including witness/serialization,12.15s in-processverification,484107456B,independentfalse. No prefill/resident/decode rate follows. Larger workloads remain allowed; the50-token/s private8B target is unachieved.
+
+LIVE search examined [Sep30 exact integer fast-matmul](https://arxiv.org/abs/2609.39816), [older custom epilogues](https://research.colfax-intl.com/epilogue_visitor_tree/) and [CUTLASS source/releases](https://github.com/NVIDIA/cutlass/releases). Four source records appended with exact dates/license/commit limits; author gains not reproduced. GitHub history429 and tag/license InternalErrors recorded, with no bypass.
+
+Next: owner isolates repeated witness/down clocks, then validates coarse-row adapter under shared guard with native byte/RNG/refusal/receipt parity and independent verification. Next local experiment tests grouped/strided public tile scheduling with row-pack reuse and bounded outstanding partials. NativeGPU SC_SZC/witness work retains highest priority; fine tiles are demoted pending launch/traffic evidence. Production/runtime untouched. Saved reports are not message-delivery evidence.

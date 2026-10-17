@@ -1,0 +1,151 @@
+CLAUDE (SONNET 5.5) DELIVERY: MVP STACK CLI, lane hashline/src/private_block/mvp_driver.rs
+=======================================================================================
+Written to candidate/claude-delivery.txt (the instruction said "here"; my file tools are confined to candidate/, so
+SONNET_TASK's ../claude-delivery.txt was not reachable). Copy it up if you want it there.
+
+STATUS: written, NOT compiled, NOT run. I had no Bash. Everything below is by reading the source. Treat the first
+`cargo build` as the first real test.
+
+FILES CHANGED (all inside my lane)
+  NEW  hashline/src/private_block/mvp_driver.rs   production driver + cfg(test) tests (in the same file)
+  NEW  hashline/examples/zk60_private_stack.rs    18-line CLI over two entry points
+  EDIT hashline/src/private_block.rs              +`mod mvp_driver;` +`pub use mvp_driver::{prove_command, verify_command};`
+No protocol, kernel, wire, run.rs, run_sink.rs or Cargo.toml change. No dependency added (blake3/sha2 already there).
+
+THINGS IN SONNET_TASK THAT DID NOT MATCH THE TREE (please read)
+  1. There is no synth_weights.rs. The synthetic fixture is dense_tests.rs (dense_run_case, band_down_run) plus the
+     padding helpers in grow_tests.rs:762-806. I copied them narrowly (mvp_driver.rs top half).
+  2. "Recipe varies deterministically by block as existing tests do": existing tests/recipes do NOT vary by block. Every
+     run uses the SAME nine public words in every block (run_tests.rs blocks_from/blocks_of; DENSE_RUN_RECIPE_NAME says "the
+     same fully dense public words for every block"). The chain bands (dense_tests.rs:344 band_down_run: p2 39, m125 1) were
+     measured only for that. So:
+       --recipe dense-run          (DEFAULT) identical words per block, byte-identical to the retained run recipe
+       --recipe dense-run-varied   block k seeds from DENSE_SEED + k*0x9E3779B97F4A7C15 (block 0 == dense-run).
+                                   ADMISSIBILITY UNMEASURED. If a block leaves int16 the sealing pass refuses by name
+                                   ("block k: fixed oracle range refusal: residual 2") before any header or directory exists.
+  3. run_statement_file.rs / run_tests helpers are cfg(test) and their JSON reader is test-only. I did not enable them. The
+     artifact carries statement/mvp-manifest.json (the one directory run_sink::segment_paths permits), not
+     run-statement.json. The two formats are unrelated.
+
+COMMANDS
+  zk60_private_stack prove  --shape p2|m125 --blocks N --out DIR --policy-out FILE
+                            [--recipe dense-run|dense-run-varied] [--context-label L] [--input-seed N]
+  zk60_private_stack verify --artifact DIR --policy FILE [--policy-sha256 H] [--expect-shape S] [--expect-blocks N]
+                            [--expect-recipe R] [--expect-context-label L] [--expect-run-profile P] [--expect-calibration H]
+                            [--expect-block-digests H] [--expect-input-root H] [--expect-output-root H]
+  exit: 0 accepted, 1 failed/refused, 2 bad arguments. stdout = JSON lines only. --blocks is 1..=64 (driver cap; RunStatement::new
+  and the T-3 hash-length check still apply and may refuse smaller L at m125, run.rs:203-226).
+
+ROOT: COMPILE / TEST / RUN
+  cd hashline
+  cargo build --release --example zk60_private_stack        (GPU build: your usual --features gpu-cuda; HL_GPU is echoed in prove_start)
+  cargo test  --release private_block::mvp_driver           (4 tests; the end-to-end one proves two rung-p2 blocks twice, ~seconds each)
+  target/release/examples/zk60_private_stack prove  --shape p2 --blocks 3 --out /tmp/zk60/p2x3 --policy-out /tmp/zk60/p2x3.policy
+  target/release/examples/zk60_private_stack verify --artifact /tmp/zk60/p2x3 --policy /tmp/zk60/p2x3.policy --policy-sha256 <from prove_result>
+  m125 12 blocks (heavy, yours to launch): same with --shape m125 --blocks 12, MALLOC_MMAP_THRESHOLD_=131072 as in run_tests.rs:1075, and
+  --out / --policy-out OUTSIDE the repo. The driver does not enforce "outside the repo" (the test helper heavy_run_dir did).
+  Tests worth reading first: the_copied_recipe_is_the_dense_run_recipe_at_both_shapes (my copy vs dense_tests, digest-for-digest at p2
+  and m125) and a_two_block_p2_stack_... (refusal matrix below).
+
+WHAT IT DOES (anchored)
+  * Proves with run::prove_run (run.rs:531) and verifies with run::verify_run_from_dir (run.rs:898): one transcript, hidden
+    internal boundaries. Not concatenated blocks.
+  * Source: StackSource implements RunWitnessSource. It retains ONE current input (x) and at most ONE witness. prove_run calls
+    boundary_plane(k) then witness(k) (run.rs:576, 588), so boundary_plane builds witness k, keeps it in `cached`, and witness(k)
+    hands it over. Two passes, per ruling H-1 (run.rs:465-495): a SEALING pass (L builds, gives the two external planes before the
+    header, inadmissible chains refused here) and the PROVING pass (L more builds). Counts are reported as witness_builds. At the
+    last block the proving pass compares a blake3 of its output plane with the sealing pass's (in memory only) and refuses on drift.
+  * Fresh randomness: prepare_endpoints (OS ZkRng inside endpoint_g::prepare) and prove_run (ZkRng::from_os, run.rs:551) draw fresh
+    every proof. The test asserts two proofs of the same shape/blocks give different policies (endpoint roots).
+  * Tokens: reported once (tokens = shape tokens); block_token_evaluations = tokens*layers is a separate field.
+  * Scope in every result: scope string, synthetic:true, trained_model:false, trained_8b_proof:false, privacy_acceptance:false.
+  * prove_result carries receipt_bytes, per-segment bytes+sha256, block/run profile, shape name, layers, dims, recipe, model_digest,
+    calibration identity + scales, endpoint roots, policy sha256, independent_verification{available:true,
+    performed_in_this_process:false, in_process_check:"passed", command}, witness_builds, timing_s, driver_wall_s, peak_rss_mib
+    (run::peak_rss_mib process high-water mark).
+  * Phases (timing_s keys, each also emitted live as a {"event":"phase"} line): model_setup, chain_prepass, endpoint_prep,
+    statement, witness_build_recurring (proving pass, all recomputation),
+    prove_and_serialize_excluding_witness_io (prove_run wall minus witness build minus sink; wire::encode_segment runs INSIDE
+    prove_run, so segment serialization is INCLUDED here and is NOT separately instrumented),
+    stage_io (DirSink write+fsync+SHA-256 only), verify_setup_inprocess, verify_inprocess, publish. driver_wall_s is command wall
+    from argument parsing to result. It excludes process start/exit and is labelled so; tokens_per_s_over_driver_wall uses it. Nothing
+    is labelled end-to-end from prove_run alone. Root adds process-level totals and GPU evidence.
+
+TRUST MODEL OF verify
+  Only the caller's policy file (zk60-mvp-policy/1, written by prove OUTSIDE the artifact) and pins are trusted. Policy = shape,
+  blocks, recipe, context label, model-digest root, both external endpoint roots; every other line (block/run profile, tokens, dims,
+  context, calibration, scales) is DERIVED by this build and the text must equal its own canonical re-render, so a foreign profile,
+  wrong calibration, wrong count or wrong context is refused by named line. verify then regenerates the public weights from the recipe,
+  refuses unless their digest root matches the policy, rebuilds the RunStatement and ExpectedIo from the policy alone, and runs
+  verify_run_from_dir. The manifest in the artifact is only COMPARED (re-rendered from policy sha256 + segment lengths/sha256, must be
+  byte-equal); nothing is adopted from it. NOTE: the policy's endpoint roots are prover-created (D18). A verifier who takes the policy
+  from the prover has accepted those roots; whoever owns that decision owns it. That is a channel question, not something I can enforce.
+
+PUBLICATION / FAILURE
+  segments -> <out>.staging (DirSink, atomic per file) -> in-process verify from a statement rebuilt from the policy TEXT -> manifest ->
+  policy written (create_new) -> rename staging to <out>. Nothing exists at <out> before that. Existing <out>, <out>.staging or
+  --policy-out are refused (exit 2); nothing is overwritten or auto-deleted. On failure the driver deletes ONLY files it made
+  (segment-NNN.bin[.partial], the manifest), writes failed-attempt.json (phase, named error, timings, segment lengths/hashes, no
+  private value) and renames the staging dir to <out>.failed-<unix>-<pid>. No segment survives a failed attempt.
+  Refusal matrix (test): modified segment, swapped segments, missing segment, extra file, other run's policy, wrong pinned blocks /
+  shape / input root, policy byte edits, extra policy line, no final newline, oversize policy. Segment files are bounded by
+  wire::MAX_WIRE_BYTES_ANY, policy 16 KiB, manifest 64 KiB, blocks <= 64; no length in a file controls an allocation.
+
+THINGS I AM LEAST SURE OF (compile/behavior, for your first build)
+  * Borrow/lifetime details in prove_inner's sink closure (captures disk, sink_s, segrec; read after the block) and the kv_get lifetime.
+  * `Vec<String> != [String;1]` in scan_artifact; `(' '..='~').contains(&c)` in js().
+  * int16out_member/rope/exp signatures copied from grow_tests usage (Option for int16out_member, taken from zkp-core/src/tables.rs:143).
+  * RunStatement::new may refuse some L at m125 by the T-3 length check; that surfaces as failed_phase "statement".
+  * p2 chain band 39 was measured for 3 blocks; longer p2 chains are unmeasured (same caveat applies to m125 beyond 12).
+  * Memory at m125/12: blocks 12 x ~9.2 MB resident twice never at once (prover copies dropped before the in-process verify rebuild).
+
+BLOCKERS FOR TRAINED TINYLLAMA / LLAMA3-8B (each anchored; none is fixable inside my lane)
+  Reference geometries (corrected): TinyLlama = 22 layers, width 2048, FFN 5632, Q32 / KV4 / dh64. Pinned plain Llama3-8B = 32 layers,
+  width 4096, FFN 14336, Q32 / KV8 / dh128, rms_eps 1e-5, rope_theta 500000, no rope scaling. Host RAM ~15.4 GiB, GPU 8 GiB.
+  See trained-calibration-next.txt for the calibration-parameter specification.
+  B1 Calibration is one pinned constant pair. IoSpec::new_shaped refuses any scale but ENDPOINT_SCALES=(0,0) (private_block.rs:678),
+     RunStatement::new refuses any block scale pair but that (run.rs:193-200, ruling R-5), and calibration_identity() is the digest of the
+     literal "B3 public fixed calibration v1" (private_block.rs:318). A trained int8 model has per-tensor/per-layer exponents. Needs a
+     new calibration identity that commits per-layer scales, absorbed in the header (run.rs:353) and R-5 replaced by a check against it.
+  B2 Requantization shifts and tables are layout constants: SH_QKV/SH_ROPE/SH_S/SH_O/SH_AO/SH_G/SH_H_PROD/SH_Z, NORM_TN/NORM_CN (layout.rs:62-80),
+     RoPE base is 10000.0 in every current rope_tables_generate call (grow_tests/dense_tests/mvp_driver block_of); it is a table-generation
+     ARGUMENT (tables_attn.rs:142), so pinned plain Llama3-8B's 500000 with no scaling is a public-table change, not an equation change.
+     Activation table is SiLU (-3,-11), one of nine frozen registry members. A trained checkpoint must be quantized so these match, or they
+     become Shape/statement parameters. This is the main correctness risk and needs the reference kernel (private-block-kernel-shaped) to
+     define the quantizer. The exact minimal parameter list is in trained-calibration-next.txt.
+  B3 Whole-model public weights are resident. prove_run and RunVerifier take `blocks: &[BlockPublic]` (run.rs:531, 672) and the header
+     absorbs every digest up front (run.rs:254-261, 351). m125 is ~9.2 MB/block (run_tests.rs:1353-1357). Resident public words for all layers of a
+     larger model have NOT been sized here; against 15.4 GiB host RAM and 8 GiB GPU the whole-model-resident design must be sized from the
+     padded statement, not assumed. Needs a streaming provider (block k's public words on demand at run.rs:571 and 736, digests from a
+     pinned manifest) on both prover and verifier sides.
+  B4 Witness size. Witness.planes is Vec<Vec<i64>> (witness.rs:45); ~711 MB at m125/512 tokens (run_tests.rs:1353-1357). The trained-shape
+     witness has not been sized here; whether one witness fits 8 GiB / 15.4 GiB must be counted from the padded plane list, and if it does not,
+     it needs plane-wise / slot-wise streaming or token chunking with a KV carry (a statement change: causal attention across chunks).
+  B5 Shapes are a closed set with measured admissibility. Shape::new geometry rules and RunShape only cover registered shapes; TinyLlama
+     (22 layers, 2048, 5632, Q32/KV4/dh64) and plain Llama3-8B (32 layers, 4096, 14336, Q32/KV8/dh128) have no Shape, no profile string
+     (D17), no NTT size check (RunShape::ntt_log / fits_the_ntt_tables), no chain band (dense_tests.rs:344 falls back to an unmeasured formula).
+     Trained weights make the band question moot but the int16 residual range (`residual 2` refusal) becomes a real-data property.
+  B6 Throughput: NO forecast is made. Width alone does not determine proving time (padding, lookup counts, domain sizes and the GPU path all
+     enter), and the only figure in the tree (run_tests.rs:1361-1367, CPU, m125) is a measurement of that shape, not a predictor. Only your
+     measured runs at a registered shape count, and only per-phase timings from this driver over that shape.
+  B7 Model boundary. D13 scopes the first MVP to all transformer blocks: embedding, final norm and lm-head sit outside the run, so the two
+     external endpoints are hidden-state planes. Nothing here imports a checkpoint or defines who commits those endpoints for a real user (D18
+     prover-created endpoints are a demo profile). Token generation (KV cache across steps) is a separate statement.
+  B8 Privacy: narrowed run privacy tools exist, but there is NO accepted trained-model or run-level privacy statement. The run-level
+     obligations named at run.rs:20-28 (joint rank over the three boundary commitments, cross-block blinding independence, run-wide joint law)
+     are not accepted for any trained model. Passing verify is not an acceptance, and every result says so.
+
+PROPOSED NEXT CONCRETE IMPLEMENTATION (order = risk retired per unit of work)
+  1. run.rs: replace `blocks: &[BlockPublic]` by a `trait BlockSource { fn digest(&self,k)->Digest; fn block(&mut self,k)->Result<BlockPublic,String>; }`
+     in prove_run (run.rs:531, 571, 598) and RunVerifier (run.rs:672, 736); RunStatement::new takes digests only (run.rs:150, 202). Keep a
+     slice-backed impl so every existing test and byte stays identical. In mvp_driver.rs swap build_model for a source that reads a pinned
+     per-layer digest list + weights files. Retires B3 and needs the run.rs owner.
+  2. Add `ModelSource` beside Recipe in mvp_driver.rs (policy line `model=` plus `block_digests_file_sha256`) so the trusted policy pins a
+     checkpoint import by digest instead of a synthetic recipe name. The policy parser already re-renders canonically, so this is one key.
+  3. Quantizer-first: define int8 weights, gains, RoPE table and SiLU member from a trained TinyLlama checkpoint with private-block-kernel-shaped as
+     the oracle, and check witness::build_shaped admissibility layer by layer on real activations (the sealing pass already does exactly this
+     and refuses by name). That decides B1/B2/B5 with data before any protocol change.
+  4. Add a TinyLlama Shape (22 layers, 2048/5632, Q32/KV4/dh64, one profile string) and run the sealing pass only (no proof) on the real checkpoint to measure witness
+     size and the int16 range. Only then decide B4's plane-streaming design.
+  5. Only after 1-4: a per-layer-scale calibration identity (B1), replacing the R-5 refusal with a check against it.
+  If an additional file is strictly needed: none requested. Item 1 touches run.rs, which is not my lane.

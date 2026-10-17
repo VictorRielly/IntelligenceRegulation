@@ -1,0 +1,22 @@
+{
+  "status": "passed",
+  "checked_at_utc": "2026-09-30T01:08:32.957639+00:00",
+  "source_pins_match": {
+    "results/zk60_1b_checkpoint_20260927/importer_zk60_1b_checkpoint.py": true,
+    "results/zk60_mvp_20260929/tinyllama-1.1b/config.json": true,
+    "results/zk60_mvp_20260929/llama3-8b/config.json": true,
+    "ops/zkp-mvp/driver-overlay/hashline/src/private_block/mvp_driver.rs": true,
+    "ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/run.rs": true,
+    "results/zk60_mvp_20260929/baseline-stack-gpu-attempt2/report.json": true
+  },
+  "snapshot_matches_imported_baseline": true,
+  "script_stdout_result_match": true,
+  "source_records_added": 4,
+  "source_records_total": 88,
+  "local_report_links_exist": true,
+  "artifact_files_hashed": 11,
+  "runtime_written": false,
+  "production_modified": false,
+  "native_gpu_jobs_launched": false,
+  "previous_report_link_audit_failure_retained": "initial/audit-1.json"
+}

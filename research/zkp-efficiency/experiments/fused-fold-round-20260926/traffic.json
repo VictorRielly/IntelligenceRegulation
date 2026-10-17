@@ -1,0 +1,83 @@
+{
+  "rows": [
+    {
+      "n": 1,
+      "k": 4,
+      "baseline_reads": 0,
+      "fused_reads": 0,
+      "writes": 0,
+      "baseline_logical_bytes": 0,
+      "fused_logical_bytes": 0,
+      "saved_logical_bytes": 0,
+      "traffic_saved_fraction": 0,
+      "arithmetic_only": false
+    },
+    {
+      "n": 2,
+      "k": 4,
+      "baseline_reads": 16,
+      "fused_reads": 16,
+      "writes": 4,
+      "baseline_logical_bytes": 320,
+      "fused_logical_bytes": 320,
+      "saved_logical_bytes": 0,
+      "traffic_saved_fraction": 0.0,
+      "arithmetic_only": false
+    },
+    {
+      "n": 4,
+      "k": 4,
+      "baseline_reads": 48,
+      "fused_reads": 40,
+      "writes": 12,
+      "baseline_logical_bytes": 960,
+      "fused_logical_bytes": 832,
+      "saved_logical_bytes": 128,
+      "traffic_saved_fraction": 0.13333333333333333,
+      "arithmetic_only": false
+    },
+    {
+      "n": 16,
+      "k": 4,
+      "baseline_reads": 240,
+      "fused_reads": 184,
+      "writes": 60,
+      "baseline_logical_bytes": 4800,
+      "fused_logical_bytes": 3904,
+      "saved_logical_bytes": 896,
+      "traffic_saved_fraction": 0.18666666666666668,
+      "arithmetic_only": false
+    },
+    {
+      "n": 1024,
+      "k": 4,
+      "baseline_reads": 16368,
+      "fused_reads": 12280,
+      "writes": 4092,
+      "baseline_logical_bytes": 327360,
+      "fused_logical_bytes": 261952,
+      "saved_logical_bytes": 65408,
+      "traffic_saved_fraction": 0.19980449657869012,
+      "arithmetic_only": false
+    },
+    {
+      "n": 4194304,
+      "k": 4,
+      "baseline_reads": 67108848,
+      "fused_reads": 50331640,
+      "writes": 16777212,
+      "baseline_logical_bytes": 1342176960,
+      "fused_logical_bytes": 1073741632,
+      "saved_logical_bytes": 268435328,
+      "traffic_saved_fraction": 0.19999995231627282,
+      "arithmetic_only": true
+    }
+  ],
+  "formula": "For N>=2, K tables: baseline reads 4K(N-1); fused reads K(3N-2); both writes K(N-1). Excludes final reads, all cache/scratch/driver/reduction traffic, write allocation and allocator overhead.",
+  "kernel_resident_field_bytes": 16,
+  "asymptotic_logical_read_reduction": 0.25,
+  "asymptotic_logical_read_plus_write_reduction": 0.2,
+  "source_sketch_scratch": "2K + degree+1 Fp2 temporaries plus O(1) field registers; cache next degree+1 samples in evaluator. Parallel tiles additionally need per-worker accumulators.",
+  "measured_dram_bytes": null,
+  "runtime_speedup": null
+}

@@ -1,0 +1,25 @@
+{
+  "state": "building-tests",
+  "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening",
+  "steps": [
+    {
+      "name": "example",
+      "command": [
+        "/home/victor/.rustup/toolchains/1.97.0-x86_64-unknown-linux-gnu/bin/cargo",
+        "build",
+        "--example",
+        "zk60_private_stack",
+        "--release",
+        "--offline",
+        "--locked",
+        "-j",
+        "2",
+        "--manifest-path",
+        "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/Cargo.toml"
+      ],
+      "exit_code": 0,
+      "seconds": 52.58836183199992,
+      "log_sha256": "bcc7b0d579b749631308475d71018918179321ab1fe83d7e785879ba6a1acc18"
+    }
+  ]
+}

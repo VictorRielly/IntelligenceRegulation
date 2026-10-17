@@ -1,0 +1,165 @@
+{
+  "experiment": "20260926 forward-pass throughput budget and traffic sensitivity",
+  "no_proof_or_gpu_benchmark_executed": true,
+  "shape_origin": "historical Mistral-7B geometry; no 8B checkpoint identity inferred",
+  "shape": {
+    "T": 512,
+    "d": 4096,
+    "H": 32,
+    "Hkv": 8,
+    "head_dim": 128,
+    "f": 14336,
+    "layers": 32
+  },
+  "target": {
+    "workload": "512-token complete-private transformer-stack prefill",
+    "tokens_per_s": 50,
+    "max_pass_s": 10.24,
+    "average_block_s_before_shared_overhead": 0.32,
+    "five_second_stretch_tokens_per_s": 102.4,
+    "five_second_average_block_s": 0.15625,
+    "decode_tokens_per_s": null
+  },
+  "historical_baseline": {
+    "label": "MEASURED historical public FFN-only Mistral-7B, noisy shared laptop; not a target result",
+    "witness_load_s": 134.5,
+    "prove_s": 58.4,
+    "verify_s": 1.08,
+    "proof_bytes": 1234936956,
+    "logged_internal_wall_s": 196.79,
+    "process_elapsed_s": 200.09,
+    "prove_tokens_per_s": 8.767123287671232,
+    "internal_wall_tokens_per_s": 2.601758219421719,
+    "process_elapsed_tokens_per_s": 2.558848518166825,
+    "prove_over_target_budget_ratio": 5.703125,
+    "full_private_target_gap": null
+  },
+  "matrix_macs_counted_not_proof_operations": {
+    "dense_attention": {
+      "ffn": 2886218022912,
+      "attention_projections": 687194767360,
+      "qk_and_pv": 68719476736,
+      "total": 3642132267008
+    },
+    "causal_attention_if_sparse_arithmetic": {
+      "ffn": 2886218022912,
+      "attention_projections": 687194767360,
+      "qk_and_pv": 34426847232,
+      "total": 3607839637504
+    },
+    "dense_MACs_per_s_at_target": 355676979200.0
+  },
+  "memory_sensitivity": [
+    {
+      "label": "MODEL Form-E row sensitivity, not a measured allocation",
+      "attention_row_multiplier": 0.5,
+      "rows_per_block": 30809,
+      "systematic_bytes_per_block": 4038197248,
+      "encoded_bytes_per_block": 16152788992,
+      "resident_bytes_per_block": 20190986240,
+      "systematic_bytes_pass": 129222311936,
+      "encoded_bytes_pass": 516889247744,
+      "resident_bytes_pass": 646111559680,
+      "one_encoded_copy_at_64GBps_s": 8.076394496,
+      "one_encoded_copy_at_32GBps_s": 16.152788992,
+      "required_one_way_encoded_copy_GBps_for_50tps": 50.4774656,
+      "copy_alone_exceeds_budget_at_64GBps": false,
+      "nonweight_rows_per_block_if_10752_W_rows_preprocessed": 20057,
+      "nonweight_encoded_bytes_pass": 336500621312,
+      "nonweight_copy_only_at_64GBps_s": 5.257822208
+    },
+    {
+      "label": "MODEL Form-E row sensitivity, not a measured allocation",
+      "attention_row_multiplier": 1.0,
+      "rows_per_block": 44147,
+      "systematic_bytes_per_block": 5786435584,
+      "encoded_bytes_per_block": 23145742336,
+      "resident_bytes_per_block": 28932177920,
+      "systematic_bytes_pass": 185165938688,
+      "encoded_bytes_pass": 740663754752,
+      "resident_bytes_pass": 925829693440,
+      "one_encoded_copy_at_64GBps_s": 11.572871168,
+      "one_encoded_copy_at_32GBps_s": 23.145742336,
+      "required_one_way_encoded_copy_GBps_for_50tps": 72.3304448,
+      "copy_alone_exceeds_budget_at_64GBps": true,
+      "nonweight_rows_per_block_if_10752_W_rows_preprocessed": 33395,
+      "nonweight_encoded_bytes_pass": 560275128320,
+      "nonweight_copy_only_at_64GBps_s": 8.75429888
+    },
+    {
+      "label": "MODEL Form-E row sensitivity, not a measured allocation",
+      "attention_row_multiplier": 2.0,
+      "rows_per_block": 70823,
+      "systematic_bytes_per_block": 9282912256,
+      "encoded_bytes_per_block": 37131649024,
+      "resident_bytes_per_block": 46414561280,
+      "systematic_bytes_pass": 297053192192,
+      "encoded_bytes_pass": 1188212768768,
+      "resident_bytes_pass": 1485265960960,
+      "one_encoded_copy_at_64GBps_s": 18.565824512,
+      "one_encoded_copy_at_32GBps_s": 37.131649024,
+      "required_one_way_encoded_copy_GBps_for_50tps": 116.0364032,
+      "copy_alone_exceeds_budget_at_64GBps": true,
+      "nonweight_rows_per_block_if_10752_W_rows_preprocessed": 60071,
+      "nonweight_encoded_bytes_pass": 1007824142336,
+      "nonweight_copy_only_at_64GBps_s": 15.747252224
+    }
+  ],
+  "NTT_traffic_sensitivity": [
+    {
+      "label": "MODEL hypothetical global-memory pass count, not measured GPU traffic",
+      "inverse_read_write_passes": 14,
+      "forward_read_write_passes": 16,
+      "traffic_bytes": 28885886435328,
+      "ideal_H100_HBM_3_35TBps_s": 8.62265266726209,
+      "half_peak_HBM_1_675TBps_s": 17.24530533452418,
+      "nonweight_commit_only_traffic_bytes": 21850730004480,
+      "nonweight_commit_only_ideal_H100_HBM_s": 6.522605971486567
+    },
+    {
+      "label": "MODEL hypothetical global-memory pass count, not measured GPU traffic",
+      "inverse_read_write_passes": 2,
+      "forward_read_write_passes": 2,
+      "traffic_bytes": 3703318773760,
+      "ideal_H100_HBM_3_35TBps_s": 1.105468290674627,
+      "half_peak_HBM_1_675TBps_s": 2.210936581349254,
+      "nonweight_commit_only_traffic_bytes": 2801375641600,
+      "nonweight_commit_only_ideal_H100_HBM_s": 0.8362315348059701
+    },
+    {
+      "label": "MODEL hypothetical global-memory pass count, not measured GPU traffic",
+      "inverse_read_write_passes": 1,
+      "forward_read_write_passes": 1,
+      "traffic_bytes": 1851659386880,
+      "ideal_H100_HBM_3_35TBps_s": 0.5527341453373135,
+      "half_peak_HBM_1_675TBps_s": 1.105468290674627,
+      "nonweight_commit_only_traffic_bytes": 1400687820800,
+      "nonweight_commit_only_ideal_H100_HBM_s": 0.41811576740298506
+    }
+  ],
+  "self_checks_passed": [
+    "explicit-macs-t1-causal0",
+    "explicit-macs-t1-causal1",
+    "explicit-macs-t2-causal0",
+    "explicit-macs-t2-causal1",
+    "explicit-macs-t3-causal0",
+    "explicit-macs-t3-causal1",
+    "explicit-macs-t4-causal0",
+    "explicit-macs-t4-causal1",
+    "nearest-rank-20",
+    "causal-half-does-not-half-full-model",
+    "fusion-changes-traffic",
+    "one-way-not-bidirectional-bandwidth",
+    "resident-pass-exceeds-80GB",
+    "exclude-static-weight-commitments-before-warm-bound"
+  ],
+  "sources_sha256": {
+    "results/hashline_attn_cost_mistral.json": "bba18ea321094c1ef1c27cff8e005f81afd8626da360e10bc0c26832e2955a52",
+    "results/hashline_convert_r3.log": "46cfc0396bfc29b43cd221dd51a4c681c0dafdfc8ffb070837cb235eb6a9927e",
+    "docs/zkmatrix-poc/ZK60_PRIVATE_BLOCK_FORM_E.md": "020674eba248a61e90f419f9493dceb3fcd18251d88bfc6a2d4cb907c906ff5a",
+    "docs/zkmatrix-poc/MEASUREMENT_PROTOCOL.md": "89ba32607cbe6dfd2e7cf3ca386a3222330d28b6a0444b2ad4b2d49dd3efbbfc",
+    "research/zkp-efficiency/experiments/forward-budget-20260926/experiment.py": "1e1cb91b3f6ead2266dd515f71514bb841510738cbe3b7968172fbc3439d2af6"
+  },
+  "experiment_wall_s_not_prover_timing": 0.0009219690109603107,
+  "experiment_peak_rss_kib_linux": 15368
+}

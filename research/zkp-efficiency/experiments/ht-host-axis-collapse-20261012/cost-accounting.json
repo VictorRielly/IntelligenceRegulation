@@ -1,0 +1,504 @@
+{
+  "geometry_rows": [
+    {
+      "context": 512,
+      "t_pad": 512,
+      "h_pad": 16,
+      "cube_log": 22,
+      "ht_log": 13,
+      "debug": false,
+      "conditional_nonzero_recovery": true,
+      "baseline_bracket_calls": [
+        18874364,
+        10485758,
+        10485758
+      ],
+      "collapsed_bracket_calls": [
+        18874364,
+        20487,
+        10485758
+      ],
+      "host_calls_removed": 10465271,
+      "extra_host_endpoint_reads": 32782,
+      "multiplicity_scalings": 66,
+      "host_weight_multiplications_before": 4194303,
+      "host_weight_multiplications_after": 8191,
+      "other_group_calls_unchanged": true,
+      "full_row_scan_and_all_folds_unchanged": true,
+      "note": "Counts, not time. Initial data rounds only; no extensions/masks/PCS. Zero-factor fallback changes release sample counts.",
+      "per_bracket_literal_API_counts": [
+        {
+          "mul_base": 21,
+          "add": 65,
+          "mul": 54,
+          "sub": 33
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "unchanged_private_Eq_public_fold_Fp2_muls": 125829090,
+      "Fp2_mul_API_before": 1239416567,
+      "Fp2_mul_API_after": 1203834633,
+      "Fp2_mul_API_removed": 35581934,
+      "Fp2_mul_API_fraction_removed": 0.028708615769212967,
+      "five_reduction_base_mul_before": 7010777639,
+      "five_reduction_base_mul_after": 6832868101,
+      "five_reduction_base_mul_fraction_removed": 0.025376576916419872,
+      "base_multiplicity_scalings_added": 66,
+      "extra_host_differences": 16382,
+      "extra_host_sample_additions": 32764,
+      "extra_reader_payload_bytes": 524512,
+      "peak_scratch": "O(degree) scalars, no compact private table allocated; split equality tables unchanged",
+      "exclusions": [
+        "Full-row differences/sample advances, factor/preparation/inversion, group interpolation/recovery/reduction, extensions, construction/census/verifier, masks/PCS/witness/transfer/serialization/independent verification",
+        "Literal API counts: optimizer may remove constants/zero operations. Five-base-multiply lowering is a conditional source model, not measured instructions or time."
+      ]
+    },
+    {
+      "context": 512,
+      "t_pad": 512,
+      "h_pad": 16,
+      "cube_log": 22,
+      "ht_log": 13,
+      "debug": true,
+      "conditional_nonzero_recovery": false,
+      "baseline_bracket_calls": [
+        20971515,
+        12582909,
+        12582909
+      ],
+      "collapsed_bracket_calls": [
+        20971515,
+        24582,
+        12582909
+      ],
+      "host_calls_removed": 12558327,
+      "extra_host_endpoint_reads": 32782,
+      "multiplicity_scalings": 66,
+      "host_weight_multiplications_before": 4194303,
+      "host_weight_multiplications_after": 8191,
+      "other_group_calls_unchanged": true,
+      "full_row_scan_and_all_folds_unchanged": true,
+      "note": "Counts, not time. Initial data rounds only; no extensions/masks/PCS. Zero-factor fallback changes release sample counts.",
+      "per_bracket_literal_API_counts": [
+        {
+          "mul_base": 21,
+          "add": 65,
+          "mul": 54,
+          "sub": 33
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "unchanged_private_Eq_public_fold_Fp2_muls": 125829090,
+      "Fp2_mul_API_before": 1367342778,
+      "Fp2_mul_API_after": 1325481676,
+      "Fp2_mul_API_removed": 41861102,
+      "Fp2_mul_API_fraction_removed": 0.030614928950902755,
+      "five_reduction_base_mul_before": 7742683338,
+      "five_reduction_base_mul_after": 7533377960,
+      "five_reduction_base_mul_fraction_removed": 0.027032666694859993,
+      "base_multiplicity_scalings_added": 66,
+      "extra_host_differences": 16382,
+      "extra_host_sample_additions": 32764,
+      "extra_reader_payload_bytes": 524512,
+      "peak_scratch": "O(degree) scalars, no compact private table allocated; split equality tables unchanged",
+      "exclusions": [
+        "Full-row differences/sample advances, factor/preparation/inversion, group interpolation/recovery/reduction, extensions, construction/census/verifier, masks/PCS/witness/transfer/serialization/independent verification",
+        "Literal API counts: optimizer may remove constants/zero operations. Five-base-multiply lowering is a conditional source model, not measured instructions or time."
+      ]
+    },
+    {
+      "context": 1024,
+      "t_pad": 1024,
+      "h_pad": 16,
+      "cube_log": 24,
+      "ht_log": 14,
+      "debug": false,
+      "conditional_nonzero_recovery": true,
+      "baseline_bracket_calls": [
+        75497468,
+        41943038,
+        41943038
+      ],
+      "collapsed_bracket_calls": [
+        75497468,
+        40968,
+        41943038
+      ],
+      "host_calls_removed": 41902070,
+      "extra_host_endpoint_reads": 65552,
+      "multiplicity_scalings": 72,
+      "host_weight_multiplications_before": 16777215,
+      "host_weight_multiplications_after": 16383,
+      "other_group_calls_unchanged": true,
+      "full_row_scan_and_all_folds_unchanged": true,
+      "note": "Counts, not time. Initial data rounds only; no extensions/masks/PCS. Zero-factor fallback changes release sample counts.",
+      "per_bracket_literal_API_counts": [
+        {
+          "mul_base": 21,
+          "add": 65,
+          "mul": 54,
+          "sub": 33
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "unchanged_private_Eq_public_fold_Fp2_muls": 503316450,
+      "Fp2_mul_API_before": 4957667063,
+      "Fp2_mul_API_after": 4815200011,
+      "Fp2_mul_API_removed": 142467052,
+      "Fp2_mul_API_fraction_removed": 0.028736712286159424,
+      "five_reduction_base_mul_before": 28043115047,
+      "five_reduction_base_mul_after": 27330779931,
+      "five_reduction_base_mul_fraction_removed": 0.025401426154196244,
+      "base_multiplicity_scalings_added": 72,
+      "extra_host_differences": 32766,
+      "extra_host_sample_additions": 65532,
+      "extra_reader_payload_bytes": 1048832,
+      "peak_scratch": "O(degree) scalars, no compact private table allocated; split equality tables unchanged",
+      "exclusions": [
+        "Full-row differences/sample advances, factor/preparation/inversion, group interpolation/recovery/reduction, extensions, construction/census/verifier, masks/PCS/witness/transfer/serialization/independent verification",
+        "Literal API counts: optimizer may remove constants/zero operations. Five-base-multiply lowering is a conditional source model, not measured instructions or time."
+      ]
+    },
+    {
+      "context": 1024,
+      "t_pad": 1024,
+      "h_pad": 16,
+      "cube_log": 24,
+      "ht_log": 14,
+      "debug": true,
+      "conditional_nonzero_recovery": false,
+      "baseline_bracket_calls": [
+        83886075,
+        50331645,
+        50331645
+      ],
+      "collapsed_bracket_calls": [
+        83886075,
+        49159,
+        50331645
+      ],
+      "host_calls_removed": 50282486,
+      "extra_host_endpoint_reads": 65552,
+      "multiplicity_scalings": 72,
+      "host_weight_multiplications_before": 16777215,
+      "host_weight_multiplications_after": 16383,
+      "other_group_calls_unchanged": true,
+      "full_row_scan_and_all_folds_unchanged": true,
+      "note": "Counts, not time. Initial data rounds only; no extensions/masks/PCS. Zero-factor fallback changes release sample counts.",
+      "per_bracket_literal_API_counts": [
+        {
+          "mul_base": 21,
+          "add": 65,
+          "mul": 54,
+          "sub": 33
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "unchanged_private_Eq_public_fold_Fp2_muls": 503316450,
+      "Fp2_mul_API_before": 5469372090,
+      "Fp2_mul_API_after": 5301763790,
+      "Fp2_mul_API_removed": 167608300,
+      "Fp2_mul_API_fraction_removed": 0.03064488889070994,
+      "five_reduction_base_mul_before": 30970738890,
+      "five_reduction_base_mul_after": 30132697534,
+      "five_reduction_base_mul_fraction_removed": 0.027059133428379113,
+      "base_multiplicity_scalings_added": 72,
+      "extra_host_differences": 32766,
+      "extra_host_sample_additions": 65532,
+      "extra_reader_payload_bytes": 1048832,
+      "peak_scratch": "O(degree) scalars, no compact private table allocated; split equality tables unchanged",
+      "exclusions": [
+        "Full-row differences/sample advances, factor/preparation/inversion, group interpolation/recovery/reduction, extensions, construction/census/verifier, masks/PCS/witness/transfer/serialization/independent verification",
+        "Literal API counts: optimizer may remove constants/zero operations. Five-base-multiply lowering is a conditional source model, not measured instructions or time."
+      ]
+    },
+    {
+      "context": 2048,
+      "t_pad": 2048,
+      "h_pad": 16,
+      "cube_log": 26,
+      "ht_log": 15,
+      "debug": false,
+      "conditional_nonzero_recovery": true,
+      "baseline_bracket_calls": [
+        301989884,
+        167772158,
+        167772158
+      ],
+      "collapsed_bracket_calls": [
+        301989884,
+        81929,
+        167772158
+      ],
+      "host_calls_removed": 167690229,
+      "extra_host_endpoint_reads": 131090,
+      "multiplicity_scalings": 78,
+      "host_weight_multiplications_before": 67108863,
+      "host_weight_multiplications_after": 32767,
+      "other_group_calls_unchanged": true,
+      "full_row_scan_and_all_folds_unchanged": true,
+      "note": "Counts, not time. Initial data rounds only; no extensions/masks/PCS. Zero-factor fallback changes release sample counts.",
+      "per_bracket_literal_API_counts": [
+        {
+          "mul_base": 21,
+          "add": 65,
+          "mul": 54,
+          "sub": 33
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "unchanged_private_Eq_public_fold_Fp2_muls": 2013265890,
+      "Fp2_mul_API_before": 19830669047,
+      "Fp2_mul_API_after": 19260522253,
+      "Fp2_mul_API_removed": 570146794,
+      "Fp2_mul_API_fraction_removed": 0.02875075937421548,
+      "five_reduction_base_mul_before": 112172464679,
+      "five_reduction_base_mul_after": 109321730865,
+      "five_reduction_base_mul_fraction_removed": 0.025413846634803335,
+      "base_multiplicity_scalings_added": 78,
+      "extra_host_differences": 65534,
+      "extra_host_sample_additions": 131068,
+      "extra_reader_payload_bytes": 2097440,
+      "peak_scratch": "O(degree) scalars, no compact private table allocated; split equality tables unchanged",
+      "exclusions": [
+        "Full-row differences/sample advances, factor/preparation/inversion, group interpolation/recovery/reduction, extensions, construction/census/verifier, masks/PCS/witness/transfer/serialization/independent verification",
+        "Literal API counts: optimizer may remove constants/zero operations. Five-base-multiply lowering is a conditional source model, not measured instructions or time."
+      ]
+    },
+    {
+      "context": 2048,
+      "t_pad": 2048,
+      "h_pad": 16,
+      "cube_log": 26,
+      "ht_log": 15,
+      "debug": true,
+      "conditional_nonzero_recovery": false,
+      "baseline_bracket_calls": [
+        335544315,
+        201326589,
+        201326589
+      ],
+      "collapsed_bracket_calls": [
+        335544315,
+        98312,
+        201326589
+      ],
+      "host_calls_removed": 201228277,
+      "extra_host_endpoint_reads": 131090,
+      "multiplicity_scalings": 78,
+      "host_weight_multiplications_before": 67108863,
+      "host_weight_multiplications_after": 32767,
+      "other_group_calls_unchanged": true,
+      "full_row_scan_and_all_folds_unchanged": true,
+      "note": "Counts, not time. Initial data rounds only; no extensions/masks/PCS. Zero-factor fallback changes release sample counts.",
+      "per_bracket_literal_API_counts": [
+        {
+          "mul_base": 21,
+          "add": 65,
+          "mul": 54,
+          "sub": 33
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "unchanged_private_Eq_public_fold_Fp2_muls": 2013265890,
+      "Fp2_mul_API_before": 21877489338,
+      "Fp2_mul_API_after": 21206728400,
+      "Fp2_mul_API_removed": 670760938,
+      "Fp2_mul_API_fraction_removed": 0.030659868124580686,
+      "five_reduction_base_mul_before": 123882961098,
+      "five_reduction_base_mul_after": 120529156564,
+      "five_reduction_base_mul_fraction_removed": 0.027072363336124235,
+      "base_multiplicity_scalings_added": 78,
+      "extra_host_differences": 65534,
+      "extra_host_sample_additions": 131068,
+      "extra_reader_payload_bytes": 2097440,
+      "peak_scratch": "O(degree) scalars, no compact private table allocated; split equality tables unchanged",
+      "exclusions": [
+        "Full-row differences/sample advances, factor/preparation/inversion, group interpolation/recovery/reduction, extensions, construction/census/verifier, masks/PCS/witness/transfer/serialization/independent verification",
+        "Literal API counts: optimizer may remove constants/zero operations. Five-base-multiply lowering is a conditional source model, not measured instructions or time."
+      ]
+    },
+    {
+      "context": 4096,
+      "t_pad": 4096,
+      "h_pad": 16,
+      "cube_log": 28,
+      "ht_log": 16,
+      "debug": false,
+      "conditional_nonzero_recovery": true,
+      "baseline_bracket_calls": [
+        1207959548,
+        671088638,
+        671088638
+      ],
+      "collapsed_bracket_calls": [
+        1207959548,
+        163850,
+        671088638
+      ],
+      "host_calls_removed": 670924788,
+      "extra_host_endpoint_reads": 262164,
+      "multiplicity_scalings": 84,
+      "host_weight_multiplications_before": 268435455,
+      "host_weight_multiplications_after": 65535,
+      "other_group_calls_unchanged": true,
+      "full_row_scan_and_all_folds_unchanged": true,
+      "note": "Counts, not time. Initial data rounds only; no extensions/masks/PCS. Zero-factor fallback changes release sample counts.",
+      "per_bracket_literal_API_counts": [
+        {
+          "mul_base": 21,
+          "add": 65,
+          "mul": 54,
+          "sub": 33
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "unchanged_private_Eq_public_fold_Fp2_muls": 8053063650,
+      "Fp2_mul_API_before": 79322676983,
+      "Fp2_mul_API_after": 77041532687,
+      "Fp2_mul_API_removed": 2281144296,
+      "Fp2_mul_API_fraction_removed": 0.028757782550491613,
+      "five_reduction_base_mul_before": 448689863207,
+      "five_reduction_base_mul_after": 437284141895,
+      "five_reduction_base_mul_fraction_removed": 0.025420055693877015,
+      "base_multiplicity_scalings_added": 84,
+      "extra_host_differences": 131070,
+      "extra_host_sample_additions": 262140,
+      "extra_reader_payload_bytes": 4194624,
+      "peak_scratch": "O(degree) scalars, no compact private table allocated; split equality tables unchanged",
+      "exclusions": [
+        "Full-row differences/sample advances, factor/preparation/inversion, group interpolation/recovery/reduction, extensions, construction/census/verifier, masks/PCS/witness/transfer/serialization/independent verification",
+        "Literal API counts: optimizer may remove constants/zero operations. Five-base-multiply lowering is a conditional source model, not measured instructions or time."
+      ]
+    },
+    {
+      "context": 4096,
+      "t_pad": 4096,
+      "h_pad": 16,
+      "cube_log": 28,
+      "ht_log": 16,
+      "debug": true,
+      "conditional_nonzero_recovery": false,
+      "baseline_bracket_calls": [
+        1342177275,
+        805306365,
+        805306365
+      ],
+      "collapsed_bracket_calls": [
+        1342177275,
+        196617,
+        805306365
+      ],
+      "host_calls_removed": 805109748,
+      "extra_host_endpoint_reads": 262164,
+      "multiplicity_scalings": 84,
+      "host_weight_multiplications_before": 268435455,
+      "host_weight_multiplications_after": 65535,
+      "other_group_calls_unchanged": true,
+      "full_row_scan_and_all_folds_unchanged": true,
+      "note": "Counts, not time. Initial data rounds only; no extensions/masks/PCS. Zero-factor fallback changes release sample counts.",
+      "per_bracket_literal_API_counts": [
+        {
+          "mul_base": 21,
+          "add": 65,
+          "mul": 54,
+          "sub": 33
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "unchanged_private_Eq_public_fold_Fp2_muls": 8053063650,
+      "Fp2_mul_API_before": 87509958330,
+      "Fp2_mul_API_after": 84826259154,
+      "Fp2_mul_API_removed": 2683699176,
+      "Fp2_mul_API_fraction_removed": 0.030667357489530186,
+      "five_reduction_base_mul_before": 495531849930,
+      "five_reduction_base_mul_after": 482113354218,
+      "five_reduction_base_mul_fraction_removed": 0.027078977292570656,
+      "base_multiplicity_scalings_added": 84,
+      "extra_host_differences": 131070,
+      "extra_host_sample_additions": 262140,
+      "extra_reader_payload_bytes": 4194624,
+      "peak_scratch": "O(degree) scalars, no compact private table allocated; split equality tables unchanged",
+      "exclusions": [
+        "Full-row differences/sample advances, factor/preparation/inversion, group interpolation/recovery/reduction, extensions, construction/census/verifier, masks/PCS/witness/transfer/serialization/independent verification",
+        "Literal API counts: optimizer may remove constants/zero operations. Five-base-multiply lowering is a conditional source model, not measured instructions or time."
+      ]
+    }
+  ],
+  "per_bracket_table_count": 30,
+  "formula_checks": 16,
+  "source_hash": "76c09558ed1ed6d1d20316584ac2be24a0eda84da9c1276f0caf8d84b3297d1d",
+  "scope": "Conditional m125 h_pad16/ls3/lp2 count geometry, not accepted model/profile or timing"
+}

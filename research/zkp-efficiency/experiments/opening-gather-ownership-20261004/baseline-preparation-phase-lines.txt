@@ -1,0 +1,36 @@
+PB-TIMING prove | A: allocate + witness planes -> committed rows | commit       |    6.759 |  25.2% | 93077504 words |      1772 |      1772 |
+PB-TIMING prove | A: lookup values + the byte histogram        | commit       |    0.336 |   1.3% | 98598912 words |      2524 |      2524 |
+PB-TIMING prove | A: exp/act indices + their two histograms    | commit       |    0.044 |   0.2% |  5242880 words |      2564 |      2564 |
+PB-TIMING prove | A: allocate + witness planes -> committed rows | commit       |    7.566 |  28.6% | 93077504 words |      1773 |      4030 |
+PB-TIMING prove | A: lookup values + the byte histogram        | commit       |    0.392 |   1.5% | 98598912 words |      2525 |      4030 |
+PB-TIMING prove | A: exp/act indices + their two histograms    | commit       |    0.038 |   0.1% |  5242880 words |      2565 |      4030 |
+PB-TIMING prove | A: allocate + witness planes -> committed rows | commit       |    6.409 |  26.6% | 93077504 words |      1773 |      4030 |
+PB-TIMING prove | A: lookup values + the byte histogram        | commit       |    0.340 |   1.4% | 98598912 words |      2525 |      4030 |
+PB-TIMING prove | A: exp/act indices + their two histograms    | commit       |    0.045 |   0.2% |  5242880 words |      2565 |      4030 |
+PB-TIMING prove | A: allocate + witness planes -> committed rows | commit       |    6.603 |  25.1% | 93077504 words |      1773 |      4030 |
+PB-TIMING prove | A: lookup values + the byte histogram        | commit       |    0.356 |   1.4% | 98598912 words |      2525 |      4030 |
+PB-TIMING prove | A: exp/act indices + their two histograms    | commit       |    0.040 |   0.2% |  5242880 words |      2565 |      4030 |
+PB-TIMING prove | A: allocate + witness planes -> committed rows | commit       |    8.998 |  31.2% | 93077504 words |      1773 |      4030 |
+PB-TIMING prove | A: lookup values + the byte histogram        | commit       |    0.369 |   1.3% | 98598912 words |      2525 |      4030 |
+PB-TIMING prove | A: exp/act indices + their two histograms    | commit       |    0.045 |   0.2% |  5242880 words |      2565 |      4030 |
+PB-TIMING prove | A: allocate + witness planes -> committed rows | commit       |    7.328 |  26.8% | 93077504 words |      1773 |      4030 |
+PB-TIMING prove | A: lookup values + the byte histogram        | commit       |    0.370 |   1.4% | 98598912 words |      2525 |      4030 |
+PB-TIMING prove | A: exp/act indices + their two histograms    | commit       |    0.051 |   0.2% |  5242880 words |      2565 |      4030 |
+PB-TIMING prove | A: allocate + witness planes -> committed rows | commit       |    8.379 |  29.5% | 93077504 words |      1773 |      4030 |
+PB-TIMING prove | A: lookup values + the byte histogram        | commit       |    0.325 |   1.1% | 98598912 words |      2525 |      4030 |
+PB-TIMING prove | A: exp/act indices + their two histograms    | commit       |    0.087 |   0.3% |  5242880 words |      2565 |      4030 |
+PB-TIMING prove | A: allocate + witness planes -> committed rows | commit       |    7.383 |  27.5% | 93077504 words |      1773 |      4030 |
+PB-TIMING prove | A: lookup values + the byte histogram        | commit       |    0.402 |   1.5% | 98598912 words |      2525 |      4030 |
+PB-TIMING prove | A: exp/act indices + their two histograms    | commit       |    0.060 |   0.2% |  5242880 words |      2565 |      4030 |
+PB-TIMING prove | A: allocate + witness planes -> committed rows | commit       |    7.451 |  27.8% | 93077504 words |      1773 |      4030 |
+PB-TIMING prove | A: lookup values + the byte histogram        | commit       |    0.369 |   1.4% | 98598912 words |      2525 |      4030 |
+PB-TIMING prove | A: exp/act indices + their two histograms    | commit       |    0.048 |   0.2% |  5242880 words |      2565 |      4030 |
+PB-TIMING prove | A: allocate + witness planes -> committed rows | commit       |    7.143 |  26.6% | 93077504 words |      1773 |      4030 |
+PB-TIMING prove | A: lookup values + the byte histogram        | commit       |    0.397 |   1.5% | 98598912 words |      2525 |      4030 |
+PB-TIMING prove | A: exp/act indices + their two histograms    | commit       |    0.050 |   0.2% |  5242880 words |      2565 |      4030 |
+PB-TIMING prove | A: allocate + witness planes -> committed rows | commit       |    6.488 |  26.7% | 93077504 words |      1773 |      4030 |
+PB-TIMING prove | A: lookup values + the byte histogram        | commit       |    0.309 |   1.3% | 98598912 words |      2525 |      4030 |
+PB-TIMING prove | A: exp/act indices + their two histograms    | commit       |    0.039 |   0.2% |  5242880 words |      2565 |      4030 |
+PB-TIMING prove | A: allocate + witness planes -> committed rows | commit       |    6.184 |  26.1% | 93077504 words |      1766 |      4030 |
+PB-TIMING prove | A: lookup values + the byte histogram        | commit       |    0.266 |   1.1% | 98598912 words |      2518 |      4030 |
+PB-TIMING prove | A: exp/act indices + their two histograms    | commit       |    0.040 |   0.2% |  5242880 words |      2558 |      4030 |

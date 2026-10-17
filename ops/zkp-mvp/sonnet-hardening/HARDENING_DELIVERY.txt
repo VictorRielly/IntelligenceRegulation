@@ -1,0 +1,78 @@
+HARDENING DELIVERY: native CLI artifact boundary (Sonnet 5.5)
+================================================================
+COMPILED / RUN: NO. I had no Bash here. Everything below is by reading the source. Root's first `cargo build` and test run is the first
+real check. Files changed (only my lane): hashline/src/private_block/mvp_driver.rs, hashline/examples/zk60_private_stack.rs, this file.
+No proof relation, registry, witness, randomness, transcript, wire or serialization change. run.rs, run_sink.rs, private_block.rs untouched.
+Output bytes are identical to the previous tranche for every value that was plain ASCII without quote/backslash/control (test-checked for
+SCOPE and the manifest), so existing consumers and the artifact manifest/policy formats are unchanged.
+
+CHANGED FUNCTIONS (mvp_driver.rs)
+  js()            full JSON escaping of any Rust string. `"` `\` short escapes; U+0000..U+001F (\b \f \n \r \t or \u00XX), DEL and U+2028/2029 as
+                  \uXXXX; everything else, Unicode included, verbatim UTF-8. The 2048-character truncation and the '?' substitution are gone.
+  pj()            NEW. Path as a JSON string via to_str(); a non-UTF-8 path renders as null, never lossily. Used for every path in prove_start,
+                  prove_result and the failure record pointer (was js(display().to_string())).
+  resolve_new()   now refuses a non-UTF-8 result path by name, so pj's null arm is unreachable in practice.
+  sh_quote()      NEW. POSIX word quoting: [A-Za-z0-9_@%+=:,./-]+ passes through unchanged (simple paths unchanged); anything else, and the empty
+                  string, is single-quoted with ' written as '\''. Nothing is executed or expanded.
+  verify_argv(), shell_line(), argv_json()   NEW. prove_result.independent_verification now has
+                    "command"        (same key as before, now the POSIX-quoted line of the argv, and it now also carries --expect-run-profile),
+                    "command_quoting" (a note),
+                    "argv"           (JSON array; argv[0]="zk60_private_stack", argv[1]="verify", then --artifact P --policy P --policy-sha256 H
+                                      --expect-run-profile PROFILE). argv[2..] can be passed straight to verify_command.
+                  Policy hash pin and run-profile pin are explicit in both forms.
+  read_capped()   NEW. Read::take(max+1)+read_to_end; more than max bytes is refused and no more than max+1 are ever read. `hint` only sizes the
+                  first allocation, capped at max.
+  read_bounded()  now: symlink_metadata must say regular file (symlink, directory, FIFO, device refused BEFORE open, so a FIFO cannot block the open);
+                  one File::open; handle metadata must again be a regular file; on unix the handle's (dev, ino) must equal the lstat's (a path swapped
+                  for a symlink or another file between check and open is refused, not followed); size cap on the bytes read via read_capped. Error
+                  texts kept: "not a regular file", "larger than the N-byte bound".
+  scan_artifact() segment bytes now come through read_bounded (was symlink_metadata + std::fs::read); the `statement` entry is checked with
+                  symlink_metadata and must be a real directory (was is_dir(), which follows a link).
+  prove_inner()/record_failure()/prove_command() emit paths through pj and the argv/command above; HL_GPU read with var_os (a non-Unicode value
+                  is reported as "<non-unicode>" instead of "unset").
+  emit()          test-only capture hook (cfg(test) thread-local); production path unchanged.
+  examples/zk60_private_stack.rs   std::env::args() (panics on non-UTF-8) replaced by args_os(); a non-UTF-8 argument exits 2 with a stderr message.
+Symlink behaviour, stated: files read through read_bounded (policy, manifest, segments) are never followed if the path itself is a symlink
+(unchanged acceptance, now race-hardened on unix). `statement` as a symlink is newly refused (it was accepted when the link pointed at a directory
+holding the manifest). The --artifact directory argument itself may still be a symlink to a directory (unchanged; is_dir follows it). No-overwrite,
+staging, publication order and the failure record are untouched.
+
+TESTS (all in mvp_driver.rs `tests`; existing tests kept, including a_two_block_p2_stack_proves_publishes_and_verifies_and_refusals_hold and the
+policy/recipe/parity tests)
+  js_round_trips_unicode_controls_and_long_strings           independent strict JSON reader (test-local, no dependency; the crate has no serde) decodes js()
+                                                             of Unicode, all controls, DEL, U+2028/9, 10k-char and 200-segment long paths back to the input,
+                                                             and no raw control byte is ever written
+  js_matches_trusted_literals_and_never_truncates            hard-coded expected escapes; lengths 2047/2048/2049/4103/100000 exact; SCOPE unchanged
+  a_path_renders_faithfully_and_a_non_utf8_path_is_never_rendered_lossily
+  shell_quoting_round_trips_and_leaves_no_bare_metacharacter a POSIX word splitter that REFUSES any bare $ ` " ; & | < > ( ) * ? [ ] ~ # ! { } and
+                                                             backslash-escapes only after our own '\'' pattern; 19 hostile words round-trip
+  the_verify_command_is_the_quoted_argv_and_pins_profile_and_policy_hash   argv identity, both pins present, shell line == argv, JSON array == argv
+  hostile_and_non_ascii_paths_prove_verify_and_report_faithfully   REAL p2 1-block prove into "ünï 日本 'q' $HOME `x` \"d\"/art ☃", every emitted line
+                                                             parses as JSON, reported paths identify the files, command decodes to argv, the argv from the JSON
+                                                             verifies (exit 0) in a fresh verify call, a wrong policy-hash pin is refused with a valid JSON
+                                                             line, a missing non-ASCII artifact is refused, a symlinked `statement` (real dir outside the
+                                                             artifact) is refused and the restored one verifies
+  the_bounded_reader_stops_a_growing_or_lying_source_at_the_cap   endless source: exactly max+1 bytes read, refused; exactly max accepted; huge hint ok
+  read_bounded_refuses_oversize_special_missing_and_symlinked_files   max ok / max+1 refused, directory, absent, symlink, oversize policy through
+                                                             verify_command (exit 1, reason names the bound)
+  the_manifest_and_policy_formats_are_unchanged              manifest byte-equal to a hand-written literal; policy still plain ASCII key=value and a
+                                                             non-ASCII byte is refused; render/parse round trip
+Run with: cargo test --release private_block::mvp_driver (the two p2 tests prove real blocks: seconds each).
+
+THINGS I AM LEAST SURE OF (compile/behaviour)
+  * thread_local! with `const { RefCell::new(None) }` initialiser (needs Rust >= 1.59). * `use super::*` bringing the parent's `Read` import into the test
+    module. * Every prove_result line is asserted to be valid JSON by parsing all captured lines; the format! placeholder count was hand-checked
+    (35 -> 36 with the argv field) but not compiled. * Capture relies on emit() being called on the test thread (true: prove_run calls the sink
+    inline).
+
+REMAINING GAPS (precise sites, not fixed here)
+  * run_sink.rs:95 (segment_paths) `dir.join(n).is_dir()`, :152 (DirSink::create) `dir.is_dir()`, :191 `final_path.exists()` all follow symlinks; my
+    scan refuses a symlinked segment/statement first, but a swap AFTER my scan reaches run.rs. * run.rs:908 File::open(p) follows a symlink and has
+    no lstat/(dev,ino) check like read_bounded's, so a segment path swapped for a symlink between my scan and the verifier's open is followed (bytes are
+    still verified cryptographically, size is capped at run.rs:915-929, so this is an acceptance-surface issue, not an integrity one). * run_sink.rs:59
+    dir_entry_names uses to_string_lossy: two different non-UTF-8 names can render alike; it cannot alias an ASCII segment name, so no false accept, but
+    the refusal message can be ambiguous. * A FIFO swapped in after the lstat and before File::open can block the open (window is microseconds).
+  * Non-unix builds skip the (dev, ino) comparison. * Error strings from the lower layers embed display() of paths (lossy for non-UTF-8); they go
+    through js() intact but are not a faithful identifier. * The prove `--out`/`--policy-out` parents are canonicalised (symlinked parents resolved);
+    `--artifact` and `--policy` of verify are used as given. * No JSON library is a dependency, so the test reader is local; if root prefers serde_json
+    in dev-dependencies that needs a Cargo.toml change outside my lane.

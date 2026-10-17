@@ -1,0 +1,14 @@
+{
+  "run_id": "20261004T100146Z-8793c93e",
+  "run_start_utc": "2026-10-04T10:01:46.278171Z",
+  "deadline_utc": "2026-10-04T10:21:46Z",
+  "early_checkpoint_observed_mtime_utc": "2026-10-04T10:03:11.306453+00:00",
+  "early_text_time_correction": "Approximate10:05 label in earlySTATE was ahead of wall clock; observed filemtime is authoritative",
+  "one_cycle_only": true,
+  "next_cycle_not_before_utc": "2026-10-04T11:01:46Z",
+  "production_source_mutations": 0,
+  "native_builds": 0,
+  "GPU_jobs": 0,
+  "Git_operations": 0,
+  "external_writes_messages": 0
+}

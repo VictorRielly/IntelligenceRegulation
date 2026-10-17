@@ -1,0 +1,30 @@
+--- a/zkp-core/src/field.rs
++++ b/zkp-core/src/field.rs
+@@ -164,6 +164,16 @@
+     }
+     #[inline(always)]
+     pub fn mul_base(self, r: Fp) -> Fp2 { Fp2 { c0: self.c0.mul(r), c1: self.c1.mul(r) } }
++    /// Canonical Fp2 multiply-accumulate: product plus residue fits u128.
++    #[inline(always)]
++    pub fn add_product(self, x: Fp2, y: Fp2) -> Fp2 {
++        let c0 = reduce128(self.c0.0 as u128 + x.c0.0 as u128 * y.c0.0 as u128);
++        let bd = reduce128(x.c1.0 as u128 * y.c1.0 as u128);
++        let c0 = reduce128(c0.0 as u128 + NONRESIDUE as u128 * bd.0 as u128);
++        let c1 = reduce128(self.c1.0 as u128 + x.c0.0 as u128 * y.c1.0 as u128);
++        let c1 = reduce128(c1.0 as u128 + x.c1.0 as u128 * y.c0.0 as u128);
++        Fp2 { c0, c1 }
++    }
+     #[inline(always)]
+     pub fn add_base(self, r: Fp) -> Fp2 { Fp2 { c0: self.c0.add(r), c1: self.c1 } }
+     #[inline(always)]
+--- a/zkp-core/src/sumcheck/grouped.rs
++++ b/zkp-core/src/sumcheck/grouped.rs
+@@ -108,7 +108,7 @@
+                     for g in 0..self.groups.len() {
+                         if t <= self.groups[g].bracket_degree &&
+                             (t != 1 || round_groups[g].inverse_one.is_none() || cfg!(debug_assertions)) {
+-                            sums[g][t] = sums[g][t].add(weights[g].mul((self.bracket)(g, &cur)));
++                            sums[g][t] = sums[g][t].add_product(weights[g], (self.bracket)(g, &cur));
+                         }
+                     }
+                     if t != max_degree {

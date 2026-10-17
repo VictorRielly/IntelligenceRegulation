@@ -1,0 +1,16 @@
+{
+  "command": "python3 -m unittest tests.test_zk60_techweek_demo tests.test_zk60_techweek_server -v",
+  "tests_run": 23,
+  "skipped": 0,
+  "errors": 0,
+  "failures": 0,
+  "passed": true,
+  "verified_at_unix": 1790731055.901746,
+  "source_sha256": {
+    "scripts/zk60_techweek_demo.py": "7e0b1078c830211a5da8ba965908eaf10db6a1d8e1223ef3139bab63a48b739a",
+    "scripts/zk60_techweek_server.py": "d0df20810e16abbe9e5ee61122924eb03223a4d4d8fef364d39af0ff3bfbe9a1",
+    "scripts/zk60_resource_guard.py": "1b4caae473481137985e3b81224c6b179234516c46ba4baeb8260b5220f7721b",
+    "tests/test_zk60_techweek_demo.py": "5c9fea245c0eb1524af34f2e29b8f19886c8a79d27c29ea778e3216647a16350",
+    "tests/test_zk60_techweek_server.py": "598eb79ee3ac6367cff77eb5ebe43c87b5babe24ac0525417a8057c71b8f24d1"
+  }
+}

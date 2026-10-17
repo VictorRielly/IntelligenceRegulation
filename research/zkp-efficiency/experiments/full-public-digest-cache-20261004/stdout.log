@@ -1,0 +1,1 @@
+{"canonical_bytes_compared": 696744, "cases": 27, "chunk_comparisons": 216, "control_count": 23, "elapsed_seconds": 0.1441445400014345, "model_root_comparisons": 81, "outer_binding_mutations": 189, "owner_digest_comparisons": 486, "peak_rss_kib": 17812, "status": "pass", "tensor_mutations": 351}

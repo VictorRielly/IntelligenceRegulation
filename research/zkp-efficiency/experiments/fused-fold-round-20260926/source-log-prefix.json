@@ -1,0 +1,10 @@
+{
+  "sources.jsonl": {
+    "bytes": 28176,
+    "sha256": "cd371ae04cd9efd1fa5d2f7192d33fdb3b642e76ba15109f6a3fbbb84eb775d8"
+  },
+  "FINDINGS.md": {
+    "bytes": 28120,
+    "sha256": "4be7ed451cf06905668998ca80052db2f77ee2a98dfe8a526ecd3a21326d5bdb"
+  }
+}

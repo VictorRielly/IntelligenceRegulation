@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-prefix-checkpoint-20261004/experiment.py"
+  ],
+  "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-prefix-checkpoint-20261004",
+  "started_utc": "2026-10-04T10:11:57.122489+00:00",
+  "budget_seconds": 60,
+  "threads": 1,
+  "estimated_memory_MiB": 64,
+  "refinement": "real stale owner mutation; prefix longer than1024bytes; scoped count labels"
+}

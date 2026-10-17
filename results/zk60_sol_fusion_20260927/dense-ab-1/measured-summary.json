@@ -1,0 +1,193 @@
+{
+  "state": "passed",
+  "comparison_sha256": "24327bcc2a11f4521c263f3dd2a28cb972e696f34d5a16ab021caf35b8f0693d",
+  "summarizer_sha256": "354994a853a8876c4cf2e80959f4cbc503e3baba4a226989e3bbfffedb8d8df6",
+  "six_log_hashes_and_runner_hash_verified": true,
+  "runs": [
+    {
+      "name": "00-warm-old",
+      "arm": "warm-old",
+      "warmup": true,
+      "command": [
+        "/tmp/zk60-sol-fusion-20260927/hashline/target/release/deps/hashline-60504ec8c28da368",
+        "--ignored",
+        "--exact",
+        "private_block::rulings_tests::private_block_125m_one_block",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "fused_env": "0",
+      "exit_code": 0,
+      "wall_seconds": 40.0424825240043,
+      "log_sha256": "d1860c40112345fd294239a8eeb7109c99e6f1e6cf0bb94e6322412a125f94fb",
+      "prove_seconds": 32.67,
+      "verify_seconds": 0.89,
+      "receipt_bytes": 40783352,
+      "peak_rss_mib": 10526.0,
+      "witness_seconds": 6.33,
+      "prove_phase_seconds": 32.67,
+      "serialization_seconds": 0.02,
+      "softmax_slot_seconds": 7.254,
+      "known_witness_prove_serialization_seconds": 39.02
+    },
+    {
+      "name": "01-warm-new",
+      "arm": "warm-new",
+      "warmup": true,
+      "command": [
+        "/tmp/zk60-sol-fusion-20260927/hashline/target/release/deps/hashline-60504ec8c28da368",
+        "--ignored",
+        "--exact",
+        "private_block::rulings_tests::private_block_125m_one_block",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "fused_env": "1",
+      "exit_code": 0,
+      "wall_seconds": 41.28859970602207,
+      "log_sha256": "97df44d042521516b520721c409635620eecf216f18227646a36b4fb150dad85",
+      "prove_seconds": 34.73,
+      "verify_seconds": 0.88,
+      "receipt_bytes": 40783352,
+      "peak_rss_mib": 10526.0,
+      "witness_seconds": 5.51,
+      "prove_phase_seconds": 34.731,
+      "serialization_seconds": 0.023,
+      "softmax_slot_seconds": 8.904,
+      "known_witness_prove_serialization_seconds": 40.264
+    },
+    {
+      "name": "02-old",
+      "arm": "old",
+      "warmup": false,
+      "command": [
+        "/tmp/zk60-sol-fusion-20260927/hashline/target/release/deps/hashline-60504ec8c28da368",
+        "--ignored",
+        "--exact",
+        "private_block::rulings_tests::private_block_125m_one_block",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "fused_env": "0",
+      "exit_code": 0,
+      "wall_seconds": 42.485277455998585,
+      "log_sha256": "baa8250db5d027f481f0205c4230c8abd7f28025fb74a458e3b0916ecf23bf80",
+      "prove_seconds": 34.7,
+      "verify_seconds": 0.88,
+      "receipt_bytes": 40783352,
+      "peak_rss_mib": 10582.0,
+      "witness_seconds": 6.74,
+      "prove_phase_seconds": 34.697,
+      "serialization_seconds": 0.025,
+      "softmax_slot_seconds": 8.131,
+      "known_witness_prove_serialization_seconds": 41.462
+    },
+    {
+      "name": "03-new",
+      "arm": "new",
+      "warmup": false,
+      "command": [
+        "/tmp/zk60-sol-fusion-20260927/hashline/target/release/deps/hashline-60504ec8c28da368",
+        "--ignored",
+        "--exact",
+        "private_block::rulings_tests::private_block_125m_one_block",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "fused_env": "1",
+      "exit_code": 0,
+      "wall_seconds": 41.4409412459936,
+      "log_sha256": "b6259ede98ce21e8e41db79f0b0968e3d898ae191c234051e4dc790d7e058ac1",
+      "prove_seconds": 34.85,
+      "verify_seconds": 0.89,
+      "receipt_bytes": 40783352,
+      "peak_rss_mib": 10527.0,
+      "witness_seconds": 5.53,
+      "prove_phase_seconds": 34.849,
+      "serialization_seconds": 0.021,
+      "softmax_slot_seconds": 9.004,
+      "known_witness_prove_serialization_seconds": 40.4
+    },
+    {
+      "name": "04-new",
+      "arm": "new",
+      "warmup": false,
+      "command": [
+        "/tmp/zk60-sol-fusion-20260927/hashline/target/release/deps/hashline-60504ec8c28da368",
+        "--ignored",
+        "--exact",
+        "private_block::rulings_tests::private_block_125m_one_block",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "fused_env": "1",
+      "exit_code": 0,
+      "wall_seconds": 45.259854750009254,
+      "log_sha256": "1fbe0c8198720137faef9dd616469ad4072e7659fd689f62c9801930158aa097",
+      "prove_seconds": 36.45,
+      "verify_seconds": 0.9,
+      "receipt_bytes": 40783352,
+      "peak_rss_mib": 10527.0,
+      "witness_seconds": 7.75,
+      "prove_phase_seconds": 36.449,
+      "serialization_seconds": 0.022,
+      "softmax_slot_seconds": 9.39,
+      "known_witness_prove_serialization_seconds": 44.221
+    },
+    {
+      "name": "05-old",
+      "arm": "old",
+      "warmup": false,
+      "command": [
+        "/tmp/zk60-sol-fusion-20260927/hashline/target/release/deps/hashline-60504ec8c28da368",
+        "--ignored",
+        "--exact",
+        "private_block::rulings_tests::private_block_125m_one_block",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "fused_env": "0",
+      "exit_code": 0,
+      "wall_seconds": 42.108108949963935,
+      "log_sha256": "e9157b6cf76c3c81f04bcbed6c66989456aa59b19cb8187cba28b76fb758d3c1",
+      "prove_seconds": 35.44,
+      "verify_seconds": 0.87,
+      "receipt_bytes": 40783352,
+      "peak_rss_mib": 10518.0,
+      "witness_seconds": 5.63,
+      "prove_phase_seconds": 35.436,
+      "serialization_seconds": 0.023,
+      "softmax_slot_seconds": 8.533,
+      "known_witness_prove_serialization_seconds": 41.089000000000006
+    }
+  ],
+  "non_warm_samples_per_arm": 2,
+  "non_warm_means": {
+    "old": {
+      "prove_phase_seconds": 35.066500000000005,
+      "softmax_slot_seconds": 8.332,
+      "wall_seconds": 42.29669320298126,
+      "known_witness_prove_serialization_seconds": 41.27550000000001
+    },
+    "new": {
+      "prove_phase_seconds": 35.649,
+      "softmax_slot_seconds": 9.197,
+      "wall_seconds": 43.35039799800143,
+      "known_witness_prove_serialization_seconds": 42.3105
+    }
+  },
+  "observed_time_reduction_percent": {
+    "prove_phase_seconds": -1.6611295681062899,
+    "softmax_slot_seconds": -10.381661065770498,
+    "wall_seconds": -2.491222635215129,
+    "known_witness_prove_serialization_seconds": -2.5075407929643134
+  },
+  "scope": "Shared two-thread CPU, one synthetic dense 125M-geometry block, T512; same binary with fusion off/on in separate processes",
+  "limits": [
+    "Small-slot test oracles included in the test binary",
+    "Two samples per arm; no statistical confidence or p95 claim",
+    "Known phase sum is not an enclosing end-to-end request clock",
+    "Process wall includes verification and other test work",
+    "No GPU, trained 8B, larger privacy acceptance or integration claim"
+  ]
+}

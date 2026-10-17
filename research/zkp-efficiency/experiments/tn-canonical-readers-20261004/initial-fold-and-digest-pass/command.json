@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "python3",
+    "-B",
+    "experiments/tn-canonical-readers-20261004/experiment.py"
+  ],
+  "timeout_seconds": 60,
+  "python": "3.10.12",
+  "started_at": "2026-10-04T08:09:06.286727+00:00",
+  "source_sha256": "202f679ff9de156ed79d4c5598f07089ade9e730385308fb1154c3cfd540f30d",
+  "cpu_model": "Intel(R) Core(TM) Ultra 9 185H"
+}

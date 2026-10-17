@@ -1,0 +1,41 @@
+{
+  "validated_at_utc": "2026-10-04T15:18:12.096591+00:00",
+  "status": "pass",
+  "code_hashes_match_result": true,
+  "native_sources_unchanged": true,
+  "prior_memory_prefixes_preserved": true,
+  "checks": {
+    "FINDINGS.md": {
+      "prior_prefix_sha256": "836689c4114729b8f80bd82d9e19ee9e8c143ce8edeba485b1c3991893f09a16",
+      "prefix_preserved": true,
+      "new_bytes": 9901
+    },
+    "sources.jsonl": {
+      "prior_prefix_sha256": "ac9900ae3a9141a10557d56ae27ffa4a455c6855786bfc58197b9c6689a42402",
+      "prefix_preserved": true,
+      "new_bytes": 5909
+    },
+    "research/zkp-efficiency/AGENDA.md": "unchanged",
+    "CLAUDE.md": "unchanged",
+    "docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md": "unchanged",
+    "docs/zkmatrix-poc/MVP_STATUS.md": "unchanged",
+    "docs/zkmatrix-poc/ZK60_DECISIONS.md": "unchanged",
+    "docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md": "unchanged",
+    "docs/zkmatrix-poc/START_HERE.md": "unchanged",
+    "docs/zkmatrix-poc/ZK60_PRIVACY_REQUIREMENTS.md": "unchanged",
+    "docs/zkmatrix-poc/TASK_BOARD.md": "unchanged",
+    "research/zkp-efficiency/experiments/sc-szc-clause-census-20261004/result.json": "unchanged",
+    "results/zk60_mvp_20260929/baseline-stack-gpu-attempt2/report.json": "unchanged",
+    "results/zk60_mvp_20260929/cli-stack-gpu/report.json": "unchanged"
+  },
+  "artifact_count": 50,
+  "report_sha256": {
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/STATE.md": "558dcb83d913d41ab32e098347cc58cfd6629fe35671fcf1a3aa2dba7c593c37",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/PROGRESS.md": "0decb5747964b1f22148f900c812b835cfa860dcc8ab27338c139160aa6b91f8",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/FINDINGS.md": "c41f0a0e2347ca63e6f8dbdd72339025760bd43af94729302a65966ef5dbca27",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/sources.jsonl": "d00e5389766b738bf4b8338a97f4190be825bf66dbaa2c5c85bf2daf9f597d3c",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/progress/20261004T150146Z-0acf7ff8.md": "0decb5747964b1f22148f900c812b835cfa860dcc8ab27338c139160aa6b91f8",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/handoffs/20261004-compiled-lookup-denominators.md": "cd1c4aa9dd941d33e66f7fdb83dbbd671c3965f306a38036c5d3d158fbaf07c1"
+  },
+  "independent_verified_private8b_tokens": 0
+}

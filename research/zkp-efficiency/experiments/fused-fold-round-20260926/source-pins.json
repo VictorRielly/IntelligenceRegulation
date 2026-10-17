@@ -1,0 +1,57 @@
+[
+  {
+    "path": "/tmp/zk60-groups-20260926/zkp-core/src/sumcheck/rounds.rs",
+    "sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df",
+    "bytes": 7092
+  },
+  {
+    "path": "/tmp/zk60-groups-20260926/zkp-core/src/sumcheck/grouped.rs",
+    "sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b",
+    "bytes": 7903
+  },
+  {
+    "path": "/tmp/zk60-groups-20260926/zkp-core/src/sumcheck.rs",
+    "sha256": "fc7374bbd5e5cc4ede62e8a21d325eb62acff9b9dcc786d12eae39efbdfdbb95",
+    "bytes": 22023
+  },
+  {
+    "path": "/tmp/zk60-groups-20260926/zkp-core/src/field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "bytes": 11065
+  },
+  {
+    "path": "/tmp/zk60-groups-20260926/hashline/src/private_block/argument.rs",
+    "sha256": "b3b02383a14a64a12194a465873b76f78406e5d3115b0c8157fde2882d22c865",
+    "bytes": 99535
+  },
+  {
+    "path": "/tmp/zk60-groups-20260926/hashline/src/zk.rs",
+    "sha256": "95a354633ae3363735322e91c9408739cc697af4c917010dc80386ab9dc2a044",
+    "bytes": 254065
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_encode_allocation_20260922/dense-ab-1/03-new.log",
+    "sha256": "9c2f7565a09cfd472eb74a71d8120f1fa225c489ecc4082b5fe2f38d34f6aaea",
+    "bytes": 22669
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_encode_allocation_20260922/dense-ab-1/04-new.log",
+    "sha256": "050fe0779207e050f038d4d933ade12a5c29eab6f386c3600dcdc7c69acbc0bf",
+    "bytes": 22669
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_grouped_rounds_20260926/dense-ab-1/comparison.json",
+    "sha256": "090d9d65dc2a8f75bac44c847411b486939a924281188d82edced1c19db9ab26",
+    "bytes": 287
+  },
+  {
+    "path": "/tmp/zk60-groups-20260926/zkp-core/src/mle.rs",
+    "sha256": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e",
+    "bytes": 15255
+  },
+  {
+    "path": "/tmp/zk60-groups-20260926/hashline/src/private_block.rs",
+    "sha256": "b4aeb6ed32331b29b3d470ca5fc2f4789c1f2f4a9785751ca52aacaa51a3300e",
+    "bytes": 48269
+  }
+]

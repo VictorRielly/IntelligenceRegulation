@@ -1,0 +1,44 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/hashline/src/gpu/kernels.cu",
+    "sha256": "bd00229fd61e86ae2bc0e037d5fa9cd90acc8a8a0f0fbf5583d501d2caf7b6aa",
+    "bytes": 74107,
+    "snapshot": "snapshots/hashline__src__gpu__kernels.cu"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/hashline/src/gpu/cuda.rs",
+    "sha256": "a0ed0b3af7e38bd9a842cc0c024f9c12cc988c81fa586d2e4a67d5c7c5c11e9d",
+    "bytes": 202179,
+    "snapshot": "snapshots/hashline__src__gpu__cuda.rs"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/hashline/src/ntt.rs",
+    "sha256": "a7f7ac0b838747c4de59e8226213500a41c047356ddd8bcdb3ab906818843c7c",
+    "bytes": 97,
+    "snapshot": "snapshots/hashline__src__ntt.rs"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/zkp-core/src/pcs.rs",
+    "sha256": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d",
+    "bytes": 54858,
+    "snapshot": "snapshots/zkp-core__src__pcs.rs"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_encode_vectors/vectors.json",
+    "sha256": "409f419381b42a3d915cc77fecae01085f3a52f41bcc00a838ba9a8d7fcc2877",
+    "bytes": 186908,
+    "snapshot": null
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_encode_vectors/full_rows.json",
+    "sha256": "37a12900ee1a06b750c85f06d53047c570861f088e4a02cde96e93d80a33b85c",
+    "bytes": 355722,
+    "snapshot": null
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_grouped_rounds_20260926/dense-ab-1/measured-summary.json",
+    "sha256": "adf7aa8f3c3b875c13469f0324f8b7fc7c336eeea481bbc6729ba0943cb8e2e9",
+    "bytes": 6489,
+    "snapshot": "snapshots/results__zk60_grouped_rounds_20260926__dense-ab-1__measured-summary.json"
+  }
+]

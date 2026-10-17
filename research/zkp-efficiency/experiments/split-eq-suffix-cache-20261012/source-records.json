@@ -1,0 +1,97 @@
+[
+  {
+    "access_date": "2026-10-12",
+    "cycle": "0041",
+    "run_id": "20261012T222555Z-e2cb7a5e",
+    "evidence_kind": "Native LIVE primary-source search and inspection; no foreign code executed or author performance reproduced",
+    "id": "cycle41-akita-suffix-cache-contract",
+    "title": "Akita split equality suffix caches and mixed-factor message boundary",
+    "url": "https://layerzero-labs.github.io/akita/foundations/eq-factored-sumcheck.html",
+    "published": null,
+    "updated": null,
+    "date_evidence": "No publication/update date shown; crawl recency is not a publication date.",
+    "implementation_license": "Repository root reports Apache-2.0 and MIT; license text fetches failed, not independently inspected.",
+    "inspected_commit_id": null,
+    "inspected_urls": [
+      "https://github.com/LayerZero-Labs/akita",
+      "https://github.com/LayerZero-Labs/akita/blob/main/crates/akita-algebra/src/split_eq.rs"
+    ],
+    "access_issues": [
+      "Direct book open Cache miss, LIVE search returned chapter text.",
+      "GitHub and raw split_eq.rs fetches Cache miss; no implementation runtime code inspected.",
+      "LICENSE-MIT and LICENSE-APACHE Cache miss."
+    ],
+    "assessment": "Refresh refines previous mixed-factor assessment: docs describe cached suffix levels and popping after binding. Our local fixed-boundary Python is independently written from tensor factorization and pinned native schedule, not a port of inaccessible implementation. Preserve ordinary native mixed-factor messages and all original final tables; no coefficient omission adopted."
+  },
+  {
+    "access_date": "2026-10-12",
+    "cycle": "0041",
+    "run_id": "20261012T222555Z-e2cb7a5e",
+    "evidence_kind": "Native LIVE primary-source search and inspection; no foreign code executed or author performance reproduced",
+    "id": "cycle41-akita-release-validation-refresh",
+    "title": "Akita September release and inspected ordinary compressed-round validation diff",
+    "url": "https://github.com/LayerZero-Labs/akita/releases",
+    "published": null,
+    "updated": null,
+    "date_evidence": "GitHub release displays 09 Sep 14:50 without year; separate official announcement explicitly Sep 9, 2026. Commit timestamp not available.",
+    "implementation_license": "Root reports Apache-2.0, MIT; exact license text unavailable this cycle; no source copied.",
+    "inspected_commit_id": "029ceceaba879a0d9bf80a47d2e08534e630457d",
+    "inspected_urls": [
+      "https://github.com/LayerZero-Labs/akita/commit/029ceceaba879a0d9bf80a47d2e08534e630457d",
+      "https://www.layerzero.org/blog/introducing-akita"
+    ],
+    "verified_related_announcement_date": "2026-09-09",
+    "assessment": "Inspected visible compressed-round guard/uni_poly/docs diff again: zero polynomial keeps a stored coefficient; typed empty messages and over-degree rounds rejected before replay. Cache optimization retains native degree and full sample vector even for zero fixtures. This commit is not a suffix-cache implementation pin or current HEAD; no author speedup reproduced."
+  },
+  {
+    "access_date": "2026-10-12",
+    "cycle": "0041",
+    "run_id": "20261012T222555Z-e2cb7a5e",
+    "evidence_kind": "Native LIVE primary-source search and inspection; no foreign code executed or author performance reproduced",
+    "id": "cycle41-bddt-extended-2026-cache-refresh",
+    "title": "Speeding Up Sum-Check Proving (Extended Version): decomposable equality overhead",
+    "url": "https://eprint.iacr.org/2026/587",
+    "published": "2026-03-24",
+    "updated": "2026-03-25",
+    "date_evidence": "ePrint received March 24 and approved March 25; no later revision displayed. Approval is not a code update.",
+    "implementation_license": "No implementation inspected; paper page CC BY.",
+    "inspected_commit_id": null,
+    "assessment": "Current primary metadata/abstract refresh. Author Jolt/Spartan/Shout speedups are unreplicated and not native private-model evidence. Local cache removes only sublinear preparation atop already grouped/split arithmetic; unchanged row weighting and bracket work dominate counts."
+  },
+  {
+    "access_date": "2026-10-12",
+    "cycle": "0041",
+    "run_id": "20261012T222555Z-e2cb7a5e",
+    "evidence_kind": "Native LIVE primary-source search and inspection; no foreign code executed or author performance reproduced",
+    "id": "cycle41-dao-thaler-2024-cache-refresh",
+    "title": "More Optimizations to Sum-Check Proving: avoid claiming the whole Eq speedup twice",
+    "url": "https://eprint.iacr.org/2024/1210",
+    "published": "2024-07-27",
+    "updated": "2024-07-29",
+    "date_evidence": "ePrint received July 27, approved July 29; no later revision displayed.",
+    "implementation_license": "No implementation inspected; paper page CC BY.",
+    "inspected_commit_id": null,
+    "assessment": "Older previously assessed method refreshed as the baseline filter. Existing native GroupedEqRounds already splits equality factors, so this cycle cannot attribute the paper's full reported savings to suffix caching."
+  },
+  {
+    "access_date": "2026-10-12",
+    "cycle": "0041",
+    "run_id": "20261012T222555Z-e2cb7a5e",
+    "evidence_kind": "Native LIVE primary-source search and inspection; no foreign code executed or author performance reproduced",
+    "id": "cycle41-libra-older-sparse-bookkeeping",
+    "title": "Libra: older sparse GKR bookkeeping, initialization costs and distinct ZK obligations",
+    "url": "https://eprint.iacr.org/2019/317",
+    "published": "2019-03-29",
+    "updated": "2021-11-20",
+    "date_evidence": "ePrint received date and last of eight revisions explicitly shown. Yale author PDF is the older CRYPTO 2019 version; not asserted to be the 2021 revision.",
+    "implementation_license": "Paper page CC BY; no implementation repository or license inspected.",
+    "inspected_commit_id": null,
+    "inspected_urls": [
+      "https://www.cs.yale.edu/homes/cpap/published/libra-crypto19.pdf"
+    ],
+    "access_issues": [
+      "IACR proceedings PDF returned 403 Forbidden; author-hosted Yale PDF accessible without bypass."
+    ],
+    "assessment": "New older source relative to prior 220-record URL inventory. Inspected Algorithm 4/5 and ZK outline: price equality precompute and sparse bookkeeping before timed rounds; sparsity applies to GKR wiring, not generic arbitrary softmax clauses. Their polynomial delegation/setup and masking construction are a high-cost architecture migration, not a drop-in cache or privacy permission. Author proof timings unreplicated. Useful next structural question: constant-axis Ht host evaluation, with native row-lift provenance and original-cube/refusal tests."
+  }
+]

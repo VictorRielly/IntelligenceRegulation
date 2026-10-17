@@ -1,0 +1,67 @@
+[
+  {
+    "id": "cycle19-zkprophet-older-bottleneck-study",
+    "url": "https://arxiv.org/abs/2509.22684",
+    "inspected_urls": [
+      "https://arxiv.org/html/2509.22684v1"
+    ],
+    "published": "2025-09-17",
+    "updated": null,
+    "date_evidence": "Sole visible v1: Sep17 2025 22:52:19 UTC, submission history inspected",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "paper_license": "CC BY4.0, HTML header inspected",
+    "assessment": "New older assessment: inspected methodology and kernel/field discussion. Groth16/BLS377/381 bottlenecks and integer-pipeline dependence do not give a Goldilocks opening speedup. Supports measuring parent phases instead of assuming transfer-bound NTT. No author result reproduced.",
+    "accessed_date": "2026-10-04",
+    "recorded_at_utc": "2026-10-04T01:14:54.261617+00:00",
+    "cycle": "0019",
+    "run_identity": "20261004T010146Z-23455eeb",
+    "evidence_kind": "Native LIVE primary-source search and inspection; no external code executed or performance reproduced"
+  },
+  {
+    "id": "cycle19-icicle-transfer-concurrency-reference",
+    "url": "https://github.com/ingonyama-zk/icicle/blob/main/examples/c%2B%2B/best-practice-ntt/README.md",
+    "inspected_urls": [
+      "https://github.com/ingonyama-zk/icicle/blob/main/LICENSE",
+      "https://github.com/ingonyama-zk/icicle/commits/main/",
+      "https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0",
+      "https://github.com/ingonyama-zk/icicle/commit/6c77775961b0e4dc2be359feec1ac11536c18043"
+    ],
+    "published": null,
+    "updated": "2025-07-10",
+    "date_evidence": "Inspected history dates the full version-bump commit Jul10 2025. Release rendering says Jul11 05:36 without year; no 2026 release inferred. This commit date is not the README edit date or current HEAD. Visible history starts Aug6 2025.",
+    "implementation_license": "MIT repository LICENSE terms inspected; separate accelerated backend licensing not audited",
+    "inspected_commit_id": "6c77775961b0e4dc2be359feec1ac11536c18043",
+    "assessment": "README proposes three transfer/compute streams with two device vectors. Design comparison only: doubling buffers can oppose this capacity goal. Inspected version diff only, not runtime code. No adoption or GPU timing; do not label v4.0.0 a recent2026 release.",
+    "accessed_date": "2026-10-04",
+    "recorded_at_utc": "2026-10-04T01:14:54.261617+00:00",
+    "cycle": "0019",
+    "run_identity": "20261004T010146Z-23455eeb",
+    "evidence_kind": "Native LIVE primary-source search and inspection; no external code executed or performance reproduced"
+  },
+  {
+    "id": "cycle19-tensorzkp-dated-refresh-and-field-filter",
+    "url": "https://eprint.iacr.org/2026/1250",
+    "inspected_urls": [
+      "https://www.usenix.org/conference/usenixsecurity26/presentation/lu-tao",
+      "https://www.usenix.org/system/files/usenixsecurity26-lu-tao.pdf",
+      "https://ji-peng.com/"
+    ],
+    "published": "2026-06-13",
+    "updated": "2026-06-16",
+    "date_evidence": "ePrint history receivedJun13, revisedJun16; USENIX proceedings metadata monthAug2026, exact proceedings publication day not established",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "paper_license": "CC BY, ePrint inspected",
+    "author_claim": "Tensor-core arithmetic, sumcheck and Spielman-code acceleration for HyperPlonk/Brakedown.",
+    "assessment": "Refresh of cycle1 paper with newly verified dates. Read section4.1: configured32-bit base/degree4 extension differs from64-bit Goldilocks/degree2. No arithmetic field change or whole private8B performance transfer authorized. Artifact link from author points to Zenodo; access failed.",
+    "access_issues": [
+      "Author-linked https://doi.org/10.5281/zenodo.20337923 redirected to inaccessible Zenodo path; native tool Internal Error, non-retryable. No code/license/commit inspected."
+    ],
+    "accessed_date": "2026-10-04",
+    "recorded_at_utc": "2026-10-04T01:14:54.261617+00:00",
+    "cycle": "0019",
+    "run_identity": "20261004T010146Z-23455eeb",
+    "evidence_kind": "Native LIVE primary-source search and inspection; no external code executed or performance reproduced"
+  }
+]

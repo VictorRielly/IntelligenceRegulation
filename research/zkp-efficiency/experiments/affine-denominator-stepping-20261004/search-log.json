@@ -1,0 +1,60 @@
+{
+  "access_date": "2026-10-04",
+  "run_id": "20261004T185034Z-0cf2c35e",
+  "method": "native LIVE web search",
+  "queries": [
+    "sumcheck affine polynomial evaluation successive points finite differences lookup prover GPU 2026",
+    "site.github.com sumcheck \"forward differences\"",
+    "site.eprint.iacr.org 2026 lookup sumcheck GPU logup",
+    "\"SumCATS\" GPU sumcheck github paper",
+    "\"sumcheck\" \"increment\" \"delta\" site.github.com/Plonky3/Plonky3",
+    "\"sumcheck\" \"successive\" \"evaluations\" github",
+    "site.github.com/microsoft/vega-prover \"delayed modular reduction\" sumcheck"
+  ],
+  "access_issues": [
+    {
+      "url": "https://github.com/SPIRE-GMU/sum_cats/commits/main/",
+      "error": "Internal Error"
+    },
+    {
+      "url": "https://past.date-conference.com/proceedings-archive/2026/DATA/926.pdf",
+      "error": "Internal Error; author's PDF succeeded"
+    },
+    {
+      "url": "https://github.com/SPIRE-GMU/sum_cats/tree/main/sumcheck/binius-gpu/src",
+      "error": "Internal Error; exact ulvt inventory link succeeded"
+    },
+    {
+      "url": "https://github.com/microsoft/vega-prover/tree/main/src/sumcheck",
+      "error": "Internal Error"
+    },
+    {
+      "url": "https://github.com/microsoft/vega-prover/blob/main/src/sumcheck.rs",
+      "error": "Cache miss"
+    },
+    {
+      "url": "https://github.com/SPIRE-GMU/sum_cats/blob/main/sumcheck/binius-gpu/LICENSE.txt",
+      "error": "Cache miss"
+    },
+    {
+      "url": "https://github.com/microsoft/vega-prover/commit/df22cb9f19556cc907b821aa31fe1d55e99ea198",
+      "error": "Cache miss"
+    },
+    {
+      "url": "https://github.com/microsoft/vega-prover/pull/105",
+      "error": "Cache miss"
+    },
+    {
+      "url": "https://docs.rs/vega-prover/latest/vega_prover/traits/index.html",
+      "error": "Internal Error"
+    },
+    {
+      "url": "https://github.com/microsoft/vega-prover/pull/147",
+      "error": "Internal Error from PR147 commit link; full ID not rendered",
+      "action": "click commit link82 (99d3591); full requested URL was not returned"
+    }
+  ],
+  "records": 5,
+  "no_bypass": true,
+  "foreign_code_executed": false
+}

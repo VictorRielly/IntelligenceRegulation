@@ -1,0 +1,10 @@
+[
+  {
+    "elapsed": 0.0457164780000312,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.18
+  }
+]

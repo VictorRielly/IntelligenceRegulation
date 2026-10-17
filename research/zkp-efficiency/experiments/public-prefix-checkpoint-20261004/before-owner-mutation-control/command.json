@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-prefix-checkpoint-20261004/experiment.py"
+  ],
+  "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-prefix-checkpoint-20261004",
+  "started_utc": "2026-10-04T10:08:26.815246+00:00",
+  "python": "3.10.12 (main, Aug 31 2026, 10:18:17) [GCC 11.4.0]",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "budget_seconds": 60,
+  "threads": 1,
+  "estimated_memory_MiB": 64
+}

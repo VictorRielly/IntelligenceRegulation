@@ -1,0 +1,54 @@
+{
+  "state": "passed",
+  "scope": "CPU-light fresh/archived toy receipt gate while native suite queues on shared heavy lock",
+  "runs": [
+    {
+      "name": "fresh-prove",
+      "command": [
+        "/tmp/zk60-groups-20260926/hashline/target/release/examples/zk60_private_block",
+        "prove",
+        "/home/victor/IntelligenceRegulation/results/zk60_grouped_rounds_20260926/receipt-gate/fresh"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.11407570401206613,
+      "log_sha256": "5a07ac2027b13a2cf7202fd0de742aad691c384fdef989814deea025c6b4bb45"
+    },
+    {
+      "name": "fresh-verify",
+      "command": [
+        "/tmp/zk60-groups-20260926/hashline/target/release/examples/zk60_private_block",
+        "verify",
+        "/home/victor/IntelligenceRegulation/results/zk60_grouped_rounds_20260926/receipt-gate/fresh"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.06493788404623047,
+      "log_sha256": "da43c5c5897b2dfc2e52a3d4b7ea795f195e4487963321728dc14d709a5cf1f3"
+    },
+    {
+      "name": "old-verifier",
+      "command": [
+        "/tmp/wt-zk60-shaped-20260920/hashline/target/release/examples/zk60_private_block",
+        "verify",
+        "/home/victor/IntelligenceRegulation/results/zk60_grouped_rounds_20260926/receipt-gate/fresh"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.06838101695757359,
+      "log_sha256": "18e4407e28374a4078622c35b7eec02d987d05c90b46f01ce3e1003bed926813"
+    },
+    {
+      "name": "old-receipt",
+      "command": [
+        "/tmp/zk60-groups-20260926/hashline/target/release/examples/zk60_private_block",
+        "verify",
+        "/tmp/wt-zk60-shaped-20260920/results/zk60_shaped_integration_20260922/baseline/native-block"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.0732515340205282,
+      "log_sha256": "67cbc50f06d2713a280527adda72cb3d06eab63df60c0d4851c4c3acb654fba1"
+    }
+  ],
+  "binary_sha256": {
+    "/tmp/zk60-groups-20260926/hashline/target/release/examples/zk60_private_block": "097cd646f126f1b549904add6faca12bbb6f99220c104c3245cb171a92d4aebc",
+    "/tmp/wt-zk60-shaped-20260920/hashline/target/release/examples/zk60_private_block": "43d567471e760070c793a885604516db9a30e77b988b0cc208cc6940a4480fa4"
+  }
+}

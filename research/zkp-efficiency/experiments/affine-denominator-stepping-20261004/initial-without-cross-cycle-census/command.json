@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "python3",
+    "-B",
+    "experiments/affine-denominator-stepping-20261004/experiment.py"
+  ],
+  "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency",
+  "exit_code": 0,
+  "enclosing_wall_seconds": null,
+  "source_reconstruction": "initial source reconstructed by removing final census-validation block; SHA256 matches retained initial result"
+}

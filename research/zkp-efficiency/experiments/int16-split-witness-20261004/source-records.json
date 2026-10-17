@@ -1,0 +1,124 @@
+[
+  {
+    "cycle": "0022",
+    "run_identity": "20261004T040146Z-c6dec297",
+    "accessed_date": "2026-10-04",
+    "recorded_at_utc": "2026-10-04T04:16:07.484040+00:00",
+    "evidence_kind": "Native LIVE primary search/inspection; no foreign code executed and no author performance reproduced",
+    "id": "cycle22-ozaki-older-integer-engines",
+    "url": "https://arxiv.org/abs/2306.11975",
+    "title": "DGEMM on Integer Matrix Multiplication Unit",
+    "published": "2023-06-21",
+    "updated": "2024-03-30",
+    "date_evidence": "arXiv submission history v1/v4 inspected",
+    "inspected_urls": [
+      "https://github.com/enp1s0/ozIMMU",
+      "https://github.com/enp1s0/ozIMMU/blob/main/LICENSE"
+    ],
+    "implementation_license": "MIT, license text inspected",
+    "inspected_commit_id": null,
+    "commit_note": "README/license only; current HEAD/update date unavailable, not pinned",
+    "assessment": "Older not previously assessed integer-engine decomposition inspiration. Author FP64/quantum simulation speeds are unreplicated and irrelevant as complete-proof rates. Our fixed int16 x int8 domain needs two byte products, exact i64 reconstruction and no approximate loss threshold."
+  },
+  {
+    "cycle": "0022",
+    "run_identity": "20261004T040146Z-c6dec297",
+    "accessed_date": "2026-10-04",
+    "recorded_at_utc": "2026-10-04T04:16:07.484040+00:00",
+    "evidence_kind": "Native LIVE primary search/inspection; no foreign code executed and no author performance reproduced",
+    "id": "cycle22-ozaki-scaling-uniqueness-warning",
+    "url": "https://arxiv.org/abs/2606.29129",
+    "title": "Improved Scaling for Fast Mode of Ozaki Scheme II",
+    "published": "2026-06-28",
+    "updated": null,
+    "date_evidence": "arXiv submitted Jun28 2026; only v1 displayed",
+    "implementation_license": "Not inspected for paper implementation",
+    "inspected_commit_id": null,
+    "assessment": "Authors identify scale-invariance failure and possible CRT recovery failure in original fast scaling; revised uniqueness formula is a claim, not reproduced. This favors explicit public integer bounds for our direct exact mapping, not substituting FP64 accuracy for integer equality."
+  },
+  {
+    "cycle": "0022",
+    "run_identity": "20261004T040146Z-c6dec297",
+    "accessed_date": "2026-10-04",
+    "recorded_at_utc": "2026-10-04T04:16:07.484040+00:00",
+    "evidence_kind": "Native LIVE primary search/inspection; no foreign code executed and no author performance reproduced",
+    "id": "cycle22-gemmul8-framework-filter",
+    "url": "https://github.com/RIKEN-RCCS/GEMMul8",
+    "title": "GEMMul8 integer matrix-engine emulation",
+    "published": null,
+    "updated": null,
+    "date_evidence": "No repository commit/update timestamp verified; README cites2026 works, which is not a HEAD date",
+    "implementation_license": "MIT; LICENSE text inspected",
+    "inspected_commit_id": null,
+    "inspected_urls": [
+      "https://github.com/RIKEN-RCCS/GEMMul8/blob/main/LICENSE"
+    ],
+    "assessment": "README describes CRT-based INT8/FP8 GEMM emulation, accurate/fast scaling and CUDA12.9 requirement. General emulation adds moduli/scaling/CRT work our bounded int16 witness does not need. No runtime source audit/performance reproduction; do not execute build instructions."
+  },
+  {
+    "cycle": "0022",
+    "run_identity": "20261004T040146Z-c6dec297",
+    "accessed_date": "2026-10-04",
+    "recorded_at_utc": "2026-10-04T04:16:07.484040+00:00",
+    "evidence_kind": "Native LIVE primary search/inspection; no foreign code executed and no author performance reproduced",
+    "id": "cycle22-gemmlowp-older-offset-cache",
+    "url": "https://github.com/google/gemmlowp/blob/master/doc/low-precision.md",
+    "title": "Efficient handling of offsets",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Publication/history timestamp unavailable; doc history Internal Error. No crawl-time inference",
+    "implementation_license": "Apache-2.0, LICENSE text inspected",
+    "inspected_commit_id": null,
+    "inspected_urls": [
+      "https://github.com/google/gemmlowp/blob/master/LICENSE",
+      "https://github.com/google/gemmlowp/commits/master/doc/low-precision.md"
+    ],
+    "access_issues": [
+      "doc history Internal Error"
+    ],
+    "assessment": "Offset correction can be a column-sum rank-one update computed during packing. This motivates identity-bound reusable sums for public P1 weights and cached resident passes. Existing clamping/quantization output pipelines are not our refusal semantics; P3 sums remain private."
+  },
+  {
+    "cycle": "0022",
+    "run_identity": "20261004T040146Z-c6dec297",
+    "accessed_date": "2026-10-04",
+    "recorded_at_utc": "2026-10-04T04:16:07.484040+00:00",
+    "evidence_kind": "Native LIVE primary search/inspection; no foreign code executed and no author performance reproduced",
+    "id": "cycle22-cutlass-september-release-scope",
+    "url": "https://github.com/NVIDIA/cutlass/releases/tag/v4.8.0",
+    "title": "CUTLASS4.8.0 September release",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Release page displays22Sep03:37 without year; version changelog explicitly dates4.8.0 2026-09-17. Keep discrepancy; not a verified Sep22 full release timestamp",
+    "changelog_version_date": "2026-09-17",
+    "implementation_license": "Not inspected: both version LICENSE URLs returned Internal Error",
+    "inspected_commit_id": "098de2a652cf8f00fd70b2df54051c7eccbb855a",
+    "commit_note": "Commit reached via native release link; version/changelog inspected, no kernel source audit or independently verified commit timestamp",
+    "inspected_urls": [
+      "https://github.com/NVIDIA/cutlass/commit/098de2a652cf8f00fd70b2df54051c7eccbb855a",
+      "https://github.com/NVIDIA/cutlass/blob/v4.8.0/CHANGELOG.md"
+    ],
+    "access_issues": [
+      "short commit URL Cache miss",
+      "version LICENSE.txt Internal Error",
+      "version LICENSE.txt?plain=1 Internal Error"
+    ],
+    "assessment": "Current release has staged/workspace/persistent scheduling features and corrected dynamic-stride copy regression. Headline Rubin FP8/FP4 support does not establish exact int8 SM120/5090 performance. No install/kernel execution or new production dependency proposed."
+  },
+  {
+    "cycle": "0022",
+    "run_identity": "20261004T040146Z-c6dec297",
+    "accessed_date": "2026-10-04",
+    "recorded_at_utc": "2026-10-04T04:16:07.484040+00:00",
+    "evidence_kind": "Native LIVE primary search/inspection; no foreign code executed and no author performance reproduced",
+    "id": "cycle22-cublas-integer-contract",
+    "url": "https://docs.nvidia.com/cuda/cublas/index.html",
+    "title": "cuBLAS13.4 integer compute contract",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Current documentation reports13.4; no publication/update timestamp verified",
+    "implementation_license": "Not inspected; vendor API documentation only",
+    "inspected_commit_id": null,
+    "assessment": "Documented8I x8I ->32I with32I alpha/beta,32I_PEDANTIC integer arithmetic,4-byte A/B alignment and lda/ldb multiples4. Integer cuBLASLt epilogue limitations require separate exact i64 reconstruction or audited custom epilogue. These are API prerequisites, not evidence any current native backend supports GEMM."
+  }
+]

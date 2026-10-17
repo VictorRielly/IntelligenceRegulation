@@ -1,0 +1,8 @@
+{"event":"prove_start","scope":"SYNTHETIC-DIAGNOSTIC: public synthetic dense weights and a synthetic hidden input on a registered development shape; NOT a trained model and NOT a trained-8B proof; endpoints are prover-created (D18); a correctness result, no privacy acceptance made or implied","shape":"m125","blocks":12,"recipe":"zk60-mvp/dense-run/1","context_label":"zk60-mvp-diagnostic","artifact_dir":"/home/victor/IntelligenceRegulation/results/zk60_mvp_20260929/cli-stack-gpu/receipt","policy_out":"/home/victor/IntelligenceRegulation/results/zk60_mvp_20260929/cli-stack-gpu/trusted-policy.txt","hl_gpu_env":"1"}
+{"event":"phase","name":"model_setup","seconds":0.142802}
+{"event":"phase","name":"chain_prepass","seconds":81.735471}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"phase","name":"endpoint_prep","seconds":4.244446}
+{"event":"phase","name":"statement","seconds":0.043343}
+[ZK60] keyed gpu zk commit accepted

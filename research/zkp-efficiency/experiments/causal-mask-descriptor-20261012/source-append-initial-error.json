@@ -1,0 +1,5 @@
+{
+  "time_utc": "2026-10-12T18:39:40.115855+00:00",
+  "error": "KeyError: id while collecting existing legacy source ids; no records appended before this error",
+  "resolution": "Use optional id fields; preserve older source schema unchanged."
+}

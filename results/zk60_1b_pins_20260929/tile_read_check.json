@@ -1,0 +1,123 @@
+{
+  "importer": "results/zk60_1b_checkpoint_20260927/importer_zk60_1b_checkpoint.py",
+  "importer_sha256": "73339779bca99326dbd5ae5ffb30fe2ff7861fb3460c9f17753df8c3f919ec23",
+  "inventory": "results/zk60_1b_checkpoint_20260927/inventory_20260929.json",
+  "inventory_sha256": "58a7492a30e670961c917ba560430453cc3e0207473a20419a41777a10f38daa",
+  "shard": "/home/victor/models/tinyllama-1.1b-chat-fe8a4ea1/model.safetensors",
+  "header_sha256": "de4413e191122aeb9a7fd93b43f92b0a48039f0da7569646bac2ed4ceb2c428c",
+  "reads": [
+    {
+      "tensor": "model.layers.0.self_attn.q_proj.weight",
+      "shape": [
+        2048,
+        2048
+      ],
+      "dtype": "BF16",
+      "tensor_bytes": 8388608,
+      "file_offset_of_tensor": 340818488,
+      "recorded_tensor_sha256": "5abf98c51f903941a1592f3df83e2e56ca7149252f5d6665c7662927c83008ac",
+      "tile_row": 1000,
+      "tile_offset_bytes": 4096000,
+      "tile_length_bytes": 4096,
+      "tile_sha256": "9b9ab7cb079eed1f74fc678ff71cf8248560c14d881a65c432ad0d766c597f19",
+      "tile_equals_direct_file_read": true,
+      "bf16": {
+        "elements": 2048,
+        "finite": 2048,
+        "nonzero": 2048,
+        "min": -0.06298828125,
+        "max": 0.07666015625,
+        "mean_abs": 0.003949919220758602,
+        "first4": [
+          -0.00311279296875,
+          -0.0031585693359375,
+          -0.00408935546875,
+          -0.00634765625
+        ]
+      },
+      "pass": true
+    },
+    {
+      "tensor": "model.layers.21.mlp.down_proj.weight",
+      "shape": [
+        2048,
+        5632
+      ],
+      "dtype": "BF16",
+      "tensor_bytes": 23068672,
+      "file_offset_of_tensor": 1495411256,
+      "recorded_tensor_sha256": "ca349d3d7310ed3b94a20e86df2dab1fd80e0b145dabc4cacb19dc5ed06c3a8b",
+      "tile_row": 2047,
+      "tile_offset_bytes": 23057408,
+      "tile_length_bytes": 11264,
+      "tile_sha256": "5c4b2faac0f77503bee7fc913c59a9d142fd3c4ef1efbd6fe8991a9c317af5da",
+      "tile_equals_direct_file_read": true,
+      "bf16": {
+        "elements": 5632,
+        "finite": 5632,
+        "nonzero": 5632,
+        "min": -0.07421875,
+        "max": 0.06787109375,
+        "mean_abs": 0.014041309192014689,
+        "first4": [
+          0.00946044921875,
+          -0.0216064453125,
+          -0.013427734375,
+          0.000888824462890625
+        ]
+      },
+      "pass": true
+    }
+  ],
+  "negative_controls": [
+    {
+      "control": "wrong recorded digest",
+      "refused": true,
+      "message": "model.layers.0.self_attn.q_proj.weight: tensor changed after source pinning",
+      "tensor": "model.layers.0.self_attn.q_proj.weight"
+    },
+    {
+      "control": "tile past tensor end",
+      "refused": true,
+      "message": "model.layers.0.self_attn.q_proj.weight: tile exceeds bounded read limit",
+      "tensor": "model.layers.0.self_attn.q_proj.weight"
+    },
+    {
+      "control": "tile above 1 MiB bound",
+      "refused": true,
+      "message": "model.layers.0.self_attn.q_proj.weight: tile exceeds bounded read limit",
+      "tensor": "model.layers.0.self_attn.q_proj.weight"
+    },
+    {
+      "control": "odd element offset",
+      "refused": true,
+      "message": "model.layers.0.self_attn.q_proj.weight: BF16 tile must align to elements",
+      "tensor": "model.layers.0.self_attn.q_proj.weight"
+    },
+    {
+      "control": "wrong recorded digest",
+      "refused": true,
+      "message": "model.layers.21.mlp.down_proj.weight: tensor changed after source pinning",
+      "tensor": "model.layers.21.mlp.down_proj.weight"
+    },
+    {
+      "control": "tile past tensor end",
+      "refused": true,
+      "message": "model.layers.21.mlp.down_proj.weight: tile exceeds bounded read limit",
+      "tensor": "model.layers.21.mlp.down_proj.weight"
+    },
+    {
+      "control": "tile above 1 MiB bound",
+      "refused": true,
+      "message": "model.layers.21.mlp.down_proj.weight: tile exceeds bounded read limit",
+      "tensor": "model.layers.21.mlp.down_proj.weight"
+    },
+    {
+      "control": "odd element offset",
+      "refused": true,
+      "message": "model.layers.21.mlp.down_proj.weight: BF16 tile must align to elements",
+      "tensor": "model.layers.21.mlp.down_proj.weight"
+    }
+  ],
+  "all_pass": true
+}

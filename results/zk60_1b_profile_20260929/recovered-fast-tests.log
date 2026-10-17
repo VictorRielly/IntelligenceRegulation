@@ -1,0 +1,179 @@
+   Compiling version_check v0.9.5
+   Compiling crossbeam-utils v0.8.22
+   Compiling generic-array v0.14.7
+   Compiling typenum v1.20.1
+   Compiling crossbeam-epoch v0.9.20
+   Compiling crossbeam-deque v0.8.7
+   Compiling shlex v2.0.1
+   Compiling find-msvc-tools v0.1.11
+   Compiling cc v1.4.4
+   Compiling rayon-core v1.13.0
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling cfg-if v1.0.4
+   Compiling digest v0.10.7
+   Compiling blake3 v1.8.7
+   Compiling cpufeatures v0.2.17
+   Compiling constant_time_eq v0.4.2
+   Compiling arrayvec v0.7.8
+   Compiling cpufeatures v0.3.1
+   Compiling either v1.18.0
+   Compiling rayon v1.12.0
+   Compiling sha2 v0.10.9
+   Compiling private-block-kernel-shaped v0.1.0 (/tmp/zk60-lane-c2-20260930/private-block-kernel-shaped)
+   Compiling private-block-kernel v0.1.0 (/tmp/zk60-lane-c2-20260930/private-block-kernel)
+   Compiling zkp-core v0.1.0 (/tmp/zk60-lane-c2-20260930/zkp-core)
+   Compiling hashline v0.1.0 (/tmp/zk60-lane-c2-20260930/hashline)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:720:13
+    |
+720 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:865:4
+    |
+865 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: associated function `tinyllama_t32_dev` is never used
+   --> src/private_block/run.rs:119:19
+    |
+ 85 | impl RunShape {
+    | ------------- associated function in this implementation
+...
+119 |     pub(crate) fn tinyllama_t32_dev(l: usize) -> Result<RunShape, String> {
+    |                   ^^^^^^^^^^^^^^^^^
+
+warning: method `with_trained_calibration` is never used
+   --> src/private_block/shape.rs:968:19
+    |
+154 | impl Shape {
+    | ---------- method in this implementation
+...
+968 |     pub(crate) fn with_trained_calibration(mut self, norm_cn: i64, norm_ceps: i64, sh_ao: u32) -> Result<Shape, String> {
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:460:5
+    |
+453 | struct Rec {
+    |        --- field in this struct
+...
+460 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:562:15
+    |
+562 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 17 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 31.93s
+     Running unittests src/lib.rs (/tmp/zk60-lane-c2-20260930/hashline/target/debug/deps/hashline-f095a48414c5b376)
+
+running 9 tests
+test private_block::lane_c_tinyllama_tests::lane_c_one_dense_block_proves_and_verifies_at_the_tinyllama_dev_shape ... ignored, lane C heavy: one width-2048 block proof
+test private_block::lane_c_tinyllama_tests::lane_c_the_dense_recipe_is_admissible_at_the_tinyllama_dev_shape ... ignored, lane C heavy: builds a width-2048 witness
+test private_block::lane_c_tinyllama_tests::the_true_geometry_reproduces_the_retained_sol_layout_counts ... ok
+test private_block::lane_c_tinyllama_tests::the_development_shape_has_four_norm_limbs_and_its_own_counts ... ok
+test private_block::lane_c_tinyllama_tests::the_frozen_toy_the_calibration_literal_and_125m_do_not_move ... ok
+test private_block::lane_c_tinyllama_tests::the_true_geometry_has_a_layout_but_no_witness ... ok
+test private_block::lane_c_tinyllama_tests::every_statement_field_moves_the_identity_and_an_unused_constant_is_refused ... ok
+test private_block::lane_c_tinyllama_tests::the_tinyllama_source_record_is_the_pinned_one_and_is_checked ... ok
+test private_block::lane_c_tinyllama_tests::a_run_bound_to_its_statement_verifies_and_is_rejected_under_any_other ... ok
+
+test result: ok. 7 passed; 0 failed; 2 ignored; 0 measured; 513 filtered out; finished in 5.84s
+

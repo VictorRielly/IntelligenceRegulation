@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "checkpoint_utc": "2026-10-14T20:43:41.891147+00:00",
+  "run_id": "20261014T203626Z-4afb917a",
+  "run_source_hashes_checked": 20,
+  "prior49_source_hashes_checked": 16,
+  "native_pins_checked": 10,
+  "source_records": 257,
+  "result_sha256": "ad7ba4bee6426c049cd939b8b52a553e2ecde15d0235e2c4581c7a5a11393bd9",
+  "completed_proof_tokens": 0,
+  "production_writes": false,
+  "runtime_writes": false
+}

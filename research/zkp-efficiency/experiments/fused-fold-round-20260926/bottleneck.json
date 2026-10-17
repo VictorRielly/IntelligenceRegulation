@@ -1,0 +1,37 @@
+{
+  "runs": [
+    {
+      "name": "03-new.log",
+      "prove_s": 39.733,
+      "verify_internal_s": 0.964,
+      "verify_from_bytes_s": 0.98,
+      "witness_s": 8.35,
+      "serialization_s": 0.024,
+      "slot17_masked_sumcheck_s": 9.858,
+      "known_readiness_sum_s": 48.107,
+      "whole_slot_elimination_ceiling_fraction": 0.20491820317209555
+    },
+    {
+      "name": "04-new.log",
+      "prove_s": 40.095,
+      "verify_internal_s": 0.976,
+      "verify_from_bytes_s": 0.99,
+      "witness_s": 7.26,
+      "serialization_s": 0.027,
+      "slot17_masked_sumcheck_s": 9.686,
+      "known_readiness_sum_s": 47.382,
+      "whole_slot_elimination_ceiling_fraction": 0.20442362078426407
+    }
+  ],
+  "conditions": "Retained owner logs, synthetic dense 125M block, two CPU threads, shared box with compilation overlap. Not an enclosing request clock, GPU measurement, or 8B projection.",
+  "fusion_phase_attribution": null,
+  "grouped_ab": {
+    "state": "waiting-for-heavy-lock",
+    "runs": [],
+    "cpu_only": true,
+    "synthetic_dense_public_weights": true,
+    "model_scale_speed_claim": false,
+    "candidate_includes_small_slot_oracle": true,
+    "runner_sha256": "6c2bf639dcebd39fa10a78ce7eb5821bfd8b1c788aa9f18a78a6fa0b3cbb1d54"
+  }
+}

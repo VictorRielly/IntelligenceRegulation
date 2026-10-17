@@ -1,0 +1,77 @@
+--- a/scripts/zk60_resource_guard.py
++++ b/scripts/zk60_resource_guard.py
+@@ -267,24 +267,47 @@
+     setsid, double forks and reparenting cannot escape.  Otherwise it is the
+     union of the parent-chain descendants and the process group of the root."""
+ 
+-    def __init__(self, root_pid: int, expect_cgroup: bool):
++    def __init__(self, root_pid: int, expect_cgroup: bool, expected_unit: str | None = None):
+         self.root = root_pid
+         self.expect_cgroup = expect_cgroup
++        if expect_cgroup and (not expected_unit or not expected_unit.startswith("zk60-")
++                              or not expected_unit.endswith(".scope") or "/" in expected_unit):
++            raise ValueError("cgroup tracking requires this job's explicit zk60 scope unit")
++        self.expected_unit = expected_unit
+         self.cg: Path | None = None
+         self.peak_cgroup = 0
+ 
+     def _discover_cgroup(self) -> None:
+         if self.cg or not self.expect_cgroup:
+             return
++        candidates = []
+         try:
+             with open(f"/proc/{self.root}/cgroup") as f:
+-                path = f.read().strip().split(":", 2)[2]
++                candidates.append(f.read().strip().split(":", 2)[2])
+         except (OSError, IndexError):
+-            return
+-        if path.endswith(".scope"):
+-            cand = Path("/sys/fs/cgroup") / path.lstrip("/")
+-            if (cand / "cgroup.procs").exists():
+-                self.cg = cand
++            pass
++        # An early Popen process can still inhabit the caller's session
++        # scope. Adopt only the exact UUID-named scope created for this job.
++        for path in candidates:
++            if Path(path).name == self.expected_unit and Path(path).is_absolute():
++                cand = Path("/sys/fs/cgroup") / path.lstrip("/")
++                if (cand / "cgroup.procs").exists():
++                    self.cg = cand
++                    return
++        # The immediate process may already have exited while descendants
++        # remain in the scope. Resolve by unit identity, never by a guessed
++        # parent scope or by another process's current session membership.
++        try:
++            result = subprocess.run(
++                ["systemctl", "--user", "show", "--property=ControlGroup", "--value", self.expected_unit],
++                capture_output=True, text=True, timeout=5)
++            path = result.stdout.strip()
++            if result.returncode == 0 and Path(path).is_absolute() and Path(path).name == self.expected_unit:
++                cand = Path("/sys/fs/cgroup") / path.lstrip("/")
++                if (cand / "cgroup.procs").exists():
++                    self.cg = cand
++        except (OSError, subprocess.TimeoutExpired):
++            pass
+ 
+     def pids(self, table: dict) -> set[int]:
+         self._discover_cgroup()
+@@ -605,8 +628,9 @@
+         # ---- launch ----
+         use_cgroup = (not args.no_cgroup) and systemd_scope_ok()
+         argv = command
++        scope_unit = f"zk60-{run_id}.scope" if use_cgroup else None
+         if use_cgroup:
+-            pre = ["systemd-run", "--user", "--scope", "--quiet"]
++            pre = ["systemd-run", "--user", "--scope", "--quiet", "--unit=" + scope_unit]
+             if SLICE_UNIT.exists():
+                 pre.append("--slice=zk60.slice")
+             pre += ["-p", f"MemoryMax={int(cap * GIB)}", "-p", "MemorySwapMax=0", "--"]
+@@ -637,7 +661,7 @@
+             terminal_written = True
+             return terminal(EXIT_LAUNCH_FAILED, guard_error=f"launch failed: {e}",
+                             enforcement=enforcement, waited_s=round(waited, 1))
+-        tracker = Tracker(proc.pid, use_cgroup)
++        tracker = Tracker(proc.pid, use_cgroup, scope_unit)
+ 
+         peak_rss = 0
+         peak_vram = None  # None = never sampled; 0 = sampled and idle

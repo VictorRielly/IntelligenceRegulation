@@ -1,0 +1,91 @@
+{
+  "schema": "zkp-efficiency/experiment/v1",
+  "date": "2026-09-22",
+  "status": "passed",
+  "python": "3.10.12",
+  "source_sha256": "fe9b15d61c3b47694d843938380c39d274e308d4c71db00b9a195965d4308468",
+  "field": "Fp2 over p=2^64-2^32+1, u^2=7",
+  "seed": 20260922,
+  "differential_cases": 62,
+  "independent_direct_round_points": 288,
+  "zero_divisor_fallback_rounds": 5,
+  "malformed_refusals": 2,
+  "nonfactorable_additive_control_detected": true,
+  "timing_order": "reference/candidate/candidate/reference; shared CPU, Python microbenchmark",
+  "timings": [
+    {
+      "inner_degree": 2,
+      "n_vars": 10,
+      "evaluator": "Reference",
+      "seconds": 0.01376862300094217,
+      "digest": "9f4898b5e76f9bf4429f4f8618077fc0d901d638876101a3ec7f150f378b1c83",
+      "inner_products": 3581,
+      "eq_peak_elements": 1024
+    },
+    {
+      "inner_degree": 2,
+      "n_vars": 10,
+      "evaluator": "Factored",
+      "seconds": 0.011416050023399293,
+      "digest": "9f4898b5e76f9bf4429f4f8618077fc0d901d638876101a3ec7f150f378b1c83",
+      "inner_products": 2558,
+      "eq_peak_elements": 48
+    },
+    {
+      "inner_degree": 2,
+      "n_vars": 10,
+      "evaluator": "Factored",
+      "seconds": 0.01007382501848042,
+      "digest": "9f4898b5e76f9bf4429f4f8618077fc0d901d638876101a3ec7f150f378b1c83",
+      "inner_products": 2558,
+      "eq_peak_elements": 48
+    },
+    {
+      "inner_degree": 2,
+      "n_vars": 10,
+      "evaluator": "Reference",
+      "seconds": 0.015493457030970603,
+      "digest": "9f4898b5e76f9bf4429f4f8618077fc0d901d638876101a3ec7f150f378b1c83",
+      "inner_products": 3581,
+      "eq_peak_elements": 1024
+    },
+    {
+      "inner_degree": 3,
+      "n_vars": 10,
+      "evaluator": "Reference",
+      "seconds": 0.027318119013216347,
+      "digest": "f741974d10b050725bc80cba4c19fbec7a7bc54a919192675a527b1d473902cd",
+      "inner_products": 4604,
+      "eq_peak_elements": 1024
+    },
+    {
+      "inner_degree": 3,
+      "n_vars": 10,
+      "evaluator": "Factored",
+      "seconds": 0.015451801009476185,
+      "digest": "f741974d10b050725bc80cba4c19fbec7a7bc54a919192675a527b1d473902cd",
+      "inner_products": 3581,
+      "eq_peak_elements": 48
+    },
+    {
+      "inner_degree": 3,
+      "n_vars": 10,
+      "evaluator": "Factored",
+      "seconds": 0.01538617501500994,
+      "digest": "f741974d10b050725bc80cba4c19fbec7a7bc54a919192675a527b1d473902cd",
+      "inner_products": 3581,
+      "eq_peak_elements": 48
+    },
+    {
+      "inner_degree": 3,
+      "n_vars": 10,
+      "evaluator": "Reference",
+      "seconds": 0.021027436014264822,
+      "digest": "f741974d10b050725bc80cba4c19fbec7a7bc54a919192675a527b1d473902cd",
+      "inner_products": 4604,
+      "eq_peak_elements": 1024
+    }
+  ],
+  "elapsed_seconds": 0.21931641298579052,
+  "scope": "Synthetic exact unmasked evaluator identities and toy transcript only. No native receipt, GPU, CFS privacy or model-speed claim."
+}

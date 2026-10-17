@@ -1,0 +1,10 @@
+{
+  "status": "failed",
+  "control": "paper_root_substitution",
+  "reason": "After replacing membership dispatch with sealed stage formula, mutating the supplied twiddle no longer mutates candidate arithmetic; original control incorrectly assumed candidate always consumes native_w. Contract needs host provenance validation; corrected control runs wrong-root baseline and explicitly detects unsafe stage/w attestation.",
+  "code_hashes": {
+    "experiment.py": "f5e6c197f794e8d05acae7631e7626397e05e806496f49c13eaf4d8586c94ba0",
+    "arithmetic.py": "4b70176d55629b3502b5c753254ad7e1c0a5eccf9862cc9ff6306bb60212b83c",
+    "oracle.py": "fbfd2332e634c8d3e4f547a0027a1a06151db25081634cc89ba9fe346aa08fdf"
+  }
+}

@@ -1,0 +1,1 @@
+Preserved intermediate pass with public extension/future-score checks, before refining supp_Ht to lift independently over j and adding full tail sums of mask-sensitive contributions. Source reconstructed by exact reverse changes and all recorded SHA256 pins match. Final run authoritative; this fixture is not full native clause evidence.

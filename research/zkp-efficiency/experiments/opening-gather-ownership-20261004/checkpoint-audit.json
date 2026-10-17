@@ -1,0 +1,18 @@
+{
+  "checked_at_utc": "2026-10-04T01:20:25.849585+00:00",
+  "script_and_result_hash": "matched",
+  "previous_record_prefixes": {
+    "FINDINGS.md": "prior byte prefix preserved",
+    "sources.jsonl": "prior byte prefix preserved",
+    "AGENDA.md": "prior byte prefix preserved"
+  },
+  "prior_state": "matched",
+  "source_snapshot_pins": 14,
+  "live_source_drift": [],
+  "experiment_resource_bounds": "passed",
+  "source_records_total": 105,
+  "cycle19_records": 3,
+  "full_stack_tokens": 0,
+  "report_files": "present",
+  "deadline_utc": "2026-10-04T01:21:46Z"
+}

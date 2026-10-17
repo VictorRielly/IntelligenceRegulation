@@ -1,0 +1,112 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/argument.rs",
+    "sha256": "b3b02383a14a64a12194a465873b76f78406e5d3115b0c8157fde2882d22c865",
+    "bytes": 99535,
+    "previous_pin_matches": true,
+    "snapshot": "hashline__src__private_block__argument.rs",
+    "current_pin_matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/pad.rs",
+    "sha256": "f8b1f6c26d18eadf01eb5e8527f3a2e9620fad533b8ab332cd57a6014bf96df0",
+    "bytes": 56533,
+    "previous_pin_matches": true,
+    "snapshot": "hashline__src__private_block__pad.rs",
+    "current_pin_matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/shape.rs",
+    "sha256": "dbf4e2bc36e9f74c432d6e529b229e3a593e794271fd8593d1412b8312403911",
+    "bytes": 71241,
+    "previous_pin_matches": true,
+    "snapshot": "hashline__src__private_block__shape.rs",
+    "current_pin_matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/witness.rs",
+    "sha256": "b9b66c024e7ca68d2a0ae4ba46241eb2abbccc8c8d94fe828041abbc710850ad",
+    "bytes": 29357,
+    "previous_pin_matches": true,
+    "snapshot": "hashline__src__private_block__witness.rs",
+    "current_pin_matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/layout.rs",
+    "sha256": "14758039fbe9daa61affa1316c6e4159437b98d888d72a926f6e70e788592b30",
+    "bytes": 61217,
+    "previous_pin_matches": true,
+    "snapshot": "hashline__src__private_block__layout.rs",
+    "current_pin_matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/zkp-core/src/sumcheck/grouped.rs",
+    "sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b",
+    "bytes": 7903,
+    "previous_pin_matches": true,
+    "snapshot": "zkp-core__src__sumcheck__grouped.rs",
+    "current_pin_matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/zkp-core/src/sumcheck.rs",
+    "sha256": "fc7374bbd5e5cc4ede62e8a21d325eb62acff9b9dcc786d12eae39efbdfdbb95",
+    "bytes": 22023,
+    "previous_pin_matches": true,
+    "snapshot": "zkp-core__src__sumcheck.rs",
+    "current_pin_matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/zk.rs",
+    "sha256": "95a354633ae3363735322e91c9408739cc697af4c917010dc80386ab9dc2a044",
+    "bytes": 254065,
+    "previous_pin_matches": true,
+    "snapshot": "hashline__src__zk.rs",
+    "current_pin_matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/zkp-core/src/sumcheck/rounds.rs",
+    "sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df",
+    "bytes": 7092,
+    "previous_pin_matches": true,
+    "snapshot": "zkp-core__src__sumcheck__rounds.rs",
+    "current_pin_matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_sol_gpu_20260927/attempt-5-dense-ab/report.json",
+    "sha256": "43c6b416c2d4254d821ec304e0fc49c6b8fbfb974b9122f919fdf7663d347506",
+    "bytes": 29717,
+    "previous_pin_matches": true,
+    "snapshot": "results__zk60_sol_gpu_20260927__attempt-5-dense-ab__report.json",
+    "current_pin_matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_sol_gpu_20260927/attempt-5-dense-ab/b2-gpu.log",
+    "sha256": "86f72477b0cda84efa0742234321a9d9eb6987701bb8d401384c9a9e227163ca",
+    "bytes": 23189,
+    "previous_pin_matches": true,
+    "snapshot": "results__zk60_sol_gpu_20260927__attempt-5-dense-ab__b2-gpu.log",
+    "current_pin_matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_mvp_20260929/baseline-stack-gpu-attempt2/report.json",
+    "sha256": "ae971925a0c2ffb0c7d04a4722dc39903308639fd449708df722e14f4a69687e",
+    "bytes": 1157,
+    "previous_pin_matches": true,
+    "snapshot": "results__zk60_mvp_20260929__baseline-stack-gpu-attempt2__report.json",
+    "current_pin_matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_mvp_20260929/cli-stack-gpu/report.json",
+    "sha256": "6e9bf57d050216be3110c71b67095bd6b7a7e77934196592c8cd6d0c6fd62781",
+    "bytes": 21117,
+    "previous_pin_matches": true,
+    "snapshot": "results__zk60_mvp_20260929__cli-stack-gpu__report.json",
+    "current_pin_matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/zkp-core/src/mle.rs",
+    "sha256": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e",
+    "snapshot": "mle.rs",
+    "bytes": 15255
+  }
+]

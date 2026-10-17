@@ -1,0 +1,121 @@
+{
+  "blocks": 22,
+  "dtypes": [
+    "BF16"
+  ],
+  "file_bytes": 2200119864,
+  "file_bytes_check": true,
+  "header_length_bytes": 23088,
+  "header_sha256": "de4413e191122aeb9a7fd93b43f92b0a48039f0da7569646bac2ed4ceb2c428c",
+  "header_sha256_matches_inventory": true,
+  "outside_stack": {
+    "lm_head.weight": {
+      "params": 65536000,
+      "shape": [
+        32000,
+        2048
+      ]
+    },
+    "model.embed_tokens.weight": {
+      "params": 65536000,
+      "shape": [
+        32000,
+        2048
+      ]
+    },
+    "model.norm.weight": {
+      "params": 2048,
+      "shape": [
+        2048
+      ]
+    }
+  },
+  "outside_stack_parameters": 131074048,
+  "payload_bytes": 2200096768,
+  "payload_bytes_matches_inventory": true,
+  "per_block_bf16_bytes": 88088576,
+  "per_block_parameters": 44044288,
+  "per_block_roles": {
+    "input_layernorm.weight": {
+      "layers": 22,
+      "params_per_layer": 2048,
+      "shape": [
+        2048
+      ]
+    },
+    "mlp.down_proj.weight": {
+      "layers": 22,
+      "params_per_layer": 11534336,
+      "shape": [
+        2048,
+        5632
+      ]
+    },
+    "mlp.gate_proj.weight": {
+      "layers": 22,
+      "params_per_layer": 11534336,
+      "shape": [
+        5632,
+        2048
+      ]
+    },
+    "mlp.up_proj.weight": {
+      "layers": 22,
+      "params_per_layer": 11534336,
+      "shape": [
+        5632,
+        2048
+      ]
+    },
+    "post_attention_layernorm.weight": {
+      "layers": 22,
+      "params_per_layer": 2048,
+      "shape": [
+        2048
+      ]
+    },
+    "self_attn.k_proj.weight": {
+      "layers": 22,
+      "params_per_layer": 524288,
+      "shape": [
+        256,
+        2048
+      ]
+    },
+    "self_attn.o_proj.weight": {
+      "layers": 22,
+      "params_per_layer": 4194304,
+      "shape": [
+        2048,
+        2048
+      ]
+    },
+    "self_attn.q_proj.weight": {
+      "layers": 22,
+      "params_per_layer": 4194304,
+      "shape": [
+        2048,
+        2048
+      ]
+    },
+    "self_attn.v_proj.weight": {
+      "layers": 22,
+      "params_per_layer": 524288,
+      "shape": [
+        256,
+        2048
+      ]
+    }
+  },
+  "proved_stack_bf16_bytes": 1937948672,
+  "proved_stack_fraction_of_total": 0.8808470155436363,
+  "proved_stack_matrix_parameters": 968884224,
+  "proved_stack_norm_weight_parameters": 90112,
+  "proved_stack_parameters": 968974336,
+  "provider_matches": true,
+  "provider_safetensors_total": 1100048384,
+  "source": "/home/victor/models/tinyllama-1.1b-chat-fe8a4ea1/model.safetensors",
+  "tensor_count": 201,
+  "tensors_per_block": 9,
+  "total_parameters": 1100048384
+}

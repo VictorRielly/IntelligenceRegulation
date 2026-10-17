@@ -48,6 +48,13 @@ target/release/zk60-block-wrap wrap PUBLIC_DIR/policy.bin PRIVATE_DIR/inner.bin 
 target/release/zk60-block-wrap verify PUBLIC_DIR/policy.bin PUBLIC_DIR/receipt.bin
 ```
 
+The executor's segment size limit must stay at or below `2^20`: the decisions
+register's D3 figure of about 97 bits of conjectured soundness is stated at
+`2^20`, and larger segments lower it. This host builds with
+`SEGMENT_LIMIT_PO2 = 18` (`2^18`) and reports the limit with every
+executor-only cycle count, so a recorded run states the shape it was measured
+under.
+
 The bundled public synthetic fixture is `fixtures/synthetic-model.bin`.
 Its metadata records the exact digest and makes no trained-model or approval
 claim. To regenerate it, export `zk60_kernel_fixture` from hashline and use
@@ -98,3 +105,15 @@ All heavy builds/proofs must use the repository's detached job protocol and
 job. See [the live loop record](../docs/zkmatrix-poc/ZK60_MVP_LOOP_20260918.md)
 for actual completed checks and pending jobs; this README is not a claim that
 the Groth16 integration run has already passed.
+
+## Image ID reproducibility
+
+The guest image ID
+`8d74aab3d58c1a713045dfd1ea4ffa15e61439e61af58b72a5fdb792111998d9`
+was produced by a **local** build of this workspace. It is **locally built,
+unreproduced**: no independent reproducible (upstream Docker) build has yet
+been shown to produce the same identifier from the same pinned sources and
+guest toolchain. Until one does, every approval record, decision entry or
+verification instruction that pins this ID must say so in those words.
+Pinning it (the maintained runner's `--expected-image-id`) binds a run to this
+local build, not to an independently reproduced program.

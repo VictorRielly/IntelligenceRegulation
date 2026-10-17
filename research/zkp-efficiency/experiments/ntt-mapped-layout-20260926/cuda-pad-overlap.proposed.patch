@@ -1,0 +1,19 @@
+--- a/hashline/src/gpu/kernels.cu
++++ b/hashline/src/gpu/kernels.cu
+@@ -1399,12 +1399,10 @@
+     int row = (int)(g / (size_t)nn);
+     int i = (int)(g - (size_t)row * (size_t)nn);
+     u64 v = 0ULL;
+-    if (i < n) {
+-        v = coef[(size_t)row * (size_t)n + i];
+-        if (i < q) v = gl_sub(v, pads[(size_t)row * (size_t)q + i]);
+-    } else if (i < n + q) {
+-        v = pads[(size_t)row * (size_t)q + (i - n)];
+-    }
++    if (i < n) v = coef[(size_t)row * (size_t)n + i];
++    // The negative and shifted pad contributions overlap when q > n.
++    if (i < q) v = gl_sub(v, pads[(size_t)row * (size_t)q + i]);
++    if (i >= n && i < n + q) v = gl_add(v, pads[(size_t)row * (size_t)q + (i - n)]);
+     out[g] = gl_mul(v, pows[i]);
+ }
+ 

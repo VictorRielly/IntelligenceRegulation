@@ -1,0 +1,38 @@
+{
+  "base": "4751b93 + fee1a8d shaped assembly (review-snapshot.json)",
+  "status": "validation-1 running; corrected duplicate module registration from first compile",
+  "files": [
+    {
+      "path": "zkp-core/src/sumcheck.rs",
+      "candidate_sha256": "36ff7f0e1dc8c2560f3a28c4a386ea6e4d4d9a58214ce573aa8f358152c58f7d",
+      "base_sha256": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19"
+    },
+    {
+      "path": "zkp-core/src/sumcheck/rounds.rs",
+      "candidate_sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df",
+      "base_sha256": null
+    },
+    {
+      "path": "zkp-core/src/sumcheck/rounds/tests.rs",
+      "candidate_sha256": "e724f79891155101f2a8c0330deabeaa9e244f2ca375aa163fa3029cc72c1d8b",
+      "base_sha256": null
+    },
+    {
+      "path": "hashline/src/zk.rs",
+      "candidate_sha256": "95a354633ae3363735322e91c9408739cc697af4c917010dc80386ab9dc2a044",
+      "base_sha256": "07282c766e882029d6886fcaee27d1503d595af1839263f61c802fb3f1a0f18c"
+    },
+    {
+      "path": "hashline/src/zk_rounds_tests.rs",
+      "candidate_sha256": "a4087934b87d2ef1cdff5e924ab62bd94fc52293d9a8282801feb1cd003b630b",
+      "base_sha256": null
+    },
+    {
+      "path": "hashline/src/private_block/argument.rs",
+      "candidate_sha256": "f71be0d3d6a78814c25c85a89c2fdcd9a538b49891af974853149e53d6f3506c",
+      "base_sha256": "f7fa2ad4213d925b2d8dcb8d8273b92c6af2e9f90f94978da8630cc123fcef3d"
+    }
+  ],
+  "old_prove_unchanged": true,
+  "old_masked_prove_unchanged": true
+}

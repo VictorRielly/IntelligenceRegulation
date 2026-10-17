@@ -1,0 +1,51 @@
+{
+  "state": "passed",
+  "binary": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/target/debug/deps/zk60_tagged_gpu_commit-0d12a3d7de116f81",
+  "binary_sha256": "a6b6bc238f7b3991074513ff8f9368001d05fb54e2d6e9605b8b6422e6319529",
+  "cases": [
+    {
+      "name": "resident",
+      "command": [
+        "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/target/debug/deps/zk60_tagged_gpu_commit-0d12a3d7de116f81",
+        "--exact",
+        "tagged_column_hashes_and_full_commitment_match_cpu",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 4.329775831000006,
+      "passed": true,
+      "log_sha256": "3788d974c891121c85fd2e0ffde38a6b65d59577a1780cf12541a66b878b508d"
+    },
+    {
+      "name": "streamed",
+      "command": [
+        "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/target/debug/deps/zk60_tagged_gpu_commit-0d12a3d7de116f81",
+        "--exact",
+        "tagged_column_hashes_and_full_commitment_match_cpu",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 4.027472413000169,
+      "passed": true,
+      "log_sha256": "bca5bf6fac19d962372c15c35252e1654381e34f505ad9b7f3d30746716e3c93"
+    },
+    {
+      "name": "compact",
+      "command": [
+        "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/target/debug/deps/zk60_tagged_gpu_commit-0d12a3d7de116f81",
+        "--exact",
+        "tagged_column_hashes_and_full_commitment_match_cpu",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 4.228718426000114,
+      "passed": true,
+      "log_sha256": "8c4d4a9ab3bb171d0f7f79d3c5187168a17119dea25070d4a9d3f0ee8be1eba6"
+    }
+  ],
+  "trained_8b_proof": false,
+  "current": null
+}

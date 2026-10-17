@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "python3",
+    "-B",
+    "experiments/heterogeneous-grouped-driver-20261012/experiment.py"
+  ],
+  "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency",
+  "seed": 2026101240,
+  "resource_limits": {
+    "wall_seconds": 59,
+    "cpu_seconds": 59,
+    "address_space_mib": 512,
+    "estimated_memory_mib": 64
+  },
+  "native_execution": false
+}

@@ -1,0 +1,11 @@
+{
+  "source": "/tmp/zk60-groups-20260926/hashline/src/private_block/protocol.rs",
+  "source_sha256": "ac4122375397a155d392df27a7e08f818ee78f80b38d41207565b325f5290413",
+  "proposed_source_sha256": "ae57093805be6f76cea1f87f6966a53ff3af479e200708aa13b3437303ac3e6c",
+  "patch_sha256": "78697f42b72fa0309aa7f49079867a30fe0e41dfdfde162c53bc7398086791d8",
+  "applied": false,
+  "compiled": false,
+  "native_tested": false,
+  "original_table_loop_unchanged": true,
+  "original_challenge_draws_unchanged": true
+}

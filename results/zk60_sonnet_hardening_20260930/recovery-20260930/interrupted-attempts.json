@@ -1,0 +1,29 @@
+{
+  "checked_at_unix": 1790729929.1721106,
+  "current_boot_id": "821442fc-3e31-457d-a742-de97ad7c8122",
+  "kernel_boot_time_unix": 1790729381,
+  "records": [
+    {
+      "path": "results/zk60_mvp_20260929/cli-stack-gpu/report.json",
+      "sha256": "6e9bf57d050216be3110c71b67095bd6b7a7e77934196592c8cd6d0c6fd62781",
+      "reported_state": "running",
+      "mtime_unix": 1790728741.0750182,
+      "before_current_boot": true,
+      "classification": "interrupted_by_host_reboot",
+      "evidence": "nonterminal report predates current kernel boot; a process from that boot cannot survive this reboot",
+      "original_preserved": true
+    },
+    {
+      "path": "results/zk60_sonnet_hardening_20260930/build-1790728739585019861/report.json",
+      "sha256": "b8acb757f64f452d7d8ad1a7cca5de8e97c9e616d8ffd56d4ac6173ccad3a5f5",
+      "reported_state": "building-tests",
+      "mtime_unix": 1790728792.1744516,
+      "before_current_boot": true,
+      "classification": "interrupted_by_host_reboot",
+      "evidence": "nonterminal report predates current kernel boot; a process from that boot cannot survive this reboot",
+      "original_preserved": true
+    }
+  ],
+  "resumed_run_started": false,
+  "complete_trained_8b_proof": false
+}

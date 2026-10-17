@@ -1,0 +1,133 @@
+{
+  "status": "passed",
+  "run_identity": "20260926T225233Z-f66107c9",
+  "seed": 2026092607,
+  "threads": 1,
+  "cpu_affinity": [
+    0
+  ],
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "limits": {
+    "wall_s": 59,
+    "cpu_s": 55,
+    "address_space_mib": 512
+  },
+  "estimated_memory_mib": 32,
+  "base_pair_cases": 10121,
+  "wide_reduction_cases": 10007,
+  "multiplication_cases": 24641,
+  "square_cases": 10121,
+  "exponent_cases": 35,
+  "multiplication_variants": 3,
+  "square_variants": 4,
+  "negative_controls": {
+    "unreduced_u64_sums": true,
+    "deferred_real_u128_overflow": true,
+    "deferred_cross_u128_overflow": true,
+    "wrong_nonresidue": true,
+    "drop_cross_term": true,
+    "square_missing_double": true,
+    "square_subtract_7ab": true,
+    "omit_subtraction_borrow": true,
+    "omit_addition_carry": true,
+    "wire_limb_swap": true,
+    "changed_input": true
+  },
+  "fixture_refusals": 4,
+  "arithmetic_digest": "ae4c407665286ea0e5d1c03ecb35adce92fddb9e0629fc0c133c31b29305ec4f",
+  "operation_counts": {
+    "schoolbook_mul": {
+      "variable_mul": 4,
+      "reduce128": 5,
+      "constant_mul_7": 1,
+      "add": 2
+    },
+    "karatsuba_mul": {
+      "variable_mul": 3,
+      "reduce128": 4,
+      "add": 3,
+      "constant_mul_7": 1,
+      "sub": 2
+    },
+    "karatsuba_mul_add7": {
+      "variable_mul": 3,
+      "reduce128": 3,
+      "add": 6,
+      "sub": 3
+    },
+    "literal_square_via_mul": {
+      "variable_mul": 4,
+      "reduce128": 5,
+      "constant_mul_7": 1,
+      "add": 2
+    },
+    "square3_or_ideal_cse": {
+      "variable_mul": 3,
+      "reduce128": 4,
+      "constant_mul_7": 1,
+      "add": 2
+    },
+    "square2": {
+      "variable_mul": 2,
+      "reduce128": 3,
+      "add": 5,
+      "constant_mul_7": 1,
+      "sub": 1
+    },
+    "square2_add7": {
+      "variable_mul": 2,
+      "reduce128": 2,
+      "add": 8,
+      "sub": 2
+    }
+  },
+  "downstream": {
+    "fused_fixtures": 24,
+    "fused_round_samples": 630,
+    "final_mles": 288,
+    "synthetic_schedule_cases": 24,
+    "grouped_fixtures": 13,
+    "grouped_independent_round_points": 189,
+    "zero_factor_fallbacks": 4,
+    "synthetic_digest": "32e11e634f750cbd754a1b4be8761995dddac81d55ae682f99052ed0cc710397",
+    "grouped_harness_field_kernel_counts": {
+      "schoolbook": {
+        "variable_mul": 40344,
+        "reduce128": 50430,
+        "constant_mul_7": 10086,
+        "add": 20172
+      },
+      "karatsuba": {
+        "variable_mul": 30258,
+        "reduce128": 40344,
+        "add": 30258,
+        "constant_mul_7": 10086,
+        "sub": 20172
+      },
+      "karatsuba_add7": {
+        "variable_mul": 30258,
+        "reduce128": 30258,
+        "add": 60516,
+        "sub": 30258
+      }
+    },
+    "counts_scope": "All extension multiplications in small run_case harness including reference, grouped, no-recovery and final-MLE checks; NOT native slot counts"
+  },
+  "source_sha256": "0d452f270d6d0169463fcd3b64a1dbacaf53b35c871396ae52a05c3f08701bf5",
+  "elapsed_s": 3.717963999020867,
+  "peak_rss_kib": 22496,
+  "proving_s": null,
+  "verification_s": null,
+  "complete_readiness_s": null,
+  "native_compiled": false,
+  "gpu_executed": false,
+  "limitations": [
+    "Fixed-width Python transcription, not compiled Rust or CUDA",
+    "Operation counts are unweighted source-level calls, not instructions, latency or speed",
+    "Compiler may CSE duplicate cross product in original square; square3 is not claimed as saving",
+    "Synthetic schedule hashes do not test native masking/RNG/PCS/receipt behavior",
+    "Canonical limb contract unchanged; malformed fixtures are harness refusals only"
+  ]
+}

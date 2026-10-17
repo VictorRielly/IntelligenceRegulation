@@ -1,0 +1,122 @@
+{
+  "STATE.md": {
+    "sha256": "9639080cf0eacb3979c1cf0cef1c4d6a84e366277c16eaec3c26d8ac62bb0e01",
+    "bytes": 6487
+  },
+  "FINDINGS.md": {
+    "sha256": "f9a915f56fceddb7ccee93aecceba1c1abaa69231448bf6a98ab2740c13d5f3a",
+    "bytes": 61003
+  },
+  "sources.jsonl": {
+    "sha256": "1896d0e3630ded4d06496388546e4078eee1adaae7777da9fa3c578672130fc9",
+    "bytes": 51322
+  },
+  "handoffs/20260926-logup-fraction-tree.md": {
+    "sha256": "17191b1c945ebd6f5a45ed45d30536d2b34a093cf34af550efa2565a3bb1cb8d",
+    "bytes": 3006
+  },
+  "experiments/logup-fraction-tree-20260926/README.md": {
+    "sha256": "96e3c2af63de8b7fcec80715b5fc39d84a944fc64c0f69c94ec547a933b42c66",
+    "bytes": 8984
+  },
+  "experiments/logup-fraction-tree-20260926/bottleneck.json": {
+    "sha256": "cef9f9abe7107e5f9a89d7ddd9714a1ec5416d9bd569c1dc5b5b0d7be167ec54",
+    "bytes": 14150
+  },
+  "experiments/logup-fraction-tree-20260926/commands.json": {
+    "sha256": "25c6bebc80bb4e8d03fab92e76d57e1a4a18fb4d6945efb3c8f1d35104581b45",
+    "bytes": 465
+  },
+  "experiments/logup-fraction-tree-20260926/early-STATE.md": {
+    "sha256": "36924c1ef238d542af8fd4c2fe9a38e2dd8ff6c86378d794436fb5678fdfc555",
+    "bytes": 1601
+  },
+  "experiments/logup-fraction-tree-20260926/experiment.py": {
+    "sha256": "00803947eda548b0eb389b6635e8ae513c5bc11a9f5212004761afc40d258e95",
+    "bytes": 12303
+  },
+  "experiments/logup-fraction-tree-20260926/history-prefixes.json": {
+    "sha256": "a8eefde7c7f6a08451da7ed74b39c017bef9795a1843df9f2ac1a33913c4f55c",
+    "bytes": 376
+  },
+  "experiments/logup-fraction-tree-20260926/initial/experiment.py": {
+    "sha256": "7808c922cfa626eff69501be6c380fbb58a6b013019343c9003cdeb199f23aa5",
+    "bytes": 12359
+  },
+  "experiments/logup-fraction-tree-20260926/initial/result.json": {
+    "sha256": "d9d8f666807271cb1c35aa056e69140329f2ae6d9b22885d5b0f18168e9fce1c",
+    "bytes": 4407
+  },
+  "experiments/logup-fraction-tree-20260926/initial/run.log": {
+    "sha256": "d9d8f666807271cb1c35aa056e69140329f2ae6d9b22885d5b0f18168e9fce1c",
+    "bytes": 4407
+  },
+  "experiments/logup-fraction-tree-20260926/native-reference/grouped/hashline/src/private_block/argument.rs": {
+    "sha256": "b3b02383a14a64a12194a465873b76f78406e5d3115b0c8157fde2882d22c865",
+    "bytes": 99535
+  },
+  "experiments/logup-fraction-tree-20260926/native-reference/grouped/hashline/src/private_block/layout.rs": {
+    "sha256": "14758039fbe9daa61affa1316c6e4159437b98d888d72a926f6e70e788592b30",
+    "bytes": 61217
+  },
+  "experiments/logup-fraction-tree-20260926/native-reference/grouped/hashline/src/private_block/protocol.rs": {
+    "sha256": "ac4122375397a155d392df27a7e08f818ee78f80b38d41207565b325f5290413",
+    "bytes": 61745
+  },
+  "experiments/logup-fraction-tree-20260926/native-reference/grouped/hashline/src/private_block/shape.rs": {
+    "sha256": "dbf4e2bc36e9f74c432d6e529b229e3a593e794271fd8593d1412b8312403911",
+    "bytes": 71241
+  },
+  "experiments/logup-fraction-tree-20260926/native-reference/main/hashline/src/private_block/argument.rs": {
+    "sha256": "e62f46c29fe41848737e157b65c16d11d2c2c9501722b88660420a7a21a642ab",
+    "bytes": 41455
+  },
+  "experiments/logup-fraction-tree-20260926/native-reference/main/hashline/src/private_block/layout.rs": {
+    "sha256": "6cc8f6fed8bc55ccb7cde23270976ed23912f768a6a60f3d392da08f2fcf0989",
+    "bytes": 30983
+  },
+  "experiments/logup-fraction-tree-20260926/native-reference/main/hashline/src/private_block/protocol.rs": {
+    "sha256": "d9455a1054aab7e18e1cba0194416a83847e862db26d8b4f5b9cf982ba082d65",
+    "bytes": 22936
+  },
+  "experiments/logup-fraction-tree-20260926/native-reference/main/zkp-core/src/field.rs": {
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "bytes": 11065
+  },
+  "experiments/logup-fraction-tree-20260926/previous-STATE.md": {
+    "sha256": "a96c0173a31691428f20e44082ad95123122b4e6af83913630d6d62b39884802",
+    "bytes": 6393
+  },
+  "experiments/logup-fraction-tree-20260926/result.json": {
+    "sha256": "e6b3b515a271bbe9001719c169b0472051d8a6f8ddf444c571d271138fb6fdd4",
+    "bytes": 4407
+  },
+  "experiments/logup-fraction-tree-20260926/run.log": {
+    "sha256": "e6b3b515a271bbe9001719c169b0472051d8a6f8ddf444c571d271138fb6fdd4",
+    "bytes": 4407
+  },
+  "experiments/logup-fraction-tree-20260926/search-log.json": {
+    "sha256": "74085ac3d1d355503e339cc0010118c6094bc6e1577dea882c60e7e2e7617344",
+    "bytes": 2148
+  },
+  "experiments/logup-fraction-tree-20260926/source-pins.json": {
+    "sha256": "a1c56bcb1ce1c242e67ffebded8a6f8bce1b3ca5e0c892287f72e08bc174b1e8",
+    "bytes": 3620
+  },
+  "experiments/logup-fraction-tree-20260926/source-records.json": {
+    "sha256": "de7650ec0da219113bef50fffb9034ab012cf5cd407d6af3cdb4cb3733aff4bc",
+    "bytes": 10013
+  },
+  "experiments/logup-fraction-tree-20260926/validate.py": {
+    "sha256": "9f0da102ca73c6d0930035e530783b9a3b7a3df9918016b8d2f936c542971bdb",
+    "bytes": 3715
+  },
+  "experiments/logup-fraction-tree-20260926/validation.json": {
+    "sha256": "9523facb3f3bc4a769fe20ba757621bf97844c251880d96410eddf9188962570",
+    "bytes": 494
+  },
+  "experiments/logup-fraction-tree-20260926/validation.log": {
+    "sha256": "9523facb3f3bc4a769fe20ba757621bf97844c251880d96410eddf9188962570",
+    "bytes": 494
+  }
+}

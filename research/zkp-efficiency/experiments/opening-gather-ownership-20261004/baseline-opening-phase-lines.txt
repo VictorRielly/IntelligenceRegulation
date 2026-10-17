@@ -1,0 +1,36 @@
+PB-TIMING prove | open M (zk::mask_open, ONE call)             | openings     |    0.005 |   0.0% |        50 rows |      2111 |      4030 |
+PB-TIMING prove | open A (schedule audit + pcs::open_zk)       | openings     |    0.640 |   2.4% |     122 claims |      1414 |      4030 |
+PB-TIMING prove | open H (schedule audit + pcs::open_zk)       | openings     |    0.296 |   1.1% |      51 claims |       511 |      4030 |
+PB-TIMING prove | open M (zk::mask_open, ONE call)             | openings     |    0.006 |   0.0% |        50 rows |      2112 |      4030 |
+PB-TIMING prove | open A (schedule audit + pcs::open_zk)       | openings     |    0.648 |   2.4% |     122 claims |      1414 |      4030 |
+PB-TIMING prove | open H (schedule audit + pcs::open_zk)       | openings     |    0.298 |   1.1% |      51 claims |       511 |      4030 |
+PB-TIMING prove | open M (zk::mask_open, ONE call)             | openings     |    0.005 |   0.0% |        50 rows |      2112 |      4030 |
+PB-TIMING prove | open A (schedule audit + pcs::open_zk)       | openings     |    0.652 |   2.7% |     122 claims |      1414 |      4030 |
+PB-TIMING prove | open H (schedule audit + pcs::open_zk)       | openings     |    0.301 |   1.2% |      51 claims |       512 |      4030 |
+PB-TIMING prove | open M (zk::mask_open, ONE call)             | openings     |    0.005 |   0.0% |        50 rows |      2112 |      4030 |
+PB-TIMING prove | open A (schedule audit + pcs::open_zk)       | openings     |    0.627 |   2.4% |     122 claims |      1414 |      4030 |
+PB-TIMING prove | open H (schedule audit + pcs::open_zk)       | openings     |    0.305 |   1.2% |      51 claims |       511 |      4030 |
+PB-TIMING prove | open M (zk::mask_open, ONE call)             | openings     |    0.005 |   0.0% |        50 rows |      2112 |      4030 |
+PB-TIMING prove | open A (schedule audit + pcs::open_zk)       | openings     |    0.709 |   2.5% |     122 claims |      1414 |      4030 |
+PB-TIMING prove | open H (schedule audit + pcs::open_zk)       | openings     |    0.302 |   1.0% |      51 claims |       511 |      4030 |
+PB-TIMING prove | open M (zk::mask_open, ONE call)             | openings     |    0.005 |   0.0% |        50 rows |      2112 |      4030 |
+PB-TIMING prove | open A (schedule audit + pcs::open_zk)       | openings     |    0.614 |   2.2% |     122 claims |      1414 |      4030 |
+PB-TIMING prove | open H (schedule audit + pcs::open_zk)       | openings     |    0.297 |   1.1% |      51 claims |       511 |      4030 |
+PB-TIMING prove | open M (zk::mask_open, ONE call)             | openings     |    0.005 |   0.0% |        50 rows |      2112 |      4030 |
+PB-TIMING prove | open A (schedule audit + pcs::open_zk)       | openings     |    0.738 |   2.6% |     122 claims |      1414 |      4030 |
+PB-TIMING prove | open H (schedule audit + pcs::open_zk)       | openings     |    0.307 |   1.1% |      51 claims |       511 |      4030 |
+PB-TIMING prove | open M (zk::mask_open, ONE call)             | openings     |    0.005 |   0.0% |        50 rows |      2112 |      4030 |
+PB-TIMING prove | open A (schedule audit + pcs::open_zk)       | openings     |    0.693 |   2.6% |     122 claims |      1414 |      4030 |
+PB-TIMING prove | open H (schedule audit + pcs::open_zk)       | openings     |    0.307 |   1.1% |      51 claims |       511 |      4030 |
+PB-TIMING prove | open M (zk::mask_open, ONE call)             | openings     |    0.005 |   0.0% |        50 rows |      2112 |      4030 |
+PB-TIMING prove | open A (schedule audit + pcs::open_zk)       | openings     |    0.690 |   2.6% |     122 claims |      1414 |      4030 |
+PB-TIMING prove | open H (schedule audit + pcs::open_zk)       | openings     |    0.302 |   1.1% |      51 claims |       511 |      4030 |
+PB-TIMING prove | open M (zk::mask_open, ONE call)             | openings     |    0.005 |   0.0% |        50 rows |      2112 |      4030 |
+PB-TIMING prove | open A (schedule audit + pcs::open_zk)       | openings     |    0.679 |   2.5% |     122 claims |      1414 |      4030 |
+PB-TIMING prove | open H (schedule audit + pcs::open_zk)       | openings     |    0.295 |   1.1% |      51 claims |       511 |      4030 |
+PB-TIMING prove | open M (zk::mask_open, ONE call)             | openings     |    0.005 |   0.0% |        50 rows |      2112 |      4030 |
+PB-TIMING prove | open A (schedule audit + pcs::open_zk)       | openings     |    0.719 |   3.0% |     122 claims |      1414 |      4030 |
+PB-TIMING prove | open H (schedule audit + pcs::open_zk)       | openings     |    0.292 |   1.2% |      51 claims |       511 |      4030 |
+PB-TIMING prove | open M (zk::mask_open, ONE call)             | openings     |    0.005 |   0.0% |        50 rows |      2103 |      4030 |
+PB-TIMING prove | open A (schedule audit + pcs::open_zk)       | openings     |    0.642 |   2.7% |     122 claims |      1406 |      4030 |
+PB-TIMING prove | open H (schedule audit + pcs::open_zk)       | openings     |    0.263 |   1.1% |      51 claims |       501 |      4030 |

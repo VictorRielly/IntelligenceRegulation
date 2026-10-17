@@ -1,0 +1,7 @@
+Initial checkpoint.py execution exited1 before appending any source or report.
+KeyError: 'id' at known={x['id'] for x in all_sources}; older source records
+do not all have the newer id field. Corrected to x.get('id'). Experiment
+source/result/log and prior evidence were unchanged. Source/native hash
+checks had passed; source-diff.patch was the only artifact written before
+this reporting failure. This is a checkpoint compatibility issue, not an
+experiment failure or a new proof result.

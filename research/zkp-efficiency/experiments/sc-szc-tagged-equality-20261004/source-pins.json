@@ -1,0 +1,79 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/zkp-core/src/sumcheck/rounds.rs",
+    "snapshot": "native__zkp-core__src__sumcheck__rounds.rs",
+    "sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df",
+    "bytes": 7092
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/zkp-core/src/sumcheck/grouped.rs",
+    "snapshot": "native__zkp-core__src__sumcheck__grouped.rs",
+    "sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b",
+    "bytes": 7903
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/argument.rs",
+    "snapshot": "native__hashline__src__private_block__argument.rs",
+    "sha256": "b3b02383a14a64a12194a465873b76f78406e5d3115b0c8157fde2882d22c865",
+    "bytes": 99535
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/zkp-core/src/field.rs",
+    "snapshot": "native__zkp-core__src__field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "bytes": 11065
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/zkp-core/src/mle.rs",
+    "snapshot": "native__zkp-core__src__mle.rs",
+    "sha256": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e",
+    "bytes": 15255
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/protocol.rs",
+    "snapshot": "native__hashline__src__private_block__protocol.rs",
+    "sha256": "ac4122375397a155d392df27a7e08f818ee78f80b38d41207565b325f5290413",
+    "bytes": 61745
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/zk.rs",
+    "snapshot": "native__hashline__src__zk.rs",
+    "sha256": "95a354633ae3363735322e91c9408739cc697af4c917010dc80386ab9dc2a044",
+    "bytes": 254065
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-szc-reconstruction-windows-20261004/reference_support.py",
+    "scope": "local Fp2 and helpers only, before fixture()",
+    "sha256": "1004e5365effe100fd9793606d7c2b0435429d13264425da70cfa258f082061f"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/layout.rs",
+    "snapshot": "native__hashline__src__private_block__layout.rs",
+    "sha256": "14758039fbe9daa61affa1316c6e4159437b98d888d72a926f6e70e788592b30",
+    "bytes": 61217
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/shape.rs",
+    "snapshot": "native__hashline__src__private_block__shape.rs",
+    "sha256": "dbf4e2bc36e9f74c432d6e529b229e3a593e794271fd8593d1412b8312403911",
+    "bytes": 71241
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/timing.rs",
+    "snapshot": "native__hashline__src__private_block__timing.rs",
+    "sha256": "f3d0befdaa09310914e14976ba6366a275b5d9ffd50b895794d93c27a1556feb",
+    "bytes": 19631
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/slot_ir.rs",
+    "snapshot": "native__hashline__src__private_block__slot_ir.rs",
+    "sha256": "734cd0e0e03b5ea61da6e50aff98f53d35ec686b47bd317dcade29ee85adee9e",
+    "bytes": 78031
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/zkp-core/src/sumcheck/grouped/tests.rs",
+    "snapshot": "native__zkp-core__src__sumcheck__grouped__tests.rs",
+    "sha256": "6e63ae85d28a3db968dddc57f2659dbeb0134acd2fc43ad33c15b63edff95997",
+    "bytes": 7793
+  }
+]

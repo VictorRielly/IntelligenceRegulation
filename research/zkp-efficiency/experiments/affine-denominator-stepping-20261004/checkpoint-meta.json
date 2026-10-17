@@ -1,0 +1,8 @@
+{
+  "run_id": "20261004T185034Z-0cf2c35e",
+  "checkpoint_utc": "2026-10-04T19:07:51.986983+00:00",
+  "completed": true,
+  "source_records_appended": 5,
+  "prior_source_prefix_sha256": "d00e5389766b738bf4b8338a97f4190be825bf66dbaa2c5c85bf2daf9f597d3c",
+  "prior_findings_prefix_sha256": "c41f0a0e2347ca63e6f8dbdd72339025760bd43af94729302a65966ef5dbca27"
+}

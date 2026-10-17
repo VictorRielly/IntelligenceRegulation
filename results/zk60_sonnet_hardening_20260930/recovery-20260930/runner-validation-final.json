@@ -1,0 +1,12 @@
+{
+  "checked_at_unix": 1790731510.3062608,
+  "test_count": 14,
+  "exit_code": 0,
+  "log_sha256": "bde43ba17fc6dc1215e84519312744b1f4625a8fe5d2d6d632c74f4c3399318c",
+  "source_sha256": {
+    "scripts/zk60_private_stack_benchmark.py": "b883c56d9bfa126913ab6697fdac6b20b0c896de497f4d348f4cbfc2e444c21a",
+    "tests/test_zk60_private_stack_benchmark.py": "aa0cc9e082165b035bc3885db270ebeb4f09d6fbe2bdb46a6a3f10b863a80c0c",
+    "ops/zkp-mvp/validate_hardening.py": "b09baafcbde78a1e5142872fdc73c435a2dca1de6bf1257a30a5c0879c3d8a69"
+  },
+  "native_validation_state": "pending corrected guard release"
+}

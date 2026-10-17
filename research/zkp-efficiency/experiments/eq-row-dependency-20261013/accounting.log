@@ -1,0 +1,38 @@
+{
+  "status": "pass",
+  "checks": 172,
+  "T512": {
+    "context": 512,
+    "h_pad": 16,
+    "cube_log": 22,
+    "leading_log": 13,
+    "scope": "conditional m125",
+    "eq_payload_bytes_removed": 201326592,
+    "descriptor_point_Fp2_bytes": 912,
+    "descriptor_scale_Fp2_bytes": 48,
+    "eq_dense_fold_lerps_removed": 12582909,
+    "eq_fold_Fp2_mul_sub_add_each_removed": 12582909,
+    "scalar_active_binds_added": 57,
+    "scalar_Fp2_muls_added": 171,
+    "scalar_Fp2_subs_added": 114,
+    "scalar_Fp2_adds_added": 57,
+    "endpoint_Fp2_reads_removed": 25165818,
+    "logical_endpoint_read_bytes_removed": 402653088,
+    "row_Fp2_differences_removed": 12582909,
+    "sample_Fp2_adds_removed": 50331636,
+    "full_cube_Eq_build_Fp2_writes_removed": 12582912,
+    "all30dense_fold_fraction_removed": 0.1,
+    "prior_mixed_compact_fold_lerps": 104873957,
+    "after_eq_fold_lerps": 92291048,
+    "prior_mixed_compact_fold_fraction_removed": 0.11998125521286472,
+    "generic_total_or_census_3Eq_reads_if_called": 12582912,
+    "generic_original_cube_weight_muls_if_called": 239075328,
+    "Eq_table_build_muls_removed_if_native_eq_table": 16793594,
+    "exclusions": [
+      "No full geometry allocated. Logical bytes/API operations, not native traffic/peak/clocks.",
+      "Point copies, metadata, enums/dispatch, allocation, liveness/dependency validation, native parallel threshold and oracle/census integration.",
+      "Generic Eq readers trade stored loads for exact basis products. SC_SZC Host does not call total but census may.",
+      "All other data reads/differences/sample advances/folds, grouped factors/suffix preparation/recovery/brackets/extensions, masks/PCS/witness/proof/verification remain."
+    ]
+  }
+}

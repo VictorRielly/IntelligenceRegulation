@@ -1,0 +1,6 @@
+{
+  "ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/argument.rs": "b3b02383a14a64a12194a465873b76f78406e5d3115b0c8157fde2882d22c865",
+  "ops/zkp-mvp/sonnet-hardening/zkp-core/src/sumcheck/grouped.rs": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b",
+  "ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/pad.rs": "f8b1f6c26d18eadf01eb5e8527f3a2e9620fad533b8ab332cd57a6014bf96df0",
+  "ops/zkp-mvp/sonnet-hardening/zkp-core/src/field.rs": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13"
+}

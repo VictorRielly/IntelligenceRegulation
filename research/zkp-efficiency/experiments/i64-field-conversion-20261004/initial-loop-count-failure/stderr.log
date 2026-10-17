@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/i64-field-conversion-20261004/experiment.py", line 237, in <module>
+    main()
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/i64-field-conversion-20261004/experiment.py", line 203, in main
+    assert len(loop) == 9
+AssertionError

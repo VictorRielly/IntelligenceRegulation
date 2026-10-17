@@ -1,0 +1,133 @@
+[
+  {
+    "cycle": "0027",
+    "run_id": "20261004T090146Z-73c03938",
+    "access_date": "2026-10-04",
+    "accessed_at_utc": "2026-10-04T09:13:52.426908+00:00",
+    "inspection_window_utc": "2026-10-04T09:02:00Z/2026-10-04T09:12:30Z",
+    "evidence_kind": "Native LIVE primary search and inspection; no foreign code executed",
+    "reproduced_performance": false,
+    "id": "cycle27-GlueLUT-September-PCS-exclusion",
+    "title": "GlueLUT: Efficient Lookup Table Arguments over Residue Rings",
+    "url": "https://eprint.iacr.org/2026/494",
+    "inspected_urls": [
+      "https://eprint.iacr.org/2026/494.pdf"
+    ],
+    "published": "2026-03-10",
+    "updated": "2026-09-30",
+    "date_basis": "ePrint received and revised history verified",
+    "implementation_license": null,
+    "paper_license": "CC BY",
+    "inspected_commit_id": null,
+    "author_claim": "Auxiliary-field lookup plus cross-modulus consistency prevents CRT alignment ambiguity; prototype PIOP measurements.",
+    "assessment": "New recent revision assessed through implementation section7: single-thread Xeon8575/128GB, composite products of two64-bit primes. PCS commitments/opening verification are excluded; no complete SNARK/application built. Demote as native Goldilocks lookup replacement; no protocol or arithmetic change authorized.",
+    "local_evidence": "Abstract/intro/section7 read; no author performance reproduced."
+  },
+  {
+    "cycle": "0027",
+    "run_id": "20261004T090146Z-73c03938",
+    "access_date": "2026-10-04",
+    "accessed_at_utc": "2026-10-04T09:13:52.426908+00:00",
+    "inspection_window_utc": "2026-10-04T09:02:00Z/2026-10-04T09:12:30Z",
+    "evidence_kind": "Native LIVE primary search and inspection; no foreign code executed",
+    "reproduced_performance": false,
+    "id": "cycle27-cq-older-preprocessing-filter",
+    "title": "cq: Cached quotients for fast lookups",
+    "url": "https://eprint.iacr.org/2022/1763",
+    "inspected_urls": [
+      "https://eprint.iacr.org/2022/1763.pdf"
+    ],
+    "published": "2022-12-25",
+    "updated": "2024-07-05",
+    "date_basis": "ePrint history and PDF title date verified",
+    "implementation_license": null,
+    "paper_license": "CC0",
+    "inspected_commit_id": null,
+    "author_claim": "Table preprocessing O(N log N) yields witness-dependent O(n log n) proving and fixed-protocolG2 pairing arguments.",
+    "assessment": "Previously unassessed older lookup lead; intro/technical overview inspected. Assumes large table relative to witness and homomorphic/pairing commitments. Current256-entry nonlinear tables and hiding Ligero/Fp2 path do not gain a drop-in quotient cache; per-proof witness/masks stay.",
+    "local_evidence": "No implementation or author result reproduced."
+  },
+  {
+    "cycle": "0027",
+    "run_id": "20261004T090146Z-73c03938",
+    "access_date": "2026-10-04",
+    "accessed_at_utc": "2026-10-04T09:13:52.426908+00:00",
+    "inspection_window_utc": "2026-10-04T09:02:00Z/2026-10-04T09:12:30Z",
+    "evidence_kind": "Native LIVE primary search and inspection; no foreign code executed",
+    "reproduced_performance": false,
+    "id": "cycle27-Rust-OnceLock-owner-clone-contract",
+    "title": "Rust OnceLock initialization and Clone source",
+    "url": "https://doc.rust-lang.org/std/sync/struct.OnceLock.html",
+    "inspected_urls": [
+      "https://doc.rust-lang.org/src/std/sync/once_lock.rs.html"
+    ],
+    "published": null,
+    "updated": null,
+    "date_basis": "Current standard-library docs/source inspected; page publication/update date absent; stable1.70 API label is not a page date",
+    "implementation_license": null,
+    "license_scope": "API/source excerpts read; implementation license not inspected; no source copied/executed",
+    "inspected_commit_id": null,
+    "author_claim": "get_or_init initializes once under concurrency; Clone copies initialized value or creates empty cell.",
+    "assessment": "Supports review-only owner-local public digest candidate. Cloning before initialization still causes independent scans; initialized clone plus internal word mutation is stale. Python oracle does not test native concurrency or enforce Rust descendant access.",
+    "local_evidence": "Locally authored complete-preimage/cache oracle passes, no native build."
+  },
+  {
+    "cycle": "0027",
+    "run_id": "20261004T090146Z-73c03938",
+    "access_date": "2026-10-04",
+    "accessed_at_utc": "2026-10-04T09:13:52.426908+00:00",
+    "inspection_window_utc": "2026-10-04T09:02:00Z/2026-10-04T09:12:30Z",
+    "evidence_kind": "Native LIVE primary search and inspection; no foreign code executed",
+    "reproduced_performance": false,
+    "id": "cycle27-DeepProve-context-refresh",
+    "title": "DeepProve saved proving context and code-history scope",
+    "url": "https://github.com/Lagrange-Labs/deep-prove/blob/master/zkml/README.md",
+    "inspected_urls": [
+      "https://github.com/Lagrange-Labs/deep-prove/commits/master/",
+      "https://github.com/Lagrange-Labs/deep-prove/releases",
+      "https://github.com/Lagrange-Labs/deep-prove/commit/9d1a53e2ef49ffa2c902b8689cd3c58057a4e662"
+    ],
+    "published": null,
+    "updated": null,
+    "verified_history_entry_date": "2026-05-26",
+    "date_basis": "History dates licensing commit May26 and v2.0.1 May15 2026; current README revision/date not pinned; release page has no releases",
+    "implementation_license": null,
+    "license_scope": "Current LICENSE and LICENCE fetch Internal Error. README/diff say Lagrange License; earlier cycle15 inspected restricted terms. Not a new license verification.",
+    "inspected_commit_id": "9d1a53e2ef49ffa2c902b8689cd3c58057a4e662",
+    "commit_scope": "Licensing diff, not current README/runtime source pin",
+    "author_claim": "Saved pk/vk avoid one-time context generation; README token/sec divides context by prove_full.",
+    "assessment": "Public setup/resident comparison only. Prove-only rate omits the other reported phases and is not our total-workload criterion. HyperKZG/BN254 and quantization differ; no implementation copied, author result reproduced or private cache authorized.",
+    "access_issues": [
+      "https://github.com/Lagrange-Labs/deep-prove/blob/master/LICENSE: Internal Error",
+      "https://github.com/Lagrange-Labs/deep-prove/blob/master/LICENCE: Internal Error"
+    ]
+  },
+  {
+    "cycle": "0027",
+    "run_id": "20261004T090146Z-73c03938",
+    "access_date": "2026-10-04",
+    "accessed_at_utc": "2026-10-04T09:13:52.426908+00:00",
+    "inspection_window_utc": "2026-10-04T09:02:00Z/2026-10-04T09:12:30Z",
+    "evidence_kind": "Native LIVE primary search and inspection; no foreign code executed",
+    "reproduced_performance": false,
+    "id": "cycle27-BLAKE3-latest-release-scope",
+    "title": "BLAKE3 1.8.7 release and version commit",
+    "url": "https://github.com/BLAKE3-team/BLAKE3/releases",
+    "inspected_urls": [
+      "https://github.com/BLAKE3-team/BLAKE3/commit/f3149ec5bb5449af877ba20377a11008ff499fa2",
+      "https://github.com/BLAKE3-team/BLAKE3/blob/master/LICENSE_A2"
+    ],
+    "published": null,
+    "updated": null,
+    "date_basis": "Release display20Aug09:06 omits year; inspected commit does not expose date. No inferred year.",
+    "implementation_license": "Apache-2.0",
+    "license_scope": "Current master LICENSE_A2 full terms available/inspected, not pinned release source; alternateCC0 LICENSE fetch failed",
+    "inspected_commit_id": "f3149ec5bb5449af877ba20377a11008ff499fa2",
+    "commit_scope": "Version1.8.7 diff inspected; no runtime source adoption",
+    "author_claim": "Maintainer release removes dependency; no native public-digest performance claim.",
+    "assessment": "Current-release check only. No dependency upgrade/build/download proposed; bounded ordinary incremental hashing and memoization use existing native dependency.",
+    "access_issues": [
+      "https://github.com/BLAKE3-team/BLAKE3/blob/master/LICENSE_CC0: Internal Error"
+    ]
+  }
+]

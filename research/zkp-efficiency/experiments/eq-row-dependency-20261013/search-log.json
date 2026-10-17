@@ -1,0 +1,45 @@
+{
+  "run_id": "20261013T012555Z-12f897c1",
+  "search_engine": "native LIVE web__run",
+  "queries": [
+    "GPU NTT polynomial commitment 2026 CUDA Goldilocks Github release",
+    "GPU polynomial commitment NTT memory traffic tiling paper CUDA 2025 2026",
+    "GoldilocksNTT 2023",
+    "GPU NTT 2023 eprint shared memory optimization",
+    "GPU NTT 2022 eprint optimization",
+    "Goldilocks NTT 2021 paper",
+    "GPU NTT 2024 on-the-fly twiddle paper"
+  ],
+  "accepted_records": [
+    "cycle44-gpir-cache-wall-new",
+    "cycle44-small-point-shift-ntt-new-older",
+    "cycle44-cuda-zkp-ntt-refined-negative"
+  ],
+  "additional_inspections": [
+    {
+      "url": "https://eprint.iacr.org/2023/1410",
+      "outcome": "Previously assessed; metadata refresh received2023-09-19/revised2023-10-06, PDF403; no new record padded."
+    },
+    {
+      "url": "https://github.com/Alisah-Ozcan/GPU-NTT",
+      "outcome": "Current README and Apache2 license text inspected; runtime nt_merge path Cache miss; no inspected commit."
+    },
+    {
+      "url": "https://github.com/yrrid/GoldilocksNTT",
+      "outcome": "Previously assessed L2-resident1024-NTT claim refreshed; history Internal Error, license Internal Error, Kernel.cu Cache miss; no new performance claim."
+    },
+    {
+      "url": "https://github.com/recmo/goldilocks",
+      "outcome": "Root README inspected; README file and guessed ntt.rs Cache miss; not a new source finding."
+    },
+    {
+      "url": "https://research.sabanciuniv.edu/id/eprint/43686/",
+      "outcome": "Older university primary abstract metadata inspected; no full text. Not used as substitute for newly assessed2024paper."
+    }
+  ],
+  "limits": [
+    "No author timings reproduced, foreign script run, GPU launch, credential use or external write.",
+    "Unrelated and mirror-domain search hits discarded.",
+    "Failed access retained; no workaround for authorization/rate limit."
+  ]
+}

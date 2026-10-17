@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "run_identity": "20260926T225233Z-f66107c9",
+  "checkpoint_utc": "2026-09-26T23:06:49.547162+00:00",
+  "sources_match": true,
+  "owner_logs_match": true,
+  "prior_history_prefixes_preserved": true,
+  "proposed_patch_hunks": 2,
+  "proposed_patch_applies_in_memory": true,
+  "source_records_appended": 6,
+  "experiment_command": "python3 experiments/fp2-arithmetic-20260926/experiment.py > experiments/fp2-arithmetic-20260926/run.log 2>&1",
+  "validation_command": "python3 experiments/fp2-arithmetic-20260926/validate.py > experiments/fp2-arithmetic-20260926/validation.log 2>&1",
+  "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency",
+  "native_builds": false,
+  "gpu_jobs": false,
+  "production_or_runtime_writes": false,
+  "git_operations": false,
+  "dependencies_installed": false,
+  "downloaded_code_executed": false,
+  "external_writes_or_messages": false
+}

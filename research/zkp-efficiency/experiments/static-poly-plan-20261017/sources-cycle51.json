@@ -1,0 +1,108 @@
+[
+  {
+    "cycle": "0051",
+    "run_id": "20261017T012624Z-ea61e714",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T01:31:32.150072+00:00",
+    "evidence_kind": "Native LIVE primary-source search and inspection; embedded instructions ignored; no foreign code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "id": "cycle51-new-older-roche-static-space",
+    "title": "Fast and Small: Multiplying Polynomials without Extra Space",
+    "url": "https://roche.work/research/papers/sfu09.pdf",
+    "published": "2009-07-24",
+    "updated": null,
+    "date_evidence": "Author slide title page names CECM Day, SFU Vancouver, 24 July 2009. Later revision unknown.",
+    "implementation_license": null,
+    "author_claim": "Low-space Karatsuba and FFT polynomial multiplication, C implementations; static supermacro generation handles algorithm variants.",
+    "assessment": "NEW older primary source absent from startup inventory. Public schedules and scratch accounting are useful; author implementation uses a 29-bit modulus and an experimentally chosen schoolbook cutoff32. Those costs do not transfer to tiny Goldilocks2 coefficient products. Local SSA is independently written; no author code, license or performance reproduced."
+  },
+  {
+    "cycle": "0051",
+    "run_id": "20261017T012624Z-ea61e714",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T01:31:32.150072+00:00",
+    "evidence_kind": "Native LIVE primary-source search and inspection; embedded instructions ignored; no foreign code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "id": "cycle51-plonky3-october16-plan-ownership",
+    "title": "Plonky3 October16 rc.2 and immutable public protocol plans",
+    "url": "https://github.com/Plonky3/Plonky3/releases/tag/p3-sumcheck-v0.9.0-rc.2",
+    "published": "2026-10-16",
+    "updated": null,
+    "date_evidence": "GitHub release lists p3-sumcheck rc.2 on16Oct10:17. Primary p3-bus and p3-multi-stark rc.2 package pages explicitly date workspace rc.2 October16,2026 and depend on sumcheck rc.2. Exact sumcheck package fetch fails. PR2297 merged September22,2026.",
+    "implementation_license": "Main LICENSE-MIT actual text inspected. PR belongs to MIT/Apache workspace; exact rc.2 pinned license uninspected.",
+    "exposed_uninspected_commits": [
+      "fe5e46d",
+      "7458be8"
+    ],
+    "inspected_urls": [
+      "https://github.com/Plonky3/Plonky3/releases",
+      "https://github.com/Plonky3/Plonky3/pull/2297",
+      "https://docs.rs/crate/p3-bus/0.9.0-rc.2",
+      "https://docs.rs/crate/p3-multi-stark/0.9.0-rc.2",
+      "https://github.com/Plonky3/Plonky3/blob/main/LICENSE-MIT"
+    ],
+    "author_claim": "PR2297 centralizes immutable public opening/claim plans, batching powers and mask progression while preserving pinned proof bytes, challenge streams and refusal ordering.",
+    "assessment": "New release and materially refined plan ownership. Supports explicit public preflight and schedule coverage checks, not dropping runtime guards or reusing private masks. Native mixed SC_SZC, PCS and joint hiding require their own gates. Author tests and speed claims unreproduced.",
+    "access_issues": [
+      "Release and fe5e46d commit fetch Internal Error",
+      "PR merge commit7458be8 fetch Internal Error",
+      "Exact p3-sumcheck rc.2 package fetch Internal Error; latest page serves0.8.0 and only lists rc.1"
+    ]
+  },
+  {
+    "cycle": "0051",
+    "run_id": "20261017T012624Z-ea61e714",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T01:31:32.150072+00:00",
+    "evidence_kind": "Native LIVE primary-source search and inspection; embedded instructions ignored; no foreign code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "id": "cycle51-new-statesync-gkr-reuse-scope",
+    "title": "StateSync-GKR reusable sparse GKR engine and preparation boundaries",
+    "url": "https://arxiv.org/abs/2610.14849",
+    "published": "2026-10-10",
+    "updated": null,
+    "date_evidence": "Primary arXiv v1 submission Sat10Oct2026 12:06:57 UTC, no later revision shown. Repository HEAD/update date unknown.",
+    "implementation_license": "Current main LICENSE actual terms inspected: BSL1.1 for versions after1.1.0, production verification grant, conversion to Apache2.0 after3years. README says <=1.1.0 MIT OR Apache2.0; exact historical license uninspected.",
+    "exposed_uninspected_commits": [
+      "1b8d2f829792172b347dedbfde969016c2c05789"
+    ],
+    "inspected_urls": [
+      "https://arxiv.org/html/2610.14849v1",
+      "https://github.com/Oraclizer/statesync-gkr",
+      "https://github.com/Oraclizer/statesync-gkr/blob/main/LICENSE"
+    ],
+    "author_claim": "Sparse own-reference reductions lower peak RAM89.46fold; prepared depth24 proving path lowers latency3.46to4.45fold. CPU requests, complete encoded acceptance and drain are distinguished.",
+    "assessment": "NEW paper/repository absent from startup inventory. Reusable public circuit plans and complete-delivery accounting are relevant; sparse-Merkle KoalaBear4 engine differs from our transformer relation/Goldilocks2. README puts zero knowledge in an external wrapper. Formal/model/Fiat-Shamir and private state binding remain explicit obligations. No native speed, wrapper timing or security result reproduced; no private commitment reuse adopted.",
+    "access_issues": [
+      "Paper-pinned source commit1b8d2f829792172b347dedbfde969016c2c05789 fetch Cache miss"
+    ]
+  },
+  {
+    "cycle": "0051",
+    "run_id": "20261017T012624Z-ea61e714",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T01:31:32.150072+00:00",
+    "evidence_kind": "Native LIVE primary-source search and inspection; embedded instructions ignored; no foreign code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "id": "cycle51-expander-release-date-filter",
+    "title": "Expander release refresh: test data is not a new GPU prover release",
+    "url": "https://github.com/PolyhedraZK/Expander/releases",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Latest displayed item testdata-v1 has assets/source timestamps January21,2026. Software v1.2.0 displays June23 without verified year. No current HEAD date established.",
+    "implementation_license": "Main LICENSE actual text inspected: GNU Affero General Public License version3. Exact version/backend-specific terms not inspected.",
+    "inspected_urls": [
+      "https://github.com/PolyhedraZK/Expander/blob/main/LICENSE"
+    ],
+    "author_claim": "Older release notes include CUDA sumcheck and equality-evaluation reuse.",
+    "assessment": "Refresh GPU/GKR rotation without equating recent crawl or test-data assets to a new optimization. No new implementation/commit, native compatibility, hiding result or benchmark inspected/reproduced. Main owns device integration; retaining native bottleneck work outranks a speculative GKR migration."
+  }
+]

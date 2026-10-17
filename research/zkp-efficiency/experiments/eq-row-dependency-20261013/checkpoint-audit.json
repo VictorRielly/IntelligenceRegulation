@@ -1,0 +1,15 @@
+{
+  "status": "pass",
+  "completed_utc": "2026-10-13T01:42:39.675930+00:00",
+  "source_pins": 23,
+  "source_history_prefix_preserved": true,
+  "finding_history_prefix_preserved": true,
+  "source_records": 236,
+  "new_source_records": 3,
+  "executed_code_hashes_match": true,
+  "mandate_unchanged": true,
+  "reports_present": true,
+  "accepted_private8b_proofs": 0,
+  "artifact_files": 78,
+  "failed_harness_invocations_retained": 3
+}

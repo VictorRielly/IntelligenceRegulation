@@ -1,0 +1,28 @@
+test_changed_guard_fails_before_launch (tests.test_zk60_techweek_demo.TechweekDemoTests) ... ok
+test_empty_check_set_never_reports_success (tests.test_zk60_techweek_demo.TechweekDemoTests) ... ok
+test_existing_output_not_overwritten (tests.test_zk60_techweek_demo.TechweekDemoTests) ... ok
+test_exit_one_with_success_json_is_not_rejection (tests.test_zk60_techweek_demo.TechweekDemoTests) ... ok
+test_guard_diagnostics_do_not_change_verifier_output (tests.test_zk60_techweek_demo.TechweekDemoTests) ... ok
+test_guard_error_cannot_become_a_native_rejection (tests.test_zk60_techweek_demo.TechweekDemoTests) ... ok
+test_guard_refusal_never_launches_native_directly (tests.test_zk60_techweek_demo.TechweekDemoTests) ... ok
+test_interruption_retains_running_report_without_success_marker (tests.test_zk60_techweek_demo.TechweekDemoTests) ... ok
+test_missing_or_inconsistent_guard_result_is_failure (tests.test_zk60_techweek_demo.TechweekDemoTests) ... ok
+test_oversize_log_is_not_read_into_memory (tests.test_zk60_techweek_demo.TechweekDemoTests) ... ok
+test_saved_real_receipt_and_controls (tests.test_zk60_techweek_demo.TechweekDemoTests) ... ok
+test_verifier_crash_is_not_rejection (tests.test_zk60_techweek_demo.TechweekDemoTests) ... ok
+test_wrong_pin_fails_before_verifier_launch (tests.test_zk60_techweek_demo.TechweekDemoTests) ... ok
+test_download_matches_verified_bytes (tests.test_zk60_techweek_server.ArtifactTests) ... ok
+test_fifo_and_symlink_are_refused_without_blocking (tests.test_zk60_techweek_server.ArtifactTests) ... ok
+test_oversize_file_is_refused_before_read (tests.test_zk60_techweek_server.ArtifactTests) ... ok
+test_busy_run_is_refused_and_invalid_mode_starts_nothing (tests.test_zk60_techweek_server.DemoStateTests) ... ok
+test_failed_worker_does_not_expose_diagnostic_or_block_retry (tests.test_zk60_techweek_server.DemoStateTests) ... ok
+test_submit_failure_releases_active_job (tests.test_zk60_techweek_server.DemoStateTests) ... ok
+test_accepted_socket_has_a_read_timeout (tests.test_zk60_techweek_server.RequestLimitTests) ... ok
+test_handler_failure_frees_slot_for_next_request (tests.test_zk60_techweek_server.RequestLimitTests) ... ok
+test_overload_refuses_instead_of_spawning_another_thread (tests.test_zk60_techweek_server.RequestLimitTests) ... ok
+test_thread_launch_failure_frees_slot (tests.test_zk60_techweek_server.RequestLimitTests) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 2.171s
+
+OK

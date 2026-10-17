@@ -1,0 +1,62 @@
+{
+  "CLAUDE.md": {
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089
+  },
+  "docs/zkmatrix-poc/MVP_STATUS.md": {
+    "sha256": "b41ed63744b5418dcd8c4ff23d13021a44c4c78a47030db608d24e4c65c8cf51",
+    "bytes": 57683
+  },
+  "docs/zkmatrix-poc/ZK60_DECISIONS.md": {
+    "sha256": "5077bc4b590ce8d95c238c3b5e35d8122872c56e5f1e6324c81d78460e0e90c5",
+    "bytes": 57961
+  },
+  "docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md": {
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889
+  },
+  "docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md": {
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941
+  },
+  "ops/zkp-mvp/candidate/hashline/src/private_block/witness.rs": {
+    "sha256": "b9b66c024e7ca68d2a0ae4ba46241eb2abbccc8c8d94fe828041abbc710850ad",
+    "bytes": 29357
+  },
+  "ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/witness.rs": {
+    "sha256": "b9b66c024e7ca68d2a0ae4ba46241eb2abbccc8c8d94fe828041abbc710850ad",
+    "bytes": 29357
+  },
+  "ops/zkp-mvp/candidate/hashline/src/gpu/cuda.rs": {
+    "sha256": "8fe2a2a39e0796254be37d0d7507d7fc22ea3af141d97d35cd93754d505072c9",
+    "bytes": 205193
+  },
+  "results/zk60_mvp_20260929/baseline-stack-gpu-attempt2/report.json": {
+    "sha256": "ae971925a0c2ffb0c7d04a4722dc39903308639fd449708df722e14f4a69687e",
+    "bytes": 1157
+  },
+  "results/zk60_mvp_20260929/llama3-8b/config.json": {
+    "sha256": "2430cee764b6530ff8673cf9ba8561e1d5a33152d503cd0de909ff5718261441",
+    "bytes": 654
+  },
+  "ops/zkp-mvp/candidate/hashline/src/private_block/mvp_driver.rs": {
+    "sha256": "5782211834b899e08ff3d4097b4a40a652156768e1d479476adbfdfa54a20260",
+    "bytes": 57022
+  },
+  "ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/mvp_driver.rs": {
+    "sha256": "906c6349daa641c07d1eb74f2e52fa6a5f83caeaa909879c16fc5eb07eee760d",
+    "bytes": 83717
+  },
+  "ops/zkp-mvp/candidate/hashline/src/private_block/run.rs": {
+    "sha256": "f39aec7925ba27d51361cd3935e874b1301d7595be81f3199d9d2941c0f818e0",
+    "bytes": 46667
+  },
+  "ops/zkp-mvp/candidate/hashline/src/private_block.rs": {
+    "sha256": "9540a7e60a2d07f2988d57267e9971c618627407dc9109f691656ea300c5b96d",
+    "bytes": 48544
+  },
+  "ops/zkp-mvp/candidate/hashline/src/private_block/argument.rs": {
+    "sha256": "b3b02383a14a64a12194a465873b76f78406e5d3115b0c8157fde2882d22c865",
+    "bytes": 99535
+  }
+}

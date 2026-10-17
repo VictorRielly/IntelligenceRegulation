@@ -1,0 +1,82 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/support-descriptor-20261012/result.json",
+    "sha256": "3dfb02d021b48dc90850aeb3568861a9f640d00509a856ef912472d93fd0b6f7",
+    "bytes": 46808
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/support-descriptor-20261012/execution.json",
+    "sha256": "b2f9eb421fb0a364d5e7f3acc24f081c2be6298f691b8a91e3952e4147e3fd30",
+    "bytes": 114
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/support-descriptor-20261012/command.json",
+    "sha256": "1ae32586ac39863eb1fde94480c03d7189db157536e1687a19c0e4ab291240b8",
+    "bytes": 363
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/support-descriptor-20261012/run.log",
+    "sha256": "d6753773e2558455963fbfb099b18c1c0f0db77117badf91bed2fbdd90e20f38",
+    "bytes": 498
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/support-descriptor-20261012/README.md",
+    "sha256": "39f49f1b4a60d95bfae7b6f4ff5ee0f63e4f8fc008f8ab8c38f3979f4183f198",
+    "bytes": 14066
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/support-descriptor-20261012/support.rs",
+    "sha256": "ddca3e6485f53941c65ec93849c28a8a15068bcb251616b63b9631ff29b644ea",
+    "bytes": 3004
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/support-descriptor-20261012/source-records.json",
+    "sha256": "7aba5b6704fdfe976d8636b158d7db8516f6ffdee68fc28eb185d6f17fb98d51",
+    "bytes": 8300
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/support-descriptor-20261012/search-log.json",
+    "sha256": "b74b9c5be3b72a934f210420e99cf02cd9e818cebea0a75a3e989bda415cff5a",
+    "bytes": 1266
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/support-descriptor-20261012/native-manifest.json",
+    "sha256": "6bf6800c42ae6dec28c7e350579f1c9ab13b7243ae064620656058a978d38b40",
+    "bytes": 1317
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/support-descriptor-20261012/native-evidence.json",
+    "sha256": "2016c24c4d4fd9b4146592ea4cc944d2c5e2c8f9e93173031a9549eae7642992",
+    "bytes": 304
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/support-descriptor-20261012/oracle.py",
+    "sha256": "bd3588f0be61c006910468701eb303846d8783c8209795b97843e140650f88c7",
+    "bytes": 1161
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/support-descriptor-20261012/experiment.py",
+    "sha256": "c85678446d13eaba2dca6e430ee8441b8583319d1ce301944b219e77a45cc6e3",
+    "bytes": 13150
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/support-descriptor-20261012/descriptor.py",
+    "sha256": "5044b13ecc3a93eb0bc5ea4c55d036ebcc297716324fcabfeab78aade6a55031",
+    "bytes": 5612
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/support-descriptor-20261012/field.py",
+    "sha256": "333ef103f77d3ec8f8bf5c7cbee9ca68704efb97b93c1fba7534c20d117550d1",
+    "bytes": 1026
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/support-descriptor-20261012/reference.py",
+    "sha256": "e93b91ba7d2398f53655d3a377f8a8843d01ff728bd99fc8ca65ae479c4226b7",
+    "bytes": 1776
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/handoffs/20261012-support-descriptor.md",
+    "sha256": "9df0c4144434826d255d297a7f09f89e362664c9ca78a9acdb9bea95606ee313",
+    "bytes": 5350
+  }
+]

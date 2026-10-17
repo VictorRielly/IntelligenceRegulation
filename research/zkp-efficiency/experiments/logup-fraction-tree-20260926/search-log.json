@@ -1,0 +1,45 @@
+{
+  "accessed_at_utc": "2026-09-27T00:05:49.969253+00:00",
+  "tool": "native LIVE web.run",
+  "queries": [
+    "LogUp GKR fractional lookup argument numerator denominator tree 2026 github",
+    "site.eprint.iacr.org 2026 lookup arguments private zero knowledge LogUp GKR",
+    "site.github.com stwo logup GKR release 2026",
+    "site.eprint.iacr.org/2026 \"lookup\" \"GKR\"",
+    "site.arxiv.org 2026 \"lookup\" \"zero-knowledge\" GKR",
+    "site.github.com/Plonky3/Plonky3 fractional gkr hiding numerator denominator"
+  ],
+  "primary_sources": [
+    "https://eprint.iacr.org/2023/1284",
+    "https://github.com/Plonky3/Plonky3/pull/1968",
+    "https://github.com/Plonky3/Plonky3/releases/tag/v0.8.0",
+    "https://docs.rs/sp1-hypercube/latest/src/sp1_hypercube/logup_gkr/verifier.rs.html",
+    "https://github.com/fractalyze/sp1-zorch/issues/112",
+    "https://github.com/facebook/winterfell/issues/292",
+    "https://eprint.iacr.org/2025/717",
+    "https://arxiv.org/abs/2602.17452"
+  ],
+  "blocked": [
+    {
+      "url": "https://eprint.iacr.org/2023/1284",
+      "issue": "https://eprint.iacr.org/2023/1284.pdf: (robots.txt) Fetch denied by robots.txt (OAI-SearchBot)."
+    },
+    {
+      "url": "https://github.com/Plonky3/Plonky3/pull/1968",
+      "issue": [
+        "Commit detail: Cache miss",
+        "https://raw.githubusercontent.com/Plonky3/Plonky3/main/multi-stark/src/lookup.rs: Cache miss"
+      ]
+    },
+    {
+      "url": "https://docs.rs/sp1-hypercube/latest/src/sp1_hypercube/logup_gkr/verifier.rs.html",
+      "issue": "https://docs.rs/sp1-hypercube/6.0.2/src/sp1_hypercube/logup_gkr/verifier.rs.html: URL is not accessible via this tool."
+    },
+    {
+      "url": "https://github.com/fractalyze/sp1-zorch/issues/112",
+      "issue": "https://github.com/fractalyze/sp1-zorch/pull/114: Internal Error"
+    }
+  ],
+  "fallback": "None; no alternate network client, downloads executed or permission escalation",
+  "search_disposition": "Kept binding and lifetime evidence; unrelated credential and OPRF results omitted. No qualifying new September paper was verified by this search; September PR and release metadata refreshed."
+}

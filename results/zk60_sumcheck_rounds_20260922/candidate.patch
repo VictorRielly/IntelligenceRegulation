@@ -1,0 +1,558 @@
+--- a/zkp-core/src/sumcheck.rs
++++ b/zkp-core/src/sumcheck.rs
+@@ -13,6 +13,12 @@
+ use crate::transcript::Transcript;
+ use rayon::prelude::*;
+ 
++mod rounds;
++pub use rounds::{prove_rounds, ClosureRounds, SumcheckRounds};
++
++mod rounds;
++pub use rounds::{prove_rounds, ClosureRounds, SumcheckRounds};
++
+ #[derive(Clone, Debug, Default)]
+ pub struct SumcheckProof {
+     /// rounds[j] = values of the round-j polynomial at 0..=degree.
+--- a/zkp-core/src/sumcheck/rounds.rs
++++ b/zkp-core/src/sumcheck/rounds.rs
+@@ -0,0 +1,170 @@
++//! Additive round evaluator interface. The original `prove` remains the oracle.
++
++use super::{ProverOutput, SumcheckProof};
++use crate::field::Fp2;
++use crate::mle::interpolate_eval;
++use crate::transcript::Transcript;
++use rayon::prelude::*;
++
++/// One sumcheck's arithmetic, independent of host/device table storage.
++///
++/// Preservation contract: `round(j)` returns UNMASKED evaluations at
++/// `0..=degree` in that order. It must not absorb messages, draw challenges or
++/// consume blinding randomness. The driver absorbs exactly one `sc-round`,
++/// lets the existing transcript masker act, draws one challenge, then calls
++/// `fold`. That challenge folds the original tables, in most-significant-bit
++/// variable order. `finals` preserves the caller's table order. Masked claims,
++/// extension rounds, terminals, openings and refusal handling remain with the
++/// caller. Implementations may change arithmetic, never the field values.
++///
++/// Deliberately no `Sync` supertrait: a device evaluator can own a non-Sync
++/// handle. Only CPU closures that parallelize internally require `Sync`.
++pub trait SumcheckRounds {
++    fn n_vars(&self) -> usize;
++    fn degree(&self) -> usize;
++    fn round(&mut self, j: usize) -> Vec<Fp2>;
++    fn fold(&mut self, r: Fp2);
++    fn finals(&self) -> Vec<Fp2>;
++}
++
++/// Same transcript schedule and output convention as the original `prove`.
++/// `proof.rounds` is unmasked even when a masker is installed; the masked
++/// wrapper must obtain the published rounds through `Transcript::take_masker`.
++pub fn prove_rounds<R: SumcheckRounds + ?Sized>(ev: &mut R, tr: &mut Transcript) -> ProverOutput {
++    let n = ev.n_vars();
++    let degree = ev.degree();
++    let mut rounds = Vec::with_capacity(n);
++    let mut challenges = Vec::with_capacity(n);
++    for j in 0..n {
++        let sums = ev.round(j);
++        assert_eq!(sums.len(), degree + 1, "sumcheck evaluator round length");
++        tr.absorb_fp2(b"sc-round", &sums);
++        let r = tr.challenge_fp2();
++        ev.fold(r);
++        rounds.push(sums);
++        challenges.push(r);
++    }
++    ProverOutput { proof: SumcheckProof { rounds }, challenges, finals: ev.finals() }
++}
++
++/// CPU evaluator using the existing closure/table layout and parallel cutoffs.
++/// The closure must be a pure polynomial with the stated round degree.
++pub struct ClosureRounds<'a, F> {
++    tables: &'a mut Vec<Vec<Fp2>>,
++    degree: usize,
++    poly: F,
++    n_vars: usize,
++    next: usize,
++    pending: Option<Vec<Fp2>>,
++    recover_one: bool,
++    unmasked_claim: Option<Fp2>,
++}
++
++impl<'a, F: Fn(&[Fp2]) -> Fp2 + Sync> ClosureRounds<'a, F> {
++    pub fn new(tables: &'a mut Vec<Vec<Fp2>>, degree: usize, poly: F) -> Self {
++        assert!(!tables.is_empty());
++        let len = tables[0].len();
++        assert!(len.is_power_of_two());
++        assert!(tables.iter().all(|t| t.len() == len));
++        Self { tables, degree, poly, n_vars: len.trailing_zeros() as usize,
++            next: 0, pending: None, recover_one: false, unmasked_claim: None }
++    }
++
++    /// R1d: recover s(1) = unmasked_claim - s(0) instead of evaluating it.
++    ///
++    /// `Some` must be the exact UNMASKED sum of this polynomial on this cube,
++    /// not the public scalar containing CFS masks or hosted-claim offsets.
++    /// `None` evaluates the first round fully and starts recovery thereafter.
++    /// Subsequent claims interpolate the UNMASKED round at the challenge drawn
++    /// from the MASKED transcript. No extra transcript or RNG draw is made.
++    /// Debug builds also evaluate s(1) and assert the claimed identity; release
++    /// tests must compare the skipped-evaluation path against the old prover.
++    pub fn recover_one(mut self, initial_unmasked_claim: Option<Fp2>) -> Self {
++        assert!(self.degree >= 1, "claim recovery requires degree >= 1");
++        self.recover_one = true;
++        self.unmasked_claim = initial_unmasked_claim;
++        self
++    }
++}
++
++impl<F: Fn(&[Fp2]) -> Fp2 + Sync> SumcheckRounds for ClosureRounds<'_, F> {
++    fn n_vars(&self) -> usize { self.n_vars }
++    fn degree(&self) -> usize { self.degree }
++
++    fn round(&mut self, j: usize) -> Vec<Fp2> {
++        assert_eq!(j, self.next, "sumcheck evaluator round order");
++        assert!(j < self.n_vars && self.pending.is_none(), "round needs the preceding fold");
++        let k = self.tables.len();
++        let half = self.tables[0].len() / 2;
++        let small = half * k <= 1 << 16;
++        let chunk = if small { half.max(1) } else { 1024usize.min(half).max(1) };
++        let n_chunks = (half + chunk - 1) / chunk;
++        let claim = if self.recover_one { self.unmasked_claim } else { None };
++        let eval_one = claim.is_none() || cfg!(debug_assertions);
++        let tables = &*self.tables;
++        let poly = &self.poly;
++        let degree = self.degree;
++        let round_of = |ci: usize| {
++            let lo = ci * chunk;
++            let hi = (lo + chunk).min(half);
++            let mut acc = vec![Fp2::ZERO; degree + 1];
++            let mut cur = vec![Fp2::ZERO; k];
++            let mut dif = vec![Fp2::ZERO; k];
++            for i in lo..hi {
++                for (t, tb) in tables.iter().enumerate() {
++                    cur[t] = tb[i];
++                    dif[t] = tb[i + half].sub(tb[i]);
++                }
++                acc[0] = acc[0].add(poly(&cur));
++                for d in 1..=degree {
++                    for t in 0..k { cur[t] = cur[t].add(dif[t]); }
++                    if d != 1 || eval_one { acc[d] = acc[d].add(poly(&cur)); }
++                }
++            }
++            acc
++        };
++        let mut sums = if small {
++            round_of(0)
++        } else {
++            (0..n_chunks).into_par_iter().map(round_of).reduce(
++                || vec![Fp2::ZERO; degree + 1],
++                |mut a, b| {
++                    for (x, y) in a.iter_mut().zip(b.iter()) { *x = x.add(*y); }
++                    a
++                },
++            )
++        };
++        if let Some(claim) = claim {
++            debug_assert_eq!(sums[0].add(sums[1]), claim, "R1d unmasked claim mismatch");
++            sums[1] = claim.sub(sums[0]);
++        }
++        self.pending = Some(sums.clone());
++        sums
++    }
++
++    fn fold(&mut self, r: Fp2) {
++        let sums = self.pending.take().expect("fold needs a round");
++        if self.recover_one { self.unmasked_claim = Some(interpolate_eval(&sums, r)); }
++        let half = self.tables[0].len() / 2;
++        let small = half * self.tables.len() <= 1 << 16;
++        for tb in self.tables.iter_mut() {
++            let (lo, hi) = tb.split_at_mut(half);
++            if small {
++                for (a, b) in lo.iter_mut().zip(hi[..half].iter()) { *a = a.add(r.mul(b.sub(*a))); }
++            } else {
++                lo.par_iter_mut().zip(hi[..half].par_iter()).for_each(|(a, b)| { *a = a.add(r.mul(b.sub(*a))); });
++            }
++            tb.truncate(half);
++        }
++        self.next += 1;
++    }
++
++    fn finals(&self) -> Vec<Fp2> {
++        assert_eq!(self.next, self.n_vars, "finals need all folds");
++        assert!(self.pending.is_none());
++        self.tables.iter().map(|t| t[0]).collect()
++    }
++}
++
++#[cfg(test)]
++mod tests;
+--- a/zkp-core/src/sumcheck/rounds/tests.rs
++++ b/zkp-core/src/sumcheck/rounds/tests.rs
+@@ -0,0 +1,213 @@
++use super::*;
++use crate::sumcheck::{self, CfsMask, CfsMasker, SumcheckProof};
++use crate::rng::ZkRng;
++use std::sync::atomic::{AtomicUsize, Ordering};
++
++fn value(seed: &mut u64) -> Fp2 {
++    *seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
++    let a = *seed;
++    *seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
++    Fp2::new(crate::field::Fp::new(a), crate::field::Fp::new(*seed))
++}
++
++fn tables(n: usize, seed: &mut u64) -> Vec<Vec<Fp2>> {
++    (0..3).map(|_| (0..1usize << n).map(|_| value(seed)).collect()).collect()
++}
++
++fn poly(v: &[Fp2], degree: usize) -> Fp2 {
++    let mut y = v[0];
++    for _ in 1..degree { y = y.mul(v[1]); }
++    y.add(v[2])
++}
++
++fn total(t: &[Vec<Fp2>], degree: usize) -> Fp2 {
++    (0..t[0].len()).fold(Fp2::ZERO, |a, i| a.add(poly(&[t[0][i], t[1][i], t[2][i]], degree)))
++}
++
++fn transcript(tagged: bool) -> Transcript {
++    if tagged { Transcript::new_tagged(b"round-evaluator-test", [29; 32]) }
++    else { Transcript::new(b"round-evaluator-test") }
++}
++
++fn equal(a: &ProverOutput, b: &ProverOutput) {
++    assert_eq!(a.proof.rounds, b.proof.rounds);
++    let (mut x, mut y) = (Vec::new(), Vec::new());
++    a.proof.write_bytes(&mut x); b.proof.write_bytes(&mut y);
++    assert_eq!(x, y);
++    assert_eq!(a.challenges, b.challenges);
++    assert_eq!(a.finals, b.finals);
++}
++
++fn plain_case(n: usize, degree: usize, tagged: bool, seed: &mut u64) {
++    let t = tables(n, seed);
++    let initial = total(&t, degree);
++    let mut reference_tables = t.clone();
++    let mut reference_tr = transcript(tagged);
++    let reference = sumcheck::prove(&mut reference_tables, degree, |v| poly(v, degree), &mut reference_tr);
++    for mode in 0..3 {
++        let mut candidate_tables = t.clone();
++        let mut tr = transcript(tagged);
++        let mut ev = ClosureRounds::new(&mut candidate_tables, degree, |v: &[Fp2]| poly(v, degree));
++        if mode != 0 { ev = ev.recover_one(if mode == 1 { Some(initial) } else { None }); }
++        let candidate = prove_rounds(&mut ev, &mut tr);
++        equal(&reference, &candidate);
++        assert_eq!(candidate_tables, reference_tables);
++        assert_eq!(tr.state(), reference_tr.state());
++        let mut ref_next = Transcript::clone_state(&reference_tr);
++        assert_eq!(tr.challenge_fp2(), ref_next.challenge_fp2());
++        let (fin, rho) = sumcheck::verify(initial, degree, n, &candidate.proof, &mut transcript(tagged)).unwrap();
++        assert_eq!(rho, candidate.challenges);
++        assert_eq!(fin, poly(&candidate.finals, degree));
++    }
++}
++
++#[test]
++fn all_points_seeded_and_unseeded_match_original_bytes() {
++    let mut seed = 119;
++    for tagged in [false, true] {
++        for degree in 1..=6 {
++            for n in [0, 1, 2, 5, 9] { plain_case(n, degree, tagged, &mut seed); }
++        }
++    }
++}
++
++#[test]
++fn parallel_and_serial_folds_match_original() {
++    let mut seed = 781;
++    for threads in [1, 2] {
++        rayon::ThreadPoolBuilder::new().num_threads(threads).build().unwrap().install(|| {
++            // half * tables = 98,304 exceeds the 65,536 parallel cutoff.
++            plain_case(16, 4, true, &mut seed);
++        });
++    }
++}
++
++fn masked_case(n: usize, degree: usize, ext: usize, tagged: bool, seed: &mut u64) {
++    let t = tables(n, seed);
++    let initial = total(&t, degree);
++    let c = value(seed);
++    assert!(!c.is_zero());
++    let mut rng = ZkRng::new(*seed, b"round-evaluator-mask");
++    let mask = CfsMask::random(&mut rng, n + ext, degree);
++    let extensions: Vec<Vec<Fp2>> = (0..ext).map(|_| vec![Fp2::ZERO, value(seed), Fp2::ZERO]).collect();
++    let mut results = Vec::new();
++    for mode in 0..4 {
++        let mut ts = t.clone();
++        let mut tr = transcript(tagged);
++        tr.set_masker(Box::new(CfsMasker { mask: mask.clone(), c, challenges: Vec::new() }));
++        let out = if mode == 0 {
++            sumcheck::prove(&mut ts, degree, |v| poly(v, degree), &mut tr)
++        } else {
++            let mut ev = ClosureRounds::new(&mut ts, degree, |v: &[Fp2]| poly(v, degree));
++            if mode >= 2 { ev = ev.recover_one(if mode == 2 { Some(initial) } else { None }); }
++            prove_rounds(&mut ev, &mut tr)
++        };
++        let (_, mut rounds) = tr.take_masker();
++        let mut rho = out.challenges.clone();
++        let mut cur = out.finals.clone();
++        for values in &extensions {
++            let mut sk = sumcheck::extension_round(&cur, values, degree, |v| poly(v, degree));
++            let gk = mask.round(rho.len(), &rho);
++            for (x, g) in sk.iter_mut().zip(gk) { *x = x.add(c.mul(g)); }
++            tr.absorb_fp2(b"sc-round", &sk);
++            rounds.push(sk);
++            let r = tr.challenge_fp2();
++            for (x, y) in cur.iter_mut().zip(values) { *x = sumcheck::masked_terminal(*x, *y, r); }
++            rho.push(r);
++        }
++        let proof = SumcheckProof { rounds };
++        let (fin, vrho) = sumcheck::verify(initial.add(c.mul(mask.total())), degree, n + ext, &proof, &mut transcript(tagged)).unwrap();
++        assert_eq!(vrho, rho);
++        assert_eq!(fin, poly(&cur, degree).add(c.mul(mask.eval(&rho))));
++        let mut bytes = Vec::new(); proof.write_bytes(&mut bytes);
++        results.push((out, bytes, rho, cur, tr.state(), tr.challenge_fp2()));
++    }
++    for r in &results[1..] {
++        equal(&results[0].0, &r.0);
++        assert_eq!((&results[0].1, &results[0].2, &results[0].3, results[0].4, results[0].5), (&r.1, &r.2, &r.3, r.4, r.5));
++    }
++}
++
++#[test]
++fn masked_transcripts_and_one_or_two_extension_rounds_match() {
++    let mut seed = 987;
++    for tagged in [false, true] {
++        for degree in 1..=6 {
++            for ext in [1, 2] {
++                for n in [0, 1, 3, 7] { masked_case(n, degree, ext, tagged, &mut seed); }
++            }
++        }
++    }
++}
++
++#[test]
++fn release_recovery_actually_skips_one_evaluation_per_pair() {
++    let n = 6;
++    let degree = 4;
++    let mut seed = 121;
++    let ts = tables(n, &mut seed);
++    let initial = total(&ts, degree);
++    for mode in 0..3 {
++        let calls = AtomicUsize::new(0);
++        let mut t = ts.clone();
++        let mut ev = ClosureRounds::new(&mut t, degree, |v: &[Fp2]| {
++            calls.fetch_add(1, Ordering::Relaxed);
++            poly(v, degree)
++        });
++        if mode != 0 { ev = ev.recover_one(if mode == 1 { Some(initial) } else { None }); }
++        prove_rounds(&mut ev, &mut transcript(false));
++        let pairs = (1usize << n) - 1;
++        let skipped = if cfg!(debug_assertions) || mode == 0 { 0 }
++            else if mode == 1 { pairs } else { pairs - (1usize << (n - 1)) };
++        assert_eq!(calls.load(Ordering::Relaxed), (degree + 1) * pairs - skipped);
++    }
++}
++
++#[test]
++fn wrong_claim_cannot_pass_the_terminal_check() {
++    let degree = 3;
++    let mut seed = 521;
++    let mut ts = tables(4, &mut seed);
++    let wrong = total(&ts, degree).add(Fp2::ONE);
++    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
++        let mut ev = ClosureRounds::new(&mut ts, degree, |v: &[Fp2]| poly(v, degree)).recover_one(Some(wrong));
++        prove_rounds(&mut ev, &mut transcript(false))
++    }));
++    if cfg!(debug_assertions) { assert!(result.is_err()); }
++    else {
++        let out = result.unwrap();
++        let (fin, _) = sumcheck::verify(wrong, degree, 4, &out.proof, &mut transcript(false)).unwrap();
++        assert_ne!(fin, poly(&out.finals, degree));
++    }
++}
++
++#[test]
++fn evaluator_need_not_be_sync_and_supports_trait_objects() {
++    struct NonSync { round: std::cell::Cell<usize> }
++    impl SumcheckRounds for NonSync {
++        fn n_vars(&self) -> usize { 1 }
++        fn degree(&self) -> usize { 1 }
++        fn round(&mut self, j: usize) -> Vec<Fp2> {
++            assert_eq!(j, self.round.get());
++            vec![Fp2::ZERO; 2]
++        }
++        fn fold(&mut self, _: Fp2) { self.round.set(1); }
++        fn finals(&self) -> Vec<Fp2> { vec![Fp2::ZERO] }
++    }
++    let mut ev: Box<dyn SumcheckRounds> = Box::new(NonSync { round: std::cell::Cell::new(0) });
++    let out = prove_rounds(ev.as_mut(), &mut transcript(false));
++    assert_eq!(out.proof.rounds, vec![vec![Fp2::ZERO; 2]]);
++}
++
++#[test]
++fn wrong_round_length_is_rejected() {
++    struct Bad;
++    impl SumcheckRounds for Bad {
++        fn n_vars(&self) -> usize { 1 }
++        fn degree(&self) -> usize { 2 }
++        fn round(&mut self, _: usize) -> Vec<Fp2> { vec![Fp2::ZERO; 2] }
++        fn fold(&mut self, _: Fp2) { panic!("must not fold malformed output") }
++        fn finals(&self) -> Vec<Fp2> { unreachable!() }
++    }
++    assert!(std::panic::catch_unwind(|| prove_rounds(&mut Bad, &mut transcript(false))).is_err());
++}
+--- a/hashline/src/zk.rs
++++ b/hashline/src/zk.rs
+@@ -1085,6 +1085,25 @@
+     (masked, out.challenges, out.finals)
+ }
+ 
++/// Additive round-evaluator entry point. The original masked_prove remains
++/// the oracle for legacy callers. Evaluators return unmasked rounds; this
++/// wrapper publishes only the rounds produced by the existing CFS masker.
++pub(crate) fn masked_prove_rounds<R: sumcheck::SumcheckRounds + ?Sized>(
++    evaluator: &mut R, mask: &CfsMask, c: Fp2, tr: &mut Transcript,
++) -> (Vec<Vec<Fp2>>, Vec<Fp2>, Vec<Fp2>) {
++    assert!(!c.is_zero(), "zero mask challenge: abandon proof attempt");
++    assert_eq!(evaluator.degree(), mask.degree, "masked evaluator degree mismatch");
++    assert!(evaluator.n_vars() <= mask.n_vars, "masked evaluator variable count");
++    tr.set_masker(Box::new(CfsMasker { mask: mask.clone(), c, challenges: Vec::new() }));
++    let out = sumcheck::prove_rounds(evaluator, tr);
++    let (_, masked) = tr.take_masker();
++    (masked, out.challenges, out.finals)
++}
++
++#[cfg(test)]
++#[path = "zk_rounds_tests.rs"]
++mod rounds_tests;
++
+ /// The extension round on the host: absorbs s_k + c g_k, draws rho_k; returns (rho_k, the masked terminals of the private tables).
+ pub(crate) fn extension<F>(finals: &[Fp2], exts: &[Fp2], degree: usize, poly: F, mask: &CfsMask, c: Fp2, prev: &[Fp2], rounds: &mut Vec<Vec<Fp2>>, tr: &mut Transcript) -> Fp2
+ where
+--- a/hashline/src/zk_rounds_tests.rs
++++ b/hashline/src/zk_rounds_tests.rs
+@@ -0,0 +1,72 @@
++//! Caller-level checks of the additive masked round interface.
++use super::*;
++use crate::sumcheck::ClosureRounds;
++
++fn run_pair(n: usize, ext: usize, tagged: bool) {
++    let degree = 3;
++    let mut rng = ZkRng::new(951 + n as u64, b"masked-round-interface");
++    let tables = vec![rng.fp2_vec(1 << n), rng.fp2_vec(1 << n)];
++    let poly = |v: &[Fp2]| v[0].mul(v[1]).mul(v[1]);
++    let total = (0..1 << n).fold(Fp2::ZERO, |a, i| a.add(poly(&[tables[0][i], tables[1][i]])));
++    let mask = CfsMask::random(&mut rng, n + ext, degree);
++    let c = Fp2::from_u64(17);
++    let transcript = || if tagged { Transcript::new_tagged(b"masked-round-interface", [23; 32]) }
++        else { Transcript::new(b"masked-round-interface") };
++    for initial in [None, Some(total)] {
++        let (mut old_tables, mut new_tables) = (tables.clone(), tables.clone());
++        let (mut old_tr, mut new_tr) = (transcript(), transcript());
++        let old = masked_prove(&mut old_tables, degree, poly, &mask, c, &mut old_tr);
++        let mut ev = ClosureRounds::new(&mut new_tables, degree, poly).recover_one(initial);
++        let new = masked_prove_rounds(&mut ev, &mask, c, &mut new_tr);
++        assert_eq!(old, new);
++        assert_eq!(old_tables, new_tables);
++        assert_eq!(old_tr.state(), new_tr.state());
++        assert_eq!(old_tr.challenge_fp2(), new_tr.challenge_fp2());
++        // Both wrappers removed the masker, so a fresh one may be installed.
++        new_tr.set_masker(Box::new(CfsMasker { mask: mask.clone(), c, challenges: Vec::new() }));
++        new_tr.take_masker();
++    }
++}
++
++#[test]
++fn additive_masked_wrapper_matches_legacy_at_each_extension_count() {
++    for tagged in [false, true] {
++        for n in [0, 1, 5, 9] {
++            for ext in [1, 2] { run_pair(n, ext, tagged); }
++        }
++    }
++}
++
++#[test]
++fn evaluator_wrapper_refuses_zero_mask_before_touching_transcript() {
++    let mut tables = vec![vec![Fp2::ONE; 4]];
++    let mut ev = ClosureRounds::new(&mut tables, 1, |v: &[Fp2]| v[0]);
++    let mut rng = ZkRng::new(61, b"masked-round-zero");
++    let mask = CfsMask::random(&mut rng, 3, 1);
++    let mut tr = Transcript::new(b"masked-round-zero");
++    let before = tr.state();
++    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
++        masked_prove_rounds(&mut ev, &mask, Fp2::ZERO, &mut tr)
++    }));
++    assert!(result.is_err());
++    assert_eq!(tr.state(), before);
++    assert!(tr.take_masker().0.is_none());
++}
++
++#[test]
++fn evaluator_wrapper_rejects_mask_shape_before_touching_transcript() {
++    for (n, degree) in [(3, 2), (1, 1)] {
++        let mut tables = vec![vec![Fp2::ONE; 4]];
++        let mut ev = ClosureRounds::new(&mut tables, 1, |v: &[Fp2]| v[0]);
++        let mut rng = ZkRng::new(13, b"masked-round-shape");
++        let mask = CfsMask::random(&mut rng, n, degree);
++        let mut tr = Transcript::new(b"masked-round-shape");
++        let before = tr.state();
++        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
++            masked_prove_rounds(&mut ev, &mask, Fp2::ONE, &mut tr)
++        }));
++        assert!(result.is_err());
++        assert_eq!(tr.state(), before);
++        assert!(tr.take_masker().0.is_none());
++    }
++}
+--- a/hashline/src/private_block/argument.rs
++++ b/hashline/src/private_block/argument.rs
+@@ -33,7 +33,7 @@
+ use crate::pcs::{Slice, ZClaim, ZPart};
+ use crate::sumcheck::{self, masked_terminal, CfsMask, SumcheckProof};
+ use crate::transcript::Transcript;
+-use crate::zk::{extension, masked_prove, MaskFunctional};
++use crate::zk::{extension, MaskFunctional};
+ 
+ /// which hiding commitment a private table lives in
+ #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+@@ -526,7 +526,38 @@
+             });
+             tr.absorb_fp2(b"pb-scalar", &[scalar]);
+             let poly = |v: &[Fp2]| (def.poly)(v);
+-            let (mut rounds, rho, finals) = super::timing::slot_step(s, "masked sumcheck (zk.rs, shared)", 1u64 << n, || masked_prove(&mut tables, degree, &poly, mask, c, tr));
++            let (mut rounds, rho, finals) = super::timing::slot_step(s, "masked sumcheck (zk.rs, shared)", 1u64 << n, || {
++                // Private slots already measured their actual cube sum.
++                // Host/standalone slots instead ASSERT a sum which need not
++                // hold on an inconsistent witness. Evaluate their first round
++                // fully so tampered witnesses retain the old prover's bytes
++                // and verifier refusal, rather than a new debug panic. Later
++                // rounds recover from their own actual unmasked round.
++                let unmasked_claim = if kind == SlotKind::Private {
++                    Some(scalar.sub(c.mul(mask.total())))
++                } else { None };
++                // Compare bounded actual slot fixtures with the old prover
++                // at the same transcript/tables, including masked bytes.
++                #[cfg(test)]
++                let oracle = if tables.len() * (1usize << n) <= 1 << 18 {
++                    let mut old_tables = tables.clone();
++                    let mut old_tr = Transcript::clone_state(tr);
++                    let old = crate::zk::masked_prove(&mut old_tables, degree, &poly, mask, c, &mut old_tr);
++                    Some((old, old_tr, old_tables))
++                } else { None };
++                let mut evaluator = sumcheck::ClosureRounds::new(&mut tables, degree, &poly)
++                    .recover_one(unmasked_claim);
++                let result = crate::zk::masked_prove_rounds(&mut evaluator, mask, c, tr);
++                #[cfg(test)]
++                if let Some((old, mut old_tr, old_tables)) = oracle {
++                    assert_eq!(result, old, "R1d actual slot {s}: masked rounds/challenges/finals");
++                    assert_eq!(tables, old_tables, "R1d actual slot {s}: folded tables");
++                    assert_eq!(tr.state(), old_tr.state(), "R1d actual slot {s}: transcript");
++                    let mut next = Transcript::clone_state(tr);
++                    assert_eq!(next.challenge_fp2(), old_tr.challenge_fp2());
++                }
++                result
++            });
+             let mut cur = finals;
+             let mut prev = rho.clone();
+             super::timing::slot_step(s, "extension rounds (mask_eval + zk.rs)", ext as u64, || {

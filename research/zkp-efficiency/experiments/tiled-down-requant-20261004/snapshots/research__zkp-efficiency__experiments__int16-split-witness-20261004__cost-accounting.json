@@ -1,0 +1,32 @@
+{
+  "scope": "count-only Llama3-8B metadata padded FFN-down dimensions, not admitted model/proof or measured GPU traffic",
+  "M": 512,
+  "K_true": 14336,
+  "K_padded": 16384,
+  "N": 4096,
+  "int8_mac_count": 68719476736,
+  "original_integer_dot_mac_count": 34359738368,
+  "packed_bytes": 16777216,
+  "two_int32_partial_bytes": 16777216,
+  "additional_scratch_bytes_without_Blas_workspace": 33554432,
+  "cached_i32_column_sum_bytes": 16384,
+  "padded_weight_bytes": 67108864,
+  "original_h16_i64_bytes": 67108864,
+  "existing_down_output_i64_bytes": 16777216,
+  "note": "unfused staging estimate; original input/output/weights coexist. No peak/transfer saving asserted; one stacked call does not prove weight reuse.",
+  "baseline": {
+    "scope": "synthetic dense 12-block 125M geometry",
+    "wall_s": 408.60922643699996,
+    "initial_chain_build_and_setup_s": 73.36,
+    "first_mark_parent_s": 86.691,
+    "first_mark_includes": "run stage prefix incl boundary prepare + witness build + A allocation/conversion; code review of current source, historic matching binary not established",
+    "old_allocation_only_attribution_retracted": true,
+    "delete_both_entire_parents_zero_cost_wall_s": 248.55822643699995,
+    "diagnostic_arithmetic_positions_per_s_after_zero_cost_parent_deletion": 2.0598795193357744,
+    "deletable_parent_fraction_upper_bound": 0.3916969800109908,
+    "down_subphase_s": null,
+    "source_log_sha256": "a1575d1d48025978d6470b30541756bcc2372c33030cde35afee6196c4c1364a",
+    "independent_verification": false
+  },
+  "end_to_end_ceiling": "Npositions / (Tbaseline - C_down_all_builds + C_pack + C_upload + C_int8_GEMM + C_i64_reconstruction + C_download + C_sync); all accepted 8B clock terms unknown"
+}

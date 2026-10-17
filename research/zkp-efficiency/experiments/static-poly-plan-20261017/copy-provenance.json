@@ -1,0 +1,87 @@
+[
+  {
+    "source": "experiments/affine-karatsuba-20261014/polynomial_ir.py",
+    "copy": "polynomial_ir.py",
+    "sha256": "cab140011a769df7044aea83c38c37dd3caa9c94a5541047904b3c570385bda8"
+  },
+  {
+    "source": "experiments/affine-karatsuba-20261014/prior_experiment.py",
+    "copy": "prior_experiment.py",
+    "sha256": "338026ec78a115ca74ad9f0a6232085fcaf025df322dc2d4fab407ed213fcc95"
+  },
+  {
+    "source": "experiments/affine-karatsuba-20261014/field_support.py",
+    "copy": "field_support.py",
+    "sha256": "8359ca44d70211cea90e9e251faadd10c4c953ced212cff3014ec3b839c59fc4"
+  },
+  {
+    "source": "experiments/affine-karatsuba-20261014/weighted_rounds.py",
+    "copy": "weighted_rounds.py",
+    "sha256": "b7e17c8e69acf9bb68b406b09f739e50503c240b7400ae3344a1318d31097760"
+  },
+  {
+    "source": "experiments/affine-karatsuba-20261014/coefficients.py",
+    "copy": "coefficients.py",
+    "sha256": "daa1bb262b874c3f960f0c50ab1d9a4229bed82d8507d15d96e244ab1632aecd"
+  },
+  {
+    "source": "experiments/affine-karatsuba-20261014/oracle.py",
+    "copy": "oracle.py",
+    "sha256": "a1c639a63dcc7175b9567dcc4e52ae71bb66a5c5e88ae18f77682adc335f2d58"
+  },
+  {
+    "source": "experiments/affine-karatsuba-20261014/prior_axis_experiment.py",
+    "copy": "prior_axis_experiment.py",
+    "sha256": "29344bb7e9e5c0b174a75e6c2bd6a689d26181ac92f10baf8e5974b192392f67"
+  },
+  {
+    "source": "experiments/affine-karatsuba-20261014/row_rounds.py",
+    "copy": "row_rounds.py",
+    "sha256": "dfe567c90baf03888ff0cd86307c2356e9d198f2fb0969ceb503e6ef3cad8875"
+  },
+  {
+    "source": "experiments/affine-karatsuba-20261014/weighted_experiment.py",
+    "copy": "weighted_experiment.py",
+    "sha256": "3b9cf84b16b781d46563bc285c8368dffb5ad0ea395090469d3bca19d915e44c"
+  },
+  {
+    "source": "experiments/affine-karatsuba-20261014/source_port.py",
+    "copy": "source_port.py",
+    "sha256": "7d56350bcf89aca4c6a5215a52c6dd93ab809216a493a7c4411f7d78807a914d"
+  },
+  {
+    "source": "experiments/affine-karatsuba-20261014/candidate.py",
+    "copy": "candidate.py",
+    "sha256": "c4bbfec8e5cf8a81e0708c8e2ff8163b3940f31323bb9873582933fdb3e1b7a5"
+  },
+  {
+    "source": "experiments/affine-karatsuba-20261014/fixtures.py",
+    "copy": "fixtures.py",
+    "sha256": "bd7d7170c7660c8b8688ddac4f25f85fe29fa953316615ca25fa11b4c6f4b45a"
+  },
+  {
+    "source": "experiments/affine-karatsuba-20261014/polynomial_clause.py",
+    "copy": "polynomial_clause.py",
+    "sha256": "2517346ee064d239cd3625f16db24539469e06772a23779a577f039cd9f412d2"
+  },
+  {
+    "source": "experiments/affine-karatsuba-20261014/baseline.py",
+    "copy": "baseline.py",
+    "sha256": "de46f6071af385e7c0825d1827b19b8a162db31618dd74f56b6952079976f88f"
+  },
+  {
+    "source": "experiments/affine-karatsuba-20261014/karatsuba_factory.py",
+    "copy": "karatsuba_factory.py",
+    "sha256": "90f5e9d9890b42124f2afba4d0b3ac8db464d970c3706cda82f3c21a69964e04"
+  },
+  {
+    "source": "experiments/affine-karatsuba-20261014/axis_factory.py",
+    "copy": "axis_factory.py",
+    "sha256": "593852dfd9ecffd0b2297b69ce266a969f16487decaf902a73a107dba8502963"
+  },
+  {
+    "source": "experiments/affine-karatsuba-20261014/prepared.py",
+    "copy": "prepared.py",
+    "sha256": "8a264e5abb8db95064759731cc0c8798de630db939657f097eb38dae3fc79d7c"
+  }
+]

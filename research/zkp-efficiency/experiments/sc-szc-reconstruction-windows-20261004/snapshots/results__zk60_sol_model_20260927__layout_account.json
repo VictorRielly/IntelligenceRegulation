@@ -1,0 +1,202 @@
+{
+  "toy": {
+    "shape": {
+      "T": 32,
+      "d": 16,
+      "f": 16,
+      "Hheads": 2,
+      "KV": 1,
+      "dh": 8,
+      "cols": 256,
+      "rate": 8
+    },
+    "rows": {
+      "A": 455,
+      "Adata": 213,
+      "Hrows": 384,
+      "Hdata": 280,
+      "M": 50,
+      "endpoint_rows": 7
+    },
+    "one_encoded_row_bytes": 16384,
+    "one_data_row_bytes": 2048,
+    "A_commitment": {
+      "data": 931840,
+      "encoded": 7454720,
+      "pads": 931840,
+      "salts": 65536,
+      "tree_nodes": 131040
+    },
+    "H_commitment": {
+      "data": 786432,
+      "encoded": 6291456,
+      "pads": 786432,
+      "salts": 65536,
+      "tree_nodes": 131040
+    },
+    "A_H_retained_payload_bytes": 17575872,
+    "A_H_data_and_codeword_bytes": 15464448,
+    "A_H_retained_after_codeword_release_bytes": 3829696,
+    "M_encoded_bytes": 1638400,
+    "endpoint_commitment_payload_bytes": 339936,
+    "internal_boundary_payload_bytes": 360416,
+    "A_H_M_two_boundaries_payload_floor_bytes": 19935104,
+    "after_codeword_release_M_two_boundaries_floor_bytes": 6188928,
+    "H_commit_with_A_codeword_released_floor_bytes": 12480384,
+    "witness_A_plane_i64_payload_bytes": 419840,
+    "looked_i64_payload_bytes": 491520,
+    "exp_delta_i64_payload_bytes": 16384,
+    "act_index_i64_payload_bytes": 4096,
+    "receipt_counted_bytes_per_block": 2816472
+  },
+  "m125": {
+    "shape": {
+      "T": 512,
+      "d": 768,
+      "f": 2048,
+      "Hheads": 12,
+      "KV": 4,
+      "dh": 64,
+      "cols": 16384,
+      "rate": 4
+    },
+    "rows": {
+      "A": 5681,
+      "Adata": 5435,
+      "Hrows": 7120,
+      "Hdata": 7018,
+      "M": 50,
+      "endpoint_rows": 37
+    },
+    "one_encoded_row_bytes": 524288,
+    "one_data_row_bytes": 131072,
+    "A_commitment": {
+      "data": 744620032,
+      "encoded": 2978480128,
+      "pads": 11634688,
+      "salts": 2097152,
+      "tree_nodes": 4194272
+    },
+    "H_commitment": {
+      "data": 933232640,
+      "encoded": 3732930560,
+      "pads": 14581760,
+      "salts": 2097152,
+      "tree_nodes": 4194272
+    },
+    "A_H_retained_payload_bytes": 8428062656,
+    "A_H_data_and_codeword_bytes": 8389263360,
+    "A_H_retained_after_codeword_release_bytes": 1716651968,
+    "M_encoded_bytes": 1638400,
+    "endpoint_commitment_payload_bytes": 30615520,
+    "internal_boundary_payload_bytes": 31272928,
+    "A_H_M_two_boundaries_payload_floor_bytes": 8492246912,
+    "after_codeword_release_M_two_boundaries_floor_bytes": 1780836224,
+    "H_commit_with_A_codeword_released_floor_bytes": 5513766784,
+    "witness_A_plane_i64_payload_bytes": 711344128,
+    "looked_i64_payload_bytes": 788791296,
+    "exp_delta_i64_payload_bytes": 33554432,
+    "act_index_i64_payload_bytes": 8388608,
+    "receipt_counted_bytes_per_block": 40783352
+  },
+  "mistral_t512_probe": {
+    "shape": {
+      "T": 512,
+      "d": 4096,
+      "f": 14336,
+      "Hheads": 32,
+      "KV": 8,
+      "dh": 128,
+      "cols": 16384,
+      "rate": 4
+    },
+    "rows": {
+      "A": 18633,
+      "Adata": 18379,
+      "Hrows": 23032,
+      "Hdata": 22922,
+      "M": 50,
+      "endpoint_rows": 133
+    },
+    "one_encoded_row_bytes": 524288,
+    "one_data_row_bytes": 131072,
+    "A_commitment": {
+      "data": 2442264576,
+      "encoded": 9769058304,
+      "pads": 38160384,
+      "salts": 2097152,
+      "tree_nodes": 4194272
+    },
+    "H_commitment": {
+      "data": 3018850304,
+      "encoded": 12075401216,
+      "pads": 47169536,
+      "salts": 2097152,
+      "tree_nodes": 4194272
+    },
+    "A_H_retained_payload_bytes": 27403487168,
+    "A_H_data_and_codeword_bytes": 27305574400,
+    "A_H_retained_after_codeword_release_bytes": 5559027648,
+    "M_encoded_bytes": 1638400,
+    "endpoint_commitment_payload_bytes": 93726688,
+    "internal_boundary_payload_bytes": 94384096,
+    "A_H_M_two_boundaries_payload_floor_bytes": 27593893760,
+    "after_codeword_release_M_two_boundaries_floor_bytes": 5749434240,
+    "H_commit_with_A_codeword_released_floor_bytes": 17824835456,
+    "witness_A_plane_i64_payload_bytes": 2408071168,
+    "looked_i64_payload_bytes": 2583953408,
+    "exp_delta_i64_payload_bytes": 67108864,
+    "act_index_i64_payload_bytes": 67108864,
+    "receipt_counted_bytes_per_block": 100290760
+  },
+  "mistral_t1024_probe": {
+    "shape": {
+      "T": 1024,
+      "d": 4096,
+      "f": 14336,
+      "Hheads": 32,
+      "KV": 8,
+      "dh": 128,
+      "cols": 16384,
+      "rate": 4
+    },
+    "rows": {
+      "A": 50315,
+      "Adata": 50061,
+      "Hrows": 64376,
+      "Hdata": 64266,
+      "M": 50,
+      "endpoint_rows": 261
+    },
+    "one_encoded_row_bytes": 524288,
+    "one_data_row_bytes": 131072,
+    "A_commitment": {
+      "data": 6594887680,
+      "encoded": 26379550720,
+      "pads": 103045120,
+      "salts": 2097152,
+      "tree_nodes": 4194272
+    },
+    "H_commitment": {
+      "data": 8437891072,
+      "encoded": 33751564288,
+      "pads": 131842048,
+      "salts": 2097152,
+      "tree_nodes": 4194272
+    },
+    "A_H_retained_payload_bytes": 75411363776,
+    "A_H_data_and_codeword_bytes": 75163893760,
+    "A_H_retained_after_codeword_release_bytes": 15280248768,
+    "M_encoded_bytes": 1638400,
+    "endpoint_commitment_payload_bytes": 177874912,
+    "internal_boundary_payload_bytes": 178532320,
+    "A_H_M_two_boundaries_payload_floor_bytes": 75770066816,
+    "after_codeword_release_M_two_boundaries_floor_bytes": 15638951808,
+    "H_commit_with_A_codeword_released_floor_bytes": 49390516096,
+    "witness_A_plane_i64_payload_bytes": 6560710656,
+    "looked_i64_payload_bytes": 7180910592,
+    "exp_delta_i64_payload_bytes": 268435456,
+    "act_index_i64_payload_bytes": 134217728,
+    "receipt_counted_bytes_per_block": 250373272
+  }
+}

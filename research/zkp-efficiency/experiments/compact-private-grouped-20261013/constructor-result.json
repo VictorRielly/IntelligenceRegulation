@@ -1,0 +1,15 @@
+{
+  "status": "pass",
+  "seed": 2026101344,
+  "counts": {
+    "source_cube_binding_checks": 4590,
+    "source_terminal_checks": 270,
+    "compact_constructor_cases": 93,
+    "exact_fallback_cases": 177
+  },
+  "elapsed_seconds": 0.29624755999975605,
+  "peak_rss_kib": 17512,
+  "digest_sha256": "762cf193d8051ea1c794132a469dfb66d5261f8bd7788489070fbf579057695d",
+  "source_sha256": "e6b689c432b360e2574b13979d881e73cf20b80857847095aba9230af17df3fe",
+  "limits": "Direct synthetic plane-MLE definition. No native build, mask/proof/transcript or real private data. Same one-thread59s/512MiB caps."
+}

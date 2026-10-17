@@ -1,0 +1,95 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (zkp-core/target/debug/deps/zkp_core-9e742492c1e1cd1d)
+
+running 74 tests
+test ffn_v3::proof::tests::dummy_round_trips_and_sizes_agree ... ok
+test ffn_v3::proof::tests::log_cols_zero_groups_follow_the_pcs_grouping ... ok
+test ffn_v3::proof::tests::oversized_query_count_is_a_shape_error_not_a_panic ... ok
+test ffn_v3::proof::tests::shape_of_the_tiny_and_the_125m_statements ... ok
+test ffn_v3::proof::tests::unsupported_shifts_and_dimensions_are_shape_errors_before_any_read ... ok
+test ffn_v3::statement::tests::layout_shape_rule_and_offsets ... ok
+test ffn_v3::statement::tests::statement_check_refuses_unsupported_shifts_and_dimensions ... ok
+test ffn_v3::statement::tests::tags_and_windows ... ok
+test field::tests::add_sub_match_reference ... ok
+test field::tests::ext_arith ... ok
+test field::tests::inverse_and_batch ... ok
+test field::tests::mul_matches_u128_reference ... ok
+test field::tests::two_adic_roots ... ok
+test hashtag::tests::all_eight_keys_are_pairwise_distinct ... ok
+test hashtag::tests::an_unkeyed_hasher_is_the_legacy_call_and_a_keyed_one_is_not ... ok
+test hashtag::tests::the_context_strings_are_the_dispositions ... ok
+test hashtag::tests::the_four_keys_of_each_tagged_profile_are_pinned ... ok
+test hashtag::tests::the_legacy_rule_has_no_key_anywhere ... ok
+test merkle::tests::a_keyed_node_separates_and_a_wrong_node_key_fails_the_path ... ok
+test merkle::tests::paths_verify_and_tampers_fail ... ok
+test mle::tests::deferred_integer_rows_match_base_field_at_signed_and_field_edges ... ok
+test mle::tests::deferred_rows_refuse_integer_overflow_before_reading_the_matrix ... ok
+test mle::tests::deferred_zero_rows_with_nonzero_extension_weights ... ok
+test mle::tests::eq_table_sums_to_one_and_matches_point ... ok
+test mle::tests::interpolation ... ok
+test mle::tests::matrix_folds_are_tensor_evaluations ... ok
+test mle::tests::mle_eval_at_boolean_points_is_lookup ... ok
+test ntt::tests::ntt_matches_naive_and_roundtrips ... ok
+test ntt::tests::rs_encode_is_evaluation ... ok
+test ffn_v3::proof::tests::malformed_bytes_are_refused_never_panic ... ok
+test pcs::encode_buffer::tests::initializer_writes_every_position_and_stays_inside_its_row ... ok
+test pcs::encode_buffer::tests::invalid_shapes_refuse_before_any_uninitialized_reference ... ok
+test pcs::encode_buffer::tests::tagged_commitment_matches_old_encoding_tree_and_rng_continuation ... ok
+test pcs::encode_buffer::tests::initialized_matrix_matches_original_at_boundaries_and_in_parallel ... ok
+test pcs::encode_conformance_tests::encode_row_zk_matches_the_third_implementations_conformance_vectors ... ok
+test pcs::encode_conformance_tests::the_conformance_inputs_are_the_ones_the_vectors_were_built_from ... ok
+test pcs::encode_conformance_tests::the_named_negative_controls_are_all_distinct_from_the_real_encode ... ok
+test pcs::encode_conformance_tests::the_ordering_control_is_the_real_rows_bit_reversal ... ok
+test pcs::encode_conformance_tests::initialize_once_buffer_matches_all_35_independent_full_row_vectors ... ok
+test pcs::encode_conformance_tests::the_smallest_conformance_vector_matches_entry_by_entry ... ok
+test pcs::tag_tests::a_column_digest_under_three_rules_is_three_digests ... ok
+test pcs::tag_tests::a_salted_leaf_is_a_merkle_node_under_the_legacy_rule_and_is_not_under_a_tag ... ok
+test pcs::tag_tests::a_tagged_commitment_is_refused_under_the_legacy_rule_and_the_reverse ... ok
+test pcs::tag_tests::a_tagged_commitment_never_offers_its_columns_to_the_backend ... ok
+test pcs::tag_tests::a_tagged_commitment_opens_and_verifies_under_its_own_tag ... ok
+test pcs::tag_tests::the_tag_does_not_move_one_byte_of_the_generator ... ok
+test pcs::tag_tests::the_tagged_verifier_refuses_a_path_of_the_wrong_length ... ok
+test pcs::tests::commit_open_verify_and_tampers ... ok
+test pcs::zk_tests::zk_commit_open_verify_and_tampers ... ok
+test pcs::encode_conformance_tests::the_ordering_probes_at_the_125m_row_width_are_pinned ... ok
+test rng::tests::entropy_errors_do_not_produce_a_generator ... ok
+test rng::tests::rng_is_deterministic_and_domain_separated ... ok
+test sumcheck::grouped::tests::expensive_group_calls_are_reduced_without_changing_bytes ... ok
+test sumcheck::grouped::tests::middle_offsets_empty_support_and_two_row_transition_match_scalar ... ok
+test pcs::zk_tests::zk_openings_are_uniform_and_every_site_is_masked ... ok
+test sumcheck::grouped::tests::native_masked_bytes_folds_finals_and_extensions_match ... ok
+test sumcheck::grouped::tests::wrong_support_is_detected_by_original_round_oracle ... ok
+test sumcheck::grouped::tests::zero_factors_and_prefixes_use_explicit_rounds ... ok
+test sumcheck::rounds::tests::all_points_seeded_and_unseeded_match_original_bytes ... ok
+test sumcheck::rounds::tests::evaluator_need_not_be_sync_and_supports_trait_objects ... ok
+test sumcheck::rounds::tests::masked_transcripts_and_one_or_two_extension_rounds_match ... ok
+test sumcheck::rounds::tests::parallel_and_serial_folds_match_original ... ok
+test sumcheck::rounds::tests::release_recovery_actually_skips_one_evaluation_per_pair ... ok
+test sumcheck::rounds::tests::wrong_claim_cannot_pass_the_terminal_check ... ok
+test sumcheck::rounds::tests::wrong_round_length_is_rejected ... ok
+test sumcheck::tests::product_sumcheck_roundtrip_and_tamper ... ok
+test sumcheck::tests::zero_check_with_eq ... ok
+test sumcheck::zk_tests::cfs_mask_rounds_match_brute_force ... ok
+test sumcheck::zk_tests::masked_zero_check_with_extension_roundtrip ... ok
+test tables::tests::all_frozen_members_regenerate_to_their_pins ... ok
+test transcript::tests::a_keyed_transcript_separates_and_its_clone_does_not ... ok
+test transcript::tests::deterministic_and_sensitive ... ok
+test transcript::tests::the_unkeyed_transcript_is_unchanged ... ok
+test sumcheck::grouped::tests::parallel_rounds_match_original_on_one_and_two_threads ... ok
+
+test result: ok. 74 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.26s
+
+     Running tests/endpoint_reuse.rs (zkp-core/target/debug/deps/endpoint_reuse-762c96771a671176)
+
+running 2 tests
+test two_native_ordinary_openings_of_one_endpoint_recover_all_512_words ... ok
+test independently_prepared_owners_do_not_share_the_cancelled_mask ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+   Doc-tests zkp_core
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

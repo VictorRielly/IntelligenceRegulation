@@ -1,0 +1,49 @@
+{
+  "status": "passed",
+  "run_identity": "20260927T005233Z-ccb9384b",
+  "seed": 2026092709,
+  "field": "Goldilocks Fp2, u^2=7",
+  "differential_cases": 37,
+  "samples": 651,
+  "group_samples": 1953,
+  "direct_round_points": 222,
+  "independent_final_mles": 962,
+  "zero_factor_fallbacks": 6,
+  "negative_controls": {
+    "stale_prefix": true,
+    "wrong_suffix": true,
+    "combined_claim": true,
+    "wrong_quarter": true,
+    "drop_tail": true,
+    "changed_limb": true,
+    "changed_mask_schedule": true,
+    "changed_challenge": true,
+    "swapped_equality_finals": true,
+    "no_round_after_final_fold": true
+  },
+  "schedule_refusals": 12,
+  "malformed_refusals": 3,
+  "synthetic_driver_comparisons": 37,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "python": "3.10.12",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "limits": {
+    "wall_s": 59,
+    "cpu_s": 55,
+    "address_space_mib": 512,
+    "estimated_memory_mib": 40
+  },
+  "elapsed_s": 5.261713140003849,
+  "peak_rss_kib": 23872,
+  "source_sha256": "149046de746925d27bf33fdeed6b57a768fb27d3bd6a9517e9079f3a9ec9f741",
+  "proving_s": null,
+  "verification_s": null,
+  "complete_readiness_s": null,
+  "native_compiled": false,
+  "gpu_executed": false,
+  "scope": "Synthetic SC_SZC plane wiring; native transcript/RNG/receipt/security untested. Logical table traffic is not DRAM or timing."
+}

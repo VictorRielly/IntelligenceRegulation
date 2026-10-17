@@ -1,0 +1,10 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "experiments/lookup-reciprocal-plan-20261013/experiment.py"
+  ],
+  "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency",
+  "stdout": "run.log",
+  "limits": "script enforces59s wall/CPU512MiB one thread nice19"
+}

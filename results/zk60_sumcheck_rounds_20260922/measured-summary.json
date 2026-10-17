@@ -1,0 +1,39 @@
+{
+  "comparison_sha256": "5a4af322e315c7435c3b5d6d4ff94a92406e02e6f743524bfe2e644989076729",
+  "scope": "synthetic dense 125M block; shared CPU; two Rayon threads; candidate test-only small-slot oracle included",
+  "overall_speedup_established": false,
+  "rows": [
+    {
+      "name": "00-old",
+      "arm": "old",
+      "prove_seconds": 61.79,
+      "sum_of_rounded_sumcheck_phase_seconds": 13.875,
+      "softmax_sumcheck_seconds": 9.053,
+      "receipt_bytes": 40783352
+    },
+    {
+      "name": "01-new",
+      "arm": "new",
+      "prove_seconds": 43.02,
+      "sum_of_rounded_sumcheck_phase_seconds": 13.349,
+      "softmax_sumcheck_seconds": 8.59,
+      "receipt_bytes": 40783352
+    },
+    {
+      "name": "02-new",
+      "arm": "new",
+      "prove_seconds": 38.06,
+      "sum_of_rounded_sumcheck_phase_seconds": 12.926,
+      "softmax_sumcheck_seconds": 8.551,
+      "receipt_bytes": 40783352
+    },
+    {
+      "name": "03-old",
+      "arm": "old",
+      "prove_seconds": 38.96,
+      "sum_of_rounded_sumcheck_phase_seconds": 14.172,
+      "softmax_sumcheck_seconds": 9.258,
+      "receipt_bytes": 40783352
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "status": "pass",
+  "counts": {
+    "fixtures": 32,
+    "independent_table_finals": 896,
+    "generic_total_checks": 384,
+    "candidate_table_finals": 3584,
+    "descriptor_bind_calls": 1440,
+    "recoveries": 216,
+    "schedules": 128,
+    "extension_polynomial_samples": 1536,
+    "public_extension_terminals": 1536,
+    "independent_round_samples": 720,
+    "candidate_round_samples": 2880,
+    "all_public_explicit_cube_check": 1
+  },
+  "control_count": 24,
+  "elapsed_seconds": 20.113855633999265,
+  "peak_rss_kib": 22936,
+  "digest_sha256": "a32bd2651c58eda0c7af6515270eab141752d315901af26a485473636bede584"
+}

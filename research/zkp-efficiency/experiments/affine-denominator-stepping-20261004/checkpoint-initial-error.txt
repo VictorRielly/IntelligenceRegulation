@@ -1,0 +1,1 @@
+Initial checkpoint stopped before writing reports: an older sources.jsonl record has no id field (KeyError). Corrected id set to x.get("id"); source prefix preserved.

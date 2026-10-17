@@ -1,0 +1,47 @@
+{
+  "state": "passed",
+  "candidate": "/tmp/zk60-sol-gpu-20260927",
+  "runs": [
+    {
+      "name": "core-debug",
+      "command": [
+        "/home/victor/.cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-j",
+        "2",
+        "--manifest-path",
+        "/tmp/zk60-sol-gpu-20260927/zkp-core/Cargo.toml",
+        "--",
+        "--test-threads=2"
+      ],
+      "exit_code": 0,
+      "seconds_shared": 5.062216145975981,
+      "log_sha256": "1e1344524829a44de1c8a76fe880e50eb7f03e5b143655f09d276eb4729222ac"
+    },
+    {
+      "name": "core-release",
+      "command": [
+        "/home/victor/.cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-j",
+        "2",
+        "--manifest-path",
+        "/tmp/zk60-sol-gpu-20260927/zkp-core/Cargo.toml",
+        "--release",
+        "--",
+        "--test-threads=2"
+      ],
+      "exit_code": 0,
+      "seconds_shared": 29.584741203987505,
+      "log_sha256": "89e66944624aadec57a584114381a76cfff673b148cb7ea08f204ddd231e0483"
+    }
+  ],
+  "runner_sha256": "ac23f51cf0714319409a25ee48581814c7a96f233d6ee19669807e45e4d91642",
+  "source_pins_before": 184,
+  "current": null,
+  "source_pins_after": 184
+}

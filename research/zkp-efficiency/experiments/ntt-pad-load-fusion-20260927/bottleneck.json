@@ -1,0 +1,178 @@
+{
+  "checked_at_utc": "2026-09-27T02:02:33.880143+00:00",
+  "terminal": "0",
+  "comparison_sha256": "d8aeddaa9ef3f04427b32d65944cc556b2b672d896821d2c9733b158dbaa4f44",
+  "runs": [
+    {
+      "summary": {
+        "name": "02-old",
+        "arm": "old",
+        "warmup": false,
+        "command": [
+          "/tmp/zk60-encode-20260922/hashline/target/release/deps/hashline-51ac3065196fcde4",
+          "--ignored",
+          "--exact",
+          "private_block::rulings_tests::private_block_125m_one_block",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 44.19364338001469,
+        "log_sha256": "71b07b6b1290a58fb4388c7b77682560c9ac2623a3e642cc54a765f882d030bd",
+        "prove_seconds": 37.63,
+        "verify_seconds": 0.86,
+        "receipt_bytes": 40783352,
+        "peak_rss_mib": 10523.0,
+        "witness_seconds": 5.53,
+        "prove_phase_seconds": 37.63,
+        "serialization_seconds": 0.029,
+        "softmax_slot_seconds": 10.05,
+        "known_witness_prove_serialization_seconds": 43.18900000000001
+      },
+      "log_path": "/home/victor/IntelligenceRegulation/results/zk60_grouped_rounds_20260926/dense-ab-1/02-old.log",
+      "sha256": "71b07b6b1290a58fb4388c7b77682560c9ac2623a3e642cc54a765f882d030bd",
+      "selected_lines": [
+        "PB-TIMING prove | A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |    7.280 |  19.3% |      5681 rows |      5034 |      5034 |",
+        "PB-TIMING prove | H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |   10.008 |  26.6% |      7120 rows |      8589 |      8589 |",
+        "PB-TIMING prove | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |   10.050 |  26.7% |   8388608 cube |      8604 |     10523 |",
+        "PB-TIMING prove | WALL CLOCK OF THE CALL                       |              |   37.630 | 100.0% |",
+        "PB-TIMING prove | encode to bytes (wire::encode)               | frame        |    0.029 |        | 40783352 B     |       542 |     10523 |",
+        "PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.302 |  35.6% |   8388608 cube |       542 |     10523 |",
+        "PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.849 | 100.0% |"
+      ],
+      "a_h_encode_merkle_s": 17.288,
+      "whole_a_h_readiness_ceiling_percent": 40.02871101437865
+    },
+    {
+      "summary": {
+        "name": "03-new",
+        "arm": "new",
+        "warmup": false,
+        "command": [
+          "/tmp/zk60-groups-20260926/hashline/target/release/deps/hashline-903cb4da45f9493b",
+          "--ignored",
+          "--exact",
+          "private_block::rulings_tests::private_block_125m_one_block",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 41.399249623995274,
+        "log_sha256": "c6463302fc2091ac607e0cb3a9c919457c1d0b02ed780768815bcc84ac80c2ae",
+        "prove_seconds": 34.86,
+        "verify_seconds": 0.91,
+        "receipt_bytes": 40783352,
+        "peak_rss_mib": 10471.0,
+        "witness_seconds": 5.43,
+        "prove_phase_seconds": 34.861,
+        "serialization_seconds": 0.031,
+        "softmax_slot_seconds": 8.601,
+        "known_witness_prove_serialization_seconds": 40.321999999999996
+      },
+      "log_path": "/home/victor/IntelligenceRegulation/results/zk60_grouped_rounds_20260926/dense-ab-1/03-new.log",
+      "sha256": "c6463302fc2091ac607e0cb3a9c919457c1d0b02ed780768815bcc84ac80c2ae",
+      "selected_lines": [
+        "PB-TIMING prove | A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |    7.362 |  21.1% |      5681 rows |      5034 |      5034 |",
+        "PB-TIMING prove | H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |    9.377 |  26.9% |      7120 rows |      8547 |      8547 |",
+        "PB-TIMING prove | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    8.601 |  24.7% |   8388608 cube |      8552 |     10471 |",
+        "PB-TIMING prove | WALL CLOCK OF THE CALL                       |              |   34.861 | 100.0% |",
+        "PB-TIMING prove | encode to bytes (wire::encode)               | frame        |    0.031 |        | 40783352 B     |       490 |     10471 |",
+        "PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.331 |  36.8% |   8388608 cube |       490 |     10471 |",
+        "PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.900 | 100.0% |"
+      ],
+      "a_h_encode_merkle_s": 16.739,
+      "whole_a_h_readiness_ceiling_percent": 41.51331779177621
+    },
+    {
+      "summary": {
+        "name": "04-new",
+        "arm": "new",
+        "warmup": false,
+        "command": [
+          "/tmp/zk60-groups-20260926/hashline/target/release/deps/hashline-903cb4da45f9493b",
+          "--ignored",
+          "--exact",
+          "private_block::rulings_tests::private_block_125m_one_block",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 40.0557809760212,
+        "log_sha256": "682906c731bd8ee573ca533bff2e07dc839439ededfa1fc857e75069a82bfc8f",
+        "prove_seconds": 33.31,
+        "verify_seconds": 0.82,
+        "receipt_bytes": 40783352,
+        "peak_rss_mib": 10526.0,
+        "witness_seconds": 5.76,
+        "prove_phase_seconds": 33.315,
+        "serialization_seconds": 0.02,
+        "softmax_slot_seconds": 7.832,
+        "known_witness_prove_serialization_seconds": 39.095
+      },
+      "log_path": "/home/victor/IntelligenceRegulation/results/zk60_grouped_rounds_20260926/dense-ab-1/04-new.log",
+      "sha256": "682906c731bd8ee573ca533bff2e07dc839439ededfa1fc857e75069a82bfc8f",
+      "selected_lines": [
+        "PB-TIMING prove | A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |    7.310 |  21.9% |      5681 rows |      5034 |      5034 |",
+        "PB-TIMING prove | H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |    9.593 |  28.8% |      7120 rows |      8590 |      8590 |",
+        "PB-TIMING prove | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    7.832 |  23.5% |   8388608 cube |      8607 |     10526 |",
+        "PB-TIMING prove | WALL CLOCK OF THE CALL                       |              |   33.315 | 100.0% |",
+        "PB-TIMING prove | encode to bytes (wire::encode)               | frame        |    0.020 |        | 40783352 B     |       577 |     10526 |",
+        "PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.293 |  36.1% |   8388608 cube |       577 |     10526 |",
+        "PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.810 | 100.0% |"
+      ],
+      "a_h_encode_merkle_s": 16.903,
+      "whole_a_h_readiness_ceiling_percent": 43.23570789103466
+    },
+    {
+      "summary": {
+        "name": "05-old",
+        "arm": "old",
+        "warmup": false,
+        "command": [
+          "/tmp/zk60-encode-20260922/hashline/target/release/deps/hashline-51ac3065196fcde4",
+          "--ignored",
+          "--exact",
+          "private_block::rulings_tests::private_block_125m_one_block",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 43.36355424299836,
+        "log_sha256": "52b3864d24183171faed47abf7c39e241baca6d8fbe6431489f2596fb9a79818",
+        "prove_seconds": 36.84,
+        "verify_seconds": 0.87,
+        "receipt_bytes": 40783352,
+        "peak_rss_mib": 10526.0,
+        "witness_seconds": 5.49,
+        "prove_phase_seconds": 36.836,
+        "serialization_seconds": 0.024,
+        "softmax_slot_seconds": 10.085,
+        "known_witness_prove_serialization_seconds": 42.35
+      },
+      "log_path": "/home/victor/IntelligenceRegulation/results/zk60_grouped_rounds_20260926/dense-ab-1/05-old.log",
+      "sha256": "52b3864d24183171faed47abf7c39e241baca6d8fbe6431489f2596fb9a79818",
+      "selected_lines": [
+        "PB-TIMING prove | A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |    7.186 |  19.5% |      5681 rows |      5034 |      5034 |",
+        "PB-TIMING prove | H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |    9.829 |  26.7% |      7120 rows |      8582 |      8582 |",
+        "PB-TIMING prove | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |   10.085 |  27.4% |   8388608 cube |      8607 |     10526 |",
+        "PB-TIMING prove | WALL CLOCK OF THE CALL                       |              |   36.836 | 100.0% |",
+        "PB-TIMING prove | encode to bytes (wire::encode)               | frame        |    0.024 |        | 40783352 B     |       577 |     10526 |",
+        "PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.304 |  35.3% |   8388608 cube |       577 |     10526 |",
+        "PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.859 | 100.0% |"
+      ],
+      "a_h_encode_merkle_s": 17.015,
+      "whole_a_h_readiness_ceiling_percent": 40.17709563164109
+    }
+  ],
+  "scope": "Shared two-thread CPU, one synthetic dense 125M-geometry block, T512",
+  "limits": [
+    "Small-slot test oracles included in both binaries",
+    "Two samples per arm; no statistical confidence or p95 claim",
+    "Known phase sum is not an enclosing end-to-end request clock",
+    "Process wall includes verification and other test work",
+    "No GPU, trained 8B, larger privacy acceptance or integration claim"
+  ],
+  "pad_scale_p1_attribution_s": null,
+  "gpu_time_s": null,
+  "complete_private_8b_time_s": null
+}

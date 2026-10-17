@@ -1,0 +1,7 @@
+{
+  "run_id": "20261004T060146Z-96d1ccac",
+  "checkpoint_at": "2026-10-04T06:16:07.388788+00:00",
+  "early_snapshot_at": "2026-10-04T06:03:21.986328+00:00",
+  "early_state_approx_label_correction": "06:05 was approximate future label, replaced by exact snapshot mtime; no duration derived",
+  "next_cycle_not_before": "2026-10-04T07:01:46+00:00"
+}

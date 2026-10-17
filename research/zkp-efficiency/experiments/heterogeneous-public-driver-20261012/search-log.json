@@ -1,0 +1,30 @@
+{
+  "run_id": "20261012T202555Z-550cccf0",
+  "access_date": "2026-10-12",
+  "mode": "native LIVE web search",
+  "queries": [
+    "sumcheck prover structured polynomials heterogeneous representations 2026 GitHub binding memory",
+    "site:eprint.iacr.org sumcheck streaming 2026 memory public polynomials",
+    "site:github.com/a16z/jolt releases 2026 sumcheck polynomial binding",
+    "Sparrow space efficient zkSNARK Pappas Papadopoulos github implementation 2024",
+    "site:eprint.iacr.org 2026 October sumcheck prover memory"
+  ],
+  "records": 6,
+  "notes": [
+    "Only primary technical sources assessed; third-party search hits not relied on.",
+    "Recent PR and undated displayed release kept separate.",
+    "No author performance reproduced; no downloaded code executed; no external writes/messages.",
+    "Final exact-link check attempted https://github.com/a16z/jolt/commit/a687885; see checkpoint validation for result."
+  ],
+  "blockers": [
+    "Commit links for 5a01f83, 6b234c9/a687885 and current standalone files could not be fetched. Displayed short hashes are not inspected commits.",
+    "LICENSE-MIT Cache miss; current revision unpinned.",
+    "https://eprint.iacr.org/2024/1631.pdf: Internal Error. https://github.com/ChristodoulosPappas/Sparrow-Full-Version: Cache miss; no implementation/license/commit inspected.",
+    "PR916 files and b31b9ff commit: Cache miss/Internal Error; release tag page unavailable. No new commit diff inspected."
+  ],
+  "exact_final_commit_fetch": {
+    "url": "https://github.com/a16z/jolt/commit/a687885",
+    "result": "Cache miss / Internal Error",
+    "inspected_commit_id": null
+  }
+}

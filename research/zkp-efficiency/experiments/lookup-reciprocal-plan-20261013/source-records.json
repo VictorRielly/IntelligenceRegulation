@@ -1,0 +1,98 @@
+[
+  {
+    "id": "cycle46-new-older-mle-lookup-compatibility",
+    "cycle": "0046",
+    "run_id": "20261013T032555Z-3e60f70b",
+    "access_date": "2026-10-13",
+    "access_timezone": "UTC",
+    "url": "https://eprint.iacr.org/2024/1058",
+    "title": "Natively Compatible Super-Efficient Lookup Arguments and How to Apply Them",
+    "published": "2024-06-28",
+    "updated": "2024-12-06",
+    "date_evidence": "Primary ePrint received2024-06-28/last-of-two-revisions2024-12-06; JOC2024 listed, no proceedings day inferred.",
+    "implementation_license": null,
+    "paper_license": "CC BY",
+    "inspected_commit_id": null,
+    "assessment": "NEW older source, URL absent from prior240 inventory: authors distinguish MLE-native lookup commitments from univariate cq and provide a composition compiler. Native table only256rows; reducing table-size cost cannot remove current millions of helper openings or SC_SZC work automatically. Architectural candidate needs PCS/transcript/joint hiding/soundness redesign. No author speed reproduced; abstract inspected, PDF fetch Internal Error.",
+    "access_issues": [
+      "PDF click Internal Error"
+    ],
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE primary search/inspection, no foreign code executed",
+    "recorded_at_utc": "2026-10-13T03:44:35.945641+00:00"
+  },
+  {
+    "id": "cycle46-logup-chunk-local-fallback-refinement",
+    "cycle": "0046",
+    "run_id": "20261013T032555Z-3e60f70b",
+    "access_date": "2026-10-13",
+    "access_timezone": "UTC",
+    "url": "https://github.com/Plonky3/Plonky3/blob/main/lookup/src/logup.rs",
+    "title": "Plonky3 LogUp chunk-local batch inversion implementation",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Runtime source main inspected; current HEAD/history date not available. Crawl age is not an update date.",
+    "implementation_license": "Plonky3 Apache2 license text inspected at unpinned main; Cargo manifest inspection attempted. No code copied or executed.",
+    "inspected_commit_id": null,
+    "assessment": "Visible source computes chunk-local denominators, inverses and row sums with CHUNK_SIZE1024 and explicitly leaves tuning open. This materially refines cycle4 per-invalid-pair inversion: local prototype adds bounded batch fallback and direct split-H writes. Borrowed idea only; their STARK aux accumulator differs. Tested local canonical helper words are reproduced evidence, not foreign prover timings.",
+    "inspected_urls": [
+      "https://github.com/Plonky3/Plonky3/blob/main/LICENSE-APACHE",
+      "https://github.com/Plonky3/Plonky3/commits/main/lookup/src/logup.rs"
+    ],
+    "access_issues": [
+      "Runtime history Internal Error",
+      "Runtime HEAD/commit/update unverified"
+    ],
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE primary implementation inspection; no foreign execution",
+    "recorded_at_utc": "2026-10-13T03:44:35.945641+00:00"
+  },
+  {
+    "id": "cycle46-recent-lookup-obligation-review",
+    "cycle": "0046",
+    "run_id": "20261013T032555Z-3e60f70b",
+    "access_date": "2026-10-13",
+    "access_timezone": "UTC",
+    "url": "https://github.com/Plonky3/Plonky3/pull/2293",
+    "title": "Plonky3 caller soundness obligations and derived schedule guards",
+    "published": "2026-09-22",
+    "updated": "2026-09-22",
+    "date_evidence": "Primary PR discussion and merged date September22,2026. Last edited discussion timestamps not independently resolved; updated is verified merge event, not current HEAD.",
+    "implementation_license": "Related repository Apache2 license text inspected, no source copied.",
+    "inspected_commit_id": null,
+    "exposed_uninspected_commits": [
+      "669fcae",
+      "082dfda",
+      "02a356c"
+    ],
+    "assessment": "New recent PR inspection: must_use does not prevent explicit destruction/ignoring points, and zero-query guards must apply to derived schedules rather than claimed security names. Our helper keeps all original checks and later full-table refusal, no protocol reduction. For architectural queue, compiler labels alone cannot discharge hidden-plane/claim/PCS obligations. No runtime performance or security equivalence reproduced.",
+    "access_issues": [
+      "Merged short commit click Internal Error; exact full commit ID/diff not inspected"
+    ],
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE primary recent GitHub review search",
+    "recorded_at_utc": "2026-10-13T03:44:35.945641+00:00"
+  },
+  {
+    "id": "cycle46-logup-primary-refusal-refresh",
+    "cycle": "0046",
+    "run_id": "20261013T032555Z-3e60f70b",
+    "access_date": "2026-10-13",
+    "access_timezone": "UTC",
+    "url": "https://eprint.iacr.org/2022/1530",
+    "title": "Multivariate lookups based on logarithmic derivatives",
+    "published": "2022-11-04",
+    "updated": "2025-02-20",
+    "date_evidence": "Primary ePrint received and last-of-three-revisions history.",
+    "implementation_license": null,
+    "paper_license": "CC BY",
+    "inspected_commit_id": null,
+    "assessment": "Refresh of prior cycle4: reciprocal/multiplicity identity supports sharing exact public denominators within a fixed challenge set. It does not authorize dropping zero-multiplicity table poles or replacing arbitrary off-table witness pairs. Current CPU differential experiment preserves those refusal distinctions; paper operation-count claims are not native model-throughput measurements.",
+    "access_issues": [
+      "PDF click Internal Error"
+    ],
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE primary metadata/abstract refresh",
+    "recorded_at_utc": "2026-10-13T03:44:35.945641+00:00"
+  }
+]

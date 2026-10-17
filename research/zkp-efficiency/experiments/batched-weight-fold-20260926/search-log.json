@@ -1,0 +1,40 @@
+{
+  "accessed_at_utc": "2026-09-26T22:00:09.480789+00:00",
+  "queries": [
+    "site.github.com sumcheck batch multilinear polynomial evaluation matrix 2026 GPU",
+    "site.eprint.iacr.org 2026 batched matrix multiplication proving zkML preprocessing weights",
+    "site.arxiv.org 2026 zero knowledge LLM batching weights reuse proof",
+    "site.github.com \"ZKTorch\"",
+    "site.arxiv.org zero knowledge inference 2026 batch public weights preprocessing",
+    "CQLin efficient linear layers preprocessing Eagen Gabizon 2023 eprint",
+    "site.github.com/uiuc-kang-lab/zk-torch commits master 2026",
+    "site.github.com/TrueOpen/slp-experiments commit September 2026"
+  ],
+  "blockers": [
+    {
+      "url": "https://github.com/uiuc-kang-lab/zk-torch/blob/main/LICENSE",
+      "error": "404 Not Found (branch is master)"
+    },
+    {
+      "url": "https://github.com/uiuc-kang-lab/zk-torch/blob/master/LICENSE",
+      "error": "Cache miss; official raw master LICENSE subsequently readable through same native web tool"
+    },
+    {
+      "url": "https://github.com/TrueOpen/slp-experiments/commits/main/",
+      "error": "Cache miss"
+    },
+    {
+      "url": "https://github.com/uiuc-kang-lab/zk-torch/commit/7bdd0bb7d270e1029aee1067805c98718260857e",
+      "error": "Cache miss"
+    },
+    {
+      "url": "https://github.com/uiuc-kang-lab/zk-torch/commit/b294554b87a15ef7311a6c9e9273b27e16694296",
+      "error": "Cache miss"
+    },
+    {
+      "url": "https://github.com/zkpy/zkpyc",
+      "error": "Internal Error; unrelated discovery abandoned"
+    }
+  ],
+  "boundary": "No shell network client, downloaded code execution, authentication bypass, installs, external writes or escalation."
+}

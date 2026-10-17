@@ -1,0 +1,93 @@
+{
+  "utc": "2026-09-30T00:18:13+00:00",
+  "scope": "demo rehearsal only: tiny synthetic fixtures; no model-scale, GPU or speed claim",
+  "binaries": {
+    "/home/victor/IntelligenceRegulation/zkvm-block/target/release/zk60-block-wrap": "3e7b1cd90c4399effc3a812d8e47702a04853a435f9f183aac3b1cffadd5cb59",
+    "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_private_block": "819895693b2e33b0ea1f1046c97e7f740bbdafb144fff8028f89a238eccfb8cf",
+    "/home/victor/IntelligenceRegulation/scripts/zk60_zkvm_demo.py": "20aaa24335993e76c72abb8fef6ba616ebbf8c2f2106a8efd5d40c61a2416d7d"
+  },
+  "artifacts": {
+    "/home/victor/IntelligenceRegulation/results/zk60_loop_20260918/block-integration/groth16_public/groth16.bin": "6c67e05c70e6785023f5fd671770e95bc9de197c83558fc044817df4f16432e7",
+    "/home/victor/IntelligenceRegulation/results/zk60_loop_20260918/block-integration/groth16_public/policy.bin": "6447e9909a38a90dd8e8f23c9d9e1959f862e04c6323421b49e9a5b3b8748f43"
+  },
+  "expected_image_id": "8d74aab3d58c1a713045dfd1ea4ffa15e61439e61af58b72a5fdb792111998d9",
+  "steps": [
+    {
+      "name": "groth16-verify-retained",
+      "command": [
+        "/usr/bin/python3",
+        "/home/victor/IntelligenceRegulation/scripts/zk60_zkvm_demo.py",
+        "verify",
+        "--profile",
+        "block",
+        "--expected-image-id",
+        "8d74aab3d58c1a713045dfd1ea4ffa15e61439e61af58b72a5fdb792111998d9",
+        "--wrap",
+        "/home/victor/IntelligenceRegulation/zkvm-block/target/release/zk60-block-wrap",
+        "--policy",
+        "/home/victor/IntelligenceRegulation/results/zk60_loop_20260918/block-integration/groth16_public/policy.bin",
+        "--receipt",
+        "/home/victor/IntelligenceRegulation/results/zk60_loop_20260918/block-integration/groth16_public/groth16.bin"
+      ],
+      "exit_code": 0,
+      "seconds": 0.083,
+      "expected_exit_zero": true,
+      "as_expected": true,
+      "stdout": "{\n  \"verified\": true,\n  \"profile\": \"block\",\n  \"expected_image_id\": \"8d74aab3d58c1a713045dfd1ea4ffa15e61439e61af58b72a5fdb792111998d9\",\n  \"kind\": \"groth16\",\n  \"exit_code\": 0,\n  \"receipt_sha256\": \"6c67e05c70e6785023f5fd671770e95bc9de197c83558fc044817df4f16432e7\",\n  \"policy_sha256\": \"6447e9909a38a90dd8e8f23c9d9e1959f862e04c6323421b49e9a5b3b8748f43\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "name": "groth16-verify-one-bit-flipped",
+      "command": [
+        "/usr/bin/python3",
+        "/home/victor/IntelligenceRegulation/scripts/zk60_zkvm_demo.py",
+        "verify",
+        "--profile",
+        "block",
+        "--expected-image-id",
+        "8d74aab3d58c1a713045dfd1ea4ffa15e61439e61af58b72a5fdb792111998d9",
+        "--wrap",
+        "/home/victor/IntelligenceRegulation/zkvm-block/target/release/zk60-block-wrap",
+        "--policy",
+        "/home/victor/IntelligenceRegulation/results/zk60_loop_20260918/block-integration/groth16_public/policy.bin",
+        "--receipt",
+        "/tmp/zk60-vc-rehearsal-7jtpcpft/groth16_flipped.bin"
+      ],
+      "exit_code": 1,
+      "seconds": 0.081,
+      "expected_exit_zero": false,
+      "as_expected": true,
+      "stdout": "{\n  \"verified\": false,\n  \"profile\": \"block\",\n  \"expected_image_id\": \"8d74aab3d58c1a713045dfd1ea4ffa15e61439e61af58b72a5fdb792111998d9\",\n  \"kind\": null,\n  \"exit_code\": 1,\n  \"receipt_sha256\": \"664b3720c1901a15846f9f190d6e3c26b3b7e2af9da93edce1dae97106437aa7\",\n  \"policy_sha256\": \"6447e9909a38a90dd8e8f23c9d9e1959f862e04c6323421b49e9a5b3b8748f43\",\n  \"verifier_message\": \"zk60 wrap: io error: unexpected end of file\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "name": "toy-private-block-prove",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_private_block",
+        "prove",
+        "/tmp/zk60-vc-rehearsal-7jtpcpft/pb"
+      ],
+      "exit_code": 0,
+      "seconds": 0.319,
+      "expected_exit_zero": true,
+      "as_expected": true,
+      "stdout": "profile: hashline-zk-mr1/private-block-t32-poc/1\n  private-block-t32/1: T32 d16 H2 KV1 dh8 F16; n=256 inv_rate=8 Q=256; P1 (weights public, no W commitment); whole block (attention, norm_m, feed-forward, residual 2)\n  A rows=455 data=213 site-pairs=120 prox-pair=(453,454)\n  H rows=384 data=280 site-pairs=51 zero-sum-pair=[278, 279] prox-pair=(382,383)\n  M rows=50 functionals=34 A-groups=35 H-groups=9 collapse=0\n  calibration: norm tn=11 cn=1024 ceps=1 wrho=29; shifts qkv=7 rope=7 score=6 o=9 ao=7 residual=0; fE=9 fP=9 fRo=7 wrhoS=14 mask=-127; classes int8=[-127,127] int16; tables U8 + exp\n  feed-forward: F=16 shifts gate=7 up=0 product=14 down=6 residual2=0; gate class int8=[-128,127]; tables U8 + exp + act\nreceipt frame: 2816472 bytes (fixed by the geometry: 2816472)\ncommitted rows: A 455 H 384 M 50; lookups: U8 61440 exp 2048 act 512\nprove 0.111 s (shared box, diagnostic only):\n  witness planes + commit A: 0.027 s\n  commit M: 0.022 s\n  LogUp helpers + commit H: 0.026 s\n  23 masked sumchecks: 0.016 s\n  M + A + H + endpoint openings: 0.019 s\nEXPERIMENTAL: fixed synthetic toy profile; no model-scale or 5-second claim follows from this run.\n",
+      "stderr": ""
+    },
+    {
+      "name": "toy-private-block-verify-fresh-process",
+      "command": [
+        "/home/victor/IntelligenceRegulation/hashline/target/release/examples/zk60_private_block",
+        "verify",
+        "/tmp/zk60-vc-rehearsal-7jtpcpft/pb"
+      ],
+      "exit_code": 0,
+      "seconds": 0.242,
+      "expected_exit_zero": true,
+      "as_expected": true,
+      "stdout": "ACCEPT: 2816472 bytes verified in 0.060 s\nrefused: first root corrupted\nrefused: an argument word corrupted\nrefused: the last path byte corrupted\n",
+      "stderr": ""
+    }
+  ],
+  "all_as_expected": true
+}

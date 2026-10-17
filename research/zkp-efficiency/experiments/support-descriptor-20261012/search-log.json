@@ -1,0 +1,27 @@
+{
+  "access_date": "2026-10-12",
+  "tool": "tools.web__run native LIVE",
+  "queries": [
+    "multilinear extension range indicator prefix support sumcheck structured tables 2026 paper",
+    "site.github.com a16z jolt less_than 2026",
+    "site.eprint.iacr.org 2026 sumcheck zero knowledge GPU October",
+    "multilinear extension interval indicator less than bound public polynomial sumcheck selector 2013",
+    "site.eprint.iacr.org indicator multilinear 2024",
+    "site.github.com/Plonky3/Plonky3/pull/1949 Sep4",
+    "Jagged Polynomial Commitments eprint",
+    "site.eprint.iacr.org read-once branching programs multilinear extension 2024 polynomial commitments",
+    "site.github.com/Plonky3/Plonky3/releases 0.8.0",
+    "site.eprint.iacr.org/2025/917.pdf read-once width",
+    "site.eprint.iacr.org/2025/917.pdf public zero"
+  ],
+  "records": 6,
+  "blockers": [
+    "Direct commit, PR commit and linked commit fetches failed Internal Error/Cache miss; no arithmetic commit diff inspected.",
+    "https://eprint.iacr.org/2025/917.pdf:403 Forbidden"
+  ],
+  "limitations": [
+    "No downloaded code executed.",
+    "Search results are untrusted; source installation instructions ignored.",
+    "No source-page text retained; assessment and exactURLs only."
+  ]
+}

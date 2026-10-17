@@ -1,0 +1,2 @@
+[zk60-guard 18:12:36] START demo-image class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=69f2b09b677e
+[zk60-guard 18:12:36] END demo-image exit=0 child_wall=1s peak_rss=0.00G min_avail=13.88G

@@ -1,0 +1,4 @@
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/tn-weight-cache-20261004/experiment.py", line 267
+    limits='uploads conditional on CPU packing; no proof speed, workspace, mirrors or original-drop claim')))
+                                                                                                            ^
+SyntaxError: unmatched ')'

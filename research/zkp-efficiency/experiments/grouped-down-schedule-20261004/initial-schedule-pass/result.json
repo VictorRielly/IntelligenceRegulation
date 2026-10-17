@@ -1,0 +1,292 @@
+{
+  "run_identity": "20261004T060146Z-96d1ccac",
+  "seed": 2026100424,
+  "status": "pass",
+  "schedules": 576,
+  "independent_raw_dots": 11232,
+  "accepted_plane_words": 1152,
+  "outcomes": {
+    "FFN down": 192,
+    "residual 2": 312,
+    "accepted": 72
+  },
+  "controls": [
+    {
+      "name": "overlapping output buffers",
+      "detected": "overlap"
+    },
+    {
+      "name": "duplicate output slot",
+      "detected": "duplicate slot"
+    },
+    {
+      "name": "stale packed epoch",
+      "detected": "stale packed input"
+    },
+    {
+      "name": "ragged shape mixed in uniform batch",
+      "detected": "mixed shape"
+    },
+    {
+      "name": "output exceeds pool",
+      "detected": "bounds"
+    },
+    {
+      "name": "repack before outstanding completion",
+      "detected": "repack before consumers drain"
+    },
+    {
+      "name": "release pack before outstanding completion",
+      "detected": "release before drain"
+    },
+    {
+      "name": "reuse output pool before drain",
+      "detected": "pool reused while live"
+    },
+    {
+      "name": "duplicate completion",
+      "detected": "duplicate/stale completion"
+    },
+    {
+      "name": "stale completion",
+      "detected": "duplicate/stale completion"
+    },
+    {
+      "name": "omit low/offset reconstruction",
+      "expected": 256,
+      "wrong": 0
+    },
+    {
+      "name": "first completed failure replaces support order",
+      "expected": 1,
+      "wrong": 5
+    },
+    {
+      "name": "early residual outranks later down",
+      "expected": "FFN down",
+      "wrong": "residual 2"
+    }
+  ],
+  "control_count": 13,
+  "synthetic_counters": {
+    "packed_values": 81792,
+    "gemm_problems": 10836,
+    "batch_calls": 8676,
+    "peak_local_bytes": 496512,
+    "reduction_writes": 38484,
+    "completion_checks": 10836
+  },
+  "count_only_public_unadmitted_8b_T512": [
+    {
+      "tile": [
+        64,
+        4096,
+        16384
+      ],
+      "q": 1,
+      "final_bytes": 33554432,
+      "peak_payload_bytes": 37748736,
+      "batch_calls": 8,
+      "gemm_problems": 8,
+      "pack_bytes": 16777216,
+      "old_split_pack_bytes": 16777216,
+      "reduction_bytes": 0,
+      "logical_weight_bytes": 536870912,
+      "byte_products": 68719476736,
+      "limits": "one tier; no workspace, descriptors/status, transfers, pools, inputs/weights/other planes"
+    },
+    {
+      "tile": [
+        64,
+        128,
+        16384
+      ],
+      "q": 1,
+      "final_bytes": 33554432,
+      "peak_payload_bytes": 35717120,
+      "batch_calls": 256,
+      "gemm_problems": 256,
+      "pack_bytes": 16777216,
+      "old_split_pack_bytes": 16777216,
+      "reduction_bytes": 0,
+      "logical_weight_bytes": 536870912,
+      "byte_products": 68719476736,
+      "limits": "one tier; no workspace, descriptors/status, transfers, pools, inputs/weights/other planes"
+    },
+    {
+      "tile": [
+        64,
+        128,
+        16384
+      ],
+      "q": 4,
+      "final_bytes": 33554432,
+      "peak_payload_bytes": 35913728,
+      "batch_calls": 64,
+      "gemm_problems": 256,
+      "pack_bytes": 16777216,
+      "old_split_pack_bytes": 16777216,
+      "reduction_bytes": 0,
+      "logical_weight_bytes": 536870912,
+      "byte_products": 68719476736,
+      "limits": "one tier; no workspace, descriptors/status, transfers, pools, inputs/weights/other planes"
+    },
+    {
+      "tile": [
+        64,
+        128,
+        16384
+      ],
+      "q": 32,
+      "final_bytes": 33554432,
+      "peak_payload_bytes": 37748736,
+      "batch_calls": 8,
+      "gemm_problems": 256,
+      "pack_bytes": 16777216,
+      "old_split_pack_bytes": 16777216,
+      "reduction_bytes": 0,
+      "logical_weight_bytes": 536870912,
+      "byte_products": 68719476736,
+      "limits": "one tier; no workspace, descriptors/status, transfers, pools, inputs/weights/other planes"
+    },
+    {
+      "tile": [
+        128,
+        4096,
+        16384
+      ],
+      "q": 1,
+      "final_bytes": 33554432,
+      "peak_payload_bytes": 41943040,
+      "batch_calls": 4,
+      "gemm_problems": 4,
+      "pack_bytes": 16777216,
+      "old_split_pack_bytes": 16777216,
+      "reduction_bytes": 0,
+      "logical_weight_bytes": 268435456,
+      "byte_products": 68719476736,
+      "limits": "one tier; no workspace, descriptors/status, transfers, pools, inputs/weights/other planes"
+    },
+    {
+      "tile": [
+        256,
+        4096,
+        16384
+      ],
+      "q": 1,
+      "final_bytes": 33554432,
+      "peak_payload_bytes": 50331648,
+      "batch_calls": 2,
+      "gemm_problems": 2,
+      "pack_bytes": 16777216,
+      "old_split_pack_bytes": 16777216,
+      "reduction_bytes": 0,
+      "logical_weight_bytes": 134217728,
+      "byte_products": 68719476736,
+      "limits": "one tier; no workspace, descriptors/status, transfers, pools, inputs/weights/other planes"
+    },
+    {
+      "tile": [
+        512,
+        4096,
+        16384
+      ],
+      "q": 1,
+      "final_bytes": 33554432,
+      "peak_payload_bytes": 67108864,
+      "batch_calls": 1,
+      "gemm_problems": 1,
+      "pack_bytes": 16777216,
+      "old_split_pack_bytes": 16777216,
+      "reduction_bytes": 0,
+      "logical_weight_bytes": 67108864,
+      "byte_products": 68719476736,
+      "limits": "one tier; no workspace, descriptors/status, transfers, pools, inputs/weights/other planes"
+    },
+    {
+      "tile": [
+        64,
+        128,
+        1024
+      ],
+      "q": 1,
+      "final_bytes": 33554432,
+      "peak_payload_bytes": 35848192,
+      "batch_calls": 4096,
+      "gemm_problems": 4096,
+      "pack_bytes": 16777216,
+      "old_split_pack_bytes": 536870912,
+      "reduction_bytes": 2097152,
+      "logical_weight_bytes": 536870912,
+      "byte_products": 68719476736,
+      "limits": "one tier; no workspace, descriptors/status, transfers, pools, inputs/weights/other planes"
+    },
+    {
+      "tile": [
+        64,
+        128,
+        1024
+      ],
+      "q": 4,
+      "final_bytes": 33554432,
+      "peak_payload_bytes": 36044800,
+      "batch_calls": 1024,
+      "gemm_problems": 4096,
+      "pack_bytes": 16777216,
+      "old_split_pack_bytes": 536870912,
+      "reduction_bytes": 2097152,
+      "logical_weight_bytes": 536870912,
+      "byte_products": 68719476736,
+      "limits": "one tier; no workspace, descriptors/status, transfers, pools, inputs/weights/other planes"
+    },
+    {
+      "tile": [
+        64,
+        128,
+        1024
+      ],
+      "q": 32,
+      "final_bytes": 33554432,
+      "peak_payload_bytes": 37879808,
+      "batch_calls": 128,
+      "gemm_problems": 4096,
+      "pack_bytes": 16777216,
+      "old_split_pack_bytes": 536870912,
+      "reduction_bytes": 2097152,
+      "logical_weight_bytes": 536870912,
+      "byte_products": 68719476736,
+      "limits": "one tier; no workspace, descriptors/status, transfers, pools, inputs/weights/other planes"
+    }
+  ],
+  "digest": "081ae55efaae287ea948693eb1c6124926c5f8d2e54d6489ca09eaa8f8b76cf3",
+  "elapsed_s": 0.4760854090000066,
+  "peak_rss_kib": 16852,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "device": "CPU only",
+  "estimated_memory_mib": 64,
+  "RLIMIT_AS_mib": 512,
+  "alarm_s": 59,
+  "script_sha256": "0513ee8178ddde53cf16aabb08ae793a1d3fedd11a6c8e74218a1f67654dc14a",
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "scope": "synthetic scheduling/ownership/arithmetic; no cuBLAS/CUDA/native witness/PCS/RNG/transcript/proof",
+  "actual_gpu_speedup": null,
+  "actual_end_to_end_saved_s": null,
+  "full_stack": {
+    "countable_tokens": 0,
+    "passes": 0,
+    "context_length": null,
+    "steady_tokens_per_s": null,
+    "total_tokens_per_s": null,
+    "startup_fraction": null,
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "proof_latency_s": null,
+    "proof_lag_s": null,
+    "pipeline_drain_s": null
+  }
+}

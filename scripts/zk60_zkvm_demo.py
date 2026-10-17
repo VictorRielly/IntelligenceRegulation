@@ -5,10 +5,21 @@ Drives one explicitly selected profile's prebuilt host and wrap binaries
 (``--profile block``, the default: zkvm-block/ ``zk60-block-{host,wrap}``;
 ``--profile token``: zkvm-model/ ``zk60-token-{host,wrap}``) through: prepare
 -> execute -> prove to a PRIVATE inner receipt -> local Groth16 wrap to a
-PUBLIC receipt -> fresh-process verification -> rejection controls. The block
-profile proves one fixed T32/d16/f16 block; the token profile one synthetic
+PUBLIC receipt -> fresh-process verification -> rejection controls -> a
+privacy `secret-scan` of everything published or logged. The block profile
+proves one fixed T32/d16/f16 block; the token profile one synthetic
 (untrained) two-block greedy next token, which stays private. Neither is the
 model-scale MVP, and nothing either records is a benchmark.
+
+The last stage checks for accidental literal disclosure: the run's own private values (both
+salts, the input words, the output words and the whole request), each as raw
+bytes and as its SHA-256 in three encodings, are searched for as byte
+substrings in every regular file of the public directory and in every file the
+runner writes outside `private/` (the logs and its own bookkeeping). A hit, or
+a file too large to read, fails the run; only marker kinds, file labels and
+counts are recorded only in the private run status. A private value is never written anywhere by that
+stage, and the scan is evidence of absence only for the files it actually
+read. A clean scan does not establish cryptographic zero knowledge.
 
 Standard library only. It never builds, downloads or selects a cloud prover:
 every binary, the r0vm server and the extracted native Groth16 tools are
@@ -45,6 +56,7 @@ PROFILES = {
                     "reexecuted in the RISC Zero zkVM",
         "model_magic": b"Z60MDL01", "model_bytes": 6184,
         "input_bytes": 1024, "input_desc": "512 LE i16",
+        "request_bytes": 1136, "output_bytes": 1024,
         "private_output": "output.i16",
         # zk60-block-{host,wrap} verify take no image argument; they check
         # their compiled image, which the runner binds by querying image-id.
@@ -58,6 +70,7 @@ PROFILES = {
                     "model, reexecuted in the RISC Zero zkVM; the token stays private",
         "model_magic": b"Z60TOK01", "model_bytes": 13928,
         "input_bytes": 128, "input_desc": "32 LE u32 token IDs in 0..31",
+        "request_bytes": 240, "output_bytes": 4,
         "private_output": "output.u32",
         # zk60-token-{host,wrap} verify REQUIRE the approved image id last.
         "verify_takes_image": True,
@@ -88,11 +101,22 @@ ACCEPTANCE_FLAGS = (
     "inner_receipt_refused_by_public_verifier",
     "malformed_receipts_rejected",
     "public_directory_audited",
+    "public_secret_scan_clean",
 )
 # Only a verifier that takes the image id as an argument can be shown to
 # refuse a wrong one.
-TOKEN_ACCEPTANCE_FLAGS = ACCEPTANCE_FLAGS[:-1] + ("wrong_image_id_rejected",
-                                                  ACCEPTANCE_FLAGS[-1])
+TOKEN_ACCEPTANCE_FLAGS = (ACCEPTANCE_FLAGS[:-2] + ("wrong_image_id_rejected",)
+                          + ACCEPTANCE_FLAGS[-2:])
+# P1 privacy evidence (secret-scan). Every private value of the run becomes a
+# search needle; a raw value shorter than MIN_RAW_MARKER_BYTES (the token
+# profile's 4-byte output) would match by chance, so only its digests are used.
+SECRET_MARKER_VALUES = ("input_salt", "output_salt", "input_words",
+                        "output_words", "request")
+SALT_OFFSETS = {"input_salt": (48, 80), "output_salt": (80, 112)}
+REQUEST_WORDS_AT = 112
+MIN_RAW_MARKER_BYTES = 8
+SCAN_MAX_BYTES = 64 * 1024 * 1024   # a larger file is reported unscanned, and fails
+SCAN_CHUNK_BYTES = 1024 * 1024
 DEFAULT_TIMEOUTS = {"short": 600, "prepare": 600, "execute": 3600, "prove": 14400,
                     "wrap": 14400, "hash": 3600}
 KILL_GRACE = 10.0
@@ -243,6 +267,150 @@ def check_private_mode(path, what):
         raise RunnerError(f"{what} is accessible to group/other")
 
 
+# ---- P1 privacy evidence: the secret scan --------------------------------
+def read_limited(path, limit):
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    with os.fdopen(fd, "rb") as source:
+        info = os.fstat(source.fileno())
+        if not stat.S_ISREG(info.st_mode) or info.st_size > limit:
+            raise RunnerError("secret scan: private file type/size refused")
+        data = source.read(limit + 1)
+        if len(data) > limit:
+            raise RunnerError("secret scan: private file grew beyond size limit")
+        return data
+
+
+def secret_markers(request, output, input_bytes):
+    """Search needles for one run's private values, built from the private files.
+
+    The values are the input salt, the output salt, the input words, the output
+    words and the whole request. Each contributes its SHA-256 as raw bytes and
+    as lowercase and uppercase hex ASCII, plus its raw bytes when they are at
+    least MIN_RAW_MARKER_BYTES long (a 4-byte token output would otherwise
+    match padding by chance). Returns (markers, skipped_raw, values_covered):
+    a list of (kind, needle) pairs, how many raw values were too short to
+    search for, and how many of SECRET_MARKER_VALUES produced any needle.
+
+    The needles are secrets. They are returned for searching only; no caller
+    may record, log or publish one, and nothing derived from them but a kind
+    name and a count leaves this module.
+    """
+    values = [(kind, request[a:b]) for kind, (a, b) in SALT_OFFSETS.items()]
+    values.append(("input_words", request[REQUEST_WORDS_AT:REQUEST_WORDS_AT + input_bytes]))
+    values.append(("output_words", output))
+    values.append(("request", request))
+    markers, skipped, covered, seen = [], 0, 0, set()
+    for kind, value in values:
+        if not value:
+            skipped += 1          # nothing to search for; not covered at all
+            continue
+        forms = []
+        if len(value) >= MIN_RAW_MARKER_BYTES:
+            forms.append((kind, value))
+        else:
+            skipped += 1
+        digest = hashlib.sha256(value).digest()
+        forms += [(kind + "_sha256", digest),
+                  (kind + "_sha256_hex_lower", digest.hex().encode()),
+                  (kind + "_sha256_hex_upper", digest.hex().upper().encode())]
+        covered += 1
+        for name, needle in forms:
+            if needle not in seen:       # two equal values search once
+                seen.add(needle)
+                markers.append((name, needle))
+    return markers, skipped, covered
+
+
+def scan_one_file(path, markers, overlap, chunk=SCAN_CHUNK_BYTES, limit=None):
+    """Marker kinds present in one regular file, read `chunk` bytes at a time.
+
+    Consecutive windows overlap by `overlap`, so a marker split across two
+    reads is still found. Opened O_NOFOLLOW: a symlink swapped in after the
+    caller's lstat is refused rather than followed.
+    """
+    found = []
+    limit = SCAN_MAX_BYTES if limit is None else limit
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    with os.fdopen(fd, "rb") as f:
+        info = os.fstat(f.fileno())
+        if not stat.S_ISREG(info.st_mode) or info.st_size > limit:
+            raise RunnerError("secret scan: opened file type/size refused")
+        tail, total = b"", 0
+        while True:
+            data = f.read(min(chunk, limit - total + 1))
+            if not data:
+                break
+            total += len(data)
+            if total > limit:
+                raise RunnerError("secret scan: file grew beyond size limit")
+            window = tail + data
+            for kind, needle in markers:
+                if kind not in found and needle in window:
+                    found.append(kind)
+            tail = window[-overlap:] if overlap else b""
+    return found
+
+
+def scan_targets(layout):
+    """Every file the runner publishes or writes outside the private directory.
+
+    That is the public directory, the runner's logs and the run's own
+    bookkeeping files, as (label, path) pairs. Labels are short and relative,
+    so no absolute path of a run can reach the public manifest. The private
+    directory, which legitimately holds the secrets, is never scanned.
+    """
+    targets = []
+
+    def walk(root, label):
+        for dirpath, dirnames, filenames in os.walk(root, followlinks=False):
+            dirnames.sort()
+            for name in sorted(filenames):
+                path = Path(dirpath) / name
+                targets.append((f"{label}/{os.path.relpath(path, root)}", path))
+
+    for root, label in ((layout.public, "public"), (layout.logs, "logs")):
+        if os.path.isdir(root) and not os.path.islink(root):
+            walk(root, label)
+    if os.path.isdir(layout.out):
+        for name in sorted(os.listdir(layout.out)):
+            path = layout.out / name
+            if stat.S_ISREG(os.lstat(path).st_mode):
+                targets.append((f"run/{name}", path))
+    return targets
+
+
+def scan_for_markers(targets, markers, limit=None):
+    """Search `targets` for `markers`; returns (files_scanned, found, not_scanned).
+
+    `found` entries name only the marker kind and the file label, never a
+    value. A file over the size limit, one that cannot be read, or one that is
+    no longer a regular file is listed in `not_scanned` instead: bytes that
+    were not read are not evidence, so the caller fails the stage.
+    """
+    if not markers:
+        raise RunnerError("secret scan: no markers to search for")
+    limit = SCAN_MAX_BYTES if limit is None else limit
+    overlap = max(len(needle) for _, needle in markers) - 1
+    scanned, found, not_scanned = 0, [], []
+    for label, path in targets:
+        try:
+            info = os.lstat(path)
+        except OSError:
+            not_scanned.append(label)
+            continue
+        if not stat.S_ISREG(info.st_mode) or info.st_size > limit:
+            not_scanned.append(label)
+            continue
+        try:
+            kinds = scan_one_file(path, markers, overlap, limit=limit)
+        except (OSError, RunnerError):
+            not_scanned.append(label)
+            continue
+        scanned += 1
+        found += [{"marker": kind, "file": label} for kind in kinds]
+    return scanned, found, not_scanned
+
+
 # ---- process control -----------------------------------------------------
 def scrubbed_env(threads):
     """Drop prover/cloud/debug switches (BONSAI_*, RISC0_*, HL_*, RUST_LOG)."""
@@ -374,6 +542,7 @@ class Runner:
         self.flags = {k: False for k in acceptance_flags(self.profile)}
         self.image_id = None     # set only once host == wrap (== the pin, if any)
         self.reported_ids = {}   # what each binary's image-id printed, if well formed
+        self.secret_scan_record = None   # counts and kinds only; never a value
         self.status = {"schema": SCHEMA, "profile": self.profile, "state": "starting",
                        "pid": os.getpid(), "removed_env_names": removed, "stages": [],
                        "error": None,
@@ -517,9 +686,17 @@ class Runner:
     def wrap(self):
         L = self.layout
         audit_public(L.public, PUBLIC_INPUTS)
+        # The wrap binary removes its private work directory after a verified
+        # wrap by default (the safe default for a hand run). This runner owns
+        # the whole private tree, keeps it at mode 0700 for diagnosis and never
+        # publishes it, so it asks the binary to keep the directory and checks
+        # its mode below.
+        keep_work = ["--keep-work"] if self.profile == "block" else []
+        # The separately versioned token wrapper currently retains private work
+        # by default and does not implement this block-only CLI flag.
         self.stage("groth16-wrap", [self.c["wrap"], "wrap", L.public / "policy.bin", L.inner,
                                     L.public / PUBLIC_RECEIPT, self.c["native_tools"],
-                                    L.wrap_work, self.c["r0vm"]], "wrap")
+                                    L.wrap_work, self.c["r0vm"], *keep_work], "wrap")
         audit_public(L.public, PUBLIC_INPUTS + (PUBLIC_RECEIPT,))
         check_private_mode(L.wrap_work, "wrap work directory")
         self.flags["groth16_wrapped"] = True
@@ -573,6 +750,51 @@ class Runner:
         audit_public(self.layout.public, PUBLIC_INPUTS + (PUBLIC_RECEIPT,))
         self.flags["public_directory_audited"] = True
 
+    def secret_scan(self):
+        """P1 evidence, after the wrap and its independent verification: no
+        private value of this run, and no SHA-256 of one, is in anything
+        published or logged.
+
+        The private request and output are read here only to build search
+        needles. Everything recorded afterwards -- the status file, the public
+        manifest, the failure message -- carries nothing but marker kinds, file
+        labels and counts, so the stage itself never writes a private value.
+        A hit fails the run; so does a file that could not be read in full,
+        because unread bytes are not evidence.
+
+        Known limits, both fail-closed or documented rather than hidden: a
+        degenerate private value (for example an all-zero input) can match
+        padding inside a legitimate public artifact and fail the run, and
+        `outcome.json` is written after this stage, so it is not scanned --
+        it is built only from public file hashes and flags.
+        """
+        L = self.layout
+        self.status["current_stage"] = "secret-scan"
+        self.save()
+        request = read_limited(L.request, self.p["request_bytes"])
+        output = read_limited(L.private / self.p["private_output"], self.p["output_bytes"])
+        if len(request) != self.p["request_bytes"] or len(output) != self.p["output_bytes"]:
+            raise RunnerError("secret-scan: private request/output framing changed")
+        markers, short, covered = secret_markers(request, output, self.p["input_bytes"])
+        del request, output
+        if covered != len(SECRET_MARKER_VALUES):
+            raise RunnerError(f"secret-scan: only {covered} of {len(SECRET_MARKER_VALUES)} "
+                              "private values could be read; no privacy evidence")
+        scanned, found, not_scanned = scan_for_markers(scan_targets(L), markers)
+        record = {"files_scanned": scanned, "markers": len(markers),
+                  "marker_values": covered, "raw_values_too_short": short,
+                  "found": found, "not_scanned": not_scanned}
+        self.secret_scan_record = record
+        self.status["secret_scan"] = record
+        self.save()
+        if not_scanned:
+            raise RunnerError("secret-scan: not scanned (too large, unreadable or not a "
+                              f"regular file): {', '.join(sorted(not_scanned))}")
+        if found:
+            raise RunnerError("secret-scan: private marker(s) in published or logged files: "
+                              + "; ".join(f"{e['marker']} in {e['file']}" for e in found))
+        self.flags["public_secret_scan_clean"] = True
+
     def public_manifest(self, failed_stage):
         """Minimal outcome: public hashes and flags only; no paths, values, logs or timings."""
         public = self.layout.public
@@ -599,6 +821,8 @@ class Runner:
             "image_ids_reported": dict(self.reported_ids),
             "expected_image_id_pinned": self.c.get("expected_image_id") is not None,
             "artifacts": artifacts,
+            # Counts depend on secret-value equality because marker needles are
+            # deduplicated. Keep counts, labels and findings in private status.
             "acceptance": dict(self.flags, all_passed=accepted),
             "not_claimed": not_claimed(self.profile),
             "policy_note": "obtain policy.bin and the image id through an independent "
@@ -632,6 +856,7 @@ class Runner:
                 self.verify()
                 self.controls()
                 self.final_audit()
+                self.secret_scan()
         except BaseException as exc:  # includes Interrupted; fail closed
             failed = self.status.get("current_stage") or "preflight"
             self.status["error"] = f"{type(exc).__name__}: {exc}"

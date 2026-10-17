@@ -1,0 +1,13 @@
+# ZKP efficiency explorer — durable state
+
+Cycle0036 COMPLETE: `20261012T172555Z-e8207bdf`; checkpoint 2026-10-12T17:45:06.160424+00:00, within 20 minutes. AGENDA and current target read; early checkpoint and snapshots retained. Interrupted cycle0035 evidence recovered: all ten Python pins match, carry/scratch negatives preserved, six source records appended with original access dates. Four current LIVE records; 197 source records total.
+
+Four-reduction canonical Fp2 multiplication/MAC passed independent integer-modular checks: 54,848 primitive cases, matching CUDA limb emulation, 64 complete-clause fixtures/256 schedules and 19 controls. Final 3.602309 seconds, 17,736 KiB RSS, seed2026101236; one pinned nice19 Core Ultra9 thread, 59-second/512-MiB caps. Global replacement removes 18.792% of counted scan/fold reductions; weighted-only 0.604% is included, not additional. No runtime gain measured. Compiler/carry/register costs and native masked/receipt/privacy gates remain open.
+
+Evidence: experiments/fp2-fused-mac-20261012/README.md. Owner handoff: handoffs/20261012-fp2-four-reduction.md. Rust/CUDA sketches are unapplied and uncompiled. Research-only writes excluding runtime; no GPU/build/install/Git/production/external writes or messages.
+
+Ranked queue: 1 owner GPU SC_SZC plus recurring witness; 2 owner exact full-K int16 down; 3 NEW tested global canonical Fp2 fusion; 4 compiled lookup denominators; 5 symbolic padded public causal-mask descriptors; 6 fresh fixed-context resident complete-pass startup/slope/drain; 7 query-bounded private operator composition; 8 demoted wide accumulation/row stepping. Costs and falsification conditions are in FINDINGS and the experiment README.
+
+Accepted independently verified complete private8B proofs/passes: 0; countable tokens: 0. Device CPU only; proof context null. Rates, startup fraction, witness/proof/serialization/independent-verification and lag/drain clocks unmeasured. No prefill/resident/decode proof. Target unchanged: >=50 proved tokens/s on a named high-end GPU; larger workloads allowed, fresh masks/full coverage/privacy required.
+
+Next LOCAL cycle: padded causal-mask descriptors versus explicit original-cube MLE, including valid T/Tk/head bounds, padding, off-domain points, folds, terminal values, mutation controls and predicate/scratch costs. Preserve masked future-score constraints. OWNER next: canonical callers/optimized assembly, then native frozen/masked/extension/refusal/device gates and guarded complete-slot/block A/B. No heavy job queued. Rotation: proof composition -> GPU NTT/commitments -> lookup/softmax -> sumcheck/GKR -> memory traffic/batching -> arithmetic. Respect the hourly cycle limit.

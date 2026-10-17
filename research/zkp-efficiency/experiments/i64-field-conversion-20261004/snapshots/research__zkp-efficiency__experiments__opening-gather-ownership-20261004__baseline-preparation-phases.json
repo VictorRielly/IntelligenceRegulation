@@ -1,0 +1,15 @@
+{
+  "scope": "same synthetic12-blockT512 diagnostic; unverified independently",
+  "source_log_sha256": "a1575d1d48025978d6470b30541756bcc2372c33030cde35afee6196c4c1364a",
+  "phases_s": {
+    "A: allocate + witness planes -> committed rows": 86.69099999999999,
+    "A: lookup values + the byte histogram": 4.231000000000001,
+    "A: exp/act indices + their two histograms": 0.5870000000000001
+  },
+  "line_counts": {
+    "A: allocate + witness planes -> committed rows": 12,
+    "A: lookup values + the byte histogram": 12,
+    "A: exp/act indices + their two histograms": 12
+  },
+  "note": "Preparatory parent phases include materialization, reads and histograms; not grouped-reader subphase times."
+}

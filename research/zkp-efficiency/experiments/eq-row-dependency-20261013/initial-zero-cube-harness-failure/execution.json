@@ -1,0 +1,9 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "experiments/eq-row-dependency-20261013/experiment.py"
+  ],
+  "exit_code": 1,
+  "wall_seconds": 0.11470005699811736
+}

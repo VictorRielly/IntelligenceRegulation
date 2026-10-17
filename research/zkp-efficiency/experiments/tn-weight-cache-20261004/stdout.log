@@ -1,0 +1,60 @@
+{
+  "run_identity": "20261004T070146Z-edcb9b00",
+  "seed": 2026100425,
+  "status": "pass",
+  "cases": 972,
+  "raw_dots": 24138,
+  "independent_packed_words": 46080,
+  "physical_TN_byte_outputs": 162864,
+  "accepted_plane_words": 23640,
+  "outcomes": {
+    "accepted": 393,
+    "residual 2": 282,
+    "FFN down": 297
+  },
+  "cache_builds": 1800,
+  "cache_hits": 3600,
+  "hash_bytes_on_cache_hits": 0,
+  "borrowed_entries": 42,
+  "control_count": 23,
+  "digest": "e934723e981f2bab165f811036c89f5e1b6abac099d8284c79e735e7cdd9ab45",
+  "residency_cases": 120,
+  "elapsed_s": 2.393366075999438,
+  "peak_rss_kib": 22068,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "device": "CPU only",
+  "synthetic_contexts": [
+    1,
+    3,
+    5,
+    3,
+    2,
+    4
+  ],
+  "estimated_memory_mib": 64,
+  "RLIMIT_AS_mib": 512,
+  "alarm_s": 59,
+  "script_sha256": "cefbca0496703f70efe4268ddc1a63c5d324045889fa972dc1c4566ebc081490",
+  "scope": "synthetic TN arithmetic, identity and count model; no CUDA/native witness/proof/RNG/transcript",
+  "actual_gpu_speedup": null,
+  "actual_end_to_end_saved_s": null,
+  "full_stack": {
+    "countable_tokens": 0,
+    "passes": 0,
+    "context_length": null,
+    "steady_tokens_per_s": null,
+    "total_tokens_per_s": null,
+    "startup_fraction": null,
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "proof_latency_s": null,
+    "proof_lag_s": null,
+    "pipeline_drain_s": null
+  }
+}

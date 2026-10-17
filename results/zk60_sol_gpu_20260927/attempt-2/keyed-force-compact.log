@@ -1,0 +1,11 @@
+binary=/tmp/zk60-sol-gpu-20260927/hashline/target/debug/deps/zk60_tagged_gpu_commit-0df3833a44036b12
+sha256=ac0ad3968a785d2fa3f7d53eb8523b6775054ed4432767a50f3c208f0ec9f223
+args=['tagged_column_hashes_and_full_commitment_match_cpu', '--exact', '--nocapture']
+mode=force
+
+running 1 test
+[ZK60] keyed gpu zk commit accepted
+test tagged_column_hashes_and_full_commitment_match_cpu ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.61s
+

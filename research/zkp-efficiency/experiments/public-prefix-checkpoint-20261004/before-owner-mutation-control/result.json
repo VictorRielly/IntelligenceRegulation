@@ -1,0 +1,1041 @@
+{
+  "run_id": "20261004T100146Z-8793c93e",
+  "seed": 2026100428,
+  "status": "pass",
+  "cases": 54,
+  "prefix_owners": 9,
+  "byte_comparisons": 432,
+  "canonical_bytes_compared": 1453392,
+  "resumed_hash_comparisons": 432,
+  "tensor_mutations": 702,
+  "branch_isolation_checks": 432,
+  "cold_import_scans": 54,
+  "schedule_checks": 5,
+  "controls": [
+    {
+      "name": "finalized prefix digest replaces incremental state",
+      "detected": "independent reference mismatch"
+    },
+    {
+      "name": "hash(prefix)||hash(suffix) replaces full digest",
+      "detected": "independent reference mismatch"
+    },
+    {
+      "name": "nested digest halves change statement",
+      "detected": "independent reference mismatch"
+    },
+    {
+      "name": "move FFN before dynamic RoPE to enlarge prefix",
+      "detected": "independent reference mismatch"
+    },
+    {
+      "name": "stale prefix after owned weight mutation",
+      "detected": "independent reference mismatch"
+    },
+    {
+      "name": "cache includes obsolete context-dependent length frame",
+      "detected": "independent reference mismatch"
+    },
+    {
+      "name": "RoPE byte count substitutes element count",
+      "detected": "independent reference mismatch"
+    },
+    {
+      "name": "swap equal-sized RoPE tables",
+      "detected": "independent reference mismatch"
+    },
+    {
+      "name": "omit unchanged FFN suffix",
+      "detected": "independent reference mismatch"
+    },
+    {
+      "name": "mutating shared state instead of cloning per context",
+      "detected": "independent reference mismatch"
+    },
+    {
+      "name": "omit original domain",
+      "detected": "independent reference mismatch"
+    },
+    {
+      "name": "wrong context length",
+      "detected": "table shape"
+    },
+    {
+      "name": "short cosine table",
+      "detected": "table shape"
+    },
+    {
+      "name": "wrong first sine row",
+      "detected": "rope structure"
+    },
+    {
+      "name": "changed exponent requires original exp structure check",
+      "detected": "exp structure"
+    },
+    {
+      "name": "wrong activation length",
+      "detected": "act domain/shape"
+    },
+    {
+      "name": "short FFN tensor",
+      "detected": "weight shape"
+    },
+    {
+      "name": "dirty FFN padding",
+      "detected": "support"
+    },
+    {
+      "name": "cached prefix does not bypass support validation",
+      "detected": "support"
+    },
+    {
+      "name": "empty stream cap",
+      "detected": "chunk cap"
+    },
+    {
+      "name": "owned snapshot survives caller mutation",
+      "detected": "unchanged original preimage"
+    }
+  ],
+  "control_count": 21,
+  "synthetic_shapes": [
+    {
+      "tokens": 1,
+      "width": 4,
+      "d": 4,
+      "hidden": 8,
+      "f": 8,
+      "hd": 2,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 2,
+      "width": 4,
+      "d": 4,
+      "hidden": 8,
+      "f": 8,
+      "hd": 2,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 3,
+      "width": 4,
+      "d": 4,
+      "hidden": 8,
+      "f": 8,
+      "hd": 2,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 8,
+      "width": 4,
+      "d": 4,
+      "hidden": 8,
+      "f": 8,
+      "hd": 2,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 16,
+      "width": 4,
+      "d": 4,
+      "hidden": 8,
+      "f": 8,
+      "hd": 2,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 33,
+      "width": 4,
+      "d": 4,
+      "hidden": 8,
+      "f": 8,
+      "hd": 2,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 1,
+      "width": 4,
+      "d": 4,
+      "hidden": 8,
+      "f": 8,
+      "hd": 2,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 2,
+      "width": 4,
+      "d": 4,
+      "hidden": 8,
+      "f": 8,
+      "hd": 2,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 3,
+      "width": 4,
+      "d": 4,
+      "hidden": 8,
+      "f": 8,
+      "hd": 2,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 8,
+      "width": 4,
+      "d": 4,
+      "hidden": 8,
+      "f": 8,
+      "hd": 2,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 16,
+      "width": 4,
+      "d": 4,
+      "hidden": 8,
+      "f": 8,
+      "hd": 2,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 33,
+      "width": 4,
+      "d": 4,
+      "hidden": 8,
+      "f": 8,
+      "hd": 2,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 1,
+      "width": 4,
+      "d": 4,
+      "hidden": 8,
+      "f": 8,
+      "hd": 2,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 2,
+      "width": 4,
+      "d": 4,
+      "hidden": 8,
+      "f": 8,
+      "hd": 2,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 3,
+      "width": 4,
+      "d": 4,
+      "hidden": 8,
+      "f": 8,
+      "hd": 2,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 8,
+      "width": 4,
+      "d": 4,
+      "hidden": 8,
+      "f": 8,
+      "hd": 2,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 16,
+      "width": 4,
+      "d": 4,
+      "hidden": 8,
+      "f": 8,
+      "hd": 2,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 33,
+      "width": 4,
+      "d": 4,
+      "hidden": 8,
+      "f": 8,
+      "hd": 2,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 1,
+      "width": 6,
+      "d": 8,
+      "hidden": 11,
+      "f": 16,
+      "hd": 2,
+      "kv": 2,
+      "slots": [
+        0,
+        2,
+        3
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 2,
+      "width": 6,
+      "d": 8,
+      "hidden": 11,
+      "f": 16,
+      "hd": 2,
+      "kv": 2,
+      "slots": [
+        0,
+        2,
+        3
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 3,
+      "width": 6,
+      "d": 8,
+      "hidden": 11,
+      "f": 16,
+      "hd": 2,
+      "kv": 2,
+      "slots": [
+        0,
+        2,
+        3
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 8,
+      "width": 6,
+      "d": 8,
+      "hidden": 11,
+      "f": 16,
+      "hd": 2,
+      "kv": 2,
+      "slots": [
+        0,
+        2,
+        3
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 16,
+      "width": 6,
+      "d": 8,
+      "hidden": 11,
+      "f": 16,
+      "hd": 2,
+      "kv": 2,
+      "slots": [
+        0,
+        2,
+        3
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 33,
+      "width": 6,
+      "d": 8,
+      "hidden": 11,
+      "f": 16,
+      "hd": 2,
+      "kv": 2,
+      "slots": [
+        0,
+        2,
+        3
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 1,
+      "width": 6,
+      "d": 8,
+      "hidden": 11,
+      "f": 16,
+      "hd": 2,
+      "kv": 2,
+      "slots": [
+        0,
+        2,
+        3
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 2,
+      "width": 6,
+      "d": 8,
+      "hidden": 11,
+      "f": 16,
+      "hd": 2,
+      "kv": 2,
+      "slots": [
+        0,
+        2,
+        3
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 3,
+      "width": 6,
+      "d": 8,
+      "hidden": 11,
+      "f": 16,
+      "hd": 2,
+      "kv": 2,
+      "slots": [
+        0,
+        2,
+        3
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 8,
+      "width": 6,
+      "d": 8,
+      "hidden": 11,
+      "f": 16,
+      "hd": 2,
+      "kv": 2,
+      "slots": [
+        0,
+        2,
+        3
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 16,
+      "width": 6,
+      "d": 8,
+      "hidden": 11,
+      "f": 16,
+      "hd": 2,
+      "kv": 2,
+      "slots": [
+        0,
+        2,
+        3
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 33,
+      "width": 6,
+      "d": 8,
+      "hidden": 11,
+      "f": 16,
+      "hd": 2,
+      "kv": 2,
+      "slots": [
+        0,
+        2,
+        3
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 1,
+      "width": 6,
+      "d": 8,
+      "hidden": 11,
+      "f": 16,
+      "hd": 2,
+      "kv": 2,
+      "slots": [
+        0,
+        2,
+        3
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 2,
+      "width": 6,
+      "d": 8,
+      "hidden": 11,
+      "f": 16,
+      "hd": 2,
+      "kv": 2,
+      "slots": [
+        0,
+        2,
+        3
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 3,
+      "width": 6,
+      "d": 8,
+      "hidden": 11,
+      "f": 16,
+      "hd": 2,
+      "kv": 2,
+      "slots": [
+        0,
+        2,
+        3
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 8,
+      "width": 6,
+      "d": 8,
+      "hidden": 11,
+      "f": 16,
+      "hd": 2,
+      "kv": 2,
+      "slots": [
+        0,
+        2,
+        3
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 16,
+      "width": 6,
+      "d": 8,
+      "hidden": 11,
+      "f": 16,
+      "hd": 2,
+      "kv": 2,
+      "slots": [
+        0,
+        2,
+        3
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 33,
+      "width": 6,
+      "d": 8,
+      "hidden": 11,
+      "f": 16,
+      "hd": 2,
+      "kv": 2,
+      "slots": [
+        0,
+        2,
+        3
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 1,
+      "width": 8,
+      "d": 8,
+      "hidden": 16,
+      "f": 16,
+      "hd": 4,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 2,
+      "width": 8,
+      "d": 8,
+      "hidden": 16,
+      "f": 16,
+      "hd": 4,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 3,
+      "width": 8,
+      "d": 8,
+      "hidden": 16,
+      "f": 16,
+      "hd": 4,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 8,
+      "width": 8,
+      "d": 8,
+      "hidden": 16,
+      "f": 16,
+      "hd": 4,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 16,
+      "width": 8,
+      "d": 8,
+      "hidden": 16,
+      "f": 16,
+      "hd": 4,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 33,
+      "width": 8,
+      "d": 8,
+      "hidden": 16,
+      "f": 16,
+      "hd": 4,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 1,
+      "width": 8,
+      "d": 8,
+      "hidden": 16,
+      "f": 16,
+      "hd": 4,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 2,
+      "width": 8,
+      "d": 8,
+      "hidden": 16,
+      "f": 16,
+      "hd": 4,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 3,
+      "width": 8,
+      "d": 8,
+      "hidden": 16,
+      "f": 16,
+      "hd": 4,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 8,
+      "width": 8,
+      "d": 8,
+      "hidden": 16,
+      "f": 16,
+      "hd": 4,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 16,
+      "width": 8,
+      "d": 8,
+      "hidden": 16,
+      "f": 16,
+      "hd": 4,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 33,
+      "width": 8,
+      "d": 8,
+      "hidden": 16,
+      "f": 16,
+      "hd": 4,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 1,
+      "width": 8,
+      "d": 8,
+      "hidden": 16,
+      "f": 16,
+      "hd": 4,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 2,
+      "width": 8,
+      "d": 8,
+      "hidden": 16,
+      "f": 16,
+      "hd": 4,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 3,
+      "width": 8,
+      "d": 8,
+      "hidden": 16,
+      "f": 16,
+      "hd": 4,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 8,
+      "width": 8,
+      "d": 8,
+      "hidden": 16,
+      "f": 16,
+      "hd": 4,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 16,
+      "width": 8,
+      "d": 8,
+      "hidden": 16,
+      "f": 16,
+      "hd": 4,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    },
+    {
+      "tokens": 33,
+      "width": 8,
+      "d": 8,
+      "hidden": 16,
+      "f": 16,
+      "hd": 4,
+      "kv": 1,
+      "slots": [
+        0,
+        1
+      ],
+      "fe": 12
+    }
+  ],
+  "count_only_unadmitted_model": [
+    {
+      "context_count_only": 512,
+      "layers": 32,
+      "prefix_bytes_per_block": 41947207,
+      "suffix_bytes_per_block": 201857600,
+      "model_prefix_bytes": 1342310624,
+      "model_suffix_bytes": 6459443200,
+      "model_full_preimage_bytes": 7801753824,
+      "maximum_reusable_hash_byte_fraction": 0.1720524197867846,
+      "unavoidable_suffix_hash_byte_fraction": 0.8279475802132154,
+      "idealized_hash_byte_ratio_only": 1.2078059334897473,
+      "native_checkpoint_state_size_bytes": null,
+      "native_prefix_support_scan_bytes_per_new_constructor": 1342308352,
+      "native_prefix_copy_payload_bytes_per_new_constructor": 1342308352
+    },
+    {
+      "context_count_only": 1024,
+      "layers": 32,
+      "prefix_bytes_per_block": 41947207,
+      "suffix_bytes_per_block": 202381888,
+      "model_prefix_bytes": 1342310624,
+      "model_suffix_bytes": 6476220416,
+      "model_full_preimage_bytes": 7818531040,
+      "maximum_reusable_hash_byte_fraction": 0.17168322503711644,
+      "unavoidable_suffix_hash_byte_fraction": 0.8283167749628836,
+      "idealized_hash_byte_ratio_only": 1.2072675940250148,
+      "native_checkpoint_state_size_bytes": null,
+      "native_prefix_support_scan_bytes_per_new_constructor": 1342308352,
+      "native_prefix_copy_payload_bytes_per_new_constructor": 1342308352
+    },
+    {
+      "context_count_only": 2048,
+      "layers": 32,
+      "prefix_bytes_per_block": 41947207,
+      "suffix_bytes_per_block": 203430464,
+      "model_prefix_bytes": 1342310624,
+      "model_suffix_bytes": 6509774848,
+      "model_full_preimage_bytes": 7852085472,
+      "maximum_reusable_hash_byte_fraction": 0.17094956859379434,
+      "unavoidable_suffix_hash_byte_fraction": 0.8290504314062057,
+      "idealized_hash_byte_ratio_only": 1.2061992396576355,
+      "native_checkpoint_state_size_bytes": null,
+      "native_prefix_support_scan_bytes_per_new_constructor": 1342308352,
+      "native_prefix_copy_payload_bytes_per_new_constructor": 1342308352
+    },
+    {
+      "context_count_only": 4096,
+      "layers": 32,
+      "prefix_bytes_per_block": 41947207,
+      "suffix_bytes_per_block": 205527616,
+      "model_prefix_bytes": 1342310624,
+      "model_suffix_bytes": 6576883712,
+      "model_full_preimage_bytes": 7919194336,
+      "maximum_reusable_hash_byte_fraction": 0.16950090716904967,
+      "unavoidable_suffix_hash_byte_fraction": 0.8304990928309504,
+      "idealized_hash_byte_ratio_only": 1.2040952345790845,
+      "native_checkpoint_state_size_bytes": null,
+      "native_prefix_support_scan_bytes_per_new_constructor": 1342308352,
+      "native_prefix_copy_payload_bytes_per_new_constructor": 1342308352
+    },
+    {
+      "context_count_only": 8192,
+      "layers": 32,
+      "prefix_bytes_per_block": 41947207,
+      "suffix_bytes_per_block": 209721920,
+      "model_prefix_bytes": 1342310624,
+      "model_suffix_bytes": 6711101440,
+      "model_full_preimage_bytes": 8053412064,
+      "maximum_reusable_hash_byte_fraction": 0.16667601425740233,
+      "unavoidable_suffix_hash_byte_fraction": 0.8333239857425977,
+      "idealized_hash_byte_ratio_only": 1.2000134606816493,
+      "native_checkpoint_state_size_bytes": null,
+      "native_prefix_support_scan_bytes_per_new_constructor": 1342308352,
+      "native_prefix_copy_payload_bytes_per_new_constructor": 1342308352
+    }
+  ],
+  "count_only_schedules": [
+    {
+      "mode": "resident immutable weights, four DIFFERENT contexts",
+      "contexts_count_only": [
+        512,
+        1024,
+        2048,
+        4096
+      ],
+      "baseline_hash_bytes": 31391564672,
+      "checkpoint_hash_bytes": 27364632800,
+      "removed_hash_bytes": 4026931872,
+      "removed_byte_fraction": 0.12828069941960746
+    },
+    {
+      "mode": "same context comparison; complete digest cache strictly dominates after first hash",
+      "calls_count_only": 1,
+      "uncached_hash_bytes": 7801753824,
+      "prefix_checkpoint_hash_bytes": 7801753824,
+      "prior_complete_digest_cache_hash_bytes": 7801753824
+    },
+    {
+      "mode": "same context comparison; complete digest cache strictly dominates after first hash",
+      "calls_count_only": 2,
+      "uncached_hash_bytes": 15603507648,
+      "prefix_checkpoint_hash_bytes": 14261197024,
+      "prior_complete_digest_cache_hash_bytes": 7801753824
+    },
+    {
+      "mode": "same context comparison; complete digest cache strictly dominates after first hash",
+      "calls_count_only": 8,
+      "uncached_hash_bytes": 62414030592,
+      "prefix_checkpoint_hash_bytes": 53017856224,
+      "prior_complete_digest_cache_hash_bytes": 7801753824
+    },
+    {
+      "mode": "same context comparison; complete digest cache strictly dominates after first hash",
+      "calls_count_only": 32,
+      "uncached_hash_bytes": 249656122368,
+      "prefix_checkpoint_hash_bytes": 208044493024,
+      "prior_complete_digest_cache_hash_bytes": 7801753824
+    }
+  ],
+  "elapsed_seconds": 0.7995626979991357,
+  "peak_rss_kib": 18944,
+  "resources": {
+    "threads": 1,
+    "affinity": [
+      0
+    ],
+    "nice": 19,
+    "wall_alarm_s": 59,
+    "CPU_limit_s": 59,
+    "address_space_cap_MiB": 512,
+    "estimated_memory_MiB": 64
+  },
+  "script_sha256": "f013d026aa3e62f60f9c958c944500478093b230695e8640ef68561b83d4c98f",
+  "reference_support_sha256": "e4b41e9a3b89b7f8f22437d15c23cc16f50e877fd49bafeb15380feed571b58f",
+  "proof_accounting": {
+    "context_length": null,
+    "steady_state_tokens_per_s": null,
+    "total_workload_tokens_per_s": null,
+    "startup_fraction": null,
+    "startup_s": null,
+    "total_workload_s": null,
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "independent_verification_s": null,
+    "proof_latency_s": null,
+    "proof_lag_s": null,
+    "pipeline_drain_s": null,
+    "accepted_complete_private8b_passes": 0,
+    "countable_tokens": 0,
+    "passes": 0,
+    "device": "CPU only",
+    "prefill": "none",
+    "resident_passes": "none",
+    "decode": "none"
+  },
+  "limits": [
+    "SHA256 models incremental state; native BLAKE3 Clone/bytes unexecuted",
+    "No native/RNG/transcript/PCS/proof/concurrency/ownership enforcement tested",
+    "Validation/copy scans remain; cached words require exact immutable model authority",
+    "Logical byte ratios are not runtime speed/DRAM traffic or peak memory",
+    "No actual 8B allocation, admitted profile, private data or GPU job"
+  ]
+}

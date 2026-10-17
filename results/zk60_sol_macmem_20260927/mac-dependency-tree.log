@@ -1,0 +1,7 @@
+libc v0.2.189
+├── cpufeatures v0.2.17
+│   └── sha2 v0.10.9
+│       ├── hashline v0.1.0 (/tmp/zk60-sol-macmem-20260927/hashline)
+│       └── zkp-core v0.1.0 (/tmp/zk60-sol-macmem-20260927/zkp-core)
+│           └── hashline v0.1.0 (/tmp/zk60-sol-macmem-20260927/hashline)
+└── hashline v0.1.0 (/tmp/zk60-sol-macmem-20260927/hashline)

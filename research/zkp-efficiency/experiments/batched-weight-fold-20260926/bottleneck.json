@@ -1,0 +1,198 @@
+{
+  "comparison_path": "/home/victor/IntelligenceRegulation/results/zk60_grouped_rounds_20260926/dense-ab-1/comparison.json",
+  "comparison_sha256": "d8aeddaa9ef3f04427b32d65944cc556b2b672d896821d2c9733b158dbaa4f44",
+  "runs": [
+    {
+      "summary": {
+        "name": "02-old",
+        "arm": "old",
+        "warmup": false,
+        "command": [
+          "/tmp/zk60-encode-20260922/hashline/target/release/deps/hashline-51ac3065196fcde4",
+          "--ignored",
+          "--exact",
+          "private_block::rulings_tests::private_block_125m_one_block",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 44.19364338001469,
+        "log_sha256": "71b07b6b1290a58fb4388c7b77682560c9ac2623a3e642cc54a765f882d030bd",
+        "prove_seconds": 37.63,
+        "verify_seconds": 0.86,
+        "receipt_bytes": 40783352,
+        "peak_rss_mib": 10523.0,
+        "witness_seconds": 5.53
+      },
+      "log_path": "/home/victor/IntelligenceRegulation/results/zk60_grouped_rounds_20260926/dense-ab-1/02-old.log",
+      "sha256": "71b07b6b1290a58fb4388c7b77682560c9ac2623a3e642cc54a765f882d030bd",
+      "selected_lines": [
+        "PB-TIMING prove | A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |    7.280 |  19.3% |      5681 rows |      5034 |      5034 |",
+        "PB-TIMING prove | H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |   10.008 |  26.6% |      7120 rows |      8589 |      8589 |",
+        "PB-TIMING prove | slot 11 13G gate matmul (private)            | feed-forward |    0.009 |   0.0% |      2048 cube |      8590 |      8909 |",
+        "PB-TIMING prove | slot 12 13U up matmul (private)              | feed-forward |    0.008 |   0.0% |      2048 cube |      8590 |      8909 |",
+        "PB-TIMING prove | slot 13 13D down matmul (private)            | feed-forward |    0.015 |   0.0% |      4096 cube |      8590 |      8909 |",
+        "PB-TIMING prove | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |   10.050 |  26.7% |   8388608 cube |      8604 |     10523 |",
+        "PB-TIMING prove | WALL CLOCK OF THE CALL                       |              |   37.630 | 100.0% |",
+        "PB-TIMING prove | encode to bytes (wire::encode)               | frame        |    0.029 |        | 40783352 B     |       542 |     10523 |",
+        "PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.849 | 100.0% |",
+        "125M ONE BLOCK: prove 37.63 s, verify from bytes 0.86 s, receipt 40783352 B, peak RSS 10523 MiB (10.28 GiB), witness build 5.53 s"
+      ],
+      "accounting": {
+        "prove_s": 37.63,
+        "witness_s": 5.53,
+        "serialization_s": 0.029,
+        "known_readiness_s": 43.18900000000001,
+        "verify_internal_s": 0.849,
+        "verify_from_bytes_s": 0.86,
+        "ffn_matmul_slots_s": 0.032,
+        "entire_three_slots_ceiling_fraction": 0.0007409294033202898,
+        "conditions": "125M synthetic dense block, shared CPU two Rayon threads; rounded millisecond slot clocks include definition+run; not fold-only attribution or 8B prediction"
+      }
+    },
+    {
+      "summary": {
+        "name": "03-new",
+        "arm": "new",
+        "warmup": false,
+        "command": [
+          "/tmp/zk60-groups-20260926/hashline/target/release/deps/hashline-903cb4da45f9493b",
+          "--ignored",
+          "--exact",
+          "private_block::rulings_tests::private_block_125m_one_block",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 41.399249623995274,
+        "log_sha256": "c6463302fc2091ac607e0cb3a9c919457c1d0b02ed780768815bcc84ac80c2ae",
+        "prove_seconds": 34.86,
+        "verify_seconds": 0.91,
+        "receipt_bytes": 40783352,
+        "peak_rss_mib": 10471.0,
+        "witness_seconds": 5.43
+      },
+      "log_path": "/home/victor/IntelligenceRegulation/results/zk60_grouped_rounds_20260926/dense-ab-1/03-new.log",
+      "sha256": "c6463302fc2091ac607e0cb3a9c919457c1d0b02ed780768815bcc84ac80c2ae",
+      "selected_lines": [
+        "PB-TIMING prove | A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |    7.362 |  21.1% |      5681 rows |      5034 |      5034 |",
+        "PB-TIMING prove | H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |    9.377 |  26.9% |      7120 rows |      8547 |      8547 |",
+        "PB-TIMING prove | slot 11 13G gate matmul (private)            | feed-forward |    0.010 |   0.0% |      2048 cube |      8548 |      8867 |",
+        "PB-TIMING prove | slot 12 13U up matmul (private)              | feed-forward |    0.009 |   0.0% |      2048 cube |      8548 |      8867 |",
+        "PB-TIMING prove | slot 13 13D down matmul (private)            | feed-forward |    0.016 |   0.0% |      4096 cube |      8548 |      8867 |",
+        "PB-TIMING prove | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    8.601 |  24.7% |   8388608 cube |      8552 |     10471 |",
+        "PB-TIMING prove | WALL CLOCK OF THE CALL                       |              |   34.861 | 100.0% |",
+        "PB-TIMING prove | encode to bytes (wire::encode)               | frame        |    0.031 |        | 40783352 B     |       490 |     10471 |",
+        "PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.900 | 100.0% |",
+        "125M ONE BLOCK: prove 34.86 s, verify from bytes 0.91 s, receipt 40783352 B, peak RSS 10471 MiB (10.23 GiB), witness build 5.43 s"
+      ],
+      "accounting": {
+        "prove_s": 34.861,
+        "witness_s": 5.43,
+        "serialization_s": 0.031,
+        "known_readiness_s": 40.321999999999996,
+        "verify_internal_s": 0.9,
+        "verify_from_bytes_s": 0.91,
+        "ffn_matmul_slots_s": 0.035,
+        "entire_three_slots_ceiling_fraction": 0.0008680124993799913,
+        "conditions": "125M synthetic dense block, shared CPU two Rayon threads; rounded millisecond slot clocks include definition+run; not fold-only attribution or 8B prediction"
+      }
+    },
+    {
+      "summary": {
+        "name": "04-new",
+        "arm": "new",
+        "warmup": false,
+        "command": [
+          "/tmp/zk60-groups-20260926/hashline/target/release/deps/hashline-903cb4da45f9493b",
+          "--ignored",
+          "--exact",
+          "private_block::rulings_tests::private_block_125m_one_block",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 40.0557809760212,
+        "log_sha256": "682906c731bd8ee573ca533bff2e07dc839439ededfa1fc857e75069a82bfc8f",
+        "prove_seconds": 33.31,
+        "verify_seconds": 0.82,
+        "receipt_bytes": 40783352,
+        "peak_rss_mib": 10526.0,
+        "witness_seconds": 5.76
+      },
+      "log_path": "/home/victor/IntelligenceRegulation/results/zk60_grouped_rounds_20260926/dense-ab-1/04-new.log",
+      "sha256": "682906c731bd8ee573ca533bff2e07dc839439ededfa1fc857e75069a82bfc8f",
+      "selected_lines": [
+        "PB-TIMING prove | A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |    7.310 |  21.9% |      5681 rows |      5034 |      5034 |",
+        "PB-TIMING prove | H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |    9.593 |  28.8% |      7120 rows |      8590 |      8590 |",
+        "PB-TIMING prove | slot 11 13G gate matmul (private)            | feed-forward |    0.009 |   0.0% |      2048 cube |      8591 |      8910 |",
+        "PB-TIMING prove | slot 12 13U up matmul (private)              | feed-forward |    0.009 |   0.0% |      2048 cube |      8591 |      8910 |",
+        "PB-TIMING prove | slot 13 13D down matmul (private)            | feed-forward |    0.014 |   0.0% |      4096 cube |      8591 |      8910 |",
+        "PB-TIMING prove | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    7.832 |  23.5% |   8388608 cube |      8607 |     10526 |",
+        "PB-TIMING prove | WALL CLOCK OF THE CALL                       |              |   33.315 | 100.0% |",
+        "PB-TIMING prove | encode to bytes (wire::encode)               | frame        |    0.020 |        | 40783352 B     |       577 |     10526 |",
+        "PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.810 | 100.0% |",
+        "125M ONE BLOCK: prove 33.31 s, verify from bytes 0.82 s, receipt 40783352 B, peak RSS 10526 MiB (10.28 GiB), witness build 5.76 s"
+      ],
+      "accounting": {
+        "prove_s": 33.315,
+        "witness_s": 5.76,
+        "serialization_s": 0.02,
+        "known_readiness_s": 39.095,
+        "verify_internal_s": 0.81,
+        "verify_from_bytes_s": 0.82,
+        "ffn_matmul_slots_s": 0.032,
+        "entire_three_slots_ceiling_fraction": 0.0008185189921984909,
+        "conditions": "125M synthetic dense block, shared CPU two Rayon threads; rounded millisecond slot clocks include definition+run; not fold-only attribution or 8B prediction"
+      }
+    },
+    {
+      "summary": {
+        "name": "05-old",
+        "arm": "old",
+        "warmup": false,
+        "command": [
+          "/tmp/zk60-encode-20260922/hashline/target/release/deps/hashline-51ac3065196fcde4",
+          "--ignored",
+          "--exact",
+          "private_block::rulings_tests::private_block_125m_one_block",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 43.36355424299836,
+        "log_sha256": "52b3864d24183171faed47abf7c39e241baca6d8fbe6431489f2596fb9a79818",
+        "prove_seconds": 36.84,
+        "verify_seconds": 0.87,
+        "receipt_bytes": 40783352,
+        "peak_rss_mib": 10526.0,
+        "witness_seconds": 5.49
+      },
+      "log_path": "/home/victor/IntelligenceRegulation/results/zk60_grouped_rounds_20260926/dense-ab-1/05-old.log",
+      "sha256": "52b3864d24183171faed47abf7c39e241baca6d8fbe6431489f2596fb9a79818",
+      "selected_lines": [
+        "PB-TIMING prove | A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |    7.186 |  19.5% |      5681 rows |      5034 |      5034 |",
+        "PB-TIMING prove | H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |    9.829 |  26.7% |      7120 rows |      8582 |      8582 |",
+        "PB-TIMING prove | slot 11 13G gate matmul (private)            | feed-forward |    0.008 |   0.0% |      2048 cube |      8583 |      8902 |",
+        "PB-TIMING prove | slot 12 13U up matmul (private)              | feed-forward |    0.008 |   0.0% |      2048 cube |      8583 |      8902 |",
+        "PB-TIMING prove | slot 13 13D down matmul (private)            | feed-forward |    0.013 |   0.0% |      4096 cube |      8583 |      8902 |",
+        "PB-TIMING prove | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |   10.085 |  27.4% |   8388608 cube |      8607 |     10526 |",
+        "PB-TIMING prove | WALL CLOCK OF THE CALL                       |              |   36.836 | 100.0% |",
+        "PB-TIMING prove | encode to bytes (wire::encode)               | frame        |    0.024 |        | 40783352 B     |       577 |     10526 |",
+        "PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.859 | 100.0% |",
+        "125M ONE BLOCK: prove 36.84 s, verify from bytes 0.87 s, receipt 40783352 B, peak RSS 10526 MiB (10.28 GiB), witness build 5.49 s"
+      ],
+      "accounting": {
+        "prove_s": 36.836,
+        "witness_s": 5.49,
+        "serialization_s": 0.024,
+        "known_readiness_s": 42.35,
+        "verify_internal_s": 0.859,
+        "verify_from_bytes_s": 0.87,
+        "ffn_matmul_slots_s": 0.028999999999999998,
+        "entire_three_slots_ceiling_fraction": 0.0006847697756788665,
+        "conditions": "125M synthetic dense block, shared CPU two Rayon threads; rounded millisecond slot clocks include definition+run; not fold-only attribution or 8B prediction"
+      }
+    }
+  ]
+}

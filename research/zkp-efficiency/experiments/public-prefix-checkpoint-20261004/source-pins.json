@@ -1,0 +1,140 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block.rs",
+    "snapshot": "snapshots/ops__zkp-mvp__candidate__hashline__src__private_block.rs",
+    "sha256": "9540a7e60a2d07f2988d57267e9971c618627407dc9109f691656ea300c5b96d",
+    "bytes": 48544
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/run.rs",
+    "snapshot": "snapshots/ops__zkp-mvp__candidate__hashline__src__private_block__run.rs",
+    "sha256": "f39aec7925ba27d51361cd3935e874b1301d7595be81f3199d9d2941c0f818e0",
+    "bytes": 46667
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/shape.rs",
+    "snapshot": "snapshots/ops__zkp-mvp__candidate__hashline__src__private_block__shape.rs",
+    "sha256": "dbf4e2bc36e9f74c432d6e529b229e3a593e794271fd8593d1412b8312403911",
+    "bytes": 71241
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/Cargo.lock",
+    "snapshot": "snapshots/ops__zkp-mvp__candidate__hashline__Cargo.lock",
+    "sha256": "722437e6295d83d4478ac7d0f1758053516058098db7d64fb11448fb70c2b372",
+    "bytes": 8666
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block.rs",
+    "snapshot": "snapshots/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block.rs",
+    "sha256": "9540a7e60a2d07f2988d57267e9971c618627407dc9109f691656ea300c5b96d",
+    "bytes": 48544
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_mvp_20260929/baseline-stack-gpu-attempt2/report.json",
+    "snapshot": "snapshots/results__zk60_mvp_20260929__baseline-stack-gpu-attempt2__report.json",
+    "sha256": "ae971925a0c2ffb0c7d04a4722dc39903308639fd449708df722e14f4a69687e",
+    "bytes": 1157
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_mvp_20260929/cli-stack-gpu/report.json",
+    "snapshot": "snapshots/results__zk60_mvp_20260929__cli-stack-gpu__report.json",
+    "sha256": "6e9bf57d050216be3110c71b67095bd6b7a7e77934196592c8cd6d0c6fd62781",
+    "bytes": 21117
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_mvp_20260929/llama3-8b/config.json",
+    "snapshot": "snapshots/results__zk60_mvp_20260929__llama3-8b__config.json",
+    "sha256": "2430cee764b6530ff8673cf9ba8561e1d5a33152d503cd0de909ff5718261441",
+    "bytes": 654
+  },
+  {
+    "path": null,
+    "snapshot": "snapshots/AGENDA.md",
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603
+  },
+  {
+    "path": null,
+    "snapshot": "snapshots/CLAUDE.md",
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089
+  },
+  {
+    "path": null,
+    "snapshot": "snapshots/FINDINGS.md",
+    "sha256": "2eb6d1ea8d6b8161a2970cf18f7ddd0dcdcb35571bbf3b016250d8e6be2769b4",
+    "bytes": 190481
+  },
+  {
+    "path": null,
+    "snapshot": "snapshots/PROGRESS.md",
+    "sha256": "55c30b6d9365067ae6b96fa1a90dc646d4e6198a96e82bc0c7692ce8c33c22c9",
+    "bytes": 2065
+  },
+  {
+    "path": null,
+    "snapshot": "snapshots/STATE.md",
+    "sha256": "c1bff7a57448d186102fbb095961a225e56eaa8b2791f4bf9e0dde6964501307",
+    "bytes": 4825
+  },
+  {
+    "path": null,
+    "snapshot": "snapshots/docs__zkmatrix-poc__MVP_STATUS.md",
+    "sha256": "b41ed63744b5418dcd8c4ff23d13021a44c4c78a47030db608d24e4c65c8cf51",
+    "bytes": 57683
+  },
+  {
+    "path": null,
+    "snapshot": "snapshots/docs__zkmatrix-poc__ZK60_CODEX_FABLE_COORDINATION.md",
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889
+  },
+  {
+    "path": null,
+    "snapshot": "snapshots/docs__zkmatrix-poc__ZK60_DECISIONS.md",
+    "sha256": "5077bc4b590ce8d95c238c3b5e35d8122872c56e5f1e6324c81d78460e0e90c5",
+    "bytes": 57961
+  },
+  {
+    "path": null,
+    "snapshot": "snapshots/docs__zkmatrix-poc__ZK60_THROUGHPUT_TARGET.md",
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941
+  },
+  {
+    "path": null,
+    "snapshot": "snapshots/sources.jsonl",
+    "sha256": "224aa84260b34675480b92509ab622e2bb31606d819e6bb3d2833787f45deef2",
+    "bytes": 151153
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/full-public-digest-cache-20261004/experiment.py",
+    "snapshot": "reference_support.py",
+    "sha256": "e4b41e9a3b89b7f8f22437d15c23cc16f50e877fd49bafeb15380feed571b58f",
+    "bytes": 17712
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/sumcheck.rs",
+    "snapshot": "snapshots/ops__zkp-mvp__candidate__hashline__src__sumcheck.rs",
+    "sha256": "f097dd71fab7888e95e61a29ab035b13153313d068e7547d91acbfd20c7bc566",
+    "bytes": 102
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/argument.rs",
+    "snapshot": "snapshots/ops__zkp-mvp__candidate__hashline__src__private_block__argument.rs",
+    "sha256": "b3b02383a14a64a12194a465873b76f78406e5d3115b0c8157fde2882d22c865",
+    "bytes": 99535
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/zkp-core/src/sumcheck/rounds.rs",
+    "snapshot": "snapshots/ops__zkp-mvp__candidate__zkp-core__src__sumcheck__rounds.rs",
+    "sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df",
+    "bytes": 7092
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/zkp-core/src/sumcheck/grouped.rs",
+    "snapshot": "snapshots/ops__zkp-mvp__candidate__zkp-core__src__sumcheck__grouped.rs",
+    "sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b",
+    "bytes": 7903
+  }
+]

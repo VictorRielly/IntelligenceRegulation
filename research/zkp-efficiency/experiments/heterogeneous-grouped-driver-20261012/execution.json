@@ -1,0 +1,41 @@
+{
+  "command": "python3 -B experiments/heterogeneous-grouped-driver-20261012/experiment.py",
+  "session_id": 10472,
+  "exit_code": 0,
+  "elapsed_seconds": 14.444178964000457,
+  "peak_rss_kib": 22808,
+  "output": {
+    "run_id": "20261012T212555Z-0814839f",
+    "status": "pass",
+    "seed": 2026101240,
+    "counts": {
+      "fixtures": 32,
+      "independent_table_finals": 896,
+      "candidate_table_finals": 2688,
+      "schedules": 96,
+      "extension_table_checks": 8064,
+      "extension_polynomial_checks": 288,
+      "dense_grouped_schedules": 32,
+      "independent_group_samples": 2520,
+      "dense_reference_samples": 720,
+      "candidate_group_samples": 7560,
+      "actual_group_claim_checks": 1080,
+      "terminal_group_claim_checks": 216,
+      "split_eq_entries_built": 5568,
+      "split_eq_peak_entries": 16,
+      "table_endpoint_reads": 259392,
+      "bracket_calls_0": 22332,
+      "bracket_calls_1": 13108,
+      "bracket_calls_2": 13114,
+      "group_recoveries": 489,
+      "zero_factor_explicit_fallbacks": 375,
+      "offset_round_samples": 112,
+      "offset_fixtures": 7
+    },
+    "control_count": 18,
+    "elapsed_seconds": 14.444178964000457,
+    "peak_rss_kib": 22808,
+    "digest_sha256": "637269cba6b357686b315b41e040f6ed89cfdb374fd78b0e10bca286acadbd27"
+  },
+  "captured_from": "exec session terminal stdout, saved without alteration of JSON values"
+}

@@ -1,0 +1,33 @@
+{
+  "status": "pass",
+  "counts": {
+    "fixtures": 32,
+    "ordered_final_checks": 3584,
+    "other_group_call_invariance": 128,
+    "scan_and_fold_invariance": 64,
+    "extension_table_checks": 5376,
+    "extension_polynomial_checks": 192,
+    "independent_group_samples": 2520,
+    "candidate_group_samples": 5040,
+    "actual_claim_checks": 720,
+    "terminal_group_checks": 144,
+    "split_eq_entries_built": 3712,
+    "table_endpoint_reads": 172928,
+    "weight_multiplications_0": 3088,
+    "weight_multiplications_2": 3088,
+    "bracket_calls_0": 15059,
+    "bracket_calls_2": 8868,
+    "weight_multiplications_1": 752,
+    "extra_host_endpoint_reads": 3168,
+    "extra_host_differences": 1504,
+    "bracket_calls_1": 2244,
+    "extra_host_sample_additions": 3008,
+    "multiplicity_scalings": 720,
+    "group_recoveries": 316,
+    "zero_factor_explicit_fallbacks": 260
+  },
+  "control_count": 13,
+  "elapsed_seconds": 10.821526560001075,
+  "peak_rss_kib": 22528,
+  "digest_sha256": "82e28493a042557cf897ddc82e2c4a255db594edc97c03f693f44f95fee8c0c1"
+}

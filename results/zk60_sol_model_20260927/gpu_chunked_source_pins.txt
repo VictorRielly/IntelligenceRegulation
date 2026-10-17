@@ -1,0 +1,5 @@
+8fe2a2a39e0796254be37d0d7507d7fc22ea3af141d97d35cd93754d505072c9  /tmp/zk60-sol-gpu-20260927/hashline/src/gpu/cuda.rs
+21ca440f0ada2f8bc911266d996eb0a699aa0eaa69592365f69d9b1005e358c3  /tmp/zk60-sol-gpu-20260927/hashline/src/gpu/mod.rs
+c83a7f9d4913bc71a078c54550dea0eb0ebc65444b967bb466cf8e1a3b1a44cc  /tmp/zk60-sol-gpu-20260927/hashline/src/pcs.rs
+ac4122375397a155d392df27a7e08f818ee78f80b38d41207565b325f5290413  /tmp/zk60-sol-gpu-20260927/hashline/src/private_block/protocol.rs
+5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495  /tmp/zk60-sol-gpu-20260927/zkp-core/src/pcs.rs

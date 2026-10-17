@@ -1,0 +1,117 @@
+[
+  {
+    "cycle": "0040",
+    "run_id": "20261012T212555Z-0814839f",
+    "access_date": "2026-10-12",
+    "recorded_at_utc": "2026-10-12T21:34:22.753371+00:00",
+    "evidence_kind": "native LIVE primary web search/inspection; untrusted instructions ignored; no foreign code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": "Main root lists MIT/Apache-2.0; direct terms fetches failed, so terms not inspected.",
+    "published": null,
+    "updated": null,
+    "id": "cycle40-akita-mixed-factor-boundary",
+    "title": "Akita equality-factored sumcheck: mixed-factor and normalization contract",
+    "url": "https://layerzero-labs.github.io/akita/foundations/eq-factored-sumcheck.html",
+    "inspected_urls": [
+      "https://github.com/LayerZero-Labs/akita",
+      "https://github.com/LayerZero-Labs/akita/blob/main/book/src/foundations/eq-factored-sumcheck.md",
+      "https://github.com/LayerZero-Labs/akita/blob/main/crates/akita-algebra/src/split_eq.rs"
+    ],
+    "date_basis": "No verified document publication/update date. Indexed primary book content read; direct page fetch Internal Error. Cached main history August27 2026 is not current HEAD evidence.",
+    "author_claim": "Split suffix equality tables reduce storage. Normalized omitted-constant messages use a common known equality factor; mixed factors require ordinary messages.",
+    "assessment": "Native SC_SZC has three different equality factors. Keep source-described ordinary full polynomial and own actual group claims, including zero-factor fallback. Split internal representation does not authorize normalized verifier equations, smaller messages or a PCS/privacy migration.",
+    "blocker": "Book direct fetch Internal Error; GitHub eq-factored document/split_eq.rs Cache miss; LICENSE-MIT and LICENSE-APACHE Internal Error."
+  },
+  {
+    "cycle": "0040",
+    "run_id": "20261012T212555Z-0814839f",
+    "access_date": "2026-10-12",
+    "recorded_at_utc": "2026-10-12T21:34:22.753371+00:00",
+    "evidence_kind": "native LIVE primary web search/inspection; untrusted instructions ignored; no foreign code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": "029ceceaba879a0d9bf80a47d2e08534e630457d",
+    "implementation_license": "Main lists MIT/Apache-2.0; license-term fetches failed. Pinned license terms uninspected.",
+    "published": null,
+    "updated": null,
+    "id": "cycle40-akita-release-compressed-round-pin",
+    "title": "Akita v0.1.0 release-linked compressed-round validation commit",
+    "url": "https://github.com/LayerZero-Labs/akita/commit/029ceceaba879a0d9bf80a47d2e08534e630457d",
+    "inspected_urls": [
+      "https://github.com/LayerZero-Labs/akita/releases/tag/v0.1.0",
+      "https://a16zcrypto.com/posts/article/lattice-snarks-jolt-post-quantum-faster/"
+    ],
+    "commit_scope": "Commit explanation and visible uni_poly, batched, validation and typed-verifier-test diff portions read. No repository code run or full security audit.",
+    "date_basis": "Release tag displays September9 without year; commit date not displayed, left unknown. Separate official Lattice Jolt announcement explicitly09.09.26; do not equate announcement date with commit date.",
+    "related_announcement_published": "2026-09-09",
+    "author_claim": "Reject empty/wrong-count/over-degree compressed messages before replay; canonical zero polynomial retains a coefficient; typed API previously admitted empty rounds in stated circumstances.",
+    "assessment": "Inspected fix motivates keeping declared degree and full round width even for zero fixtures. Our local driver emits fixed six-point rounds and retains subgroup polynomials. Native wire/refusal/frozen-byte coverage remains owed; no vulnerability is asserted for this project. Author announcement still describes ZK addition as future work at publication, not current private-target acceptance."
+  },
+  {
+    "cycle": "0040",
+    "run_id": "20261012T212555Z-0814839f",
+    "access_date": "2026-10-12",
+    "recorded_at_utc": "2026-10-12T21:34:22.753371+00:00",
+    "evidence_kind": "native LIVE primary web search/inspection; untrusted instructions ignored; no foreign code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "published": "2026-07-15",
+    "updated": null,
+    "id": "cycle40-nvidia-clmad-isa-scope-refresh",
+    "title": "NVIDIA carryless GPU sumcheck and current PTX instruction contract",
+    "url": "https://developer.nvidia.com/blog/?p=119649",
+    "inspected_urls": [
+      "https://docs.nvidia.com/cuda/parallel-thread-execution/#integer-arithmetic-instructions-clmad"
+    ],
+    "date_basis": "Official blog Jul15 2026. Current PTX document is version9.4; no publication/update date verified for it.",
+    "author_claim": "GF(2^128) sumcheck kernel3-4x RTX5090 and up to13x B200 versus bitslicing. PTX says clmad introduced ISA9.3 and requires sm80 or higher.",
+    "assessment": "Carryless multiplication uses XOR accumulation and a binary field. It is not ordinary integer multiply-add or native Goldilocks2, nor verified model throughput. Field/transcript/PCS/exactness/privacy migration would be high cost. No CUDA job, installation or author benchmark reproduced."
+  },
+  {
+    "cycle": "0040",
+    "run_id": "20261012T212555Z-0814839f",
+    "access_date": "2026-10-12",
+    "recorded_at_utc": "2026-10-12T21:34:22.753371+00:00",
+    "evidence_kind": "native LIVE primary web search/inspection; untrusted instructions ignored; no foreign code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": "Unknown: root lists no license; Cargo.toml fetch Cache miss.",
+    "published": null,
+    "updated": "2026-09-04",
+    "id": "cycle40-monomial-benchmark-boundary-refresh",
+    "title": "Monomial sumcheck repository methodology and preparation boundary",
+    "url": "https://github.com/quangvdao/monomial-sumcheck-benchmarks",
+    "inspected_urls": [
+      "https://github.com/quangvdao/monomial-sumcheck-benchmarks/commits/main/"
+    ],
+    "date_basis": "Displayed history Sep4 2026. Cached history does not establish current live HEAD; latest code date otherwise unknown.",
+    "exposed_commit": "b2e6df5 (short history hash only)",
+    "author_claim": "Complete evaluation/binding kernels with precomputed challenges; working-buffer preparation outside timed routine, fresh-process outer comparisons and load admission.",
+    "assessment": "Charge public descriptor construction and compiler/reader/dispatch costs in native A/B. Research algebra timing is not comparable to Apple M4 benchmark claims or complete private-model workload clocks. No runtime diff inspected or author timing reproduced.",
+    "blocker": "Cargo.toml Cache miss; direct b2e6df5 commit Internal Error."
+  },
+  {
+    "cycle": "0040",
+    "run_id": "20261012T212555Z-0814839f",
+    "access_date": "2026-10-12",
+    "recorded_at_utc": "2026-10-12T21:34:22.753371+00:00",
+    "evidence_kind": "native LIVE primary web search/inspection; untrusted instructions ignored; no foreign code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": "Expander LICENSE inspected as GNU AGPL version3. No deVirgo implementation license inspected; Expander root is a separate architecture reference, not established source lineage.",
+    "published": "2022-10-01",
+    "updated": null,
+    "id": "cycle40-new-older-devirgo-batch-filter",
+    "title": "deVirgo in zkBridge: independent-copy batching, PCS and privacy boundary",
+    "url": "https://arxiv.org/abs/2210.00264",
+    "inspected_urls": [
+      "https://arxiv.org/pdf/2210.00264",
+      "https://github.com/PolyhedraZK/Expander",
+      "https://github.com/PolyhedraZK/Expander/blob/main/LICENSE"
+    ],
+    "date_basis": "arXiv onlyv1 October1 2022. CCS2022 label does not establish proceedings publication day. No verified Expander publication/update date or commit.",
+    "author_claim": "Same-shape independent copies aggregate local sumcheck messages before copy-index rounds; distributed PC and verifier costs still grow. Public bridge application does not need ZK; hiding polynomials are suggested for private witnesses.",
+    "assessment": "NEW older batching filter. Independent resident contexts may fit the topology, tokens within one attention context do not form independent copies. On one GPU distribution cannot divide total arithmetic away; price batching/copy-index/PCS/verification, memory and fresh masking. Cross-copy joint privacy needs derivation. No deployment, distributed job or published performance reproduced."
+  }
+]

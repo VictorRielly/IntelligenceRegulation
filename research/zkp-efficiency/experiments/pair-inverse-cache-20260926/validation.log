@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "exit_code": 0,
+  "checkpoint_utc": "2026-09-26T20:10:39.422873+00:00",
+  "run_identity": "20260926T195233Z-cef0b7d6",
+  "cycle": "0004",
+  "source_pins_match": true,
+  "patch_applied_in_memory_only": true,
+  "public_table_loop_and_challenge_calls_unchanged": true,
+  "previous_source_log_prefix_preserved": true,
+  "experiment_command": "python3 experiments/pair-inverse-cache-20260926/experiment.py > experiments/pair-inverse-cache-20260926/run.log 2>&1",
+  "validation_command": "python3 experiments/pair-inverse-cache-20260926/validate.py > experiments/pair-inverse-cache-20260926/validation.log 2>&1",
+  "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency",
+  "native_build_or_execution": false,
+  "gpu": false,
+  "git": false,
+  "dependencies_installed": false,
+  "downloaded_code_executed": false,
+  "runtime_writes": false,
+  "external_writes_or_messages": false
+}

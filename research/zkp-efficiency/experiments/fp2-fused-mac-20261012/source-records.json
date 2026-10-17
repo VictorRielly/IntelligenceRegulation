@@ -1,0 +1,91 @@
+[
+  {
+    "id": "cycle36-goldilocks-mac-canonical-headroom",
+    "title": "Plonky2 Goldilocks multiply-accumulate and reduction representation",
+    "url": "https://github.com/0xPolygonZero/plonky2/blob/main/field/src/goldilocks_field.rs",
+    "published": null,
+    "updated": null,
+    "date_basis": "Current main source read; no live update/introduction date or current commit verified. Previous cycle35 historical date retained separately.",
+    "inspected_urls": [
+      "https://github.com/0xPolygonZero/plonky2/blob/main/LICENSE-MIT",
+      "https://github.com/0xPolygonZero/plonky2"
+    ],
+    "inspected_commit_id": null,
+    "implementation_license": "Current main MIT terms inspected; root advertises dual MIT/Apache-2.0. Not commit-pinned.",
+    "author_claim": "One u64 product plus one u64 residue fits u128; reducer may return a noncanonical representative.",
+    "assessment": "Refresh of cycle35. Our new four-reduction Fp2 operation uses a stronger canonical-only headroom proof, not a direct transfer of their noncanonical API. Synthetic differential correctness reproduced locally; no author or native performance reproduced.",
+    "access_date": "2026-10-12",
+    "recorded_at_utc": "2026-10-12T17:39:53.722674+00:00",
+    "cycle": "0036",
+    "run_id": "20261012T172555Z-e8207bdf",
+    "evidence_kind": "native LIVE primary web search/inspection; no foreign code executed",
+    "reproduced_performance": false
+  },
+  {
+    "id": "cycle36-gnark-october-release-commit-inspected",
+    "title": "gnark-crypto v0.22.0 release and pinned version diff",
+    "url": "https://github.com/Consensys-Incorporated/gnark-crypto/releases/tag/v0.22.0",
+    "published": "2026-10-02",
+    "updated": null,
+    "date_basis": "Version CHANGELOG diff explicitly dated2026-10-02; release page Oct2 omits year.",
+    "inspected_urls": [
+      "https://github.com/Consensys-Incorporated/gnark-crypto/commit/550a513d798df79d8324697332e085498285bb63",
+      "https://github.com/Consensys-Incorporated/gnark-crypto/blob/master/CHANGELOG.md"
+    ],
+    "inspected_commit_id": "550a513d798df79d8324697332e085498285bb63",
+    "commit_scope": "Release/version metadata, CHANGELOG and CI/version diff inspected; no field-arithmetic diff inspected.",
+    "implementation_license": null,
+    "license_blocker": "Tag/main LICENSE fetches Cache miss. No license terms established this cycle.",
+    "author_claim": "Adds49-bit MamaBear IFMA/lazy-extension arithmetic and externally accelerated KZG Committer interface.",
+    "assessment": "Qualified recent-release refresh. Different field/hardware/PCS; neither IFMA nor pairing arithmetic is a native Goldilocks2 performance result. Goldilocks e2.go fetches failed at old and current organization URLs. No code executed or performance reproduced.",
+    "access_date": "2026-10-12",
+    "recorded_at_utc": "2026-10-12T17:39:53.722674+00:00",
+    "cycle": "0036",
+    "run_id": "20261012T172555Z-e8207bdf",
+    "evidence_kind": "native LIVE primary web search/inspection; no foreign code executed",
+    "reproduced_performance": false
+  },
+  {
+    "id": "cycle36-new-october-zkllmpot-scope",
+    "title": "zkLLMPoT: Efficient Zero Knowledge Proof of Training for Large Language Models",
+    "url": "https://arxiv.org/abs/2610.08258",
+    "published": "2026-10-06",
+    "updated": null,
+    "date_basis": "Primary v1 submission2026-10-06T12:35:49Z; submitted toICLR2027, not a verified venue acceptance.",
+    "inspected_urls": [
+      "https://arxiv.org/html/2610.08258v1"
+    ],
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "paper_license": "arXiv perpetual non-exclusive distribution license",
+    "author_claim": "SyntheticT512 A10040GB covered-operator aggregates:41\u201359s at1.1\u20131.5B, about131s at13B; softmax largest share.",
+    "assessment": "New paper read through protocol/experimental/privacy sections. Public audit sequences and exposed objective differ from P1; roots/openings need joint-view review. Costs aggregate microbenchmarks, interpolate nonlinear and fit opening preparation; no independently verified complete private8B workload or reproducible implementation link established. Supports prioritizing softmax profiling, never mask reuse or target substitution.",
+    "access_date": "2026-10-12",
+    "recorded_at_utc": "2026-10-12T17:39:53.722674+00:00",
+    "cycle": "0036",
+    "run_id": "20261012T172555Z-e8207bdf",
+    "evidence_kind": "native LIVE primary web search/inspection; no foreign code executed",
+    "reproduced_performance": false
+  },
+  {
+    "id": "cycle36-newly-assessed-older-zk-sumcheck-composition",
+    "title": "A Zero Knowledge Sumcheck and its Applications",
+    "url": "https://arxiv.org/abs/1704.02086",
+    "published": "2017-04-07",
+    "updated": null,
+    "date_basis": "Primary v1 submission2017-04-07T03:54:42Z; no later version displayed.",
+    "inspected_urls": [
+      "https://arxiv.org/html/1704.02086v1"
+    ],
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "author_claim": "Perfect-ZK sumcheck/GKR in IPCP with algebraic commitments and query-complexity bounds.",
+    "assessment": "New older technique read at algebraic commitments and recursive-composition sections. Degree/query/opening obligations survive recursion; hiding commitments alone does not establish round/evaluation privacy. Architecture filter only: native Fiat-Shamir/PCS/transcript/security migration and pricing required, no speed reproduced.",
+    "access_date": "2026-10-12",
+    "recorded_at_utc": "2026-10-12T17:39:53.722674+00:00",
+    "cycle": "0036",
+    "run_id": "20261012T172555Z-e8207bdf",
+    "evidence_kind": "native LIVE primary web search/inspection; no foreign code executed",
+    "reproduced_performance": false
+  }
+]

@@ -1,0 +1,87 @@
+{
+  "access_date": "2026-10-12",
+  "request": {
+    "search_query": [
+      {
+        "q": "site:github.com/Consensys/gnark-crypto/releases \"v0.22.0\""
+      },
+      {
+        "q": "site:github.com/Plonky3/Plonky3/releases \"2026\" \"October\""
+      },
+      {
+        "q": "site:github.com/0xPolygonZero/plonky2 \"LICENSE-MIT\""
+      },
+      {
+        "q": "site:arxiv.org sumcheck zero knowledge October 2026 GPU"
+      }
+    ],
+    "response_length": "long"
+  },
+  "result_metadata": [
+    {
+      "header": "GitHub - 0xPolygonZero/plonky2 \u00b7 GitHub (https://github.com/0xPolygonZero/plonky2)",
+      "fetch_failures": []
+    },
+    {
+      "header": "GitHub - 0xPolygonZero/plonky2-u32: u32 arithmetic gadgets for plonky2 \u00b7 GitHub (https://github.com/0xPolygonZero/plonky2-u32)",
+      "fetch_failures": []
+    },
+    {
+      "header": "Releases \u00b7 Consensys-Incorporated/gnark-crypto \u00b7 GitHub (https://github.com/Consensys-Incorporated/gnark-crypto/releases)",
+      "fetch_failures": []
+    },
+    {
+      "header": "gnark-crypto/CHANGELOG.md at master \u00b7 Consensys-Incorporated/gnark-crypto \u00b7 GitHub (https://github.com/Consensys-Incorporated/gnark-crypto/blob/master/CHANGELOG.md)",
+      "fetch_failures": []
+    },
+    {
+      "header": "Releases \u00b7 Consensys-Incorporated/gnark \u00b7 GitHub (https://github.com/Consensys-Incorporated/gnark/releases)",
+      "fetch_failures": []
+    },
+    {
+      "header": "GitHub - logos-storage/plonky2-verifier: self-contained Plonky2 verifier \u00b7 GitHub (https://github.com/logos-storage/plonky2-verifier)",
+      "fetch_failures": []
+    },
+    {
+      "header": "GitHub - InternetMaximalism/intmax-plonky2 \u00b7 GitHub (https://github.com/InternetMaximalism/intmax-plonky2)",
+      "fetch_failures": []
+    },
+    {
+      "header": "gnark-crypto/go.mod at master \u00b7 Consensys/gnark-crypto \u00b7 GitHub (https://github.com/Consensys/gnark-crypto/blob/master/go.mod)",
+      "fetch_failures": []
+    },
+    {
+      "header": "pearl-hashrate-miner/README.md at main \u00b7 puneet-mehta/pearl-hashrate-miner \u00b7 GitHub (https://github.com/puneet-mehta/pearl-hashrate-miner/blob/main/README.md)",
+      "fetch_failures": []
+    },
+    {
+      "header": "GitHub - hrmk1o3/plonky2-bn254-poseidon: Poseidon hash function in plonky2 for the scalar field of BN254 curve \u00b7 GitHub (https://github.com/hrmk1o3/plonky2-bn254-poseidon)",
+      "fetch_failures": []
+    },
+    {
+      "header": "GitHub - Plonky3/Plonky3-recursion: Plonky3 native support for p3-uni-stark and p3-batch-stark recursion... and more \u00b7 GitHub (https://github.com/Plonky3/Plonky3-recursion/)",
+      "fetch_failures": []
+    },
+    {
+      "header": "GitHub - 0xPolygonZero/evm-tests: Parser and test runner for testing compatable common Ethereum full node tests against Polygon Zero's EVM. \u00b7 GitHub (https://github.com/0xPolygonZero/evm-tests)",
+      "fetch_failures": []
+    },
+    {
+      "header": "zkLLMPoT: Efficient Zero Knowledge Proof of Training for Large Language Models (https://arxiv.org/abs/2610.08258)",
+      "fetch_failures": []
+    },
+    {
+      "header": "Distributed Statistical Zero-Knowledge Proofs via Sumcheck (https://arxiv.org/abs/2605.14015)",
+      "fetch_failures": []
+    },
+    {
+      "header": "When Proofs Meet Hardware: Comparing NTT and SumCheck in Zero-Knowledge Systems (https://arxiv.org/abs/2606.16146)",
+      "fetch_failures": []
+    },
+    {
+      "header": "zkPHIRE: A Programmable Accelerator for ZKPs over HIgh-degRee, Expressive Gates (https://arxiv.org/abs/2508.16738)",
+      "fetch_failures": []
+    }
+  ],
+  "record_policy": "Exact requests/URLs and fetch failures retained; full webpage text omitted. Qualified assessments in source-records.json."
+}

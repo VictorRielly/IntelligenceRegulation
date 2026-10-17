@@ -1,0 +1,7 @@
+
+running 1 test
+test private_block::s35_tests::the_two_rewritten_closures_equal_the_stage_34_ir_at_every_registered_shape ... S35 IR leg: 576 random points over 9 shapes x 2 slots, every one equal
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 528 filtered out; finished in 0.31s
+

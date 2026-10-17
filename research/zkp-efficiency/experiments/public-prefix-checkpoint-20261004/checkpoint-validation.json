@@ -1,0 +1,31 @@
+{
+  "status": "pass",
+  "run_id": "20261004T100146Z-8793c93e",
+  "checked_utc": "2026-10-04T10:18:06.173581+00:00",
+  "checks": [
+    {
+      "name": "all pinned snapshots exact",
+      "count": 23
+    },
+    {
+      "name": "original findings and sources retained byte-for-byte",
+      "passed": true
+    },
+    {
+      "name": "six valid qualified source records",
+      "count": 6
+    },
+    {
+      "name": "final experiment source pins and execution",
+      "passed": true
+    },
+    {
+      "name": "accounting and durable reports consistent",
+      "passed": true
+    }
+  ],
+  "experiment_elapsed_seconds": 2.6232593530003214,
+  "peak_rss_kib": 20084,
+  "elapsed_cycle_seconds": 980.173581,
+  "scope": "Artifact/content consistency, no native build or proof validation"
+}

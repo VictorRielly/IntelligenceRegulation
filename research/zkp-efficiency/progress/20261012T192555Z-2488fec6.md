@@ -1,0 +1,13 @@
+# ZKP efficiency progress
+
+Cycle 0038 — `20261012T192555Z-2488fec6`, checkpoint 2026-10-12T19:39:38.512559+00:00.
+
+**A compact public support candidate passed synthetic checks; no native proving speed improvement was measured.** The final experiment took 1.59 seconds and 18,332 KiB peak RSS on one low-priority Core Ultra 9 CPU thread. Across 84 fixtures, 398,272 sample values, 2,009 independent original-cube evaluations, 70 support-sensitive tail sums and 21 negative/refusal controls passed. The initial negative control used a symmetric point where different head tables happened to evaluate equally; its failed run is preserved and the control was corrected.
+
+The descriptor replaces full public support vectors with constant field state and integer comparisons. At the pinned 125M head layout and 512-token context, two simultaneous support vectors contain 128 MiB of logical payload; counted folds fall from 8,388,606 to four. This is storage/arithmetic accounting. Native peaks, reader costs and enclosing speed remain unknown. The candidate preserves grouped head padding and separate Ht/S/causal tables, including their off-domain values and row-lift semantics. Privacy randomness remains fresh.
+
+[Experiment and uncompiled Rust sketch](experiments/support-descriptor-20261012/README.md) and [owner handoff](handoffs/20261012-support-descriptor.md) are saved. Six LIVE primary records include the enclosing projective-WHIR negative, newly assessed older Jagged PCS, the October 8 resettable-NIZK revision, a pinned September Plonky3 release, Jolt traits and a projective-paper refresh. Dates, licenses, commit scope and fetch blockers are retained. No author performance was reproduced. Production source pins are unchanged.
+
+Accepted independently verified complete private 8B proofs/passes: **0**; countable tokens: **0**. Device: CPU only; proof context: null; passes: 0. Steady-state and total-workload rates, startup duration/fraction, witness/proof/serialization/independent-verification, latency/lag/drain clocks are unmeasured. No prefill, resident-model pass or decode proof occurred. The >=50 proved-token/s target remains unachieved; larger workloads remain allowed with quadratic attention, fresh masks and full privacy/coverage obligations.
+
+Next owner step: admitted-shape terminal/refusal/frozen-byte parity, then driver integration and isolated support clocks before independently verified complete A/B under shared heavy locks. Next local cycle: a heterogeneous public/dense-table driver with independent total/sample/final/extension and inconsistent-plane controls. GPU SC_SZC plus recurring witness and exact full-K down remain highest priorities. No heavy job is queued. Saved reports are not notification-delivery evidence.

@@ -1,0 +1,21 @@
+{
+  "mechanism": "Native LIVE web search via web.run",
+  "access_date": "2026-10-12",
+  "queries": [
+    "sumcheck equality polynomial suffix precomputation split eq prover cache 2025 2026 GitHub",
+    "site.github.com sumcheck eq suffix table cache Gruen optimization",
+    "site.arxiv.org sumcheck precomputation equality polynomial 2026",
+    "site.github.com/LayerZero-Labs/akita split_eq.rs suffix",
+    "site.github.com/a16z/jolt split_eq_poly.rs cache",
+    "site.github.com sumcheck equality suffix cache October 2026",
+    "site.eprint.iacr.org sumcheck 2026 October memory",
+    "sumcheck suffix 2025 precomputed equality",
+    "sumcheck October 2026 prover Github cache",
+    "Linear-Time Sumcheck proving paper",
+    "site.github.com GruenSplitEq cache",
+    "site.github.com/LayerZero-Labs/akita split_eq Sep 2026",
+    "site.layerzero.network Akita September 9 2026"
+  ],
+  "note": "Queries normalized for log display; primary results inspected, unrelated/nonprimary hits ignored; cached crawl dates not promoted to publication dates. Fetch URLs/errors and response hashes are retained in web-results.json/web-followups.json; full third-party text is not copied.",
+  "source_records": 5
+}

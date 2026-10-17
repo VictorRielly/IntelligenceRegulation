@@ -1,0 +1,9 @@
+{
+  "source_path": "/home/victor/IntelligenceRegulation/hashline/src/gpu/kernels.cu",
+  "source_sha256": "bd00229fd61e86ae2bc0e037d5fa9cd90acc8a8a0f0fbf5583d501d2caf7b6aa",
+  "proposed_source_sha256": "182d7ba39c5c0d2af302fa3c5dfa4a6562e0ab5bb04f3b9f16b40a4704a69de8",
+  "patch_sha256": "3be124dc26647f797b3c1ec9f2885b2a110198cef4f0e5acaef7f5623e6b40a1",
+  "applied": false,
+  "native_or_gpu_tested": false,
+  "scope": "Three additive coefficient contributions, scalar algebra tested in experiment.py"
+}

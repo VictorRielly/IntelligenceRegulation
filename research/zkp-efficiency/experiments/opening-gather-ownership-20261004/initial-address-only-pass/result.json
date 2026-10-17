@@ -1,0 +1,4051 @@
+{
+  "status": "passed",
+  "run_identity": "20261004T010146Z-23455eeb",
+  "seed": 2026100419,
+  "case_count": 98,
+  "cases": [
+    {
+      "kind": "hiding-row",
+      "n": 1,
+      "pad_q": 1,
+      "nn": 4,
+      "rows": 1,
+      "query_count": 6,
+      "events": [
+        "plan",
+        "scratch/output"
+      ],
+      "d2h_calls": 1,
+      "peak_device_output": 48,
+      "peak_host_stage": 48,
+      "final_bytes": 48,
+      "d2h_bytes": 48,
+      "fused": false,
+      "unique": 4,
+      "device_columns": 6,
+      "chunks": 1,
+      "pruned": false
+    },
+    {
+      "kind": "hiding-row",
+      "n": 1,
+      "pad_q": 1,
+      "nn": 4,
+      "rows": 1,
+      "query_count": 6,
+      "events": [
+        "plan",
+        "scratch/output"
+      ],
+      "d2h_calls": 1,
+      "peak_device_output": 48,
+      "peak_host_stage": 48,
+      "final_bytes": 48,
+      "d2h_bytes": 48,
+      "fused": false,
+      "unique": 4,
+      "device_columns": 6,
+      "chunks": 1,
+      "pruned": false
+    },
+    {
+      "kind": "hiding-row",
+      "n": 2,
+      "pad_q": 3,
+      "nn": 8,
+      "rows": 3,
+      "query_count": 6,
+      "events": [
+        "plan",
+        "scratch/output"
+      ],
+      "d2h_calls": 1,
+      "peak_device_output": 144,
+      "peak_host_stage": 144,
+      "final_bytes": 144,
+      "d2h_bytes": 144,
+      "fused": false,
+      "unique": 4,
+      "device_columns": 6,
+      "chunks": 1,
+      "pruned": false
+    },
+    {
+      "kind": "hiding-row",
+      "n": 2,
+      "pad_q": 3,
+      "nn": 8,
+      "rows": 3,
+      "query_count": 6,
+      "events": [
+        "plan",
+        "scratch/output"
+      ],
+      "d2h_calls": 1,
+      "peak_device_output": 96,
+      "peak_host_stage": 96,
+      "final_bytes": 144,
+      "d2h_bytes": 96,
+      "fused": true,
+      "unique": 4,
+      "device_columns": 4,
+      "chunks": 1,
+      "pruned": false
+    },
+    {
+      "kind": "hiding-row",
+      "n": 8,
+      "pad_q": 9,
+      "nn": 32,
+      "rows": 5,
+      "query_count": 6,
+      "events": [
+        "plan",
+        "scratch/output"
+      ],
+      "d2h_calls": 1,
+      "peak_device_output": 240,
+      "peak_host_stage": 240,
+      "final_bytes": 240,
+      "d2h_bytes": 240,
+      "fused": false,
+      "unique": 4,
+      "device_columns": 6,
+      "chunks": 1,
+      "pruned": false
+    },
+    {
+      "kind": "hiding-row",
+      "n": 8,
+      "pad_q": 9,
+      "nn": 32,
+      "rows": 5,
+      "query_count": 6,
+      "events": [
+        "plan",
+        "scratch/output"
+      ],
+      "d2h_calls": 1,
+      "peak_device_output": 160,
+      "peak_host_stage": 160,
+      "final_bytes": 240,
+      "d2h_bytes": 160,
+      "fused": true,
+      "unique": 4,
+      "device_columns": 4,
+      "chunks": 1,
+      "pruned": false
+    },
+    {
+      "kind": "hiding-row",
+      "n": 16,
+      "pad_q": 5,
+      "nn": 64,
+      "rows": 7,
+      "query_count": 6,
+      "events": [
+        "plan",
+        "scratch/output"
+      ],
+      "d2h_calls": 1,
+      "peak_device_output": 336,
+      "peak_host_stage": 336,
+      "final_bytes": 336,
+      "d2h_bytes": 336,
+      "fused": false,
+      "unique": 4,
+      "device_columns": 6,
+      "chunks": 1,
+      "pruned": false
+    },
+    {
+      "kind": "hiding-row",
+      "n": 16,
+      "pad_q": 5,
+      "nn": 64,
+      "rows": 7,
+      "query_count": 6,
+      "events": [
+        "plan",
+        "scratch/output"
+      ],
+      "d2h_calls": 1,
+      "peak_device_output": 224,
+      "peak_host_stage": 224,
+      "final_bytes": 336,
+      "d2h_bytes": 224,
+      "fused": true,
+      "unique": 4,
+      "device_columns": 4,
+      "chunks": 1,
+      "pruned": false
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 1,
+      "nn": 16,
+      "query_count": 0,
+      "chunk": 128,
+      "baseline": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      },
+      "candidate": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 1,
+      "nn": 16,
+      "query_count": 0,
+      "chunk": 128,
+      "baseline": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      },
+      "candidate": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 1,
+      "nn": 16,
+      "query_count": 0,
+      "chunk": 128,
+      "baseline": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      },
+      "candidate": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 1,
+      "nn": 16,
+      "query_count": 1,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 8,
+        "peak_host_stage": 8,
+        "final_bytes": 8,
+        "d2h_bytes": 8,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 1,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 8,
+        "peak_host_stage": 8,
+        "final_bytes": 8,
+        "d2h_bytes": 8,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 1,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 1,
+      "nn": 16,
+      "query_count": 1,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 8,
+        "peak_host_stage": 8,
+        "final_bytes": 8,
+        "d2h_bytes": 8,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 1,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 8,
+        "peak_host_stage": 8,
+        "final_bytes": 8,
+        "d2h_bytes": 8,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 1,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 1,
+      "nn": 16,
+      "query_count": 1,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 8,
+        "peak_host_stage": 8,
+        "final_bytes": 8,
+        "d2h_bytes": 8,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 1,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 8,
+        "peak_host_stage": 8,
+        "final_bytes": 8,
+        "d2h_bytes": 8,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 1,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 1,
+      "nn": 16,
+      "query_count": 9,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 72,
+        "peak_host_stage": 72,
+        "final_bytes": 72,
+        "d2h_bytes": 72,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 9,
+        "chunks": 1,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 72,
+        "peak_host_stage": 72,
+        "final_bytes": 72,
+        "d2h_bytes": 72,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 9,
+        "chunks": 1,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 1,
+      "nn": 16,
+      "query_count": 9,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 72,
+        "peak_host_stage": 72,
+        "final_bytes": 72,
+        "d2h_bytes": 72,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 9,
+        "chunks": 1,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 72,
+        "peak_host_stage": 72,
+        "final_bytes": 72,
+        "d2h_bytes": 72,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 9,
+        "chunks": 1,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 1,
+      "nn": 16,
+      "query_count": 9,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 72,
+        "peak_host_stage": 72,
+        "final_bytes": 72,
+        "d2h_bytes": 72,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 9,
+        "chunks": 1,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 72,
+        "peak_host_stage": 72,
+        "final_bytes": 72,
+        "d2h_bytes": 72,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 9,
+        "chunks": 1,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 1,
+      "nn": 16,
+      "query_count": 6,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 48,
+        "peak_host_stage": 48,
+        "final_bytes": 48,
+        "d2h_bytes": 48,
+        "fused": false,
+        "unique": 4,
+        "device_columns": 6,
+        "chunks": 1,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 48,
+        "peak_host_stage": 48,
+        "final_bytes": 48,
+        "d2h_bytes": 48,
+        "fused": false,
+        "unique": 4,
+        "device_columns": 6,
+        "chunks": 1,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 1,
+      "nn": 16,
+      "query_count": 6,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 48,
+        "peak_host_stage": 48,
+        "final_bytes": 48,
+        "d2h_bytes": 48,
+        "fused": false,
+        "unique": 4,
+        "device_columns": 6,
+        "chunks": 1,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 48,
+        "peak_host_stage": 48,
+        "final_bytes": 48,
+        "d2h_bytes": 48,
+        "fused": false,
+        "unique": 4,
+        "device_columns": 6,
+        "chunks": 1,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 1,
+      "nn": 16,
+      "query_count": 6,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 48,
+        "peak_host_stage": 48,
+        "final_bytes": 48,
+        "d2h_bytes": 48,
+        "fused": false,
+        "unique": 4,
+        "device_columns": 6,
+        "chunks": 1,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 48,
+        "peak_host_stage": 48,
+        "final_bytes": 48,
+        "d2h_bytes": 48,
+        "fused": false,
+        "unique": 4,
+        "device_columns": 6,
+        "chunks": 1,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 1,
+      "nn": 16,
+      "query_count": 16,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 128,
+        "peak_host_stage": 128,
+        "final_bytes": 128,
+        "d2h_bytes": 128,
+        "fused": false,
+        "unique": 16,
+        "device_columns": 16,
+        "chunks": 1,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 128,
+        "peak_host_stage": 128,
+        "final_bytes": 128,
+        "d2h_bytes": 128,
+        "fused": false,
+        "unique": 16,
+        "device_columns": 16,
+        "chunks": 1,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 1,
+      "nn": 16,
+      "query_count": 16,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 128,
+        "peak_host_stage": 128,
+        "final_bytes": 128,
+        "d2h_bytes": 128,
+        "fused": false,
+        "unique": 16,
+        "device_columns": 16,
+        "chunks": 1,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 128,
+        "peak_host_stage": 128,
+        "final_bytes": 128,
+        "d2h_bytes": 128,
+        "fused": false,
+        "unique": 16,
+        "device_columns": 16,
+        "chunks": 1,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 1,
+      "nn": 16,
+      "query_count": 16,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 128,
+        "peak_host_stage": 128,
+        "final_bytes": 128,
+        "d2h_bytes": 128,
+        "fused": false,
+        "unique": 16,
+        "device_columns": 16,
+        "chunks": 1,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 128,
+        "peak_host_stage": 128,
+        "final_bytes": 128,
+        "d2h_bytes": 128,
+        "fused": false,
+        "unique": 16,
+        "device_columns": 16,
+        "chunks": 1,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 127,
+      "nn": 8192,
+      "query_count": 0,
+      "chunk": 128,
+      "baseline": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      },
+      "candidate": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 127,
+      "nn": 8192,
+      "query_count": 0,
+      "chunk": 128,
+      "baseline": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      },
+      "candidate": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 127,
+      "nn": 8192,
+      "query_count": 0,
+      "chunk": 128,
+      "baseline": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      },
+      "candidate": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 127,
+      "nn": 8192,
+      "query_count": 1,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 1016,
+        "peak_host_stage": 1016,
+        "final_bytes": 1016,
+        "d2h_bytes": 1016,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 1,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 1016,
+        "peak_host_stage": 1016,
+        "final_bytes": 1016,
+        "d2h_bytes": 1016,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 1,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 127,
+      "nn": 8192,
+      "query_count": 1,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 1016,
+        "peak_host_stage": 1016,
+        "final_bytes": 1016,
+        "d2h_bytes": 1016,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 1,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 1016,
+        "peak_host_stage": 1016,
+        "final_bytes": 1016,
+        "d2h_bytes": 1016,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 1,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 127,
+      "nn": 8192,
+      "query_count": 1,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 1016,
+        "peak_host_stage": 1016,
+        "final_bytes": 1016,
+        "d2h_bytes": 1016,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 1,
+        "pruned": true
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 1016,
+        "peak_host_stage": 1016,
+        "final_bytes": 1016,
+        "d2h_bytes": 1016,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 1,
+        "pruned": true
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 127,
+      "nn": 8192,
+      "query_count": 9,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 9144,
+        "peak_host_stage": 9144,
+        "final_bytes": 9144,
+        "d2h_bytes": 9144,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 9,
+        "chunks": 1,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 9144,
+        "peak_host_stage": 9144,
+        "final_bytes": 9144,
+        "d2h_bytes": 9144,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 9,
+        "chunks": 1,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 127,
+      "nn": 8192,
+      "query_count": 9,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 1016,
+        "peak_host_stage": 1016,
+        "final_bytes": 9144,
+        "d2h_bytes": 1016,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 1,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 1016,
+        "peak_host_stage": 1016,
+        "final_bytes": 9144,
+        "d2h_bytes": 1016,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 1,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 127,
+      "nn": 8192,
+      "query_count": 9,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 1016,
+        "peak_host_stage": 1016,
+        "final_bytes": 9144,
+        "d2h_bytes": 1016,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 1,
+        "pruned": true
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 1016,
+        "peak_host_stage": 1016,
+        "final_bytes": 9144,
+        "d2h_bytes": 1016,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 1,
+        "pruned": true
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 127,
+      "nn": 8192,
+      "query_count": 6,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 6096,
+        "peak_host_stage": 6096,
+        "final_bytes": 6096,
+        "d2h_bytes": 6096,
+        "fused": false,
+        "unique": 4,
+        "device_columns": 6,
+        "chunks": 1,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 6096,
+        "peak_host_stage": 6096,
+        "final_bytes": 6096,
+        "d2h_bytes": 6096,
+        "fused": false,
+        "unique": 4,
+        "device_columns": 6,
+        "chunks": 1,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 127,
+      "nn": 8192,
+      "query_count": 6,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 4064,
+        "peak_host_stage": 4064,
+        "final_bytes": 6096,
+        "d2h_bytes": 4064,
+        "fused": true,
+        "unique": 4,
+        "device_columns": 4,
+        "chunks": 1,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 4064,
+        "peak_host_stage": 4064,
+        "final_bytes": 6096,
+        "d2h_bytes": 4064,
+        "fused": true,
+        "unique": 4,
+        "device_columns": 4,
+        "chunks": 1,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 127,
+      "nn": 8192,
+      "query_count": 6,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 4064,
+        "peak_host_stage": 4064,
+        "final_bytes": 6096,
+        "d2h_bytes": 4064,
+        "fused": true,
+        "unique": 4,
+        "device_columns": 4,
+        "chunks": 1,
+        "pruned": true
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 4064,
+        "peak_host_stage": 4064,
+        "final_bytes": 6096,
+        "d2h_bytes": 4064,
+        "fused": true,
+        "unique": 4,
+        "device_columns": 4,
+        "chunks": 1,
+        "pruned": true
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 127,
+      "nn": 8192,
+      "query_count": 17,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 17272,
+        "peak_host_stage": 17272,
+        "final_bytes": 17272,
+        "d2h_bytes": 17272,
+        "fused": false,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 1,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 17272,
+        "peak_host_stage": 17272,
+        "final_bytes": 17272,
+        "d2h_bytes": 17272,
+        "fused": false,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 1,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 127,
+      "nn": 8192,
+      "query_count": 17,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 17272,
+        "peak_host_stage": 17272,
+        "final_bytes": 17272,
+        "d2h_bytes": 17272,
+        "fused": true,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 1,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 17272,
+        "peak_host_stage": 17272,
+        "final_bytes": 17272,
+        "d2h_bytes": 17272,
+        "fused": true,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 1,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 127,
+      "nn": 8192,
+      "query_count": 17,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 17272,
+        "peak_host_stage": 17272,
+        "final_bytes": 17272,
+        "d2h_bytes": 17272,
+        "fused": true,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 1,
+        "pruned": true
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 17272,
+        "peak_host_stage": 17272,
+        "final_bytes": 17272,
+        "d2h_bytes": 17272,
+        "fused": true,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 1,
+        "pruned": true
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 128,
+      "nn": 8192,
+      "query_count": 0,
+      "chunk": 128,
+      "baseline": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      },
+      "candidate": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 128,
+      "nn": 8192,
+      "query_count": 0,
+      "chunk": 128,
+      "baseline": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      },
+      "candidate": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 128,
+      "nn": 8192,
+      "query_count": 0,
+      "chunk": 128,
+      "baseline": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      },
+      "candidate": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 128,
+      "nn": 8192,
+      "query_count": 1,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 1024,
+        "peak_host_stage": 1024,
+        "final_bytes": 1024,
+        "d2h_bytes": 1024,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 1,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 1024,
+        "peak_host_stage": 1024,
+        "final_bytes": 1024,
+        "d2h_bytes": 1024,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 1,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 128,
+      "nn": 8192,
+      "query_count": 1,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 1024,
+        "peak_host_stage": 1024,
+        "final_bytes": 1024,
+        "d2h_bytes": 1024,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 1,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 1024,
+        "peak_host_stage": 1024,
+        "final_bytes": 1024,
+        "d2h_bytes": 1024,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 1,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 128,
+      "nn": 8192,
+      "query_count": 1,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 1024,
+        "peak_host_stage": 1024,
+        "final_bytes": 1024,
+        "d2h_bytes": 1024,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 1,
+        "pruned": true
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 1024,
+        "peak_host_stage": 1024,
+        "final_bytes": 1024,
+        "d2h_bytes": 1024,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 1,
+        "pruned": true
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 128,
+      "nn": 8192,
+      "query_count": 9,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 9216,
+        "peak_host_stage": 9216,
+        "final_bytes": 9216,
+        "d2h_bytes": 9216,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 9,
+        "chunks": 1,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 9216,
+        "peak_host_stage": 9216,
+        "final_bytes": 9216,
+        "d2h_bytes": 9216,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 9,
+        "chunks": 1,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 128,
+      "nn": 8192,
+      "query_count": 9,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 1024,
+        "peak_host_stage": 1024,
+        "final_bytes": 9216,
+        "d2h_bytes": 1024,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 1,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 1024,
+        "peak_host_stage": 1024,
+        "final_bytes": 9216,
+        "d2h_bytes": 1024,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 1,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 128,
+      "nn": 8192,
+      "query_count": 9,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 1024,
+        "peak_host_stage": 1024,
+        "final_bytes": 9216,
+        "d2h_bytes": 1024,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 1,
+        "pruned": true
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 1024,
+        "peak_host_stage": 1024,
+        "final_bytes": 9216,
+        "d2h_bytes": 1024,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 1,
+        "pruned": true
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 128,
+      "nn": 8192,
+      "query_count": 6,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 6144,
+        "peak_host_stage": 6144,
+        "final_bytes": 6144,
+        "d2h_bytes": 6144,
+        "fused": false,
+        "unique": 4,
+        "device_columns": 6,
+        "chunks": 1,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 6144,
+        "peak_host_stage": 6144,
+        "final_bytes": 6144,
+        "d2h_bytes": 6144,
+        "fused": false,
+        "unique": 4,
+        "device_columns": 6,
+        "chunks": 1,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 128,
+      "nn": 8192,
+      "query_count": 6,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 4096,
+        "peak_host_stage": 4096,
+        "final_bytes": 6144,
+        "d2h_bytes": 4096,
+        "fused": true,
+        "unique": 4,
+        "device_columns": 4,
+        "chunks": 1,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 4096,
+        "peak_host_stage": 4096,
+        "final_bytes": 6144,
+        "d2h_bytes": 4096,
+        "fused": true,
+        "unique": 4,
+        "device_columns": 4,
+        "chunks": 1,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 128,
+      "nn": 8192,
+      "query_count": 6,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 4096,
+        "peak_host_stage": 4096,
+        "final_bytes": 6144,
+        "d2h_bytes": 4096,
+        "fused": true,
+        "unique": 4,
+        "device_columns": 4,
+        "chunks": 1,
+        "pruned": true
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 4096,
+        "peak_host_stage": 4096,
+        "final_bytes": 6144,
+        "d2h_bytes": 4096,
+        "fused": true,
+        "unique": 4,
+        "device_columns": 4,
+        "chunks": 1,
+        "pruned": true
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 128,
+      "nn": 8192,
+      "query_count": 17,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 17408,
+        "peak_host_stage": 17408,
+        "final_bytes": 17408,
+        "d2h_bytes": 17408,
+        "fused": false,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 1,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 17408,
+        "peak_host_stage": 17408,
+        "final_bytes": 17408,
+        "d2h_bytes": 17408,
+        "fused": false,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 1,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 128,
+      "nn": 8192,
+      "query_count": 17,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 17408,
+        "peak_host_stage": 17408,
+        "final_bytes": 17408,
+        "d2h_bytes": 17408,
+        "fused": true,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 1,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 17408,
+        "peak_host_stage": 17408,
+        "final_bytes": 17408,
+        "d2h_bytes": 17408,
+        "fused": true,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 1,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 128,
+      "nn": 8192,
+      "query_count": 17,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 17408,
+        "peak_host_stage": 17408,
+        "final_bytes": 17408,
+        "d2h_bytes": 17408,
+        "fused": true,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 1,
+        "pruned": true
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 17408,
+        "peak_host_stage": 17408,
+        "final_bytes": 17408,
+        "d2h_bytes": 17408,
+        "fused": true,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 1,
+        "pruned": true
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 129,
+      "nn": 8192,
+      "query_count": 0,
+      "chunk": 128,
+      "baseline": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      },
+      "candidate": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 129,
+      "nn": 8192,
+      "query_count": 0,
+      "chunk": 128,
+      "baseline": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      },
+      "candidate": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 129,
+      "nn": 8192,
+      "query_count": 0,
+      "chunk": 128,
+      "baseline": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      },
+      "candidate": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 129,
+      "nn": 8192,
+      "query_count": 1,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 1032,
+        "peak_host_stage": 1032,
+        "final_bytes": 1032,
+        "d2h_bytes": 1032,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 2,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 2,
+        "peak_device_output": 1024,
+        "peak_host_stage": 1024,
+        "final_bytes": 1032,
+        "d2h_bytes": 1032,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 2,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 129,
+      "nn": 8192,
+      "query_count": 1,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 1032,
+        "peak_host_stage": 1032,
+        "final_bytes": 1032,
+        "d2h_bytes": 1032,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 2,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 2,
+        "peak_device_output": 1024,
+        "peak_host_stage": 1024,
+        "final_bytes": 1032,
+        "d2h_bytes": 1032,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 2,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 129,
+      "nn": 8192,
+      "query_count": 1,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 1032,
+        "peak_host_stage": 1032,
+        "final_bytes": 1032,
+        "d2h_bytes": 1032,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 2,
+        "pruned": true
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 2,
+        "peak_device_output": 1024,
+        "peak_host_stage": 1024,
+        "final_bytes": 1032,
+        "d2h_bytes": 1032,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 2,
+        "pruned": true
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 129,
+      "nn": 8192,
+      "query_count": 9,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 9288,
+        "peak_host_stage": 9288,
+        "final_bytes": 9288,
+        "d2h_bytes": 9288,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 9,
+        "chunks": 2,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 2,
+        "peak_device_output": 9216,
+        "peak_host_stage": 9216,
+        "final_bytes": 9288,
+        "d2h_bytes": 9288,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 9,
+        "chunks": 2,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 129,
+      "nn": 8192,
+      "query_count": 9,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 1032,
+        "peak_host_stage": 1032,
+        "final_bytes": 9288,
+        "d2h_bytes": 1032,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 2,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 2,
+        "peak_device_output": 1024,
+        "peak_host_stage": 1024,
+        "final_bytes": 9288,
+        "d2h_bytes": 1032,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 2,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 129,
+      "nn": 8192,
+      "query_count": 9,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 1032,
+        "peak_host_stage": 1032,
+        "final_bytes": 9288,
+        "d2h_bytes": 1032,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 2,
+        "pruned": true
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 2,
+        "peak_device_output": 1024,
+        "peak_host_stage": 1024,
+        "final_bytes": 9288,
+        "d2h_bytes": 1032,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 2,
+        "pruned": true
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 129,
+      "nn": 8192,
+      "query_count": 6,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 6192,
+        "peak_host_stage": 6192,
+        "final_bytes": 6192,
+        "d2h_bytes": 6192,
+        "fused": false,
+        "unique": 4,
+        "device_columns": 6,
+        "chunks": 2,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 2,
+        "peak_device_output": 6144,
+        "peak_host_stage": 6144,
+        "final_bytes": 6192,
+        "d2h_bytes": 6192,
+        "fused": false,
+        "unique": 4,
+        "device_columns": 6,
+        "chunks": 2,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 129,
+      "nn": 8192,
+      "query_count": 6,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 4128,
+        "peak_host_stage": 4128,
+        "final_bytes": 6192,
+        "d2h_bytes": 4128,
+        "fused": true,
+        "unique": 4,
+        "device_columns": 4,
+        "chunks": 2,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 2,
+        "peak_device_output": 4096,
+        "peak_host_stage": 4096,
+        "final_bytes": 6192,
+        "d2h_bytes": 4128,
+        "fused": true,
+        "unique": 4,
+        "device_columns": 4,
+        "chunks": 2,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 129,
+      "nn": 8192,
+      "query_count": 6,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 4128,
+        "peak_host_stage": 4128,
+        "final_bytes": 6192,
+        "d2h_bytes": 4128,
+        "fused": true,
+        "unique": 4,
+        "device_columns": 4,
+        "chunks": 2,
+        "pruned": true
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 2,
+        "peak_device_output": 4096,
+        "peak_host_stage": 4096,
+        "final_bytes": 6192,
+        "d2h_bytes": 4128,
+        "fused": true,
+        "unique": 4,
+        "device_columns": 4,
+        "chunks": 2,
+        "pruned": true
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 129,
+      "nn": 8192,
+      "query_count": 17,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 17544,
+        "peak_host_stage": 17544,
+        "final_bytes": 17544,
+        "d2h_bytes": 17544,
+        "fused": false,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 2,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 2,
+        "peak_device_output": 17408,
+        "peak_host_stage": 17408,
+        "final_bytes": 17544,
+        "d2h_bytes": 17544,
+        "fused": false,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 2,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 129,
+      "nn": 8192,
+      "query_count": 17,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 17544,
+        "peak_host_stage": 17544,
+        "final_bytes": 17544,
+        "d2h_bytes": 17544,
+        "fused": true,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 2,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 2,
+        "peak_device_output": 17408,
+        "peak_host_stage": 17408,
+        "final_bytes": 17544,
+        "d2h_bytes": 17544,
+        "fused": true,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 2,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 129,
+      "nn": 8192,
+      "query_count": 17,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 17544,
+        "peak_host_stage": 17544,
+        "final_bytes": 17544,
+        "d2h_bytes": 17544,
+        "fused": true,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 2,
+        "pruned": true
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 2,
+        "peak_device_output": 17408,
+        "peak_host_stage": 17408,
+        "final_bytes": 17544,
+        "d2h_bytes": 17544,
+        "fused": true,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 2,
+        "pruned": true
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 259,
+      "nn": 8192,
+      "query_count": 0,
+      "chunk": 128,
+      "baseline": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      },
+      "candidate": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 259,
+      "nn": 8192,
+      "query_count": 0,
+      "chunk": 128,
+      "baseline": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      },
+      "candidate": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 259,
+      "nn": 8192,
+      "query_count": 0,
+      "chunk": 128,
+      "baseline": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      },
+      "candidate": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 259,
+      "nn": 8192,
+      "query_count": 1,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 2072,
+        "peak_host_stage": 2072,
+        "final_bytes": 2072,
+        "d2h_bytes": 2072,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 3,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 3,
+        "peak_device_output": 1024,
+        "peak_host_stage": 1024,
+        "final_bytes": 2072,
+        "d2h_bytes": 2072,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 3,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 259,
+      "nn": 8192,
+      "query_count": 1,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 2072,
+        "peak_host_stage": 2072,
+        "final_bytes": 2072,
+        "d2h_bytes": 2072,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 3,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 3,
+        "peak_device_output": 1024,
+        "peak_host_stage": 1024,
+        "final_bytes": 2072,
+        "d2h_bytes": 2072,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 3,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 259,
+      "nn": 8192,
+      "query_count": 1,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 2072,
+        "peak_host_stage": 2072,
+        "final_bytes": 2072,
+        "d2h_bytes": 2072,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 3,
+        "pruned": true
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 3,
+        "peak_device_output": 1024,
+        "peak_host_stage": 1024,
+        "final_bytes": 2072,
+        "d2h_bytes": 2072,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 3,
+        "pruned": true
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 259,
+      "nn": 8192,
+      "query_count": 9,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 18648,
+        "peak_host_stage": 18648,
+        "final_bytes": 18648,
+        "d2h_bytes": 18648,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 9,
+        "chunks": 3,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 3,
+        "peak_device_output": 9216,
+        "peak_host_stage": 9216,
+        "final_bytes": 18648,
+        "d2h_bytes": 18648,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 9,
+        "chunks": 3,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 259,
+      "nn": 8192,
+      "query_count": 9,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 2072,
+        "peak_host_stage": 2072,
+        "final_bytes": 18648,
+        "d2h_bytes": 2072,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 3,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 3,
+        "peak_device_output": 1024,
+        "peak_host_stage": 1024,
+        "final_bytes": 18648,
+        "d2h_bytes": 2072,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 3,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 259,
+      "nn": 8192,
+      "query_count": 9,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 2072,
+        "peak_host_stage": 2072,
+        "final_bytes": 18648,
+        "d2h_bytes": 2072,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 3,
+        "pruned": true
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 3,
+        "peak_device_output": 1024,
+        "peak_host_stage": 1024,
+        "final_bytes": 18648,
+        "d2h_bytes": 2072,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 3,
+        "pruned": true
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 259,
+      "nn": 8192,
+      "query_count": 6,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 12432,
+        "peak_host_stage": 12432,
+        "final_bytes": 12432,
+        "d2h_bytes": 12432,
+        "fused": false,
+        "unique": 4,
+        "device_columns": 6,
+        "chunks": 3,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 3,
+        "peak_device_output": 6144,
+        "peak_host_stage": 6144,
+        "final_bytes": 12432,
+        "d2h_bytes": 12432,
+        "fused": false,
+        "unique": 4,
+        "device_columns": 6,
+        "chunks": 3,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 259,
+      "nn": 8192,
+      "query_count": 6,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 8288,
+        "peak_host_stage": 8288,
+        "final_bytes": 12432,
+        "d2h_bytes": 8288,
+        "fused": true,
+        "unique": 4,
+        "device_columns": 4,
+        "chunks": 3,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 3,
+        "peak_device_output": 4096,
+        "peak_host_stage": 4096,
+        "final_bytes": 12432,
+        "d2h_bytes": 8288,
+        "fused": true,
+        "unique": 4,
+        "device_columns": 4,
+        "chunks": 3,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 259,
+      "nn": 8192,
+      "query_count": 6,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 8288,
+        "peak_host_stage": 8288,
+        "final_bytes": 12432,
+        "d2h_bytes": 8288,
+        "fused": true,
+        "unique": 4,
+        "device_columns": 4,
+        "chunks": 3,
+        "pruned": true
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 3,
+        "peak_device_output": 4096,
+        "peak_host_stage": 4096,
+        "final_bytes": 12432,
+        "d2h_bytes": 8288,
+        "fused": true,
+        "unique": 4,
+        "device_columns": 4,
+        "chunks": 3,
+        "pruned": true
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 259,
+      "nn": 8192,
+      "query_count": 17,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 35224,
+        "peak_host_stage": 35224,
+        "final_bytes": 35224,
+        "d2h_bytes": 35224,
+        "fused": false,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 3,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 3,
+        "peak_device_output": 17408,
+        "peak_host_stage": 17408,
+        "final_bytes": 35224,
+        "d2h_bytes": 35224,
+        "fused": false,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 3,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 259,
+      "nn": 8192,
+      "query_count": 17,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 35224,
+        "peak_host_stage": 35224,
+        "final_bytes": 35224,
+        "d2h_bytes": 35224,
+        "fused": true,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 3,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 3,
+        "peak_device_output": 17408,
+        "peak_host_stage": 17408,
+        "final_bytes": 35224,
+        "d2h_bytes": 35224,
+        "fused": true,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 3,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 259,
+      "nn": 8192,
+      "query_count": 17,
+      "chunk": 128,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 35224,
+        "peak_host_stage": 35224,
+        "final_bytes": 35224,
+        "d2h_bytes": 35224,
+        "fused": true,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 3,
+        "pruned": true
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 3,
+        "peak_device_output": 17408,
+        "peak_host_stage": 17408,
+        "final_bytes": 35224,
+        "d2h_bytes": 35224,
+        "fused": true,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 3,
+        "pruned": true
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 385,
+      "nn": 8192,
+      "query_count": 0,
+      "chunk": 256,
+      "baseline": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      },
+      "candidate": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 385,
+      "nn": 8192,
+      "query_count": 0,
+      "chunk": 256,
+      "baseline": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      },
+      "candidate": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 385,
+      "nn": 8192,
+      "query_count": 0,
+      "chunk": 256,
+      "baseline": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      },
+      "candidate": {
+        "events": [],
+        "d2h_calls": 0,
+        "peak_device_output": 0,
+        "peak_host_stage": 0,
+        "final_bytes": 0,
+        "d2h_bytes": 0
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 385,
+      "nn": 8192,
+      "query_count": 1,
+      "chunk": 256,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 3080,
+        "peak_host_stage": 3080,
+        "final_bytes": 3080,
+        "d2h_bytes": 3080,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 2,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 2,
+        "peak_device_output": 2048,
+        "peak_host_stage": 2048,
+        "final_bytes": 3080,
+        "d2h_bytes": 3080,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 2,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 385,
+      "nn": 8192,
+      "query_count": 1,
+      "chunk": 256,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 3080,
+        "peak_host_stage": 3080,
+        "final_bytes": 3080,
+        "d2h_bytes": 3080,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 2,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 2,
+        "peak_device_output": 2048,
+        "peak_host_stage": 2048,
+        "final_bytes": 3080,
+        "d2h_bytes": 3080,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 2,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 385,
+      "nn": 8192,
+      "query_count": 1,
+      "chunk": 256,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 3080,
+        "peak_host_stage": 3080,
+        "final_bytes": 3080,
+        "d2h_bytes": 3080,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 2,
+        "pruned": true
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 2,
+        "peak_device_output": 2048,
+        "peak_host_stage": 2048,
+        "final_bytes": 3080,
+        "d2h_bytes": 3080,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 2,
+        "pruned": true
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 385,
+      "nn": 8192,
+      "query_count": 9,
+      "chunk": 256,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 27720,
+        "peak_host_stage": 27720,
+        "final_bytes": 27720,
+        "d2h_bytes": 27720,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 9,
+        "chunks": 2,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 2,
+        "peak_device_output": 18432,
+        "peak_host_stage": 18432,
+        "final_bytes": 27720,
+        "d2h_bytes": 27720,
+        "fused": false,
+        "unique": 1,
+        "device_columns": 9,
+        "chunks": 2,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 385,
+      "nn": 8192,
+      "query_count": 9,
+      "chunk": 256,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 3080,
+        "peak_host_stage": 3080,
+        "final_bytes": 27720,
+        "d2h_bytes": 3080,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 2,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 2,
+        "peak_device_output": 2048,
+        "peak_host_stage": 2048,
+        "final_bytes": 27720,
+        "d2h_bytes": 3080,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 2,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 385,
+      "nn": 8192,
+      "query_count": 9,
+      "chunk": 256,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 3080,
+        "peak_host_stage": 3080,
+        "final_bytes": 27720,
+        "d2h_bytes": 3080,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 2,
+        "pruned": true
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 2,
+        "peak_device_output": 2048,
+        "peak_host_stage": 2048,
+        "final_bytes": 27720,
+        "d2h_bytes": 3080,
+        "fused": true,
+        "unique": 1,
+        "device_columns": 1,
+        "chunks": 2,
+        "pruned": true
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 385,
+      "nn": 8192,
+      "query_count": 6,
+      "chunk": 256,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 18480,
+        "peak_host_stage": 18480,
+        "final_bytes": 18480,
+        "d2h_bytes": 18480,
+        "fused": false,
+        "unique": 4,
+        "device_columns": 6,
+        "chunks": 2,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 2,
+        "peak_device_output": 12288,
+        "peak_host_stage": 12288,
+        "final_bytes": 18480,
+        "d2h_bytes": 18480,
+        "fused": false,
+        "unique": 4,
+        "device_columns": 6,
+        "chunks": 2,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 385,
+      "nn": 8192,
+      "query_count": 6,
+      "chunk": 256,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 12320,
+        "peak_host_stage": 12320,
+        "final_bytes": 18480,
+        "d2h_bytes": 12320,
+        "fused": true,
+        "unique": 4,
+        "device_columns": 4,
+        "chunks": 2,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 2,
+        "peak_device_output": 8192,
+        "peak_host_stage": 8192,
+        "final_bytes": 18480,
+        "d2h_bytes": 12320,
+        "fused": true,
+        "unique": 4,
+        "device_columns": 4,
+        "chunks": 2,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 385,
+      "nn": 8192,
+      "query_count": 6,
+      "chunk": 256,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 12320,
+        "peak_host_stage": 12320,
+        "final_bytes": 18480,
+        "d2h_bytes": 12320,
+        "fused": true,
+        "unique": 4,
+        "device_columns": 4,
+        "chunks": 2,
+        "pruned": true
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 2,
+        "peak_device_output": 8192,
+        "peak_host_stage": 8192,
+        "final_bytes": 18480,
+        "d2h_bytes": 12320,
+        "fused": true,
+        "unique": 4,
+        "device_columns": 4,
+        "chunks": 2,
+        "pruned": true
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 385,
+      "nn": 8192,
+      "query_count": 17,
+      "chunk": 256,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 52360,
+        "peak_host_stage": 52360,
+        "final_bytes": 52360,
+        "d2h_bytes": 52360,
+        "fused": false,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 2,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 2,
+        "peak_device_output": 34816,
+        "peak_host_stage": 34816,
+        "final_bytes": 52360,
+        "d2h_bytes": 52360,
+        "fused": false,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 2,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 385,
+      "nn": 8192,
+      "query_count": 17,
+      "chunk": 256,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 52360,
+        "peak_host_stage": 52360,
+        "final_bytes": 52360,
+        "d2h_bytes": 52360,
+        "fused": true,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 2,
+        "pruned": false
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 2,
+        "peak_device_output": 34816,
+        "peak_host_stage": 34816,
+        "final_bytes": 52360,
+        "d2h_bytes": 52360,
+        "fused": true,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 2,
+        "pruned": false
+      }
+    },
+    {
+      "kind": "raw-gather",
+      "rows": 385,
+      "nn": 8192,
+      "query_count": 17,
+      "chunk": 256,
+      "baseline": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 1,
+        "peak_device_output": 52360,
+        "peak_host_stage": 52360,
+        "final_bytes": 52360,
+        "d2h_bytes": 52360,
+        "fused": true,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 2,
+        "pruned": true
+      },
+      "candidate": {
+        "events": [
+          "plan",
+          "scratch/output"
+        ],
+        "d2h_calls": 2,
+        "peak_device_output": 34816,
+        "peak_host_stage": 34816,
+        "final_bytes": 52360,
+        "d2h_bytes": 52360,
+        "fused": true,
+        "unique": 17,
+        "device_columns": 17,
+        "chunks": 2,
+        "pruned": true
+      }
+    }
+  ],
+  "gather_words_compared": 101868,
+  "hiding_encoding_words_compared": 636,
+  "negative_controls": [
+    "drop duplicate semantic columns",
+    "sort query order",
+    "forget global source row offset",
+    "normalize raw Fp words silently",
+    "corrupt ragged final row",
+    "wrong duplicate slot",
+    "duplicate columns own independent buffers",
+    "refuse before scratch: ([8192], 8192, 4096, 64)",
+    "refuse before scratch: ([0, 8191, 8192], 8192, 4096, 64)",
+    "refuse before scratch: ([], 3, 4096, 64)",
+    "refuse before scratch: ([0], 8192, 3, 64)",
+    "refuse before scratch: ([0], 8192, 4096, 0)",
+    "empty no allocations/transfers",
+    "global stride in tile buffer overflows"
+  ],
+  "negative_control_count": 14,
+  "ledger": [
+    {
+      "shape": "toy",
+      "context": 32,
+      "registered": true,
+      "plane": "A",
+      "norm_limbs": 4,
+      "rows": 455,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 128,
+      "baseline_host_named_bytes": 1863680,
+      "candidate_host_named_bytes": 1193984,
+      "saved_host_stage_bytes": 669696,
+      "baseline_device_output_bytes": 931840,
+      "candidate_device_output_bytes": 262144,
+      "unavoidable_final_bytes": 931840,
+      "d2h_bytes_each": 931840,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 4
+    },
+    {
+      "shape": "toy",
+      "context": 32,
+      "registered": true,
+      "plane": "A",
+      "norm_limbs": 4,
+      "rows": 455,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 512,
+      "baseline_host_named_bytes": 1863680,
+      "candidate_host_named_bytes": 1863680,
+      "saved_host_stage_bytes": 0,
+      "baseline_device_output_bytes": 931840,
+      "candidate_device_output_bytes": 931840,
+      "unavoidable_final_bytes": 931840,
+      "d2h_bytes_each": 931840,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 1
+    },
+    {
+      "shape": "toy",
+      "context": 32,
+      "registered": true,
+      "plane": "A",
+      "norm_limbs": 4,
+      "rows": 455,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 2048,
+      "baseline_host_named_bytes": 1863680,
+      "candidate_host_named_bytes": 1863680,
+      "saved_host_stage_bytes": 0,
+      "baseline_device_output_bytes": 931840,
+      "candidate_device_output_bytes": 931840,
+      "unavoidable_final_bytes": 931840,
+      "d2h_bytes_each": 931840,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 1
+    },
+    {
+      "shape": "toy",
+      "context": 32,
+      "registered": true,
+      "plane": "H",
+      "norm_limbs": 4,
+      "rows": 384,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 128,
+      "baseline_host_named_bytes": 1572864,
+      "candidate_host_named_bytes": 1048576,
+      "saved_host_stage_bytes": 524288,
+      "baseline_device_output_bytes": 786432,
+      "candidate_device_output_bytes": 262144,
+      "unavoidable_final_bytes": 786432,
+      "d2h_bytes_each": 786432,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 3
+    },
+    {
+      "shape": "toy",
+      "context": 32,
+      "registered": true,
+      "plane": "H",
+      "norm_limbs": 4,
+      "rows": 384,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 512,
+      "baseline_host_named_bytes": 1572864,
+      "candidate_host_named_bytes": 1572864,
+      "saved_host_stage_bytes": 0,
+      "baseline_device_output_bytes": 786432,
+      "candidate_device_output_bytes": 786432,
+      "unavoidable_final_bytes": 786432,
+      "d2h_bytes_each": 786432,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 1
+    },
+    {
+      "shape": "toy",
+      "context": 32,
+      "registered": true,
+      "plane": "H",
+      "norm_limbs": 4,
+      "rows": 384,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 2048,
+      "baseline_host_named_bytes": 1572864,
+      "candidate_host_named_bytes": 1572864,
+      "saved_host_stage_bytes": 0,
+      "baseline_device_output_bytes": 786432,
+      "candidate_device_output_bytes": 786432,
+      "unavoidable_final_bytes": 786432,
+      "d2h_bytes_each": 786432,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 1
+    },
+    {
+      "shape": "m125",
+      "context": 512,
+      "registered": true,
+      "plane": "A",
+      "norm_limbs": 4,
+      "rows": 5681,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 128,
+      "baseline_host_named_bytes": 23269376,
+      "candidate_host_named_bytes": 11896832,
+      "saved_host_stage_bytes": 11372544,
+      "baseline_device_output_bytes": 11634688,
+      "candidate_device_output_bytes": 262144,
+      "unavoidable_final_bytes": 11634688,
+      "d2h_bytes_each": 11634688,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 45
+    },
+    {
+      "shape": "m125",
+      "context": 512,
+      "registered": true,
+      "plane": "A",
+      "norm_limbs": 4,
+      "rows": 5681,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 512,
+      "baseline_host_named_bytes": 23269376,
+      "candidate_host_named_bytes": 12683264,
+      "saved_host_stage_bytes": 10586112,
+      "baseline_device_output_bytes": 11634688,
+      "candidate_device_output_bytes": 1048576,
+      "unavoidable_final_bytes": 11634688,
+      "d2h_bytes_each": 11634688,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 12
+    },
+    {
+      "shape": "m125",
+      "context": 512,
+      "registered": true,
+      "plane": "A",
+      "norm_limbs": 4,
+      "rows": 5681,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 2048,
+      "baseline_host_named_bytes": 23269376,
+      "candidate_host_named_bytes": 15828992,
+      "saved_host_stage_bytes": 7440384,
+      "baseline_device_output_bytes": 11634688,
+      "candidate_device_output_bytes": 4194304,
+      "unavoidable_final_bytes": 11634688,
+      "d2h_bytes_each": 11634688,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 3
+    },
+    {
+      "shape": "m125",
+      "context": 512,
+      "registered": true,
+      "plane": "H",
+      "norm_limbs": 4,
+      "rows": 7120,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 128,
+      "baseline_host_named_bytes": 29163520,
+      "candidate_host_named_bytes": 14843904,
+      "saved_host_stage_bytes": 14319616,
+      "baseline_device_output_bytes": 14581760,
+      "candidate_device_output_bytes": 262144,
+      "unavoidable_final_bytes": 14581760,
+      "d2h_bytes_each": 14581760,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 56
+    },
+    {
+      "shape": "m125",
+      "context": 512,
+      "registered": true,
+      "plane": "H",
+      "norm_limbs": 4,
+      "rows": 7120,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 512,
+      "baseline_host_named_bytes": 29163520,
+      "candidate_host_named_bytes": 15630336,
+      "saved_host_stage_bytes": 13533184,
+      "baseline_device_output_bytes": 14581760,
+      "candidate_device_output_bytes": 1048576,
+      "unavoidable_final_bytes": 14581760,
+      "d2h_bytes_each": 14581760,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 14
+    },
+    {
+      "shape": "m125",
+      "context": 512,
+      "registered": true,
+      "plane": "H",
+      "norm_limbs": 4,
+      "rows": 7120,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 2048,
+      "baseline_host_named_bytes": 29163520,
+      "candidate_host_named_bytes": 18776064,
+      "saved_host_stage_bytes": 10387456,
+      "baseline_device_output_bytes": 14581760,
+      "candidate_device_output_bytes": 4194304,
+      "unavoidable_final_bytes": 14581760,
+      "d2h_bytes_each": 14581760,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 4
+    },
+    {
+      "shape": "llama3_8b_T512",
+      "context": 512,
+      "registered": false,
+      "plane": "A",
+      "norm_limbs": 5,
+      "rows": 18633,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 128,
+      "baseline_host_named_bytes": 76320768,
+      "candidate_host_named_bytes": 38422528,
+      "saved_host_stage_bytes": 37898240,
+      "baseline_device_output_bytes": 38160384,
+      "candidate_device_output_bytes": 262144,
+      "unavoidable_final_bytes": 38160384,
+      "d2h_bytes_each": 38160384,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 146
+    },
+    {
+      "shape": "llama3_8b_T512",
+      "context": 512,
+      "registered": false,
+      "plane": "A",
+      "norm_limbs": 5,
+      "rows": 18633,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 512,
+      "baseline_host_named_bytes": 76320768,
+      "candidate_host_named_bytes": 39208960,
+      "saved_host_stage_bytes": 37111808,
+      "baseline_device_output_bytes": 38160384,
+      "candidate_device_output_bytes": 1048576,
+      "unavoidable_final_bytes": 38160384,
+      "d2h_bytes_each": 38160384,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 37
+    },
+    {
+      "shape": "llama3_8b_T512",
+      "context": 512,
+      "registered": false,
+      "plane": "A",
+      "norm_limbs": 5,
+      "rows": 18633,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 2048,
+      "baseline_host_named_bytes": 76320768,
+      "candidate_host_named_bytes": 42354688,
+      "saved_host_stage_bytes": 33966080,
+      "baseline_device_output_bytes": 38160384,
+      "candidate_device_output_bytes": 4194304,
+      "unavoidable_final_bytes": 38160384,
+      "d2h_bytes_each": 38160384,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 10
+    },
+    {
+      "shape": "llama3_8b_T512",
+      "context": 512,
+      "registered": false,
+      "plane": "H",
+      "norm_limbs": 5,
+      "rows": 23032,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 128,
+      "baseline_host_named_bytes": 94339072,
+      "candidate_host_named_bytes": 47431680,
+      "saved_host_stage_bytes": 46907392,
+      "baseline_device_output_bytes": 47169536,
+      "candidate_device_output_bytes": 262144,
+      "unavoidable_final_bytes": 47169536,
+      "d2h_bytes_each": 47169536,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 180
+    },
+    {
+      "shape": "llama3_8b_T512",
+      "context": 512,
+      "registered": false,
+      "plane": "H",
+      "norm_limbs": 5,
+      "rows": 23032,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 512,
+      "baseline_host_named_bytes": 94339072,
+      "candidate_host_named_bytes": 48218112,
+      "saved_host_stage_bytes": 46120960,
+      "baseline_device_output_bytes": 47169536,
+      "candidate_device_output_bytes": 1048576,
+      "unavoidable_final_bytes": 47169536,
+      "d2h_bytes_each": 47169536,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 45
+    },
+    {
+      "shape": "llama3_8b_T512",
+      "context": 512,
+      "registered": false,
+      "plane": "H",
+      "norm_limbs": 5,
+      "rows": 23032,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 2048,
+      "baseline_host_named_bytes": 94339072,
+      "candidate_host_named_bytes": 51363840,
+      "saved_host_stage_bytes": 42975232,
+      "baseline_device_output_bytes": 47169536,
+      "candidate_device_output_bytes": 4194304,
+      "unavoidable_final_bytes": 47169536,
+      "d2h_bytes_each": 47169536,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 12
+    },
+    {
+      "shape": "llama3_8b_T1024",
+      "context": 1024,
+      "registered": false,
+      "plane": "A",
+      "norm_limbs": 5,
+      "rows": 50315,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 128,
+      "baseline_host_named_bytes": 206090240,
+      "candidate_host_named_bytes": 103307264,
+      "saved_host_stage_bytes": 102782976,
+      "baseline_device_output_bytes": 103045120,
+      "candidate_device_output_bytes": 262144,
+      "unavoidable_final_bytes": 103045120,
+      "d2h_bytes_each": 103045120,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 394
+    },
+    {
+      "shape": "llama3_8b_T1024",
+      "context": 1024,
+      "registered": false,
+      "plane": "A",
+      "norm_limbs": 5,
+      "rows": 50315,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 512,
+      "baseline_host_named_bytes": 206090240,
+      "candidate_host_named_bytes": 104093696,
+      "saved_host_stage_bytes": 101996544,
+      "baseline_device_output_bytes": 103045120,
+      "candidate_device_output_bytes": 1048576,
+      "unavoidable_final_bytes": 103045120,
+      "d2h_bytes_each": 103045120,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 99
+    },
+    {
+      "shape": "llama3_8b_T1024",
+      "context": 1024,
+      "registered": false,
+      "plane": "A",
+      "norm_limbs": 5,
+      "rows": 50315,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 2048,
+      "baseline_host_named_bytes": 206090240,
+      "candidate_host_named_bytes": 107239424,
+      "saved_host_stage_bytes": 98850816,
+      "baseline_device_output_bytes": 103045120,
+      "candidate_device_output_bytes": 4194304,
+      "unavoidable_final_bytes": 103045120,
+      "d2h_bytes_each": 103045120,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 25
+    },
+    {
+      "shape": "llama3_8b_T1024",
+      "context": 1024,
+      "registered": false,
+      "plane": "H",
+      "norm_limbs": 5,
+      "rows": 64376,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 128,
+      "baseline_host_named_bytes": 263684096,
+      "candidate_host_named_bytes": 132104192,
+      "saved_host_stage_bytes": 131579904,
+      "baseline_device_output_bytes": 131842048,
+      "candidate_device_output_bytes": 262144,
+      "unavoidable_final_bytes": 131842048,
+      "d2h_bytes_each": 131842048,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 503
+    },
+    {
+      "shape": "llama3_8b_T1024",
+      "context": 1024,
+      "registered": false,
+      "plane": "H",
+      "norm_limbs": 5,
+      "rows": 64376,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 512,
+      "baseline_host_named_bytes": 263684096,
+      "candidate_host_named_bytes": 132890624,
+      "saved_host_stage_bytes": 130793472,
+      "baseline_device_output_bytes": 131842048,
+      "candidate_device_output_bytes": 1048576,
+      "unavoidable_final_bytes": 131842048,
+      "d2h_bytes_each": 131842048,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 126
+    },
+    {
+      "shape": "llama3_8b_T1024",
+      "context": 1024,
+      "registered": false,
+      "plane": "H",
+      "norm_limbs": 5,
+      "rows": 64376,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 2048,
+      "baseline_host_named_bytes": 263684096,
+      "candidate_host_named_bytes": 136036352,
+      "saved_host_stage_bytes": 127647744,
+      "baseline_device_output_bytes": 131842048,
+      "candidate_device_output_bytes": 4194304,
+      "unavoidable_final_bytes": 131842048,
+      "d2h_bytes_each": 131842048,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 32
+    },
+    {
+      "shape": "llama3_8b_T2048",
+      "context": 2048,
+      "registered": false,
+      "plane": "A",
+      "norm_limbs": 5,
+      "rows": 153617,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 128,
+      "baseline_host_named_bytes": 629215232,
+      "candidate_host_named_bytes": 314869760,
+      "saved_host_stage_bytes": 314345472,
+      "baseline_device_output_bytes": 314607616,
+      "candidate_device_output_bytes": 262144,
+      "unavoidable_final_bytes": 314607616,
+      "d2h_bytes_each": 314607616,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 1201
+    },
+    {
+      "shape": "llama3_8b_T2048",
+      "context": 2048,
+      "registered": false,
+      "plane": "A",
+      "norm_limbs": 5,
+      "rows": 153617,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 512,
+      "baseline_host_named_bytes": 629215232,
+      "candidate_host_named_bytes": 315656192,
+      "saved_host_stage_bytes": 313559040,
+      "baseline_device_output_bytes": 314607616,
+      "candidate_device_output_bytes": 1048576,
+      "unavoidable_final_bytes": 314607616,
+      "d2h_bytes_each": 314607616,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 301
+    },
+    {
+      "shape": "llama3_8b_T2048",
+      "context": 2048,
+      "registered": false,
+      "plane": "A",
+      "norm_limbs": 5,
+      "rows": 153617,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 2048,
+      "baseline_host_named_bytes": 629215232,
+      "candidate_host_named_bytes": 318801920,
+      "saved_host_stage_bytes": 310413312,
+      "baseline_device_output_bytes": 314607616,
+      "candidate_device_output_bytes": 4194304,
+      "unavoidable_final_bytes": 314607616,
+      "d2h_bytes_each": 314607616,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 76
+    },
+    {
+      "shape": "llama3_8b_T2048",
+      "context": 2048,
+      "registered": false,
+      "plane": "H",
+      "norm_limbs": 5,
+      "rows": 202362,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 128,
+      "baseline_host_named_bytes": 828874752,
+      "candidate_host_named_bytes": 414699520,
+      "saved_host_stage_bytes": 414175232,
+      "baseline_device_output_bytes": 414437376,
+      "candidate_device_output_bytes": 262144,
+      "unavoidable_final_bytes": 414437376,
+      "d2h_bytes_each": 414437376,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 1581
+    },
+    {
+      "shape": "llama3_8b_T2048",
+      "context": 2048,
+      "registered": false,
+      "plane": "H",
+      "norm_limbs": 5,
+      "rows": 202362,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 512,
+      "baseline_host_named_bytes": 828874752,
+      "candidate_host_named_bytes": 415485952,
+      "saved_host_stage_bytes": 413388800,
+      "baseline_device_output_bytes": 414437376,
+      "candidate_device_output_bytes": 1048576,
+      "unavoidable_final_bytes": 414437376,
+      "d2h_bytes_each": 414437376,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 396
+    },
+    {
+      "shape": "llama3_8b_T2048",
+      "context": 2048,
+      "registered": false,
+      "plane": "H",
+      "norm_limbs": 5,
+      "rows": 202362,
+      "queries": 256,
+      "cols_out": 256,
+      "row_chunk": 2048,
+      "baseline_host_named_bytes": 828874752,
+      "candidate_host_named_bytes": 418631680,
+      "saved_host_stage_bytes": 410243072,
+      "baseline_device_output_bytes": 414437376,
+      "candidate_device_output_bytes": 4194304,
+      "unavoidable_final_bytes": 414437376,
+      "d2h_bytes_each": 414437376,
+      "baseline_d2h_calls": 1,
+      "candidate_d2h_calls": 99
+    }
+  ],
+  "elapsed_s": 0.19733807599914144,
+  "peak_rss_kib": 18108,
+  "threads": 1,
+  "python": "3.10.12",
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "device": "CPU only",
+  "estimated_memory_mib": 64,
+  "script_sha256": "df88e04b0ce88f808f40358145b76ef326f3153f517ce6a567f8ec6b685310ce",
+  "scope": "Synthetic hiding-row arithmetic + CUDA gather address/ownership oracle; no native CUDA execution, transcript, mask generator or proof",
+  "limits": "Named u64/Fp payload counts exclude NTT/device pools, stored data/pads/powers, other commitments, receipts, allocation metadata; no RSS/VRAM or speed projection. 8B row shapes unregistered and native ln!=4 refuses.",
+  "full_stack": {
+    "countable_tokens": 0,
+    "passes": 0,
+    "context_length": null,
+    "steady_tokens_per_s": null,
+    "total_tokens_per_s": null,
+    "startup_fraction": null,
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "proof_lag_s": null,
+    "pipeline_drain_s": null
+  }
+}

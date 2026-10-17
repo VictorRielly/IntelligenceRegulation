@@ -1,0 +1,117 @@
+{
+  "run_id": "20261004T185034Z-0cf2c35e",
+  "cycle": "0034",
+  "status": "pass",
+  "seed": 2026100434,
+  "counts": {
+    "prepared_baseline_fixtures": 128,
+    "direct_mle_final_values": 20736,
+    "candidate_schedules": 768,
+    "independent_row_counter_checks": 5376,
+    "recoveries": 1098,
+    "zero_factor_fallbacks": 630,
+    "complete_clause_fixtures": 128,
+    "independent_cube_samples": 1152,
+    "stepped_cube_samples": 6912,
+    "ragged_schedules": 384,
+    "general_lookup_rows": 160,
+    "general_denominator_values": 3798,
+    "zero_denominator_checks": 1,
+    "prior_baseline_census_checks": 48
+  },
+  "controls": [
+    {
+      "name": "reverse_delta",
+      "detected": "independent full-clause original-cube mismatch"
+    },
+    {
+      "name": "skip_step_one",
+      "detected": "independent full-clause original-cube mismatch"
+    },
+    {
+      "name": "drop_ragged",
+      "detected": "independent full-clause original-cube mismatch"
+    },
+    {
+      "name": "stale_alpha",
+      "detected": "independent full-clause original-cube mismatch"
+    },
+    {
+      "name": "stale_tag",
+      "detected": "independent full-clause original-cube mismatch"
+    },
+    {
+      "name": "wrong_coefficient",
+      "detected": "independent full-clause original-cube mismatch"
+    },
+    {
+      "name": "tag_in_delta",
+      "detected": "independent full-clause original-cube mismatch"
+    },
+    {
+      "name": "unfinished row",
+      "detected": "unfinished row"
+    },
+    {
+      "name": "step outside row",
+      "detected": "step outside row"
+    },
+    {
+      "name": "denominator outside row",
+      "detected": "denominator outside row"
+    },
+    {
+      "name": "end outside row",
+      "detected": "end outside row"
+    }
+  ],
+  "control_count": 11,
+  "round_digest_sha256": "eeff4691d0e429aed67045d333b5310765a6458501185ba927711dcd5e4b4a8f",
+  "elapsed_seconds": 11.57518667000113,
+  "peak_rss_kib": 17332,
+  "hardware": {
+    "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+    "device": "CPU only",
+    "threads": 1,
+    "affinity": [
+      0
+    ],
+    "nice": 19,
+    "python": "3.10.12"
+  },
+  "resource_limits": {
+    "wall_seconds": 59,
+    "cpu_seconds": 59,
+    "address_space_mib": 512,
+    "estimated_memory_mib": 64
+  },
+  "proof_accounting": {
+    "accepted_complete_private8b_proofs": 0,
+    "countable_tokens": 0,
+    "context_length": null,
+    "passes": 0,
+    "device": "CPU only",
+    "steady_state_tokens_per_s": null,
+    "total_workload_tokens_per_s": null,
+    "startup_seconds": null,
+    "startup_fraction": null,
+    "witness_seconds": null,
+    "proof_seconds": null,
+    "serialization_seconds": null,
+    "independent_verification_seconds": null,
+    "proof_latency_seconds": null,
+    "proof_lag_seconds": null,
+    "pipeline_drain_seconds": null,
+    "prefill": "none",
+    "resident_passes": "none",
+    "decode": "none"
+  },
+  "limits": [
+    "source-derived Python only; no Rust/CUDA execution or native speed measurement",
+    "synthetic data, not honest witnesses or proofs",
+    "independent tuple-field expanded original-cube oracle; shared copied scheduling driver",
+    "native folds counted unchanged in projection; symbolic Eq gains excluded",
+    "all API counts are algebra, not time or compiled instructions",
+    "no native mask/RNG/transcript/extension/PCS/refusal/privacy parity"
+  ]
+}

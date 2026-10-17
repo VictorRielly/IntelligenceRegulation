@@ -1,0 +1,42 @@
+{
+  "/home/victor/IntelligenceRegulation/zkp-core/src/field.rs": {
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "snapshot": "field.rs"
+  },
+  "/tmp/zk60-groups-20260926/zkp-core/src/field.rs": {
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "snapshot": "grouped-field.rs"
+  },
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/fused-fold-round-20260926/experiment.py": {
+    "sha256": "202cac2fb27a3fa24f7832f26f2741d9087978d45f449e9bd17048d97299a356",
+    "snapshot": "fused_reference.py"
+  },
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-szc-groups-20260924/experiment.py": {
+    "sha256": "1004e5365effe100fd9793606d7c2b0435429d13264425da70cfa258f082061f",
+    "snapshot": "grouped_reference.py"
+  },
+  "/home/victor/IntelligenceRegulation/CLAUDE.md": {
+    "sha256": "e991bdd0899dc601fb33c514fdfa65880155665ff72a049d00aa84952deab162",
+    "read_only_context": true
+  },
+  "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md": {
+    "sha256": "026b9f0ee359f2726619894f36e4d1a204bb54dd3721ff37da3e3937d02f30ff",
+    "read_only_context": true
+  },
+  "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md": {
+    "sha256": "5077bc4b590ce8d95c238c3b5e35d8122872c56e5f1e6324c81d78460e0e90c5",
+    "read_only_context": true
+  },
+  "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md": {
+    "sha256": "150994398a4afc55d39af625ca2836777cc6283cd2daad67555bddd0335ae956",
+    "read_only_context": true
+  },
+  "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md": {
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "read_only_context": true
+  },
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md": {
+    "sha256": "85a2af17454c10927d6b167a30533f2f69c70773ed4df21a1b7473920fccddcf",
+    "read_only_context": true
+  }
+}

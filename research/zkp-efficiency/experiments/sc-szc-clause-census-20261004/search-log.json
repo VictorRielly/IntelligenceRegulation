@@ -1,0 +1,39 @@
+{
+  "access_date": "2026-10-04",
+  "method": "native LIVE web search",
+  "queries": [
+    "sumcheck mixed base extension field arithmetic GPU optimization 2026 GitHub",
+    "site.eprint.iacr.org sumcheck prover operation count degree lookup 2026",
+    "site.github.com Plonky3 sumcheck mixed field base extension mul",
+    "\"The Sum-Check Protocol over the Monomial Basis\" 2026",
+    "site.github.com/Plonky3/Plonky3/pull/2050",
+    "site.eprint.iacr.org \"sumcheck\" \"2026\" \"September\" monomial"
+  ],
+  "inspected_pages": [
+    "https://eprint.iacr.org/2026/762",
+    "https://eprint.iacr.org/2024/1210",
+    "https://eprint.iacr.org/2024/1046",
+    "https://github.com/quangvdao/monomial-sumcheck-benchmarks",
+    "https://github.com/quangvdao/monomial-sumcheck-benchmarks/commits/main/",
+    "https://github.com/Plonky3/Plonky3/issues/1890",
+    "https://github.com/Plonky3/Plonky3/pull/2305",
+    "https://github.com/Plonky3/Plonky3/blob/main/LICENSE-MIT",
+    "https://github.com/Plonky3/Plonky3/releases"
+  ],
+  "failures": {
+    "https://eprint.iacr.org/2026/762/history": "native web Cache miss/InternalError; not bypassed",
+    "https://eprint.iacr.org/archive/versions/2026/762": "native web Cache miss/InternalError; not bypassed",
+    "https://eprint.iacr.org/archive/versions/2024/1210": "native web Cache miss/InternalError; not bypassed",
+    "https://github.com/quangvdao/monomial-sumcheck-benchmarks/blob/main/src/sumcheck/generic.rs": "native web Cache miss/InternalError; not bypassed",
+    "https://raw.githubusercontent.com/quangvdao/monomial-sumcheck-benchmarks/main/src/sumcheck/generic.rs": "native web Cache miss/InternalError; not bypassed",
+    "https://github.com/quangvdao/monomial-sumcheck-benchmarks/blob/main/Cargo.toml": "native web Cache miss/InternalError; not bypassed",
+    "https://raw.githubusercontent.com/quangvdao/monomial-sumcheck-benchmarks/main/Cargo.toml": "native web Cache miss/InternalError; not bypassed",
+    "https://github.com/Plonky3/Plonky3/pull/2050": "native web Cache miss/InternalError; not bypassed",
+    "https://github.com/Plonky3/Plonky3/pull/2050/files": "native web Cache miss/InternalError; not bypassed",
+    "https://github.com/Plonky3/Plonky3/pull/2305/files": "native web Cache miss/InternalError; not bypassed",
+    "https://github.com/Plonky3/Plonky3/commit/cdb48a06c1a8fe0b5622ccadebceffc7bba2a1c6": "native web Cache miss/InternalError; not bypassed",
+    "https://github.com/Plonky3/Plonky3/commit/128b24b": "native web Cache miss/InternalError; not bypassed",
+    "https://github.com/Plonky3/Plonky3/releases/tag/p3-sumcheck-v0.8.0": "native web Cache miss/InternalError; not bypassed"
+  },
+  "limits": "Search snippets are discovery; primary opened metadata qualifies source records. No foreign code run or author speed reproduced."
+}

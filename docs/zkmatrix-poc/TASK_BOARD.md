@@ -1,5 +1,90 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
+**2026-09-27 UTC, active Sol lanes:** native fusion passed the full CPU
+and receipt gates but was slower in its six-run dense A/B and is demoted.
+The corrected keyed GPU path passes resident, forced streaming, compact pad
+and complete tagged block CPU/GPU receipt gates. Broader coverage is 189
+device cases, 491 native release passes plus one fixture-repair rerun
+(17 ignored), and eight exact frozen-proof comparisons. Attempt 6's v3
+success-marker false negative is explicitly adjudicated; its failed report
+is unchanged. Six dense CPU/GPU runs now verify: two non-warm means give
+32.95/17.13 s proving and 39.895/30.055 s whole-process elapsed. Mean host
+RSS is 10,524/4,411.5 MiB. Shared two-thread RTX 4070, synthetic one block,
+fresh process per sample; no complete-model token rate or 5090 result.
+Next native bottleneck: the still-CPU softmax proof, roughly half of
+GPU-assisted proving. Preserve its masked transcript and generic oracle;
+the slower fused evaluator is already demoted. Model readiness has constructor-derived
+T512/T1024 payload floors (25.70/70.57 GiB). A small drop/recompute opening
+prototype and streaming-root CPU oracle pass eight legacy/tagged fixtures,
+including exact roots/opening bytes/transcripts/RNG and mutation refusals.
+CPU production storage integration remains owed. The existing chunked GPU
+route already streams A/H codewords: retained A/H bounds are 5.18/14.23 GiB
+host and 5.17/14.22 GiB VRAM at T512/T1024, before other live allocations.
+The historical 25.70/70.57 GiB floors describe materialized storage or CPU
+fallback. Follow
+[lane ownership](ZK60_SOL_TEAM_20260927.md), not the older "next candidate"
+entries below. The available 5090 PC needs a fresh Ubuntu installation;
+[setup steps](ZK60_HARDWARE_SETUP.md) and read-only preflight are prepared.
+
+**2026-09-26 continuation:** Victor's current minimum is an **8B forward-pass
+proof at >=50 proved tokens/s on an RTX 5090 or another high-end GPU**.
+Larger workloads may amortize initialization and initial prefill; 512 tokens
+and 10.24 s are reference values, not required acceptance limits. Follow
+[the amended target](ZK60_THROUGHPUT_TARGET.md). No measured full private 8B
+pass exists. The persistent
+hourly explorer is resumed and host liveness checked; see its runtime records.
+Main's active candidate is the native SC_SZC grouped-equality port at
+`/tmp/zk60-groups-20260926`, retained under
+`results/zk60_grouped_rounds_20260926/`. Core debug/release pass 73 + 2 tests;
+all nine native validation steps now pass, including 512 library tests
+(17 ignored) and receipt compatibility. All source/binary/log pins were
+rechecked. The dense A/B has completed, six passing runs. Two non-warm samples
+per arm show about 8.5% less proving time and 18.4% less complete softmax-slot
+time on average; shared two-thread synthetic CPU diagnostics, not an 8B/GPU
+result or stable production speed claim. See the retained measured summary.
+The separate R2a A/B is under `results/zk60_encode_allocation_20260922/dense-ab-1/`.
+The research [budget handoff](../../research/zkp-efficiency/handoffs/20260926-forward-budget-and-traffic.md)
+calls for exact 8B layout/transfer counts before hardware extrapolation.
+No source promotion, wider privacy acceptance or GPU validation is implied.
+
+Next native candidate: review the researcher's
+[grouped fold/next-round fusion](../../research/zkp-efficiency/handoffs/20260927-grouped-fused-round.md),
+preserve generic equality supports and parallel ownership, then require
+masked/RNG/IR/extension/receipt gates before timing round+fold together.
+The 19.92% counted synthetic traffic reduction is not a speed measurement.
+
+Next workload study: resident model, fixed context, 1/2/4/8 complete passes
+to isolate startup amortization, then a separately labeled 512/1024/2048/4096
+context ladder after each layout/memory/semantic gate. These are planned
+benchmarks, not admitted profiles or GPU performance estimates. Context growth
+raises attention work; repeated contexts must be labeled aggregate throughput.
+
+**Proactive research, 2026-09-26:** follow the
+[standing agenda](../../research/zkp-efficiency/AGENDA.md) each research cycle;
+generate questions, rank end-to-end impact, and test a falsifiable hypothesis.
+The [KV handoff](../../research/zkp-efficiency/handoffs/20260926-kv-proof-state.md)
+includes a passing six-case synthetic experiment: preserving the frozen
+all-score relation needs old queries as well as K/V for deferred future-pair
+checks. Next bounded cache study is chunked witness equivalence inside one
+proof window, including original refusal order. Cross-window private-state
+authentication is separate work; no native KV speed result exists.
+
+**2026-09-22, persistent exploration requested by Victor:** the independent
+research lane saves literature/GitHub findings and small plug-in experiments
+under `research/zkp-efficiency/`. On every pickup, read its STATE.md and triage
+new handoffs alongside the implementation queue. Supervisor setup/status:
+[`ops/zkp-explorer/README.md`](../../ops/zkp-explorer/README.md). It does not
+replace trained-model integration or GPU validation; no speed/privacy claim
+follows merely from a research result. Do not launch a duplicate worker.
+
+**2026-09-22, target clarification from Victor:** five seconds is for an
+**8B-parameter model on better GPU hardware**. Keep full private model
+coverage, including attention, in scope. The 125M CPU block is the
+development fixture. The measured public Mistral-7B record remains 58.40 s
+for FFN only over 512 tokens (8.77 proved tokens/s), not a 54-second
+FFN-plus-attention proof. Model-pass readiness, witness preparation, proving
+and verification must retain their separate clocks.
+
 **2026-09-20, combined host/private integration:** corrected direct-plane
 uploads, lazy cache keys and private host reuse/folds pass 43 isolated
 validation steps, including 307 storage tests, 189 actual-device cases and

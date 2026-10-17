@@ -1,0 +1,25 @@
+{
+  "checked_at_unix": 1790731061.7069938,
+  "command": [
+    "python3",
+    "scripts/zk60_resource_guard.py",
+    "status",
+    "--json"
+  ],
+  "sandbox": {
+    "kernel_memory_cap_available": false,
+    "gpu_used_mib": null,
+    "mem_available_gib": 13.86
+  },
+  "host": {
+    "kernel_memory_cap_available": true,
+    "gpu_used_mib": 0,
+    "gpu_total_mib": 8188,
+    "mem_available_gib": 13.9,
+    "swap_used_gib": 0,
+    "live_guarded_jobs": [],
+    "heavy_lock_free": true,
+    "build_lock_free": true
+  },
+  "no_native_job_launched": true
+}

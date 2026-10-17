@@ -1,0 +1,3138 @@
+[
+  {
+    "elapsed": 0.039845846999924106,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.17
+  },
+  {
+    "elapsed": 1.0860550069999135,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.33
+  },
+  {
+    "elapsed": 2.1270894290000797,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.22
+  },
+  {
+    "elapsed": 3.1669371329999194,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.25
+  },
+  {
+    "elapsed": 4.2071070530000725,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.2
+  },
+  {
+    "elapsed": 5.252345589000015,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.32
+  },
+  {
+    "elapsed": 6.29284954700006,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.26
+  },
+  {
+    "elapsed": 7.334785966000027,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.49
+  },
+  {
+    "elapsed": 8.377336869999908,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.49
+  },
+  {
+    "elapsed": 9.424681602999954,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.46
+  },
+  {
+    "elapsed": 10.46501582499991,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.22
+  },
+  {
+    "elapsed": 11.513955784000018,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 3.27
+  },
+  {
+    "elapsed": 12.552407498000093,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.23
+  },
+  {
+    "elapsed": 13.593171112999926,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 3.4
+  },
+  {
+    "elapsed": 14.633878176000053,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.17
+  },
+  {
+    "elapsed": 15.674042528999962,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.13
+  },
+  {
+    "elapsed": 16.714390388000083,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.43
+  },
+  {
+    "elapsed": 17.754244943999993,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.27
+  },
+  {
+    "elapsed": 18.79209211500006,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.46
+  },
+  {
+    "elapsed": 19.83409804000007,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.29
+  },
+  {
+    "elapsed": 20.88340921500003,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.15
+  },
+  {
+    "elapsed": 21.9268967590001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.22
+  },
+  {
+    "elapsed": 22.97820743000011,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.39
+  },
+  {
+    "elapsed": 24.01626744300006,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.08
+  },
+  {
+    "elapsed": 25.06011232800006,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 3.87
+  },
+  {
+    "elapsed": 26.10229449999997,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.33
+  },
+  {
+    "elapsed": 27.145525406999923,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.26
+  },
+  {
+    "elapsed": 28.183225413999935,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.34
+  },
+  {
+    "elapsed": 29.22617407100006,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.3
+  },
+  {
+    "elapsed": 30.266869386000053,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.37
+  },
+  {
+    "elapsed": 31.312195916000064,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.31
+  },
+  {
+    "elapsed": 32.355710256000066,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.29
+  },
+  {
+    "elapsed": 33.39940864899995,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.22
+  },
+  {
+    "elapsed": 34.43762122299995,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.33
+  },
+  {
+    "elapsed": 35.483355013999926,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.28
+  },
+  {
+    "elapsed": 36.52413465299992,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 3.23
+  },
+  {
+    "elapsed": 37.56720611900005,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.19
+  },
+  {
+    "elapsed": 38.60694975299998,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.31
+  },
+  {
+    "elapsed": 39.65071394300003,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.69
+  },
+  {
+    "elapsed": 40.691909186999965,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.21
+  },
+  {
+    "elapsed": 41.73395535999998,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.35
+  },
+  {
+    "elapsed": 42.77333715300006,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.39
+  },
+  {
+    "elapsed": 43.817566857999964,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.33
+  },
+  {
+    "elapsed": 44.860057004000055,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.23
+  },
+  {
+    "elapsed": 45.902790374000006,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.21
+  },
+  {
+    "elapsed": 46.941052950000085,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.28
+  },
+  {
+    "elapsed": 47.98081169400007,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.31
+  },
+  {
+    "elapsed": 49.022200842000075,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 3.56
+  },
+  {
+    "elapsed": 50.076781682000046,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.34
+  },
+  {
+    "elapsed": 51.11803680000003,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 3.12
+  },
+  {
+    "elapsed": 52.15749784800005,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.33
+  },
+  {
+    "elapsed": 53.19569671599993,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.42
+  },
+  {
+    "elapsed": 54.23432640200008,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.37
+  },
+  {
+    "elapsed": 55.277400901999954,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.24
+  },
+  {
+    "elapsed": 56.316642301,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.24
+  },
+  {
+    "elapsed": 57.35885702199994,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.01
+  },
+  {
+    "elapsed": 58.40486220799994,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.32
+  },
+  {
+    "elapsed": 59.445229616000006,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.15
+  },
+  {
+    "elapsed": 60.49223482599996,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.33
+  },
+  {
+    "elapsed": 61.531944603000056,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.35
+  },
+  {
+    "elapsed": 62.57630386300002,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.24
+  },
+  {
+    "elapsed": 63.61458527900004,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.3
+  },
+  {
+    "elapsed": 64.65570720000005,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.33
+  },
+  {
+    "elapsed": 65.69490120499995,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.22
+  },
+  {
+    "elapsed": 66.73498093600006,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 3.03
+  },
+  {
+    "elapsed": 67.77896345299996,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.43
+  },
+  {
+    "elapsed": 68.82013026899995,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.36
+  },
+  {
+    "elapsed": 69.86088696399997,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.81
+  },
+  {
+    "elapsed": 70.90340797499994,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.39
+  },
+  {
+    "elapsed": 71.95556868800008,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 3.2
+  },
+  {
+    "elapsed": 72.99323161200005,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 0.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.38
+  },
+  {
+    "elapsed": 74.02965227999994,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 125.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.4
+  },
+  {
+    "elapsed": 75.0754702050001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 125.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.39
+  },
+  {
+    "elapsed": 76.116096212,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 125.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.53
+  },
+  {
+    "elapsed": 77.16174418300011,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 125.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.38
+  },
+  {
+    "elapsed": 78.20002020200013,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 353.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.49
+  },
+  {
+    "elapsed": 79.2373984410001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 353.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.53
+  },
+  {
+    "elapsed": 80.27831141299998,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 353.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.24
+  },
+  {
+    "elapsed": 81.32073006199994,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 353.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.23
+  },
+  {
+    "elapsed": 82.36014639500013,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 353.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.87
+  },
+  {
+    "elapsed": 83.40204632600012,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 353.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.24
+  },
+  {
+    "elapsed": 84.44468274099995,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 353.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.42
+  },
+  {
+    "elapsed": 85.48506570500012,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 1185.0,
+    "total_mib": 8188.0,
+    "util_percent": 27.0,
+    "power_w": 14.14
+  },
+  {
+    "elapsed": 86.52459106300012,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 1185.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.44
+  },
+  {
+    "elapsed": 87.57993565099991,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 63.0,
+    "power_w": 8.6
+  },
+  {
+    "elapsed": 88.62923541500004,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.44
+  },
+  {
+    "elapsed": 89.67011890799995,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.44
+  },
+  {
+    "elapsed": 90.72375797299992,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.41
+  },
+  {
+    "elapsed": 91.76741379200007,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.4
+  },
+  {
+    "elapsed": 92.81135283000003,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.59
+  },
+  {
+    "elapsed": 93.85343162699996,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.47
+  },
+  {
+    "elapsed": 94.89787445799993,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.32
+  },
+  {
+    "elapsed": 95.94339542700004,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.35
+  },
+  {
+    "elapsed": 96.98897185100009,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.38
+  },
+  {
+    "elapsed": 98.03222640800004,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.41
+  },
+  {
+    "elapsed": 99.074265857,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.23
+  },
+  {
+    "elapsed": 100.12122983299992,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.25
+  },
+  {
+    "elapsed": 101.15905369999996,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.48
+  },
+  {
+    "elapsed": 102.19967455799997,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.33
+  },
+  {
+    "elapsed": 103.24078244599991,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.35
+  },
+  {
+    "elapsed": 104.37901812299992,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 87.0,
+    "power_w": 24.16
+  },
+  {
+    "elapsed": 105.42554491500005,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.82
+  },
+  {
+    "elapsed": 106.46587953700009,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.38
+  },
+  {
+    "elapsed": 107.51074451799991,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.47
+  },
+  {
+    "elapsed": 108.55656939200003,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.71
+  },
+  {
+    "elapsed": 109.59543086100007,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.52
+  },
+  {
+    "elapsed": 110.63563451999994,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 3.26
+  },
+  {
+    "elapsed": 111.6852800900001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 3.61
+  },
+  {
+    "elapsed": 112.74762091499997,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 38.0,
+    "power_w": 4.79
+  },
+  {
+    "elapsed": 113.78616969900008,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.48
+  },
+  {
+    "elapsed": 114.82314131599992,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.44
+  },
+  {
+    "elapsed": 115.86412346599991,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.55
+  },
+  {
+    "elapsed": 116.90476208399991,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.53
+  },
+  {
+    "elapsed": 117.94230144900007,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.5
+  },
+  {
+    "elapsed": 118.98272710099991,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.41
+  },
+  {
+    "elapsed": 120.02346805999991,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.44
+  },
+  {
+    "elapsed": 121.06357901000001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.48
+  },
+  {
+    "elapsed": 122.10518127199998,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.14
+  },
+  {
+    "elapsed": 123.14828330799992,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.62
+  },
+  {
+    "elapsed": 124.187855506,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.62
+  },
+  {
+    "elapsed": 125.22885434799991,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.18
+  },
+  {
+    "elapsed": 126.26988095599995,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.23
+  },
+  {
+    "elapsed": 127.31030444199996,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.41
+  },
+  {
+    "elapsed": 128.35661916999993,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.58
+  },
+  {
+    "elapsed": 129.41070181100008,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.33
+  },
+  {
+    "elapsed": 130.45822795200002,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 93.0,
+    "power_w": 16.53
+  },
+  {
+    "elapsed": 131.49871062300008,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.55
+  },
+  {
+    "elapsed": 132.541906079,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.53
+  },
+  {
+    "elapsed": 133.58509471999992,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.34
+  },
+  {
+    "elapsed": 134.6234277000001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.44
+  },
+  {
+    "elapsed": 135.663194342,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 5.75
+  },
+  {
+    "elapsed": 136.70697245600013,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.51
+  },
+  {
+    "elapsed": 137.745616725,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.64
+  },
+  {
+    "elapsed": 138.78761303300007,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 11.0,
+    "power_w": 8.6
+  },
+  {
+    "elapsed": 139.828321275,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.54
+  },
+  {
+    "elapsed": 140.87404542700006,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.59
+  },
+  {
+    "elapsed": 141.91660509999997,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.61
+  },
+  {
+    "elapsed": 142.973465563,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.49
+  },
+  {
+    "elapsed": 144.021108551,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.86
+  },
+  {
+    "elapsed": 145.0709230320001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.39
+  },
+  {
+    "elapsed": 146.11635327099998,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.27
+  },
+  {
+    "elapsed": 147.1622670060001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.34
+  },
+  {
+    "elapsed": 148.2045378150001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.34
+  },
+  {
+    "elapsed": 149.25133911900002,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.33
+  },
+  {
+    "elapsed": 150.29457157499996,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.25
+  },
+  {
+    "elapsed": 151.34557860199993,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.42
+  },
+  {
+    "elapsed": 152.38934212799995,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.4
+  },
+  {
+    "elapsed": 153.44109942399996,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.28
+  },
+  {
+    "elapsed": 154.48625425399996,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 99.0,
+    "power_w": 6.91
+  },
+  {
+    "elapsed": 155.53006997700004,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 1.0,
+    "power_w": 8.75
+  },
+  {
+    "elapsed": 156.568739757,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.54
+  },
+  {
+    "elapsed": 157.60918723999998,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.41
+  },
+  {
+    "elapsed": 158.64934121300007,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.34
+  },
+  {
+    "elapsed": 159.69067026300013,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.75
+  },
+  {
+    "elapsed": 160.7336142260001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.75
+  },
+  {
+    "elapsed": 161.77612862299998,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.63
+  },
+  {
+    "elapsed": 162.819147961,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 100.0,
+    "power_w": 7.1
+  },
+  {
+    "elapsed": 163.85581986900002,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.47
+  },
+  {
+    "elapsed": 164.90298843100004,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 100.0,
+    "power_w": 32.96
+  },
+  {
+    "elapsed": 165.9457756500001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.55
+  },
+  {
+    "elapsed": 166.99033029299994,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.49
+  },
+  {
+    "elapsed": 168.03071225899998,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.47
+  },
+  {
+    "elapsed": 169.075663782,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 7.83
+  },
+  {
+    "elapsed": 170.11810182199997,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.46
+  },
+  {
+    "elapsed": 171.16003560100012,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.27
+  },
+  {
+    "elapsed": 172.20438440099997,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 3.59
+  },
+  {
+    "elapsed": 173.25285322800005,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.21
+  },
+  {
+    "elapsed": 174.3008658189999,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.15
+  },
+  {
+    "elapsed": 175.34476497800006,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.37
+  },
+  {
+    "elapsed": 176.396875227,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.29
+  },
+  {
+    "elapsed": 177.448454308,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.37
+  },
+  {
+    "elapsed": 178.48816189100012,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.5
+  },
+  {
+    "elapsed": 179.52941446199998,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.46
+  },
+  {
+    "elapsed": 180.57346873999995,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.2
+  },
+  {
+    "elapsed": 181.612819403,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 79.0,
+    "power_w": 27.88
+  },
+  {
+    "elapsed": 182.66446557900008,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.59
+  },
+  {
+    "elapsed": 183.70820643599995,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.5
+  },
+  {
+    "elapsed": 184.74279840600002,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.34
+  },
+  {
+    "elapsed": 185.7873920300001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.61
+  },
+  {
+    "elapsed": 186.827972972,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.32
+  },
+  {
+    "elapsed": 187.86933083000008,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.24
+  },
+  {
+    "elapsed": 188.91251506899994,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.25
+  },
+  {
+    "elapsed": 189.962093159,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.55
+  },
+  {
+    "elapsed": 191.01058063899995,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.27
+  },
+  {
+    "elapsed": 192.05303636000008,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 16.66
+  },
+  {
+    "elapsed": 193.09134625499996,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.41
+  },
+  {
+    "elapsed": 194.13124187900007,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 86.0,
+    "power_w": 8.68
+  },
+  {
+    "elapsed": 195.17399881999995,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.53
+  },
+  {
+    "elapsed": 196.211005247,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.61
+  },
+  {
+    "elapsed": 197.248460175,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.48
+  },
+  {
+    "elapsed": 198.28716660300006,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.42
+  },
+  {
+    "elapsed": 199.33137887099997,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.68
+  },
+  {
+    "elapsed": 200.37523093899995,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.33
+  },
+  {
+    "elapsed": 201.4239017970001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.36
+  },
+  {
+    "elapsed": 202.47095649800008,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.21
+  },
+  {
+    "elapsed": 203.5168703910001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.27
+  },
+  {
+    "elapsed": 204.5568174130001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.26
+  },
+  {
+    "elapsed": 205.59932713400008,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.28
+  },
+  {
+    "elapsed": 206.6490966199999,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.2
+  },
+  {
+    "elapsed": 207.69458269799998,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.55
+  },
+  {
+    "elapsed": 208.7393739480001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.45
+  },
+  {
+    "elapsed": 209.78042152500007,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 58.0,
+    "power_w": 6.89
+  },
+  {
+    "elapsed": 210.81907142799992,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 22.0,
+    "power_w": 12.52
+  },
+  {
+    "elapsed": 211.869117878,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.64
+  },
+  {
+    "elapsed": 212.90830196899992,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.53
+  },
+  {
+    "elapsed": 213.9523805450001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.46
+  },
+  {
+    "elapsed": 214.99889573199994,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.99
+  },
+  {
+    "elapsed": 216.04716989300005,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.47
+  },
+  {
+    "elapsed": 217.08777298299992,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 3.2
+  },
+  {
+    "elapsed": 218.139408023,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.23
+  },
+  {
+    "elapsed": 219.18344011599993,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 99.0,
+    "power_w": 23.31
+  },
+  {
+    "elapsed": 220.22037076300012,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.42
+  },
+  {
+    "elapsed": 221.32270173300003,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 99.0,
+    "power_w": 14.96
+  },
+  {
+    "elapsed": 222.36375036899994,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.49
+  },
+  {
+    "elapsed": 223.39603826200005,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.49
+  },
+  {
+    "elapsed": 224.45373484800007,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 7.23
+  },
+  {
+    "elapsed": 225.49342722200004,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.45
+  },
+  {
+    "elapsed": 226.5398755450001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.42
+  },
+  {
+    "elapsed": 227.58695253399992,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.38
+  },
+  {
+    "elapsed": 228.63744008000003,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 3.96
+  },
+  {
+    "elapsed": 229.67843440899992,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.22
+  },
+  {
+    "elapsed": 230.72008738099998,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.41
+  },
+  {
+    "elapsed": 231.76540573400007,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.73
+  },
+  {
+    "elapsed": 232.8256937440001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 3.24
+  },
+  {
+    "elapsed": 233.86986171000012,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.08
+  },
+  {
+    "elapsed": 234.91261576300008,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.51
+  },
+  {
+    "elapsed": 235.9540399340001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.64
+  },
+  {
+    "elapsed": 236.99642011700007,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.33
+  },
+  {
+    "elapsed": 238.03689290900002,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 49.0,
+    "power_w": 8.83
+  },
+  {
+    "elapsed": 239.0830443960001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.51
+  },
+  {
+    "elapsed": 240.12095628199995,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.42
+  },
+  {
+    "elapsed": 241.15925099800006,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.42
+  },
+  {
+    "elapsed": 242.20201446700003,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.78
+  },
+  {
+    "elapsed": 243.24603730400008,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.24
+  },
+  {
+    "elapsed": 244.2847081110001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.19
+  },
+  {
+    "elapsed": 245.3297969780001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.23
+  },
+  {
+    "elapsed": 246.3698340620001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.41
+  },
+  {
+    "elapsed": 247.41598803700003,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 100.0,
+    "power_w": 34.71
+  },
+  {
+    "elapsed": 248.46825107299992,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.48
+  },
+  {
+    "elapsed": 249.51602279400004,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 22.0,
+    "power_w": 10.23
+  },
+  {
+    "elapsed": 250.55768267899998,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.54
+  },
+  {
+    "elapsed": 251.59510140800012,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.55
+  },
+  {
+    "elapsed": 252.63464871600013,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.47
+  },
+  {
+    "elapsed": 253.677577896,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.6
+  },
+  {
+    "elapsed": 254.7240436720001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.65
+  },
+  {
+    "elapsed": 255.7656661000001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.53
+  },
+  {
+    "elapsed": 256.810285602,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.36
+  },
+  {
+    "elapsed": 257.850278335,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.3
+  },
+  {
+    "elapsed": 258.9061524440001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.86
+  },
+  {
+    "elapsed": 259.95452120100003,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.34
+  },
+  {
+    "elapsed": 260.9942039540001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.54
+  },
+  {
+    "elapsed": 262.039134742,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.59
+  },
+  {
+    "elapsed": 263.08602191499995,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.52
+  },
+  {
+    "elapsed": 264.129777677,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.34
+  },
+  {
+    "elapsed": 265.170901488,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.4
+  },
+  {
+    "elapsed": 266.2324442260001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 71.0,
+    "power_w": 19.47
+  },
+  {
+    "elapsed": 267.2729350060001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.5
+  },
+  {
+    "elapsed": 268.31257023800003,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.42
+  },
+  {
+    "elapsed": 269.35105660399995,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.41
+  },
+  {
+    "elapsed": 270.3890919769999,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.42
+  },
+  {
+    "elapsed": 271.43548478699995,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.37
+  },
+  {
+    "elapsed": 272.48007888899997,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.57
+  },
+  {
+    "elapsed": 273.5351208070001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.91
+  },
+  {
+    "elapsed": 274.5937957010001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.26
+  },
+  {
+    "elapsed": 275.6345474750001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.49
+  },
+  {
+    "elapsed": 276.678012072,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.48
+  },
+  {
+    "elapsed": 277.727054297,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.56
+  },
+  {
+    "elapsed": 278.763966042,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.51
+  },
+  {
+    "elapsed": 279.80225248500005,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.42
+  },
+  {
+    "elapsed": 280.8524270160001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.41
+  },
+  {
+    "elapsed": 281.91017232800004,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.63
+  },
+  {
+    "elapsed": 282.957187451,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.34
+  },
+  {
+    "elapsed": 284.007908433,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.28
+  },
+  {
+    "elapsed": 285.04828063800005,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.18
+  },
+  {
+    "elapsed": 286.0933475280001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.42
+  },
+  {
+    "elapsed": 287.1351986510001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.35
+  },
+  {
+    "elapsed": 288.173059962,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.31
+  },
+  {
+    "elapsed": 289.2250116790001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.33
+  },
+  {
+    "elapsed": 290.27642706200004,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.34
+  },
+  {
+    "elapsed": 291.325269984,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.33
+  },
+  {
+    "elapsed": 292.36965410900007,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.35
+  },
+  {
+    "elapsed": 293.4427715280001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 87.0,
+    "power_w": 34.69
+  },
+  {
+    "elapsed": 294.48446992799995,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.56
+  },
+  {
+    "elapsed": 295.52636132099997,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.48
+  },
+  {
+    "elapsed": 296.5670665770001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.47
+  },
+  {
+    "elapsed": 297.60740428300005,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.42
+  },
+  {
+    "elapsed": 298.65402531099994,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.44
+  },
+  {
+    "elapsed": 299.69440150900004,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.46
+  },
+  {
+    "elapsed": 300.7342583290001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.58
+  },
+  {
+    "elapsed": 301.8001117850001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.78
+  },
+  {
+    "elapsed": 302.84884192899995,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.47
+  },
+  {
+    "elapsed": 303.8894129570001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.54
+  },
+  {
+    "elapsed": 304.94390172299995,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 12.66
+  },
+  {
+    "elapsed": 305.98568957299995,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.61
+  },
+  {
+    "elapsed": 307.0285008190001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.5
+  },
+  {
+    "elapsed": 308.075653375,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.46
+  },
+  {
+    "elapsed": 309.1295937320001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.54
+  },
+  {
+    "elapsed": 310.181790157,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.93
+  },
+  {
+    "elapsed": 311.22439647600004,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 3.67
+  },
+  {
+    "elapsed": 312.2748039620001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.35
+  },
+  {
+    "elapsed": 313.319192295,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.51
+  },
+  {
+    "elapsed": 314.364318893,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.38
+  },
+  {
+    "elapsed": 315.40962134200004,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.3
+  },
+  {
+    "elapsed": 316.44709858400006,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.32
+  },
+  {
+    "elapsed": 317.488142788,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.64
+  },
+  {
+    "elapsed": 318.538185054,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.39
+  },
+  {
+    "elapsed": 319.57815464500004,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.47
+  },
+  {
+    "elapsed": 320.62128110599997,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 24.0,
+    "power_w": 8.72
+  },
+  {
+    "elapsed": 321.65718638399994,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.47
+  },
+  {
+    "elapsed": 322.69571644300004,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.44
+  },
+  {
+    "elapsed": 323.735926652,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.43
+  },
+  {
+    "elapsed": 324.77542713699995,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.89
+  },
+  {
+    "elapsed": 325.8209586539999,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.66
+  },
+  {
+    "elapsed": 326.8645774060001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 3.2
+  },
+  {
+    "elapsed": 327.9149818600001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.34
+  },
+  {
+    "elapsed": 328.9633849040001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 99.0,
+    "power_w": 14.79
+  },
+  {
+    "elapsed": 330.0008683830001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.64
+  },
+  {
+    "elapsed": 331.03943965100007,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 100.0,
+    "power_w": 18.8
+  },
+  {
+    "elapsed": 332.07874177400004,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.62
+  },
+  {
+    "elapsed": 333.124308617,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.56
+  },
+  {
+    "elapsed": 334.162856893,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.52
+  },
+  {
+    "elapsed": 335.202029347,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 5.53
+  },
+  {
+    "elapsed": 336.2480311510001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 3.34
+  },
+  {
+    "elapsed": 337.29401540999993,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 3.22
+  },
+  {
+    "elapsed": 338.3392115920001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.88
+  },
+  {
+    "elapsed": 339.3874012640001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.3
+  },
+  {
+    "elapsed": 340.42724292899993,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.27
+  },
+  {
+    "elapsed": 341.46843102899993,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.23
+  },
+  {
+    "elapsed": 342.51111044699996,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.47
+  },
+  {
+    "elapsed": 343.562558392,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.34
+  },
+  {
+    "elapsed": 344.60418328100013,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.2
+  },
+  {
+    "elapsed": 345.65038124700004,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.48
+  },
+  {
+    "elapsed": 346.69285956199997,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 36.0,
+    "power_w": 6.97
+  },
+  {
+    "elapsed": 347.730601017,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 27.0,
+    "power_w": 8.84
+  },
+  {
+    "elapsed": 348.775442246,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.6
+  },
+  {
+    "elapsed": 349.81105186700006,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.61
+  },
+  {
+    "elapsed": 350.8689941320001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.44
+  },
+  {
+    "elapsed": 351.915533095,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.69
+  },
+  {
+    "elapsed": 352.95549732099994,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.59
+  },
+  {
+    "elapsed": 354.0099088060001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.26
+  },
+  {
+    "elapsed": 355.052046303,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 99.0,
+    "power_w": 34.99
+  },
+  {
+    "elapsed": 356.09732497000005,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.6
+  },
+  {
+    "elapsed": 357.1375614230001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 100.0,
+    "power_w": 19.8
+  },
+  {
+    "elapsed": 358.1788738790001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.61
+  },
+  {
+    "elapsed": 359.2152282320001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.55
+  },
+  {
+    "elapsed": 360.2542041500001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.53
+  },
+  {
+    "elapsed": 361.29839355900003,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.57
+  },
+  {
+    "elapsed": 362.34550332899994,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.31
+  },
+  {
+    "elapsed": 363.38573958899997,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.28
+  },
+  {
+    "elapsed": 364.428895817,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.94
+  },
+  {
+    "elapsed": 365.47130016000006,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.33
+  },
+  {
+    "elapsed": 366.51444979100006,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.44
+  },
+  {
+    "elapsed": 367.55500813699996,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.28
+  },
+  {
+    "elapsed": 368.59720353600005,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.37
+  },
+  {
+    "elapsed": 369.644251469,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.28
+  },
+  {
+    "elapsed": 370.68434919800006,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.4
+  },
+  {
+    "elapsed": 371.72751771699996,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 65.0,
+    "power_w": 11.7
+  },
+  {
+    "elapsed": 372.77209724,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.64
+  },
+  {
+    "elapsed": 373.8131767059999,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.51
+  },
+  {
+    "elapsed": 374.8510460719999,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.55
+  },
+  {
+    "elapsed": 375.89264164099995,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.54
+  },
+  {
+    "elapsed": 376.93857176000006,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.82
+  },
+  {
+    "elapsed": 377.97941786699994,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.26
+  },
+  {
+    "elapsed": 379.02158502,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 99.0,
+    "power_w": 26.27
+  },
+  {
+    "elapsed": 380.06008104400007,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.61
+  },
+  {
+    "elapsed": 381.096325319,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 88.0,
+    "power_w": 24.42
+  },
+  {
+    "elapsed": 382.1324181960001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.62
+  },
+  {
+    "elapsed": 383.170378649,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.51
+  },
+  {
+    "elapsed": 384.20806050400006,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.55
+  },
+  {
+    "elapsed": 385.251625932,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.45
+  },
+  {
+    "elapsed": 386.29241312499994,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 5.39
+  },
+  {
+    "elapsed": 387.3353690030001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.24
+  },
+  {
+    "elapsed": 388.37851013,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.29
+  },
+  {
+    "elapsed": 389.42066995799996,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.24
+  },
+  {
+    "elapsed": 390.46567938,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.37
+  },
+  {
+    "elapsed": 391.51152741300007,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.59
+  },
+  {
+    "elapsed": 392.5540338139999,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.17
+  },
+  {
+    "elapsed": 393.599937533,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.19
+  },
+  {
+    "elapsed": 394.64162404900003,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2113.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.25
+  },
+  {
+    "elapsed": 395.6830471410001,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 83.0,
+    "power_w": 33.39
+  },
+  {
+    "elapsed": 396.722335684,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 20.27
+  },
+  {
+    "elapsed": 397.761580609,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.85
+  },
+  {
+    "elapsed": 398.805358522,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 8.46
+  },
+  {
+    "elapsed": 399.850093214,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 4.46
+  },
+  {
+    "elapsed": 400.89396830500004,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 7.8
+  },
+  {
+    "elapsed": 401.93798333099994,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 3.22
+  },
+  {
+    "elapsed": 402.980281266,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.21
+  },
+  {
+    "elapsed": 404.020413816,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.07
+  },
+  {
+    "elapsed": 405.06106672400006,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.23
+  },
+  {
+    "elapsed": 406.10034322399997,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.5
+  },
+  {
+    "elapsed": 407.141703905,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.2
+  },
+  {
+    "elapsed": 408.18118243799995,
+    "name": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "used_mib": 2081.0,
+    "total_mib": 8188.0,
+    "util_percent": 0.0,
+    "power_w": 2.12
+  }
+]

@@ -1,0 +1,7 @@
+{
+  "phase": "initial inline source/timing pin preparation",
+  "error": "KeyError: 'status'",
+  "cause": "Owner comparison.json uses the key state, not status.",
+  "effect": "Four source snapshots were copied before the failure; no pin manifest or timing file was written by that attempt. Experiment passed independently.",
+  "resolution": "prepare.py checks the actual state key and zero terminal, and verifies existing snapshots before writing pins. No upstream artifact changed."
+}

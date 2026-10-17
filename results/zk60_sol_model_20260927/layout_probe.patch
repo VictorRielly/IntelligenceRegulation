@@ -1,0 +1,64 @@
+--- /tmp/zk60-groups-20260926/hashline/src/private_block/shape.rs	2026-09-22 19:36:02.394554710 -0700
++++ /tmp/zk60-sol-model-20260927/hashline/src/private_block/shape.rs	2026-09-26 19:42:23.168313406 -0700
+@@ -1426,3 +1426,61 @@
+     pub endpoint_openings: usize,
+     pub total: usize,
+ }
++
++#[cfg(test)]
++mod sol_layout_probe {
++    use super::*;
++    use crate::private_block::layout::{Dom, Layout};
++
++    #[test]
++    fn count_without_proof_allocation() {
++        let cases = [
++            ("toy", 32, 16, 16, 2, 1, 8, 8, 8, 7),
++            ("m125", 512, 768, 2048, 12, 4, 64, 14, 4, 37),
++            ("mistral_t512_probe", 512, 4096, 14336, 32, 8, 128, 14, 4, 133),
++            ("mistral_t1024_probe", 1024, 4096, 14336, 32, 8, 128, 14, 4, 261),
++        ];
++        for (name, t, d, f, h, kv, dh, lc, rate, endpoint_rows) in cases {
++            let shape = match name {
++                "toy" => Ok(Shape::toy()),
++                "m125" => Ok(Shape::m125()),
++                _ => Shape::new(name, "unregistered-layout-probe/1", t, d, f, h, dh, kv,
++                    lc, rate, 9, endpoint_rows, None, None, None, None),
++            };
++            match shape {
++                Err(e) => println!("PROBE {name} REFUSED {e}"),
++                Ok(sh) => match Layout::for_shape(&sh) {
++                    Err(e) => println!("PROBE {name} LAYOUT_REFUSED {e}"),
++                    Ok(lay) => {
++                        let tot = sh.totals();
++                        if sh.endpoint_general {
++                            use crate::private_block::endpoint_g::EndpointSpecG;
++                            use crate::private_block::boundary::BoundarySpec;
++                            let tag = sh.hash_tag();
++                            let ep = EndpointSpecG::new_with_tag([1; 32], sh.t_pad, sh.d_pad,
++                                0, 0, 1, sh.endpoint_log_n, sh.endpoint_inv_rate,
++                                sh.opened_cols, &tag);
++                            let bd = BoundarySpec::new_with_tag([1; 32], sh.t_pad, sh.d_pad,
++                                0, 1, 2, sh.endpoint_log_n, sh.endpoint_inv_rate,
++                                sh.opened_cols, endpoint_rows + 1, &tag);
++                            println!("SEAMS {name} endpoint={:?} boundary={:?}",
++                                ep.map(|x| x.commitment_rows()), bd.map(|x| x.commitment_rows()));
++                        }
++                        println!("PROBE {name} T={t} d={d} f={f} Hheads={h} KV={kv} dh={dh} cols={} rate={} A={} Adata={} Hrows={} Hdata={} M={} Asites={} Hsites={} receipt={} largest_slot={} a_planes={} h_planes={} endpoint_rows={} u8_lookups={}",
++                            lay.n(), rate, lay.a_rows, lay.a_data_rows, lay.h_rows,
++                            lay.h_data_rows, tot.m_rows, tot.a_sites, tot.h_sites,
++                            tot.receipt_bytes.total, tot.largest_slot_length,
++                            tot.a_planes, tot.h_planes, endpoint_rows, tot.u8_lookups);
++                        for dom in [Dom::T, Dom::Ht, Dom::L, Dom::D, Dom::Q, Dom::Kv, Dom::S, Dom::F, Dom::Tab] {
++                            let a = sh.a_plane_doms().iter().filter(|x| **x == dom).count();
++                            let hp = sh.h_plane_doms().iter().filter(|x| **x == dom).count();
++                            println!("DOMAIN {name} {:?} natural={} lifted={} size={} rows_per_plane={} Aplanes={} Hplanes={}",
++                                dom, sh.natural_log(dom), sh.log(dom), sh.size(dom),
++                                sh.rows_of(dom), a, hp);
++                        }
++                    }
++                },
++            }
++        }
++    }
++}

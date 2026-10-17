@@ -1,0 +1,2 @@
+[zk60-guard 18:12:37] START demo-tampered_receipt_rejected class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=73e7071884b5
+[zk60-guard 18:12:38] END demo-tampered_receipt_rejected exit=1 child_wall=1s peak_rss=0.00G min_avail=13.86G

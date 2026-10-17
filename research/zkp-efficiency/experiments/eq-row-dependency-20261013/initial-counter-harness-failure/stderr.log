@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/eq-row-dependency-20261013/experiment.py", line 203, in <module>
+    if __name__=='__main__':main()
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/eq-row-dependency-20261013/experiment.py", line 93, in main
+    assert sum(t.lerps for _,_,t in tabs.entries[3:])==sum(t.lerps for _,_,t in base.tables.entries[3:])
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/eq-row-dependency-20261013/experiment.py", line 93, in <genexpr>
+    assert sum(t.lerps for _,_,t in tabs.entries[3:])==sum(t.lerps for _,_,t in base.tables.entries[3:])
+AttributeError: 'CausalMask' object has no attribute 'lerps'

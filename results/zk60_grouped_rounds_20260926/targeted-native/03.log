@@ -1,0 +1,10 @@
+
+running 1 test
+test private_block::p2_tests::an_honest_three_block_fully_dense_run_verifies_from_its_segments_at_the_rung_p2 ... S30 CENSUS [run block 0]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live, the last position of T / Kv / F inside the true support
+S30 CENSUS [run block 1]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live, the last position of T / Kv / F inside the true support
+S30 CENSUS [run block 2]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live, the last position of T / Kv / F inside the true support
+P2 FULLY DENSE RUN L=3 (down band 39): prove 0.98 s, verify from segments 0.10 s, segments [4574904, 4597432, 4765336] B (total 13937672 B), boundary 10 rows
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 528 filtered out; finished in 1.12s
+

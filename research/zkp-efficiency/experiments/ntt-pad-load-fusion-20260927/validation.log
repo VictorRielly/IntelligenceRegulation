@@ -1,0 +1,14 @@
+{
+  "status": "passed",
+  "artifact_hashes": 29,
+  "original_source_hashes": 7,
+  "snapshot_pairs": 5,
+  "owner_logs": 4,
+  "history_prefixes": 2,
+  "archived_state_progress": 2,
+  "source_records_appended": 6,
+  "experiment_runs": 2,
+  "native_or_gpu_execution": false,
+  "production_mutation": false,
+  "scope": "Hash, history and retained result audit only; no new performance or proof verification."
+}

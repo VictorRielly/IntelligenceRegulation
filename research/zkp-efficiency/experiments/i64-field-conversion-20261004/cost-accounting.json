@@ -1,0 +1,19 @@
+{
+  "baseline_parent": {
+    "scope": "synthetic dense 12-block 125M geometry",
+    "independent_verification": false,
+    "wall_s": 408.60922643699996,
+    "parent_s": 86.69099999999999,
+    "parent_fraction": 0.21216114172440537,
+    "zero_cost_parent_deletion_wall_s": 321.918226437,
+    "diagnostic_arithmetic_positions_per_s_if_entire_parent_deleted": 1.5904660188608468,
+    "candidate_time_saved_s": null,
+    "note": "Parent deletion is not zero-fill savings or counted throughput"
+  },
+  "synthetic_m125_signed_conversions_per_block": 88918016,
+  "conversion_subphase_s": null,
+  "observed_binary_is_historical_timed_binary": false,
+  "current_ELF_zero_allocation": "malloc plus memset for nonempty A above one word, addresses0x525703..0x525770",
+  "zero_store_executed_or_physical_traffic_measured": false,
+  "source_arithmetic_candidate_native_timing": null
+}

@@ -1,0 +1,94 @@
+{
+  "status": "pass",
+  "checks": [
+    {
+      "name": "final exit0",
+      "pass": true
+    },
+    {
+      "name": "source command and result hashes",
+      "pass": true
+    },
+    {
+      "name": "one thread and affinity",
+      "pass": true
+    },
+    {
+      "name": "bounded experiment",
+      "pass": true
+    },
+    {
+      "name": "full-stack counted zero and missing clocks",
+      "pass": true
+    },
+    {
+      "name": "initial evidence retained",
+      "pass": true
+    },
+    {
+      "name": "startup pin AGENDA.md",
+      "pass": true
+    },
+    {
+      "name": "startup pin STATE.md",
+      "pass": true
+    },
+    {
+      "name": "startup pin FINDINGS.md",
+      "pass": true
+    },
+    {
+      "name": "startup pin sources.jsonl",
+      "pass": true
+    },
+    {
+      "name": "startup pin PROGRESS.md",
+      "pass": true
+    },
+    {
+      "name": "findings old prefix preserved",
+      "pass": true
+    },
+    {
+      "name": "sources old prefix preserved",
+      "pass": true
+    },
+    {
+      "name": "seven exact records appended",
+      "pass": true
+    },
+    {
+      "name": "source snapshot ops/zkp-mvp/candidate/hashline/src/private_block/witness.rs",
+      "pass": true
+    },
+    {
+      "name": "source snapshot ops/zkp-mvp/candidate/hashline/src/gpu/cuda.rs",
+      "pass": true
+    },
+    {
+      "name": "source snapshot hashline/src/private_block/witness.rs",
+      "pass": true
+    },
+    {
+      "name": "source snapshot ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/witness.rs",
+      "pass": true
+    },
+    {
+      "name": "source snapshot results/zk60_mvp_20260929/baseline-stack-gpu-attempt2/report.json",
+      "pass": true
+    },
+    {
+      "name": "source snapshot results/zk60_mvp_20260929/llama3-8b/config.json",
+      "pass": true
+    },
+    {
+      "name": "all mandatory cycle files",
+      "pass": true
+    },
+    {
+      "name": "deadline",
+      "pass": true
+    }
+  ],
+  "at": "2026-10-04T06:16:57.452748+00:00"
+}

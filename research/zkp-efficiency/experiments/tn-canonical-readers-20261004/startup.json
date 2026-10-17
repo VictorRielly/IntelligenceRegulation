@@ -1,0 +1,32 @@
+{
+  "run_id": "20261004T080146Z-55b15f9d",
+  "cycle": "0026",
+  "started_at": "2026-10-04T08:03:12.468189+00:00",
+  "deadline": "2026-10-04T08:21:46Z",
+  "pins": {
+    "AGENDA.md": {
+      "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+      "bytes": 5603
+    },
+    "STATE.md": {
+      "sha256": "ea036a40045fde9cfe06d30d40498e0c9cdfe2475a1b9ddc5b8464378b76b61d",
+      "bytes": 5258
+    },
+    "FINDINGS.md": {
+      "sha256": "982ef5b77085f595155fbb3ae6a4100174439a33a50ea3db917ba60d6e4ffb89",
+      "bytes": 176963
+    },
+    "sources.jsonl": {
+      "sha256": "678a855d216597e8d44fd9a92e3eae3e3ef7a1699cf4f00ffd8da77e054606bf",
+      "bytes": 137396
+    },
+    "PROGRESS.md": {
+      "sha256": "01c7d49aad6eccfa7bf601163171a2445b6d1725140b4cd4ba8897bedd5fbaf4",
+      "bytes": 1999
+    },
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/tn-weight-cache-20261004/result.json": {
+      "sha256": "b6dc638683a894627f7dd57e735c7139d2c2babca16fac0048a68f4a3aa5b376",
+      "bytes": 37036
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "batch6": {
+    "response_sha256": "d59cbe616b114d283dd810bed9e79357f27ed365fbe425e713f96b2b503c10d8",
+    "returned_urls": [
+      "https://github.com/LayerZero-Labs/akita",
+      "https://layerzero-labs.github.io/akita/foundations/eq-factored-sumcheck.html",
+      "https://www.cs.yale.edu/homes/cpap/published/libra-crypto19.pdf"
+    ],
+    "fetch_errors": [],
+    "note": "Retain source locations, response hashes and exact fetch errors; full third-party text is not copied into research artifacts. Assessment/date/license/commit evidence is in source-records.json."
+  },
+  "batch7": {
+    "response_sha256": "3214c3c53a5559e44ea7c7d4b3d239ab1995df775c96719c4801c1e3e2072cd3",
+    "returned_urls": [
+      "https://github.com/LayerZero-Labs/akita",
+      "https://github.com/LayerZero-Labs/akita/commit/029ceceaba879a0d9bf80a47d2e08534e630457d",
+      "https://www.cs.yale.edu/homes/cpap/published/libra-crypto19.pdf"
+    ],
+    "fetch_errors": [],
+    "note": "Retain source locations, response hashes and exact fetch errors; full third-party text is not copied into research artifacts. Assessment/date/license/commit evidence is in source-records.json."
+  }
+}

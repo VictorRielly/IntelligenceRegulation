@@ -1,0 +1,21 @@
+{
+  "status": "pass",
+  "counts": {
+    "fixtures": 203,
+    "schedules": 669,
+    "independent_words": 81968,
+    "comparisons": 669,
+    "refusal_schedules": 30,
+    "table_helpers": 32,
+    "table_helper_words": 320,
+    "split_plane_sentinel_checks": 639,
+    "formula_checks": 3195,
+    "whole_attempt_schedules": 44,
+    "whole_attempt_refusals": 36,
+    "padded_geometry_words": 1601
+  },
+  "control_count": 21,
+  "elapsed_seconds": 0.7619398679962615,
+  "peak_rss_kib": 31000,
+  "digest_sha256": "80127a9505b510d674dc763c534b53d0eced20e321d135c5711e440067cf05d8"
+}

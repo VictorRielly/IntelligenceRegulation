@@ -1,0 +1,10 @@
+{
+  "gate_records_hash_verified": true,
+  "source_copy_hash_verified": true,
+  "candidate_files": 6,
+  "source_changes_sha256": "c9973364ca6b9fcd7051750ba8ae3f989f3574422fd43a3a5b4a0fd39d353e18",
+  "validation_record_sha256": "5191ab39ac6cbc02efd20bf23d59b032e0bc90acd50769438e81083097ac5e8b",
+  "comparison_record_sha256": "5a4af322e315c7435c3b5d6d4ff94a92406e02e6f743524bfe2e644989076729",
+  "main_integration_accepted": false,
+  "model_goal_complete": false
+}

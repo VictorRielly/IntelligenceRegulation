@@ -1,0 +1,5 @@
+Command: python3 experiments/sc-szc-groups-20260924/experiment.py
+Exit code: 0
+21 differential cases; 189 independent direct points; 5 negative controls; 2 malformed refusals.
+Elapsed 2.3076685769483447 s; peak RSS 24172 KiB.
+Captured from tool execution; result.json is authoritative.

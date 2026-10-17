@@ -1,10 +1,14 @@
 # Intelligence Regulation
 
-The ZKP prototype currently has public transformer-block receipts and an
-experimental private feed-forward component. A complete private transformer
-block and whole-proof privacy acceptance remain open. See the
-[current MVP plan](docs/zkmatrix-poc/ZK60_MVP_20260915.md) and
-[project status](docs/zkmatrix-poc/ZK60_STATUS.md).
+The ZKP prototype has complete small-block proofs and private zkVM receipts
+for a synthetic two-block token computation. Trained-model integration,
+larger-profile privacy and complete-model performance remain open. See
+[current project status](docs/zkmatrix-poc/MVP_STATUS.md).
+
+For the local Tech Week demonstration, run
+`python3 scripts/zk60_techweek_server.py` and open <http://127.0.0.1:8765>.
+It verifies real saved proofs, rejects tampered artifacts, and offers live
+synthetic-block proving. [Demo scope, prerequisites and presentation guide](docs/zkmatrix-poc/ZK60_TECHWEEK_DEMO.md).
 
 ## Description: The world is racing to build Intelligence as quickly as it can. But this intelligence isn't being built to serve people, its being built because if we don't build it they will and they will win. This is a recipe for dissaster. Very quickly tragedy will strike and the world will cry out for AI to pause and only then will it become clear that short of destroying all fabs worldwide, we have no pause button for AI. Some might think its ok, we just need to build it out to be beneficial to all, but unfortunately even if AI never misbehaves, companies and governments, if left to allow runnaway competition to continue will have to make the choice between serving their people and falling behind in the AI race or neglecting the people. Eventually, AI developement must be monitored on a global scale by a single governing organization. This is the only way to remove the competition pressures that are driving humanity towards catastrophe. The only question we have left to answer is how can we establish a worldwide AI and intelligence governance system that is equitable for all countries.
 

@@ -1,0 +1,48 @@
+{
+  "status": "passed",
+  "mode": "live-native-toy-proof",
+  "scope": {
+    "profile": "private-block-t32-poc/1",
+    "synthetic": true,
+    "private_inputs": false,
+    "private_outputs": false,
+    "tokens": 32,
+    "layers": 1,
+    "coverage": "complete T32/d16/f16 transformer block; public synthetic fixture; secret fresh proof randomness",
+    "identity_note": "pinned existing binary and example source; full reproducible build provenance not established"
+  },
+  "receipt_bytes": 2816472,
+  "checks": [
+    {
+      "name": "new_proof_generated",
+      "passed": true
+    },
+    {
+      "name": "fresh_process_verify",
+      "passed": true
+    },
+    {
+      "name": "tampered_receipt_rejected",
+      "passed": true
+    },
+    {
+      "name": "wrong_policy_rejected",
+      "passed": true
+    },
+    {
+      "name": "pinned_artifacts_unchanged",
+      "passed": true
+    }
+  ],
+  "new_proof_generated": true,
+  "trained_model": false,
+  "model_scale_mvp": false,
+  "benchmark": false,
+  "started_at": "2026-09-30T01:31:14.681991+00:00",
+  "binary_sha256": "819895693b2e33b0ea1f1046c97e7f740bbdafb144fff8028f89a238eccfb8cf",
+  "example_source_sha256": "8eee81aac94f1536cd0e15c9368817b98e268e0d699ea98db3ad4ab9c2192168",
+  "receipt_sha256": "dcbbf5c5d88dc4410494ce0ec3b7bbe849d1e94e5bfe9d3dd5a3fbd447c4b08f",
+  "policy_sha256": "335f824aa471bc311a7a33da9ebbedaff96ec72c4f4f302fb3417e9ffd849c05",
+  "policy_origin": "prover-created endpoints pinned before fresh verification (D18)",
+  "elapsed_seconds": 0.543349364000278
+}

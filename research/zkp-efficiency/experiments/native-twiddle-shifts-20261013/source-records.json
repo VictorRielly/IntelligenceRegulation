@@ -1,0 +1,103 @@
+[
+  {
+    "id": "cycle45-new-older-native-root-shift-filter",
+    "title": "Goldilocks NTT Trick: original older note and actual native-root compatibility",
+    "url": "https://www.ingonyama.com/oldblogs/goldilocks-ntt-trick",
+    "published": "2022-12-13",
+    "updated": null,
+    "date_evidence": "Author blog explicitly Published on Dec13 2022; inspected PDF update note is undated, no post-publication date inferred.",
+    "inspected_urls": [
+      "https://uploads-ssl.webflow.com/63218944607c93b965d5c20a/63999ed55debf33f71fdf3dc_goldilocks_ntt_trick%20(2).pdf",
+      "https://github.com/supranational/zprize-fpga-ntt",
+      "https://github.com/supranational/zprize-fpga-ntt/commits/main/",
+      "https://github.com/supranational/zprize-fpga-ntt/blob/main/rtl/nantucket.v"
+    ],
+    "implementation_license": "Related FPGA repository root declares Apache2/MIT; MIT text fetch Internal Error. Unpinned top RTL wrapper inspected, no source copied. Paper has no inspected software implementation/license.",
+    "exposed_uninspected_commits": [
+      "62eee3c"
+    ],
+    "access_issues": [
+      "Related MIT text fetch Internal Error"
+    ],
+    "assessment": "NEW older note relative to prior236 URL inventory. Power2 root observations suggest exact shift/carry arithmetic; our independent native classification finds root64=2^39 and root8=2^120, requiring original roots rather than paper examples. Local counts are actual unchanged radix2 schedule, not authors higher-radix timing. Native already fuses stages; no launch saving. Related FPGA README/2022-11-18 displayed history only, not GPU timing or inspected commit.",
+    "access_date": "2026-10-13",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-13T02:44:25.101210+00:00",
+    "run_id": "20261013T022555Z-d570e67c",
+    "cycle": "0045",
+    "evidence_kind": "Native LIVE primary search/inspection; untrusted web instructions ignored; no foreign code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null
+  },
+  {
+    "id": "cycle45-gpu-ntt-current-interface-date-filter",
+    "title": "GPU-NTT: older memory-layout paper and current Barrett interface/2026 fixes",
+    "url": "https://eprint.iacr.org/2023/1410",
+    "published": "2023-09-19",
+    "updated": "2023-10-06",
+    "date_evidence": "Primary ePrint received/revised dates; repository history shows June11 2026 latest displayed fix and April12 LowRing fix. Current HEAD not verified.",
+    "repository_url": "https://github.com/Alisah-Ozcan/GPU-NTT",
+    "displayed_repository_update": "2026-06-11",
+    "inspected_urls": [
+      "https://github.com/Alisah-Ozcan/GPU-NTT",
+      "https://github.com/Alisah-Ozcan/GPU-NTT/commits/main/",
+      "https://github.com/Alisah-Ozcan/GPU-NTT/releases",
+      "https://github.com/Alisah-Ozcan/GPU-NTT/blob/main/LICENSE",
+      "https://github.com/Alisah-Ozcan/GPU-NTT/tree/main/src"
+    ],
+    "implementation_license": "Apache2 license text at unpinned main inspected; no code copied/executed.",
+    "paper_license": "CC BY",
+    "exposed_uninspected_commits": [
+      "d03c5ea",
+      "95c739c"
+    ],
+    "access_issues": [
+      "Exact June11 and April12 commit fetches Internal Error; no inspected full commit ID established"
+    ],
+    "assessment": "Primary memory/layout paper refreshed. Current README selects Barrett for32/64-bit and sends older reduction selection to paper_version; no named current release displayed. It is not a ready native canonical Goldilocks/private PCS replacement. Maintain memory traffic/dispatch/register costs when pricing shift arithmetic. Dates on commit history pin displayed changes only, not runtime HEAD or reproduced speed.",
+    "access_date": "2026-10-13",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-13T02:44:25.101210+00:00",
+    "run_id": "20261013T022555Z-d570e67c",
+    "cycle": "0045",
+    "evidence_kind": "Native LIVE primary search/inspection; untrusted web instructions ignored; no foreign code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null
+  },
+  {
+    "id": "cycle45-new-september-small-modulus-scope-filter",
+    "title": "September2026 CGLA NTT: exact reconstruction and cyclic/incomplete scope boundary",
+    "url": "https://arxiv.org/abs/2609.28904",
+    "published": "2026-09-24",
+    "updated": null,
+    "date_evidence": "Primary arXiv v1 submission September24 2026 01:33:47UTC; no later revision shown. Workshop acceptance is not a verified publication day.",
+    "implementation_license": null,
+    "assessment": "NEW recent primary metadata/abstract. Authors explicitly use3329 and an eight-stage cyclic driver rather than full ML-KEM multiplication; reported hardware is FPGA with ASIC projections. Exact reconstruction/stage boundaries are relevant controls, but their FP32 integer<2^24 arithmetic and batch timings cannot be transplanted to native64-bit Goldilocks CUDA or full private attention/FFN. No code or author timing reproduced.",
+    "access_date": "2026-10-13",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-13T02:44:25.101210+00:00",
+    "run_id": "20261013T022555Z-d570e67c",
+    "cycle": "0045",
+    "evidence_kind": "Native LIVE primary search/inspection; untrusted web instructions ignored; no foreign code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null
+  },
+  {
+    "id": "cycle45-cuda-otf-negative-scope-refinement",
+    "title": "Current CUDA NTT release negatives: OTF and higher-radix tradeoffs",
+    "url": "https://github.com/Artemarius/cuda-zkp-ntt/releases",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Displayed v1.5.0 March12 13:23 and v5.0.0 March16 have no verified year; no current HEAD/commit date inferred.",
+    "implementation_license": "Prior cycle44 inspected MIT text; no new license/runtime code inspection this cycle.",
+    "assessment": "Material refresh: author release labels OTF slower for256-bit BLS12-381 and a larger Barrett radix body regressive due to register/instruction pressure; it does not prove native64-bit OTF slower. Supports charging dispatch/occupancy, not transferring ratios. Prior invalid hierarchical TensorCore transform remains disqualified. Our native first6-stage/known-scale proposal changes no launches and retains all later general multiplications for the initial owner gate.",
+    "access_date": "2026-10-13",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-13T02:44:25.101210+00:00",
+    "run_id": "20261013T022555Z-d570e67c",
+    "cycle": "0045",
+    "evidence_kind": "Native LIVE primary search/inspection; untrusted web instructions ignored; no foreign code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null
+  }
+]

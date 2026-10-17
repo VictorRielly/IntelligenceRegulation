@@ -1,0 +1,72 @@
+{
+  "timestamp_utc": "2026-10-04T02:19:37.770924+00:00",
+  "run_identity": "20261004T020146Z-c40246c9",
+  "history_prefixes": [
+    {
+      "file": "FINDINGS.md",
+      "prefix_unchanged": true
+    },
+    {
+      "file": "sources.jsonl",
+      "prefix_unchanged": true
+    }
+  ],
+  "pinned_files": [
+    {
+      "path": "ops/zkp-mvp/candidate/hashline/src/private_block/protocol.rs",
+      "snapshot_valid": true,
+      "current_source_equals_pin": true
+    },
+    {
+      "path": "ops/zkp-mvp/candidate/hashline/src/private_block/layout.rs",
+      "snapshot_valid": true,
+      "current_source_equals_pin": true
+    },
+    {
+      "path": "ops/zkp-mvp/candidate/hashline/src/private_block/shape.rs",
+      "snapshot_valid": true,
+      "current_source_equals_pin": true
+    },
+    {
+      "path": "ops/zkp-mvp/candidate/zkp-core/src/field.rs",
+      "snapshot_valid": true,
+      "current_source_equals_pin": true
+    },
+    {
+      "path": "results/zk60_sol_model_20260927/layout_account.json",
+      "snapshot_valid": true,
+      "current_source_equals_pin": true
+    },
+    {
+      "path": "results/zk60_mvp_20260929/baseline-stack-gpu-attempt2/report.json",
+      "snapshot_valid": true,
+      "current_source_equals_pin": true
+    },
+    {
+      "path": "results/zk60_mvp_20260929/cli-stack-gpu/report.json",
+      "snapshot_valid": true,
+      "current_source_equals_pin": true
+    },
+    {
+      "path": "research/zkp-efficiency/experiments/opening-gather-ownership-20261004/baseline-preparation-phases.json",
+      "snapshot_valid": true,
+      "current_source_equals_pin": true
+    },
+    {
+      "path": "/home/victor/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/alloc/src/vec/spec_from_elem.rs",
+      "snapshot_valid": true,
+      "current_source_equals_pin": true
+    },
+    {
+      "path": "/home/victor/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/alloc/src/vec/is_zero.rs",
+      "snapshot_valid": true,
+      "current_source_equals_pin": true
+    }
+  ],
+  "script_result_hash_matches": true,
+  "experiment_exit": 0,
+  "stderr_empty": true,
+  "full_stack_countable_tokens": 0,
+  "full_stack_passes": 0,
+  "research_scope_only": true
+}

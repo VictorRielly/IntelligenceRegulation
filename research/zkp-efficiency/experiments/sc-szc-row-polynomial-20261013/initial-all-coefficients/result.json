@@ -1,0 +1,3523 @@
+{
+  "status": "passed",
+  "seed": 2026101347,
+  "scope": "synthetic source-derived algebra and literal operation census; no native proof",
+  "counts": {
+    "identical_clause_body_checks": 1,
+    "final_values": 20736,
+    "schedules": 768,
+    "independent_row_polynomial_values": 1536,
+    "fixtures": 128,
+    "round_samples": 6912,
+    "convolution_count_checks": 25,
+    "independent_convolution_values": 100
+  },
+  "rows": 2112,
+  "recoveries": 1080,
+  "zero_factor_fallbacks": 648,
+  "negative_controls": [
+    "drop_high",
+    "swap_support",
+    "shift_sample",
+    "stale_row",
+    "exempt_E",
+    "wrong_plane_order",
+    "restart_zeta",
+    "gate_helpers",
+    "drop_odd",
+    "drop_c2"
+  ],
+  "projections": [
+    {
+      "n": 20,
+      "ls": 2,
+      "padded": false,
+      "recovery": false,
+      "debug": false,
+      "tables": 25,
+      "rows": 1048575,
+      "coefficient_lengths": [
+        4,
+        2,
+        2
+      ],
+      "logical_retained_output_bytes": 128,
+      "coefficient_setup_per_row": {
+        "mul_base": 19,
+        "add": 248,
+        "mul": 150,
+        "sub": 76
+      },
+      "before_brackets": [
+        {
+          "mul_base": 8,
+          "add": 31,
+          "mul": 35,
+          "sub": 27
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 35651550,
+        "add": 247463700,
+        "mul": 192937800,
+        "sub": 141557638
+      },
+      "loop_after": {
+        "mul_base": 31457250,
+        "add": 384827025,
+        "mul": 195034950,
+        "sub": 105906088
+      },
+      "base_mul_before": 1035992100,
+      "base_mul_after": 1038089250,
+      "base_mul_fraction_removed": -0.0020242914979757085,
+      "api_before": 617610688,
+      "api_after": 717225313,
+      "api_fraction_removed": -0.16129031918566797,
+      "calls": 8388600,
+      "dispatch_before": 54525900,
+      "dispatch_after": 27262950,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 2,
+      "padded": false,
+      "recovery": false,
+      "debug": true,
+      "tables": 25,
+      "rows": 1048575,
+      "coefficient_lengths": [
+        4,
+        2,
+        2
+      ],
+      "logical_retained_output_bytes": 128,
+      "coefficient_setup_per_row": {
+        "mul_base": 19,
+        "add": 248,
+        "mul": 150,
+        "sub": 76
+      },
+      "before_brackets": [
+        {
+          "mul_base": 8,
+          "add": 31,
+          "mul": 35,
+          "sub": 27
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 35651550,
+        "add": 247463700,
+        "mul": 192937800,
+        "sub": 141557638
+      },
+      "loop_after": {
+        "mul_base": 31457250,
+        "add": 384827025,
+        "mul": 195034950,
+        "sub": 105906088
+      },
+      "base_mul_before": 1035992100,
+      "base_mul_after": 1038089250,
+      "base_mul_fraction_removed": -0.0020242914979757085,
+      "api_before": 617610688,
+      "api_after": 717225313,
+      "api_fraction_removed": -0.16129031918566797,
+      "calls": 8388600,
+      "dispatch_before": 54525900,
+      "dispatch_after": 27262950,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 2,
+      "padded": false,
+      "recovery": true,
+      "debug": false,
+      "tables": 25,
+      "rows": 1048575,
+      "coefficient_lengths": [
+        4,
+        2,
+        2
+      ],
+      "logical_retained_output_bytes": 128,
+      "coefficient_setup_per_row": {
+        "mul_base": 19,
+        "add": 248,
+        "mul": 150,
+        "sub": 76
+      },
+      "before_brackets": [
+        {
+          "mul_base": 8,
+          "add": 31,
+          "mul": 35,
+          "sub": 27
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 30932967,
+        "add": 228589368,
+        "mul": 170917746,
+        "sub": 126877602
+      },
+      "loop_after": {
+        "mul_base": 28835815,
+        "add": 380632729,
+        "mul": 193462089,
+        "sub": 105906088
+      },
+      "base_mul_before": 916454664,
+      "base_mul_after": 1024982075,
+      "base_mul_fraction_removed": -0.1184209271480122,
+      "api_before": 557317683,
+      "api_after": 708836721,
+      "api_fraction_removed": -0.27187193699719736,
+      "calls": 6815739,
+      "dispatch_before": 47710169,
+      "dispatch_after": 27262950,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 2,
+      "padded": false,
+      "recovery": true,
+      "debug": true,
+      "tables": 25,
+      "rows": 1048575,
+      "coefficient_lengths": [
+        4,
+        2,
+        2
+      ],
+      "logical_retained_output_bytes": 128,
+      "coefficient_setup_per_row": {
+        "mul_base": 19,
+        "add": 248,
+        "mul": 150,
+        "sub": 76
+      },
+      "before_brackets": [
+        {
+          "mul_base": 8,
+          "add": 31,
+          "mul": 35,
+          "sub": 27
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 35651550,
+        "add": 247463700,
+        "mul": 192937800,
+        "sub": 141557638
+      },
+      "loop_after": {
+        "mul_base": 31457250,
+        "add": 384827025,
+        "mul": 195034950,
+        "sub": 105906088
+      },
+      "base_mul_before": 1035992100,
+      "base_mul_after": 1038089250,
+      "base_mul_fraction_removed": -0.0020242914979757085,
+      "api_before": 617610688,
+      "api_after": 717225313,
+      "api_fraction_removed": -0.16129031918566797,
+      "calls": 8388600,
+      "dispatch_before": 54525900,
+      "dispatch_after": 27262950,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 2,
+      "padded": true,
+      "recovery": false,
+      "debug": false,
+      "tables": 27,
+      "rows": 1048575,
+      "coefficient_lengths": [
+        5,
+        3,
+        3
+      ],
+      "logical_retained_output_bytes": 176,
+      "coefficient_setup_per_row": {
+        "mul_base": 19,
+        "add": 323,
+        "mul": 194,
+        "sub": 80
+      },
+      "before_brackets": [
+        {
+          "mul_base": 8,
+          "add": 45,
+          "mul": 49,
+          "sub": 29
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 45088725,
+        "add": 395312775,
+        "mul": 312475350,
+        "sub": 183500638
+      },
+      "loop_after": {
+        "mul_base": 45088725,
+        "add": 516947475,
+        "mul": 246415125,
+        "sub": 112197538
+      },
+      "base_mul_before": 1652554200,
+      "base_mul_after": 1322253075,
+      "base_mul_fraction_removed": 0.1998730964467005,
+      "api_before": 936377488,
+      "api_after": 920648863,
+      "api_fraction_removed": 0.01679731219680924,
+      "calls": 11534325,
+      "dispatch_before": 68157375,
+      "dispatch_after": 27262950,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 2,
+      "padded": true,
+      "recovery": false,
+      "debug": true,
+      "tables": 27,
+      "rows": 1048575,
+      "coefficient_lengths": [
+        5,
+        3,
+        3
+      ],
+      "logical_retained_output_bytes": 176,
+      "coefficient_setup_per_row": {
+        "mul_base": 19,
+        "add": 323,
+        "mul": 194,
+        "sub": 80
+      },
+      "before_brackets": [
+        {
+          "mul_base": 8,
+          "add": 45,
+          "mul": 49,
+          "sub": 29
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 45088725,
+        "add": 395312775,
+        "mul": 312475350,
+        "sub": 183500638
+      },
+      "loop_after": {
+        "mul_base": 45088725,
+        "add": 516947475,
+        "mul": 246415125,
+        "sub": 112197538
+      },
+      "base_mul_before": 1652554200,
+      "base_mul_after": 1322253075,
+      "base_mul_fraction_removed": 0.1998730964467005,
+      "api_before": 936377488,
+      "api_after": 920648863,
+      "api_fraction_removed": 0.01679731219680924,
+      "calls": 11534325,
+      "dispatch_before": 68157375,
+      "dispatch_after": 27262950,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 2,
+      "padded": true,
+      "recovery": true,
+      "debug": false,
+      "tables": 27,
+      "rows": 1048575,
+      "coefficient_lengths": [
+        5,
+        3,
+        3
+      ],
+      "logical_retained_output_bytes": 176,
+      "coefficient_setup_per_row": {
+        "mul_base": 19,
+        "add": 323,
+        "mul": 194,
+        "sub": 80
+      },
+      "before_brackets": [
+        {
+          "mul_base": 8,
+          "add": 45,
+          "mul": 49,
+          "sub": 29
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 40370142,
+        "add": 369098425,
+        "mul": 283115278,
+        "sub": 167772028
+      },
+      "loop_after": {
+        "mul_base": 40894429,
+        "add": 511180318,
+        "mul": 244842264,
+        "sub": 112197538
+      },
+      "base_mul_before": 1496316674,
+      "base_mul_after": 1306000178,
+      "base_mul_fraction_removed": 0.12718998545357385,
+      "api_before": 860355873,
+      "api_after": 909114549,
+      "api_fraction_removed": -0.05667268339783856,
+      "calls": 9961464,
+      "dispatch_before": 61341644,
+      "dispatch_after": 27262950,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 2,
+      "padded": true,
+      "recovery": true,
+      "debug": true,
+      "tables": 27,
+      "rows": 1048575,
+      "coefficient_lengths": [
+        5,
+        3,
+        3
+      ],
+      "logical_retained_output_bytes": 176,
+      "coefficient_setup_per_row": {
+        "mul_base": 19,
+        "add": 323,
+        "mul": 194,
+        "sub": 80
+      },
+      "before_brackets": [
+        {
+          "mul_base": 8,
+          "add": 45,
+          "mul": 49,
+          "sub": 29
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 45088725,
+        "add": 395312775,
+        "mul": 312475350,
+        "sub": 183500638
+      },
+      "loop_after": {
+        "mul_base": 45088725,
+        "add": 516947475,
+        "mul": 246415125,
+        "sub": 112197538
+      },
+      "base_mul_before": 1652554200,
+      "base_mul_after": 1322253075,
+      "base_mul_fraction_removed": 0.1998730964467005,
+      "api_before": 936377488,
+      "api_after": 920648863,
+      "api_fraction_removed": 0.01679731219680924,
+      "calls": 11534325,
+      "dispatch_before": 68157375,
+      "dispatch_after": 27262950,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 3,
+      "padded": false,
+      "recovery": false,
+      "debug": false,
+      "tables": 28,
+      "rows": 1048575,
+      "coefficient_lengths": [
+        4,
+        2,
+        2
+      ],
+      "logical_retained_output_bytes": 128,
+      "coefficient_setup_per_row": {
+        "mul_base": 23,
+        "add": 272,
+        "mul": 164,
+        "sub": 84
+      },
+      "before_brackets": [
+        {
+          "mul_base": 10,
+          "add": 35,
+          "mul": 38,
+          "sub": 30
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 44040150,
+        "add": 276823800,
+        "mul": 208666425,
+        "sub": 157286265
+      },
+      "loop_after": {
+        "mul_base": 35651550,
+        "add": 422575725,
+        "mul": 212860725,
+        "sub": 117440415
+      },
+      "base_mul_before": 1131412425,
+      "base_mul_after": 1135606725,
+      "base_mul_fraction_removed": -0.0037071362372567192,
+      "api_before": 686816640,
+      "api_after": 788528415,
+      "api_fraction_removed": -0.14809159981913075,
+      "calls": 8388600,
+      "dispatch_before": 62914500,
+      "dispatch_after": 31457250,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 3,
+      "padded": false,
+      "recovery": false,
+      "debug": true,
+      "tables": 28,
+      "rows": 1048575,
+      "coefficient_lengths": [
+        4,
+        2,
+        2
+      ],
+      "logical_retained_output_bytes": 128,
+      "coefficient_setup_per_row": {
+        "mul_base": 23,
+        "add": 272,
+        "mul": 164,
+        "sub": 84
+      },
+      "before_brackets": [
+        {
+          "mul_base": 10,
+          "add": 35,
+          "mul": 38,
+          "sub": 30
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 44040150,
+        "add": 276823800,
+        "mul": 208666425,
+        "sub": 157286265
+      },
+      "loop_after": {
+        "mul_base": 35651550,
+        "add": 422575725,
+        "mul": 212860725,
+        "sub": 117440415
+      },
+      "base_mul_before": 1131412425,
+      "base_mul_after": 1135606725,
+      "base_mul_fraction_removed": -0.0037071362372567192,
+      "api_before": 686816640,
+      "api_after": 788528415,
+      "api_fraction_removed": -0.14809159981913075,
+      "calls": 8388600,
+      "dispatch_before": 62914500,
+      "dispatch_after": 31457250,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 3,
+      "padded": false,
+      "recovery": true,
+      "debug": false,
+      "tables": 28,
+      "rows": 1048575,
+      "coefficient_lengths": [
+        4,
+        2,
+        2
+      ],
+      "logical_retained_output_bytes": 128,
+      "coefficient_setup_per_row": {
+        "mul_base": 23,
+        "add": 272,
+        "mul": 164,
+        "sub": 84
+      },
+      "before_brackets": [
+        {
+          "mul_base": 10,
+          "add": 35,
+          "mul": 38,
+          "sub": 30
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 38272993,
+        "add": 255852320,
+        "mul": 185073510,
+        "sub": 141033368
+      },
+      "loop_after": {
+        "mul_base": 33030115,
+        "add": 418381429,
+        "mul": 211287864,
+        "sub": 117440415
+      },
+      "base_mul_before": 1001913536,
+      "base_mul_after": 1122499550,
+      "base_mul_fraction_removed": -0.12035570901798856,
+      "api_before": 620232191,
+      "api_after": 780139823,
+      "api_fraction_removed": -0.25781898185932756,
+      "calls": 6815739,
+      "dispatch_before": 55050195,
+      "dispatch_after": 31457250,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 3,
+      "padded": false,
+      "recovery": true,
+      "debug": true,
+      "tables": 28,
+      "rows": 1048575,
+      "coefficient_lengths": [
+        4,
+        2,
+        2
+      ],
+      "logical_retained_output_bytes": 128,
+      "coefficient_setup_per_row": {
+        "mul_base": 23,
+        "add": 272,
+        "mul": 164,
+        "sub": 84
+      },
+      "before_brackets": [
+        {
+          "mul_base": 10,
+          "add": 35,
+          "mul": 38,
+          "sub": 30
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 44040150,
+        "add": 276823800,
+        "mul": 208666425,
+        "sub": 157286265
+      },
+      "loop_after": {
+        "mul_base": 35651550,
+        "add": 422575725,
+        "mul": 212860725,
+        "sub": 117440415
+      },
+      "base_mul_before": 1131412425,
+      "base_mul_after": 1135606725,
+      "base_mul_fraction_removed": -0.0037071362372567192,
+      "api_before": 686816640,
+      "api_after": 788528415,
+      "api_fraction_removed": -0.14809159981913075,
+      "calls": 8388600,
+      "dispatch_before": 62914500,
+      "dispatch_after": 31457250,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 3,
+      "padded": true,
+      "recovery": false,
+      "debug": false,
+      "tables": 30,
+      "rows": 1048575,
+      "coefficient_lengths": [
+        5,
+        3,
+        3
+      ],
+      "logical_retained_output_bytes": 176,
+      "coefficient_setup_per_row": {
+        "mul_base": 23,
+        "add": 355,
+        "mul": 212,
+        "sub": 88
+      },
+      "before_brackets": [
+        {
+          "mul_base": 10,
+          "add": 51,
+          "mul": 54,
+          "sub": 32
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 55574475,
+        "add": 442498650,
+        "mul": 341835450,
+        "sub": 202374990
+      },
+      "loop_after": {
+        "mul_base": 49283025,
+        "add": 566230500,
+        "mul": 268435200,
+        "sub": 123731865
+      },
+      "base_mul_before": 1820326200,
+      "base_mul_after": 1440742050,
+      "base_mul_fraction_removed": 0.20852534562211983,
+      "api_before": 1042283565,
+      "api_after": 1007680590,
+      "api_fraction_removed": 0.0331991946932407,
+      "calls": 11534325,
+      "dispatch_before": 78643125,
+      "dispatch_after": 31457250,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 3,
+      "padded": true,
+      "recovery": false,
+      "debug": true,
+      "tables": 30,
+      "rows": 1048575,
+      "coefficient_lengths": [
+        5,
+        3,
+        3
+      ],
+      "logical_retained_output_bytes": 176,
+      "coefficient_setup_per_row": {
+        "mul_base": 23,
+        "add": 355,
+        "mul": 212,
+        "sub": 88
+      },
+      "before_brackets": [
+        {
+          "mul_base": 10,
+          "add": 51,
+          "mul": 54,
+          "sub": 32
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 55574475,
+        "add": 442498650,
+        "mul": 341835450,
+        "sub": 202374990
+      },
+      "loop_after": {
+        "mul_base": 49283025,
+        "add": 566230500,
+        "mul": 268435200,
+        "sub": 123731865
+      },
+      "base_mul_before": 1820326200,
+      "base_mul_after": 1440742050,
+      "base_mul_fraction_removed": 0.20852534562211983,
+      "api_before": 1042283565,
+      "api_after": 1007680590,
+      "api_fraction_removed": 0.0331991946932407,
+      "calls": 11534325,
+      "dispatch_before": 78643125,
+      "dispatch_after": 31457250,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 3,
+      "padded": true,
+      "recovery": true,
+      "debug": false,
+      "tables": 30,
+      "rows": 1048575,
+      "coefficient_lengths": [
+        5,
+        3,
+        3
+      ],
+      "logical_retained_output_bytes": 176,
+      "coefficient_setup_per_row": {
+        "mul_base": 23,
+        "add": 355,
+        "mul": 212,
+        "sub": 88
+      },
+      "before_brackets": [
+        {
+          "mul_base": 10,
+          "add": 51,
+          "mul": 54,
+          "sub": 32
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 49807318,
+        "add": 413138578,
+        "mul": 309853943,
+        "sub": 185073519
+      },
+      "loop_after": {
+        "mul_base": 45088729,
+        "add": 560463343,
+        "mul": 266862339,
+        "sub": 123731865
+      },
+      "base_mul_before": 1648884351,
+      "base_mul_after": 1424489153,
+      "base_mul_fraction_removed": 0.13608910647002678,
+      "api_before": 957873358,
+      "api_after": 996146276,
+      "api_fraction_removed": -0.039956135829805596,
+      "calls": 9961464,
+      "dispatch_before": 70778820,
+      "dispatch_after": 31457250,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 20,
+      "ls": 3,
+      "padded": true,
+      "recovery": true,
+      "debug": true,
+      "tables": 30,
+      "rows": 1048575,
+      "coefficient_lengths": [
+        5,
+        3,
+        3
+      ],
+      "logical_retained_output_bytes": 176,
+      "coefficient_setup_per_row": {
+        "mul_base": 23,
+        "add": 355,
+        "mul": 212,
+        "sub": 88
+      },
+      "before_brackets": [
+        {
+          "mul_base": 10,
+          "add": 51,
+          "mul": 54,
+          "sub": 32
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 55574475,
+        "add": 442498650,
+        "mul": 341835450,
+        "sub": 202374990
+      },
+      "loop_after": {
+        "mul_base": 49283025,
+        "add": 566230500,
+        "mul": 268435200,
+        "sub": 123731865
+      },
+      "base_mul_before": 1820326200,
+      "base_mul_after": 1440742050,
+      "base_mul_fraction_removed": 0.20852534562211983,
+      "api_before": 1042283565,
+      "api_after": 1007680590,
+      "api_fraction_removed": 0.0331991946932407,
+      "calls": 11534325,
+      "dispatch_before": 78643125,
+      "dispatch_after": 31457250,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 2,
+      "padded": false,
+      "recovery": false,
+      "debug": false,
+      "tables": 25,
+      "rows": 8388607,
+      "coefficient_lengths": [
+        4,
+        2,
+        2
+      ],
+      "logical_retained_output_bytes": 128,
+      "coefficient_setup_per_row": {
+        "mul_base": 19,
+        "add": 248,
+        "mul": 150,
+        "sub": 76
+      },
+      "before_brackets": [
+        {
+          "mul_base": 8,
+          "add": 31,
+          "mul": 35,
+          "sub": 27
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 285212638,
+        "add": 1979711252,
+        "mul": 1543503688,
+        "sub": 1132461958
+      },
+      "loop_after": {
+        "mul_base": 251658210,
+        "add": 3078618769,
+        "mul": 1560280902,
+        "sub": 847249320
+      },
+      "base_mul_before": 8287943716,
+      "base_mul_after": 8304720930,
+      "base_mul_fraction_removed": -0.0020242914979757085,
+      "api_before": 4940889536,
+      "api_after": 5737807201,
+      "api_fraction_removed": -0.16129032215627337,
+      "calls": 67108856,
+      "dispatch_before": 436207564,
+      "dispatch_after": 218103782,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 2,
+      "padded": false,
+      "recovery": false,
+      "debug": true,
+      "tables": 25,
+      "rows": 8388607,
+      "coefficient_lengths": [
+        4,
+        2,
+        2
+      ],
+      "logical_retained_output_bytes": 128,
+      "coefficient_setup_per_row": {
+        "mul_base": 19,
+        "add": 248,
+        "mul": 150,
+        "sub": 76
+      },
+      "before_brackets": [
+        {
+          "mul_base": 8,
+          "add": 31,
+          "mul": 35,
+          "sub": 27
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 285212638,
+        "add": 1979711252,
+        "mul": 1543503688,
+        "sub": 1132461958
+      },
+      "loop_after": {
+        "mul_base": 251658210,
+        "add": 3078618769,
+        "mul": 1560280902,
+        "sub": 847249320
+      },
+      "base_mul_before": 8287943716,
+      "base_mul_after": 8304720930,
+      "base_mul_fraction_removed": -0.0020242914979757085,
+      "api_before": 4940889536,
+      "api_after": 5737807201,
+      "api_fraction_removed": -0.16129032215627337,
+      "calls": 67108856,
+      "dispatch_before": 436207564,
+      "dispatch_after": 218103782,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 2,
+      "padded": false,
+      "recovery": true,
+      "debug": false,
+      "tables": 25,
+      "rows": 8388607,
+      "coefficient_lengths": [
+        4,
+        2,
+        2
+      ],
+      "logical_retained_output_bytes": 128,
+      "coefficient_setup_per_row": {
+        "mul_base": 19,
+        "add": 248,
+        "mul": 150,
+        "sub": 76
+      },
+      "before_brackets": [
+        {
+          "mul_base": 8,
+          "add": 31,
+          "mul": 35,
+          "sub": 27
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 247463911,
+        "add": 1828716344,
+        "mul": 1367342962,
+        "sub": 1015021474
+      },
+      "loop_after": {
+        "mul_base": 230686695,
+        "add": 3045064345,
+        "mul": 1547697993,
+        "sub": 847249320
+      },
+      "base_mul_before": 7331642632,
+      "base_mul_after": 8199863355,
+      "base_mul_fraction_removed": -0.11842103694614449,
+      "api_before": 4458544691,
+      "api_after": 5670698353,
+      "api_fraction_removed": -0.27187204480575206,
+      "calls": 54525947,
+      "dispatch_before": 381681625,
+      "dispatch_after": 218103782,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 2,
+      "padded": false,
+      "recovery": true,
+      "debug": true,
+      "tables": 25,
+      "rows": 8388607,
+      "coefficient_lengths": [
+        4,
+        2,
+        2
+      ],
+      "logical_retained_output_bytes": 128,
+      "coefficient_setup_per_row": {
+        "mul_base": 19,
+        "add": 248,
+        "mul": 150,
+        "sub": 76
+      },
+      "before_brackets": [
+        {
+          "mul_base": 8,
+          "add": 31,
+          "mul": 35,
+          "sub": 27
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 285212638,
+        "add": 1979711252,
+        "mul": 1543503688,
+        "sub": 1132461958
+      },
+      "loop_after": {
+        "mul_base": 251658210,
+        "add": 3078618769,
+        "mul": 1560280902,
+        "sub": 847249320
+      },
+      "base_mul_before": 8287943716,
+      "base_mul_after": 8304720930,
+      "base_mul_fraction_removed": -0.0020242914979757085,
+      "api_before": 4940889536,
+      "api_after": 5737807201,
+      "api_fraction_removed": -0.16129032215627337,
+      "calls": 67108856,
+      "dispatch_before": 436207564,
+      "dispatch_after": 218103782,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 2,
+      "padded": true,
+      "recovery": false,
+      "debug": false,
+      "tables": 27,
+      "rows": 8388607,
+      "coefficient_lengths": [
+        5,
+        3,
+        3
+      ],
+      "logical_retained_output_bytes": 176,
+      "coefficient_setup_per_row": {
+        "mul_base": 19,
+        "add": 323,
+        "mul": 194,
+        "sub": 80
+      },
+      "before_brackets": [
+        {
+          "mul_base": 8,
+          "add": 45,
+          "mul": 49,
+          "sub": 29
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 360710101,
+        "add": 3162504839,
+        "mul": 2499804886,
+        "sub": 1468006238
+      },
+      "loop_after": {
+        "mul_base": 360710101,
+        "add": 4135583251,
+        "mul": 1971322645,
+        "sub": 897580962
+      },
+      "base_mul_before": 13220444632,
+      "base_mul_after": 10578033427,
+      "base_mul_fraction_removed": 0.1998730964467005,
+      "api_before": 7491026064,
+      "api_after": 7365196959,
+      "api_fraction_removed": 0.016797312400860978,
+      "calls": 92274677,
+      "dispatch_before": 545259455,
+      "dispatch_after": 218103782,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 2,
+      "padded": true,
+      "recovery": false,
+      "debug": true,
+      "tables": 27,
+      "rows": 8388607,
+      "coefficient_lengths": [
+        5,
+        3,
+        3
+      ],
+      "logical_retained_output_bytes": 176,
+      "coefficient_setup_per_row": {
+        "mul_base": 19,
+        "add": 323,
+        "mul": 194,
+        "sub": 80
+      },
+      "before_brackets": [
+        {
+          "mul_base": 8,
+          "add": 45,
+          "mul": 49,
+          "sub": 29
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 360710101,
+        "add": 3162504839,
+        "mul": 2499804886,
+        "sub": 1468006238
+      },
+      "loop_after": {
+        "mul_base": 360710101,
+        "add": 4135583251,
+        "mul": 1971322645,
+        "sub": 897580962
+      },
+      "base_mul_before": 13220444632,
+      "base_mul_after": 10578033427,
+      "base_mul_fraction_removed": 0.1998730964467005,
+      "api_before": 7491026064,
+      "api_after": 7365196959,
+      "api_fraction_removed": 0.016797312400860978,
+      "calls": 92274677,
+      "dispatch_before": 545259455,
+      "dispatch_after": 218103782,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 2,
+      "padded": true,
+      "recovery": true,
+      "debug": false,
+      "tables": 27,
+      "rows": 8388607,
+      "coefficient_lengths": [
+        5,
+        3,
+        3
+      ],
+      "logical_retained_output_bytes": 176,
+      "coefficient_setup_per_row": {
+        "mul_base": 19,
+        "add": 323,
+        "mul": 194,
+        "sub": 80
+      },
+      "before_brackets": [
+        {
+          "mul_base": 8,
+          "add": 45,
+          "mul": 49,
+          "sub": 29
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 322961374,
+        "add": 2952789689,
+        "mul": 2264923918,
+        "sub": 1342177148
+      },
+      "loop_after": {
+        "mul_base": 327155677,
+        "add": 4089445918,
+        "mul": 1958739736,
+        "sub": 897580962
+      },
+      "base_mul_before": 11970542338,
+      "base_mul_after": 10448010034,
+      "base_mul_fraction_removed": 0.12718991846900563,
+      "api_before": 6882852129,
+      "api_after": 7272922293,
+      "api_fraction_removed": -0.056672750872634646,
+      "calls": 79691768,
+      "dispatch_before": 490733516,
+      "dispatch_after": 218103782,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 2,
+      "padded": true,
+      "recovery": true,
+      "debug": true,
+      "tables": 27,
+      "rows": 8388607,
+      "coefficient_lengths": [
+        5,
+        3,
+        3
+      ],
+      "logical_retained_output_bytes": 176,
+      "coefficient_setup_per_row": {
+        "mul_base": 19,
+        "add": 323,
+        "mul": 194,
+        "sub": 80
+      },
+      "before_brackets": [
+        {
+          "mul_base": 8,
+          "add": 45,
+          "mul": 49,
+          "sub": 29
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 360710101,
+        "add": 3162504839,
+        "mul": 2499804886,
+        "sub": 1468006238
+      },
+      "loop_after": {
+        "mul_base": 360710101,
+        "add": 4135583251,
+        "mul": 1971322645,
+        "sub": 897580962
+      },
+      "base_mul_before": 13220444632,
+      "base_mul_after": 10578033427,
+      "base_mul_fraction_removed": 0.1998730964467005,
+      "api_before": 7491026064,
+      "api_after": 7365196959,
+      "api_fraction_removed": 0.016797312400860978,
+      "calls": 92274677,
+      "dispatch_before": 545259455,
+      "dispatch_after": 218103782,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 3,
+      "padded": false,
+      "recovery": false,
+      "debug": false,
+      "tables": 28,
+      "rows": 8388607,
+      "coefficient_lengths": [
+        4,
+        2,
+        2
+      ],
+      "logical_retained_output_bytes": 128,
+      "coefficient_setup_per_row": {
+        "mul_base": 23,
+        "add": 272,
+        "mul": 164,
+        "sub": 84
+      },
+      "before_brackets": [
+        {
+          "mul_base": 10,
+          "add": 35,
+          "mul": 38,
+          "sub": 30
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 352321494,
+        "add": 2214592248,
+        "mul": 1669332793,
+        "sub": 1258291065
+      },
+      "loop_after": {
+        "mul_base": 285212638,
+        "add": 3380608621,
+        "mul": 1702887221,
+        "sub": 939523999
+      },
+      "base_mul_before": 9051306953,
+      "base_mul_after": 9084861381,
+      "base_mul_fraction_removed": -0.0037071362372567192,
+      "api_before": 5494537600,
+      "api_after": 6308232479,
+      "api_fraction_removed": -0.1480916026491474,
+      "calls": 67108856,
+      "dispatch_before": 503316420,
+      "dispatch_after": 251658210,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 3,
+      "padded": false,
+      "recovery": false,
+      "debug": true,
+      "tables": 28,
+      "rows": 8388607,
+      "coefficient_lengths": [
+        4,
+        2,
+        2
+      ],
+      "logical_retained_output_bytes": 128,
+      "coefficient_setup_per_row": {
+        "mul_base": 23,
+        "add": 272,
+        "mul": 164,
+        "sub": 84
+      },
+      "before_brackets": [
+        {
+          "mul_base": 10,
+          "add": 35,
+          "mul": 38,
+          "sub": 30
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 352321494,
+        "add": 2214592248,
+        "mul": 1669332793,
+        "sub": 1258291065
+      },
+      "loop_after": {
+        "mul_base": 285212638,
+        "add": 3380608621,
+        "mul": 1702887221,
+        "sub": 939523999
+      },
+      "base_mul_before": 9051306953,
+      "base_mul_after": 9084861381,
+      "base_mul_fraction_removed": -0.0037071362372567192,
+      "api_before": 5494537600,
+      "api_after": 6308232479,
+      "api_fraction_removed": -0.1480916026491474,
+      "calls": 67108856,
+      "dispatch_before": 503316420,
+      "dispatch_after": 251658210,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 3,
+      "padded": false,
+      "recovery": true,
+      "debug": false,
+      "tables": 28,
+      "rows": 8388607,
+      "coefficient_lengths": [
+        4,
+        2,
+        2
+      ],
+      "logical_retained_output_bytes": 128,
+      "coefficient_setup_per_row": {
+        "mul_base": 23,
+        "add": 272,
+        "mul": 164,
+        "sub": 84
+      },
+      "before_brackets": [
+        {
+          "mul_base": 10,
+          "add": 35,
+          "mul": 38,
+          "sub": 30
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 306184161,
+        "add": 2046820128,
+        "mul": 1480589158,
+        "sub": 1128267672
+      },
+      "loop_after": {
+        "mul_base": 264241123,
+        "add": 3347054197,
+        "mul": 1690304312,
+        "sub": 939523999
+      },
+      "base_mul_before": 8015314112,
+      "base_mul_after": 8980003806,
+      "base_mul_fraction_removed": -0.12035581893861529,
+      "api_before": 4961861119,
+      "api_after": 6241123631,
+      "api_fraction_removed": -0.25781908870875836,
+      "calls": 54525947,
+      "dispatch_before": 440401875,
+      "dispatch_after": 251658210,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 3,
+      "padded": false,
+      "recovery": true,
+      "debug": true,
+      "tables": 28,
+      "rows": 8388607,
+      "coefficient_lengths": [
+        4,
+        2,
+        2
+      ],
+      "logical_retained_output_bytes": 128,
+      "coefficient_setup_per_row": {
+        "mul_base": 23,
+        "add": 272,
+        "mul": 164,
+        "sub": 84
+      },
+      "before_brackets": [
+        {
+          "mul_base": 10,
+          "add": 35,
+          "mul": 38,
+          "sub": 30
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 352321494,
+        "add": 2214592248,
+        "mul": 1669332793,
+        "sub": 1258291065
+      },
+      "loop_after": {
+        "mul_base": 285212638,
+        "add": 3380608621,
+        "mul": 1702887221,
+        "sub": 939523999
+      },
+      "base_mul_before": 9051306953,
+      "base_mul_after": 9084861381,
+      "base_mul_fraction_removed": -0.0037071362372567192,
+      "api_before": 5494537600,
+      "api_after": 6308232479,
+      "api_fraction_removed": -0.1480916026491474,
+      "calls": 67108856,
+      "dispatch_before": 503316420,
+      "dispatch_after": 251658210,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 3,
+      "padded": true,
+      "recovery": false,
+      "debug": false,
+      "tables": 30,
+      "rows": 8388607,
+      "coefficient_lengths": [
+        5,
+        3,
+        3
+      ],
+      "logical_retained_output_bytes": 176,
+      "coefficient_setup_per_row": {
+        "mul_base": 23,
+        "add": 355,
+        "mul": 212,
+        "sub": 88
+      },
+      "before_brackets": [
+        {
+          "mul_base": 10,
+          "add": 51,
+          "mul": 54,
+          "sub": 32
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 444596171,
+        "add": 3539992154,
+        "mul": 2734685882,
+        "sub": 1619001166
+      },
+      "loop_after": {
+        "mul_base": 394264529,
+        "add": 4529847780,
+        "mul": 2147483392,
+        "sub": 989855641
+      },
+      "base_mul_before": 14562621752,
+      "base_mul_after": 11525946018,
+      "base_mul_fraction_removed": 0.20852534562211983,
+      "api_before": 8338275373,
+      "api_after": 8061451342,
+      "api_fraction_removed": 0.03319919511130302,
+      "calls": 92274677,
+      "dispatch_before": 629145525,
+      "dispatch_after": 251658210,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 3,
+      "padded": true,
+      "recovery": false,
+      "debug": true,
+      "tables": 30,
+      "rows": 8388607,
+      "coefficient_lengths": [
+        5,
+        3,
+        3
+      ],
+      "logical_retained_output_bytes": 176,
+      "coefficient_setup_per_row": {
+        "mul_base": 23,
+        "add": 355,
+        "mul": 212,
+        "sub": 88
+      },
+      "before_brackets": [
+        {
+          "mul_base": 10,
+          "add": 51,
+          "mul": 54,
+          "sub": 32
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 444596171,
+        "add": 3539992154,
+        "mul": 2734685882,
+        "sub": 1619001166
+      },
+      "loop_after": {
+        "mul_base": 394264529,
+        "add": 4529847780,
+        "mul": 2147483392,
+        "sub": 989855641
+      },
+      "base_mul_before": 14562621752,
+      "base_mul_after": 11525946018,
+      "base_mul_fraction_removed": 0.20852534562211983,
+      "api_before": 8338275373,
+      "api_after": 8061451342,
+      "api_fraction_removed": 0.03319919511130302,
+      "calls": 92274677,
+      "dispatch_before": 629145525,
+      "dispatch_after": 251658210,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 3,
+      "padded": true,
+      "recovery": true,
+      "debug": false,
+      "tables": 30,
+      "rows": 8388607,
+      "coefficient_lengths": [
+        5,
+        3,
+        3
+      ],
+      "logical_retained_output_bytes": 176,
+      "coefficient_setup_per_row": {
+        "mul_base": 23,
+        "add": 355,
+        "mul": 212,
+        "sub": 88
+      },
+      "before_brackets": [
+        {
+          "mul_base": 10,
+          "add": 51,
+          "mul": 54,
+          "sub": 32
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 398458838,
+        "add": 3305111186,
+        "mul": 2478833399,
+        "sub": 1480589167
+      },
+      "loop_after": {
+        "mul_base": 360710105,
+        "add": 4483710447,
+        "mul": 2134900483,
+        "sub": 989855641
+      },
+      "base_mul_before": 13191084671,
+      "base_mul_after": 11395922625,
+      "base_mul_fraction_removed": 0.13608903973958883,
+      "api_before": 7662992590,
+      "api_after": 7969176676,
+      "api_fraction_removed": -0.039956202802487635,
+      "calls": 79691768,
+      "dispatch_before": 566230980,
+      "dispatch_after": 251658210,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 23,
+      "ls": 3,
+      "padded": true,
+      "recovery": true,
+      "debug": true,
+      "tables": 30,
+      "rows": 8388607,
+      "coefficient_lengths": [
+        5,
+        3,
+        3
+      ],
+      "logical_retained_output_bytes": 176,
+      "coefficient_setup_per_row": {
+        "mul_base": 23,
+        "add": 355,
+        "mul": 212,
+        "sub": 88
+      },
+      "before_brackets": [
+        {
+          "mul_base": 10,
+          "add": 51,
+          "mul": 54,
+          "sub": 32
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 444596171,
+        "add": 3539992154,
+        "mul": 2734685882,
+        "sub": 1619001166
+      },
+      "loop_after": {
+        "mul_base": 394264529,
+        "add": 4529847780,
+        "mul": 2147483392,
+        "sub": 989855641
+      },
+      "base_mul_before": 14562621752,
+      "base_mul_after": 11525946018,
+      "base_mul_fraction_removed": 0.20852534562211983,
+      "api_before": 8338275373,
+      "api_after": 8061451342,
+      "api_fraction_removed": 0.03319919511130302,
+      "calls": 92274677,
+      "dispatch_before": 629145525,
+      "dispatch_after": 251658210,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 2,
+      "padded": false,
+      "recovery": false,
+      "debug": false,
+      "tables": 25,
+      "rows": 33554431,
+      "coefficient_lengths": [
+        4,
+        2,
+        2
+      ],
+      "logical_retained_output_bytes": 128,
+      "coefficient_setup_per_row": {
+        "mul_base": 19,
+        "add": 248,
+        "mul": 150,
+        "sub": 76
+      },
+      "before_brackets": [
+        {
+          "mul_base": 8,
+          "add": 31,
+          "mul": 35,
+          "sub": 27
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 1140850654,
+        "add": 7918845716,
+        "mul": 6174015304,
+        "sub": 4529848198
+      },
+      "loop_after": {
+        "mul_base": 1006632930,
+        "add": 12314476177,
+        "mul": 6241124166,
+        "sub": 3388997544
+      },
+      "base_mul_before": 33151777828,
+      "base_mul_after": 33218886690,
+      "base_mul_fraction_removed": -0.0020242914979757085,
+      "api_before": 19763559872,
+      "api_after": 22951230817,
+      "api_fraction_removed": -0.16129032247455222,
+      "calls": 268435448,
+      "dispatch_before": 1744830412,
+      "dispatch_after": 872415206,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 2,
+      "padded": false,
+      "recovery": false,
+      "debug": true,
+      "tables": 25,
+      "rows": 33554431,
+      "coefficient_lengths": [
+        4,
+        2,
+        2
+      ],
+      "logical_retained_output_bytes": 128,
+      "coefficient_setup_per_row": {
+        "mul_base": 19,
+        "add": 248,
+        "mul": 150,
+        "sub": 76
+      },
+      "before_brackets": [
+        {
+          "mul_base": 8,
+          "add": 31,
+          "mul": 35,
+          "sub": 27
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 1140850654,
+        "add": 7918845716,
+        "mul": 6174015304,
+        "sub": 4529848198
+      },
+      "loop_after": {
+        "mul_base": 1006632930,
+        "add": 12314476177,
+        "mul": 6241124166,
+        "sub": 3388997544
+      },
+      "base_mul_before": 33151777828,
+      "base_mul_after": 33218886690,
+      "base_mul_fraction_removed": -0.0020242914979757085,
+      "api_before": 19763559872,
+      "api_after": 22951230817,
+      "api_fraction_removed": -0.16129032247455222,
+      "calls": 268435448,
+      "dispatch_before": 1744830412,
+      "dispatch_after": 872415206,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 2,
+      "padded": false,
+      "recovery": true,
+      "debug": false,
+      "tables": 25,
+      "rows": 33554431,
+      "coefficient_lengths": [
+        4,
+        2,
+        2
+      ],
+      "logical_retained_output_bytes": 128,
+      "coefficient_setup_per_row": {
+        "mul_base": 19,
+        "add": 248,
+        "mul": 150,
+        "sub": 76
+      },
+      "before_brackets": [
+        {
+          "mul_base": 8,
+          "add": 31,
+          "mul": 35,
+          "sub": 27
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 989855719,
+        "add": 7314865976,
+        "mul": 5469372274,
+        "sub": 4060086178
+      },
+      "loop_after": {
+        "mul_base": 922746855,
+        "add": 12180258457,
+        "mul": 6190792521,
+        "sub": 3388997544
+      },
+      "base_mul_before": 29326572808,
+      "base_mul_after": 32799456315,
+      "base_mul_fraction_removed": -0.11842104871022063,
+      "api_before": 17834180147,
+      "api_after": 22682795377,
+      "api_fraction_removed": -0.2718720563566594,
+      "calls": 218103803,
+      "dispatch_before": 1526726617,
+      "dispatch_after": 872415206,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 2,
+      "padded": false,
+      "recovery": true,
+      "debug": true,
+      "tables": 25,
+      "rows": 33554431,
+      "coefficient_lengths": [
+        4,
+        2,
+        2
+      ],
+      "logical_retained_output_bytes": 128,
+      "coefficient_setup_per_row": {
+        "mul_base": 19,
+        "add": 248,
+        "mul": 150,
+        "sub": 76
+      },
+      "before_brackets": [
+        {
+          "mul_base": 8,
+          "add": 31,
+          "mul": 35,
+          "sub": 27
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 1140850654,
+        "add": 7918845716,
+        "mul": 6174015304,
+        "sub": 4529848198
+      },
+      "loop_after": {
+        "mul_base": 1006632930,
+        "add": 12314476177,
+        "mul": 6241124166,
+        "sub": 3388997544
+      },
+      "base_mul_before": 33151777828,
+      "base_mul_after": 33218886690,
+      "base_mul_fraction_removed": -0.0020242914979757085,
+      "api_before": 19763559872,
+      "api_after": 22951230817,
+      "api_fraction_removed": -0.16129032247455222,
+      "calls": 268435448,
+      "dispatch_before": 1744830412,
+      "dispatch_after": 872415206,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 2,
+      "padded": true,
+      "recovery": false,
+      "debug": false,
+      "tables": 27,
+      "rows": 33554431,
+      "coefficient_lengths": [
+        5,
+        3,
+        3
+      ],
+      "logical_retained_output_bytes": 176,
+      "coefficient_setup_per_row": {
+        "mul_base": 19,
+        "add": 323,
+        "mul": 194,
+        "sub": 80
+      },
+      "before_brackets": [
+        {
+          "mul_base": 8,
+          "add": 45,
+          "mul": 49,
+          "sub": 29
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 1442840533,
+        "add": 12650020487,
+        "mul": 9999220438,
+        "sub": 5872025438
+      },
+      "loop_after": {
+        "mul_base": 1442840533,
+        "add": 16542334483,
+        "mul": 7885291285,
+        "sub": 3590324130
+      },
+      "base_mul_before": 52881783256,
+      "base_mul_after": 42312137491,
+      "base_mul_fraction_removed": 0.1998730964467005,
+      "api_before": 29964106896,
+      "api_after": 29460790431,
+      "api_fraction_removed": 0.016797312422723643,
+      "calls": 369098741,
+      "dispatch_before": 2181038015,
+      "dispatch_after": 872415206,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 2,
+      "padded": true,
+      "recovery": false,
+      "debug": true,
+      "tables": 27,
+      "rows": 33554431,
+      "coefficient_lengths": [
+        5,
+        3,
+        3
+      ],
+      "logical_retained_output_bytes": 176,
+      "coefficient_setup_per_row": {
+        "mul_base": 19,
+        "add": 323,
+        "mul": 194,
+        "sub": 80
+      },
+      "before_brackets": [
+        {
+          "mul_base": 8,
+          "add": 45,
+          "mul": 49,
+          "sub": 29
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 1442840533,
+        "add": 12650020487,
+        "mul": 9999220438,
+        "sub": 5872025438
+      },
+      "loop_after": {
+        "mul_base": 1442840533,
+        "add": 16542334483,
+        "mul": 7885291285,
+        "sub": 3590324130
+      },
+      "base_mul_before": 52881783256,
+      "base_mul_after": 42312137491,
+      "base_mul_fraction_removed": 0.1998730964467005,
+      "api_before": 29964106896,
+      "api_after": 29460790431,
+      "api_fraction_removed": 0.016797312422723643,
+      "calls": 369098741,
+      "dispatch_before": 2181038015,
+      "dispatch_after": 872415206,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 2,
+      "padded": true,
+      "recovery": true,
+      "debug": false,
+      "tables": 27,
+      "rows": 33554431,
+      "coefficient_lengths": [
+        5,
+        3,
+        3
+      ],
+      "logical_retained_output_bytes": 176,
+      "coefficient_setup_per_row": {
+        "mul_base": 19,
+        "add": 323,
+        "mul": 194,
+        "sub": 80
+      },
+      "before_brackets": [
+        {
+          "mul_base": 8,
+          "add": 45,
+          "mul": 49,
+          "sub": 29
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 1291845598,
+        "add": 11811159737,
+        "mul": 9059696398,
+        "sub": 5368708988
+      },
+      "loop_after": {
+        "mul_base": 1308622813,
+        "add": 16357785118,
+        "mul": 7834959640,
+        "sub": 3590324130
+      },
+      "base_mul_before": 47882173186,
+      "base_mul_after": 41792043826,
+      "base_mul_fraction_removed": 0.12718991129209353,
+      "api_before": 27531410721,
+      "api_after": 29091691701,
+      "api_fraction_removed": -0.056672758102071105,
+      "calls": 318767096,
+      "dispatch_before": 1962934220,
+      "dispatch_after": 872415206,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 2,
+      "padded": true,
+      "recovery": true,
+      "debug": true,
+      "tables": 27,
+      "rows": 33554431,
+      "coefficient_lengths": [
+        5,
+        3,
+        3
+      ],
+      "logical_retained_output_bytes": 176,
+      "coefficient_setup_per_row": {
+        "mul_base": 19,
+        "add": 323,
+        "mul": 194,
+        "sub": 80
+      },
+      "before_brackets": [
+        {
+          "mul_base": 8,
+          "add": 45,
+          "mul": 49,
+          "sub": 29
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 1442840533,
+        "add": 12650020487,
+        "mul": 9999220438,
+        "sub": 5872025438
+      },
+      "loop_after": {
+        "mul_base": 1442840533,
+        "add": 16542334483,
+        "mul": 7885291285,
+        "sub": 3590324130
+      },
+      "base_mul_before": 52881783256,
+      "base_mul_after": 42312137491,
+      "base_mul_fraction_removed": 0.1998730964467005,
+      "api_before": 29964106896,
+      "api_after": 29460790431,
+      "api_fraction_removed": 0.016797312422723643,
+      "calls": 369098741,
+      "dispatch_before": 2181038015,
+      "dispatch_after": 872415206,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 3,
+      "padded": false,
+      "recovery": false,
+      "debug": false,
+      "tables": 28,
+      "rows": 33554431,
+      "coefficient_lengths": [
+        4,
+        2,
+        2
+      ],
+      "logical_retained_output_bytes": 128,
+      "coefficient_setup_per_row": {
+        "mul_base": 23,
+        "add": 272,
+        "mul": 164,
+        "sub": 84
+      },
+      "before_brackets": [
+        {
+          "mul_base": 10,
+          "add": 35,
+          "mul": 38,
+          "sub": 30
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 1409286102,
+        "add": 8858369784,
+        "mul": 6677331769,
+        "sub": 5033164665
+      },
+      "loop_after": {
+        "mul_base": 1140850654,
+        "add": 13522435693,
+        "mul": 6811549493,
+        "sub": 3758096287
+      },
+      "base_mul_before": 36205231049,
+      "base_mul_after": 36339448773,
+      "base_mul_fraction_removed": -0.0037071362372567192,
+      "api_before": 21978152320,
+      "api_after": 25232932127,
+      "api_fraction_removed": -0.1480916029523632,
+      "calls": 268435448,
+      "dispatch_before": 2013265860,
+      "dispatch_after": 1006632930,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 3,
+      "padded": false,
+      "recovery": false,
+      "debug": true,
+      "tables": 28,
+      "rows": 33554431,
+      "coefficient_lengths": [
+        4,
+        2,
+        2
+      ],
+      "logical_retained_output_bytes": 128,
+      "coefficient_setup_per_row": {
+        "mul_base": 23,
+        "add": 272,
+        "mul": 164,
+        "sub": 84
+      },
+      "before_brackets": [
+        {
+          "mul_base": 10,
+          "add": 35,
+          "mul": 38,
+          "sub": 30
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 1409286102,
+        "add": 8858369784,
+        "mul": 6677331769,
+        "sub": 5033164665
+      },
+      "loop_after": {
+        "mul_base": 1140850654,
+        "add": 13522435693,
+        "mul": 6811549493,
+        "sub": 3758096287
+      },
+      "base_mul_before": 36205231049,
+      "base_mul_after": 36339448773,
+      "base_mul_fraction_removed": -0.0037071362372567192,
+      "api_before": 21978152320,
+      "api_after": 25232932127,
+      "api_fraction_removed": -0.1480916029523632,
+      "calls": 268435448,
+      "dispatch_before": 2013265860,
+      "dispatch_after": 1006632930,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 3,
+      "padded": false,
+      "recovery": true,
+      "debug": false,
+      "tables": 28,
+      "rows": 33554431,
+      "coefficient_lengths": [
+        4,
+        2,
+        2
+      ],
+      "logical_retained_output_bytes": 128,
+      "coefficient_setup_per_row": {
+        "mul_base": 23,
+        "add": 272,
+        "mul": 164,
+        "sub": 84
+      },
+      "before_brackets": [
+        {
+          "mul_base": 10,
+          "add": 35,
+          "mul": 38,
+          "sub": 30
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 1224736737,
+        "add": 8187281184,
+        "mul": 5922357094,
+        "sub": 4513071000
+      },
+      "loop_after": {
+        "mul_base": 1056964579,
+        "add": 13388217973,
+        "mul": 6761217848,
+        "sub": 3758096287
+      },
+      "base_mul_before": 32061258944,
+      "base_mul_after": 35920018398,
+      "base_mul_fraction_removed": -0.12035583071581582,
+      "api_before": 19847446015,
+      "api_after": 24964496687,
+      "api_fraction_removed": -0.25781910015690246,
+      "calls": 218103803,
+      "dispatch_before": 1761607635,
+      "dispatch_after": 1006632930,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 3,
+      "padded": false,
+      "recovery": true,
+      "debug": true,
+      "tables": 28,
+      "rows": 33554431,
+      "coefficient_lengths": [
+        4,
+        2,
+        2
+      ],
+      "logical_retained_output_bytes": 128,
+      "coefficient_setup_per_row": {
+        "mul_base": 23,
+        "add": 272,
+        "mul": 164,
+        "sub": 84
+      },
+      "before_brackets": [
+        {
+          "mul_base": 10,
+          "add": 35,
+          "mul": 38,
+          "sub": 30
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 1409286102,
+        "add": 8858369784,
+        "mul": 6677331769,
+        "sub": 5033164665
+      },
+      "loop_after": {
+        "mul_base": 1140850654,
+        "add": 13522435693,
+        "mul": 6811549493,
+        "sub": 3758096287
+      },
+      "base_mul_before": 36205231049,
+      "base_mul_after": 36339448773,
+      "base_mul_fraction_removed": -0.0037071362372567192,
+      "api_before": 21978152320,
+      "api_after": 25232932127,
+      "api_fraction_removed": -0.1480916029523632,
+      "calls": 268435448,
+      "dispatch_before": 2013265860,
+      "dispatch_after": 1006632930,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 3,
+      "padded": true,
+      "recovery": false,
+      "debug": false,
+      "tables": 30,
+      "rows": 33554431,
+      "coefficient_lengths": [
+        5,
+        3,
+        3
+      ],
+      "logical_retained_output_bytes": 176,
+      "coefficient_setup_per_row": {
+        "mul_base": 23,
+        "add": 355,
+        "mul": 212,
+        "sub": 88
+      },
+      "before_brackets": [
+        {
+          "mul_base": 10,
+          "add": 51,
+          "mul": 54,
+          "sub": 32
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 1778384843,
+        "add": 14159969882,
+        "mul": 10938744506,
+        "sub": 6476005198
+      },
+      "loop_after": {
+        "mul_base": 1577058257,
+        "add": 18119392740,
+        "mul": 8589934336,
+        "sub": 3959422873
+      },
+      "base_mul_before": 58250492216,
+      "base_mul_after": 46103788194,
+      "base_mul_fraction_removed": 0.20852534562211983,
+      "api_before": 33353104429,
+      "api_after": 32245808206,
+      "api_fraction_removed": 0.033199195156095374,
+      "calls": 369098741,
+      "dispatch_before": 2516582325,
+      "dispatch_after": 1006632930,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 3,
+      "padded": true,
+      "recovery": false,
+      "debug": true,
+      "tables": 30,
+      "rows": 33554431,
+      "coefficient_lengths": [
+        5,
+        3,
+        3
+      ],
+      "logical_retained_output_bytes": 176,
+      "coefficient_setup_per_row": {
+        "mul_base": 23,
+        "add": 355,
+        "mul": 212,
+        "sub": 88
+      },
+      "before_brackets": [
+        {
+          "mul_base": 10,
+          "add": 51,
+          "mul": 54,
+          "sub": 32
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 1778384843,
+        "add": 14159969882,
+        "mul": 10938744506,
+        "sub": 6476005198
+      },
+      "loop_after": {
+        "mul_base": 1577058257,
+        "add": 18119392740,
+        "mul": 8589934336,
+        "sub": 3959422873
+      },
+      "base_mul_before": 58250492216,
+      "base_mul_after": 46103788194,
+      "base_mul_fraction_removed": 0.20852534562211983,
+      "api_before": 33353104429,
+      "api_after": 32245808206,
+      "api_fraction_removed": 0.033199195156095374,
+      "calls": 369098741,
+      "dispatch_before": 2516582325,
+      "dispatch_after": 1006632930,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 3,
+      "padded": true,
+      "recovery": true,
+      "debug": false,
+      "tables": 30,
+      "rows": 33554431,
+      "coefficient_lengths": [
+        5,
+        3,
+        3
+      ],
+      "logical_retained_output_bytes": 176,
+      "coefficient_setup_per_row": {
+        "mul_base": 23,
+        "add": 355,
+        "mul": 212,
+        "sub": 88
+      },
+      "before_brackets": [
+        {
+          "mul_base": 10,
+          "add": 51,
+          "mul": 54,
+          "sub": 32
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 1593835478,
+        "add": 13220445842,
+        "mul": 9915334391,
+        "sub": 5922357103
+      },
+      "loop_after": {
+        "mul_base": 1442840537,
+        "add": 17934843375,
+        "mul": 8539602691,
+        "sub": 3959422873
+      },
+      "base_mul_before": 52764342911,
+      "base_mul_after": 45583694529,
+      "base_mul_fraction_removed": 0.13608903258990496,
+      "api_before": 30651972814,
+      "api_after": 31876709476,
+      "api_fraction_removed": -0.039956209978126205,
+      "calls": 318767096,
+      "dispatch_before": 2264924100,
+      "dispatch_after": 1006632930,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    },
+    {
+      "n": 25,
+      "ls": 3,
+      "padded": true,
+      "recovery": true,
+      "debug": true,
+      "tables": 30,
+      "rows": 33554431,
+      "coefficient_lengths": [
+        5,
+        3,
+        3
+      ],
+      "logical_retained_output_bytes": 176,
+      "coefficient_setup_per_row": {
+        "mul_base": 23,
+        "add": 355,
+        "mul": 212,
+        "sub": 88
+      },
+      "before_brackets": [
+        {
+          "mul_base": 10,
+          "add": 51,
+          "mul": 54,
+          "sub": 32
+        },
+        {
+          "mul": 2,
+          "add": 1
+        },
+        {
+          "mul_base": 1,
+          "add": 1,
+          "sub": 1,
+          "mul": 2
+        }
+      ],
+      "loop_before": {
+        "mul_base": 1778384843,
+        "add": 14159969882,
+        "mul": 10938744506,
+        "sub": 6476005198
+      },
+      "loop_after": {
+        "mul_base": 1577058257,
+        "add": 18119392740,
+        "mul": 8589934336,
+        "sub": 3959422873
+      },
+      "base_mul_before": 58250492216,
+      "base_mul_after": 46103788194,
+      "base_mul_fraction_removed": 0.20852534562211983,
+      "api_before": 33353104429,
+      "api_after": 32245808206,
+      "api_fraction_removed": 0.033199195156095374,
+      "calls": 369098741,
+      "dispatch_before": 2516582325,
+      "dispatch_after": 1006632930,
+      "excluded": [
+        "Eq construction",
+        "group factor setup",
+        "inverse/recovery/interpolation/reduction",
+        "native allocation/temporaries/register pressure",
+        "mask extensions",
+        "witness",
+        "PCS",
+        "transfers",
+        "serialization",
+        "verification"
+      ]
+    }
+  ],
+  "output_sha256": "55055fb452e17b2350f4599fdc8e023e4f36cb1b20f88e51cac03fbbaff29b86",
+  "wall_seconds": 5.62914176400227,
+  "max_rss_kib": 17164,
+  "hardware": {
+    "cpu_model": "Intel(R) Core(TM) Ultra 9 185H",
+    "affinity": [
+      0
+    ],
+    "threads": 1,
+    "nice": 19,
+    "device": "CPU only"
+  },
+  "limits": {
+    "wall_seconds": 59,
+    "cpu_seconds": 59,
+    "address_space_bytes": 536870912,
+    "estimated_bytes": 67108864
+  },
+  "proof_accounting": {
+    "accepted_complete_private_8b_proofs": 0,
+    "proved_tokens": 0,
+    "passes": 0,
+    "context_length": null,
+    "steady_tokens_per_second": null,
+    "total_workload_tokens_per_second": null,
+    "startup_seconds": null,
+    "startup_fraction": null,
+    "witness_seconds": null,
+    "proof_seconds": null,
+    "serialization_seconds": null,
+    "independent_verification_seconds": null,
+    "prefill": null,
+    "resident_passes": null,
+    "decode": null
+  }
+}

@@ -1,0 +1,7 @@
+
+running 1 test
+test private_block::s35_tests::the_table_list_the_order_and_the_declared_degree_of_the_two_slots_are_where_they_were ... S35 pins: 18 (shape, slot) rows — table count, table order, main rounds, extension rounds and declared degree all where 89e393f left them
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 528 filtered out; finished in 0.33s
+

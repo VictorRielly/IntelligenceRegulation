@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "python3",
+    "-B",
+    "experiments/compiled-lookup-denominators-20261004/experiment.py"
+  ],
+  "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency",
+  "seed": 2026100433,
+  "started_at_utc": "2026-10-04T15:08:25.490232+00:00",
+  "limits": "self-enforced59s wall/CPU512MiB one affinity core nice+10"
+}

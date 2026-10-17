@@ -1,6 +1,359 @@
 # Codex ↔ Fable active loop — 2026-09-18
 
+## Reboot recovery coordination — 2026-09-30 00:54 UTC
+
+Codex thread `01a0efcb-3f84-74f1-8860-07f05d31254f` resumes the interrupted
+Tech Week/MVP work. Host boot ID is `821442fc-3e31-457d-a742-de97ad7c8122`;
+host process inspection confirms no surviving native proof/build. Claude PID
+2147 is active and inspecting the incident; the existing researcher PID 368
+is active. Neither old `state=running` reports nor missing sandbox PIDs are
+liveness evidence. Preserve interrupted reports and staging files.
+
+**Proposed immediate ownership, for Claude acknowledgment:** Codex owns
+`scripts/zk60_private_stack_benchmark.py`, its tests, and resumed validation
+of `ops/zkp-mvp/sonnet-hardening` (no candidate protocol edits). Claude owns
+shared resource-guard/launcher work and recovery of its calibration/profile
+lanes. Please post acknowledgment, guard interface and current heavy-job
+ownership in `ops/zkp-mvp/RECOVERY_COORDINATION.md`; Codex will read it before
+launching native work. No model-scale run from this thread until agreement.
+
+The previous Sonnet example build passed; its test build and CLI twelve-block
+GPU run have no terminal result and were interrupted by this reboot. Next
+Codex work: inspect retained artifacts, harden durable run status, then
+finish bounded CLI correctness validation serially. Shared build/heavy locks
+must cover the same files/inodes across host and sandbox, and builds must
+not overlap proofs merely because they use a different lock.
+
+**Active Tech Week roles, September 29 PDT / September 30 UTC:** see
+[the current assignment map](ZK60_TEAM_TECHWEEK_20260930.md). GPT-6.1-Sol
+owns independent CLI and trained-norm reviews; Sonnet 5.5 hardens a separate
+`ops/zkp-mvp/sonnet-hardening` copy. Existing Claude calibration B, profile C
+and presentation D retain their directories. No new worker should duplicate
+their implementation or the persistent hourly researcher.
+
+**For trained profile lane C:** the Sol exact-integer
+[norm audit](../../results/zk60_trained_contract_review_20260930/HANDOFF.md)
+has executable counterexamples to two assumptions in the earlier Sonnet
+calibration note: the signed-int16 endpoint includes -32768, so the 4096-wide
+full-domain derivation needs a 34-bit norm window; and D>2^20 is not by itself
+a refusal for four limbs. A guaranteed restricted bound must include epsilon.
+Keep five-limb support and coefficient range/identity binding explicit; these
+arithmetic checks authorize no privacy or restricted-domain ruling.
+
 ## CURRENT — Codex pickup, 2026-09-19
+
+**05:49 UTC, trained approximately 1B checkpoint started:** Victor explicitly
+asks for a smaller complete-model intermediate on the current GPU with
+matched CPU/GPU scaling measurements, and continued checkmark updates.
+The 8B/50 target remains. See `ZK60_1B_CHECKPOINT.md`. Three Sol lanes resumed
+in new isolated sources: model/config/header/layout inventory; trained
+layer-streaming import; native actual-SC_SZC masked-transcript boundary.
+The research worker should avoid duplicating the owned native boundary test;
+it can study complementary calibration, residency or device scheduling
+questions within its limits. No new profile is admitted and no trained
+1B proof or hardware fit is claimed. Root coordinates actual checkpoint
+acquisition and review after immutable metadata and memory checks.
+
+**Parallel Sol team, 2026-09-27 UTC:** Victor authorizes agents as needed and
+selects GPT-6 Sol. Three Sol workers are active on native fusion, keyed GPU
+commitments, and trained-model readiness/independent review. Exclusive lanes
+and current findings are in `ZK60_SOL_TEAM_20260927.md`; do not duplicate
+their builds or edit their candidates. Main owns review and bounded device
+invocations. The standing explorer is also configured for Sol and was
+restarted idle; host identity confirmed, next scheduled cycle unchanged.
+
+**03:58 UTC, keyed CUDA A/B completed:** all six synthetic one-block receipts
+verify at 40,783,352 B; root confirmed exit 0, all log/runner hashes, exactly
+four accepted keyed commitments per GPU run and both non-warm means. CPU/GPU
+proving means are 32.95/17.13 s; enclosing test-process means 39.895/30.055 s;
+host HWM means 10,524/4,411.5 MiB. Two non-warm samples per arm, two CPU
+threads, RTX 4070 Laptop. One GPU witness build is 10.66 s versus 5.77 s
+in the other run. The persistent researcher began cycle 0012 at 03:52:33
+and was active during this shared-host diagnostic. No other team builds
+overlapped; this is not a quiesced or persistent-process benchmark. Every
+sample pays process/device initialization. Host RSS is not VRAM, byte
+verification is in the same process, and zero complete-model passes occurred.
+
+Next native/research priority: quantify a GPU route for the remaining
+softmax proof work (roughly half of GPU-assisted proving), preserving the
+generic/masked polynomial and transcript oracle. Keep resident initialization
+amortization and private KV-state authentication as separate workload and
+protocol tasks. Reuse measured bottlenecks when ranking the researcher's
+small helper experiments. Do not promote the slower fusion candidate or
+derive an 8B token rate from this single block. Source and raw evidence remain
+frozen under `results/zk60_sol_gpu_20260927/`.
+
+**03:35 UTC checkpoint:** all 189 legacy device oracle cases pass. GPU-feature
+release coverage is 491 passing native tests plus a passing filtered rerun
+after restoring the missing archived toy fixture, with 17 ignored. Do not
+call this a single full-suite pass. All eight frozen legacy proof comparisons
+match historical bytes; attempt 6's v3 marker-parser false negative remains
+recorded as failed and is adjudicated by pinned source/log/proof evidence in
+attempt 7. Root checked all 184 source, six binary and six continuation log
+hashes. The dense CPU/GPU A/B is ready, waiting for the separate small Mac
+telemetry build to finish. Candidate source and timing runners are frozen.
+The Mac repair has its own candidate; it does not alter this timing binary.
+
+Cycle 0011 of the hourly Sol researcher completed at 03:07:44 UTC. It passes
+63 synthetic direct-H helper cases but measures no native proving gain;
+the entire parent helper phase is about 3% of cited block readiness. Prioritize
+GPU and memory work. Do not edit the researcher's owned state files.
+
+**02:50 UTC checkpoint:** fusion passed all CPU/native/receipt gates but is
+demoted after its complete 125M A/B: two non-warm means show prove 35.0665
+vs 35.6490 s and full softmax 8.332 vs 9.197 s (baseline vs fused), shared
+two-thread CPU. Do not promote or repeat the same fusion sketch as a speed
+win. Keyed GPU attempt 2 now passes resident, forced streaming, compact q>n
+and complete tagged rung-G CPU/GPU receipt gates on the RTX 4070. Main
+rechecked all source/binary/log pins and exit 0. Attempt 1's launch-resource
+failure remains retained. Independent review and legacy regression follow;
+no new privacy acceptance or model-scale timing. See the Sol result folders.
+
+Model layout audit counts T512/T1024 retained floors of 25.70/70.57 GiB.
+An actual small tagged opening can be reproduced after dropping encoded
+data and recomputing queried columns; the modeled retained floors become
+5.35/14.57 GiB, but construction still peaks higher and no speed is measured.
+The model agent is now building the bounded streaming-root CPU oracle.
+Avoid duplicate work. The 5090 PC and 512 GB M3 Ultra are available, but
+the 5090 needs a fresh Linux install; the setup guide now starts with USB
+installation media. No remote high-end GPU benchmark has occurred.
+
+**Periodic reporting requested, 2026-09-26 PDT / 2026-09-27 UTC:** during
+active work, post concise updates on progress, measured results, blockers and
+next action. The background researcher must follow AGENDA.md's new per-cycle
+`PROGRESS.md` and `progress/<run-id>.md` reporting requirement. These are local
+reports; no automatic delivery to this chat has been configured.
+
+**Grouped A/B completed:** all six runs and the terminal marker pass; all six
+log hashes and the runner hash independently rechecked. Two non-warm runs per
+arm: old prove 37.63 / 36.84 s, new 34.86 / 33.31 s; observed mean proving
+time reduction about 8.5%, enclosing test-process time reduction 6.97%. All receipts
+remain 40,783,352 bytes and verify. Shared two-thread CPU, dense synthetic
+125M geometry, test-oracle overhead included: a diagnostic observation, not
+a quiesced production/GPU/8B result. The queued notes below are historical.
+Research cycle 0009 delivered grouped fold/next-round fusion with 19.92%
+less counted synthetic table traffic and 37 passing cases; native runtime
+benefit is unmeasured. Review its retained handoff before implementing it.
+
+**Standing researcher mandate, 2026-09-26:** Victor explicitly expects the
+researcher to ask and investigate KV caching and similar optimization
+questions proactively. Every research cycle must read
+`research/zkp-efficiency/AGENDA.md`, generate/refine hypotheses, rank their
+complete-proof impact, test one and record a falsifiable next step. This
+later user direction and `ZK60_THROUGHPUT_TARGET.md` supersede fixed-512
+acceptance wording in cached launcher prompts and older research state.
+The running supervisor reads this coordination and CLAUDE.md every cycle.
+The old launcher cached PROMPT.md; the Sol launcher restarted on 2026-09-27
+now rereads it each cycle as well (tested with a changed prompt).
+
+Host health at 20:30:47 UTC confirmed supervisor 1080298, unpaused and idle
+after completed cycle `20260926T195233Z-cef0b7d6`; next scheduled start
+20:52:33 UTC. The preceding NTT/pad and latest pair-inverse-cache cycles
+produced research handoffs, not measured proving gains. The pair-cache's
+measured helper phase accounts for only 0.54–0.58% of the cited CPU proving
+time, which limits its priority. Session research also delivered
+`20260926-kv-proof-state.md`: six synthetic score cases and 18 requantization
+boundary checks pass; a masked future score exposes why ordinary K/V-only
+checks do not preserve the frozen relation. Next: chunked witness equivalence
+with retained Q/K/V inside one proof window, then private-state composition.
+No native KV implementation, GPU result or 50-token/s achievement is claimed.
+
+**Latest clarification, 2026-09-26:** Victor permits more tokens to amortize
+initialization/initial prefill toward >=50 proved tokens/s on an **RTX 5090
+or another high-end GPU**. The fixed 512/10.24 s interpretation in the earlier
+entry below is superseded as a requirement. Use
+`ZK60_THROUGHPUT_TARGET.md`; report warm and total-workload rates with startup,
+context length, number of passes and actual GPU. Fresh masks and full-stack
+proof coverage remain mandatory. The research brief is updated; the session
+research agent delivered `20260926-amortized-throughput.md`. The persistent
+explorer's NTT-layout cycle completed; the explorer reads current project
+decisions/coordination on each cycle; its prior fixed-512 prompt is superseded
+by this explicit user direction.
+
+**Native validation completed:** all nine steps pass, including 512 native
+tests (17 ignored), core debug/release 73 + 2 each, and fresh/cross-version
+receipts. All 183 source pins, three binaries and nine logs independently
+rechecked. Session 16979 advanced to the dense grouped A/B, now completed as
+recorded above. No duplicate job launched. This closes the pending
+CPU validation in the checkpoint below, not a speed or privacy gate.
+
+**2026-09-26 — resumed implementation and background research.** Victor's
+current minimum is a complete 8B forward-pass proof at >=50 tokens/s. At the
+standing 512-token prefill workload this is <=10.24 s including witness
+preparation and serialization; the former five-second goal is a stretch target.
+D1/D13 remain in force. The explorer's pause flag was cleared; its first
+sandbox CLI failed on a read-only filesystem, then host resume succeeded and
+host process identity was verified (supervisor 1080298). The hourly rate limit
+retains its next due time; an idle supervisor is not an active research cycle.
+A session research agent independently completed the forward-budget/traffic
+handoff under `research/zkp-efficiency/handoffs/20260926-forward-budget-and-traffic.md`.
+
+R2a's reviewed source/binaries are unchanged and its prepared dense A/B is now
+running. In parallel, Codex ported the earlier research group's SC_SZC idea to
+`/tmp/zk60-groups-20260926` atop R2a. Four changed files and the exact patch are
+retained in `results/zk60_grouped_rounds_20260926/candidate-v1/`. Core debug and
+release pass 73 unit + 2 integration tests each. The native slot uses groups
+with bracket degrees [3,1,1] or [4,2,2], retains ordinary equality tables/finals,
+and seeds no host claim. Zero factors evaluate explicitly. The shared verifier
+polynomial is refactored through group closures, so semantic parity is owed;
+stage-35's copied expression and the slot IR are the independent oracles.
+The research agent's read-only review found no blocking algebraic defect.
+`validation-1/validation.json` governs native test/receipt outcomes; the prepared
+grouped A/B refuses to start before it passes. No main Rust source was changed,
+no D22 extension is claimed, and the source remains an uncommitted candidate.
+
+**Checkpoint results:** R2a's six dense proofs passed, same 40,783,352-byte
+receipt; non-warm old/new/new/old prove seconds 44.51 / 39.73 / 40.10 / 40.27
+(shared two-thread CPU; compilation overlap, no firm end-to-end gain). Grouped
+candidate: eight targeted native gates passed (dense/padded/three-block,
+tampering, and original-expression/IR/order-degree checks at every registered
+shape), plus four receipt processes and nine corruption refusals. The complete
+native suite still queues on `/tmp/zk-heavy.lock` in tool session 76580.
+Session 16979 runs the bounded `continue_after_validation.py`, which launches
+the prepared grouped A/B only after validation passes. Do not duplicate either
+job; check their records/markers and original handles. These yielded processes
+are not a promise of restart persistence. Main's earlier dirty files remain
+preserved; no Rust source was promoted or new privacy ruling inferred.
+
+**2026-09-23 — Victor's persistent efficiency explorer is operational.**
+User cron watchdog + bubblewrap (production read-only); hourly cycles capped
+at 20 minutes, CPU-light experiments only. Unlike a conversational subagent,
+it runs outside this session and reads durable research state. A real cycle
+completed in 907 s with live search and a new SC_SZC grouped-equality experiment:
+23 differential cases, 189 independent checks, five negative controls. It
+counts 18.2% fewer expensive bracket evaluations on a padded synthetic case;
+this is not a native slot/block speed result. Review handoff:
+`research/zkp-efficiency/handoffs/20260924-sc-szc-groups.md`. Production and
+current candidates were not modified. Next research topic: NTT layout/padding
+oracles; root still owns native integration. Startup/controls are recorded in
+`ops/zkp-explorer/README.md`; check the real host process before restarting it.
+
+**R2a continuation:** session 6175 completed successfully. Core debug/release,
+native library, fresh receipt verification and old/new receipt compatibility
+all passed (`results/zk60_encode_allocation_20260922/validation-1/validation.json`).
+No model speed claim yet; the prepared dense A/B benchmark is next.
+
+**2026-09-22 next continuation — previous turn was progress, not a wait.**
+The R1d source hashes and completed validation/A-B records were rechecked.
+I am implementing R2a independently atop that frozen candidate in
+`/tmp/zk60-encode-20260922`; no earlier baseline or main prover is edited.
+The tagged CPU fallback now initializes each encoded row directly in spare
+capacity, with every element written before an `Fp` slice is formed and
+the vector length set only after every worker joins. The original encoder
+and untagged commitment remain the oracles. A q>n coefficient-overlap bug
+in the first candidate was caught by the matrix comparison and corrected;
+that failed attempt remains recorded. Core debug/release pass 68 + 2 tests,
+including your six conformance tests from `3257c33`, an additive check of
+the new buffer against all 35 third-implementation vectors, matrix/RNG/tree
+parity, boundary shapes and sentinel controls. Native gates are now building.
+Four source files and the exact patch are retained under
+`results/zk60_encode_allocation_20260922/candidate-v1/` and
+`source-changes-v1.json`; `validation-1/validation.json` is authoritative.
+Please review the two documented unsafe boundaries before integration.
+Miri is not installed; no Miri/sanitizer, device, privacy or speed acceptance
+is claimed. The memory-write saving remains a candidate until measured.
+
+**2026-09-22 continuation — reviewable source without a Git approval.**
+The preceding goal turn made concrete progress: baseline logs and all 179
+source hashes verified, and the ordinary-sandbox core build passed 50 unit
++ 2 integration tests with source unchanged. I have retained the fixed
+`fee1a8d` assembly in `results/zk60_shaped_integration_20260922/` on main:
+`reviewed-source.tar.gz` (SHA-256
+`c794360a09de1770104d8e40ce043344b25c21498cfe37ed661575a8ac06626a`),
+`review-snapshot.json` (all 179 per-file hashes) and `baseline-validation.json`.
+Please use that exact archive/hash set for the D22 integration pre-read;
+a Git commit can follow without making CPU work depend on its approval.
+This is a review candidate, not a new privacy acceptance or GPU result.
+
+I read the R1d/R2a/interface and buffer inventory. R1d and the no-Sync round
+trait are now implemented in an isolated source candidate under
+`/tmp/zk60-rounds-20260922`, with original `prove`/`masked_prove` retained as
+oracles. Debug/release differential tests are being run before handing the
+interface over. Algebraically the slot's unmasked claimed sum is
+`scalar + sum(host_coef * previous_masked_scalar) - c_s * mask_s.total()`.
+**Important implementation qualification:** host/standalone slots ASSERT
+this value, but the prover intentionally permits inconsistent witnesses to
+reach the verifier. Seeding recovery from that assertion would change bad
+proof bytes and cause a new debug panic. The candidate seeds only Private
+slots, whose total is already computed; host/standalone slots compute their
+first round fully, then recover from their own actual unmasked rounds.
+This preserves the old refusal behavior but saves fewer evaluations than
+the fully seeded estimate. Later claims interpolate UNMASKED rounds at
+MASKED-transcript challenges. Extension rounds remain unchanged. R2a/device
+work has not been implemented. The live sandbox test session is queued on
+the shared build lock; it has not been restarted or treated as dead.
+
+**R1d update, 2026-09-22 continuation:** the build lock cleared; core debug and release
+both pass (57 unit + 2 integration), including exact masked bytes and
+extension rounds. Native library/example compile; the full native suite is
+running. The reviewable API/source is in
+`results/zk60_sumcheck_rounds_20260922/candidate-v1/`, exact diff
+`candidate-v1.patch`, hashes `source-changes-v1.json`; live authoritative
+result `validation-1/validation.json`. Original `prove`/`masked_prove`
+bodies were independently byte-compared unchanged. You can review the
+interface now; do not treat this as a passed full-block gate yet. Its CPU
+adapter uses the existing table order/cutoffs. No device or performance
+claim follows from the core tests.
+
+**R1d full-block update:** the candidate passes 512 native tests across the
+full run plus one fixture-only rerun (17 ignored); core debug/release both
+remain 57 + 2. The first native invocation failed solely because its isolated
+checkout lacked a pre-lane receipt; the authentic main/baseline fixture was
+copied and the check rerun, without source changes. New/old block receipts
+cross-verify with nine corruption refusals. Completed aggregate record:
+`results/zk60_sumcheck_rounds_20260922/validation-2/validation.json`.
+The live A/B uses the real dense 125M one-block test, old/new/new/old,
+two Rayon threads, under the heavy lock; its `comparison.json` is the
+authoritative status. The candidate test binary includes extra small-slot
+oracle work, so its measured times will retain that qualification. No main
+protocol integration, D22 extension or GPU result is implied. Please review
+the additive interface and the unseeded-first-round qualification above.
+
+**R1d A/B completed (CPU, two Rayon threads, shared box):** all four dense
+125M block proofs passed at 40,783,352 B. Old/new/new/old prove seconds were
+61.79 / 43.02 / 38.06 / 38.96: unchanged work varied too much for a
+whole-proof speed claim. Slot 17 masked sumcheck was 9.053 / 8.590 / 8.551 /
+9.258 s; summed rounded masked-sumcheck phases 13.875 / 13.349 / 12.926 /
+14.172 s. See `results/zk60_sumcheck_rounds_20260922/dense-ab-1/comparison.json`
+and `measured-summary.json`. Small-slot old/new oracles are included in the
+candidate test-binary clock. This is a complete-block development run,
+not the 8B GPU target. No jobs from this validation/benchmark remain live.
+
+**2026-09-22, Victor's target clarification:** five seconds is for an 8B
+model on better GPU hardware. I acknowledged this and corrected the proposed
+54-second FFN-plus-attention interpretation: the source log is 58.40 s for
+FFN only, 8.77 tokens/s over 512 tokens, 196.79 s complete logged wall.
+The 125M CPU block remains a development fixture, and the complete private
+model pass stays in scope. The current target is now prominent in
+`MVP_STATUS.md`, `START_HERE.md` and the task board.
+
+**2026-09-22 evening — baseline passed, source snapshot remains fixed.**
+The `fee1a8d` assembly is complete in `/tmp/wt-zk60-shaped-20260920`:
+59 lane paths plus the two tag patches, with the original norm-alias tests
+retained and their reviewed lane extensions added. Three small test fixtures
+were copied from that commit; large capture directories were not imported.
+The detached run finished (`run.done = 0`); runner and results:
+`results/zk60_shaped_integration_20260922/baseline.py` and `baseline/`.
+All 16 recorded steps passed: core 50 unit + 2 integration tests, shaped
+reference kernel 5 tests, storage-feature library 509 passed / 17 ignored,
+Python inventory 40 and layout 60, plus builds and fresh/cross-version
+attention and block receipt checks. All retained log hashes and all 179
+source hashes were independently rechecked with no mismatch. Rust sources
+remain fixed for the remaining integration review.
+The snapshot has not yet been committed or accepted. Main's pin/capture
+repair is committed as `eaaac8f`; I read your successful replay of that bundle.
+
+I have also read the stage-36 observer delivery and the newer commitment
+split/conformance handoff. They are follow-up deltas after this fixed baseline.
+The new measurement changes the device priority: NTT encoding is the larger
+cost, and keyed column hashing alone cannot deliver the needed gain. I will
+use the complete-row encoding vectors, including the 2^14 ordering controls.
+R1d and the round interface remain mine: the running claim must be the
+unmasked polynomial evaluation even though challenges come from masked
+messages. R2a needs a fully initialized, safe allocation path; removing zero
+stores must never hand Rust a reference to uninitialized field elements.
+The pinned-buffer/pool inventory remains under review; no GPU extension of
+D22 is claimed. Your newer lane tip does not change this baseline's sources.
 
 **2026-09-22 07:25 — shaped integration is in `/tmp/wt-zk60-shaped-20260920`,
 branch `integrate/zk60-shaped-20260920`, based on accepted `4751b93`.** I am

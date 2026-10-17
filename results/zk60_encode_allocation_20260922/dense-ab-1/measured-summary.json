@@ -1,0 +1,127 @@
+{
+  "comparison_sha256": "17f15babc4b409f5a178e501528d8de69a814f74cec70b91eed45732b902c37c",
+  "runs": [
+    {
+      "name": "00-warm-old",
+      "prove_seconds": 39.49,
+      "phases": [
+        "PB-TIMING prove | A: allocate + witness planes -> committed rows | commit       |    0.539 |   1.4% | 93077504 words |      1393 |      1393 |",
+        "PB-TIMING prove | A: lookup values + the byte histogram        | commit       |    0.372 |   0.9% | 98598912 words |      2145 |      2145 |",
+        "PB-TIMING prove | A: exp/act indices + their two histograms    | commit       |    0.040 |   0.1% |  5242880 words |      2177 |      2177 |",
+        "PB-TIMING prove | A: mask + proximity rows (fresh randomness)  | commit       |    0.059 |   0.1% |  4030464 words |      2177 |      2177 |",
+        "PB-TIMING prove | A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |    8.650 |  21.9% |      5681 rows |      5034 |      5034 |",
+        "PB-TIMING prove | M: mask commit (zk::mask_commit, ONE call)   | commit       |    0.006 |   0.0% |        50 rows |      5034 |      5034 |",
+        "PB-TIMING prove | H: LogUp helper inverses (six lookup domains) | commit       |    1.160 |   2.9% | 98598912 words |      5999 |      6062 |",
+        "PB-TIMING prove | H: exp + activation helper inverses          | commit       |    0.207 |   0.5% |  5242880 words |      6015 |      6126 |",
+        "PB-TIMING prove | H: release the four witness buffers (S2 drops) | commit       |    0.038 |   0.1% |            0 - |      5023 |      6126 |",
+        "PB-TIMING prove | H: the three table helpers                   | commit       |    0.000 |   0.0% |    49152 words |      5023 |      6126 |",
+        "PB-TIMING prove | H: mask rows + the zero-sum rows             | commit       |    0.026 |   0.1% |  1671168 words |      5023 |      6126 |",
+        "PB-TIMING prove | H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |   10.163 |  25.7% |      7120 rows |      8583 |      8583 |",
+        "PB-TIMING prove HALF commit           21.260 s   53.8%  (12 phases)",
+        "PB-TIMING prove | encode to bytes (wire::encode)               | frame        |    0.027 |        | 40783352 B     |       581 |     10530 |"
+      ]
+    },
+    {
+      "name": "01-warm-new",
+      "prove_seconds": 40.18,
+      "phases": [
+        "PB-TIMING prove | A: allocate + witness planes -> committed rows | commit       |    0.354 |   0.9% | 93077504 words |      1393 |      1393 |",
+        "PB-TIMING prove | A: lookup values + the byte histogram        | commit       |    0.312 |   0.8% | 98598912 words |      2145 |      2145 |",
+        "PB-TIMING prove | A: exp/act indices + their two histograms    | commit       |    0.045 |   0.1% |  5242880 words |      2177 |      2177 |",
+        "PB-TIMING prove | A: mask + proximity rows (fresh randomness)  | commit       |    0.069 |   0.2% |  4030464 words |      2177 |      2177 |",
+        "PB-TIMING prove | A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |    7.986 |  19.9% |      5681 rows |      5034 |      5034 |",
+        "PB-TIMING prove | M: mask commit (zk::mask_commit, ONE call)   | commit       |    0.006 |   0.0% |        50 rows |      5034 |      5034 |",
+        "PB-TIMING prove | H: LogUp helper inverses (six lookup domains) | commit       |    1.886 |   4.7% | 98598912 words |      6002 |      6064 |",
+        "PB-TIMING prove | H: exp + activation helper inverses          | commit       |    0.258 |   0.6% |  5242880 words |      6018 |      6128 |",
+        "PB-TIMING prove | H: release the four witness buffers (S2 drops) | commit       |    0.058 |   0.1% |            0 - |      5025 |      6128 |",
+        "PB-TIMING prove | H: the three table helpers                   | commit       |    0.000 |   0.0% |    49152 words |      5025 |      6128 |",
+        "PB-TIMING prove | H: mask rows + the zero-sum rows             | commit       |    0.028 |   0.1% |  1671168 words |      5025 |      6128 |",
+        "PB-TIMING prove | H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |   10.588 |  26.4% |      7120 rows |      8585 |      8585 |",
+        "PB-TIMING prove HALF commit           21.589 s   53.7%  (12 phases)",
+        "PB-TIMING prove | encode to bytes (wire::encode)               | frame        |    0.028 |        | 40783352 B     |       617 |     10582 |"
+      ]
+    },
+    {
+      "name": "02-old",
+      "prove_seconds": 44.51,
+      "phases": [
+        "PB-TIMING prove | A: allocate + witness planes -> committed rows | commit       |    0.384 |   0.9% | 93077504 words |      1393 |      1393 |",
+        "PB-TIMING prove | A: lookup values + the byte histogram        | commit       |    0.280 |   0.6% | 98598912 words |      2145 |      2145 |",
+        "PB-TIMING prove | A: exp/act indices + their two histograms    | commit       |    0.037 |   0.1% |  5242880 words |      2177 |      2177 |",
+        "PB-TIMING prove | A: mask + proximity rows (fresh randomness)  | commit       |    0.068 |   0.2% |  4030464 words |      2177 |      2177 |",
+        "PB-TIMING prove | A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |    9.288 |  20.9% |      5681 rows |      5034 |      5034 |",
+        "PB-TIMING prove | M: mask commit (zk::mask_commit, ONE call)   | commit       |    0.006 |   0.0% |        50 rows |      5034 |      5034 |",
+        "PB-TIMING prove | H: LogUp helper inverses (six lookup domains) | commit       |    1.665 |   3.7% | 98598912 words |      6005 |      6068 |",
+        "PB-TIMING prove | H: exp + activation helper inverses          | commit       |    0.299 |   0.7% |  5242880 words |      6021 |      6132 |",
+        "PB-TIMING prove | H: release the four witness buffers (S2 drops) | commit       |    0.066 |   0.1% |            0 - |      5029 |      6132 |",
+        "PB-TIMING prove | H: the three table helpers                   | commit       |    0.000 |   0.0% |    49152 words |      5029 |      6132 |",
+        "PB-TIMING prove | H: mask rows + the zero-sum rows             | commit       |    0.036 |   0.1% |  1671168 words |      5029 |      6132 |",
+        "PB-TIMING prove | H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |   12.389 |  27.8% |      7120 rows |      8589 |      8589 |",
+        "PB-TIMING prove HALF commit           24.518 s   55.1%  (12 phases)",
+        "PB-TIMING prove | encode to bytes (wire::encode)               | frame        |    0.024 |        | 40783352 B     |       607 |     10588 |"
+      ]
+    },
+    {
+      "name": "03-new",
+      "prove_seconds": 39.73,
+      "phases": [
+        "PB-TIMING prove | A: allocate + witness planes -> committed rows | commit       |    0.413 |   1.0% | 93077504 words |      1393 |      1393 |",
+        "PB-TIMING prove | A: lookup values + the byte histogram        | commit       |    0.257 |   0.6% | 98598912 words |      2145 |      2145 |",
+        "PB-TIMING prove | A: exp/act indices + their two histograms    | commit       |    0.033 |   0.1% |  5242880 words |      2177 |      2177 |",
+        "PB-TIMING prove | A: mask + proximity rows (fresh randomness)  | commit       |    0.065 |   0.2% |  4030464 words |      2177 |      2177 |",
+        "PB-TIMING prove | A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |    7.284 |  18.3% |      5681 rows |      5034 |      5034 |",
+        "PB-TIMING prove | M: mask commit (zk::mask_commit, ONE call)   | commit       |    0.006 |   0.0% |        50 rows |      5034 |      5034 |",
+        "PB-TIMING prove | H: LogUp helper inverses (six lookup domains) | commit       |    1.286 |   3.2% | 98598912 words |      6000 |      6063 |",
+        "PB-TIMING prove | H: exp + activation helper inverses          | commit       |    0.232 |   0.6% |  5242880 words |      6016 |      6127 |",
+        "PB-TIMING prove | H: release the four witness buffers (S2 drops) | commit       |    0.057 |   0.1% |            0 - |      5024 |      6127 |",
+        "PB-TIMING prove | H: the three table helpers                   | commit       |    0.000 |   0.0% |    49152 words |      5024 |      6127 |",
+        "PB-TIMING prove | H: mask rows + the zero-sum rows             | commit       |    0.034 |   0.1% |  1671168 words |      5024 |      6127 |",
+        "PB-TIMING prove | H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |   10.986 |  27.6% |      7120 rows |      8584 |      8584 |",
+        "PB-TIMING prove HALF commit           20.653 s   52.0%  (12 phases)",
+        "PB-TIMING prove | encode to bytes (wire::encode)               | frame        |    0.024 |        | 40783352 B     |       601 |     10582 |"
+      ]
+    },
+    {
+      "name": "04-new",
+      "prove_seconds": 40.1,
+      "phases": [
+        "PB-TIMING prove | A: allocate + witness planes -> committed rows | commit       |    0.386 |   1.0% | 93077504 words |      1393 |      1393 |",
+        "PB-TIMING prove | A: lookup values + the byte histogram        | commit       |    0.292 |   0.7% | 98598912 words |      2145 |      2145 |",
+        "PB-TIMING prove | A: exp/act indices + their two histograms    | commit       |    0.036 |   0.1% |  5242880 words |      2177 |      2177 |",
+        "PB-TIMING prove | A: mask + proximity rows (fresh randomness)  | commit       |    0.070 |   0.2% |  4030464 words |      2177 |      2177 |",
+        "PB-TIMING prove | A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |    8.119 |  20.2% |      5681 rows |      5034 |      5034 |",
+        "PB-TIMING prove | M: mask commit (zk::mask_commit, ONE call)   | commit       |    0.006 |   0.0% |        50 rows |      5034 |      5034 |",
+        "PB-TIMING prove | H: LogUp helper inverses (six lookup domains) | commit       |    1.354 |   3.4% | 98598912 words |      6007 |      6070 |",
+        "PB-TIMING prove | H: exp + activation helper inverses          | commit       |    0.217 |   0.5% |  5242880 words |      6023 |      6133 |",
+        "PB-TIMING prove | H: release the four witness buffers (S2 drops) | commit       |    0.047 |   0.1% |            0 - |      5030 |      6133 |",
+        "PB-TIMING prove | H: the three table helpers                   | commit       |    0.000 |   0.0% |    49152 words |      5030 |      6133 |",
+        "PB-TIMING prove | H: mask rows + the zero-sum rows             | commit       |    0.027 |   0.1% |  1671168 words |      5030 |      6133 |",
+        "PB-TIMING prove | H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |   10.390 |  25.9% |      7120 rows |      8590 |      8590 |",
+        "PB-TIMING prove HALF commit           20.943 s   52.2%  (12 phases)",
+        "PB-TIMING prove | encode to bytes (wire::encode)               | frame        |    0.027 |        | 40783352 B     |       545 |     10526 |"
+      ]
+    },
+    {
+      "name": "05-old",
+      "prove_seconds": 40.27,
+      "phases": [
+        "PB-TIMING prove | A: allocate + witness planes -> committed rows | commit       |    0.412 |   1.0% | 93077504 words |      1393 |      1393 |",
+        "PB-TIMING prove | A: lookup values + the byte histogram        | commit       |    0.265 |   0.7% | 98598912 words |      2145 |      2145 |",
+        "PB-TIMING prove | A: exp/act indices + their two histograms    | commit       |    0.034 |   0.1% |  5242880 words |      2177 |      2177 |",
+        "PB-TIMING prove | A: mask + proximity rows (fresh randomness)  | commit       |    0.064 |   0.2% |  4030464 words |      2177 |      2177 |",
+        "PB-TIMING prove | A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |    9.123 |  22.7% |      5681 rows |      5034 |      5034 |",
+        "PB-TIMING prove | M: mask commit (zk::mask_commit, ONE call)   | commit       |    0.006 |   0.0% |        50 rows |      5034 |      5034 |",
+        "PB-TIMING prove | H: LogUp helper inverses (six lookup domains) | commit       |    1.238 |   3.1% | 98598912 words |      6006 |      6069 |",
+        "PB-TIMING prove | H: exp + activation helper inverses          | commit       |    0.221 |   0.5% |  5242880 words |      6022 |      6133 |",
+        "PB-TIMING prove | H: release the four witness buffers (S2 drops) | commit       |    0.075 |   0.2% |            0 - |      5029 |      6133 |",
+        "PB-TIMING prove | H: the three table helpers                   | commit       |    0.000 |   0.0% |    49152 words |      5029 |      6133 |",
+        "PB-TIMING prove | H: mask rows + the zero-sum rows             | commit       |    0.029 |   0.1% |  1671168 words |      5029 |      6133 |",
+        "PB-TIMING prove | H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |   10.724 |  26.6% |      7120 rows |      8589 |      8589 |",
+        "PB-TIMING prove HALF commit           22.192 s   55.1%  (12 phases)",
+        "PB-TIMING prove | encode to bytes (wire::encode)               | frame        |    0.022 |        | 40783352 B     |       573 |     10522 |"
+      ]
+    }
+  ],
+  "conditions": "Shared CPU, two Rayon threads; grouped-candidate native compilation overlaps part of these samples. Not a quiesced benchmark.",
+  "end_to_end_speedup_established": false
+}

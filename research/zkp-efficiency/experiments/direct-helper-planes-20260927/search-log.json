@@ -1,0 +1,27 @@
+{
+  "accessed_date": "2026-09-27",
+  "method": "native LIVE web search and primary page inspection",
+  "queries": [
+    "site:github.com a16z jolt lookup witness inverse batch inversion direct memory 2026 release",
+    "site:arxiv.org LogUp lookup arguments prover memory 2025 2026",
+    "site:github.com Plonky3 plonky3 lookup prover 2026 release",
+    "site:github.com ingonyama-zk icicle 2026 release sumcheck lookup",
+    "LogUp lookup argument paper arxiv 2022 2023 inverse sum author",
+    "Jolt Atlas lookup argument streaming prover arxiv 2602.17452 date updated",
+    "site:github.com/Plonky3/Plonky3 in-place fold_matrix release 0.8.0",
+    "site:github.com/a16z/jolt stream R1CS witness input_polys"
+  ],
+  "assessed": [
+    "https://eprint.iacr.org/2022/1530",
+    "https://arxiv.org/abs/2602.17452",
+    "https://github.com/ICME-Lab/jolt-atlas",
+    "https://github.com/ICME-Lab/jolt-atlas/blob/main/LICENSE",
+    "https://github.com/Plonky3/Plonky3/releases/tag/v0.8.0"
+  ],
+  "access_issues": [
+    "https://github.com/Plonky3/Plonky3/commit/a21e3ed42905040ad49c519e402f018381c12d0c: Cache miss",
+    "https://github.com/Plonky3/Plonky3/blob/main/LICENSE: Internal Error"
+  ],
+  "date_caution": "Search snippets can report future or unverified dates; only arXiv and ePrint history dates are treated as verified. GitHub v0.8.0 page says 23 Sep without a year, so publication/update year is unknown.",
+  "execution": "No external code downloaded or executed. No repository cloned. No external performance reproduced."
+}

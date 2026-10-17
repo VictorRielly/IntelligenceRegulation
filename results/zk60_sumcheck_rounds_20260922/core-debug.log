@@ -1,0 +1,66 @@
+   Compiling zkp-core v0.1.0 (/tmp/zk60-rounds-20260922/zkp-core)
+error[E0428]: the name `rounds` is defined multiple times
+  --> src/sumcheck.rs:19:1
+   |
+16 | mod rounds;
+   | ----------- previous definition of the module `rounds` here
+...
+19 | mod rounds;
+   | ^^^^^^^^^^^ `rounds` redefined here
+   |
+   = note: `rounds` must be defined only once in the type namespace of this module
+
+error[E0252]: the name `prove_rounds` is defined multiple times
+  --> src/sumcheck.rs:20:18
+   |
+17 | pub use rounds::{prove_rounds, ClosureRounds, SumcheckRounds};
+   |                  ------------ previous import of the value `prove_rounds` here
+...
+20 | pub use rounds::{prove_rounds, ClosureRounds, SumcheckRounds};
+   |                  ^^^^^^^^^^^^--
+   |                  |
+   |                  `prove_rounds` reimported here
+   |                  help: remove unnecessary import
+   |
+   = note: `prove_rounds` must be defined only once in the value namespace of this module
+
+error[E0252]: the name `ClosureRounds` is defined multiple times
+  --> src/sumcheck.rs:20:32
+   |
+17 | pub use rounds::{prove_rounds, ClosureRounds, SumcheckRounds};
+   |                                ------------- previous import of the type `ClosureRounds` here
+...
+20 | pub use rounds::{prove_rounds, ClosureRounds, SumcheckRounds};
+   |                                ^^^^^^^^^^^^^--
+   |                                |
+   |                                `ClosureRounds` reimported here
+   |                                help: remove unnecessary import
+   |
+   = note: `ClosureRounds` must be defined only once in the type namespace of this module
+
+error[E0252]: the name `SumcheckRounds` is defined multiple times
+  --> src/sumcheck.rs:20:47
+   |
+17 | pub use rounds::{prove_rounds, ClosureRounds, SumcheckRounds};
+   |                                               -------------- previous import of the trait `SumcheckRounds` here
+...
+20 | pub use rounds::{prove_rounds, ClosureRounds, SumcheckRounds};
+   |                                               ^^^^^^^^^^^^^^ `SumcheckRounds` reimported here
+   |
+   = note: `SumcheckRounds` must be defined only once in the type namespace of this module
+
+warning: unused imports: `ClosureRounds`, `SumcheckRounds`, and `prove_rounds`
+  --> src/sumcheck.rs:20:18
+   |
+20 | pub use rounds::{prove_rounds, ClosureRounds, SumcheckRounds};
+   |                  ^^^^^^^^^^^^  ^^^^^^^^^^^^^  ^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+Some errors have detailed explanations: E0252, E0428.
+For more information about an error, try `rustc --explain E0252`.
+warning: `zkp-core` (lib) generated 1 warning
+error: could not compile `zkp-core` (lib) due to 4 previous errors; 1 warning emitted
+warning: build failed, waiting for other jobs to finish...
+warning: `zkp-core` (lib test) generated 1 warning (1 duplicate)
+error: could not compile `zkp-core` (lib test) due to 4 previous errors; 1 warning emitted

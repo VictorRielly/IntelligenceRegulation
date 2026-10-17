@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/static-poly-plan-20261017/experiment.py"
+  ],
+  "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency",
+  "start_utc": "2026-10-17T01:30:31.867695+00:00",
+  "timeout_seconds": 60,
+  "source_sha256": {
+    "axis_factory.py": "593852dfd9ecffd0b2297b69ce266a969f16487decaf902a73a107dba8502963",
+    "baseline.py": "de46f6071af385e7c0825d1827b19b8a162db31618dd74f56b6952079976f88f",
+    "candidate.py": "c4bbfec8e5cf8a81e0708c8e2ff8163b3940f31323bb9873582933fdb3e1b7a5",
+    "coefficients.py": "daa1bb262b874c3f960f0c50ab1d9a4229bed82d8507d15d96e244ab1632aecd",
+    "experiment.py": "9e771f40d2af07852fe00b1d8bf1b1e80ad57079e6a00a054cef091e9325818b",
+    "field_support.py": "8359ca44d70211cea90e9e251faadd10c4c953ced212cff3014ec3b839c59fc4",
+    "fixtures.py": "bd7d7170c7660c8b8688ddac4f25f85fe29fa953316615ca25fa11b4c6f4b45a",
+    "karatsuba_factory.py": "90f5e9d9890b42124f2afba4d0b3ac8db464d970c3706cda82f3c21a69964e04",
+    "oracle.py": "a1c639a63dcc7175b9567dcc4e52ae71bb66a5c5e88ae18f77682adc335f2d58",
+    "polynomial_clause.py": "2517346ee064d239cd3625f16db24539469e06772a23779a577f039cd9f412d2",
+    "polynomial_ir.py": "cab140011a769df7044aea83c38c37dd3caa9c94a5541047904b3c570385bda8",
+    "prepared.py": "8a264e5abb8db95064759731cc0c8798de630db939657f097eb38dae3fc79d7c",
+    "prior_axis_experiment.py": "29344bb7e9e5c0b174a75e6c2bd6a689d26181ac92f10baf8e5974b192392f67",
+    "prior_experiment.py": "338026ec78a115ca74ad9f0a6232085fcaf025df322dc2d4fab407ed213fcc95",
+    "prior_experiment50.py": "f67f8c5768e164e1d0ad275320bf47b6d3625f882ba106efa784fe96ccbed158",
+    "row_rounds.py": "dfe567c90baf03888ff0cd86307c2356e9d198f2fb0969ceb503e6ef3cad8875",
+    "run.py": "6149e7e0c28f14d34daed2e7bff43a3a513d147e0c983082afcc336d78dfd5a0",
+    "source_port.py": "7d56350bcf89aca4c6a5215a52c6dd93ab809216a493a7c4411f7d78807a914d",
+    "static_plan.py": "bd3ca9c732692dbc6f2efb756687b95d5207a75d97ef016267373bfd9c10f085",
+    "weighted_experiment.py": "3b9cf84b16b781d46563bc285c8368dffb5ad0ea395090469d3bca19d915e44c",
+    "weighted_rounds.py": "b7e17c8e69acf9bb68b406b09f739e50503c240b7400ae3344a1318d31097760"
+  }
+}

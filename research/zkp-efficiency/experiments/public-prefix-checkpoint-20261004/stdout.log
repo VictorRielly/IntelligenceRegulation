@@ -1,0 +1,1 @@
+{"byte_comparisons": 576, "canonical_bytes_compared": 3274560, "cases": 72, "control_count": 22, "elapsed_seconds": 2.6232593530003214, "peak_rss_kib": 20084, "prefix_owners": 12, "resumed_hash_comparisons": 576, "status": "pass", "tensor_mutations": 936}

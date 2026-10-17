@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/direct-helper-planes-20260927/validate.py", line 39, in <module>
+    assert [x for x in saved if x["cycle"] == "0011"] == records
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/direct-helper-planes-20260927/validate.py", line 39, in <listcomp>
+    assert [x for x in saved if x["cycle"] == "0011"] == records
+KeyError: 'cycle'

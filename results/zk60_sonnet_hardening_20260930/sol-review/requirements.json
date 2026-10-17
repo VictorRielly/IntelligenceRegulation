@@ -1,0 +1,21 @@
+{
+  "review_scope": "independent Sonnet CLI hardening review; no protocol or source edits",
+  "prechange_findings": [
+    "mvp_driver::js replaces non-ASCII and several JSON control characters with question marks",
+    "mvp_driver::js truncates strings after 2048 characters",
+    "prove_result independent verify command is ambiguous shell text when paths contain whitespace or quotes",
+    "read_bounded and scan_artifact check metadata then call unbounded std::fs::read",
+    "run::verify_run_from_dir has a second unbounded std::fs::read"
+  ],
+  "acceptance": [
+    "Every stdout line parses as JSON and UTF8 strings roundtrip exactly, including escaped control characters",
+    "No silent string truncation: long existing paths and long errors remain exact",
+    "Machine-readable verifier argv is a string array that can be replayed without shell parsing and includes policy identity pins",
+    "Use a read-time cap on an opened regular file; metadata check alone does not enforce bounded allocation if files change",
+    "Oversize policy, manifest and segments refuse cleanly with exit1 and refused JSON, rather than crashing or allocating beyond limits",
+    "Fresh verifier accepts owner-created two-block p2 receipt; wrong caller pins and all existing corruptions refuse",
+    "Revalidate original receipt, policy and binary SHA256 hashes after independent controls",
+    "Protocol receipt bytes and reconstruction semantics remain unchanged"
+  ],
+  "pending": "await owner compiled binary and >=2-block p2 artifact/policy; no heavy jobs launched"
+}

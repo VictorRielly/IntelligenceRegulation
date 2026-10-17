@@ -1,0 +1,149 @@
+[
+  {
+    "cycle": "0025",
+    "run_id": "20261004T070146Z-edcb9b00",
+    "accessed": "2026-10-04T07:13:57.167529+00:00",
+    "access_date": "2026-10-04",
+    "evidence_kind": "Native LIVE primary-source search and inspection; no foreign code executed",
+    "reproduced_performance": false,
+    "id": "cycle25-cublas-TN-cache-and-algorithm-check",
+    "title": "cuBLAS13.4 TN integer layout, heuristic reuse and algorithm checks",
+    "url": "https://docs.nvidia.com/cuda/cublas/index.html",
+    "published": null,
+    "updated": null,
+    "date_status": "Documentation version13.4 verified; publication/update date not stated",
+    "implementation_license": null,
+    "license_scope": "Vendor implementation not inspected; API contracts only",
+    "inspected_commit": null,
+    "claim": "Regular IMMA has TN/alignment/multiple4 conditions; integer nondefault epilogues unsupported. Heuristic selection can be reused, but AlgoCheck success does not guarantee aligned-buffer execution.",
+    "assessment": "Exact TN oracle passes; no device algorithm or speed established. Model cache/heuristic cache are separate. Actual version/device/pointers/workspace belong to owner gate."
+  },
+  {
+    "cycle": "0025",
+    "run_id": "20261004T070146Z-edcb9b00",
+    "accessed": "2026-10-04T07:13:57.167529+00:00",
+    "access_date": "2026-10-04",
+    "evidence_kind": "Native LIVE primary-source search and inspection; no foreign code executed",
+    "reproduced_performance": false,
+    "id": "cycle25-gemmlowp-pack-and-sums-older",
+    "title": "gemmlowp packing and depth sums",
+    "url": "https://github.com/google/gemmlowp/blob/master/internal/pack.h",
+    "inspected_urls": [
+      "https://github.com/google/gemmlowp/blob/master/doc/packing.md",
+      "https://github.com/google/gemmlowp/blob/master/LICENSE",
+      "https://github.com/google/gemmlowp/commits/master/",
+      "https://github.com/google/gemmlowp/commit/16e8662c34917be0065110bfcd9cc27d30f52fdf"
+    ],
+    "published": null,
+    "updated": null,
+    "verified_history_entry_date": "2023-11-03",
+    "date_status": "History displaysNov3 2023 for inspected Android-link merge; not pack.h update or verified currentHEAD date",
+    "implementation_license": "Apache-2.0",
+    "license_scope": "master LICENSE full terms inspected; pinned LICENSE Cache miss",
+    "inspected_commit": "16e8662c34917be0065110bfcd9cc27d30f52fdf",
+    "commit_scope": "Android CMake link merge diff inspected only; main packing source not revision matched",
+    "claim": "Packing stores slice sums alongside packed data and initializes/accumulates depth sums; allocator owns buffers.",
+    "assessment": "Technique supports locally authored exact column sums; unsigned upstream packing is not our signed byte relation. Cache identity and separated-scan amortization are our synthetic tests.",
+    "access_issues": [
+      "https://github.com/google/gemmlowp/commits/master/internal/pack.h: Internal Error",
+      "https://github.com/google/gemmlowp/blob/16e8662c34917be0065110bfcd9cc27d30f52fdf/internal/pack.h: Cache miss",
+      "https://github.com/google/gemmlowp/blob/16e8662c34917be0065110bfcd9cc27d30f52fdf/LICENSE: Cache miss"
+    ]
+  },
+  {
+    "cycle": "0025",
+    "run_id": "20261004T070146Z-edcb9b00",
+    "accessed": "2026-10-04T07:13:57.167529+00:00",
+    "access_date": "2026-10-04",
+    "evidence_kind": "Native LIVE primary-source search and inspection; no foreign code executed",
+    "reproduced_performance": false,
+    "id": "cycle25-ZKTorch-parallel-accumulation-older",
+    "title": "ZKTorch parallel proof accumulation",
+    "url": "https://arxiv.org/abs/2507.07031",
+    "inspected_urls": [
+      "https://arxiv.org/html/2507.07031v2",
+      "https://anonymous.4open.science/r/zkt-2477"
+    ],
+    "published": "2025-07-09",
+    "updated": "2025-07-10",
+    "date_status": "arXiv v1/v2 submission history verified",
+    "implementation_license": null,
+    "license_scope": "Paper arXiv license is not implementation license; linked code inaccessible",
+    "inspected_commit": null,
+    "claim": "Authors extend pairing-based Mira to parallel accumulation. Report LLaMA2-7B1token2645.50s proof/100.14s verification on64-thread Xeon8358/4TB;10/12bitquantization overBN254.",
+    "assessment": "Previously unassessed composition candidate; no compatible exact Goldilocks PCS/privacy construction or author result reproduced. Single-token author workloads are not long-context, resident-pass or decode evidence.",
+    "access_issues": [
+      "https://anonymous.4open.science/r/zkt-2477: Internal Error"
+    ]
+  },
+  {
+    "cycle": "0025",
+    "run_id": "20261004T070146Z-edcb9b00",
+    "accessed": "2026-10-04T07:13:57.167529+00:00",
+    "access_date": "2026-10-04",
+    "evidence_kind": "Native LIVE primary-source search and inspection; no foreign code executed",
+    "reproduced_performance": false,
+    "id": "cycle25-FICS-FACS-code-switching",
+    "title": "FICS and FACS code switching and accumulation",
+    "url": "https://eprint.iacr.org/2025/737",
+    "inspected_urls": [
+      "https://pratyush.zip/"
+    ],
+    "published": "2025-04-24",
+    "updated": "2026-05-20",
+    "date_status": "ePrint received/lastrevision verified; primary author and ePrint listCRYPTO2026, precise proceedings release date not verified",
+    "implementation_license": null,
+    "license_scope": "PaperCCBY visible; implementation not located/inspected",
+    "inspected_commit": null,
+    "claim": "Authors propose linear-time encodable-code IOPP and linear-prover accumulation with O(lambda) queries per step.",
+    "assessment": "Architecture rotation candidate; abstract/metadata only, no reproduced implementation. Replacing RS/PCS or composition requires new exact/soundness/privacy/transcript review, not authorized by asymptotic claim."
+  },
+  {
+    "cycle": "0025",
+    "run_id": "20261004T070146Z-edcb9b00",
+    "accessed": "2026-10-04T07:13:57.167529+00:00",
+    "access_date": "2026-10-04",
+    "evidence_kind": "Native LIVE primary-source search and inspection; no foreign code executed",
+    "reproduced_performance": false,
+    "id": "cycle25-cutlass-september-update-refresh",
+    "title": "CUTLASS4.8 release and version diff",
+    "url": "https://github.com/NVIDIA/cutlass/releases",
+    "inspected_urls": [
+      "https://github.com/NVIDIA/cutlass/commit/098de2a652cf8f00fd70b2df54051c7eccbb855a"
+    ],
+    "published": null,
+    "updated": null,
+    "verified_version_date": "2026-09-17",
+    "date_status": "Versiondiff dates4.8 toSep17 2026; releases display22Sep03:37 without year. Keep distinction, exact publication timestamp unverified",
+    "implementation_license": null,
+    "license_scope": "No release implementation license inspected this cycle; earlier BSD3 header observations retained",
+    "inspected_commit": "098de2a652cf8f00fd70b2df54051c7eccbb855a",
+    "commit_scope": "Changelog/version diff read; large commit hides many files",
+    "claim": "Maintainer lists workspace/descriptor/grouped changes and Rubin precision features.",
+    "assessment": "Recent release inspected as scope filter. No5090 exact-int8 algorithm, end-to-end benefit or new dependency proposed."
+  },
+  {
+    "cycle": "0025",
+    "run_id": "20261004T070146Z-edcb9b00",
+    "accessed": "2026-10-04T07:13:57.167529+00:00",
+    "access_date": "2026-10-04",
+    "evidence_kind": "Native LIVE primary-source search and inspection; no foreign code executed",
+    "reproduced_performance": false,
+    "id": "cycle25-zkTransformer-repository-scope-filter",
+    "title": "UIUC zkTransformer repository",
+    "url": "https://github.com/uiuc-kang-lab/zkTransformer/",
+    "published": null,
+    "updated": null,
+    "date_status": "No repository publication/HEAD/update date verified",
+    "implementation_license": null,
+    "license_scope": "LICENSE open Internal Error; not established",
+    "inspected_commit": null,
+    "claim": "README advertises transformer models, KZH2/KZH3, linear/sparse sumcheck and icicle/arkworks backends.",
+    "assessment": "Search discovery only, README excerpts not native relation/security/code audit. Do not equate with the anonymous ZKTorch code link or transfer performance/privacy.",
+    "access_issues": [
+      "https://github.com/uiuc-kang-lab/zkTransformer/commits/main/: Internal Error",
+      "https://github.com/uiuc-kang-lab/zkTransformer/releases: Internal Error",
+      "https://github.com/uiuc-kang-lab/zkTransformer/blob/main/LICENSE: Internal Error"
+    ]
+  }
+]

@@ -1,0 +1,34 @@
+{
+  "baseline_count": 529,
+  "gpu_feature_count": 509,
+  "baseline_only": [
+    "field::verifier_hardening_tests::cpu::hardening_attention_production_verifier_refuses_collision_and_preserves_bytes",
+    "field::verifier_hardening_tests::cpu::hardening_v2_production_verifier_refuses_collision_after_honest_prefix",
+    "field::verifier_hardening_tests::cpu::hardening_v3_production_verifier_refuses_collision_and_propagates",
+    "stable_weight_material::tests::authenticated_noncanonical_words_and_inconsistent_roots_refuse",
+    "stable_weight_material::tests::creation_checks_actual_secrets_and_roles_before_touching_path",
+    "stable_weight_material::tests::every_policy_and_role_change_is_bound",
+    "stable_weight_material::tests::fresh_nonces_private_files_and_no_overwrite_or_missing_fallback",
+    "stable_weight_material::tests::independent_process_reload_preserves_spent_and_exhausted_journal",
+    "stable_weight_material::tests::material_process_child",
+    "stable_weight_material::tests::roundtrip_reconstructs_exact_commitment_and_ordinary_pcs_opening",
+    "stable_weight_material::tests::trusted_resource_limits_and_overflows_refuse_before_io_or_allocation",
+    "stable_weight_material::tests::wrong_key_every_corrupted_byte_truncation_and_trailing_bytes_refuse",
+    "stable_weight_registration::tests::abandonment_operation_failure_unwind_and_exhaustion_never_refund",
+    "stable_weight_registration::tests::changed_manifest_layer_or_budget_cannot_allocate_a_second_counter",
+    "stable_weight_registration::tests::complete_registration_spends_before_actual_pcs_access_and_holds_lock",
+    "stable_weight_registration::tests::failed_creation_retains_claimed_directory_without_publishing_ready",
+    "stable_weight_registration::tests::incomplete_creation_states_cannot_open_or_restart_registration",
+    "stable_weight_registration::tests::marker_corruption_and_policy_substitution_refuse_before_key_lookup",
+    "stable_weight_registration::tests::process_death_during_creation_cannot_publish_or_reset_partial_state",
+    "stable_weight_registration::tests::process_death_during_material_operation_burns_slot_and_releases_lock",
+    "stable_weight_registration::tests::registration_process_child",
+    "stable_weight_registration::tests::required_files_permissions_symlinks_and_corrupt_journal_refuse",
+    "stable_weight_registration::tests::unavailable_wrong_keys_and_bad_material_release_lock_without_spending"
+  ],
+  "gpu_only": [
+    "gpu::cuda::fsp4_plane_oracle::narrow_off_declines_planes_before_either_device_strategy",
+    "gpu::cuda::fsp4_plane_oracle::plane_fill_equals_pack_narrow_at_staging_piece_boundaries",
+    "gpu::cuda::fsp4_plane_oracle::plane_fill_equals_pack_narrow_at_w1"
+  ]
+}

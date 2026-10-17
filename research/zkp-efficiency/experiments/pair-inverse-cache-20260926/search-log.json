@@ -1,0 +1,34 @@
+{
+  "accessed": "2026-09-26",
+  "tool": "native LIVE web__run search_query/open/click/find",
+  "run_identity": "20260926T195233Z-cef0b7d6",
+  "queries": [
+    "2026 zero knowledge lookup softmax logarithmic derivative lookup GPU paper",
+    "site.github.com lookup batch inversion logup table 2026",
+    "site.eprint.iacr.org logarithmic derivatives lookup arguments 2022 1530",
+    "site.eprint.iacr.org 2026 lookup softmax zkLLM",
+    "site.github.com/Plonky3/Plonky3 releases 0.7.0",
+    "site.github.com/starkware-libs/stwo logup batch inverse",
+    "site.arxiv.org/abs 2026 softmax zero knowledge lookup attention",
+    "site.eprint.iacr.org/2026 zkML lookup nonlinear"
+  ],
+  "selection": "Prioritize exact helper arithmetic and high-impact alternatives. Third-party search hits used for discovery only, no technical claims rely on them. NanoZK was rediscovered; prior incompatibility disposition remains.",
+  "primary_records_file": "source-records.json",
+  "blockers": [
+    {
+      "url": "https://eprint.iacr.org/2023/1284",
+      "issue": "Primary PDF: (robots.txt) Fetch denied by robots.txt (OAI-SearchBot)."
+    },
+    {
+      "url": "https://github.com/Plonky3/Plonky3/releases/tag/v0.8.0",
+      "issue": "Versioned license/docs: Internal Error; commit/history/source and PR2036/2038: Cache miss; crates.io URL inaccessible via tool."
+    }
+  ],
+  "extra_blocked_urls": [
+    "https://raw.githubusercontent.com/Plonky3/Plonky3/v0.8.0/lookup/src/logup.rs",
+    "https://github.com/Plonky3/Plonky3/blob/main/multi-stark/src/lookup.rs",
+    "https://github.com/Plonky3/Plonky3/blob/v0.8.0/multi-stark/src/lookup.rs"
+  ],
+  "no_alternate_network_client": true,
+  "no_downloaded_code_executed": true
+}

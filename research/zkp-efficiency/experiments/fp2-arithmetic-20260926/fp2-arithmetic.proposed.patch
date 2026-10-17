@@ -1,0 +1,30 @@
+--- a/zkp-core/src/field.rs
++++ b/zkp-core/src/field.rs
+@@ -158,9 +158,8 @@
+     pub fn mul(self, r: Fp2) -> Fp2 {
+         let ac = self.c0.mul(r.c0);
+         let bd = self.c1.mul(r.c1);
+-        let ad = self.c0.mul(r.c1);
+-        let bc = self.c1.mul(r.c0);
+-        Fp2 { c0: ac.add(bd.mul(Fp(NONRESIDUE))), c1: ad.add(bc) }
++        let cross = self.c0.add(self.c1).mul(r.c0.add(r.c1));
++        Fp2 { c0: ac.add(bd.mul(Fp(NONRESIDUE))), c1: cross.sub(ac).sub(bd) }
+     }
+     #[inline(always)]
+     pub fn mul_base(self, r: Fp) -> Fp2 { Fp2 { c0: self.c0.mul(r), c1: self.c1.mul(r) } }
+@@ -169,7 +168,14 @@
+     #[inline(always)]
+     pub fn sub_base(self, r: Fp) -> Fp2 { Fp2 { c0: self.c0.sub(r), c1: self.c1 } }
+     #[inline(always)]
+-    pub fn square(self) -> Fp2 { self.mul(self) }
++    pub fn square(self) -> Fp2 {
++        // u^2 = 7: (a+b)(a+7b) - 8ab = a^2 + 7b^2.
++        let ab = self.c0.mul(self.c1);
++        let product = self.c0.add(self.c1)
++            .mul(self.c0.add(self.c1.mul(Fp(NONRESIDUE))));
++        let twice = ab.double();
++        Fp2 { c0: product.sub(twice.double().double()), c1: twice }
++    }
+     #[inline(always)]
+     pub fn double(self) -> Fp2 { self.add(self) }
+     pub fn inv(self) -> Fp2 {

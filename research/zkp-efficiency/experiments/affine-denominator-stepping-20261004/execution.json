@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "python3",
+    "-B",
+    "experiments/affine-denominator-stepping-20261004/experiment.py"
+  ],
+  "started_utc": "2026-10-04T18:59:38.574892+00:00",
+  "ended_utc": "2026-10-04T18:59:50.278553+00:00",
+  "wall_seconds": 11.703652238000359,
+  "exit_code": 0
+}

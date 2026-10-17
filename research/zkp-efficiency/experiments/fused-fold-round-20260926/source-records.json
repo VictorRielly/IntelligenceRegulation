@@ -1,0 +1,58 @@
+[
+  {
+    "accessed": "2026-09-26",
+    "cycle": "0005",
+    "run_identity": "20260926T205233Z-79c00f5e",
+    "id": "cycle5-plonky3-fusion-followups",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "kind": "primary-maintainer-release-notes",
+    "publication_date": null,
+    "update_date": null,
+    "date_basis": "Release list displays p3-sumcheck-v0.8.0 at 23 Sep 18:24 and aggregate v0.8.0 at 23 Sep 20:02, without year in exposed text. Exact dates remain unverified.",
+    "inspected_commit_id": "a21e3ed",
+    "commit_note": "Abbreviated target visible in release list; commit detail Internal Error. Previous cycle retains a full hyperlink target, not a source audit.",
+    "implementation_license": "MIT text inspected on main only; version-specific license not established.",
+    "license_url": "https://github.com/Plonky3/Plonky3/blob/main/LICENSE-MIT",
+    "author_claim": "Release entries include bind/measure fusion in plain and hiding drivers (#2036/#2038), fusion across single-round calls and suffix ordering (#2055), in-place suffix folding (#2195) and witness filling (#2213).",
+    "local_evidence": "Release entries and main MIT text inspected. No upstream implementation fetched or executed. Our independent Fp2 synthetic adapter reproduces its own exact values, not Plonky3 benchmarks.",
+    "compatibility": "Local MSB halves require four-quarter traversal and a separate ready/pending cache. No copied upstream algorithm, protocol or privacy acceptance.",
+    "access_issues": [
+      "PR2036/2038/2055: Cache miss",
+      "PR2195/2213, sumcheck release tag, docs.rs source/package and commit detail: Internal Error; no alternate client or bypass"
+    ]
+  },
+  {
+    "accessed": "2026-09-26",
+    "cycle": "0005",
+    "run_identity": "20260926T205233Z-79c00f5e",
+    "id": "cycle5-thaler-time-optimal-older",
+    "url": "https://arxiv.org/abs/1304.3812",
+    "full_text_url": "https://arxiv.org/html/1304.3812v4",
+    "kind": "primary-paper-metadata-and-fulltext-sections",
+    "publication_date": "2013-04-13",
+    "update_date": "2017-02-08",
+    "date_basis": "arXiv submission history v1 and v4.",
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "author_claim": "Regular-circuit arithmetization groups remaining terms so sumcheck work shrinks geometrically, yielding a linear-work prover in that setting; also treats data-parallel batches.",
+    "local_evidence": "Newly assessed older reference: abstract, history and sections 3.2/3.3 read. Not an implementation reproduction.",
+    "compatibility": "Local tables already halve after each challenge; this does not offer a new asymptotic improvement at the existing seam. Fusion only removes a residual reread. Larger batch arithmetization would need its own transcript/privacy review."
+  },
+  {
+    "accessed": "2026-09-26",
+    "cycle": "0005",
+    "run_identity": "20260926T205233Z-79c00f5e",
+    "id": "cycle5-gpu-instruction-wall",
+    "url": "https://arxiv.org/abs/2608.13696",
+    "full_text_url": "https://arxiv.org/html/2608.13696v1",
+    "kind": "primary-paper-abstract-and-fulltext-discovery",
+    "publication_date": "2026-08-13",
+    "update_date": null,
+    "date_basis": "arXiv v1 submission 2026-08-13 18:41:04 UTC; no later revision displayed.",
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "author_claim": "Profiling cuDF database workloads on L4 and GH200 finds bandwidth increases can expose instruction-throughput bottlenecks; cache use, occupancy and instruction work matter.",
+    "local_evidence": "Abstract/history and fulltext fetched; no author code or measurements reproduced.",
+    "compatibility": "Measurement-methodology lead only, not ZKP or RTX5090 evidence. Supports testing whether fewer logical reads survive cache behavior, register pressure and extra instructions before claiming speed."
+  }
+]

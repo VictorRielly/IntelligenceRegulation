@@ -1,0 +1,58 @@
+{
+  "ops/zkp-mvp/sonnet-hardening/hashline/src/gpu/cuda.rs": {
+    "sha256": "8fe2a2a39e0796254be37d0d7507d7fc22ea3af141d97d35cd93754d505072c9",
+    "bytes": 205193
+  },
+  "ops/zkp-mvp/sonnet-hardening/hashline/src/gpu/mod.rs": {
+    "sha256": "21ca440f0ada2f8bc911266d996eb0a699aa0eaa69592365f69d9b1005e358c3",
+    "bytes": 35442
+  },
+  "ops/zkp-mvp/sonnet-hardening/hashline/src/gpu/kernels.cu": {
+    "sha256": "b59bc396fa955bbdbc8bf8bb7b047c37c7f8df1fed0992d7b15ef983e2fc3969",
+    "bytes": 78055
+  },
+  "ops/zkp-mvp/sonnet-hardening/hashline/src/pcs.rs": {
+    "sha256": "c83a7f9d4913bc71a078c54550dea0eb0ebc65444b967bb466cf8e1a3b1a44cc",
+    "bytes": 6902
+  },
+  "ops/zkp-mvp/sonnet-hardening/hashline/src/zk.rs": {
+    "sha256": "95a354633ae3363735322e91c9408739cc697af4c917010dc80386ab9dc2a044",
+    "bytes": 254065
+  },
+  "ops/zkp-mvp/sonnet-hardening/zkp-core/src/field.rs": {
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "bytes": 11065
+  },
+  "results/zk60_mvp_20260929/baseline-stack-gpu-attempt2/report.json": {
+    "sha256": "ae971925a0c2ffb0c7d04a4722dc39903308639fd449708df722e14f4a69687e",
+    "bytes": 1157
+  },
+  "results/zk60_mvp_20260929/cli-stack-gpu/report.json": {
+    "sha256": "6e9bf57d050216be3110c71b67095bd6b7a7e77934196592c8cd6d0c6fd62781",
+    "bytes": 21117
+  },
+  "results/zk60_sol_model_20260927/layout_account.json": {
+    "sha256": "b8bb59de927e96ea64779ba1b35693c8d8fd57ed6f8abbf4270f24d601ba342c",
+    "bytes": 5694
+  },
+  "research/zkp-efficiency/experiments/public-witness-lifetimes-20261004/result.json": {
+    "sha256": "572d133a181bd70dc36b0f43be62f003cf6d71d265be5f4985bfcdd514ee84ee",
+    "bytes": 367260
+  },
+  "ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/protocol.rs": {
+    "bytes": 61745,
+    "sha256": "ac4122375397a155d392df27a7e08f818ee78f80b38d41207565b325f5290413"
+  },
+  "ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/run.rs": {
+    "bytes": 49115,
+    "sha256": "2d43bc335d176b533589a587a916ac766cc810536e7b14832273b2a9fa8c3cae"
+  },
+  "ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/mvp_driver.rs": {
+    "bytes": 83717,
+    "sha256": "906c6349daa641c07d1eb74f2e52fa6a5f83caeaa909879c16fc5eb07eee760d"
+  },
+  "ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/layout.rs": {
+    "bytes": 61217,
+    "sha256": "14758039fbe9daa61affa1316c6e4159437b98d888d72a926f6e70e788592b30"
+  }
+}

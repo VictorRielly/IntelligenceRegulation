@@ -1,0 +1,207 @@
+{
+  "run_identity": "20261004T030146Z-711aedad",
+  "checkpoint_utc": "2026-10-04T03:19:21.482931+00:00",
+  "status": "pass",
+  "checks": [
+    {
+      "path": "ops/zkp-mvp/candidate/zkp-core/src/field.rs",
+      "snapshot_hash": true,
+      "source_still_matches": true
+    },
+    {
+      "path": "ops/zkp-mvp/candidate/hashline/src/field.rs",
+      "snapshot_hash": true,
+      "source_still_matches": true
+    },
+    {
+      "path": "ops/zkp-mvp/candidate/hashline/src/private_block/protocol.rs",
+      "snapshot_hash": true,
+      "source_still_matches": true
+    },
+    {
+      "path": "results/zk60_mvp_20260929/baseline-stack-gpu-attempt2/report.json",
+      "snapshot_hash": true,
+      "source_still_matches": true
+    },
+    {
+      "path": "research/zkp-efficiency/experiments/opening-gather-ownership-20261004/baseline-preparation-phases.json",
+      "snapshot_hash": true,
+      "source_still_matches": true
+    },
+    {
+      "path": "research/zkp-efficiency/FINDINGS.md",
+      "prior_prefix_preserved": true
+    },
+    {
+      "path": "research/zkp-efficiency/sources.jsonl",
+      "prior_prefix_preserved": true
+    },
+    {
+      "path": "ops/zkp-mvp/candidate/hashline/src/private_block/witness.rs",
+      "snapshot_hash": true,
+      "source_still_matches": true
+    },
+    {
+      "path": "ops/zkp-mvp/candidate/hashline/src/private_block/run.rs",
+      "snapshot_hash": true,
+      "source_still_matches": true
+    }
+  ],
+  "result_script_hash_matches": true,
+  "source_records_added": 4,
+  "prior_source_findings_prefixes_preserved": true,
+  "report_matches_dated_copy": true,
+  "artifact_hashes": [
+    {
+      "path": "experiments/i64-field-conversion-20261004/README.md",
+      "sha256": "63662f111bba2918269d20f35a79712f7998cd83b835070d98b39a2d69f8c3d5",
+      "bytes": 6897
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/command.txt",
+      "sha256": "c98ffc6c842ba3922a6447131a2aca7331d30485d1066e42bf6cc53f9f906431",
+      "bytes": 64
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/conversion-loop.txt",
+      "sha256": "460ea4673bf2db15133579def0fa831e1fa4067be522fed5495af1bb7a26d05a",
+      "bytes": 292
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/conversion-review.rs",
+      "sha256": "7ec52da5588f17ee325e782af5961a50eed7aad3d6fb8db83b40bbe9df984f24",
+      "bytes": 892
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/cost-accounting.json",
+      "sha256": "8cb6118f8f1778be0a38488665fbf678a2363d15b33f8bda01906e9a0dc702a2",
+      "bytes": 871
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/disassembly-result-initial.json",
+      "sha256": "c511162c2a84e2cb039f8521df183ea5fc5db080cbda14f42089ddb8ac429ae8",
+      "bytes": 821
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/disassembly-result.json",
+      "sha256": "235686a188ad08eb6f2c64bf1673cc530aa42d875404247d4db952a170676e11",
+      "bytes": 1030
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/disassembly.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/exit-code.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/experiment.py",
+      "sha256": "86e59c8a245b5730296f4f1277448dca27dea33acc8032e77691347fb61b0cf4",
+      "bytes": 11178
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/initial-loop-count-failure/command.txt",
+      "sha256": "c98ffc6c842ba3922a6447131a2aca7331d30485d1066e42bf6cc53f9f906431",
+      "bytes": 64
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/initial-loop-count-failure/exit-code.txt",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "bytes": 2
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/initial-loop-count-failure/experiment.py",
+      "sha256": "fcb7f4a06478d01343ae914dc22e82adc924cfe5986441a18010e9967120c981",
+      "bytes": 11057
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/initial-loop-count-failure/stderr.log",
+      "sha256": "e20b07f9f5c096e844cc5382498c9849eb1b4261c2dd47e0290a59ea9d4cd84d",
+      "bytes": 379
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/initial-loop-count-failure/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/prove-core.disassembly.txt",
+      "sha256": "9dde32ca6df88122a464386cc928e74e9bc6c271da55670084e90754e30ead20",
+      "bytes": 254361
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/result.json",
+      "sha256": "8f06136e2446d1650be1ce2512db773e480a0874923e389c3fb3374050efcb52",
+      "bytes": 4399
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/search-log.md",
+      "sha256": "e7ac50a20091eb636e3cfde8bd9b9e01223b5e92c4e06b5af48456dc61ffe69d",
+      "bytes": 1407
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/snapshots/ops__zkp-mvp__candidate__hashline__src__field.rs",
+      "sha256": "1dc6c53b9d3b014b8cabfb784c15dcbddde31bc58e6d7216101c6a4fbbf45669",
+      "bytes": 229
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/snapshots/ops__zkp-mvp__candidate__hashline__src__private_block__protocol.rs",
+      "sha256": "ac4122375397a155d392df27a7e08f818ee78f80b38d41207565b325f5290413",
+      "bytes": 61745
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/snapshots/ops__zkp-mvp__candidate__hashline__src__private_block__run.rs",
+      "sha256": "f39aec7925ba27d51361cd3935e874b1301d7595be81f3199d9d2941c0f818e0",
+      "bytes": 46667
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/snapshots/ops__zkp-mvp__candidate__hashline__src__private_block__witness.rs",
+      "sha256": "b9b66c024e7ca68d2a0ae4ba46241eb2abbccc8c8d94fe828041abbc710850ad",
+      "bytes": 29357
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/snapshots/ops__zkp-mvp__candidate__zkp-core__src__field.rs",
+      "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+      "bytes": 11065
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/snapshots/research__zkp-efficiency__experiments__opening-gather-ownership-20261004__baseline-preparation-phases.json",
+      "sha256": "b8cc189054908991bf866c22a7591d84d7bcf5602b7c37a09f9d21db63a429e8",
+      "bytes": 702
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/snapshots/results__zk60_mvp_20260929__baseline-stack-gpu-attempt2__report.json",
+      "sha256": "ae971925a0c2ffb0c7d04a4722dc39903308639fd449708df722e14f4a69687e",
+      "bytes": 1157
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/source-pins.json",
+      "sha256": "5b95ea07e3d864582d40579b6f22aab9ede1ad50f53519f9782fc8f00535faea",
+      "bytes": 2763
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/source-records.json",
+      "sha256": "cfa36258d6a45e6839f0f84d2f47e5e59a07b1b2aceddab25d09ea3e452fc670",
+      "bytes": 5384
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/state-on-pickup.md",
+      "sha256": "5792616c50a7d14e59634eab44416be15d8220f510970e3a6449dbb97ce51b49",
+      "bytes": 4933
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "experiments/i64-field-conversion-20261004/stdout.log",
+      "sha256": "4a66641570e5ba77e30483749db5ac8eb7a3170d0e814fdc4b99d62b0f7e0f46",
+      "bytes": 1514
+    }
+  ],
+  "scope": "Artifact and provenance checks only; no native proof/security/performance validation"
+}

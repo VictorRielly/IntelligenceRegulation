@@ -1,0 +1,1 @@
+Initial passing result and every exact executed Python source retained. Each file matches original command.json SHA256. Final revision adds full-mode recovery counter census, actual singleton regression and clarifies that part reductions are counted.

@@ -1,0 +1,19 @@
+{
+  "command": "python3 -B experiments/sc-szc-tagged-equality-20261004/experiment.py > experiments/sc-szc-tagged-equality-20261004/run.log 2>&1",
+  "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency",
+  "exit_code": 0,
+  "initial_exit_code": 0,
+  "initial_result": "initial-pass/result.json",
+  "initial_source_retention": "All four original source files reconstructed from edit delta and matched against original executed result hashes; not reexecuted.",
+  "reason_for_refinement": "Preserve common data scan across groups; add Boolean zero-prefix challenge cases, exhaustive permitted Eq spans and unknown-coordinate control. No speed result inferred.",
+  "final_result": "result.json",
+  "final_hashes": {
+    "field_support.py": "8359ca44d70211cea90e9e251faadd10c4c953ced212cff3014ec3b839c59fc4",
+    "oracle.py": "a1c639a63dcc7175b9567dcc4e52ae71bb66a5c5e88ae18f77682adc335f2d58",
+    "candidate.py": "5852eb4b4e202f8179e5e1b3ee30b09aa854f6c4a206467761c9569842037d2a",
+    "experiment.py": "54667867a53fe043a78428ad5c397d18b3a90366448cfd7bca9cb87faaee46e5"
+  },
+  "ended_at_utc": "2026-10-04T12:13:17.348408+00:00",
+  "negative_control_command": "python3 -B experiments/sc-szc-tagged-equality-20261004/highdegree-control.py > experiments/sc-szc-tagged-equality-20261004/highdegree-control.log 2>&1",
+  "negative_control_exit_code": 0
+}

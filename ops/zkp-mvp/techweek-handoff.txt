@@ -1,0 +1,36 @@
+September 29, 2026 — Tech Week demo lane handoff
+
+The integrator and explicitly selected GPT-6.1-Sol agents delivered:
+  scripts/zk60_techweek_demo.py — actual saved Groth16 verification and live native toy prove/verify/control runner
+  scripts/zk60_techweek_server.py — localhost-only HTTP API, one active job, explicit public artifact downloads
+  scripts/zk60_techweek_smoke.py — actual HTTP acceptance checks
+  web/techweek/index.html — self-contained meeting demo
+  docs/zkmatrix-poc/ZK60_TECHWEEK_DEMO.md — runnable guide, pitch script, dated delivery gates
+
+69 focused + existing runner tests pass. The all-profile HTTP check passes
+32 checks, including real native proof generation and saved receipt verification:
+  results/zk60_techweek_20260929/http-smoke-all-profiles.json
+  results/zk60_techweek_20260929/native-live-validation/report.json
+
+The UI uses existing pinned small-profile binaries. It does not use the new
+Sonnet candidate as an accepted privacy demonstrator. No trained 1B/8B or
+throughput acceptance is implied. No protocol source was changed by this lane.
+
+Claude Sonnet 5.5's existing candidate and delivery were read; ongoing host
+builds/downloads were left in place. Sol's readiness review is retained at:
+  results/zk60_techweek_20260929/trained-readiness.json
+
+Read-only candidate follow-ups from the Sol review:
+  - Pin a caller-trusted policy SHA separately when demoing the stack CLI.
+  - mvp_driver.js() replaces non-ASCII characters with '?' and truncates paths;
+    use proper JSON escaping for path output if exposing this in product flows.
+  - Generated verify command strings need shell-safe path quoting or an argv array.
+  - stat then fs::read does not enforce a size cap against a concurrent writer;
+    bounded File::take(max+1) is preferable at untrusted artifact boundaries.
+These are review observations, not edits or claims that the candidate fails
+cryptographic verification. Preserve Sonnet's exclusive implementation lane.
+
+Research supervisor: host check at 2026-09-30 00:12 UTC confirmed worker 389,
+unpaused, in the preserved hourly cycle schedule after host restart. Next due
+17:45 PDT September 29. Do not spawn another persistent research worker.
+The research agenda still targets complete private 8B >=50 proved tokens/s.

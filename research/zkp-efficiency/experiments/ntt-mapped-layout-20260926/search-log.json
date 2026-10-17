@@ -1,0 +1,44 @@
+{
+  "accessed": "2026-09-26",
+  "mechanism": "native LIVE web search/open only",
+  "queries": [
+    "Goldilocks GPU NTT Qingming 2026 CUDA layout",
+    "GPU NTT zero knowledge proofs 2026 memory efficient radix paper",
+    "GPU NTT 2025 2026 ZKProphet GitHub releases",
+    "site:github.com/uulong950/qingming-g64-ntt-cuda releases September 2026",
+    "site:github.com/Alisah-Ozcan/GPU-NTT/releases",
+    "site:github.com/uulong950/qingming-g64-ntt-cuda license"
+  ],
+  "inspected_records": [
+    "cycle3-qingming-cuda-contract",
+    "cycle3-qingming-cuda-source",
+    "cycle3-gpu-ntt-repository",
+    "cycle3-fourstep-older-paper",
+    "cycle3-fourstep-journal-followup",
+    "cycle3-hardware-ntt-sumcheck-2026"
+  ],
+  "other_discovery": "ZKProphet and TensorZKP already assessed; no additional claims here. Nonprimary search results not used.",
+  "access_failures": [
+    {
+      "url": "https://github.com/uulong950/qingming-g64-ntt-cuda/commit/5413c0d",
+      "error": "Cache miss"
+    },
+    {
+      "url": "https://github.com/Alisah-Ozcan/GPU-NTT/commit/d03c5ea",
+      "error": "Cache miss"
+    },
+    {
+      "url": "https://github.com/uulong950/qingming-g64-ntt-cuda/releases",
+      "error": "Cache miss"
+    },
+    {
+      "url": "https://github.com/uulong950/qingming-g64-ntt-cuda/blob/main/LICENSE",
+      "error": "Internal Error"
+    },
+    {
+      "url": "https://research.sabanciuniv.edu/id/eprint/51889/1/High-Performance.pdf",
+      "error": "(400) Timeout fetching"
+    }
+  ],
+  "network_bypass": false
+}

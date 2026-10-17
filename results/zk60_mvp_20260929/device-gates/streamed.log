@@ -1,0 +1,7 @@
+
+running 1 test
+test tagged_column_hashes_and_full_commitment_match_cpu ... [ZK60] keyed gpu zk commit accepted
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.96s
+

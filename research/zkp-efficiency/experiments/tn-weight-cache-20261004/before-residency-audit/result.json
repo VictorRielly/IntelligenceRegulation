@@ -1,0 +1,358 @@
+{
+  "run_identity": "20261004T070146Z-edcb9b00",
+  "seed": 2026100425,
+  "status": "pass",
+  "cases": 972,
+  "raw_dots": 24138,
+  "independent_packed_words": 46080,
+  "physical_TN_byte_outputs": 162864,
+  "accepted_plane_words": 23640,
+  "outcomes": {
+    "accepted": 393,
+    "residual 2": 282,
+    "FFN down": 297
+  },
+  "cache_builds": 1800,
+  "cache_hits": 3600,
+  "hash_bytes_on_cache_hits": 0,
+  "borrowed_entries": 42,
+  "controls": [
+    {
+      "name": "stale checkpoint",
+      "detected": "identity"
+    },
+    {
+      "name": "stale layer",
+      "detected": "identity"
+    },
+    {
+      "name": "stale tensor",
+      "detected": "identity"
+    },
+    {
+      "name": "stale profile",
+      "detected": "identity"
+    },
+    {
+      "name": "stale calibration",
+      "detected": "identity"
+    },
+    {
+      "name": "stale epoch",
+      "detected": "identity"
+    },
+    {
+      "name": "stale orientation",
+      "detected": "identity"
+    },
+    {
+      "name": "stale kp",
+      "detected": ""
+    },
+    {
+      "name": "stale np",
+      "detected": ""
+    },
+    {
+      "name": "stale ld",
+      "detected": "identity"
+    },
+    {
+      "name": "stale content_hash",
+      "detected": "identity"
+    },
+    {
+      "name": "corrupt packed bytes",
+      "detected": "packed bytes"
+    },
+    {
+      "name": "corrupt column sum",
+      "detected": "column sum"
+    },
+    {
+      "name": "wrong packed leading dimension",
+      "detected": "packed bytes"
+    },
+    {
+      "name": "wrong K range",
+      "detected": "identity"
+    },
+    {
+      "name": "wrong output range",
+      "detected": "identity"
+    },
+    {
+      "name": "changed weights with reused caller label",
+      "detected": "new content digest differs"
+    },
+    {
+      "name": "trim internal K",
+      "expected": 256,
+      "wrong": 0
+    },
+    {
+      "name": "full sum per K tile",
+      "expected_correction": 128,
+      "wrong": 256
+    },
+    {
+      "name": "omit offset correction",
+      "expected": 0,
+      "wrong": -128
+    },
+    {
+      "name": "borrow odd source stride",
+      "detected": "packed aligned copy required"
+    }
+  ],
+  "control_count": 21,
+  "digest": "e934723e981f2bab165f811036c89f5e1b6abac099d8284c79e735e7cdd9ab45",
+  "count_only_cache_schedules": [
+    {
+      "passes": 1,
+      "strategy": "rebuild every witness",
+      "weight_preprocess_epochs": 64,
+      "consumed_weight_reads": 4294967296,
+      "packed_weight_writes": 4294967296,
+      "packed_weight_upload_bytes": 4294967296,
+      "extra_cache_peak_bytes": 67125248,
+      "original_weight_bytes": 2147483648,
+      "setup_hash_bytes_once": 2147483648,
+      "source": "count-only unadmitted Llama3-8B metadata",
+      "limits": "uploads conditional on CPU packing; no proof speed, workspace, mirrors or original-drop claim"
+    },
+    {
+      "passes": 1,
+      "strategy": "one-layer cache per pass",
+      "weight_preprocess_epochs": 32,
+      "consumed_weight_reads": 2147483648,
+      "packed_weight_writes": 2147483648,
+      "packed_weight_upload_bytes": 2147483648,
+      "extra_cache_peak_bytes": 67125248,
+      "original_weight_bytes": 2147483648,
+      "setup_hash_bytes_once": 2147483648,
+      "source": "count-only unadmitted Llama3-8B metadata",
+      "limits": "uploads conditional on CPU packing; no proof speed, workspace, mirrors or original-drop claim"
+    },
+    {
+      "passes": 1,
+      "strategy": "all-layer resident",
+      "weight_preprocess_epochs": 32,
+      "consumed_weight_reads": 2147483648,
+      "packed_weight_writes": 2147483648,
+      "packed_weight_upload_bytes": 2147483648,
+      "extra_cache_peak_bytes": 2148007936,
+      "original_weight_bytes": 2147483648,
+      "setup_hash_bytes_once": 2147483648,
+      "source": "count-only unadmitted Llama3-8B metadata",
+      "limits": "uploads conditional on CPU packing; no proof speed, workspace, mirrors or original-drop claim"
+    },
+    {
+      "passes": 1,
+      "strategy": "128-column cache per pass",
+      "weight_preprocess_epochs": 32,
+      "consumed_weight_reads": 2147483648,
+      "packed_weight_writes": 2147483648,
+      "packed_weight_upload_bytes": 2147483648,
+      "extra_cache_peak_bytes": 2097664,
+      "original_weight_bytes": 2147483648,
+      "setup_hash_bytes_once": 2147483648,
+      "source": "count-only unadmitted Llama3-8B metadata",
+      "limits": "uploads conditional on CPU packing; no proof speed, workspace, mirrors or original-drop claim"
+    },
+    {
+      "passes": 2,
+      "strategy": "rebuild every witness",
+      "weight_preprocess_epochs": 128,
+      "consumed_weight_reads": 8589934592,
+      "packed_weight_writes": 8589934592,
+      "packed_weight_upload_bytes": 8589934592,
+      "extra_cache_peak_bytes": 67125248,
+      "original_weight_bytes": 2147483648,
+      "setup_hash_bytes_once": 2147483648,
+      "source": "count-only unadmitted Llama3-8B metadata",
+      "limits": "uploads conditional on CPU packing; no proof speed, workspace, mirrors or original-drop claim"
+    },
+    {
+      "passes": 2,
+      "strategy": "one-layer cache per pass",
+      "weight_preprocess_epochs": 64,
+      "consumed_weight_reads": 4294967296,
+      "packed_weight_writes": 4294967296,
+      "packed_weight_upload_bytes": 4294967296,
+      "extra_cache_peak_bytes": 67125248,
+      "original_weight_bytes": 2147483648,
+      "setup_hash_bytes_once": 2147483648,
+      "source": "count-only unadmitted Llama3-8B metadata",
+      "limits": "uploads conditional on CPU packing; no proof speed, workspace, mirrors or original-drop claim"
+    },
+    {
+      "passes": 2,
+      "strategy": "all-layer resident",
+      "weight_preprocess_epochs": 32,
+      "consumed_weight_reads": 2147483648,
+      "packed_weight_writes": 2147483648,
+      "packed_weight_upload_bytes": 2147483648,
+      "extra_cache_peak_bytes": 2148007936,
+      "original_weight_bytes": 2147483648,
+      "setup_hash_bytes_once": 2147483648,
+      "source": "count-only unadmitted Llama3-8B metadata",
+      "limits": "uploads conditional on CPU packing; no proof speed, workspace, mirrors or original-drop claim"
+    },
+    {
+      "passes": 2,
+      "strategy": "128-column cache per pass",
+      "weight_preprocess_epochs": 64,
+      "consumed_weight_reads": 4294967296,
+      "packed_weight_writes": 4294967296,
+      "packed_weight_upload_bytes": 4294967296,
+      "extra_cache_peak_bytes": 2097664,
+      "original_weight_bytes": 2147483648,
+      "setup_hash_bytes_once": 2147483648,
+      "source": "count-only unadmitted Llama3-8B metadata",
+      "limits": "uploads conditional on CPU packing; no proof speed, workspace, mirrors or original-drop claim"
+    },
+    {
+      "passes": 4,
+      "strategy": "rebuild every witness",
+      "weight_preprocess_epochs": 256,
+      "consumed_weight_reads": 17179869184,
+      "packed_weight_writes": 17179869184,
+      "packed_weight_upload_bytes": 17179869184,
+      "extra_cache_peak_bytes": 67125248,
+      "original_weight_bytes": 2147483648,
+      "setup_hash_bytes_once": 2147483648,
+      "source": "count-only unadmitted Llama3-8B metadata",
+      "limits": "uploads conditional on CPU packing; no proof speed, workspace, mirrors or original-drop claim"
+    },
+    {
+      "passes": 4,
+      "strategy": "one-layer cache per pass",
+      "weight_preprocess_epochs": 128,
+      "consumed_weight_reads": 8589934592,
+      "packed_weight_writes": 8589934592,
+      "packed_weight_upload_bytes": 8589934592,
+      "extra_cache_peak_bytes": 67125248,
+      "original_weight_bytes": 2147483648,
+      "setup_hash_bytes_once": 2147483648,
+      "source": "count-only unadmitted Llama3-8B metadata",
+      "limits": "uploads conditional on CPU packing; no proof speed, workspace, mirrors or original-drop claim"
+    },
+    {
+      "passes": 4,
+      "strategy": "all-layer resident",
+      "weight_preprocess_epochs": 32,
+      "consumed_weight_reads": 2147483648,
+      "packed_weight_writes": 2147483648,
+      "packed_weight_upload_bytes": 2147483648,
+      "extra_cache_peak_bytes": 2148007936,
+      "original_weight_bytes": 2147483648,
+      "setup_hash_bytes_once": 2147483648,
+      "source": "count-only unadmitted Llama3-8B metadata",
+      "limits": "uploads conditional on CPU packing; no proof speed, workspace, mirrors or original-drop claim"
+    },
+    {
+      "passes": 4,
+      "strategy": "128-column cache per pass",
+      "weight_preprocess_epochs": 128,
+      "consumed_weight_reads": 8589934592,
+      "packed_weight_writes": 8589934592,
+      "packed_weight_upload_bytes": 8589934592,
+      "extra_cache_peak_bytes": 2097664,
+      "original_weight_bytes": 2147483648,
+      "setup_hash_bytes_once": 2147483648,
+      "source": "count-only unadmitted Llama3-8B metadata",
+      "limits": "uploads conditional on CPU packing; no proof speed, workspace, mirrors or original-drop claim"
+    },
+    {
+      "passes": 16,
+      "strategy": "rebuild every witness",
+      "weight_preprocess_epochs": 1024,
+      "consumed_weight_reads": 68719476736,
+      "packed_weight_writes": 68719476736,
+      "packed_weight_upload_bytes": 68719476736,
+      "extra_cache_peak_bytes": 67125248,
+      "original_weight_bytes": 2147483648,
+      "setup_hash_bytes_once": 2147483648,
+      "source": "count-only unadmitted Llama3-8B metadata",
+      "limits": "uploads conditional on CPU packing; no proof speed, workspace, mirrors or original-drop claim"
+    },
+    {
+      "passes": 16,
+      "strategy": "one-layer cache per pass",
+      "weight_preprocess_epochs": 512,
+      "consumed_weight_reads": 34359738368,
+      "packed_weight_writes": 34359738368,
+      "packed_weight_upload_bytes": 34359738368,
+      "extra_cache_peak_bytes": 67125248,
+      "original_weight_bytes": 2147483648,
+      "setup_hash_bytes_once": 2147483648,
+      "source": "count-only unadmitted Llama3-8B metadata",
+      "limits": "uploads conditional on CPU packing; no proof speed, workspace, mirrors or original-drop claim"
+    },
+    {
+      "passes": 16,
+      "strategy": "all-layer resident",
+      "weight_preprocess_epochs": 32,
+      "consumed_weight_reads": 2147483648,
+      "packed_weight_writes": 2147483648,
+      "packed_weight_upload_bytes": 2147483648,
+      "extra_cache_peak_bytes": 2148007936,
+      "original_weight_bytes": 2147483648,
+      "setup_hash_bytes_once": 2147483648,
+      "source": "count-only unadmitted Llama3-8B metadata",
+      "limits": "uploads conditional on CPU packing; no proof speed, workspace, mirrors or original-drop claim"
+    },
+    {
+      "passes": 16,
+      "strategy": "128-column cache per pass",
+      "weight_preprocess_epochs": 512,
+      "consumed_weight_reads": 34359738368,
+      "packed_weight_writes": 34359738368,
+      "packed_weight_upload_bytes": 34359738368,
+      "extra_cache_peak_bytes": 2097664,
+      "original_weight_bytes": 2147483648,
+      "setup_hash_bytes_once": 2147483648,
+      "source": "count-only unadmitted Llama3-8B metadata",
+      "limits": "uploads conditional on CPU packing; no proof speed, workspace, mirrors or original-drop claim"
+    }
+  ],
+  "elapsed_s": 0.8208564220003609,
+  "peak_rss_kib": 17496,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "device": "CPU only",
+  "synthetic_contexts": [
+    1,
+    3,
+    5,
+    3,
+    2,
+    4
+  ],
+  "estimated_memory_mib": 64,
+  "RLIMIT_AS_mib": 512,
+  "alarm_s": 59,
+  "script_sha256": "ae6e783897e0b8185df6f7c0beadb0a605910db52b2fa29a723ab59923db9dcc",
+  "scope": "synthetic TN arithmetic, identity and count model; no CUDA/native witness/proof/RNG/transcript",
+  "actual_gpu_speedup": null,
+  "actual_end_to_end_saved_s": null,
+  "full_stack": {
+    "countable_tokens": 0,
+    "passes": 0,
+    "context_length": null,
+    "steady_tokens_per_s": null,
+    "total_tokens_per_s": null,
+    "startup_fraction": null,
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "proof_latency_s": null,
+    "proof_lag_s": null,
+    "pipeline_drain_s": null
+  }
+}

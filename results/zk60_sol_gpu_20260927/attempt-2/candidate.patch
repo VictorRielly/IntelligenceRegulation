@@ -1,0 +1,567 @@
+--- a/zkp-core/src/pcs/backend.rs
++++ b/zkp-core/src/pcs/backend.rs
+@@ -63,6 +63,14 @@
+         None
+     }
+ 
++    /// The tagged hiding form. A backend must override this separately to
++    /// attest that it hashes UNSALTED columns under the supplied public key.
++    /// The default declines rather than silently using the unkeyed hook.
++    fn try_commit_zk_keyed(&self, params: &PcsParams, data: &[Fp], pads: &[Fp], pows: &[Fp], ntt: &NttTables, key: &[u8; 32]) -> Option<(Self::Store, Vec<Digest>)> {
++        let _ = (params, data, pads, pows, ntt, key);
++        None
++    }
++
+     /// The hiding form: encode `data` with the per-row `pads` on the coset
+     /// given by `pows` (see `encode_row_zk`) and hash the UNSALTED columns;
+     /// the caller salts the leaves. `None` = decline.
+--- a/zkp-core/src/pcs.rs
++++ b/zkp-core/src/pcs.rs
+@@ -760,15 +760,9 @@
+ /// legacy order, before any branch, so the generator's byte order is the same
+ /// under both rules and a tag never moves a random draw.
+ ///
+-/// **THE ACCELERATOR (ruling T-8).** A TAGGED commitment does not offer its
+-/// column hashing to the backend. The device kernel
+-/// (`hashline/src/gpu/kernels.cu`) is a hand-written BLAKE3 with the IV
+-/// hard-coded and no key input, so it can only produce UNKEYED column
+-/// digests; offering the work to it would silently return the wrong leaves.
+-/// This is a **TEMPORARY CPU FALLBACK, recorded as such** — not accelerator
+-/// support, and not a performance result. The keyed device path (load the
+-/// key words in place of `b3_iv` and OR in `KEYED_HASH`) is a separate,
+-/// later, reviewable kernel change and is the integrator's.
++/// A keyed tag uses only the explicit keyed backend hook. A backend that does
++/// not implement it declines to the CPU oracle; the unkeyed hook is never
++/// allowed to produce tagged leaves. Pads and salts retain their draw order.
+ pub fn commit_zk_owned_with_tag<B: Backend>(backend: &B, params: &PcsParams, data: Vec<Fp>, ntt: &NttTables, zk: &ZkOpts, rng: &mut ZkRng, tag: &HashTag) -> CommittedZk<B::Store> {
+     let data_ref: &[Fp] = &data;
+     let n = params.cols();
+@@ -780,11 +774,10 @@
+     let pads = rng.fp_vec(rows * q);
+     let salts: Vec<[u8; 32]> = (0..nn).map(|_| rng.bytes32()).collect();
+     let pows = coset_powers(zk.coset, nn);
+-    // ruling T-8: the one condition. A keyed column digest is not offered to
+-    // the unkeyed device hasher.
++    // Only a backend that explicitly implements keyed hashing sees this offer.
+     let dev: Option<(B::Store, Vec<Digest>)> = match tag.column_key() {
+         None => backend.try_commit_zk(params, data_ref, &pads, &pows, ntt),
+-        Some(_) => None,
++        Some(key) => backend.try_commit_zk_keyed(params, data_ref, &pads, &pows, ntt, key),
+     };
+     let (store, leaves) = match dev {
+         Some((dc, leaves)) => (Store::Device(dc), leaves),
+@@ -1697,11 +1690,8 @@
+         }
+     }
+ 
+-    /// **Ruling T-8, the accelerator seam.** A counting backend records
+-    /// every offer it is made. A LEGACY commitment offers its columns; a
+-    /// TAGGED one never does. The stub declines in both cases, so the CPU
+-    /// body runs and the test says nothing about what a device would compute
+-    /// — only about whether it was asked.
++    /// The unkeyed backend hook is reserved for legacy commitments. A
++    /// tagged commitment can only call the explicit keyed hook.
+     struct Counting(std::cell::Cell<usize>);
+ 
+     impl Backend for Counting {
+@@ -1713,7 +1703,7 @@
+     }
+ 
+     #[test]
+-    fn a_tagged_commitment_never_offers_its_columns_to_the_backend() {
++    fn a_tagged_commitment_never_calls_the_unkeyed_backend_hook() {
+         let (p, ntt, zk) = (tparams(), NttTables::new(8), ZkOpts::standard(&tparams()));
+         let n = p.cols();
+         let d = vals(7, 3 * n);
+@@ -1723,11 +1713,39 @@
+         assert_eq!(b.0.get(), 1, "a LEGACY tagged commitment did not offer its columns to the backend");
+         let mut rng = ZkRng::new(61, b"pcs-tag-test");
+         let _ = commit_zk_owned_with_tag(&b, &p, d.clone(), &ntt, &zk, &mut rng, &HashTag::for_profile(RUNG_G));
+-        assert_eq!(b.0.get(), 1, "a TAGGED commitment offered its columns to the unkeyed device hasher (ruling T-8)");
++        assert_eq!(b.0.get(), 1, "a TAGGED commitment called the unkeyed backend hook");
+         // the legacy entry point is unchanged and still offers
+         let mut rng = ZkRng::new(61, b"pcs-tag-test");
+         let _ = commit_zk_owned_with(&b, &p, d, &ntt, &zk, &mut rng);
+         assert_eq!(b.0.get(), 2, "commit_zk_owned_with stopped offering its columns");
++    }
++
++    struct KeyCounting(std::cell::Cell<usize>, std::cell::Cell<[u8; 32]>);
++    impl Backend for KeyCounting {
++        type Store = NoExternal;
++        fn try_commit_zk_keyed(&self, _p: &PcsParams, _d: &[Fp], _pads: &[Fp], _pows: &[Fp], _ntt: &NttTables, key: &[u8; 32]) -> Option<(Self::Store, Vec<Digest>)> {
++            self.0.set(self.0.get() + 1);
++            self.1.set(*key);
++            None
++        }
++    }
++
++    #[test]
++    fn tagged_offer_passes_exact_key_and_decline_keeps_cpu_bytes() {
++        let (p, ntt, zk) = (tparams(), NttTables::new(8), ZkOpts::standard(&tparams()));
++        let d = vals(7, 3 * p.cols());
++        let tag = HashTag::for_profile(RUNG_G);
++        let b = KeyCounting(std::cell::Cell::new(0), std::cell::Cell::new([0; 32]));
++        let mut r1 = ZkRng::new(61, b"pcs-tag-test");
++        let offered = commit_zk_owned_with_tag(&b, &p, d.clone(), &ntt, &zk, &mut r1, &tag);
++        let mut r2 = ZkRng::new(61, b"pcs-tag-test");
++        let cpu = commit_zk_owned_with_tag(&Cpu, &p, d, &ntt, &zk, &mut r2, &tag);
++        assert_eq!(b.0.get(), 1);
++        assert_eq!(&b.1.get(), tag.column_key().unwrap());
++        assert_eq!(offered.cm.tree.root(), cpu.cm.tree.root());
++        assert_eq!(offered.pads, cpu.pads);
++        assert_eq!(offered.salts, cpu.salts);
++        assert_eq!(r1.fp(), r2.fp());
+     }
+ 
+     /// The pads and the salts are drawn in the LEGACY order on both paths, so
+--- a/hashline/src/gpu/mod.rs
++++ b/hashline/src/gpu/mod.rs
+@@ -26,7 +26,7 @@
+ };
+ // [UPERF3-ZA] the ZK commitment's device entries (new functions in cuda.rs)
+ #[cfg(feature = "gpu-cuda")]
+-pub use cuda::{dev_commit_zk, dev_commit_zk_from, dev_upload_rows};
++pub use cuda::{dev_commit_zk, dev_commit_zk_keyed, dev_commit_zk_from, dev_upload_rows};
+ // [UPERF3-AC] the cached-W device entry (upload + encode, no hash) and the chunked-commit probe
+ #[cfg(feature = "gpu-cuda")]
+ pub use cuda::{dev_commit_check_chunked, dev_commit_zk_check_chunked, dev_encode_only};
+@@ -652,6 +652,18 @@
+                 }
+             }
+         }
++        fn try_commit_zk_keyed(&self, params: &PcsParams, data: &[Fp], pads: &[Fp], pows: &[Fp], ntt: &NttTables, key: &[u8; 32]) -> Option<(DevCommit, Vec<Digest>)> {
++            if !enabled() { return None; }
++            match super::cuda::dev_commit_zk_keyed(params, data, pads, pows, ntt, key) {
++                Ok(x) => {
++                    if std::env::var("HL_GPU_REQUIRED").ok().as_deref() == Some("1") {
++                        eprintln!("[ZK60] keyed gpu zk commit accepted");
++                    }
++                    Some(x)
++                },
++                Err(e) => { eprintln!("[ZK60] keyed gpu zk commit declined ({e}); CPU path"); None }
++            }
++        }
+         // [UPERF3-ZA] the device path (rung 4): the same coset encoding on the device, leaves back, salted by the core.
+         fn try_commit_zk(&self, params: &PcsParams, data: &[Fp], pads: &[Fp], pows: &[Fp], ntt: &NttTables) -> Option<(DevCommit, Vec<Digest>)> {
+             if !enabled() {
+--- a/hashline/src/gpu/kernels.cu
++++ b/hashline/src/gpu/kernels.cu
+@@ -456,6 +456,7 @@
+ #define B3_CHUNK_END 2u
+ #define B3_PARENT 4u
+ #define B3_ROOT 8u
++#define B3_KEYED_HASH 16u
+ #define B3_MAX_DEPTH 24
+ 
+ __device__ __forceinline__ u32 rotr32(u32 x, int n) { return (x >> n) | (x << (32 - n)); }
+@@ -509,7 +510,7 @@
+ }
+ 
+ // Hash the column j (rows u64 values at stride nn) into out[0..8].
+-__device__ void b3_hash_column(const u64* __restrict__ enc, size_t nn, int rows, int j, u32* out) {
++__device__ void b3_hash_column(const u64* __restrict__ enc, size_t nn, int rows, int j, u32* out, const u32* key) {
+     const u32 len = (u32)rows * 8u;
+     const u32 n_chunks = len == 0 ? 1u : (len + 1023u) / 1024u;
+     u32 stack[B3_MAX_DEPTH][8];
+@@ -527,19 +528,20 @@
+             #pragma unroll
+             for (int i = 0; i < 8; i++) { pb[i] = stack[stack_len - 2][i]; pb[8 + i] = stack[stack_len - 1][i]; }
+             u32 iv[8];
+-            b3_iv(iv);
+-            b3_compress(iv, pb, 0ULL, 64u, B3_PARENT, tmp);
++            if (key) { for (int i = 0; i < 8; i++) iv[i] = key[i]; } else b3_iv(iv);
++            b3_compress(iv, pb, 0ULL, 64u, B3_PARENT | (key ? B3_KEYED_HASH : 0u), tmp);
+             #pragma unroll
+             for (int i = 0; i < 8; i++) stack[stack_len - 2][i] = tmp[i];
+             stack_len -= 1;
+         }
+-        b3_iv(cv);
++        if (key) { for (int i = 0; i < 8; i++) cv[i] = key[i]; } else b3_iv(cv);
+         const u32 n_blocks = chunk_len == 0 ? 1u : (chunk_len + 63u) / 64u;
+         for (u32 b = 0; b < n_blocks; b++) {
+             const bool last_block = (b + 1 == n_blocks);
+             const u32 blen = last_block ? (chunk_len - b * 64u) : 64u;
+             u32 flags = (b == 0 ? B3_CHUNK_START : 0u) | (last_block ? B3_CHUNK_END : 0u);
+             if (is_last && stack_len == 0 && last_block) flags |= B3_ROOT;
++            if (key) flags |= B3_KEYED_HASH;
+             // words of this block: element e = c*128 + b*8 + w/2 (lo word for even w, hi for odd)
+             #pragma unroll
+             for (int w = 0; w < 16; w += 2) {
+@@ -563,8 +565,8 @@
+                 #pragma unroll
+                 for (int i = 0; i < 8; i++) { pb[i] = stack[s][i]; pb[8 + i] = cv[i]; }
+                 u32 iv[8];
+-                b3_iv(iv);
+-                b3_compress(iv, pb, 0ULL, 64u, B3_PARENT | (s == 0 ? B3_ROOT : 0u), tmp);
++                if (key) { for (int i = 0; i < 8; i++) iv[i] = key[i]; } else b3_iv(iv);
++                b3_compress(iv, pb, 0ULL, 64u, B3_PARENT | (s == 0 ? B3_ROOT : 0u) | (key ? B3_KEYED_HASH : 0u), tmp);
+                 #pragma unroll
+                 for (int i = 0; i < 8; i++) cv[i] = tmp[i];
+             }
+@@ -583,7 +585,16 @@
+     int j = blockIdx.x * blockDim.x + threadIdx.x;
+     if (j >= nn) return;
+     u32 out[8];
+-    b3_hash_column(enc, (size_t)nn, rows, j, out);
++    b3_hash_column(enc, (size_t)nn, rows, j, out, nullptr);
++    #pragma unroll
++    for (int w = 0; w < 8; w++) leaves[(size_t)j * 8 + w] = out[w];
++}
++
++extern "C" __global__ void k_hash_cols_keyed(const u64* __restrict__ enc, u32* __restrict__ leaves, int rows, int nn, const u32* __restrict__ key) {
++    int j = blockIdx.x * blockDim.x + threadIdx.x;
++    if (j >= nn) return;
++    u32 out[8];
++    b3_hash_column(enc, (size_t)nn, rows, j, out, key);
+     #pragma unroll
+     for (int w = 0; w < 8; w++) leaves[(size_t)j * 8 + w] = out[w];
+ }
+@@ -1399,12 +1410,9 @@
+     int row = (int)(g / (size_t)nn);
+     int i = (int)(g - (size_t)row * (size_t)nn);
+     u64 v = 0ULL;
+-    if (i < n) {
+-        v = coef[(size_t)row * (size_t)n + i];
+-        if (i < q) v = gl_sub(v, pads[(size_t)row * (size_t)q + i]);
+-    } else if (i < n + q) {
+-        v = pads[(size_t)row * (size_t)q + (i - n)];
+-    }
++    if (i < n) v = coef[(size_t)row * (size_t)n + i];
++    if (i < q) v = gl_sub(v, pads[(size_t)row * (size_t)q + i]);
++    if (i >= n && i < n + q) v = gl_add(v, pads[(size_t)row * (size_t)q + (i - n)]);
+     out[g] = gl_mul(v, pows[i]);
+ }
+ 
+@@ -1496,6 +1504,77 @@
+     #undef STK
+ }
+ 
++extern "C" __global__ void k_hash_cols_stream_keyed(const u64* __restrict__ enc, u32* __restrict__ state, int rc, int row0, int rows, int nn,
++                                              u32* __restrict__ leaves, const u32* __restrict__ key) {
++    int j = blockIdx.x * blockDim.x + threadIdx.x;
++    if (j >= nn) return;
++    const u32 len = (u32)rows * 8u;
++    const u32 n_chunks = (len + 1023u) / 1024u;
++    const size_t snn = (size_t)nn;
++    #define STK(s, i) state[((size_t)(8 * (s) + (i))) * snn + (size_t)j]
++    int stack_len = (int)state[(size_t)(8 * B3_MAX_DEPTH) * snn + (size_t)j];
++    u32 cv[8];
++    u32 block[16];
++    u32 tmp[8];
++    const u32 c_begin = (u32)(row0 / 128);
++    const u32 c_end = (u32)((row0 + rc + 127) / 128);
++    for (u32 c = c_begin; c < c_end; c++) {
++        const bool is_last = (c + 1 == n_chunks);
++        const u32 chunk_len = is_last ? (len - c * 1024u) : 1024u;
++        const int want = __popc(c);
++        while (stack_len > want) {
++            u32 pb[16];
++            #pragma unroll
++            for (int i = 0; i < 8; i++) { pb[i] = STK(stack_len - 2, i); pb[8 + i] = STK(stack_len - 1, i); }
++            u32 iv[8];
++            for (int i = 0; i < 8; i++) iv[i] = key[i];
++            b3_compress(iv, pb, 0ULL, 64u, B3_PARENT | B3_KEYED_HASH, tmp);
++            #pragma unroll
++            for (int i = 0; i < 8; i++) STK(stack_len - 2, i) = tmp[i];
++            stack_len -= 1;
++        }
++        for (int i = 0; i < 8; i++) cv[i] = key[i];
++        const u32 n_blocks = (chunk_len + 63u) / 64u;
++        for (u32 b = 0; b < n_blocks; b++) {
++            const bool last_block = (b + 1 == n_blocks);
++            const u32 blen = last_block ? (chunk_len - b * 64u) : 64u;
++            u32 flags = (b == 0 ? B3_CHUNK_START : 0u) | (last_block ? B3_CHUNK_END : 0u);
++            if (is_last && stack_len == 0 && last_block) flags |= B3_ROOT;
++            flags |= B3_KEYED_HASH;
++            #pragma unroll
++            for (int w = 0; w < 16; w += 2) {
++                int e = (int)(c * 128u + b * 8u) + (w >> 1);
++                u64 v = (e < rows) ? enc[(size_t)(e - row0) * snn + (size_t)j] : 0ULL;
++                block[w] = (u32)v;
++                block[w + 1] = (u32)(v >> 32);
++            }
++            b3_compress(cv, block, (u64)c, blen, flags, tmp);
++            #pragma unroll
++            for (int i = 0; i < 8; i++) cv[i] = tmp[i];
++        }
++        if (is_last) {
++            for (int s = stack_len - 1; s >= 0; s--) {
++                u32 pb[16];
++                #pragma unroll
++                for (int i = 0; i < 8; i++) { pb[i] = STK(s, i); pb[8 + i] = cv[i]; }
++                u32 iv[8];
++                for (int i = 0; i < 8; i++) iv[i] = key[i];
++                b3_compress(iv, pb, 0ULL, 64u, B3_PARENT | (s == 0 ? B3_ROOT : 0u) | B3_KEYED_HASH, tmp);
++                #pragma unroll
++                for (int i = 0; i < 8; i++) cv[i] = tmp[i];
++            }
++            #pragma unroll
++            for (int w = 0; w < 8; w++) leaves[(size_t)j * 8 + w] = cv[w];
++            return;
++        }
++        #pragma unroll
++        for (int i = 0; i < 8; i++) STK(stack_len, i) = cv[i];
++        stack_len += 1;
++    }
++    state[(size_t)(8 * B3_MAX_DEPTH) * snn + (size_t)j] = (u32)stack_len;
++    #undef STK
++}
++
+ // Column gather from a ROW CHUNK: out[c * rows + row0 + i] = enc[i * nn + idx[c]], i < rc
+ // (the opening's columns assembled chunk by chunk from a re-encoded chunk).
+ extern "C" __global__ void k_gather_cols_off(const u64* __restrict__ enc, u64* __restrict__ out, const int* __restrict__ idx,
+--- a/hashline/src/gpu/cuda.rs
++++ b/hashline/src/gpu/cuda.rs
+@@ -21,14 +21,18 @@
+ use super::open_plan::{plan_open_indices, residue_list, OpenPlan};
+ use super::planes::PlaneTiling;
+ 
++fn key_words(key: &[u8; 32]) -> [u32; 8] {
++    std::array::from_fn(|i| u32::from_le_bytes(key[4*i..4*i+4].try_into().unwrap()))
++}
++
+ const KSRC: &str = include_str!("kernels.cu");
+ const MODULE: &str = "hlgpu";
+ const FUNCS: &[&str] = &[
+-    "k_probe", "k_ntt_p1", "k_ntt_p2", "k_gather_cols", "k_hash_cols",
++    "k_probe", "k_ntt_p1", "k_ntt_p2", "k_gather_cols", "k_hash_cols", "k_hash_cols_keyed",
+     "k_sc_round_zc20", "k_sc_round_zc17", "k_reduce_f2", "k_sc_fold", "k_tab_from_fp", "k_tab_from_fp2", "k_eq_table",
+     "k_fold_rows", "k_helper", "k_sum_fp", "k_eq_join", "k_dot_slices", "k_dif_pa", "k_dif_pb", "k_dit_p1_pad",
+     "k_zk_pad_scale", // [UPERF3-ZA]
+-    "k_hash_cols_stream", "k_gather_cols_off", // [UPERF3-AC]
++    "k_hash_cols_stream", "k_hash_cols_stream_keyed", "k_gather_cols_off", // [UPERF3-AC]
+     "k_sc_round_zcf_gen", "k_sc_round_zcd_gen", "k_sc_round_tab_gen", // [UPERF3-AH]
+     "k_ntt_p2_gather", "k_widen", // [UPERF3-AJ]
+     // [UPERF3-AO] lever L9: the same transforms with the power-of-two tile
+@@ -1812,7 +1816,7 @@
+     #[allow(clippy::too_many_arguments)]
+     fn commit_zk_chunked(&self, d_data: &Pooled, d_pads: &CudaSlice<u64>, d_pows: &CudaSlice<u64>,
+                          rows: usize, n: usize, q: usize, nn: usize, log_n: u32, log_nn: u32,
+-                         chunk: usize) -> Result<Vec<Digest>, String> {
++                         chunk: usize, key: Option<&[u8; 32]>) -> Result<Vec<Digest>, String> {
+         let dev = self.dev.clone();
+         let plan = chunk_plan(rows, chunk);
+         let rmax = plan.iter().map(|&(_, rc)| rc).max().unwrap();
+@@ -1829,16 +1833,30 @@
+         dev.memset_zeros(d_state.get_mut()).map_err(|e| format!("state memset: {e}"))?;
+         let mut d_leaves = unsafe { dev.alloc::<u32>(nn * 8) }.map_err(|e| format!("leaves alloc: {e}"))?;
+         note_raw_alloc(nn * 8 * 4); // [round-7 review] the leaf buffer is a raw allocation too
+-        let f_hash = dev.get_func(MODULE, "k_hash_cols_stream").ok_or("k_hash_cols_stream missing")?;
++        let d_key = key.map(|k| dev.htod_sync_copy(&key_words(k)).map_err(|e| format!("hash key upload: {e}"))).transpose()?;
++        let name = if key.is_some() { "k_hash_cols_stream_keyed" } else { "k_hash_cols_stream" };
++        let f_hash = dev.get_func(MODULE, name).ok_or("zk column hash kernel missing")?;
+         note_vram(self);
+         for &(r0, rc) in &plan {
+             let dview = d_data.get().slice(r0 * n..(r0 + rc) * n);
+             let pview = d_pads.slice(r0 * q..(r0 + rc) * q);
+             self.encode_rows_view_zk(&dview, &pview, d_pows, d_coef.get_mut(), d_coef2.get_mut(), d_enc.get_mut(),
+                                      rc, n, q, nn, pw, log_n, log_nn)?;
+-            let cfg = LaunchConfig::for_num_elems(nn as u32);
+-            unsafe { f_hash.clone().launch(cfg, (d_enc.get(), d_state.get_mut(), rc as i32, r0 as i32, rows as i32, nn as i32, &mut d_leaves)) }
+-                .map_err(|e| format!("k_hash_cols_stream: {e}"))?;
++            // Keyed streaming keeps the CV stack and the public key live per
++            // thread. At 256 threads the 4070 rejects the launch for register
++            // pressure; 64 bounds per-block resources without changing work.
++            let cfg = if d_key.is_some() {
++                LaunchConfig { grid_dim: (((nn + 63) / 64) as u32, 1, 1), block_dim: (64, 1, 1), shared_mem_bytes: 0 }
++            } else {
++                LaunchConfig::for_num_elems(nn as u32)
++            };
++            if let Some(k) = &d_key {
++                unsafe { f_hash.clone().launch(cfg, (d_enc.get(), d_state.get_mut(), rc as i32, r0 as i32, rows as i32, nn as i32, &mut d_leaves, k)) }
++                    .map_err(|e| format!("k_hash_cols_stream_keyed: {e}"))?;
++            } else {
++                unsafe { f_hash.clone().launch(cfg, (d_enc.get(), d_state.get_mut(), rc as i32, r0 as i32, rows as i32, nn as i32, &mut d_leaves)) }
++                    .map_err(|e| format!("k_hash_cols_stream: {e}"))?;
++            }
+         }
+         let words = dev.dtoh_sync_copy(&d_leaves).map_err(|e| format!("leaves download: {e}"))?;
+         let mut leaves = vec![[0u8; 32]; nn];
+@@ -2682,7 +2700,7 @@
+     note_raw_alloc(pows.len() * 8);
+     let log_nn = nn.trailing_zeros();
+ 
+-    let leaves = g.commit_zk_chunked(&d_data, &d_pads, &d_pows, rows, n, q_pad, nn, log_cols, log_nn, chunk)?;
++    let leaves = g.commit_zk_chunked(&d_data, &d_pads, &d_pows, rows, n, q_pad, nn, log_cols, log_nn, chunk, None)?;
+     let bad_leaves = leaves.iter().zip(cpu_leaves.iter()).filter(|(a, b)| a != b).count();
+ 
+     let dc = DevCommit {
+@@ -2746,7 +2764,7 @@
+         let d_pows = dev.htod_sync_copy(as_u64s(&pows)).map_err(|e| format!("pows upload: {e}"))?;
+         note_raw_alloc(pows.len() * 8);
+         let log_nn = nn.trailing_zeros();
+-        let leaves = g.commit_zk_chunked(&d_data, &d_pads, &d_pows, rows, n, q_pad, nn, log_cols, log_nn, chunk)?;
++        let leaves = g.commit_zk_chunked(&d_data, &d_pads, &d_pows, rows, n, q_pad, nn, log_cols, log_nn, chunk, None)?;
+         bad_leaves += leaves.iter().zip(cpu_leaves.iter()).filter(|(a, b)| a != b).count();
+         let dc = DevCommit { rows, log_n: log_cols, log_nn, data: d_data, enc: None,
+                              zk: Some(ZkReenc { pads: d_pads, pows: d_pows, q: q_pad }) };
+@@ -2919,6 +2937,20 @@
+             for w in 0..8 {
+                 leaf[4 * w..4 * w + 4].copy_from_slice(&words[j * 8 + w].to_le_bytes());
+             }
++        }
++        Ok(leaves)
++    }
++    fn hash_cols_keyed(&self, enc: &CudaSlice<u64>, rows: usize, nn: usize, key: &[u8; 32]) -> Result<Vec<Digest>, String> {
++        let f = self.dev.get_func(MODULE, "k_hash_cols_keyed").ok_or("k_hash_cols_keyed missing")?;
++        let d_key = self.dev.htod_sync_copy(&key_words(key)).map_err(|e| format!("hash key upload: {e}"))?;
++        let mut d_leaves = unsafe { self.dev.alloc::<u32>(nn * 8) }.map_err(|e| format!("leaves alloc: {e}"))?;
++        note_raw_alloc(nn * 8 * 4);
++        let cfg = LaunchConfig::for_num_elems(nn as u32);
++        unsafe { f.launch(cfg, (enc, &mut d_leaves, rows as i32, nn as i32, &d_key)) }.map_err(|e| format!("k_hash_cols_keyed: {e}"))?;
++        let words = self.dev.dtoh_sync_copy(&d_leaves).map_err(|e| format!("leaves download: {e}"))?;
++        let mut leaves = vec![[0u8; 32]; nn];
++        for (j, leaf) in leaves.iter_mut().enumerate() {
++            for w in 0..8 { leaf[4*w..4*w+4].copy_from_slice(&words[j*8+w].to_le_bytes()); }
+         }
+         Ok(leaves)
+     }
+@@ -3600,6 +3632,10 @@
+ 
+ /// Commit a device-resident data buffer (rows x n) in ZK mode: `pads` rows x q, `pows` h^i for i < nn.
+ pub fn dev_commit_zk_from(params: &PcsParams, d_data: Pooled, rows: usize, pads: &[Fp], pows: &[Fp], ntt: &NttTables) -> Result<(DevCommit, Vec<Digest>), String> {
++    dev_commit_zk_from_inner(params, d_data, rows, pads, pows, ntt, None)
++}
++
++fn dev_commit_zk_from_inner(params: &PcsParams, d_data: Pooled, rows: usize, pads: &[Fp], pows: &[Fp], ntt: &NttTables, key: Option<&[u8; 32]>) -> Result<(DevCommit, Vec<Digest>), String> {
+     let g = gpu().ok_or_else(init_err)?;
+     let mut g = g.lock().unwrap();
+     g.ensure_twiddles(ntt)?;
+@@ -3680,7 +3716,7 @@
+                           (rows * nn * 8) as f64 / 1e6,
+                           if chunked_now { if mode == ZkChunk::Force { "forced" } else { "by size" } } else { "resident alloc failed" });
+             }
+-            let leaves = g.commit_zk_chunked(&d_data, &d_pads, &d_pows, rows, n, q, nn, log_n, log_nn, chunk_rows())?;
++            let leaves = g.commit_zk_chunked(&d_data, &d_pads, &d_pows, rows, n, q, nn, log_n, log_nn, chunk_rows(), key)?;
+             note_vram(&g);
+             // [ZK60-CL4] NO secs_ntt charge here. commit_zk_chunked already
+             // charged its own encode+hash wall, and t1.elapsed() SPANS that
+@@ -3728,7 +3764,7 @@
+             // charges the chunked encode. upload + discarded + chunked = wall,
+             // with no interval counted twice.
+             let t_discarded = (t1.elapsed().as_secs_f64() - t_upload).max(0.0);
+-            let leaves = g.commit_zk_chunked(&d_data, &d_pads, &d_pows, rows, n, q, nn, log_n, log_nn, chunk_rows())?;
++            let leaves = g.commit_zk_chunked(&d_data, &d_pads, &d_pows, rows, n, q, nn, log_n, log_nn, chunk_rows(), key)?;
+             note_vram(&g);
+             stats_with(|s| { s.secs_h2d += t_upload; s.secs_ntt += t_discarded; });
+             let zk = ZkReenc { pads: d_pads, pows: d_pows, q };
+@@ -3741,7 +3777,7 @@
+     stats_with(|s| s.secs_ntt += (t2 - t1).as_secs_f64());
+     note_vram(&g);
+     drop(d_coef2);
+-    let leaves = g.hash_cols(d_enc.get(), rows, nn)?;
++    let leaves = match key { Some(k) => g.hash_cols_keyed(d_enc.get(), rows, nn, k)?, None => g.hash_cols(d_enc.get(), rows, nn)? };
+     let t3 = Instant::now();
+     stats_with(|s| { s.secs_hash += (t3 - t2).as_secs_f64(); s.bytes_d2h += (nn * 32) as u64; });
+     Ok((DevCommit { rows, log_n, log_nn, data: d_data, enc: Some(d_enc), zk: None }, leaves))
+@@ -3749,6 +3785,14 @@
+ 
+ /// Upload `data` and commit it in ZK mode (== pcs::commit_zk's encoding and leaves).
+ pub fn dev_commit_zk(params: &PcsParams, data: &[Fp], pads: &[Fp], pows: &[Fp], ntt: &NttTables) -> Result<(DevCommit, Vec<Digest>), String> {
++    dev_commit_zk_uploaded(params, data, pads, pows, ntt, None)
++}
++
++pub fn dev_commit_zk_keyed(params: &PcsParams, data: &[Fp], pads: &[Fp], pows: &[Fp], ntt: &NttTables, key: &[u8; 32]) -> Result<(DevCommit, Vec<Digest>), String> {
++    dev_commit_zk_uploaded(params, data, pads, pows, ntt, Some(key))
++}
++
++fn dev_commit_zk_uploaded(params: &PcsParams, data: &[Fp], pads: &[Fp], pows: &[Fp], ntt: &NttTables, key: Option<&[u8; 32]>) -> Result<(DevCommit, Vec<Digest>), String> {
+     let g = gpu().ok_or_else(init_err)?;
+     let mut g = g.lock().unwrap();
+     let n = params.cols();
+@@ -3760,7 +3804,7 @@
+     g.upload_sync(d_data.get_mut(), as_u64s(data))?; // [UPERF3-AJ] pinned staging
+     let _ = t0;
+     drop(g);
+-    dev_commit_zk_from(params, d_data, rows, pads, pows, ntt)
++    dev_commit_zk_from_inner(params, d_data, rows, pads, pows, ntt, key)
+ }
+ 
+ /// Write `data` into a device buffer at element `offset` (the ZK H commit's host-generated tail rows).
+--- a/hashline/src/pcs.rs
++++ b/hashline/src/pcs.rs
+@@ -108,15 +108,9 @@
+     zkp_core::pcs::commit_zk_owned_with(&backend(), params, data, ntt, zk, rng)
+ }
+ 
+-/// [ZK60 D19, rulings T-1 and T-8] `commit_zk_owned` under a
+-/// [`zkp_core::hashtag::HashTag`]. `commit_zk_owned` above keeps its own
+-/// body.
+-///
+-/// The backend is offered exactly as before — and the core's tagged
+-/// commitment declines to offer a KEYED column digest to it, because the
+-/// device kernel is an unkeyed BLAKE3 with the IV hard-coded. That is a
+-/// **temporary CPU fallback**, recorded as such in `zkp_core::pcs`; nothing
+-/// under `gpu/` is touched and no keyed device path is claimed.
++/// Commit under the profile's keyed hash domains. The backend has a distinct
++/// keyed offer; if CUDA declines, core uses the CPU oracle with the same
++/// fresh pads, salts and receipt encoding.
+ pub fn commit_zk_owned_tagged(params: &PcsParams, data: Vec<Fp>, ntt: &NttTables, zk: &ZkOpts, rng: &mut ZkRng, tag: &zkp_core::hashtag::HashTag) -> CommittedZk {
+     zkp_core::pcs::commit_zk_owned_with_tag(&backend(), params, data, ntt, zk, rng, tag)
+ }
+--- a/hashline/tests/zk60_tagged_gpu_commit.rs
++++ b/hashline/tests/zk60_tagged_gpu_commit.rs
+@@ -0,0 +1,63 @@
++//! Exact tagged GPU commitment oracle. Run once each with HL_ZK_CHUNK=off
++//! and HL_ZK_CHUNK=force; require HL_GPU=1 HL_GPU_REQUIRED=1 on a device.
++#![cfg(feature = "gpu-cuda")]
++
++use hashline::{field::Fp, gpu, ntt::NttTables, pcs};
++use zkp_core::{hashtag::HashTag, pcs::{Cpu, EncodedStore, PcsParams, Store, ZkOpts}, rng::ZkRng};
++
++#[test]
++fn tagged_column_hashes_and_full_commitment_match_cpu() {
++    let required = std::env::var("HL_GPU_REQUIRED").map(|v| v == "1").unwrap_or(false);
++    if !gpu::enabled() {
++        assert!(!required, "HL_GPU_REQUIRED=1 but CUDA backend is unavailable");
++        eprintln!("SKIP tagged GPU oracle: device unavailable");
++        return;
++    }
++    let p = PcsParams { log_cols: 8, inv_rate: 4, num_col_checks: 2 };
++    let ntt = NttTables::new(10);
++    let tag = HashTag::for_profile("hashline-zk-mr1/private-block-m125/1");
++    let key = tag.column_key().unwrap();
++    let n = p.cols();
++    let nn = p.enc_cols();
++    // 128 -> 129 crosses BLAKE3's first parent/chunk boundary. q>n
++    // exercises the overlap of -pad[i] and +pad[i-n] in the CUDA pad kernel.
++    for &(rows, q) in &[(37, 16), (128, 16), (129, 257), (257, 257)] {
++        let data: Vec<Fp> = (0..rows*n).map(|i| Fp::new((i as u64 * 137 + 7) % 65521)).collect();
++        let pads: Vec<Fp> = (0..rows*q).map(|i| Fp::new((i as u64 * 103 + 11) % 65521)).collect();
++        let pows = pcs::coset_powers(Fp::new(7), nn);
++        let mut encoded = vec![Fp::ZERO; rows*nn];
++        for r in 0..rows {
++            pcs::encode_row_zk(&ntt, &data[r*n..(r+1)*n], &pads[r*q..(r+1)*q], &pows, &mut encoded[r*nn..(r+1)*nn]);
++        }
++        let cpu_leaves = pcs::hash_columns_keyed(&encoded, rows, nn, Some(key));
++        let (store, leaves) = gpu::dev_commit_zk_keyed(&p, &data, &pads, &pows, &ntt, key).expect("keyed device commit");
++        assert_eq!(leaves, cpu_leaves, "all tagged leaves, rows={rows}, q={q}");
++        let wrong = HashTag::for_profile("hashline-zk-mr1/wrong-profile/1");
++        let wrong_leaves = pcs::hash_columns_keyed(&encoded, rows, nn, wrong.column_key());
++        assert_ne!(leaves, wrong_leaves, "wrong profile key accepted, rows={rows}, q={q}");
++        if rows == 129 {
++            let (_, wrong_device) = gpu::dev_commit_zk_keyed(&p, &data, &pads, &pows, &ntt, wrong.column_key().unwrap())
++                .expect("wrong-key device commit ran");
++            assert_eq!(wrong_device, wrong_leaves, "GPU ignored the supplied wrong key");
++            assert_ne!(wrong_device, leaves, "different profile keys produced identical leaves");
++        }
++        let indices = [0, nn-1, 13, 13, nn/2];
++        let got = store.columns(&indices).expect("device opening columns");
++        for (i, &col) in indices.iter().enumerate() {
++            let want: Vec<Fp> = (0..rows).map(|r| encoded[r*nn+col]).collect();
++            assert_eq!(got[i], want, "opened column {col}, rows={rows}, q={q}");
++        }
++    }
++    let zk = ZkOpts::standard(&p);
++    let rows = 129;
++    let data: Vec<Fp> = (0..rows*n).map(|i| Fp::new((i as u64 * 31 + 17) % 65521)).collect();
++    let mut r_gpu = ZkRng::new(2309, b"tagged-gpu-oracle");
++    let mut r_cpu = ZkRng::new(2309, b"tagged-gpu-oracle");
++    let gpu_cm = pcs::commit_zk_owned_tagged(&p, data.clone(), &ntt, &zk, &mut r_gpu, &tag);
++    assert!(matches!(gpu_cm.cm.store, Store::Device(_)), "tagged call fell back to CPU");
++    let cpu_cm = zkp_core::pcs::commit_zk_owned_with_tag(&Cpu, &p, data, &ntt, &zk, &mut r_cpu, &tag);
++    assert_eq!(gpu_cm.commitment().root, cpu_cm.commitment().root);
++    assert_eq!(gpu_cm.pads, cpu_cm.pads);
++    assert_eq!(gpu_cm.salts, cpu_cm.salts);
++    assert_eq!(r_gpu.fp(), r_cpu.fp(), "tagged GPU moved RNG continuation");
++}

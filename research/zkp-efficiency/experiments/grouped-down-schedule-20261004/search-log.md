@@ -1,0 +1,9 @@
+# LIVE search record — cycle0024
+
+Accessed2026-10-04 UTC via native web search. Queries: `site.developer.nvidia.com grouped GEMM cuBLAS strided batched int8 cublasGemmGroupedBatchedEx`; `site.github.com/NVIDIA/cutlass grouped gemm scheduler shared input tensor int8`; `2026 September GPU grouped GEMM batch scheduler arxiv exact integer`. Search results used for discovery; claims checked against primary pages.
+
+Inspected official13.4 API type tables/pointer/leading-dimension and stride constraints, older2017 strided and2024 grouped author blogs, CUTLASS main scheduler/header,4.8 release and full version-update commit, and the August2026 B300 audit abstract/full HTML. Exact URLs/dates/license scope/commit qualification in source-records.json. No reported performance reproduced.
+
+The current grouped Ex API table omits integer whereas pointer-batched Ex includes it. Zero-stride broadcast in the2017 blog conflicts with current strided contract; exclude it from a proposed supported adapter. Physical row-major FFN weights yield an NN BLAS view; the documented regular Lt IMMA route uses TN. A transposed model cache is a next prerequisite, not a tested fast path. Small ragged fixture support fails necessary integer pointer/lda conditions in8532 modeled problems; CPU fallback must preserve the domain.
+
+Exact blockers: `https://github.com/NVIDIA/cutlass/commits/main/media/docs/cpp/grouped_scheduler.md` and `https://github.com/NVIDIA/cutlass/blob/098de2a652cf8f00fd70b2df54051c7eccbb855a/media/docs/cpp/grouped_scheduler.md` returned tool `Internal Error` (one-line page). Main header/date unpinned; release pin does not pin main header. No alternate network or approval bypass attempted. Local experiment continued. Reddit/DeepWiki/forum results were not used as technical authority. Foreign code was read as untrusted data, never executed.

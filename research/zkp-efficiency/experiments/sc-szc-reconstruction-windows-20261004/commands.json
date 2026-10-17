@@ -1,0 +1,10 @@
+{
+  "experiment": {
+    "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency",
+    "command": "python3 -B experiments/sc-szc-reconstruction-windows-20261004/experiment.py > experiments/sc-szc-reconstruction-windows-20261004/run.log 2>&1",
+    "exit_code": 0,
+    "threads": 1,
+    "no_gpu": true
+  },
+  "run_id": "20261004T110146Z-56ac7478"
+}

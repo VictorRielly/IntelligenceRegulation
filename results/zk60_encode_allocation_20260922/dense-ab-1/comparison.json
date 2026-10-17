@@ -1,0 +1,137 @@
+{
+  "state": "passed",
+  "runs": [
+    {
+      "name": "00-warm-old",
+      "arm": "warm-old",
+      "warmup": true,
+      "command": [
+        "/tmp/zk60-rounds-20260922/hashline/target/release/deps/hashline-78b3e1325db8bd38",
+        "--ignored",
+        "--exact",
+        "private_block::rulings_tests::private_block_125m_one_block",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 46.169611740042455,
+      "log_sha256": "b4212128ae45198e2127e0ae2fdec1ac3b00192c5a232d950189c952eade32be",
+      "prove_seconds": 39.49,
+      "verify_seconds": 0.96,
+      "receipt_bytes": 40783352,
+      "peak_rss_mib": 10530.0,
+      "witness_seconds": 5.55
+    },
+    {
+      "name": "01-warm-new",
+      "arm": "warm-new",
+      "warmup": true,
+      "command": [
+        "/tmp/zk60-encode-20260922/hashline/target/release/deps/hashline-51ac3065196fcde4",
+        "--ignored",
+        "--exact",
+        "private_block::rulings_tests::private_block_125m_one_block",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 56.22681714699138,
+      "log_sha256": "d4dc4f17871f9c15ebeacad17a8a5a3c0341957f7cc59bda5f8abdfad0a1232b",
+      "prove_seconds": 40.18,
+      "verify_seconds": 0.92,
+      "receipt_bytes": 40783352,
+      "peak_rss_mib": 10582.0,
+      "witness_seconds": 14.93
+    },
+    {
+      "name": "02-old",
+      "arm": "old",
+      "warmup": false,
+      "command": [
+        "/tmp/zk60-rounds-20260922/hashline/target/release/deps/hashline-78b3e1325db8bd38",
+        "--ignored",
+        "--exact",
+        "private_block::rulings_tests::private_block_125m_one_block",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 52.33980001800228,
+      "log_sha256": "87c8ae6071921f556721c91a59ef1f5e584156179a9c9227fd2ad0cd08b2e8c6",
+      "prove_seconds": 44.51,
+      "verify_seconds": 0.98,
+      "receipt_bytes": 40783352,
+      "peak_rss_mib": 10588.0,
+      "witness_seconds": 6.65
+    },
+    {
+      "name": "03-new",
+      "arm": "new",
+      "warmup": false,
+      "command": [
+        "/tmp/zk60-encode-20260922/hashline/target/release/deps/hashline-51ac3065196fcde4",
+        "--ignored",
+        "--exact",
+        "private_block::rulings_tests::private_block_125m_one_block",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 49.246932214999106,
+      "log_sha256": "9c2f7565a09cfd472eb74a71d8120f1fa225c489ecc4082b5fe2f38d34f6aaea",
+      "prove_seconds": 39.73,
+      "verify_seconds": 0.98,
+      "receipt_bytes": 40783352,
+      "peak_rss_mib": 10582.0,
+      "witness_seconds": 8.35
+    },
+    {
+      "name": "04-new",
+      "arm": "new",
+      "warmup": false,
+      "command": [
+        "/tmp/zk60-encode-20260922/hashline/target/release/deps/hashline-51ac3065196fcde4",
+        "--ignored",
+        "--exact",
+        "private_block::rulings_tests::private_block_125m_one_block",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 48.53831785602961,
+      "log_sha256": "050fe0779207e050f038d4d933ade12a5c29eab6f386c3600dcdc7c69acbc0bf",
+      "prove_seconds": 40.1,
+      "verify_seconds": 0.99,
+      "receipt_bytes": 40783352,
+      "peak_rss_mib": 10526.0,
+      "witness_seconds": 7.26
+    },
+    {
+      "name": "05-old",
+      "arm": "old",
+      "warmup": false,
+      "command": [
+        "/tmp/zk60-rounds-20260922/hashline/target/release/deps/hashline-78b3e1325db8bd38",
+        "--ignored",
+        "--exact",
+        "private_block::rulings_tests::private_block_125m_one_block",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 48.2421427500085,
+      "log_sha256": "c9fcffa72ed997ef09aab1b77aa7eb35e305d3ab81433ac5b37bb484df5920f4",
+      "prove_seconds": 40.27,
+      "verify_seconds": 0.93,
+      "receipt_bytes": 40783352,
+      "peak_rss_mib": 10522.0,
+      "witness_seconds": 6.83
+    }
+  ],
+  "cpu_only": true,
+  "synthetic_dense_public_weights": true,
+  "model_scale_speed_claim": false,
+  "candidate_includes_small_slot_oracle": true,
+  "runner_sha256": "b2f101b96d78b7add464e2354c03ad67ece5a3bddb86d5bbccb0376ef37c19b4",
+  "current": null
+}

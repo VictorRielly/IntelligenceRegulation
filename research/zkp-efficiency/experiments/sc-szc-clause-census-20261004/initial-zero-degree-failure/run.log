@@ -1,0 +1,3 @@
+Command: python3 -B experiments/sc-szc-clause-census-20261004/experiment.py
+Exit: 1
+TaggedRounds refused degree after all-zero IR canceled all terms. No result file produced.

@@ -1,0 +1,25 @@
+{
+  "access_date": "2026-10-12",
+  "method": "tools.web__run native LIVE search/open/find",
+  "queries": [
+    "sumcheck repeated variables structured polynomial lifted table trailing variables optimization 2026",
+    "site.github.com sumcheck tensor repeated table constant variables 2026",
+    "sumcheck GPU October 2026 release",
+    "\"Sumcheck Arguments and their Applications\" github implementation",
+    "\"Packing Breaks the Mask\" eprint 2026",
+    "site.github.com/Plonky3/Plonky3 \"2036\" \"2026\"",
+    "site.eprint.iacr.org \"Packing Breaks the Mask\"",
+    "\"Plonky3\" \"sumcheck\" \"October\" \"2026\""
+  ],
+  "responses": [
+    "web42a.json",
+    "web42b.json",
+    "web42c.json",
+    "web42d.json",
+    "web42e.json",
+    "web42f.json",
+    "web42g.json"
+  ],
+  "first_search_response": "Not captured as raw JSON; selected URLs/metadata retained in source-records; later fetch responses captured.",
+  "selection": "Primary author/repository/docs only; unrelated results discarded; no claimed October update from crawl recency"
+}

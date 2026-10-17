@@ -1,0 +1,168 @@
+{
+  "records": [
+    {
+      "id": "cycle34-vega-newly-assessed-recent-revision",
+      "title": "Vega: Low-Latency Zero-Knowledge Proofs over Existing Credentials",
+      "url": "https://eprint.iacr.org/2025/2094",
+      "inspected_urls": [
+        "https://eprint.iacr.org/2025/2094.pdf"
+      ],
+      "published": "2025-11-14",
+      "updated": "2026-09-05",
+      "date_basis": "Primary ePrint history: received Nov14 2025, last of four revisions Sep5 2026. S&P2026 publication label does not establish proceedings day.",
+      "paper_license": "CC BY",
+      "implementation_license": null,
+      "author_claim": "Rerandomizable precomputation amortizes repeated credential presentations; folding and lookup arithmetization reduce credential proof costs.",
+      "assessment": "New older work with recent revision. Different T256/Hyrax circuit and threat model; no native private commitment/mask reuse authorized. Reuse strategy is an architecture filter, not a complete 8B speed result. Abstract and selected fulltext sections inspected; no performance reproduced.",
+      "cycle": "0034",
+      "run_id": "20261004T185034Z-0cf2c35e",
+      "access_date": "2026-10-04",
+      "evidence_kind": "native LIVE primary web search/inspection; no foreign code executed",
+      "reproduced_performance": false,
+      "inspected_commit_id": null,
+      "recorded_at_utc": "2026-10-04T19:07:51.986983+00:00"
+    },
+    {
+      "id": "cycle34-vega-delayed-reduction-and-july-bounds",
+      "title": "Vega implementation history, conformance contract and July fold guard",
+      "url": "https://github.com/microsoft/vega-prover",
+      "inspected_urls": [
+        "https://github.com/microsoft/vega-prover/commits/main/",
+        "https://github.com/microsoft/vega-prover/pull/147",
+        "https://github.com/microsoft/vega-prover/blob/main/LICENSE",
+        "https://github.com/microsoft/vega-prover/releases",
+        "https://microsoft.github.io/vega-prover/spec/scope.html"
+      ],
+      "published": null,
+      "updated": "2026-07-15",
+      "date_basis": "Cached history latest displayed Jul15 2026; PR147 explicitly merged Jul15. Does not verify current live HEAD. History dates delayed-reduction commit Feb25 2026.",
+      "exposed_commit_id": "df22cb9f19556cc907b821aa31fe1d55e99ea198",
+      "exposed_commit_scope": "History link only; commit fetch Cache miss. No code diff inspected.",
+      "implementation_license": "MIT; current main complete LICENSE inspected, not commit-pinned",
+      "author_claim": "Conformance permits internal delayed reduction and caches with fixed transcript/random tape; PR147 restricts truncated fold to zero-rest witnesses and otherwise uses full fold.",
+      "assessment": "New reduction/carry-cost hypothesis at native Fp2 weighted accumulations. Vega uses ~256-bit scalar field, while canonical Goldilocks products almost fill u128; transfer requires independent overflow bounds and wider accumulation. Fresh random masks remain required. No speed inferred from credential latency. No GitHub releases displayed; failed runtime/PR/commit fetches retained.",
+      "cycle": "0034",
+      "run_id": "20261004T185034Z-0cf2c35e",
+      "access_date": "2026-10-04",
+      "evidence_kind": "native LIVE primary web search/inspection; no foreign code executed",
+      "reproduced_performance": false,
+      "inspected_commit_id": null,
+      "recorded_at_utc": "2026-10-04T19:07:51.986983+00:00"
+    },
+    {
+      "id": "cycle34-sumcats-setup-regression-recheck",
+      "title": "SumCATS setup and GPU local-memory tradeoff",
+      "url": "https://tanvirarafin.github.io/assets/pdf/DATE_2026.pdf",
+      "inspected_urls": [
+        "https://github.com/SPIRE-GMU/sum_cats",
+        "https://github.com/SPIRE-GMU/sum_cats/tree/main/sumcheck/binius-gpu",
+        "https://github.com/SPIRE-GMU/sum_cats/tree/main/sumcheck/binius-gpu/src/ulvt/sumcheck"
+      ],
+      "published": null,
+      "updated": null,
+      "date_basis": "Author PDF and DATE2026 venue previously assessed; exact publication/update date not established. PDF has no verified date; repository history failed.",
+      "implementation_license": "Nested README MIT excerpt, copyright2024 Irreducible; standalone LICENSE.txt Cache miss; additions and third-party scope unverified",
+      "author_claim": "Binary-tower memory/reconstruction changes report up to1.81x RTX3090Ti/1.62x A100; small n20 cases can regress due CPU setup.",
+      "assessment": "Qualified refresh supporting full setup/scratch charging in this cycle. Different field/composition, not an Fp2 drop-in or native model result. Root/nested README and source inventories inspected; no remote kernel code or commit diff inspected, nothing executed.",
+      "cycle": "0034",
+      "run_id": "20261004T185034Z-0cf2c35e",
+      "access_date": "2026-10-04",
+      "evidence_kind": "native LIVE primary web search/inspection; no foreign code executed",
+      "reproduced_performance": false,
+      "inspected_commit_id": null,
+      "recorded_at_utc": "2026-10-04T19:07:51.986983+00:00"
+    },
+    {
+      "id": "cycle34-nvidia-july-binary-field-scope-refresh",
+      "title": "NVIDIA CUDA13.3 carryless sumcheck report",
+      "url": "https://developer.nvidia.com/blog/building-faster-cryptography-with-carryless-multiplication-in-nvidia-cuda-13-3/",
+      "published": "2026-07-15",
+      "updated": null,
+      "date_basis": "Primary article explicitly dated Jul15 2026; update date absent",
+      "implementation_license": null,
+      "author_claim": "Hardware carryless GF(2^128) sumcheck reports3\u20134x RTX5090 and up to13x B200 versus a bitsliced binary-field baseline.",
+      "assessment": "Prior lead scope refreshed. GF(2^128) field multiplication differs from native Goldilocks2; adopting binary fields changes PIOP/arithmetic/PCS/privacy/security, not a kernel replacement. No author result reproduced and no private full-model speed implied.",
+      "cycle": "0034",
+      "run_id": "20261004T185034Z-0cf2c35e",
+      "access_date": "2026-10-04",
+      "evidence_kind": "native LIVE primary web search/inspection; no foreign code executed",
+      "reproduced_performance": false,
+      "inspected_commit_id": null,
+      "recorded_at_utc": "2026-10-04T19:07:51.986983+00:00"
+    },
+    {
+      "id": "cycle34-matched-hardware-locality-refinement",
+      "title": "When Proofs Meet Hardware: Comparing NTT and SumCheck",
+      "url": "https://arxiv.org/abs/2606.16146",
+      "inspected_urls": [
+        "https://arxiv.org/html/2606.16146v1",
+        "https://github.com/beekayg15/zerocheck"
+      ],
+      "published": "2026-06-15",
+      "updated": null,
+      "date_basis": "Primary arXiv v1 submission Jun15 2026; no later revision displayed",
+      "implementation_license": null,
+      "author_claim": "Matched SRAM/bandwidth simulation shows degree/polynomial-count/locality dependent tradeoffs; no universal primitive winner.",
+      "assessment": "Primary methods/memory/latency sections and linked simulation README refreshed. Hardware simulation is not a measured native GPU clock; scratch/streaming and degree costs must accompany lower operation counts. Protocol replacement deferred; repository license/commit not inspected.",
+      "cycle": "0034",
+      "run_id": "20261004T185034Z-0cf2c35e",
+      "access_date": "2026-10-04",
+      "evidence_kind": "native LIVE primary web search/inspection; no foreign code executed",
+      "reproduced_performance": false,
+      "inspected_commit_id": null,
+      "recorded_at_utc": "2026-10-04T19:07:51.986983+00:00"
+    }
+  ],
+  "queries": [
+    "sumcheck affine polynomial evaluation successive points finite differences lookup prover GPU 2026",
+    "site.github.com sumcheck \"forward differences\"",
+    "site.eprint.iacr.org 2026 lookup sumcheck GPU logup",
+    "\"SumCATS\" GPU sumcheck github paper",
+    "\"sumcheck\" \"increment\" \"delta\" site.github.com/Plonky3/Plonky3",
+    "\"sumcheck\" \"successive\" \"evaluations\" github",
+    "site.github.com/microsoft/vega-prover \"delayed modular reduction\" sumcheck"
+  ],
+  "access_issues": [
+    {
+      "url": "https://github.com/SPIRE-GMU/sum_cats/commits/main/",
+      "error": "Internal Error"
+    },
+    {
+      "url": "https://past.date-conference.com/proceedings-archive/2026/DATA/926.pdf",
+      "error": "Internal Error; author's PDF succeeded"
+    },
+    {
+      "url": "https://github.com/SPIRE-GMU/sum_cats/tree/main/sumcheck/binius-gpu/src",
+      "error": "Internal Error; exact ulvt inventory link succeeded"
+    },
+    {
+      "url": "https://github.com/microsoft/vega-prover/tree/main/src/sumcheck",
+      "error": "Internal Error"
+    },
+    {
+      "url": "https://github.com/microsoft/vega-prover/blob/main/src/sumcheck.rs",
+      "error": "Cache miss"
+    },
+    {
+      "url": "https://github.com/SPIRE-GMU/sum_cats/blob/main/sumcheck/binius-gpu/LICENSE.txt",
+      "error": "Cache miss"
+    },
+    {
+      "url": "https://github.com/microsoft/vega-prover/commit/df22cb9f19556cc907b821aa31fe1d55e99ea198",
+      "error": "Cache miss"
+    },
+    {
+      "url": "https://github.com/microsoft/vega-prover/pull/105",
+      "error": "Cache miss"
+    },
+    {
+      "url": "https://docs.rs/vega-prover/latest/vega_prover/traits/index.html",
+      "error": "Internal Error"
+    },
+    {
+      "url": "https://github.com/microsoft/vega-prover/pull/147",
+      "error": "Internal Error from PR147 commit link; full ID not rendered",
+      "action": "click commit link82 (99d3591); full requested URL was not returned"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "experiments/validated-tile-batch-20260930/result.json": "e34694aaa5efc05404d1b965a6193d881b481b70be9e4a8f9d3d65189fae726c",
+  "experiments/validated-tile-batch-20260930/owner-evidence.json": "dde1a58a51a0a7650ceaf8f7faa8a5f0aa95f163ab5ffadbebe71c49fe2b56bb",
+  "experiments/validated-tile-batch-20260930/README.md": "8596237b6217f350da935bcdef1be5551e9a4bc9ace052e141fc329f2f25fb9c",
+  "experiments/validated-tile-batch-20260930/search-log.md": "a75703ba213d93b68372690701e3688ba6f99c13ab626cff106b7996d615a5ce",
+  "experiments/validated-tile-batch-20260930/experiment.py": "410df457360cf26620228cd970d930228886d6fc08502c6b98015fe56d56ca8a",
+  "experiments/validated-tile-batch-20260930/execution.json": "27e4f34b9bff8b01457d10ea559353d217135d74613de5f32a3485ce3c4cc07d",
+  "experiments/validated-tile-batch-20260930/run.log": "8ad678f7c13db50c78ae522d32bf575ba1fce0acb3a8fabebe123d7b0c01d765",
+  "experiments/validated-tile-batch-20260930/state-on-pickup.md": "0582776f44534548c4c550ddb77ebd4d37c2c63342dbd1fd52675cd247b6d2ad",
+  "experiments/validated-tile-batch-20260930/snapshots/importer_zk60_1b_checkpoint.py": "73339779bca99326dbd5ae5ffb30fe2ff7861fb3460c9f17753df8c3f919ec23",
+  "experiments/validated-tile-batch-20260930/initial/result.json": "80b67486a40cb541d0fbc06805cf4d88b67d27867336cdbba6b5ba31a9f81e2d",
+  "experiments/validated-tile-batch-20260930/initial/audit-1.json": "08612f20522d9f8b36192132af331d68e1b7f7527700f6ebc9635adb35621aa0"
+}

@@ -1,0 +1,141 @@
+{
+  "kind": "synthetic exact score-site arithmetic, not a native/full-model counterexample",
+  "frozen_constants": {
+    "T": 32,
+    "H": 2,
+    "HKV": 1,
+    "DH": 8,
+    "SH_S": 6
+  },
+  "dense_score_positions": 2048,
+  "lower_triangle_score_positions": 1056,
+  "extra_old_query_new_key_positions": 992,
+  "cases": [
+    {
+      "name": "positive_future_violation",
+      "dense_refusals": [
+        [
+          [
+            0,
+            0,
+            1
+          ],
+          8160,
+          128
+        ]
+      ],
+      "lower_triangle_refusals": [],
+      "retained_old_Q_refusals": [
+        [
+          [
+            0,
+            0,
+            1
+          ],
+          8160,
+          128
+        ]
+      ]
+    },
+    {
+      "name": "negative_future_violation",
+      "dense_refusals": [
+        [
+          [
+            0,
+            0,
+            1
+          ],
+          -8255,
+          -129
+        ]
+      ],
+      "lower_triangle_refusals": [],
+      "retained_old_Q_refusals": [
+        [
+          [
+            0,
+            0,
+            1
+          ],
+          -8255,
+          -129
+        ]
+      ]
+    },
+    {
+      "name": "positive_boundary_valid",
+      "dense_refusals": [],
+      "lower_triangle_refusals": [],
+      "retained_old_Q_refusals": []
+    },
+    {
+      "name": "negative_boundary_valid",
+      "dense_refusals": [],
+      "lower_triangle_refusals": [],
+      "retained_old_Q_refusals": []
+    },
+    {
+      "name": "visible_violation_control",
+      "dense_refusals": [
+        [
+          [
+            0,
+            1,
+            0
+          ],
+          8160,
+          128
+        ]
+      ],
+      "lower_triangle_refusals": [
+        [
+          [
+            0,
+            1,
+            0
+          ],
+          8160,
+          128
+        ]
+      ],
+      "retained_old_Q_refusals": [
+        [
+          [
+            0,
+            1,
+            0
+          ],
+          8160,
+          128
+        ]
+      ]
+    },
+    {
+      "name": "all_zero_control",
+      "dense_refusals": [],
+      "lower_triangle_refusals": [],
+      "retained_old_Q_refusals": []
+    }
+  ],
+  "checks": {
+    "source_constants": 5,
+    "requant_boundary_points": 18,
+    "dense_vs_retained_Q_complete_maps": 6,
+    "future_violation_controls": 2,
+    "visible_violation_control": 1,
+    "valid_controls": 3
+  },
+  "limits": [
+    "No proof or kernel was executed",
+    "No upstream-reachable witness established",
+    "No full-block first-error ordering claim",
+    "No performance projection"
+  ],
+  "source_sha256": {
+    "private-block-kernel/src/lib.rs": "9e7c9bff10790c643ab26dcd6335991a016e62d9cc19ae217a92de60e27d4cf6",
+    "research/zkp-efficiency/experiments/kv-future-score-20260926/experiment.py": "4f552fefb509167a97e4bbe15a3a0f9e9155742dbda81bf05cd9f8e1e615e442"
+  },
+  "script_wall_s_not_prover_timing": 0.03611570398788899,
+  "script_peak_rss_kib_linux": 15268
+}

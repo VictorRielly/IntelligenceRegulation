@@ -1,0 +1,50 @@
+{
+  "access_date": "2026-10-12",
+  "request": {
+    "open": [
+      {
+        "ref_id": "https://github.com/Consensys-Incorporated/gnark-crypto/releases/tag/v0.22.0"
+      },
+      {
+        "ref_id": "https://github.com/Consensys-Incorporated/gnark-crypto/blob/v0.22.0/field/goldilocks/extensions/e2.go"
+      },
+      {
+        "ref_id": "https://github.com/Consensys-Incorporated/gnark-crypto/blob/v0.22.0/LICENSE"
+      },
+      {
+        "ref_id": "https://github.com/0xPolygonZero/plonky2/blob/main/LICENSE-MIT"
+      },
+      {
+        "ref_id": "https://arxiv.org/abs/2610.08258"
+      }
+    ],
+    "response_length": "long"
+  },
+  "result_metadata": [
+    {
+      "header": "Release v0.22.0 \u00b7 Consensys-Incorporated/gnark-crypto \u00b7 GitHub (https://github.com/Consensys-Incorporated/gnark-crypto/releases/tag/v0.22.0)",
+      "fetch_failures": []
+    },
+    {
+      "header": "Internal Error ()",
+      "fetch_failures": [
+        "L0: Failed to fetch https://github.com/Consensys-Incorporated/gnark-crypto/blob/v0.22.0/field/goldilocks/extensions/e2.go: Cache miss"
+      ]
+    },
+    {
+      "header": "Internal Error ()",
+      "fetch_failures": [
+        "L0: Failed to fetch https://github.com/Consensys-Incorporated/gnark-crypto/blob/v0.22.0/LICENSE: Cache miss"
+      ]
+    },
+    {
+      "header": "plonky2/LICENSE-MIT at main \u00b7 0xPolygonZero/plonky2 \u00b7 GitHub (https://github.com/0xPolygonZero/plonky2/blob/main/LICENSE-MIT)",
+      "fetch_failures": []
+    },
+    {
+      "header": "[2610.08258] zkLLMPoT: Efficient Zero Knowledge Proof of Training for Large Language Models (https://arxiv.org/abs/2610.08258)",
+      "fetch_failures": []
+    }
+  ],
+  "record_policy": "Exact requests/URLs and fetch failures retained; full webpage text omitted. Qualified assessments in source-records.json."
+}

@@ -1,0 +1,73 @@
+{
+  "state": "passed",
+  "binary": "/tmp/zk60-groups-20260926/hashline/target/release/deps/hashline-903cb4da45f9493b",
+  "binary_sha256": "13d29680f77b3a351442c49f97caabfa89a6413a8f74c0becb1ddb32d47c05c8",
+  "runs": [
+    {
+      "name": "private_block::tests::every_relation_family_rejects_an_inconsistent_witness",
+      "command": [
+        "/tmp/zk60-groups-20260926/hashline/target/release/deps/hashline-903cb4da45f9493b",
+        "--exact",
+        "private_block::tests::every_relation_family_rejects_an_inconsistent_witness",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.6693280140170828,
+      "log_sha256": "7eb7ea465b5ca04fabc3772785bdb3e48bc3827788feaee2dfcf4226ecbafdd2"
+    },
+    {
+      "name": "private_block::dense_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_g",
+      "command": [
+        "/tmp/zk60-groups-20260926/hashline/target/release/deps/hashline-903cb4da45f9493b",
+        "--exact",
+        "private_block::dense_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_g",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.4151726859854534,
+      "log_sha256": "5254046d0299c6b7dd09bcec5c8f2bfb26b871b692e564d84732552f23cd7012"
+    },
+    {
+      "name": "private_block::p2_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_p2",
+      "command": [
+        "/tmp/zk60-groups-20260926/hashline/target/release/deps/hashline-903cb4da45f9493b",
+        "--exact",
+        "private_block::p2_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_p2",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.46545556996716186,
+      "log_sha256": "9bd9254a2bd62e07d8f21903567ce6a983f5c5585275f66380a3b11047651931"
+    },
+    {
+      "name": "private_block::p2_tests::an_honest_three_block_fully_dense_run_verifies_from_its_segments_at_the_rung_p2",
+      "command": [
+        "/tmp/zk60-groups-20260926/hashline/target/release/deps/hashline-903cb4da45f9493b",
+        "--exact",
+        "private_block::p2_tests::an_honest_three_block_fully_dense_run_verifies_from_its_segments_at_the_rung_p2",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.167959060985595,
+      "log_sha256": "8cbf1f94f3473227ce6893333f4294869a1cb003ee837ff6034926a64e7a67fd"
+    },
+    {
+      "name": "private_block::p2_tests::a_tamper_inside_an_unpadded_domain_is_rejected_at_that_domains_zero_check_at_the_rung_p2",
+      "command": [
+        "/tmp/zk60-groups-20260926/hashline/target/release/deps/hashline-903cb4da45f9493b",
+        "--exact",
+        "private_block::p2_tests::a_tamper_inside_an_unpadded_domain_is_rejected_at_that_domains_zero_check_at_the_rung_p2",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.321729182964191,
+      "log_sha256": "0f28c620bb25546f6875dfac8fe5f7070c18a8742a91f4d3e54cdc0d9b6aed40"
+    }
+  ],
+  "scope": "Bounded development shapes and tamper checks; no heavy lock needed, no performance claim"
+}

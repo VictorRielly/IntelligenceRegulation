@@ -1,0 +1,21 @@
+{
+  "checked_at_unix": 1790730790.7332258,
+  "state": "runner-tests-passed-native-validation-pending-guard-review",
+  "test_count": 13,
+  "test_exit_code": 0,
+  "test_log_sha256": "0b0e32fb19747e343ba21f7520bcca542761f6cd0ca6cf9dac722c4e2a455c79",
+  "source_sha256": {
+    "scripts/zk60_private_stack_benchmark.py": "a206852556d0b0fadd668d2852f775789c9ba9a8a58f983ac003c4c8ee9c8f83",
+    "tests/test_zk60_private_stack_benchmark.py": "eab444db214891b83f0e0513e03d917463ed29552289b671b75578146d726705",
+    "ops/zkp-mvp/validate_hardening.py": "22d9df395b7a34fddbbf061422acf47d1c05f8643048b89db25b54594b3a462e"
+  },
+  "native_build_or_proof_started": false,
+  "complete_trained_8b_proof": false,
+  "next_command": [
+    "python3",
+    "ops/zkp-mvp/validate_hardening.py",
+    "--output",
+    "results/zk60_sonnet_hardening_20260930/recovered-validation-1"
+  ],
+  "launch_condition": "Claude acknowledges shared recovery handoff and guard scope/cleanup review passes"
+}
