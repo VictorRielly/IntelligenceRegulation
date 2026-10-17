@@ -1,0 +1,31 @@
+--- a/results/zk60_gpu_zerocheck_20261017/DESIGN.md
++++ b/results/zk60_gpu_zerocheck_20261017/DESIGN.md
+@@ -138,8 +138,11 @@
+ 32 k N = 672 N; folds 48 k N = 1008 N; **v1 total ~ 2,184 B per cube entry**
+ (2.29 GB at 2^20). A fused fold+next-round kernel (v2: the thread that folds
+ entries i and i + L/4 evaluates the next round on them in registers) removes
+-the round's separate read: rounds+folds 40 k N = 840 N, **v2 total ~ 1,344 B
+-per entry**. Reading round 0 straight from the base-field data and keeping
++the next-round separate read: rounds+folds 64 k N - 48 k, approximately
++1,344 N at k = 21; **v2 total ~ 1,848 B per entry** including the stated
++504 N construction counter. The direct table-only reduction approaches 20%;
++with that construction counter it approaches 15.38%. These are source/logical
++byte counts, not DRAM counters or elapsed-time improvements. Reading round 0 straight from the base-field data and keeping
+ the eq tables factored (v3, not planned in this round) would reach ~ 956 B.
+ 
+ The plan's own counted figure is `72 B x size(F) x 17 terms` = 1,224 B per
+@@ -232,3 +235,14 @@
+   fused form folds every table first (the `k_sc_fold` expression, in place)
+   and then evaluates on the folded entries it has just written, with plain
+   (coherent) loads.
++
++
++Research measurement note (cycle 0065): the lean staged evaluator has additional
++source rereads. Its table-source byte total is (32 M + 48 k)(N - 1), where
++M = 32 without support and M = 33 + W with support, W the number of nonzero
++public pad weights. Fused lean stores folds then rereads its staged operands;
++it does not remove source table accesses versus lean separate. GPU compiler
++reuse/cache/occupancy effects and elapsed times remain unmeasured by this
++CPU source census. Eq construction counters charge outputs, not all source
++input/temporary reads. Keep the plan normalization, useful bytes, source
++accesses and hardware hierarchy counters as separate quantities.

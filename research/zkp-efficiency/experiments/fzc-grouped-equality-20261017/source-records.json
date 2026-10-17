@@ -1,0 +1,150 @@
+[
+  {
+    "id": "cycle64-new-older-arkworks-product-list-oracle",
+    "title": "Arkworks older product-list sumcheck: oracle structure and ordering boundary",
+    "url": "https://github.com/arkworks-rs/sumcheck",
+    "published": "2021-06-07",
+    "updated": null,
+    "date_evidence": "Repository root explicitly labels latest v0.3.0 Jun7 2021. Current master prover file has no visible commit/update date; release-tag fetch failed, so do not pin master code to2021.",
+    "implementation_license": "Repository README labels dual MIT/Apache-2.0; actual GitHub license views returned chrome without terms, raw MIT Internal Error and raw Apache Cache miss. Terms not inspected.",
+    "inspected_commit_id": null,
+    "inspected_urls": [
+      "https://github.com/arkworks-rs/sumcheck/blob/master/src/ml_sumcheck/protocol/prover.rs",
+      "https://github.com/arkworks-rs/sumcheck/blob/master/LICENSE-MIT",
+      "https://github.com/arkworks-rs/sumcheck/blob/master/LICENSE-APACHE"
+    ],
+    "author_claim": "Products of MLEs, flattened tables and common maximum degree; source explicitly points to Libra section3.2. Academic prototype warning; BLS12-381 Xeon benchmarks.",
+    "assessment": "NEW older implementation absent from325-record inventory. Product-list oracle design is useful as an independent check, but source evaluates all addends at the common maximum degree and uses adjacent-bit pairs. Native MSB Fp2 grouping cannot be replaced by this LSB/base-field path. No benchmark, library or source executed/copied.",
+    "access_issues": [
+      "v0.3.0 tag Internal Error",
+      "raw LICENSE-MIT Internal Error",
+      "raw LICENSE-APACHE Cache miss",
+      "current file commit/date not exposed"
+    ],
+    "cycle": "0064",
+    "run_id": "20261017T142624Z-6b84b6ef",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T14:36:34.433987+00:00",
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE primary search and inspection; external text treated as data; no foreign code executed"
+  },
+  {
+    "id": "cycle64-plonky3-oct16-release-refresh",
+    "title": "Plonky3 October release refresh: equality and mask-sampling scope",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Current release listing shows p3-sumcheck0.9.0-rc.2 16Oct10:17 without year. Prior cycle independently verified2026 from companion official metadata; both sumcheck and companion docs.rs fetches failed this cycle. No new year-level verification claimed.",
+    "implementation_license": "Current main MIT full text inspected at raw URL; Apache option and tag-scoped license not re-inspected.",
+    "inspected_commit_id": null,
+    "exposed_uninspected_commit_id": "fe5e46d",
+    "inspected_urls": [
+      "https://github.com/Plonky3/Plonky3/releases/tag/p3-sumcheck-v0.9.0-rc.2",
+      "https://raw.githubusercontent.com/Plonky3/Plonky3/main/LICENSE-MIT"
+    ],
+    "author_claim": "Release includes ordinary/hiding bind+measure, equality-table kernel and CryptoRng fix.",
+    "assessment": "Known release refreshed with actual relevant PR inspection below. No field/transcript compatibility or runtime gain transferred.",
+    "access_issues": [
+      "Direct release/target commit Internal Error",
+      "p3-sumcheck docs Internal Error",
+      "p3-multi-stark docs Cache miss"
+    ],
+    "cycle": "0064",
+    "run_id": "20261017T142624Z-6b84b6ef",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T14:36:34.433987+00:00",
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE primary search and inspection; external text treated as data; no foreign code executed"
+  },
+  {
+    "id": "cycle64-plonky3-equality-kernel-negative-refinement",
+    "title": "Plonky3 PR2305: bit order, equality setup costs and small-shape regression",
+    "url": "https://github.com/Plonky3/Plonky3/pull/2305",
+    "published": "2026-09-22",
+    "updated": "2026-09-23",
+    "date_evidence": "PR first author post Sep22 2026, merge Sep23 2026 shown explicitly; no full commit diff inspected.",
+    "implementation_license": "Main MIT full text inspected; PR-scoped terms not pinned.",
+    "inspected_commit_id": null,
+    "exposed_uninspected_commit_ids": [
+      "8e0f9f0",
+      "128b24b",
+      "cdb48a0"
+    ],
+    "author_claim": "One multiplication per Eq-table entry using high=low*c, low-=high; one packed MSB/LSB kernel. Packed base parallel split lost2-5x; extension n14 split slightly slower than serial. Loaded32-thread timings and reviewer64-proof hashes are author/reviewer evidence.",
+    "assessment": "NEW concrete implementation/refinement of previously listed release feature. Material for charging grouped equality setup and testing cutovers; native current eq builder uses two products per entry. Local F tests retain the native builder, so these savings are NOT combined or claimed. No external proof speed reproduced.",
+    "access_issues": [
+      "PR commits listing Cache miss"
+    ],
+    "cycle": "0064",
+    "run_id": "20261017T142624Z-6b84b6ef",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T14:36:34.433987+00:00",
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE primary search and inspection; external text treated as data; no foreign code executed"
+  },
+  {
+    "id": "cycle64-mask-rng-obligation-refresh",
+    "title": "Plonky3 PR2260: fresh unpredictable masks remain required",
+    "url": "https://github.com/Plonky3/Plonky3/pull/2260",
+    "published": "2026-09-20",
+    "updated": "2026-09-20",
+    "date_evidence": "Author and merge Sep20 2026 explicitly displayed.",
+    "implementation_license": "Main MIT inspected; PR-specific tag terms not pinned.",
+    "inspected_commit_id": null,
+    "exposed_uninspected_commit_id": "876dc37ae82f2fc903cdff5bbd4e014a0b53513a",
+    "author_claim": "Require CryptoRng on mask-sampling entrypoints; predictable seeded stream can reveal unmasked round coefficients.",
+    "assessment": "No native vulnerability asserted. Public preprocessing reuse cannot reuse masks or weaken their source. The seeded researcher fixtures are arithmetic tests without privacy acceptance.",
+    "access_issues": [
+      "Exact commit page Cache miss"
+    ],
+    "cycle": "0064",
+    "run_id": "20261017T142624Z-6b84b6ef",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T14:36:34.433987+00:00",
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE primary search and inspection; external text treated as data; no foreign code executed"
+  },
+  {
+    "id": "cycle64-statesync-october-prepared-request-boundary",
+    "title": "StateSync-GKR October paper: prepared requests still charge full-proof delivery",
+    "url": "https://arxiv.org/abs/2610.14849",
+    "published": "2026-10-10",
+    "updated": null,
+    "date_evidence": "arXiv v1 history Sat10Oct2026 12:06:57UTC explicitly read.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "author_claim": "Sparse reduction, reusable preparation and independent request results; reports3.46-4.45x fresh/prepared latency and studies queue/delivery costs.",
+    "assessment": "Known recent paper refreshed to compare setup boundaries. Sparse circuit-engine study and its assurance model do not establish P1 dense8B throughput. No masks/state openings reused and no author speedup reproduced.",
+    "cycle": "0064",
+    "run_id": "20261017T142624Z-6b84b6ef",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T14:36:34.433987+00:00",
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE primary search and inspection; external text treated as data; no foreign code executed"
+  },
+  {
+    "id": "cycle64-equality-paper-degree-and-group-claim-contract",
+    "title": "More Optimizations to Sum-Check Proving: exact per-group applicability",
+    "url": "https://eprint.iacr.org/2024/1210",
+    "published": "2024-07-27",
+    "updated": null,
+    "date_evidence": "Primary page receivedJul27 approvedJul29 2024; no revision timestamp displayed.",
+    "paper_license": "CC BY on primary page",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "author_claim": "Reduced equality-factor cost for eq(w,x)*p(x).",
+    "assessment": "Known older method materially specialized to actual current F bracket degrees3/1/1 or3/2/2. Three different equality points and true preceding unmasked subgroup claims are required. Synthetic differential is local evidence; paper runtime percentages are not transferred.",
+    "cycle": "0064",
+    "run_id": "20261017T142624Z-6b84b6ef",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T14:36:34.433987+00:00",
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE primary search and inspection; external text treated as data; no foreign code executed"
+  }
+]

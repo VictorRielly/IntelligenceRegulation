@@ -1,0 +1,32 @@
+{
+ "ts_end": "2026-10-17T14:59:16Z",
+ "run_id": "114f5815c389",
+ "label": "k10-check-gpu",
+ "class": "light",
+ "cmd": [
+  "/usr/bin/env",
+  "CUDA_ROOT=/home/victor/cuda-root",
+  "CARGO_TARGET_DIR=/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/target-check-gpu",
+  "/home/victor/.cargo/bin/cargo",
+  "check",
+  "--offline",
+  "--locked",
+  "-j1"
+ ],
+ "need_gib": 1.2,
+ "cap_gib": 1.5,
+ "exit": 70,
+ "child_rc": null,
+ "guard_killed": null,
+ "child_wall_seconds": null,
+ "refused": "after waiting: budget: 11+1.2 GiB > 11.9 GiB with live [tl-tl-l22r2-zero-arms(cpu,7G), b5-b6_T64(light,4G)]",
+ "guard_error": null,
+ "guard_pid": 372308,
+ "boot_id": "08875671-f12b-4ca1-b89c-fac3acf1c90c",
+ "pid_ns": "pid:[4026532216]",
+ "guard_starttime_ticks": 4807820,
+ "lock_ids": {
+  "heavy": "2096:1134147",
+  "build": "2096:1134148"
+ }
+}

@@ -468,6 +468,10 @@ fn the_norm_range_alias_is_rejected_at(shape: &Shape) {
 /// the one that carries a soundness claim, and every one of the lane's rung
 /// tamper cases uses it.
 fn assert_verifier_rejects(sh: &Shape, blk: &BlockPublic, w: Witness, label: &str) {
+    // STAGE 40 (ported, native round 5), ruling CS-3: the honest prover
+    // refuses a lookup miss by name; a cheating prover does not, so this
+    // helper proves with the check off and the verifier has to speak
+    let _cheating = super::protocol::CheatingProver::on();
     match prove_rung(sh, blk, w) {
         Err(e) => panic!("{label}: the PROVER refused, so this case says nothing about the verifier: {e}"),
         Ok((expected, _, bytes)) => {

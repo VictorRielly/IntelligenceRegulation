@@ -1,0 +1,8 @@
+{
+  "readability_edits": [
+    "STATE.md",
+    "PROGRESS.md"
+  ],
+  "source_capture_cleanup": "full third-party tool responses compacted to query/access metadata and hashes",
+  "report_generator": "checkpoint.py is an initial report generator; final prose edits are intentionally separate. Reproduce arithmetic with run.py and audit.py."
+}

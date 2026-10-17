@@ -1,0 +1,16 @@
+[zk60-guard 06:41:27] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 06:42:27] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 06:43:27] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 06:43:44] START tl-capture-l22r2-zero class=cpu need=3G cap=4.5G enforce=cgroup+watchdog waited=137s run=d043670e3744
+[zk60-guard 06:52:53] END tl-capture-l22r2-zero exit=0 child_wall=549s peak_rss=2.33G min_avail=8.21G
+[zk60-guard 06:52:53] START tl-predict-l22r2-zero class=light need=1G cap=1.5G enforce=cgroup+watchdog waited=0s run=170d744adb7c
+[zk60-guard 06:53:00] END tl-predict-l22r2-zero exit=1 child_wall=7s peak_rss=0.57G min_avail=9.98G
+[zk60-guard 06:53:30] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 06:54:30] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 06:55:30] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 06:56:30] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 06:57:30] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 06:58:30] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 06:59:30] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 07:00:04] START tl-tl-l22r2-zero-arms class=cpu need=7G cap=9G enforce=cgroup+watchdog waited=394s run=a5fc5d832d64
+[zk60-guard 07:59:36] END tl-tl-l22r2-zero-arms exit=1 child_wall=3571s peak_rss=5.29G min_avail=5.88G

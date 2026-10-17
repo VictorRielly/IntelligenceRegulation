@@ -1,0 +1,2 @@
+[zk60-guard 06:23:09] START r4-suite-final2 class=cpu need=4.5G cap=8G enforce=cgroup+watchdog waited=0s run=306bf8788716
+[zk60-guard 06:31:32] END r4-suite-final2 exit=0 child_wall=503s peak_rss=4.21G min_avail=7.04G

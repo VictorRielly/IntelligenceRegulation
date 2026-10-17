@@ -175,9 +175,11 @@ fn review_b_an_unbound_run_at_a_trained_shape_is_refused() {
     let expected = ExpectedIo::from_roots(IoSpec::new_shaped(&sh, ctx, 0, 0).unwrap(), [1; 32], [2; 32]);
     let e = super::run::RunStatement::new(super::run::RunShape::rung_tc(sh.clone(), 1).unwrap(), ctx, expected.clone(), &[blk.clone()], &[(0, 0)]).err().expect("an unbound run at the trained rung CONSTRUCTED");
     assert!(e.contains("new_bound"), "{e}");
-    // and under any run profile string at all: the shape's flag decides
-    let e = super::run::RunStatement::new(super::run::RunShape::new(sh, 1, super::run::RUN_PROFILE_RUNG_C6).unwrap(), ctx, expected, &[blk], &[(0, 0)]).err().expect("a trained shape under a frozen run profile string CONSTRUCTED");
-    assert!(e.contains("new_bound"), "{e}");
+    // and under another run profile string: since round 5 ruling CS-7
+    // refuses the pairing itself (rung-C6's run profile names rung-C6)
+    let e = super::run::RunShape::new(sh, 1, super::run::RUN_PROFILE_RUNG_C6).err().expect("a trained shape under a frozen run profile string CONSTRUCTED");
+    assert!(e.contains("ruling CS-7"), "{e}");
+    let _ = (expected, blk);
     eprintln!("REVIEW-B (fixed): {e}");
 }
 
@@ -344,7 +346,8 @@ fn review_e_the_f_e_50_forgery_is_refused_at_the_door_on_both_sides() {
     let fw = fw.expect("the forged witness builds at the edited shape");
     assert_eq!(n, 1, "the wrapping forgery was not applied at f_e 50");
     let e = prove_one_bound(&sh, &blk, fw).err().expect("a bound run PROVED at a shape edited to f_e 50");
-    assert!(e.contains("f_e 50") && e.contains("F-1"), "{e}");
+    // (since round 5 ruling CS-7 refuses the edited shape's run shape first)
+    assert!((e.contains("f_e 50") && e.contains("F-1")) || e.contains("ruling CS-7"), "{e}");
     let ex = ExpectedIo::from_roots(IoSpec::new_shaped(&honest, *blake3::hash(b"r").as_bytes(), 0, 0).unwrap(), [1; 32], [2; 32]);
     let e2 = verify_one_bound(&sh, &blk, &ex.to_bytes(), &[0u8; 64]).err().expect("a verifier at a shape edited to f_e 50 got past its statement");
     eprintln!("REVIEW-E (fixed) the wrapping forgery at an edited f_e-50 shape: prover refused: {}; verifier refused: {}", e.chars().take(120).collect::<String>(), e2.chars().take(120).collect::<String>());
@@ -467,13 +470,24 @@ fn review_g_the_class_corner_proves_and_its_neighbours_refuse() {
 #[test]
 fn review_r2_1_a_non_door_shape_under_a_trained_profile_string_is_refused() {
     use super::shape::TRAINED_CALIB_RUNG_PROFILE;
-    let sh = Shape::new("re-review r2_1: non-door shape under the trained rung string", TRAINED_CALIB_RUNG_PROFILE, 32, 384, 512, 12, 32, 4, 10, 4, 50, 21, None, None, None, None).expect("Shape::new constructs");
+    // ROUND 5: ruling CS-9 refuses the reviewer's construction itself (the
+    // trained rung's profile string names one geometry, at f_e 12)
+    let e = Shape::new("re-review r2_1: non-door shape under the trained rung string", TRAINED_CALIB_RUNG_PROFILE, 32, 384, 512, 12, 32, 4, 10, 4, 50, 21, None, None, None, None).expect_err("Shape::new CONSTRUCTED a non-door shape under a trained profile string");
+    assert!(e.contains("ruling CS-9"), "{e}");
+    // the same value reached by a FIELD WRITE (rung-C6, rung-TC's frozen
+    // twin, with the trained rung's profile string and f_e 50 written)
+    let mut sh = Shape::rung_c6();
+    sh.profile = TRAINED_CALIB_RUNG_PROFILE;
+    sh.f_e = 50;
+    sh.wrho_s = 55;
     assert!(!sh.trained_calibration && sh.norm_calibration() == NormCalibration::FROZEN && sh.f_e == 50);
+    assert!(sh.check_constructed().unwrap_err().contains("ruling CS-8"), "CS-8 / CS-9 at the entries");
     let e = Layout::for_shape(&sh).err().expect("Layout::for_shape ACCEPTED a non-door shape under a trained profile string");
     eprintln!("REVIEW-R2-1 (fixed) Layout::for_shape: {e}");
     assert!(super::protocol::single_block_profile_allowed(&sh).is_err(), "the single-block path admitted a trained profile string");
     // the same string at an admissible f_e is still refused: the STRING decides
-    let sh12 = Shape::new("re-review r2_1 at f_e 12", TRAINED_CALIB_RUNG_PROFILE, 32, 384, 512, 12, 32, 4, 10, 4, 12, 21, None, None, None, None).unwrap();
+    let mut sh12 = Shape::rung_c6();
+    sh12.profile = TRAINED_CALIB_RUNG_PROFILE;
     assert!(Layout::for_shape(&sh12).err().expect("the non-door string at f_e 12 was accepted").contains("did not come through the trained door"));
     // the forgery itself: the forged witness builds, the single-block prover
     // and verifier refuse before any transcript

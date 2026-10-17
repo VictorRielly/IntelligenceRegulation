@@ -1,0 +1,25 @@
+[
+  {
+    "argv": [
+      "python3",
+      "experiments/fzc-device-traffic-20261017/run.py"
+    ],
+    "exit_code": 0,
+    "result": "result.json",
+    "note": "Final run adds full s(1) and recovery controls; earlier successful round-only iteration superseded, no failing result discarded."
+  },
+  {
+    "argv": [
+      "python3",
+      "experiments/fzc-device-traffic-20261017/audit.py"
+    ],
+    "exit_code": 0,
+    "result": "audit-result.json"
+  },
+  {
+    "action": "No native proof/build or GPU command launched",
+    "owner_existing_marker": "native/results__zk60_gpu_zerocheck_20261017__logs__t1-debug-small.done",
+    "owner_marker_content": "143",
+    "note": "Retained owner marker is not evidence of researcher execution or current job/supervisor liveness."
+  }
+]

@@ -1,0 +1,18 @@
+{
+  "status": "pass-with-live-source-drift",
+  "checks": 64,
+  "utc": "2026-10-17T13:41:49.858679+00:00",
+  "live_owner_drift": [
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/layout.rs",
+      "expected": "fcf9dda4e507d2a347f786ddc537feff3ac57779abae88cea91ee48d4b34c855",
+      "current": "ee871fff7eed377cafcb05ec0438df95a70695ae8fdcd5b5822f5f40663b0ee9"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/shape.rs",
+      "expected": "e6c7290b5c2d897ccaaa6284c813bbcfea563aaef7594c309b955a5588c1e073",
+      "current": "ea876b704d0f43beb7c5cb84f94decf8780e044f76ed080662240ad799c39965"
+    }
+  ],
+  "scope": "captured snapshot, source-prefix, public log/guard pins and report links; no native acceptance or privacy gate; initial failed live-pin assertion preserved"
+}

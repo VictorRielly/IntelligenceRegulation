@@ -1,0 +1,152 @@
+[
+  {
+    "cycle": "0065",
+    "run_id": "20261017T182105Z-44205280",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T18:28:41.880847+00:00",
+    "evidence_kind": "Native LIVE web search and primary inspection; external instructions treated as untrusted data; no downloaded code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "id": "cycle65-nvidia-cache-and-traffic-boundary",
+    "title": "Nsight Compute current profiling and replay boundaries",
+    "url": "https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html",
+    "inspected_urls": [
+      "https://docs.nvidia.com/nsight-compute/ReleaseNotes/index.html"
+    ],
+    "published": null,
+    "updated": null,
+    "date_evidence": "Current release notes explicitly label 2026.3.1 and 2026.3; no day-level publication/update date displayed on inspected pages.",
+    "implementation_license": null,
+    "author_claim": "Cache/DRAM levels differ. Kernel replay flushes caches by default; application replay and a consistent cache policy can preserve application priming. Current notes include roofline-calculation fixes.",
+    "assessment": "Relevant to staged lean rereads and between-round locality. Retain normalized counted-byte rates separately from DRAM/L2/instruction metrics and unprofiled full slot times. No GPU counters collected; no software install or cache policy changed."
+  },
+  {
+    "cycle": "0065",
+    "run_id": "20261017T182105Z-44205280",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T18:28:41.880847+00:00",
+    "evidence_kind": "Native LIVE web search and primary inspection; external instructions treated as untrusted data; no downloaded code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "id": "cycle65-new-older-hierarchical-roofline",
+    "title": "Hierarchical Roofline Analysis, newly assessed older methodology",
+    "url": "https://arxiv.org/abs/2009.02449",
+    "published": "2020-09-05",
+    "updated": "2020-10-04",
+    "date_evidence": "Primary arXiv v1 Sep5 2020 03:14:42 UTC and v4 Oct4 2020 17:04:40 UTC explicitly inspected.",
+    "implementation_license": null,
+    "author_claim": "Collect performance at multiple memory/cache levels, including customized workflows when integrated tools are unavailable.",
+    "assessment": "New here: classify the F evaluator by instruction and hierarchy traffic rather than equating source bytes/time with DRAM utilization. Field arithmetic here is integer/Fp2, so floating-point roofline examples are methodology only."
+  },
+  {
+    "cycle": "0065",
+    "run_id": "20261017T182105Z-44205280",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T18:28:41.880847+00:00",
+    "evidence_kind": "Native LIVE web search and primary inspection; external instructions treated as untrusted data; no downloaded code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "id": "cycle65-new-older-nersc-traffic-reference",
+    "title": "NERSC older hierarchical metric workflow and measurement controls",
+    "url": "https://gitlab.com/NERSC/roofline-on-nvidia-gpus/-/raw/master/README.md",
+    "inspected_urls": [
+      "https://github.com/cyanguwa/nersc-roofline",
+      "https://github.com/cyanguwa/nersc-roofline/blob/master/README.md",
+      "https://github.com/cyanguwa/nersc-roofline/blob/master/LICENSE",
+      "https://gitlab.com/NERSC/roofline-on-nvidia-gpus/-/raw/master/LICENSE"
+    ],
+    "published": null,
+    "updated": null,
+    "date_evidence": "README refers to restructuring after July8 2020 and historical CUDA10/11 tags; current branch commit/update date not exposed. Do not pin current master to2020.",
+    "implementation_license": "No terms inspected; GitHub LICENSE 404 and GitLab raw LICENSE Cache miss. No external source copied or executed.",
+    "access_issues": [
+      "Speculative cyanguwa/NsightCompute-2019.5 URL Internal Error; official README redirected to NERSC GitLab",
+      "LICENSE fetches failed as stated"
+    ],
+    "author_claim": "Separate DRAM, L2 and L1 metrics. Toy compute, low-occupancy and strided kernels distinguish bottlenecks. Register/occupancy tradeoffs can alter performance without lowering all source accesses.",
+    "assessment": "Useful independent reference for owner measurement schema and for the lean source-reread negative. No scripts, dependencies, profiler or foreign benchmark executed."
+  },
+  {
+    "cycle": "0065",
+    "run_id": "20261017T182105Z-44205280",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T18:28:41.880847+00:00",
+    "evidence_kind": "Native LIVE web search and primary inspection; external instructions treated as untrusted data; no downloaded code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "id": "cycle65-instruction-wall-boundary-refresh",
+    "title": "August GPU instruction-wall paper: no bandwidth-only inference",
+    "url": "https://arxiv.org/abs/2608.13696",
+    "inspected_urls": [
+      "https://arxiv.org/html/2608.13696v1"
+    ],
+    "published": "2026-08-13",
+    "updated": null,
+    "date_evidence": "Primary v1 history Aug13 2026 18:41:04 UTC inspected.",
+    "implementation_license": null,
+    "author_claim": "Relational cuDF kernels can become instruction-bound on a higher-bandwidth GPU; instruction intensity, occupancy and cache use matter.",
+    "assessment": "Known source materially applied to current F direct/lean tradeoff. Its hardware and workload are not our Fp2 prover; no author speedup or board scaling reproduced or transferred."
+  },
+  {
+    "cycle": "0065",
+    "run_id": "20261017T182105Z-44205280",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T18:28:41.880847+00:00",
+    "evidence_kind": "Native LIVE web search and primary inspection; external instructions treated as untrusted data; no downloaded code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "id": "cycle65-valk-artifact-scope",
+    "title": "Valk arXiv artifact repository inspection",
+    "url": "https://github.com/SvenHepkema/Valk/tree/arxiv-artifact",
+    "inspected_urls": [
+      "https://github.com/SvenHepkema/Valk/blob/arxiv-artifact/LICENSE"
+    ],
+    "published": null,
+    "updated": null,
+    "date_evidence": "README explicitly ties artifact branch to the Aug2026 paper; current commit and date hidden on fetched GitHub page.",
+    "implementation_license": "LICENSE fetch Cache miss; terms not inspected; no code copied/executed.",
+    "access_issues": [
+      "LICENSE Cache miss"
+    ],
+    "author_claim": "Combines profiler and query/operator data; repository holds paper data and reproduction workflow.",
+    "assessment": "A possible model for correlating phase units with kernel data. No adoption: requires external tooling/GPU work outside this cycle."
+  },
+  {
+    "cycle": "0065",
+    "run_id": "20261017T182105Z-44205280",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T18:28:41.880847+00:00",
+    "evidence_kind": "Native LIVE web search and primary inspection; external instructions treated as untrusted data; no downloaded code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "id": "cycle65-oct16-plonky3-release-and-caller-gates",
+    "title": "Plonky3 October16 rc.2 release refresh",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "inspected_urls": [
+      "https://github.com/Plonky3/Plonky3/releases/tag/p3-sumcheck-v0.9.0-rc.2",
+      "https://docs.rs/crate/p3-sumcheck/0.9.0-rc.2",
+      "https://docs.rs/crate/p3-blake2s/0.9.0-rc.2",
+      "https://docs.rs/crate/p3-bus/0.9.0-rc.2",
+      "https://docs.rs/crate/p3-multi-stark/0.9.0-rc.2",
+      "https://raw.githubusercontent.com/Plonky3/Plonky3/main/LICENSE-MIT"
+    ],
+    "published": "2026-10-16",
+    "updated": null,
+    "date_evidence": "LIVE release page labels p3-sumcheck rc.2 Oct16 10:17 (no year); docs.rs primary search results for companion p3-blake2s and p3-bus explicitly show2026-10-16. Direct crate/tag fetches failed; date precision qualification retained.",
+    "implementation_license": "Current main MIT full terms inspected; tag-scoped MIT and Apache terms not pinned.",
+    "exposed_uninspected_commit_id": "fe5e46d",
+    "access_issues": [
+      "Exact sumcheck tag and crate Internal Error",
+      "Direct blake2s/bus crate Internal Error",
+      "Direct multi-stark crate Cache miss"
+    ],
+    "author_claim": "Release lists ordinary/hiding bind+measure, packed Eq tables and enforcement of caller soundness obligations.",
+    "assessment": "Current release checked; operational traffic fusion is not a masking/transcript/PCS gate. Does not authorize native adoption or fresh-mask reuse. No external performance reproduced."
+  }
+]

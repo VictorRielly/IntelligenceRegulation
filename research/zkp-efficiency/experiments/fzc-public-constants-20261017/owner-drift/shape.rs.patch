@@ -1,0 +1,65 @@
+--- captured/shape.rs
++++ current-owner/shape.rs
+@@ -1343,6 +1343,62 @@
+         Shape::tinyllama_trained(32, cal, f_e)
+     }
+ 
++    /// **RULING CS-8 (ported from the 125M lane's stage 43): is this value one
++    /// [`Shape::new`] builds?** `Shape`'s fields are readable (and writable)
++    /// across the crate, so the invariant is re-checked instead of sealed:
++    /// `Shape::new` is run again on this value's own parameters and the
++    /// result must equal this value, field for field. NATIVE LANE: a TRAINED
++    /// shape is rebuilt through the trained door at its own calibration (its
++    /// windows are derived there, so they are not passed as overrides), so
++    /// the declared classes, the derived windows and `D_max` are all re-run.
++    /// Called first at every single-block entry and in the two shared bodies.
++    /// It computes no digest, absorbs nothing, draws nothing.
++    pub(crate) fn check_constructed(&self) -> Result<(), String> {
++        const CS8: &str = "private block shape: ruling CS-8 — ";
++        let (nw, ws) = if self.trained_calibration { (None, None) } else { (Some(self.norm_wrho), Some(self.wrho_s)) };
++        let rebuilt = Shape::new(
++            self.name,
++            self.profile,
++            self.tokens,
++            self.width,
++            self.hidden,
++            self.q_heads,
++            self.head_dim,
++            self.kv_heads,
++            self.log_cols,
++            self.inv_rate,
++            self.f_e,
++            self.endpoint_rows,
++            Some(self.endpoint_log_n),
++            Some(self.endpoint_inv_rate),
++            nw,
++            ws,
++        )
++        .and_then(|b| if self.trained_calibration { b.with_trained_calibration(&self.norm_calibration()) } else { Ok(b) })
++        .map_err(|e| format!("{CS8}{:?} is not a shape Shape::new builds: Shape::new refuses its own parameters ({e})", self.name))?;
++        if rebuilt == *self {
++            return Ok(());
++        }
++        let differ: Vec<&str> = [
++            ("opened_cols", rebuilt.opened_cols != self.opened_cols),
++            ("endpoint_general", rebuilt.endpoint_general != self.endpoint_general),
++            ("t_pad", rebuilt.t_pad != self.t_pad),
++            ("d_pad", rebuilt.d_pad != self.d_pad),
++            ("h_pad", rebuilt.h_pad != self.h_pad),
++            ("f_pad", rebuilt.f_pad != self.f_pad),
++            ("d_max", rebuilt.d_max != self.d_max),
++            ("norm_wrho", rebuilt.norm_wrho != self.norm_wrho),
++            ("wrho_s", rebuilt.wrho_s != self.wrho_s),
++            ("the calibration", rebuilt.norm_calibration() != self.norm_calibration()),
++            ("trained_calibration", rebuilt.trained_calibration != self.trained_calibration),
++        ]
++        .iter()
++        .filter(|(_, d)| *d)
++        .map(|(n, _)| *n)
++        .collect();
++        Err(format!("{CS8}{:?} is not a shape Shape::new builds: its {} differ from what Shape::new derives from its parameters", self.name, differ.join(", ")))
++    }
++
+     /// **ROUND 4 (R4-1): THE TRAINED Llama-3-8B BLOCK SHAPE at T = 32.** Row
+     /// width [`LLAMA3_8B_LOG_COLS`], endpoint rows from the padded cube at that
+     /// width plus the mask rows. The FFN pads 14336 to 16384 and the head

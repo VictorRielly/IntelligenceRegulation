@@ -1,5 +1,19 @@
 # Where the MVP stands, in plain words
 
+**2026-10-17 14:00 UTC — how far from 50 proved tokens/s, measured-model
+answer.** The costed speed plan ([ZK60_SPEED_PLAN_20261017.md](ZK60_SPEED_PLAN_20261017.md))
+fits a per-phase cost model to today's TinyLlama ladder and predicts the
+measured 8B T32 stack within 3.1%. Its projection for private Llama-3-8B at
+T=512 on one RTX 5090 [MODEL]: today's code ~0.55 positions/s; the whole prover
+on the GPU at this project's measured GPU efficiency ~7–9; with commitment
+kernel and attention layout improvements ~11 (high end 22). **50 is reachable
+only if every GPU kernel moves its counted bytes at about 23–34% of the 5090's
+bandwidth** (today's commitment kernel: ~13% on the laptop). The plan's
+go/no-go experiment — the FFN zero-check (slot 18) on the laptop GPU, with
+measured bandwidth — started at 13:55 UTC; below ~10% the remaining levers
+are design changes needing Victor's rulings (LogUp-GKR helpers, code rate
+1/2, 16-bit range tables), which together still reach only ~13–16 [MODEL].
+
 **2026-10-17 13:20 UTC — first complete private proof of a trained 8B model's
 transformer stack.** All 32 blocks of Llama-3-8B (NousResearch/Meta-Llama-3-8B
 rev 315b2009…, 8,030,261,248 parameters) proved as ONE bound private run at
@@ -11,6 +25,10 @@ witness 19 s, block proofs ~110 s, in-process verify 93 s), receipt
 465,815,776 B in 32 segments, fresh-process verify 96 s, peak RSS < 2 GiB; 11
 run-level tamper controls refused, honest run still verifies. Statement
 identity 259dad7c…. Evidence `results/zk60_1b_native_20261017/r4/`.
+The same stack on the laptop GPU (commitments on the device, "gpu: ON", 0
+declines) took 391 s with the same statement identity: level with the CPU at
+T32, where reloading the 8B weights (about 2.5 s per layer, three times per
+run) dominates and the block proofs are 3.4–3.7 s each.
 **Not yet:** speed (0.08 proved positions/s total; target 50 on a 5090),
 T > 32, embedding/head (D13), fidelity (layer-1 attention sink), independent
 review of the 8B profile changes, privacy acceptance at this shape, D23.

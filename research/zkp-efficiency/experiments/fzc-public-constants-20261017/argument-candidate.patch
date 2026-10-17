@@ -1,0 +1,32 @@
+--- a/hashline/src/private_block/argument.rs
++++ b/hashline/src/private_block/argument.rs
+@@ -1631,21 +1631,24 @@
+             }
+             // ROUND 2: the product and gate shifts are the SHAPE's (the frozen
+             // SH_H_PROD / SH_G at every registered shape)
+-            let (k_h, k_h_half, k_g, k_g_half) = (k(1i64 << sh.sh_h), k(super::witness::half(sh.sh_h)), k(1i64 << sh.sh_g), k(super::witness::half(sh.sh_g)));
++            let (b_h, k_h_half, b_g, k_g_half) = (Fp::from_i64(1i64 << sh.sh_h), k(super::witness::half(sh.sh_h)), Fp::from_i64(1i64 << sh.sh_g), k(super::witness::half(sh.sh_g)));
++            let b1 = Fp::from_i64(256);
+             let poly = move |v: &[Fp2]| {
+                 let at = |p: usize| v[idx[p]];
+-                let l2 = |o: usize| at(o).add(at(o + 1).mul(p1));
++                let l2 = |o: usize| at(o).add(at(o + 1).mul_base(b1));
+                 let (g8, a16, u16, h16) = (at(A_G8), at(A_A16), at(A_U16), at(A_H16));
+-                let f0 = a16.mul(u16).sub(k_h.mul(h16)).sub(l2(A_RH0)).add(k_h_half);
++                let f0 = a16.mul(u16).sub(h16.mul_base(b_h)).sub(l2(A_RH0)).add(k_h_half);
+                 let f1 = u16.add(k(32768)).sub(l2(A_UL0));
+                 let f2 = h16.add(k(32768)).sub(l2(A_HL0));
+                 let f_act = v[i_fact].mul(alpha.sub(g8.add(k(128)).add(beta.mul(a16)).add(g_act))).sub(Fp2::ONE);
+                 let g = gf.at(v);
+                 let mut zc = helper_sum(v, &lks, h0, alpha, &mu[4..]).add(mu[3].mul(f_act)).add(pz.eval(v));
++                let mut clauses = Fp2::ZERO;
+                 for (m, c) in mu.iter().zip([f0, f1, f2]) {
+-                    zc = zc.add(m.mul(g).mul(c));
++                    clauses = clauses.add(m.mul(c));
+                 }
+-                let host_g = k_g.mul(g8).add(at(A_RGL)).sub(k_g_half);
++                zc = zc.add(g.mul(clauses));
++                let host_g = g8.mul_base(b_g).add(at(A_RGL)).sub(k_g_half);
+                 // SH_U = 0: no coefficient, no constant, no remainder (T2 A.4)
+                 let host_u = u16;
+                 v[0].mul(zc).add(nu[0].mul(v[1]).mul(g).mul(host_g)).add(nu[1].mul(v[2]).mul(g).mul(host_u))

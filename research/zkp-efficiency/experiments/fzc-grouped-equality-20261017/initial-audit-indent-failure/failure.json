@@ -1,0 +1,4 @@
+{
+  "error": "source-prefix audit fails from12extra indentation spaces introduced by arm replacement",
+  "corrective_action": "strip replacement first-line indent; retest source prefix and degree census"
+}

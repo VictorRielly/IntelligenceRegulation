@@ -80,3 +80,44 @@ Calibration data, not a proof, not a privacy claim.
   65536-row exp table; NOT native; no-op for every default path) and
   `b5_layer1.py` (layer-1 isolated comparison, int8 vs int16 scores), queued
   after the T=128 run (`logs/b5_serial2.sh`, one guarded job at a time).
+- 14:12 UTC: pg+rot T=128 DONE (`logs/b5-pg_T128.*`; no export, smaller sets:
+  calibration 18 licence + 12 FineWeb seqs, held-out 18 + 12): s_x 7.22e-4,
+  Cn 2092/1424, shifts qkv 8 s 6 ao 3 g 8 h 14 z 4. FineWeb top-1 0.653, ppl
+  10.59 -> 20.55, KL 0.678, 0/12 refused; licence 0.612, ppl 4.07 -> 11.46,
+  KL 1.057, 0/18. Peak RSS 3.63 GiB (cgroup 6.0 incl. page cache), 88 min.
+  Layer 1 again the weak spot (iso cos 0.765, chain 0.94 -> 0.74).
+- 14:15 UTC: layer-1 score-class check (`b5_layer1.py`, `runs/b5_layer1_score_class.json`;
+  isolated, 24 held-out seqs, same calibration; 209 s, peak 2.84 GiB): native
+  int8 score (e_s 2, SH_S 6): iso cos 0.727, dcos 0.617, score err 0.666, prob
+  0.805, o 2.05; s16 experiment (int16 score, SH_S 1, e_s -4, 65536-row exp
+  table; NOT native): iso cos 0.825, dcos 0.733, score 0.310, prob 0.508, o 1.28.
+  A wider score class helps but does not close layer 1 (q/k int8 + the BOS sink).
+- 14:16 UTC: all B5 jobs finished; nothing of mine running.
+
+## B6 (coordinator round 4), from 2026-10-17 14:18 UTC
+
+- 14:20 UTC: driver options added: `--profile-from <prepass.json>` (reuse a
+  run's profile decisions; with the same cached statistics the words are
+  identical), `--export-name`, `--link-from <export>` (hard-link byte-identical
+  files layer by layer as they are written: transient disk stays ~one layer),
+  `--l1-mode {s16, perhead, m2zero, fe13}` (layer-1 experiments) and
+  `--check-against <export>` (every non-overridden layer's words compared with
+  an existing export). tlcalib: per-query-head exp-table hook (experiment only).
+  2-layer synthetic smoke OK (`logs/b6-smoke.*`, 202 s).
+- 14:23 UTC: `logs/b6_serial.sh` launched (one guarded job at a time, need 4 /
+  cap 5): B6-1 exports llama3_8b_pg_rot1_b6_T128 then _T64 (one calibration:
+  B5's T=128 statistics + profile, 18 licence + 12 FineWeb calibration seqs;
+  held-out 9 licence + 6 FineWeb), both verifiers; then B6-2 whole-model T=32
+  FineWeb runs with layer 1 as int16 score / per-head e_s / no-margin e_s /
+  native (B5's T=32 calibration and profile, checked against the B5 export).
+- 14:55 UTC: T=128 export DONE: `export/llama3_8b_pg_rot1_b6_T128`, profile.json
+  sha256 eedbcff1201f631c2d5aaa46bbd2cee6a1b1290ec08078415a9ed31567ee23df;
+  profile = B5 T=128 decisions (Cn 2092/1424, shifts qkv 8 s 6 ao 3 g 8 h 14
+  z 4, s_x 7.218e-4). Held-out FineWeb 6 seqs top-1 0.651 (ppl 9.72 -> 17.97,
+  KL 0.607), licence 9 seqs 0.633 (3.71 -> 9.59, KL 0.968), 0 refused. Peak RSS
+  3.32 GiB, 31 min. T=64 export started (same calibration, hard links).
+- 14:59 UTC: queue trimmed: the B6-2 'none' run would repeat B5 T=32's FineWeb
+  numbers exactly (same words, same 36 sequences, per-sequence chains), so
+  `logs/b5_run.sh` (replaced atomically; the running instance keeps the old
+  inode) now runs label b6_l1_none on the first 2 layers only: the layer-1
+  isolated baseline on the same FineWeb sequences, ~5 min instead of ~50.

@@ -1,0 +1,42 @@
+--- a/hashline/src/private_block/argument.rs
++++ b/hashline/src/private_block/argument.rs
+@@ -1632,8 +1632,17 @@
+             // ROUND 2: the product and gate shifts are the SHAPE's (the frozen
+             // SH_H_PROD / SH_G at every registered shape)
+             let (k_h, k_h_half, k_g, k_g_half) = (k(1i64 << sh.sh_h), k(super::witness::half(sh.sh_h)), k(1i64 << sh.sh_g), k(super::witness::half(sh.sh_g)));
+-            let poly = move |v: &[Fp2]| {
++                        let groups = vec![
++                sumcheck::EqualityGroup { point: tau, start: 0, bracket_degree: 3 },
++                sumcheck::EqualityGroup { point: pts.p_g.clone(), start: 0, bracket_degree: if pad_on { 2 } else { 1 } },
++                sumcheck::EqualityGroup { point: pts.p_u.clone(), start: 0, bracket_degree: if pad_on { 2 } else { 1 } },
++            ];
++            let bracket: GroupPoly = std::sync::Arc::new(move |group: usize, v: &[Fp2]| {
+                 let at = |p: usize| v[idx[p]];
++                let g = gf.at(v);
++                if group == 1 { return nu[0].mul(g).mul(k_g.mul(at(A_G8)).add(at(A_RGL)).sub(k_g_half)); }
++                if group == 2 { return nu[1].mul(g).mul(at(A_U16)); }
++                assert_eq!(group, 0);
+                 let l2 = |o: usize| at(o).add(at(o + 1).mul(p1));
+                 let (g8, a16, u16, h16) = (at(A_G8), at(A_A16), at(A_U16), at(A_H16));
+                 let f0 = a16.mul(u16).sub(k_h.mul(h16)).sub(l2(A_RH0)).add(k_h_half);
+@@ -1645,12 +1654,14 @@
+                 for (m, c) in mu.iter().zip([f0, f1, f2]) {
+                     zc = zc.add(m.mul(g).mul(c));
+                 }
+-                let host_g = k_g.mul(g8).add(at(A_RGL)).sub(k_g_half);
+-                // SH_U = 0: no coefficient, no constant, no remainder (T2 A.4)
+-                let host_u = u16;
+-                v[0].mul(zc).add(nu[0].mul(v[1]).mul(g).mul(host_g)).add(nu[1].mul(v[2]).mul(g).mul(host_u))
+-            };
+-            b.finish(Box::new(poly), hosted)
++                zc
++            });
++            let final_bracket = bracket.clone();
++            let poly = move |v: &[Fp2]| (0..3).fold(Fp2::ZERO,
++                |a, g| a.add(v[g].mul(final_bracket(g, v))));
++            let mut def = b.finish(Box::new(poly), hosted)?;
++            def.groups = Some((groups, bracket));
++            Ok(def)
+         }
+         SC_QZC | SC_KVZC => {
+             let q = slot == SC_QZC;

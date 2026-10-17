@@ -1,0 +1,121 @@
+[
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/fzc_kernels.cu",
+    "snapshot": "experiments/fzc-device-traffic-20261017/native/ops__zkp-mvp__gpu-zerocheck__hashline__src__gpu__fzc_kernels.cu",
+    "sha256": "9241851d5498c6f6753019750463296585c9728d700da6ed5e40f996ac37b208",
+    "bytes": 22780,
+    "mtime_ns": 1792247283518651394
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/fzc.rs",
+    "snapshot": "experiments/fzc-device-traffic-20261017/native/ops__zkp-mvp__gpu-zerocheck__hashline__src__gpu__fzc.rs",
+    "sha256": "874fcd459834a31c2ebc2a32a2442d34cfc848721d14204de3bf0861e6a35181",
+    "bytes": 15173,
+    "mtime_ns": 1792245430753723341
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/cuda.rs",
+    "snapshot": "experiments/fzc-device-traffic-20261017/native/ops__zkp-mvp__gpu-zerocheck__hashline__src__gpu__cuda.rs",
+    "sha256": "1840cf85575e0a9c1b7f9f76292d0f2208f9b14fb0b317f42a3265b5149434ca",
+    "bytes": 227360,
+    "mtime_ns": 1792248171141556052
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/kernels.cu",
+    "snapshot": "experiments/fzc-device-traffic-20261017/native/ops__zkp-mvp__gpu-zerocheck__hashline__src__gpu__kernels.cu",
+    "sha256": "4b27e23f2a880a7d67597d7cd2de59799b1c0068a52b2ce9abdbfa8108b0dc2a",
+    "bytes": 79413,
+    "mtime_ns": 1792247283518244264
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/argument.rs",
+    "snapshot": "experiments/fzc-device-traffic-20261017/native/ops__zkp-mvp__gpu-zerocheck__hashline__src__private_block__argument.rs",
+    "sha256": "2475e3a222e32aa26969182b5ab7228756d633fa67bdde1f9520818ef7a2bb0e",
+    "bytes": 108798,
+    "mtime_ns": 1792246562924406112
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/layout.rs",
+    "snapshot": "experiments/fzc-device-traffic-20261017/native/ops__zkp-mvp__gpu-zerocheck__hashline__src__private_block__layout.rs",
+    "sha256": "fcf9dda4e507d2a347f786ddc537feff3ac57779abae88cea91ee48d4b34c855",
+    "bytes": 64489,
+    "mtime_ns": 1792232415170881010
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/shape.rs",
+    "snapshot": "experiments/fzc-device-traffic-20261017/native/ops__zkp-mvp__gpu-zerocheck__hashline__src__private_block__shape.rs",
+    "sha256": "e6c7290b5c2d897ccaaa6284c813bbcfea563aaef7594c309b955a5588c1e073",
+    "bytes": 102462,
+    "mtime_ns": 1792236125788808823
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_gpu_zerocheck_20261017/DESIGN.md",
+    "snapshot": "experiments/fzc-device-traffic-20261017/native/results__zk60_gpu_zerocheck_20261017__DESIGN.md",
+    "sha256": "8f082eb28cd3b71f0a724146eaec56599fdc5af211ed55a2dbbf166f9cf5379a",
+    "bytes": 13666,
+    "mtime_ns": 1792248009508656040
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_gpu_zerocheck_20261017/PROGRESS.md",
+    "snapshot": "experiments/fzc-device-traffic-20261017/native/results__zk60_gpu_zerocheck_20261017__PROGRESS.md",
+    "sha256": "4534a2e288dc888f298597b5dc277bfd8ea137eaa96a4447f616c57eb2d328b7",
+    "bytes": 3861,
+    "mtime_ns": 1792248009508656040
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_gpu_zerocheck_20261017/logs/t1-debug-small.done",
+    "snapshot": "experiments/fzc-device-traffic-20261017/native/results__zk60_gpu_zerocheck_20261017__logs__t1-debug-small.done",
+    "sha256": "9d9b18720961e9b4689fd763b85e7b6f36160ccd3a8a1c9ddc5103bb0f66c396",
+    "bytes": 4,
+    "mtime_ns": 1792249195182796332
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_gpu_zerocheck_20261017/logs/t1-debug-small.log",
+    "snapshot": "experiments/fzc-device-traffic-20261017/native/results__zk60_gpu_zerocheck_20261017__logs__t1-debug-small.log",
+    "sha256": "a5aa55fa7861e25901e99f43e18778fade72d3d3898d4c2792943c044f0cbbe5",
+    "bytes": 761,
+    "mtime_ns": 1792249190523883703
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_SPEED_PLAN_20261017.md",
+    "snapshot": "experiments/fzc-device-traffic-20261017/native/docs__zkmatrix-poc__ZK60_SPEED_PLAN_20261017.md",
+    "sha256": "f89f7b91649d171f2d2404f36d8cfa814f199442d83dd59dc21b355559809894",
+    "bytes": 29584,
+    "mtime_ns": 1792244369653013996
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+    "snapshot": "experiments/fzc-device-traffic-20261017/native/docs__zkmatrix-poc__MVP_STATUS.md",
+    "sha256": "13287d20d2a1a3fbe2becc70c9eb0029b383402c7c3be3928c5c8e0976931bb2",
+    "bytes": 65029,
+    "mtime_ns": 1792244463892624224
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+    "snapshot": "experiments/fzc-device-traffic-20261017/native/docs__zkmatrix-poc__ZK60_DECISIONS.md",
+    "sha256": "b2e40604148ea8d336098fa3e6a0fc69d4d4598187cb2ef04617c3e8d0baccb5",
+    "bytes": 64466,
+    "mtime_ns": 1792232340096469240
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+    "snapshot": "experiments/fzc-device-traffic-20261017/native/docs__zkmatrix-poc__ZK60_CODEX_FABLE_COORDINATION.md",
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889,
+    "mtime_ns": 1790729651759716501
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+    "snapshot": "experiments/fzc-device-traffic-20261017/native/docs__zkmatrix-poc__ZK60_THROUGHPUT_TARGET.md",
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941,
+    "mtime_ns": 1790448979243070051
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+    "snapshot": "experiments/fzc-device-traffic-20261017/native/CLAUDE.md",
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089,
+    "mtime_ns": 1790730834499587041
+  }
+]

@@ -366,12 +366,12 @@ fn unhex32(s: &str) -> Result<Digest, String> {
 fn render_policy(p: &Policy) -> Result<String, String> {
     let sh = p.kind.shape();
     let rs = p.kind.run_shape(p.blocks)?;
-    let ctx = context_of(&p.label, rs.profile, p.recipe.name(), p.blocks);
+    let ctx = context_of(&p.label, rs.profile(), p.recipe.name(), p.blocks);
     let values: [String; 20] = [
         SCOPE.to_string(),
         p.kind.name().to_string(),
         sh.profile.to_string(),
-        rs.profile.to_string(),
+        rs.profile().to_string(),
         p.blocks.to_string(),
         sh.tokens.to_string(),
         sh.width.to_string(),
@@ -463,7 +463,7 @@ fn build_verifier(p: &Policy) -> Result<(RunStatement, Vec<BlockPublic>), String
     }
     let sh = p.kind.shape();
     let rs = p.kind.run_shape(p.blocks)?;
-    let ctx = context_of(&p.label, rs.profile, p.recipe.name(), p.blocks);
+    let ctx = context_of(&p.label, rs.profile(), p.recipe.name(), p.blocks);
     let spec = IoSpec::new_shaped(&sh, ctx, super::ENDPOINT_SCALES.0, super::ENDPOINT_SCALES.1)?;
     let expected = ExpectedIo::from_roots(spec, p.in_root, p.out_root);
     let st = RunStatement::new(rs, ctx, expected, &blocks, &vec![super::ENDPOINT_SCALES; p.blocks])?;
@@ -890,7 +890,7 @@ fn prove_inner(a: &ProveArgs, at: &mut Attempt, t_total: &Instant) -> Result<(),
     let blocks = build_model(a.kind, a.recipe, l).map_err(|e| ("model_setup", e))?;
     let model_root = model_root_of(&blocks);
     let rs = a.kind.run_shape(l).map_err(|e| ("model_setup", e))?;
-    let run_profile = rs.profile;
+    let run_profile = rs.profile();
     let ctx = context_of(&a.label, run_profile, a.recipe.name(), l);
     phase(at, "model_setup", t.elapsed().as_secs_f64());
 
@@ -1117,7 +1117,7 @@ fn verify_inner(f: &[(String, String)]) -> Result<Verified, String> {
     let policy_sha = run_sink::digest_hex(&bytes);
     let p = parse_policy(&bytes)?;
     let rs = p.kind.run_shape(p.blocks)?;
-    pin_check(f, &p, &policy_sha, rs.profile)?;
+    pin_check(f, &p, &policy_sha, rs.profile())?;
     phases.push(("policy_load", t.elapsed().as_secs_f64()));
 
     let t = Instant::now();
@@ -1144,7 +1144,7 @@ fn verify_inner(f: &[(String, String)]) -> Result<Verified, String> {
         kind: p.kind,
         blocks: p.blocks,
         recipe: p.recipe,
-        run_profile: rs.profile,
+        run_profile: rs.profile(),
         block_profile: p.kind.shape().profile,
         receipt_bytes: segs.iter().map(|s| s.1).sum(),
         phases,

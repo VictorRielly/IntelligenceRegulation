@@ -1490,7 +1490,9 @@ fn the_generator_is_never_cloned_and_each_prover_constructs_exactly_one() {
     }
     // exactly one construction per prover, counted inside the function body
     for (path, signature, what) in [
-        ("src/private_block/run.rs", "pub(crate) fn prove_run(", "prove_run"),
+        // ROUND 4: `prove_run` delegates to `prove_run_with` (the blocks from a
+        // `BlockSource`), which is where the run's ONE generator is made
+        ("src/private_block/run.rs", "pub(crate) fn prove_run_with(", "prove_run_with"),
         ("src/private_block/protocol.rs", "pub(crate) fn prove_inner_at(", "prove_inner_at"),
     ] {
         let src = source(path);

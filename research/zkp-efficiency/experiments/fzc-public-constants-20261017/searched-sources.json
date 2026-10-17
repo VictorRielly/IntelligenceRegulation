@@ -1,0 +1,135 @@
+[
+  {
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T13:35:31.973238+00:00",
+    "cycle": "0063",
+    "run_id": "20261017T132624Z-393ef603",
+    "evidence_kind": "native LIVE primary search and web inspection; external instructions ignored; no downloaded code executed",
+    "reproduced_performance": false,
+    "id": "cycle63-new-older-whir-p3-svo-degree-one-boundary",
+    "title": "LambdaClass WHIR/Plonky3 implementation of base-vs-extension separation",
+    "url": "https://blog.lambdaclass.com/speeding-up-sumcheck-an-in-depth-walkthrough-of-our-implementation/",
+    "published": "2025-11-28",
+    "updated": null,
+    "date_evidence": "Primary author implementation blog displays28Nov2025; current repository update date not established.",
+    "author_claim": "Three SVO rounds then Eq splitting; implementation restricted to one degree-one factor, one equality constraint and folding_factor>5.",
+    "assessment": "New implementation source absent from starting ledger. Useful base/extension discipline; native F bracket has masked helper and padded host terms, not the single-factor PCS statement. This cycle reproduces only its own exact local constant specialization, not SVO or this implementation.",
+    "implementation_license": "whir-p3 repository labels Apache2.0/MIT; license text fetch Internal Error; no code copied.",
+    "inspected_commit_id": null,
+    "supporting_urls": [
+      "https://github.com/tcoratger/whir-p3",
+      "https://github.com/tcoratger/whir-p3/blob/main/LICENSE-MIT",
+      "https://github.com/tcoratger/whir-p3/commits/main/"
+    ],
+    "access_issues": [
+      "Linked from_base_evals_svo code fetch Internal Error",
+      "MIT text fetch Internal Error; history Cache miss"
+    ]
+  },
+  {
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T13:35:31.973238+00:00",
+    "cycle": "0063",
+    "run_id": "20261017T132624Z-393ef603",
+    "evidence_kind": "native LIVE primary search and web inspection; external instructions ignored; no downloaded code executed",
+    "reproduced_performance": false,
+    "id": "cycle63-new-prpll-cuda-ntt-consumer-hardware-filter",
+    "title": "PRPLL/gpuowl CUDA NTT and consumer-GPU tuning history",
+    "url": "https://github.com/gwoltman/gpuowl",
+    "published": null,
+    "updated": "2026-09-01",
+    "date_evidence": "Visible commit historySep1,2026. v8.0 prerelease display26Jul16:49 plus target commit historyJul26,2026 establishesJul26,2026 target; current tip update date not established.",
+    "author_claim": "CUDA/OpenCL NTT for Mersenne primality; history includes radix8/16 and GF31 changes, cache/register tuning, an ineffective laptop shared-memory carveout and a1% benefit from useless code on TitanV.",
+    "assessment": "New older implementation lead, not native Goldilocks hiding-row transform or complete proof evidence. Consumer5090 tuning note has no native throughput meaning. Port/domain/layout/pad/commitment costs would need inspection before any code proposal; no code copied.",
+    "implementation_license": "GPL3.0 full main LICENSE text inspected; release-tag license not independently inspected.",
+    "inspected_commit_id": "2b555a3cd580248ab043acdb6a6714f235bc46ad",
+    "inspected_commit_scope": "Only src/tune.cpp one-line log default correction diff; not NTT implementation.",
+    "supporting_urls": [
+      "https://github.com/gwoltman/gpuowl/releases/tag/v8.0",
+      "https://github.com/gwoltman/gpuowl/commits/master/",
+      "https://github.com/gwoltman/gpuowl/commit/2b555a3cd580248ab043acdb6a6714f235bc46ad",
+      "https://github.com/gwoltman/gpuowl/blob/master/LICENSE",
+      "https://github.com/gwoltman/gpuowl/tree/master/src"
+    ],
+    "access_issues": [
+      "Abbreviated release commit Cache miss; resolved full target diff subsequently inspected",
+      "Sep1 optimization commit6cf0dcdd64ff6e1af3825652bfb10346359f4a81 Cache miss"
+    ]
+  },
+  {
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T13:35:31.973238+00:00",
+    "cycle": "0063",
+    "run_id": "20261017T132624Z-393ef603",
+    "evidence_kind": "native LIVE primary search and web inspection; external instructions ignored; no downloaded code executed",
+    "reproduced_performance": false,
+    "id": "cycle63-plonky3-oct16-release-exact-rng-boundary",
+    "title": "Plonky3 p3-sumcheck0.9.0-rc.2 October16 release refresh",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "published": "2026-10-16",
+    "updated": null,
+    "date_evidence": "Official release list p3-sumcheck rc.2 displays16Oct10:17; companion official crate docs metadata confirms2026-10-16 for same release train. Direct sumcheckdocs fetch failed.",
+    "author_claim": "Release list includes ordinary/hiding bind+measure, typed Fiat-Shamir, fresh mask cryptographic RNG fix and batched equality kernel.",
+    "assessment": "Known refresh. No native field/transcript/mask compatibility or speed inferred; repeated setup never licenses randomness reuse.",
+    "implementation_license": "Full main MIT text inspected; dual Apache license not re-read; tag scope not pinned.",
+    "inspected_commit_id": null,
+    "exposed_uninspected_commit_id": "fe5e46d (release list abbreviated target; commit fetch Internal Error)",
+    "supporting_urls": [
+      "https://github.com/Plonky3/Plonky3/releases/tag/p3-sumcheck-v0.9.0-rc.2",
+      "https://docs.rs/crate/p3-multi-stark/0.9.0-rc.2",
+      "https://docs.rs/crate/p3-bus/0.9.0-rc.2",
+      "https://github.com/Plonky3/Plonky3/blob/main/LICENSE-MIT"
+    ],
+    "access_issues": [
+      "Direct sumcheck release URL, target commit and docs.rs sumcheck fetch Internal Error; main release listing accessible"
+    ]
+  },
+  {
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T13:35:31.973238+00:00",
+    "cycle": "0063",
+    "run_id": "20261017T132624Z-393ef603",
+    "evidence_kind": "native LIVE primary search and web inspection; external instructions ignored; no downloaded code executed",
+    "reproduced_performance": false,
+    "id": "cycle63-extended-sumcheck-base-constant-scope-refreshed",
+    "title": "Speeding Up Sum-Check Proving (Extended Version), base/extension cost boundary",
+    "url": "https://eprint.iacr.org/2026/587",
+    "published": "2026-03-24",
+    "updated": null,
+    "date_evidence": "Primary history receivedMar24,approvedMar25,2026; latest revision date not established this cycle.",
+    "author_claim": "Small-value and streaming algorithms separate cheap inputs from extension work; Eq decomposition and high-degree product improvements evaluated in Jolt.",
+    "assessment": "Known source. Arbitrary folded/masked Fp2 rows and helper challenges cannot be truncated to base coordinates; local negative control detects that substitution. No reproduction of author benchmark.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "access_issues": []
+  },
+  {
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T13:35:31.973238+00:00",
+    "cycle": "0063",
+    "run_id": "20261017T132624Z-393ef603",
+    "evidence_kind": "native LIVE primary search and web inspection; external instructions ignored; no downloaded code executed",
+    "reproduced_performance": false,
+    "id": "cycle63-october-algebraic-geometry-primary-blocked",
+    "title": "Speeding up Sumcheck using Algebraic Geometry, repeated primary access blocker",
+    "url": "https://eprint.iacr.org/2026/2494",
+    "published": null,
+    "updated": null,
+    "date_evidence": "No primary date verified; retain cycle61 mirror-discovery date as unverified only.",
+    "author_claim": null,
+    "assessment": "Recent-paper search repeated; primary abstract/PDF inaccessible. No technical or performance claim accepted. Independent local Rust/Python experiment proceeded.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "supporting_urls": [
+      "https://eprint.iacr.org/2026/2494.pdf"
+    ],
+    "access_issues": [
+      "Abstract and PDF Internal Error"
+    ]
+  }
+]

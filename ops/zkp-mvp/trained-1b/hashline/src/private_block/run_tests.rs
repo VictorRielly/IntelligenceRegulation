@@ -940,6 +940,10 @@ fn every_single_block_tamper_family_is_still_rejected_inside_a_run() {
         c.tamper = Some((1, plane, 0, delta));
         let blocks = blocks_of(&sh, 2);
         let (st, owners) = statement_of(&c, 2, &blocks);
+        // STAGE 40 (ported, native round 5), ruling CS-3: the honest prover
+        // refuses a lookup miss by name; a cheating prover does not, so this
+        // helper proves with the check off and the verifier has to speak
+        let _cheating = super::protocol::CheatingProver::on();
         match prove_to_vec(&st, &blocks, &mut c, owners) {
             Err(e) => panic!("{name} in block 2: the PROVER refused, so this case says nothing about the verifier: {e}"),
             Ok((segs, _)) => {
@@ -1120,7 +1124,7 @@ impl Drop for TempRunDir {
 /// byte: the prover takes its randomness from the OS (`ZkRng::from_os`) and
 /// this lane adds no seeded path.
 fn prove_to_dir_and_memory(st: &RunStatement, blocks: &[BlockPublic], src: &mut dyn RunWitnessSource, owners: Endpoints, dir: &Path) -> Result<(DirSink, MemorySink, RunStats), String> {
-    let mut disk = DirSink::create(dir, st.rs.l)?;
+    let mut disk = DirSink::create(dir, st.rs().l())?;
     let mut mem = MemorySink::default();
     let stats = run::prove_run(st, blocks, src, owners, &mut |k, bytes| {
         mem.accept(k, bytes.clone())?;

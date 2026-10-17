@@ -1,0 +1,400 @@
+{
+  "status": "pass",
+  "checks": 290,
+  "live_native_drifts": [],
+  "degree_census": [
+    {
+      "pad": false,
+      "fixture": 0,
+      "expression": 0,
+      "exact_degree": 4
+    },
+    {
+      "pad": false,
+      "fixture": 0,
+      "expression": 1,
+      "exact_degree": 3
+    },
+    {
+      "pad": false,
+      "fixture": 0,
+      "expression": 2,
+      "exact_degree": 1
+    },
+    {
+      "pad": false,
+      "fixture": 0,
+      "expression": 3,
+      "exact_degree": 1
+    },
+    {
+      "pad": false,
+      "fixture": 1,
+      "expression": 0,
+      "exact_degree": 4
+    },
+    {
+      "pad": false,
+      "fixture": 1,
+      "expression": 1,
+      "exact_degree": 3
+    },
+    {
+      "pad": false,
+      "fixture": 1,
+      "expression": 2,
+      "exact_degree": 1
+    },
+    {
+      "pad": false,
+      "fixture": 1,
+      "expression": 3,
+      "exact_degree": 1
+    },
+    {
+      "pad": false,
+      "fixture": 2,
+      "expression": 0,
+      "exact_degree": 4
+    },
+    {
+      "pad": false,
+      "fixture": 2,
+      "expression": 1,
+      "exact_degree": 3
+    },
+    {
+      "pad": false,
+      "fixture": 2,
+      "expression": 2,
+      "exact_degree": 1
+    },
+    {
+      "pad": false,
+      "fixture": 2,
+      "expression": 3,
+      "exact_degree": 1
+    },
+    {
+      "pad": false,
+      "fixture": 3,
+      "expression": 0,
+      "exact_degree": 4
+    },
+    {
+      "pad": false,
+      "fixture": 3,
+      "expression": 1,
+      "exact_degree": 3
+    },
+    {
+      "pad": false,
+      "fixture": 3,
+      "expression": 2,
+      "exact_degree": 1
+    },
+    {
+      "pad": false,
+      "fixture": 3,
+      "expression": 3,
+      "exact_degree": 1
+    },
+    {
+      "pad": false,
+      "fixture": 4,
+      "expression": 0,
+      "exact_degree": 4
+    },
+    {
+      "pad": false,
+      "fixture": 4,
+      "expression": 1,
+      "exact_degree": 3
+    },
+    {
+      "pad": false,
+      "fixture": 4,
+      "expression": 2,
+      "exact_degree": 1
+    },
+    {
+      "pad": false,
+      "fixture": 4,
+      "expression": 3,
+      "exact_degree": 1
+    },
+    {
+      "pad": false,
+      "fixture": 5,
+      "expression": 0,
+      "exact_degree": 4
+    },
+    {
+      "pad": false,
+      "fixture": 5,
+      "expression": 1,
+      "exact_degree": 3
+    },
+    {
+      "pad": false,
+      "fixture": 5,
+      "expression": 2,
+      "exact_degree": 1
+    },
+    {
+      "pad": false,
+      "fixture": 5,
+      "expression": 3,
+      "exact_degree": 1
+    },
+    {
+      "pad": false,
+      "fixture": 6,
+      "expression": 0,
+      "exact_degree": 4
+    },
+    {
+      "pad": false,
+      "fixture": 6,
+      "expression": 1,
+      "exact_degree": 3
+    },
+    {
+      "pad": false,
+      "fixture": 6,
+      "expression": 2,
+      "exact_degree": 1
+    },
+    {
+      "pad": false,
+      "fixture": 6,
+      "expression": 3,
+      "exact_degree": 1
+    },
+    {
+      "pad": false,
+      "fixture": 7,
+      "expression": 0,
+      "exact_degree": 4
+    },
+    {
+      "pad": false,
+      "fixture": 7,
+      "expression": 1,
+      "exact_degree": 3
+    },
+    {
+      "pad": false,
+      "fixture": 7,
+      "expression": 2,
+      "exact_degree": 1
+    },
+    {
+      "pad": false,
+      "fixture": 7,
+      "expression": 3,
+      "exact_degree": 1
+    },
+    {
+      "pad": true,
+      "fixture": 0,
+      "expression": 0,
+      "exact_degree": 4
+    },
+    {
+      "pad": true,
+      "fixture": 0,
+      "expression": 1,
+      "exact_degree": 3
+    },
+    {
+      "pad": true,
+      "fixture": 0,
+      "expression": 2,
+      "exact_degree": 2
+    },
+    {
+      "pad": true,
+      "fixture": 0,
+      "expression": 3,
+      "exact_degree": 2
+    },
+    {
+      "pad": true,
+      "fixture": 1,
+      "expression": 0,
+      "exact_degree": 4
+    },
+    {
+      "pad": true,
+      "fixture": 1,
+      "expression": 1,
+      "exact_degree": 3
+    },
+    {
+      "pad": true,
+      "fixture": 1,
+      "expression": 2,
+      "exact_degree": 2
+    },
+    {
+      "pad": true,
+      "fixture": 1,
+      "expression": 3,
+      "exact_degree": 2
+    },
+    {
+      "pad": true,
+      "fixture": 2,
+      "expression": 0,
+      "exact_degree": 4
+    },
+    {
+      "pad": true,
+      "fixture": 2,
+      "expression": 1,
+      "exact_degree": 3
+    },
+    {
+      "pad": true,
+      "fixture": 2,
+      "expression": 2,
+      "exact_degree": 2
+    },
+    {
+      "pad": true,
+      "fixture": 2,
+      "expression": 3,
+      "exact_degree": 2
+    },
+    {
+      "pad": true,
+      "fixture": 3,
+      "expression": 0,
+      "exact_degree": 4
+    },
+    {
+      "pad": true,
+      "fixture": 3,
+      "expression": 1,
+      "exact_degree": 3
+    },
+    {
+      "pad": true,
+      "fixture": 3,
+      "expression": 2,
+      "exact_degree": 2
+    },
+    {
+      "pad": true,
+      "fixture": 3,
+      "expression": 3,
+      "exact_degree": 2
+    },
+    {
+      "pad": true,
+      "fixture": 4,
+      "expression": 0,
+      "exact_degree": 4
+    },
+    {
+      "pad": true,
+      "fixture": 4,
+      "expression": 1,
+      "exact_degree": 3
+    },
+    {
+      "pad": true,
+      "fixture": 4,
+      "expression": 2,
+      "exact_degree": 2
+    },
+    {
+      "pad": true,
+      "fixture": 4,
+      "expression": 3,
+      "exact_degree": 2
+    },
+    {
+      "pad": true,
+      "fixture": 5,
+      "expression": 0,
+      "exact_degree": 4
+    },
+    {
+      "pad": true,
+      "fixture": 5,
+      "expression": 1,
+      "exact_degree": 3
+    },
+    {
+      "pad": true,
+      "fixture": 5,
+      "expression": 2,
+      "exact_degree": 2
+    },
+    {
+      "pad": true,
+      "fixture": 5,
+      "expression": 3,
+      "exact_degree": 2
+    },
+    {
+      "pad": true,
+      "fixture": 6,
+      "expression": 0,
+      "exact_degree": 4
+    },
+    {
+      "pad": true,
+      "fixture": 6,
+      "expression": 1,
+      "exact_degree": 3
+    },
+    {
+      "pad": true,
+      "fixture": 6,
+      "expression": 2,
+      "exact_degree": 2
+    },
+    {
+      "pad": true,
+      "fixture": 6,
+      "expression": 3,
+      "exact_degree": 2
+    },
+    {
+      "pad": true,
+      "fixture": 7,
+      "expression": 0,
+      "exact_degree": 4
+    },
+    {
+      "pad": true,
+      "fixture": 7,
+      "expression": 1,
+      "exact_degree": 3
+    },
+    {
+      "pad": true,
+      "fixture": 7,
+      "expression": 2,
+      "exact_degree": 2
+    },
+    {
+      "pad": true,
+      "fixture": 7,
+      "expression": 3,
+      "exact_degree": 2
+    }
+  ],
+  "wall_seconds": 0.005162182998901699,
+  "peak_rss_kib": 16112,
+  "source_sha256": "8bd52b2cff1d4324bc0f9014840f19dc19ca08e5ebc59099b510fda3efa7a135",
+  "threads": 1,
+  "cpu_affinity": [
+    0
+  ],
+  "nice": 19,
+  "scope": "separate executable source/work/finite-difference audit; no native acceptance or privacy gate"
+}

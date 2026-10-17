@@ -1,0 +1,70 @@
+{
+  "0": {
+    "body": {
+      "mul_i128": 75,
+      "mul_i64": 75,
+      "lines": 2090,
+      "capture_bytes": [
+        "296"
+      ]
+    },
+    "l2": {
+      "mul_i128": 5,
+      "mul_i64": 5,
+      "lines": 187,
+      "capture_bytes": []
+    },
+    "body_plus_3l2_i128": 90
+  },
+  "1": {
+    "body": {
+      "mul_i128": 69,
+      "mul_i64": 69,
+      "lines": 1958,
+      "capture_bytes": [
+        "272"
+      ]
+    },
+    "l2": {
+      "mul_i128": 2,
+      "mul_i64": 2,
+      "lines": 121,
+      "capture_bytes": []
+    },
+    "body_plus_3l2_i128": 75
+  },
+  "2": {
+    "body": {
+      "mul_i128": 75,
+      "mul_i64": 75,
+      "lines": 2102,
+      "capture_bytes": [
+        "296"
+      ]
+    },
+    "l2": {
+      "mul_i128": 5,
+      "mul_i64": 5,
+      "lines": 187,
+      "capture_bytes": []
+    },
+    "body_plus_3l2_i128": 90
+  },
+  "3": {
+    "body": {
+      "mul_i128": 69,
+      "mul_i64": 69,
+      "lines": 1970,
+      "capture_bytes": [
+        "272"
+      ]
+    },
+    "l2": {
+      "mul_i128": 2,
+      "mul_i64": 2,
+      "lines": 121,
+      "capture_bytes": []
+    },
+    "body_plus_3l2_i128": 75
+  }
+}

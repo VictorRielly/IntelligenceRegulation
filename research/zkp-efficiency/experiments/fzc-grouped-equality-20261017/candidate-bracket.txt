@@ -1,0 +1,19 @@
+let bracket = move |group: usize, v: &[Fp2]| {
+                let at = |p: usize| v[idx[p]];
+                let g = gf.at(v);
+                if group == 1 { return nu[0].mul(g).mul(k_g.mul(at(A_G8)).add(at(A_RGL)).sub(k_g_half)); }
+                if group == 2 { return nu[1].mul(g).mul(at(A_U16)); }
+                assert_eq!(group, 0);
+                let l2 = |o: usize| at(o).add(at(o + 1).mul(p1));
+                let (g8, a16, u16, h16) = (at(A_G8), at(A_A16), at(A_U16), at(A_H16));
+                let f0 = a16.mul(u16).sub(k_h.mul(h16)).sub(l2(A_RH0)).add(k_h_half);
+                let f1 = u16.add(k(32768)).sub(l2(A_UL0));
+                let f2 = h16.add(k(32768)).sub(l2(A_HL0));
+                let f_act = v[i_fact].mul(alpha.sub(g8.add(k(128)).add(beta.mul(a16)).add(g_act))).sub(Fp2::ONE);
+                let g = gf.at(v);
+                let mut zc = helper_sum(v, &lks, h0, alpha, &mu[4..]).add(mu[3].mul(f_act)).add(pz.eval(v));
+                for (m, c) in mu.iter().zip([f0, f1, f2]) {
+                    zc = zc.add(m.mul(g).mul(c));
+                }
+                zc
+            };

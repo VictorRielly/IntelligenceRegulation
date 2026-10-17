@@ -1,0 +1,153 @@
+warning: due to multiple output types requested, the explicitly specified output file name will be adapted for each output type
+
+error[E0277]: a slice of type `[LkT]` cannot be built since `[LkT]` has no definite size
+   --> isolated.rs:427:95
+    |
+427 |  let lks=cols[..nlk].iter().map(|(p,c)| LkT{terms:vec![(idx[*p],Fp::from_i64(*c))],cst:g_u8}).collect();
+    |                                                                                               ^^^^^^^ try explicitly collecting into a `Vec<LkT>`
+    |
+    = help: the trait `FromIterator<LkT>` is not implemented for `[LkT]`
+note: the method call chain might not have had the expected associated types
+   --> isolated.rs:427:29
+    |
+427 |  let lks=cols[..nlk].iter().map(|(p,c)| LkT{terms:vec![(idx[*p],Fp::from_i64(*c))],cst:g_u8}).collect();
+    |          ----------- ------ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `Iterator::Item` changed to `LkT` here
+    |          |           |
+    |          |           `Iterator::Item` is `&(usize, i64)` here
+    |          this expression has type `[(usize, i64)]`
+note: required by a bound in `collect`
+   --> /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/iter/traits/iterator.rs:2077:4
+
+error[E0277]: the size for values of type `[LkT]` cannot be known at compilation time
+   --> isolated.rs:427:6
+    |
+427 |  let lks=cols[..nlk].iter().map(|(p,c)| LkT{terms:vec![(idx[*p],Fp::from_i64(*c))],cst:g_u8}).collect();
+    |      ^^^ doesn't have a size known at compile-time
+    |
+    = help: the trait `Sized` is not implemented for `[LkT]`
+    = note: all local variables must have a statically known size
+
+error[E0277]: the size for values of type `[LkT]` cannot be known at compilation time
+   --> isolated.rs:427:95
+    |
+427 |  let lks=cols[..nlk].iter().map(|(p,c)| LkT{terms:vec![(idx[*p],Fp::from_i64(*c))],cst:g_u8}).collect();
+    |                                                                                               ^^^^^^^ doesn't have a size known at compile-time
+    |
+    = help: the trait `Sized` is not implemented for `[LkT]`
+note: required by an implicit `Sized` bound in `collect`
+   --> /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/iter/traits/iterator.rs:2077:4
+
+error[E0277]: a slice of type `[LkT]` cannot be built since `[LkT]` has no definite size
+   --> isolated.rs:458:95
+    |
+458 |  let lks=cols[..nlk].iter().map(|(p,c)| LkT{terms:vec![(idx[*p],Fp::from_i64(*c))],cst:g_u8}).collect();
+    |                                                                                               ^^^^^^^ try explicitly collecting into a `Vec<LkT>`
+    |
+    = help: the trait `FromIterator<LkT>` is not implemented for `[LkT]`
+note: the method call chain might not have had the expected associated types
+   --> isolated.rs:458:29
+    |
+458 |  let lks=cols[..nlk].iter().map(|(p,c)| LkT{terms:vec![(idx[*p],Fp::from_i64(*c))],cst:g_u8}).collect();
+    |          ----------- ------ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `Iterator::Item` changed to `LkT` here
+    |          |           |
+    |          |           `Iterator::Item` is `&(usize, i64)` here
+    |          this expression has type `[(usize, i64)]`
+note: required by a bound in `collect`
+   --> /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/iter/traits/iterator.rs:2077:4
+
+error[E0277]: the size for values of type `[LkT]` cannot be known at compilation time
+   --> isolated.rs:458:6
+    |
+458 |  let lks=cols[..nlk].iter().map(|(p,c)| LkT{terms:vec![(idx[*p],Fp::from_i64(*c))],cst:g_u8}).collect();
+    |      ^^^ doesn't have a size known at compile-time
+    |
+    = help: the trait `Sized` is not implemented for `[LkT]`
+    = note: all local variables must have a statically known size
+
+error[E0277]: the size for values of type `[LkT]` cannot be known at compilation time
+   --> isolated.rs:458:95
+    |
+458 |  let lks=cols[..nlk].iter().map(|(p,c)| LkT{terms:vec![(idx[*p],Fp::from_i64(*c))],cst:g_u8}).collect();
+    |                                                                                               ^^^^^^^ doesn't have a size known at compile-time
+    |
+    = help: the trait `Sized` is not implemented for `[LkT]`
+note: required by an implicit `Sized` bound in `collect`
+   --> /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/iter/traits/iterator.rs:2077:4
+
+error[E0277]: a slice of type `[LkT]` cannot be built since `[LkT]` has no definite size
+   --> isolated.rs:489:95
+    |
+489 |  let lks=cols[..nlk].iter().map(|(p,c)| LkT{terms:vec![(idx[*p],Fp::from_i64(*c))],cst:g_u8}).collect();
+    |                                                                                               ^^^^^^^ try explicitly collecting into a `Vec<LkT>`
+    |
+    = help: the trait `FromIterator<LkT>` is not implemented for `[LkT]`
+note: the method call chain might not have had the expected associated types
+   --> isolated.rs:489:29
+    |
+489 |  let lks=cols[..nlk].iter().map(|(p,c)| LkT{terms:vec![(idx[*p],Fp::from_i64(*c))],cst:g_u8}).collect();
+    |          ----------- ------ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `Iterator::Item` changed to `LkT` here
+    |          |           |
+    |          |           `Iterator::Item` is `&(usize, i64)` here
+    |          this expression has type `[(usize, i64)]`
+note: required by a bound in `collect`
+   --> /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/iter/traits/iterator.rs:2077:4
+
+error[E0277]: the size for values of type `[LkT]` cannot be known at compilation time
+   --> isolated.rs:489:6
+    |
+489 |  let lks=cols[..nlk].iter().map(|(p,c)| LkT{terms:vec![(idx[*p],Fp::from_i64(*c))],cst:g_u8}).collect();
+    |      ^^^ doesn't have a size known at compile-time
+    |
+    = help: the trait `Sized` is not implemented for `[LkT]`
+    = note: all local variables must have a statically known size
+
+error[E0277]: the size for values of type `[LkT]` cannot be known at compilation time
+   --> isolated.rs:489:95
+    |
+489 |  let lks=cols[..nlk].iter().map(|(p,c)| LkT{terms:vec![(idx[*p],Fp::from_i64(*c))],cst:g_u8}).collect();
+    |                                                                                               ^^^^^^^ doesn't have a size known at compile-time
+    |
+    = help: the trait `Sized` is not implemented for `[LkT]`
+note: required by an implicit `Sized` bound in `collect`
+   --> /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/iter/traits/iterator.rs:2077:4
+
+error[E0277]: a slice of type `[LkT]` cannot be built since `[LkT]` has no definite size
+   --> isolated.rs:522:95
+    |
+522 |  let lks=cols[..nlk].iter().map(|(p,c)| LkT{terms:vec![(idx[*p],Fp::from_i64(*c))],cst:g_u8}).collect();
+    |                                                                                               ^^^^^^^ try explicitly collecting into a `Vec<LkT>`
+    |
+    = help: the trait `FromIterator<LkT>` is not implemented for `[LkT]`
+note: the method call chain might not have had the expected associated types
+   --> isolated.rs:522:29
+    |
+522 |  let lks=cols[..nlk].iter().map(|(p,c)| LkT{terms:vec![(idx[*p],Fp::from_i64(*c))],cst:g_u8}).collect();
+    |          ----------- ------ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `Iterator::Item` changed to `LkT` here
+    |          |           |
+    |          |           `Iterator::Item` is `&(usize, i64)` here
+    |          this expression has type `[(usize, i64)]`
+note: required by a bound in `collect`
+   --> /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/iter/traits/iterator.rs:2077:4
+
+error[E0277]: the size for values of type `[LkT]` cannot be known at compilation time
+   --> isolated.rs:522:6
+    |
+522 |  let lks=cols[..nlk].iter().map(|(p,c)| LkT{terms:vec![(idx[*p],Fp::from_i64(*c))],cst:g_u8}).collect();
+    |      ^^^ doesn't have a size known at compile-time
+    |
+    = help: the trait `Sized` is not implemented for `[LkT]`
+    = note: all local variables must have a statically known size
+
+error[E0277]: the size for values of type `[LkT]` cannot be known at compilation time
+   --> isolated.rs:522:95
+    |
+522 |  let lks=cols[..nlk].iter().map(|(p,c)| LkT{terms:vec![(idx[*p],Fp::from_i64(*c))],cst:g_u8}).collect();
+    |                                                                                               ^^^^^^^ doesn't have a size known at compile-time
+    |
+    = help: the trait `Sized` is not implemented for `[LkT]`
+note: required by an implicit `Sized` bound in `collect`
+   --> /rustc/2d8144b7880597b6e6d3dfd63a9a9efae3f533d3/library/core/src/iter/traits/iterator.rs:2077:4
+
+error: aborting due to 12 previous errors; 1 warning emitted
+
+For more information about this error, try `rustc --explain E0277`.

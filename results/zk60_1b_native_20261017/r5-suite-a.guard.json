@@ -1,0 +1,32 @@
+{
+ "ts_end": "2026-10-17T14:59:48Z",
+ "run_id": "1a39676c1b9f",
+ "label": "r5-suite-a",
+ "class": "cpu",
+ "cmd": [
+  "/home/victor/.cargo/bin/cargo",
+  "test",
+  "--release",
+  "--offline",
+  "--locked",
+  "-j2",
+  "--manifest-path",
+  "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/Cargo.toml"
+ ],
+ "need_gib": 4.5,
+ "cap_gib": 8.0,
+ "exit": 70,
+ "child_rc": null,
+ "guard_killed": null,
+ "child_wall_seconds": null,
+ "refused": "terminated by signal 15 while waiting to start",
+ "guard_error": null,
+ "guard_pid": 350210,
+ "boot_id": "08875671-f12b-4ca1-b89c-fac3acf1c90c",
+ "pid_ns": "pid:[4026532216]",
+ "guard_starttime_ticks": 4536276,
+ "lock_ids": {
+  "heavy": "2096:1134147",
+  "build": "2096:1134148"
+ }
+}

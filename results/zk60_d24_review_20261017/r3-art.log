@@ -1,0 +1,136 @@
+   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3-scratch/hashline)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:830:13
+    |
+830 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:865:4
+    |
+865 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:477:5
+    |
+470 | struct Rec {
+    |        --- field in this struct
+...
+477 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:579:15
+    |
+579 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 15 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 2m 58s
+     Running unittests src/lib.rs (ops/zkp-mvp/trained-1b-review-r3-scratch/hashline/target/release/deps/hashline-1dcd60e8ad915e01)
+
+running 1 test
+test private_block::trained_block::review_r3_artifact::r3_5_write_a_small_stack_artifact ... {"event":"run_header","gpu":"gpu: off (built without --features gpu-cuda)","hl_gpu_required":false}
+{"event":"loaded","variant":"rev-stack2","layers":"0..2","blocks":2,"statement_identity":"72098637f55f5b49d4729fec487c01090b39b9182173970cbd8b84fe55f496e5","seconds":0.023,"hl_gpu":"unset","scope":"ALL the listed trained blocks of the export's model (TinyLlama-1.1B-Chat or Llama-3-8B) as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"}
+{"event":"sealed","from":"the export's layer-0 x_in and layer-1 x_out (parity is checked per layer in the proving pass)","seconds":0.000,"rayon_threads":22}
+{"event":"segment","index":0,"layer":0,"bytes":7398936,"elapsed_seconds":1.278,"vmhwm_mib":162}
+{"event":"segment","index":1,"layer":1,"bytes":7613944,"elapsed_seconds":2.346,"vmhwm_mib":168}
+{"event":"parity","result":"bit-exact at every layer","layers":2,"words_per_layer":12288,"checked_in_the_proving_pass":true}
+{"event":"proved","gpu":"gpu: off (built without --features gpu-cuda)","gpu_declines":0,"blocks":2,"receipt_bytes":15012880,"prove_run_seconds":2.346,"of_which_witness_seconds":0.043,"witness_seconds_per_block":0.022,"of_which_block_load_seconds":0.018,"block_loads":2,"rayon_threads":22,"in_process_verify_seconds":0.415,"sealing_pass_seconds":0.000,"load_seconds":0.023,"total_seconds":2.837,"vmhwm_mib":168,"statement_identity":"72098637f55f5b49d4729fec487c01090b39b9182173970cbd8b84fe55f496e5","out":"/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3-scratch/review_out/stack2/run"}
+REVIEW-R3-5 wrote /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3-scratch/review_out/stack2/run identity 72098637f55f5b49d4729fec487c01090b39b9182173970cbd8b84fe55f496e5
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 568 filtered out; finished in 2.90s
+

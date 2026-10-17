@@ -414,6 +414,77 @@ pub(super) const HISTOGRAM_PAR_MIN: u64 = 1 << 17;
 /// outside the table counts into entry 0, exactly as before: only the LogUp
 /// identity can catch it.) `lookup_words` is the PUBLIC word count of the
 /// shape, which is what chooses the branch — never a witness value.
+/// **RULING CS-3** (ported from the 125M lane, stage 40). How many looked
+/// words are outside the byte table — the words [`byte_histogram_at`] files
+/// in entry 0. A count of public-length columns, parallel above the same
+/// public threshold as the histogram.
+fn u8_misses_of(looked: &[(Dom, Vec<Vec<i64>>)], lookup_words: u64) -> usize {
+    let miss = |c: &Vec<i64>| c.iter().filter(|v| !(0..U8_LEN as i64).contains(*v)).count();
+    if lookup_words >= HISTOGRAM_PAR_MIN {
+        use rayon::prelude::*;
+        let cols: Vec<&Vec<i64>> = looked.iter().flat_map(|(_, cols)| cols.iter()).collect();
+        return cols.par_iter().map(|c| miss(c)).sum();
+    }
+    looked.iter().flat_map(|(_, cols)| cols.iter()).map(miss).sum()
+}
+
+/// **RULING CS-3's name.**
+pub(super) const LOOKUP_MISS_REFUSAL: &str = "private block: ruling CS-3 — the witness looks up a value that is not a row of its table";
+
+/// **RULING CS-3: the ONE refusal of a lookup miss** (text per errata K-1
+/// and K-2: what precedes the refusal, and the CLASS of the miss only, never
+/// a count). A CHEATING prover does not run this check, and the soundness
+/// tests play one: under `#[cfg(test)]` a thread-local switch
+/// ([`CheatingProver`]) makes it return `Ok`. A release build has no switch.
+fn refuse_lookup_misses(u8: usize, exp: usize, act: usize) -> Result<(), String> {
+    #[cfg(test)]
+    if CHEATING_PROVER.with(|c| c.get()) {
+        return Ok(());
+    }
+    if u8 + exp + act == 0 {
+        return Ok(());
+    }
+    let families: Vec<&str> = [(u8, "the byte table"), (exp, "the exp table"), (act, "the activation table")].iter().filter(|(n, _)| *n > 0).map(|(_, f)| *f).collect();
+    Err(format!(
+        "{LOOKUP_MISS_REFUSAL}; the table family that missed: {} (the class of the miss only, never a count — ruling K-2). It is refused before this block's A mask rows are drawn, its A commitment is made or any challenge of it is drawn. What precedes the refusal: in a single block, the transcript header's absorbs; inside a run, the run header, every earlier stage, this stage's header absorbs and, below the last block, the boundary B_k to the next block, drawn from the run's stream, committed and absorbed (ruling M-9).",
+        families.join(", ")
+    ))
+}
+
+// **RULING CS-3's test-only switch: the soundness tests' CHEATING PROVER.**
+#[cfg(test)]
+thread_local! {
+    static CHEATING_PROVER: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
+/// While alive, this thread's prover skips ruling CS-3's refusal, and the run
+/// prover ruling CS-6's comparison of the blocks it is handed with the ones
+/// its statement names (test only).
+#[cfg(test)]
+pub(crate) struct CheatingProver {
+    was: bool,
+}
+
+/// Whether a [`CheatingProver`] guard lives on this thread (test only).
+#[cfg(test)]
+pub(crate) fn cheating_prover_is_on() -> bool {
+    CHEATING_PROVER.with(|c| c.get())
+}
+
+#[cfg(test)]
+impl CheatingProver {
+    pub(crate) fn on() -> CheatingProver {
+        CheatingProver { was: CHEATING_PROVER.with(|c| c.replace(true)) }
+    }
+}
+
+#[cfg(test)]
+impl Drop for CheatingProver {
+    fn drop(&mut self) {
+        CHEATING_PROVER.with(|c| c.set(self.was));
+    }
+}
+
 pub(super) fn byte_histogram_at(looked: &[(Dom, Vec<Vec<i64>>)], lookup_words: u64, par_min: u64) -> Vec<u64> {
     let bin = |v: &i64| -> usize {
         if (0..U8_LEN as i64).contains(v) {
@@ -696,8 +767,16 @@ pub(crate) fn prove_inner_at(sh: &Shape, blk: &BlockPublic, wit: Witness, expect
     let mut tick = Instant::now();
     let mut ph = timing::Phases::start();
     let mut phases: Vec<(&'static str, f64)> = Vec::new();
+    // RULING CS-8: the shape is one `Shape::new` builds, before anything is
+    // derived from it
+    sh.check_constructed()?;
     fits_the_ntt_tables(sh)?;
     let lay = Layout::for_shape(sh)?;
+    // RULINGS CS-1 and CS-4: the block statement and the endpoint policy,
+    // before the endpoint owners are opened, the randomness is seeded or the
+    // transcript header is absorbed
+    blk.check_for_shape(sh)?;
+    expected.spec.check_for_shape(sh)?;
     let [ein, eout] = check_endpoints(sh, expected, endpoints)?;
     // ONE OS stream per attempt; entropy failure aborts before anything public exists.
     //
@@ -809,6 +888,14 @@ pub(crate) fn prove_core(
     tick: &mut std::time::Instant,
 ) -> Result<CoreProof, String> {
     let (public, ff) = (blk.attention(), blk.feed_forward());
+    // RULING CS-8, in the body every proving path shares: the shape is one
+    // `Shape::new` builds and the layout the CALLER hands is the one
+    // `Layout::for_shape` derives for it — nothing drawn, absorbed or
+    // committed for this block yet
+    sh.check_constructed()?;
+    lay.check_is_for_shape(sh)?;
+    // RULINGS CS-1 and CS-4, in the body every proving path shares
+    blk.check_for_shape(sh)?;
     let (ids, hids, n) = (lay.ids(), lay.hids(), lay.n());
     // every plane but the three derived histograms
     let committed: Vec<usize> = lay.a_planes().into_iter().filter(|p| !ids.is_multiplicity(*p)).collect();
@@ -825,7 +912,7 @@ pub(crate) fn prove_core(
             a_data[lay.a_off[*p] + i] = Fp::from_i64(*v);
         }
     }
-    ph.mark(Half::Commit, "A: allocate + witness planes -> committed rows", (lay.a_rows * n) as u64, "words");
+    ph.mark_bytes(Half::Commit, "A: allocate + witness planes -> committed rows", (lay.a_rows * n) as u64, "words", 8 * (lay.a_rows * n) as u64);
     // The three histograms are indexed by a TABLE ENTRY, so they are `U8_LEN`
     // long and their in-class guards test `[0, U8_LEN)` — never the row width
     // `N` (trap T-1). The two guards that index `public.exp` (256 words) and
@@ -839,16 +926,26 @@ pub(crate) fn prove_core(
     ph.mark(Half::Commit, "A: lookup values + the byte histogram", lookup_words, "words");
     let deltas = exp_deltas(&lay, &wit);
     let mut m_exp = vec![0u64; U8_LEN];
+    let mut exp_missed = 0usize;
     for (x, d) in deltas.iter().enumerate() {
         let hit = (0..U8_LEN as i64).contains(d) && public.exp[*d as usize] == wit.planes[ids.at(A_E)][x];
+        exp_missed += usize::from(!hit);
         m_exp[if hit { *d as usize } else { 0 }] += 1;
     }
     let act_idx = act_indices(&lay, &wit);
     let mut m_act = vec![0u64; U8_LEN];
+    let mut act_missed = 0usize;
     for (x, i) in act_idx.iter().enumerate() {
         let hit = (0..U8_LEN as i64).contains(i) && i64::from(ff.act[*i as usize]) == wit.planes[ids.at(A_A16)][x];
+        act_missed += usize::from(!hit);
         m_act[if hit { *i as usize } else { 0 }] += 1;
     }
+    // RULING CS-3 (ported from the 125M lane's stage 40, text per errata
+    // K-1 / K-2 of its stage 44): the three bucket-0 paths above are ONE
+    // named refusal HERE — after the three histograms, from values this
+    // function already holds, and BEFORE the first draw of the `A` mask rows,
+    // the `A` commitment and any absorb or challenge of this block's body.
+    refuse_lookup_misses(u8_misses_of(&looked, lookup_words), exp_missed, act_missed)?;
     for i in 0..U8_LEN {
         a_data[lay.a_off[ids.at(A_MU8)] + i] = Fp::new(m_u8[i]);
         a_data[lay.a_off[ids.at(A_MEXP)] + i] = Fp::new(m_exp[i]);
@@ -887,7 +984,9 @@ pub(crate) fn prove_core(
     // STAGE 11: row encoding and column hashing are NOT separable here. Both
     // live inside `pcs::commit_zk_owned`, which is `hashline/src/pcs.rs` — a
     // file this lane does not edit — so the enclosing call is one phase.
-    ph.mark(Half::Commit, "A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call)", lay.a_rows as u64, "rows");
+    // ROUND 5: counted in committed WORDS (rows x row width), and the bytes
+    // of the encoded matrix the Merkle tree hashes (x the code rate)
+    ph.mark_bytes(Half::Commit, "A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call)", (lay.a_rows * n) as u64, "words", 8 * (lay.a_rows * n * sh.inv_rate) as u64);
     lap(phases, tick, "witness planes + commit A");
 
     // ---- M: all twenty-three CFS masks, committed before any challenge ----
@@ -928,12 +1027,12 @@ pub(crate) fn prove_core(
             write_h(&mut h_data, lay.h_off[first + k], &col);
         }
     }
-    ph.mark(Half::Commit, "H: LogUp helper inverses (six lookup domains)", lookup_words, "words");
+    ph.mark_bytes(Half::Commit, "H: LogUp helper inverses (six lookup domains)", lookup_words, "words", 16 * lookup_words);
     let exp_den = deltas.iter().zip(wit.planes[ids.at(A_E)].iter()).map(|(d, e)| alpha.sub(Fp2::from_i64(*d).add(beta.mul(Fp2::from_i64(*e))).add(g_exp))).collect();
     write_h(&mut h_data, lay.h_off[hids.sexp()], &inverses(exp_den)?);
     let act_den = act_idx.iter().zip(wit.planes[ids.at(A_A16)].iter()).map(|(i, a)| alpha.sub(Fp2::from_i64(*i).add(beta.mul(Fp2::from_i64(*a))).add(g_act))).collect();
     write_h(&mut h_data, lay.h_off[hids.fact()], &inverses(act_den)?);
-    ph.mark(Half::Commit, "H: exp + activation helper inverses", (sh.size(Dom::S) + sh.size(Dom::F)) as u64, "words");
+    ph.mark_bytes(Half::Commit, "H: exp + activation helper inverses", (sh.size(Dom::S) + sh.size(Dom::F)) as u64, "words", 16 * (sh.size(Dom::S) + sh.size(Dom::F)) as u64);
     // ---- STEP S2 (C-11): the prover's four transient buffers die HERE ----
     // The two lines above are the LAST reads of the witness planes and of
     // `looked`; the memo's earlier proposal to drop them at the histogram loop
@@ -1003,7 +1102,7 @@ pub(crate) fn prove_core(
     h.prox_mask_row = Some(lay.h_prox);
     let h_root = h.commitment().root;
     absorb_root(tr, b"H", &h_root, lay.h_rows, sh.log_cols);
-    ph.mark(Half::Commit, "H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call)", lay.h_rows as u64, "rows");
+    ph.mark_bytes(Half::Commit, "H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call)", (lay.h_rows * n) as u64, "words", 8 * (lay.h_rows * n * sh.inv_rate) as u64);
     lap(phases, tick, "LogUp helpers + commit H");
 
     // ---- the twenty-three slots ----
@@ -1026,11 +1125,14 @@ pub(crate) fn prove_core(
     check_opening(&ac, sh.log_cols, lay.a_rows, &lay.a_site_rows(), None, lay.a_prox, sh.a_groups(), tr)?;
     let a_open = pcs::open_zk(&a, &ac, tr);
     drop(a);
-    ph.mark(Half::Open, "open A (schedule audit + pcs::open_zk)", ac.len() as u64, "claims");
+    // ROUND 5: counted as the committed words the opening combines
+    ph.mark_bytes(Half::Open, "open A (schedule audit + pcs::open_zk)", (lay.a_rows * lay.n()) as u64, "words", 8 * (lay.a_rows * lay.n()) as u64);
+    let _ = ac.len();
     check_opening(&hc, sh.log_cols, lay.h_rows, &lay.h_site_rows(), Some(lay.h_u_rows()), lay.h_prox, sh.h_groups(), tr)?;
     let h_open = pcs::open_zk(&h, &hc, tr);
     drop(h);
-    ph.mark(Half::Open, "open H (schedule audit + pcs::open_zk)", hc.len() as u64, "claims");
+    ph.mark_bytes(Half::Open, "open H (schedule audit + pcs::open_zk)", (lay.h_rows * lay.n()) as u64, "words", 8 * (lay.h_rows * lay.n()) as u64);
+    let _ = hc.len();
     Ok(CoreProof {
         a_root,
         h_root,
@@ -1071,6 +1173,12 @@ pub(crate) struct CoreView<'a> {
 /// pending boundary claim into stage `k + 1` without trusting a segment.
 pub(crate) fn verify_core(sh: &Shape, lay: &Layout, blk: &BlockPublic, v: CoreView, ntt: &NttTables, tr: &mut Transcript, ph: &mut timing::Phases) -> Result<([Vec<ZClaim>; 2], Vec<String>), String> {
     let (public, ff) = (blk.attention(), blk.feed_forward());
+    // RULING CS-8, in the body every verifying path shares: the shape and
+    // the layout the CALLER hands, before anything is absorbed or squeezed
+    sh.check_constructed()?;
+    lay.check_is_for_shape(sh)?;
+    // RULINGS CS-1 and CS-4, in the body every verifying path shares
+    blk.check_for_shape(sh)?;
     let params = pcs_params_at(sh);
     let zko = ZkOpts::standard(&params);
     // STAGE 17 (ruling T-7): the tag is the VERIFIER's, from the shape its
@@ -1192,8 +1300,14 @@ pub(crate) fn verify_inner_at(sh: &Shape, blk: &BlockPublic, expected: &Expected
     #[cfg(test)]
     super::capture::begin();
     let mut ph = timing::Phases::start();
+    // RULING CS-8: the shape the caller trusts is one `Shape::new` builds
+    sh.check_constructed()?;
     fits_the_ntt_tables(sh)?;
     let lay = Layout::for_shape(sh)?;
+    // RULINGS CS-1 and CS-4: the block statement and the endpoint policy,
+    // before the receipt is looked at or the header absorbed
+    blk.check_for_shape(sh)?;
+    expected.spec.check_for_shape(sh)?;
     // **STAGE 16, ruling T-4**, before the frame shape check so that the
     // refusal a caller sees names the commitment and the two path lengths
     // rather than being the generic "opening shape". The five commitments of

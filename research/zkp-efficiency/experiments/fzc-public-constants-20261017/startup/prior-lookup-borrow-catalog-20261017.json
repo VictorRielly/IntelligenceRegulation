@@ -1,0 +1,589 @@
+{
+  "status": "pass",
+  "run_id": "20261017T122624Z-c30acfa0",
+  "cycle": "0062",
+  "seed": 2026101762,
+  "counts": {
+    "domains": 288,
+    "columns": 4176,
+    "words": 23834,
+    "helper_fp2_words": 12328,
+    "borrowed_columns": 2563,
+    "fixtures": 48,
+    "generic_columns": 5,
+    "oversized_prefix_checks": 1
+  },
+  "controls": [
+    "constant offset wrongly borrowed",
+    "scaled column wrongly borrowed",
+    "multiterm column wrongly borrowed",
+    "truncated padded plane",
+    "saturating instead of wrapping affine",
+    "out-of-range value silently clamped",
+    "present-byte zero denominator",
+    "absent-byte still refuses at full-table helper",
+    "out-of-range zero denominator fallback",
+    "helper pair order changed",
+    "new source expression ignored"
+  ],
+  "output_sha256": "28ea9c2edeee92c015d7d4c57ec3c78f4fb87ff4a1b875fc62437ffb86d875f4",
+  "census": [
+    {
+      "model": "TinyLlama1.1B",
+      "context": 32,
+      "log_cols": 12,
+      "ls": 2,
+      "domains": {
+        "L": {
+          "columns": 2,
+          "borrowable": 2,
+          "padded_words": 4096
+        },
+        "D": {
+          "columns": 34,
+          "borrowable": 28,
+          "padded_words": 65536
+        },
+        "F": {
+          "columns": 9,
+          "borrowable": 8,
+          "padded_words": 262144
+        },
+        "Q": {
+          "columns": 13,
+          "borrowable": 5,
+          "padded_words": 65536
+        },
+        "Kv": {
+          "columns": 12,
+          "borrowable": 5,
+          "padded_words": 8192
+        },
+        "S": {
+          "columns": 13,
+          "borrowable": 7,
+          "padded_words": 32768
+        }
+      },
+      "baseline_looked_bytes": 47775744,
+      "borrowed_payload_bytes": 36306944,
+      "remaining_owned_bytes": 11468800,
+      "fraction": 0.7599451303155007,
+      "duplicate_histogram_word_visits": 344064,
+      "scope": "allocation-free source count; same public shifts as TinyLlama export; 8B calibration hypothetical; not peak or traffic or admission; duplicate histogram optimization untested"
+    },
+    {
+      "model": "TinyLlama1.1B",
+      "context": 64,
+      "log_cols": 13,
+      "ls": 2,
+      "domains": {
+        "L": {
+          "columns": 2,
+          "borrowable": 2,
+          "padded_words": 8192
+        },
+        "D": {
+          "columns": 34,
+          "borrowable": 28,
+          "padded_words": 131072
+        },
+        "F": {
+          "columns": 9,
+          "borrowable": 8,
+          "padded_words": 524288
+        },
+        "Q": {
+          "columns": 13,
+          "borrowable": 5,
+          "padded_words": 131072
+        },
+        "Kv": {
+          "columns": 12,
+          "borrowable": 5,
+          "padded_words": 16384
+        },
+        "S": {
+          "columns": 13,
+          "borrowable": 7,
+          "padded_words": 131072
+        }
+      },
+      "baseline_looked_bytes": 102367232,
+      "borrowed_payload_bytes": 76283904,
+      "remaining_owned_bytes": 26083328,
+      "fraction": 0.7451984635083226,
+      "duplicate_histogram_word_visits": 688128,
+      "scope": "allocation-free source count; same public shifts as TinyLlama export; 8B calibration hypothetical; not peak or traffic or admission; duplicate histogram optimization untested"
+    },
+    {
+      "model": "TinyLlama1.1B",
+      "context": 128,
+      "log_cols": 14,
+      "ls": 2,
+      "domains": {
+        "L": {
+          "columns": 2,
+          "borrowable": 2,
+          "padded_words": 16384
+        },
+        "D": {
+          "columns": 34,
+          "borrowable": 28,
+          "padded_words": 262144
+        },
+        "F": {
+          "columns": 9,
+          "borrowable": 8,
+          "padded_words": 1048576
+        },
+        "Q": {
+          "columns": 13,
+          "borrowable": 5,
+          "padded_words": 262144
+        },
+        "Kv": {
+          "columns": 12,
+          "borrowable": 5,
+          "padded_words": 32768
+        },
+        "S": {
+          "columns": 13,
+          "borrowable": 9,
+          "padded_words": 524288
+        }
+      },
+      "baseline_looked_bytes": 231997440,
+      "borrowed_payload_bytes": 175636480,
+      "remaining_owned_bytes": 56360960,
+      "fraction": 0.7570621468926554,
+      "duplicate_histogram_word_visits": 2424832,
+      "scope": "allocation-free source count; same public shifts as TinyLlama export; 8B calibration hypothetical; not peak or traffic or admission; duplicate histogram optimization untested"
+    },
+    {
+      "model": "TinyLlama1.1B",
+      "context": 256,
+      "log_cols": 15,
+      "ls": 3,
+      "domains": {
+        "L": {
+          "columns": 2,
+          "borrowable": 2,
+          "padded_words": 32768
+        },
+        "D": {
+          "columns": 34,
+          "borrowable": 28,
+          "padded_words": 524288
+        },
+        "F": {
+          "columns": 9,
+          "borrowable": 8,
+          "padded_words": 2097152
+        },
+        "Q": {
+          "columns": 13,
+          "borrowable": 5,
+          "padded_words": 524288
+        },
+        "Kv": {
+          "columns": 12,
+          "borrowable": 5,
+          "padded_words": 65536
+        },
+        "S": {
+          "columns": 15,
+          "borrowable": 9,
+          "padded_words": 2097152
+        }
+      },
+      "baseline_looked_bytes": 606601216,
+      "borrowed_payload_bytes": 426770432,
+      "remaining_owned_bytes": 179830784,
+      "fraction": 0.7035436473638721,
+      "duplicate_histogram_word_visits": 2752512,
+      "scope": "allocation-free source count; same public shifts as TinyLlama export; 8B calibration hypothetical; not peak or traffic or admission; duplicate histogram optimization untested"
+    },
+    {
+      "model": "TinyLlama1.1B",
+      "context": 512,
+      "log_cols": 16,
+      "ls": 3,
+      "domains": {
+        "L": {
+          "columns": 2,
+          "borrowable": 2,
+          "padded_words": 65536
+        },
+        "D": {
+          "columns": 34,
+          "borrowable": 28,
+          "padded_words": 1048576
+        },
+        "F": {
+          "columns": 9,
+          "borrowable": 8,
+          "padded_words": 4194304
+        },
+        "Q": {
+          "columns": 13,
+          "borrowable": 5,
+          "padded_words": 1048576
+        },
+        "Kv": {
+          "columns": 12,
+          "borrowable": 5,
+          "padded_words": 131072
+        },
+        "S": {
+          "columns": 15,
+          "borrowable": 9,
+          "padded_words": 8388608
+        }
+      },
+      "baseline_looked_bytes": 1716518912,
+      "borrowed_payload_bytes": 1155530752,
+      "remaining_owned_bytes": 560988160,
+      "fraction": 0.6731826511912035,
+      "duplicate_histogram_word_visits": 5505024,
+      "scope": "allocation-free source count; same public shifts as TinyLlama export; 8B calibration hypothetical; not peak or traffic or admission; duplicate histogram optimization untested"
+    },
+    {
+      "model": "TinyLlama1.1B",
+      "context": 1024,
+      "log_cols": 17,
+      "ls": 3,
+      "domains": {
+        "L": {
+          "columns": 2,
+          "borrowable": 2,
+          "padded_words": 131072
+        },
+        "D": {
+          "columns": 34,
+          "borrowable": 28,
+          "padded_words": 2097152
+        },
+        "F": {
+          "columns": 9,
+          "borrowable": 8,
+          "padded_words": 8388608
+        },
+        "Q": {
+          "columns": 13,
+          "borrowable": 5,
+          "padded_words": 2097152
+        },
+        "Kv": {
+          "columns": 12,
+          "borrowable": 5,
+          "padded_words": 262144
+        },
+        "S": {
+          "columns": 15,
+          "borrowable": 9,
+          "padded_words": 33554432
+        }
+      },
+      "baseline_looked_bytes": 5446303744,
+      "borrowed_payload_bytes": 3519021056,
+      "remaining_owned_bytes": 1927282688,
+      "fraction": 0.6461301501732769,
+      "duplicate_histogram_word_visits": 11010048,
+      "scope": "allocation-free source count; same public shifts as TinyLlama export; 8B calibration hypothetical; not peak or traffic or admission; duplicate histogram optimization untested"
+    },
+    {
+      "model": "Llama3-8B",
+      "context": 32,
+      "log_cols": 13,
+      "ls": 2,
+      "domains": {
+        "L": {
+          "columns": 2,
+          "borrowable": 2,
+          "padded_words": 8192
+        },
+        "D": {
+          "columns": 34,
+          "borrowable": 28,
+          "padded_words": 131072
+        },
+        "F": {
+          "columns": 9,
+          "borrowable": 8,
+          "padded_words": 524288
+        },
+        "Q": {
+          "columns": 13,
+          "borrowable": 5,
+          "padded_words": 131072
+        },
+        "Kv": {
+          "columns": 12,
+          "borrowable": 5,
+          "padded_words": 32768
+        },
+        "S": {
+          "columns": 13,
+          "borrowable": 7,
+          "padded_words": 32768
+        }
+      },
+      "baseline_looked_bytes": 93716480,
+      "borrowed_payload_bytes": 71434240,
+      "remaining_owned_bytes": 22282240,
+      "fraction": 0.7622377622377622,
+      "duplicate_histogram_word_visits": 720896,
+      "scope": "allocation-free source count; same public shifts as TinyLlama export; 8B calibration hypothetical; not peak or traffic or admission; duplicate histogram optimization untested"
+    },
+    {
+      "model": "Llama3-8B",
+      "context": 64,
+      "log_cols": 14,
+      "ls": 2,
+      "domains": {
+        "L": {
+          "columns": 2,
+          "borrowable": 2,
+          "padded_words": 16384
+        },
+        "D": {
+          "columns": 34,
+          "borrowable": 28,
+          "padded_words": 262144
+        },
+        "F": {
+          "columns": 9,
+          "borrowable": 8,
+          "padded_words": 1048576
+        },
+        "Q": {
+          "columns": 13,
+          "borrowable": 5,
+          "padded_words": 262144
+        },
+        "Kv": {
+          "columns": 12,
+          "borrowable": 5,
+          "padded_words": 65536
+        },
+        "S": {
+          "columns": 13,
+          "borrowable": 7,
+          "padded_words": 131072
+        }
+      },
+      "baseline_looked_bytes": 194248704,
+      "borrowed_payload_bytes": 146538496,
+      "remaining_owned_bytes": 47710208,
+      "fraction": 0.7543859649122807,
+      "duplicate_histogram_word_visits": 1441792,
+      "scope": "allocation-free source count; same public shifts as TinyLlama export; 8B calibration hypothetical; not peak or traffic or admission; duplicate histogram optimization untested"
+    },
+    {
+      "model": "Llama3-8B",
+      "context": 128,
+      "log_cols": 15,
+      "ls": 2,
+      "domains": {
+        "L": {
+          "columns": 2,
+          "borrowable": 2,
+          "padded_words": 32768
+        },
+        "D": {
+          "columns": 34,
+          "borrowable": 28,
+          "padded_words": 524288
+        },
+        "F": {
+          "columns": 9,
+          "borrowable": 8,
+          "padded_words": 2097152
+        },
+        "Q": {
+          "columns": 13,
+          "borrowable": 5,
+          "padded_words": 524288
+        },
+        "Kv": {
+          "columns": 12,
+          "borrowable": 5,
+          "padded_words": 131072
+        },
+        "S": {
+          "columns": 13,
+          "borrowable": 9,
+          "padded_words": 524288
+        }
+      },
+      "baseline_looked_bytes": 415760384,
+      "borrowed_payload_bytes": 316145664,
+      "remaining_owned_bytes": 99614720,
+      "fraction": 0.7604035308953342,
+      "duplicate_histogram_word_visits": 3932160,
+      "scope": "allocation-free source count; same public shifts as TinyLlama export; 8B calibration hypothetical; not peak or traffic or admission; duplicate histogram optimization untested"
+    },
+    {
+      "model": "Llama3-8B",
+      "context": 256,
+      "log_cols": 16,
+      "ls": 3,
+      "domains": {
+        "L": {
+          "columns": 2,
+          "borrowable": 2,
+          "padded_words": 65536
+        },
+        "D": {
+          "columns": 34,
+          "borrowable": 28,
+          "padded_words": 1048576
+        },
+        "F": {
+          "columns": 9,
+          "borrowable": 8,
+          "padded_words": 4194304
+        },
+        "Q": {
+          "columns": 13,
+          "borrowable": 5,
+          "padded_words": 1048576
+        },
+        "Kv": {
+          "columns": 12,
+          "borrowable": 5,
+          "padded_words": 262144
+        },
+        "S": {
+          "columns": 15,
+          "borrowable": 9,
+          "padded_words": 2097152
+        }
+      },
+      "baseline_looked_bytes": 974127104,
+      "borrowed_payload_bytes": 707788800,
+      "remaining_owned_bytes": 266338304,
+      "fraction": 0.7265877287405813,
+      "duplicate_histogram_word_visits": 5767168,
+      "scope": "allocation-free source count; same public shifts as TinyLlama export; 8B calibration hypothetical; not peak or traffic or admission; duplicate histogram optimization untested"
+    },
+    {
+      "model": "Llama3-8B",
+      "context": 512,
+      "log_cols": 17,
+      "ls": 3,
+      "domains": {
+        "L": {
+          "columns": 2,
+          "borrowable": 2,
+          "padded_words": 131072
+        },
+        "D": {
+          "columns": 34,
+          "borrowable": 28,
+          "padded_words": 2097152
+        },
+        "F": {
+          "columns": 9,
+          "borrowable": 8,
+          "padded_words": 8388608
+        },
+        "Q": {
+          "columns": 13,
+          "borrowable": 5,
+          "padded_words": 2097152
+        },
+        "Kv": {
+          "columns": 12,
+          "borrowable": 5,
+          "padded_words": 524288
+        },
+        "S": {
+          "columns": 15,
+          "borrowable": 9,
+          "padded_words": 8388608
+        }
+      },
+      "baseline_looked_bytes": 2451570688,
+      "borrowed_payload_bytes": 1717567488,
+      "remaining_owned_bytes": 734003200,
+      "fraction": 0.7005988023952096,
+      "duplicate_histogram_word_visits": 11534336,
+      "scope": "allocation-free source count; same public shifts as TinyLlama export; 8B calibration hypothetical; not peak or traffic or admission; duplicate histogram optimization untested"
+    },
+    {
+      "model": "Llama3-8B",
+      "context": 1024,
+      "log_cols": 18,
+      "ls": 3,
+      "domains": {
+        "L": {
+          "columns": 2,
+          "borrowable": 2,
+          "padded_words": 262144
+        },
+        "D": {
+          "columns": 34,
+          "borrowable": 28,
+          "padded_words": 4194304
+        },
+        "F": {
+          "columns": 9,
+          "borrowable": 8,
+          "padded_words": 16777216
+        },
+        "Q": {
+          "columns": 13,
+          "borrowable": 5,
+          "padded_words": 4194304
+        },
+        "Kv": {
+          "columns": 12,
+          "borrowable": 5,
+          "padded_words": 1048576
+        },
+        "S": {
+          "columns": 15,
+          "borrowable": 9,
+          "padded_words": 33554432
+        }
+      },
+      "baseline_looked_bytes": 6916407296,
+      "borrowed_payload_bytes": 4643094528,
+      "remaining_owned_bytes": 2273312768,
+      "fraction": 0.6713159490600363,
+      "duplicate_histogram_word_visits": 23068672,
+      "scope": "allocation-free source count; same public shifts as TinyLlama export; 8B calibration hypothetical; not peak or traffic or admission; duplicate histogram optimization untested"
+    }
+  ],
+  "experiment_wall_seconds": 1.0500064899970312,
+  "peak_rss_kib": 17464,
+  "cpu_affinity": [
+    0
+  ],
+  "threads": 1,
+  "nice": 19,
+  "limits": "59s CPU/wall;512MiB AS; estimated<64MiB; no GPU",
+  "executed_source_sha256": "bf071a0404feb3123004975b3e0c4516ae68365fdfa60009315ba672210dfb9c",
+  "scope": "synthetic Python differential; source-derived catalog equals independent semantic catalog; no native build/proof/performance/privacy acceptance",
+  "proof_accounting": {
+    "accepted_complete_private_8b_proofs": 0,
+    "passes": 0,
+    "positions": 0,
+    "context": null,
+    "steady_rate": null,
+    "total_workload_rate": null,
+    "startup_s": null,
+    "startup_fraction": null,
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "lag_s": null,
+    "drain_s": null,
+    "prefill_ran": false,
+    "resident_passes_ran": false,
+    "decode_ran": false
+  }
+}

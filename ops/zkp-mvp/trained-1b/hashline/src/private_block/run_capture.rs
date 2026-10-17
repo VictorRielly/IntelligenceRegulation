@@ -165,7 +165,7 @@ pub(super) fn schema_of(arrays: bool) -> &'static str {
 /// is a list of `(file, sha256)` objects; adding entries renames nothing,
 /// reorders nothing a loader reads by name and removes nothing. Bundles
 /// already committed keep the shorter list their own manifests pin.
-pub(super) const SHARED_SOURCE_FILES: [&str; 23] = [
+pub(super) const SHARED_SOURCE_FILES: [&str; 26] = [
     // hashline's own shared modules on the run's path
     "src/zk.rs",
     "src/tables_attn.rs",
@@ -193,6 +193,14 @@ pub(super) const SHARED_SOURCE_FILES: [&str; 23] = [
     "../zkp-core/src/rng.rs",
     "../zkp-core/src/sumcheck.rs",
     "../zkp-core/src/transcript.rs",
+    // NATIVE LANE, round 5 (the privacy-gate lane's finding G-2): three
+    // `zkp-core` submodules on the prover's path that no capture pinned —
+    // the commitment's encode buffer (`pcs.rs: mod encode_buffer`) and the
+    // sumcheck's round and grouped bodies (`sumcheck.rs: mod rounds; mod
+    // grouped`). Pure addition, as stage 27's list was.
+    "../zkp-core/src/pcs/encode_buffer.rs",
+    "../zkp-core/src/sumcheck/rounds.rs",
+    "../zkp-core/src/sumcheck/grouped.rs",
 ];
 
 pub(super) const OWN_SOURCE_FILES: [&str; 16] = [

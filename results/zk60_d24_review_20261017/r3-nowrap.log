@@ -1,0 +1,6 @@
+TinyLlama T32 worst 2^48.039 {'norm R4': 48.0, 'norm C0': 48.039, 'norm C1': 41.0, 'softmax c2': 31.0, 'product clause': 31.585, 'down host (sum over f_pad)': 35.0}
+TinyLlama T64 worst 2^48.039 {'norm R4': 48.0, 'norm C0': 48.039, 'norm C1': 41.0, 'softmax c2': 32.0, 'product clause': 31.585, 'down host (sum over f_pad)': 35.0}
+TinyLlama T128 worst 2^48.039 {'norm R4': 48.0, 'norm C0': 48.039, 'norm C1': 41.0, 'softmax c2': 33.0, 'product clause': 31.585, 'down host (sum over f_pad)': 35.0}
+Llama-3-8B T32 worst 2^48.039 {'norm R4': 48.0, 'norm C0': 48.039, 'norm C1': 41.0, 'softmax c2': 31.0, 'product clause': 31.585, 'down host (sum over f_pad)': 36.0}
+8B D_max and max tn {'1': (2097152, 9, True), '78617': (2097152, 9, True), '1099511627776': (2344687, 9, True)}
+8B export (tn 9, Ceps 78617) {'D_max': 2097152, 'wrho': 32}

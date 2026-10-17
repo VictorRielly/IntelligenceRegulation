@@ -1,0 +1,3015 @@
+{
+  "status": "PASS",
+  "cycle": "0065",
+  "run_id": "20261017T182105Z-44205280",
+  "seed": 2026101765,
+  "checks": {
+    "fixtures": 96,
+    "variant_runs": 384,
+    "round_words": 12576,
+    "recovered_one_words": 1152,
+    "final_words": 15936,
+    "phase_access_counts": 4128,
+    "source_formula_checks": 384
+  },
+  "negative_controls": {
+    "drop final fold": true,
+    "halve fused fold bytes": true,
+    "lean equals direct loads": true,
+    "lean fusion removes rereads": true,
+    "omit support table": true,
+    "pad zero weights all loaded": true,
+    "plan equals direct complete bytes": true,
+    "omit activation helper": true,
+    "swap limb planes": true,
+    "flip output extension word": true
+  },
+  "rows": [
+    {
+      "n": 1,
+      "N": 2,
+      "K": 20,
+      "supp": false,
+      "nonzero_pad_weights": 0,
+      "lean": false,
+      "fused": false,
+      "source_table_bytes": 1600,
+      "owner_counter_table_bytes": 1600,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 40,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 40,
+          "writes": 20
+        }
+      ]
+    },
+    {
+      "n": 1,
+      "N": 2,
+      "K": 20,
+      "supp": false,
+      "nonzero_pad_weights": 0,
+      "lean": false,
+      "fused": true,
+      "source_table_bytes": 1600,
+      "owner_counter_table_bytes": 1600,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 40,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 40,
+          "writes": 20
+        }
+      ]
+    },
+    {
+      "n": 1,
+      "N": 2,
+      "K": 20,
+      "supp": false,
+      "nonzero_pad_weights": 0,
+      "lean": true,
+      "fused": false,
+      "source_table_bytes": 1984,
+      "owner_counter_table_bytes": 1600,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 64,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 40,
+          "writes": 20
+        }
+      ]
+    },
+    {
+      "n": 1,
+      "N": 2,
+      "K": 20,
+      "supp": false,
+      "nonzero_pad_weights": 0,
+      "lean": true,
+      "fused": true,
+      "source_table_bytes": 1984,
+      "owner_counter_table_bytes": 1600,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 64,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 40,
+          "writes": 20
+        }
+      ]
+    },
+    {
+      "n": 1,
+      "N": 2,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 0,
+      "lean": false,
+      "fused": false,
+      "source_table_bytes": 1680,
+      "owner_counter_table_bytes": 1680,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 42,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 1,
+      "N": 2,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 0,
+      "lean": false,
+      "fused": true,
+      "source_table_bytes": 1680,
+      "owner_counter_table_bytes": 1680,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 42,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 1,
+      "N": 2,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 0,
+      "lean": true,
+      "fused": false,
+      "source_table_bytes": 2064,
+      "owner_counter_table_bytes": 1680,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 66,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 1,
+      "N": 2,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 0,
+      "lean": true,
+      "fused": true,
+      "source_table_bytes": 2064,
+      "owner_counter_table_bytes": 1680,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 66,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 1,
+      "N": 2,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 3,
+      "lean": false,
+      "fused": false,
+      "source_table_bytes": 1680,
+      "owner_counter_table_bytes": 1680,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 42,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 1,
+      "N": 2,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 3,
+      "lean": false,
+      "fused": true,
+      "source_table_bytes": 1680,
+      "owner_counter_table_bytes": 1680,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 42,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 1,
+      "N": 2,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 3,
+      "lean": true,
+      "fused": false,
+      "source_table_bytes": 2160,
+      "owner_counter_table_bytes": 1680,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 72,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 1,
+      "N": 2,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 3,
+      "lean": true,
+      "fused": true,
+      "source_table_bytes": 2160,
+      "owner_counter_table_bytes": 1680,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 72,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 1,
+      "N": 2,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 11,
+      "lean": false,
+      "fused": false,
+      "source_table_bytes": 1680,
+      "owner_counter_table_bytes": 1680,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 42,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 1,
+      "N": 2,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 11,
+      "lean": false,
+      "fused": true,
+      "source_table_bytes": 1680,
+      "owner_counter_table_bytes": 1680,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 42,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 1,
+      "N": 2,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 11,
+      "lean": true,
+      "fused": false,
+      "source_table_bytes": 2416,
+      "owner_counter_table_bytes": 1680,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 88,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 1,
+      "N": 2,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 11,
+      "lean": true,
+      "fused": true,
+      "source_table_bytes": 2416,
+      "owner_counter_table_bytes": 1680,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 88,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "N": 4,
+      "K": 20,
+      "supp": false,
+      "nonzero_pad_weights": 0,
+      "lean": false,
+      "fused": false,
+      "source_table_bytes": 4800,
+      "owner_counter_table_bytes": 4800,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 80,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 4,
+          "reads": 80,
+          "writes": 40
+        },
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 40,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 40,
+          "writes": 20
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "N": 4,
+      "K": 20,
+      "supp": false,
+      "nonzero_pad_weights": 0,
+      "lean": false,
+      "fused": true,
+      "source_table_bytes": 4160,
+      "owner_counter_table_bytes": 4160,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 80,
+          "writes": 0
+        },
+        {
+          "phase": "fused",
+          "len": 4,
+          "reads": 80,
+          "writes": 40
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 40,
+          "writes": 20
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "N": 4,
+      "K": 20,
+      "supp": false,
+      "nonzero_pad_weights": 0,
+      "lean": true,
+      "fused": false,
+      "source_table_bytes": 5952,
+      "owner_counter_table_bytes": 4800,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 128,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 4,
+          "reads": 80,
+          "writes": 40
+        },
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 64,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 40,
+          "writes": 20
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "N": 4,
+      "K": 20,
+      "supp": false,
+      "nonzero_pad_weights": 0,
+      "lean": true,
+      "fused": true,
+      "source_table_bytes": 5952,
+      "owner_counter_table_bytes": 4160,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 128,
+          "writes": 0
+        },
+        {
+          "phase": "fused",
+          "len": 4,
+          "reads": 144,
+          "writes": 40
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 40,
+          "writes": 20
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "N": 4,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 0,
+      "lean": false,
+      "fused": false,
+      "source_table_bytes": 5040,
+      "owner_counter_table_bytes": 5040,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 84,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 4,
+          "reads": 84,
+          "writes": 42
+        },
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 42,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "N": 4,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 0,
+      "lean": false,
+      "fused": true,
+      "source_table_bytes": 4368,
+      "owner_counter_table_bytes": 4368,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 84,
+          "writes": 0
+        },
+        {
+          "phase": "fused",
+          "len": 4,
+          "reads": 84,
+          "writes": 42
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "N": 4,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 0,
+      "lean": true,
+      "fused": false,
+      "source_table_bytes": 6192,
+      "owner_counter_table_bytes": 5040,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 132,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 4,
+          "reads": 84,
+          "writes": 42
+        },
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 66,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "N": 4,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 0,
+      "lean": true,
+      "fused": true,
+      "source_table_bytes": 6192,
+      "owner_counter_table_bytes": 4368,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 132,
+          "writes": 0
+        },
+        {
+          "phase": "fused",
+          "len": 4,
+          "reads": 150,
+          "writes": 42
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "N": 4,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 3,
+      "lean": false,
+      "fused": false,
+      "source_table_bytes": 5040,
+      "owner_counter_table_bytes": 5040,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 84,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 4,
+          "reads": 84,
+          "writes": 42
+        },
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 42,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "N": 4,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 3,
+      "lean": false,
+      "fused": true,
+      "source_table_bytes": 4368,
+      "owner_counter_table_bytes": 4368,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 84,
+          "writes": 0
+        },
+        {
+          "phase": "fused",
+          "len": 4,
+          "reads": 84,
+          "writes": 42
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "N": 4,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 3,
+      "lean": true,
+      "fused": false,
+      "source_table_bytes": 6480,
+      "owner_counter_table_bytes": 5040,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 144,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 4,
+          "reads": 84,
+          "writes": 42
+        },
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 72,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "N": 4,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 3,
+      "lean": true,
+      "fused": true,
+      "source_table_bytes": 6480,
+      "owner_counter_table_bytes": 4368,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 144,
+          "writes": 0
+        },
+        {
+          "phase": "fused",
+          "len": 4,
+          "reads": 156,
+          "writes": 42
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "N": 4,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 11,
+      "lean": false,
+      "fused": false,
+      "source_table_bytes": 5040,
+      "owner_counter_table_bytes": 5040,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 84,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 4,
+          "reads": 84,
+          "writes": 42
+        },
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 42,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "N": 4,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 11,
+      "lean": false,
+      "fused": true,
+      "source_table_bytes": 4368,
+      "owner_counter_table_bytes": 4368,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 84,
+          "writes": 0
+        },
+        {
+          "phase": "fused",
+          "len": 4,
+          "reads": 84,
+          "writes": 42
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "N": 4,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 11,
+      "lean": true,
+      "fused": false,
+      "source_table_bytes": 7248,
+      "owner_counter_table_bytes": 5040,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 176,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 4,
+          "reads": 84,
+          "writes": 42
+        },
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 88,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "N": 4,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 11,
+      "lean": true,
+      "fused": true,
+      "source_table_bytes": 7248,
+      "owner_counter_table_bytes": 4368,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 176,
+          "writes": 0
+        },
+        {
+          "phase": "fused",
+          "len": 4,
+          "reads": 172,
+          "writes": 42
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "N": 16,
+      "K": 20,
+      "supp": false,
+      "nonzero_pad_weights": 0,
+      "lean": false,
+      "fused": false,
+      "source_table_bytes": 24000,
+      "owner_counter_table_bytes": 24000,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 16,
+          "reads": 320,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 16,
+          "reads": 320,
+          "writes": 160
+        },
+        {
+          "phase": "round",
+          "len": 8,
+          "reads": 160,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 8,
+          "reads": 160,
+          "writes": 80
+        },
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 80,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 4,
+          "reads": 80,
+          "writes": 40
+        },
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 40,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 40,
+          "writes": 20
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "N": 16,
+      "K": 20,
+      "supp": false,
+      "nonzero_pad_weights": 0,
+      "lean": false,
+      "fused": true,
+      "source_table_bytes": 19520,
+      "owner_counter_table_bytes": 19520,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 16,
+          "reads": 320,
+          "writes": 0
+        },
+        {
+          "phase": "fused",
+          "len": 16,
+          "reads": 320,
+          "writes": 160
+        },
+        {
+          "phase": "fused",
+          "len": 8,
+          "reads": 160,
+          "writes": 80
+        },
+        {
+          "phase": "fused",
+          "len": 4,
+          "reads": 80,
+          "writes": 40
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 40,
+          "writes": 20
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "N": 16,
+      "K": 20,
+      "supp": false,
+      "nonzero_pad_weights": 0,
+      "lean": true,
+      "fused": false,
+      "source_table_bytes": 29760,
+      "owner_counter_table_bytes": 24000,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 16,
+          "reads": 512,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 16,
+          "reads": 320,
+          "writes": 160
+        },
+        {
+          "phase": "round",
+          "len": 8,
+          "reads": 256,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 8,
+          "reads": 160,
+          "writes": 80
+        },
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 128,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 4,
+          "reads": 80,
+          "writes": 40
+        },
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 64,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 40,
+          "writes": 20
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "N": 16,
+      "K": 20,
+      "supp": false,
+      "nonzero_pad_weights": 0,
+      "lean": true,
+      "fused": true,
+      "source_table_bytes": 29760,
+      "owner_counter_table_bytes": 19520,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 16,
+          "reads": 512,
+          "writes": 0
+        },
+        {
+          "phase": "fused",
+          "len": 16,
+          "reads": 576,
+          "writes": 160
+        },
+        {
+          "phase": "fused",
+          "len": 8,
+          "reads": 288,
+          "writes": 80
+        },
+        {
+          "phase": "fused",
+          "len": 4,
+          "reads": 144,
+          "writes": 40
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 40,
+          "writes": 20
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "N": 16,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 0,
+      "lean": false,
+      "fused": false,
+      "source_table_bytes": 25200,
+      "owner_counter_table_bytes": 25200,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 16,
+          "reads": 336,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 16,
+          "reads": 336,
+          "writes": 168
+        },
+        {
+          "phase": "round",
+          "len": 8,
+          "reads": 168,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 8,
+          "reads": 168,
+          "writes": 84
+        },
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 84,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 4,
+          "reads": 84,
+          "writes": 42
+        },
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 42,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "N": 16,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 0,
+      "lean": false,
+      "fused": true,
+      "source_table_bytes": 20496,
+      "owner_counter_table_bytes": 20496,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 16,
+          "reads": 336,
+          "writes": 0
+        },
+        {
+          "phase": "fused",
+          "len": 16,
+          "reads": 336,
+          "writes": 168
+        },
+        {
+          "phase": "fused",
+          "len": 8,
+          "reads": 168,
+          "writes": 84
+        },
+        {
+          "phase": "fused",
+          "len": 4,
+          "reads": 84,
+          "writes": 42
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "N": 16,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 0,
+      "lean": true,
+      "fused": false,
+      "source_table_bytes": 30960,
+      "owner_counter_table_bytes": 25200,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 16,
+          "reads": 528,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 16,
+          "reads": 336,
+          "writes": 168
+        },
+        {
+          "phase": "round",
+          "len": 8,
+          "reads": 264,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 8,
+          "reads": 168,
+          "writes": 84
+        },
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 132,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 4,
+          "reads": 84,
+          "writes": 42
+        },
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 66,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "N": 16,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 0,
+      "lean": true,
+      "fused": true,
+      "source_table_bytes": 30960,
+      "owner_counter_table_bytes": 20496,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 16,
+          "reads": 528,
+          "writes": 0
+        },
+        {
+          "phase": "fused",
+          "len": 16,
+          "reads": 600,
+          "writes": 168
+        },
+        {
+          "phase": "fused",
+          "len": 8,
+          "reads": 300,
+          "writes": 84
+        },
+        {
+          "phase": "fused",
+          "len": 4,
+          "reads": 150,
+          "writes": 42
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "N": 16,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 3,
+      "lean": false,
+      "fused": false,
+      "source_table_bytes": 25200,
+      "owner_counter_table_bytes": 25200,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 16,
+          "reads": 336,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 16,
+          "reads": 336,
+          "writes": 168
+        },
+        {
+          "phase": "round",
+          "len": 8,
+          "reads": 168,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 8,
+          "reads": 168,
+          "writes": 84
+        },
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 84,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 4,
+          "reads": 84,
+          "writes": 42
+        },
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 42,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "N": 16,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 3,
+      "lean": false,
+      "fused": true,
+      "source_table_bytes": 20496,
+      "owner_counter_table_bytes": 20496,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 16,
+          "reads": 336,
+          "writes": 0
+        },
+        {
+          "phase": "fused",
+          "len": 16,
+          "reads": 336,
+          "writes": 168
+        },
+        {
+          "phase": "fused",
+          "len": 8,
+          "reads": 168,
+          "writes": 84
+        },
+        {
+          "phase": "fused",
+          "len": 4,
+          "reads": 84,
+          "writes": 42
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "N": 16,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 3,
+      "lean": true,
+      "fused": false,
+      "source_table_bytes": 32400,
+      "owner_counter_table_bytes": 25200,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 16,
+          "reads": 576,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 16,
+          "reads": 336,
+          "writes": 168
+        },
+        {
+          "phase": "round",
+          "len": 8,
+          "reads": 288,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 8,
+          "reads": 168,
+          "writes": 84
+        },
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 144,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 4,
+          "reads": 84,
+          "writes": 42
+        },
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 72,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "N": 16,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 3,
+      "lean": true,
+      "fused": true,
+      "source_table_bytes": 32400,
+      "owner_counter_table_bytes": 20496,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 16,
+          "reads": 576,
+          "writes": 0
+        },
+        {
+          "phase": "fused",
+          "len": 16,
+          "reads": 624,
+          "writes": 168
+        },
+        {
+          "phase": "fused",
+          "len": 8,
+          "reads": 312,
+          "writes": 84
+        },
+        {
+          "phase": "fused",
+          "len": 4,
+          "reads": 156,
+          "writes": 42
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "N": 16,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 11,
+      "lean": false,
+      "fused": false,
+      "source_table_bytes": 25200,
+      "owner_counter_table_bytes": 25200,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 16,
+          "reads": 336,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 16,
+          "reads": 336,
+          "writes": 168
+        },
+        {
+          "phase": "round",
+          "len": 8,
+          "reads": 168,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 8,
+          "reads": 168,
+          "writes": 84
+        },
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 84,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 4,
+          "reads": 84,
+          "writes": 42
+        },
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 42,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "N": 16,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 11,
+      "lean": false,
+      "fused": true,
+      "source_table_bytes": 20496,
+      "owner_counter_table_bytes": 20496,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 16,
+          "reads": 336,
+          "writes": 0
+        },
+        {
+          "phase": "fused",
+          "len": 16,
+          "reads": 336,
+          "writes": 168
+        },
+        {
+          "phase": "fused",
+          "len": 8,
+          "reads": 168,
+          "writes": 84
+        },
+        {
+          "phase": "fused",
+          "len": 4,
+          "reads": 84,
+          "writes": 42
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "N": 16,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 11,
+      "lean": true,
+      "fused": false,
+      "source_table_bytes": 36240,
+      "owner_counter_table_bytes": 25200,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 16,
+          "reads": 704,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 16,
+          "reads": 336,
+          "writes": 168
+        },
+        {
+          "phase": "round",
+          "len": 8,
+          "reads": 352,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 8,
+          "reads": 168,
+          "writes": 84
+        },
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 176,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 4,
+          "reads": 84,
+          "writes": 42
+        },
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 88,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "N": 16,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 11,
+      "lean": true,
+      "fused": true,
+      "source_table_bytes": 36240,
+      "owner_counter_table_bytes": 20496,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 16,
+          "reads": 704,
+          "writes": 0
+        },
+        {
+          "phase": "fused",
+          "len": 16,
+          "reads": 688,
+          "writes": 168
+        },
+        {
+          "phase": "fused",
+          "len": 8,
+          "reads": 344,
+          "writes": 84
+        },
+        {
+          "phase": "fused",
+          "len": 4,
+          "reads": 172,
+          "writes": 42
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "N": 64,
+      "K": 20,
+      "supp": false,
+      "nonzero_pad_weights": 0,
+      "lean": false,
+      "fused": false,
+      "source_table_bytes": 100800,
+      "owner_counter_table_bytes": 100800,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 64,
+          "reads": 1280,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 64,
+          "reads": 1280,
+          "writes": 640
+        },
+        {
+          "phase": "round",
+          "len": 32,
+          "reads": 640,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 32,
+          "reads": 640,
+          "writes": 320
+        },
+        {
+          "phase": "round",
+          "len": 16,
+          "reads": 320,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 16,
+          "reads": 320,
+          "writes": 160
+        },
+        {
+          "phase": "round",
+          "len": 8,
+          "reads": 160,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 8,
+          "reads": 160,
+          "writes": 80
+        },
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 80,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 4,
+          "reads": 80,
+          "writes": 40
+        },
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 40,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 40,
+          "writes": 20
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "N": 64,
+      "K": 20,
+      "supp": false,
+      "nonzero_pad_weights": 0,
+      "lean": false,
+      "fused": true,
+      "source_table_bytes": 80960,
+      "owner_counter_table_bytes": 80960,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 64,
+          "reads": 1280,
+          "writes": 0
+        },
+        {
+          "phase": "fused",
+          "len": 64,
+          "reads": 1280,
+          "writes": 640
+        },
+        {
+          "phase": "fused",
+          "len": 32,
+          "reads": 640,
+          "writes": 320
+        },
+        {
+          "phase": "fused",
+          "len": 16,
+          "reads": 320,
+          "writes": 160
+        },
+        {
+          "phase": "fused",
+          "len": 8,
+          "reads": 160,
+          "writes": 80
+        },
+        {
+          "phase": "fused",
+          "len": 4,
+          "reads": 80,
+          "writes": 40
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 40,
+          "writes": 20
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "N": 64,
+      "K": 20,
+      "supp": false,
+      "nonzero_pad_weights": 0,
+      "lean": true,
+      "fused": false,
+      "source_table_bytes": 124992,
+      "owner_counter_table_bytes": 100800,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 64,
+          "reads": 2048,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 64,
+          "reads": 1280,
+          "writes": 640
+        },
+        {
+          "phase": "round",
+          "len": 32,
+          "reads": 1024,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 32,
+          "reads": 640,
+          "writes": 320
+        },
+        {
+          "phase": "round",
+          "len": 16,
+          "reads": 512,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 16,
+          "reads": 320,
+          "writes": 160
+        },
+        {
+          "phase": "round",
+          "len": 8,
+          "reads": 256,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 8,
+          "reads": 160,
+          "writes": 80
+        },
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 128,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 4,
+          "reads": 80,
+          "writes": 40
+        },
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 64,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 40,
+          "writes": 20
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "N": 64,
+      "K": 20,
+      "supp": false,
+      "nonzero_pad_weights": 0,
+      "lean": true,
+      "fused": true,
+      "source_table_bytes": 124992,
+      "owner_counter_table_bytes": 80960,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 64,
+          "reads": 2048,
+          "writes": 0
+        },
+        {
+          "phase": "fused",
+          "len": 64,
+          "reads": 2304,
+          "writes": 640
+        },
+        {
+          "phase": "fused",
+          "len": 32,
+          "reads": 1152,
+          "writes": 320
+        },
+        {
+          "phase": "fused",
+          "len": 16,
+          "reads": 576,
+          "writes": 160
+        },
+        {
+          "phase": "fused",
+          "len": 8,
+          "reads": 288,
+          "writes": 80
+        },
+        {
+          "phase": "fused",
+          "len": 4,
+          "reads": 144,
+          "writes": 40
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 40,
+          "writes": 20
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "N": 64,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 0,
+      "lean": false,
+      "fused": false,
+      "source_table_bytes": 105840,
+      "owner_counter_table_bytes": 105840,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 64,
+          "reads": 1344,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 64,
+          "reads": 1344,
+          "writes": 672
+        },
+        {
+          "phase": "round",
+          "len": 32,
+          "reads": 672,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 32,
+          "reads": 672,
+          "writes": 336
+        },
+        {
+          "phase": "round",
+          "len": 16,
+          "reads": 336,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 16,
+          "reads": 336,
+          "writes": 168
+        },
+        {
+          "phase": "round",
+          "len": 8,
+          "reads": 168,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 8,
+          "reads": 168,
+          "writes": 84
+        },
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 84,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 4,
+          "reads": 84,
+          "writes": 42
+        },
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 42,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "N": 64,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 0,
+      "lean": false,
+      "fused": true,
+      "source_table_bytes": 85008,
+      "owner_counter_table_bytes": 85008,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 64,
+          "reads": 1344,
+          "writes": 0
+        },
+        {
+          "phase": "fused",
+          "len": 64,
+          "reads": 1344,
+          "writes": 672
+        },
+        {
+          "phase": "fused",
+          "len": 32,
+          "reads": 672,
+          "writes": 336
+        },
+        {
+          "phase": "fused",
+          "len": 16,
+          "reads": 336,
+          "writes": 168
+        },
+        {
+          "phase": "fused",
+          "len": 8,
+          "reads": 168,
+          "writes": 84
+        },
+        {
+          "phase": "fused",
+          "len": 4,
+          "reads": 84,
+          "writes": 42
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "N": 64,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 0,
+      "lean": true,
+      "fused": false,
+      "source_table_bytes": 130032,
+      "owner_counter_table_bytes": 105840,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 64,
+          "reads": 2112,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 64,
+          "reads": 1344,
+          "writes": 672
+        },
+        {
+          "phase": "round",
+          "len": 32,
+          "reads": 1056,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 32,
+          "reads": 672,
+          "writes": 336
+        },
+        {
+          "phase": "round",
+          "len": 16,
+          "reads": 528,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 16,
+          "reads": 336,
+          "writes": 168
+        },
+        {
+          "phase": "round",
+          "len": 8,
+          "reads": 264,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 8,
+          "reads": 168,
+          "writes": 84
+        },
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 132,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 4,
+          "reads": 84,
+          "writes": 42
+        },
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 66,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "N": 64,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 0,
+      "lean": true,
+      "fused": true,
+      "source_table_bytes": 130032,
+      "owner_counter_table_bytes": 85008,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 64,
+          "reads": 2112,
+          "writes": 0
+        },
+        {
+          "phase": "fused",
+          "len": 64,
+          "reads": 2400,
+          "writes": 672
+        },
+        {
+          "phase": "fused",
+          "len": 32,
+          "reads": 1200,
+          "writes": 336
+        },
+        {
+          "phase": "fused",
+          "len": 16,
+          "reads": 600,
+          "writes": 168
+        },
+        {
+          "phase": "fused",
+          "len": 8,
+          "reads": 300,
+          "writes": 84
+        },
+        {
+          "phase": "fused",
+          "len": 4,
+          "reads": 150,
+          "writes": 42
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "N": 64,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 3,
+      "lean": false,
+      "fused": false,
+      "source_table_bytes": 105840,
+      "owner_counter_table_bytes": 105840,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 64,
+          "reads": 1344,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 64,
+          "reads": 1344,
+          "writes": 672
+        },
+        {
+          "phase": "round",
+          "len": 32,
+          "reads": 672,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 32,
+          "reads": 672,
+          "writes": 336
+        },
+        {
+          "phase": "round",
+          "len": 16,
+          "reads": 336,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 16,
+          "reads": 336,
+          "writes": 168
+        },
+        {
+          "phase": "round",
+          "len": 8,
+          "reads": 168,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 8,
+          "reads": 168,
+          "writes": 84
+        },
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 84,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 4,
+          "reads": 84,
+          "writes": 42
+        },
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 42,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "N": 64,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 3,
+      "lean": false,
+      "fused": true,
+      "source_table_bytes": 85008,
+      "owner_counter_table_bytes": 85008,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 64,
+          "reads": 1344,
+          "writes": 0
+        },
+        {
+          "phase": "fused",
+          "len": 64,
+          "reads": 1344,
+          "writes": 672
+        },
+        {
+          "phase": "fused",
+          "len": 32,
+          "reads": 672,
+          "writes": 336
+        },
+        {
+          "phase": "fused",
+          "len": 16,
+          "reads": 336,
+          "writes": 168
+        },
+        {
+          "phase": "fused",
+          "len": 8,
+          "reads": 168,
+          "writes": 84
+        },
+        {
+          "phase": "fused",
+          "len": 4,
+          "reads": 84,
+          "writes": 42
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "N": 64,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 3,
+      "lean": true,
+      "fused": false,
+      "source_table_bytes": 136080,
+      "owner_counter_table_bytes": 105840,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 64,
+          "reads": 2304,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 64,
+          "reads": 1344,
+          "writes": 672
+        },
+        {
+          "phase": "round",
+          "len": 32,
+          "reads": 1152,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 32,
+          "reads": 672,
+          "writes": 336
+        },
+        {
+          "phase": "round",
+          "len": 16,
+          "reads": 576,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 16,
+          "reads": 336,
+          "writes": 168
+        },
+        {
+          "phase": "round",
+          "len": 8,
+          "reads": 288,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 8,
+          "reads": 168,
+          "writes": 84
+        },
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 144,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 4,
+          "reads": 84,
+          "writes": 42
+        },
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 72,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "N": 64,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 3,
+      "lean": true,
+      "fused": true,
+      "source_table_bytes": 136080,
+      "owner_counter_table_bytes": 85008,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 64,
+          "reads": 2304,
+          "writes": 0
+        },
+        {
+          "phase": "fused",
+          "len": 64,
+          "reads": 2496,
+          "writes": 672
+        },
+        {
+          "phase": "fused",
+          "len": 32,
+          "reads": 1248,
+          "writes": 336
+        },
+        {
+          "phase": "fused",
+          "len": 16,
+          "reads": 624,
+          "writes": 168
+        },
+        {
+          "phase": "fused",
+          "len": 8,
+          "reads": 312,
+          "writes": 84
+        },
+        {
+          "phase": "fused",
+          "len": 4,
+          "reads": 156,
+          "writes": 42
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "N": 64,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 11,
+      "lean": false,
+      "fused": false,
+      "source_table_bytes": 105840,
+      "owner_counter_table_bytes": 105840,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 64,
+          "reads": 1344,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 64,
+          "reads": 1344,
+          "writes": 672
+        },
+        {
+          "phase": "round",
+          "len": 32,
+          "reads": 672,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 32,
+          "reads": 672,
+          "writes": 336
+        },
+        {
+          "phase": "round",
+          "len": 16,
+          "reads": 336,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 16,
+          "reads": 336,
+          "writes": 168
+        },
+        {
+          "phase": "round",
+          "len": 8,
+          "reads": 168,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 8,
+          "reads": 168,
+          "writes": 84
+        },
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 84,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 4,
+          "reads": 84,
+          "writes": 42
+        },
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 42,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "N": 64,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 11,
+      "lean": false,
+      "fused": true,
+      "source_table_bytes": 85008,
+      "owner_counter_table_bytes": 85008,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 64,
+          "reads": 1344,
+          "writes": 0
+        },
+        {
+          "phase": "fused",
+          "len": 64,
+          "reads": 1344,
+          "writes": 672
+        },
+        {
+          "phase": "fused",
+          "len": 32,
+          "reads": 672,
+          "writes": 336
+        },
+        {
+          "phase": "fused",
+          "len": 16,
+          "reads": 336,
+          "writes": 168
+        },
+        {
+          "phase": "fused",
+          "len": 8,
+          "reads": 168,
+          "writes": 84
+        },
+        {
+          "phase": "fused",
+          "len": 4,
+          "reads": 84,
+          "writes": 42
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "N": 64,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 11,
+      "lean": true,
+      "fused": false,
+      "source_table_bytes": 152208,
+      "owner_counter_table_bytes": 105840,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 64,
+          "reads": 2816,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 64,
+          "reads": 1344,
+          "writes": 672
+        },
+        {
+          "phase": "round",
+          "len": 32,
+          "reads": 1408,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 32,
+          "reads": 672,
+          "writes": 336
+        },
+        {
+          "phase": "round",
+          "len": 16,
+          "reads": 704,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 16,
+          "reads": 336,
+          "writes": 168
+        },
+        {
+          "phase": "round",
+          "len": 8,
+          "reads": 352,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 8,
+          "reads": 168,
+          "writes": 84
+        },
+        {
+          "phase": "round",
+          "len": 4,
+          "reads": 176,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 4,
+          "reads": 84,
+          "writes": 42
+        },
+        {
+          "phase": "round",
+          "len": 2,
+          "reads": 88,
+          "writes": 0
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "N": 64,
+      "K": 21,
+      "supp": true,
+      "nonzero_pad_weights": 11,
+      "lean": true,
+      "fused": true,
+      "source_table_bytes": 152208,
+      "owner_counter_table_bytes": 85008,
+      "phases": [
+        {
+          "phase": "round",
+          "len": 64,
+          "reads": 2816,
+          "writes": 0
+        },
+        {
+          "phase": "fused",
+          "len": 64,
+          "reads": 2752,
+          "writes": 672
+        },
+        {
+          "phase": "fused",
+          "len": 32,
+          "reads": 1376,
+          "writes": 336
+        },
+        {
+          "phase": "fused",
+          "len": 16,
+          "reads": 688,
+          "writes": 168
+        },
+        {
+          "phase": "fused",
+          "len": 8,
+          "reads": 344,
+          "writes": 84
+        },
+        {
+          "phase": "fused",
+          "len": 4,
+          "reads": 172,
+          "writes": 42
+        },
+        {
+          "phase": "fold",
+          "len": 2,
+          "reads": 42,
+          "writes": 21
+        }
+      ]
+    }
+  ],
+  "projection_counts_not_measurements": [
+    {
+      "n": 19,
+      "N": 524288,
+      "round_table_width_bytes": 16,
+      "scratch_tables_bytes": 176160768,
+      "plan_bytes": 641728512,
+      "owner_doc_v1_approx_bytes": 1145044992,
+      "owner_doc_v2_approx_bytes": 704643072,
+      "counted_build_bytes": 264241152,
+      "direct_unfused_table_bytes": 880802160,
+      "direct_fused_table_bytes": 704642064,
+      "direct_fused_plus_counted_build": 968883216,
+      "lean_source_table_bytes_w0": 1082128368,
+      "lean_source_table_bytes_w11": 1266677392,
+      "fused_table_deletion_fraction": 0.19999961852954584,
+      "fused_including_counted_build_deletion_fraction": 0.1538457926908533
+    },
+    {
+      "n": 20,
+      "N": 1048576,
+      "round_table_width_bytes": 16,
+      "scratch_tables_bytes": 352321536,
+      "plan_bytes": 1283457024,
+      "owner_doc_v1_approx_bytes": 2290089984,
+      "owner_doc_v2_approx_bytes": 1409286144,
+      "counted_build_bytes": 528482304,
+      "direct_unfused_table_bytes": 1761606000,
+      "direct_fused_table_bytes": 1409285136,
+      "direct_fused_plus_counted_build": 1937767440,
+      "lean_source_table_bytes_w0": 2164258800,
+      "lean_source_table_bytes_w11": 2533357200,
+      "fused_table_deletion_fraction": 0.19999980926495486,
+      "fused_including_counted_build_deletion_fraction": 0.15384597326863603
+    },
+    {
+      "n": 21,
+      "N": 2097152,
+      "round_table_width_bytes": 16,
+      "scratch_tables_bytes": 704643072,
+      "plan_bytes": 2566914048,
+      "owner_doc_v1_approx_bytes": 4580179968,
+      "owner_doc_v2_approx_bytes": 2818572288,
+      "counted_build_bytes": 1056964608,
+      "direct_unfused_table_bytes": 3523213680,
+      "direct_fused_table_bytes": 2818571280,
+      "direct_fused_plus_counted_build": 3875535888,
+      "lean_source_table_bytes_w0": 4328519664,
+      "lean_source_table_bytes_w11": 5066716816,
+      "fused_table_deletion_fraction": 0.19999990463252293,
+      "fused_including_counted_build_deletion_fraction": 0.15384606355742803
+    },
+    {
+      "n": 23,
+      "N": 8388608,
+      "round_table_width_bytes": 16,
+      "scratch_tables_bytes": 2818572288,
+      "plan_bytes": 10267656192,
+      "owner_doc_v1_approx_bytes": 18320719872,
+      "owner_doc_v2_approx_bytes": 11274289152,
+      "counted_build_bytes": 4227858432,
+      "direct_unfused_table_bytes": 14092859760,
+      "direct_fused_table_bytes": 11274288144,
+      "direct_fused_plus_counted_build": 15502146576,
+      "lean_source_table_bytes_w0": 17314084848,
+      "lean_source_table_bytes_w11": 20266874512,
+      "fused_table_deletion_fraction": 0.19999997615813925,
+      "fused_including_counted_build_deletion_fraction": 0.15384613127397861
+    }
+  ],
+  "wall_seconds": 0.7594141849999687,
+  "parent_peak_rss_kib": 16820,
+  "child_peak_rss_kib": 34620,
+  "cpu_affinity": [
+    0
+  ],
+  "nice": 19,
+  "compiler_argv": [
+    "/usr/bin/g++",
+    "-std=c++17",
+    "-O0",
+    "-shared",
+    "-fPIC",
+    "-Wno-unknown-pragmas",
+    "shim.cpp",
+    "-o",
+    "isolated.so"
+  ],
+  "output_sha256": "1330b3934629969818022f2aa2bf2bc04e6cd6393c97dbdcaa4615e2bdb65496",
+  "scope": "Captured local CUDA functions executed serially on CPU with arbitrary-integer modular substitutes and fake CUDA builtins; source accesses, not compiled GPU instructions, concurrency, hardware traffic or native proof evidence. Reductions/parameters/build/finals/transfers kept separate. No GPU/runtime/production execution."
+}

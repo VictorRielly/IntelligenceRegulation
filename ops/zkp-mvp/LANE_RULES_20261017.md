@@ -1,0 +1,64 @@
+# Lane rules for agents, 2026-10-17 evening session
+
+Written by the coordinating Claude session at 18:40 UTC on 2026-10-17. The box
+shut down cleanly at 14:59:58 UTC (all guarded jobs got SIGTERM: exit 143, or
+70 while queued) and booted again at 18:21 UTC. `/tmp` was wiped by the reboot;
+`/tmp/zk-heavy.lock` is recreated by the guard. Evidence under `results/`,
+`ops/` and `~/zk60-artifacts/` survived. Every agent reads this file first.
+
+## Hard rules
+
+1. **Resource guard on every heavy leaf command** (anything over 1.5 GiB RAM, a
+   minute of several cores, or the GPU):
+   `python3 /home/victor/IntelligenceRegulation/scripts/zk60_resource_guard.py run --class {light,build,cpu,gpu} --need-gib N --cap-gib M --label L --wait-secs S --max-secs S --log F --done F --result-json F -- <cmd>`.
+   `build`/`cpu`/`gpu` share ONE heavy lock. Declare measured `--need-gib`
+   (see `results/zk60_resource_guard/history.jsonl`), not the 11 GiB `cpu`
+   default, so lanes can share the 11.9 GiB budget. Single-threaded Python
+   that needs > 1.5 GiB may use `light` with a declared need. Run
+   `python3 .../zk60_resource_guard.py status` before any timing run and label
+   timings "shared box, n=1" when anything else is live. Never SIGKILL a guard.
+   Full rules: `docs/zkmatrix-poc/ZK60_RESOURCE_PROTOCOL.md`.
+2. **Detach anything over ~5 minutes**:
+   `setsid nohup bash -c '<guard run ...>; echo $? > <stem>.done' >/dev/null 2>&1 &`.
+   Wait for a run with a Bash `run_in_background` loop on its `.done` file
+   (`until [ -f X.done ]; do sleep 20; done`), never a `pgrep -f`/`ps | grep`
+   watcher (it matches its own command line and never ends), never a
+   foreground wait. **Do not hand back while a job you launched is pending**:
+   wait for its `.done`, integrate the result, then report.
+3. **Laptop GPU**: keep VRAM <= 4 GiB, one GPU pass per guarded command, never
+   chain GPU passes in one script (VRAM exhaustion freezes the whole WSL box).
+4. **Exclusive write set**: write only inside your lane's directories named in
+   your brief. Everything else is read-only, in particular other lanes'
+   copies, `src/manifest.rs`, `codex-audit-*`, `scripts/logup_*_spike.py`, the
+   frozen review copies `ops/zkp-mvp/trained-1b-review-r*/`.
+5. **No git writes** (the coordinator snapshots). Read git with
+   `git --no-pager ...` from the repo root only if you must.
+6. **Command style**: absolute paths, never a `cd X &&` prefix, never a `PATH=`
+   prefix (use `/usr/bin/env VAR=...` inside the guard command), bare `python3`,
+   no `sed -i` (edit with the Edit/Write tools), one simple command per call
+   where possible. `kill` is refused by the session classifier: plan so you
+   never need it.
+7. **Ledger**: keep your lane's `PROGRESS.md` current after every step, with
+   UTC times read from `date -u` (never guessed), so a successor can resume
+   from it alone. Evidence goes under `results/...`, never `/tmp`.
+8. **Claims**: label numbers [MEASURED] (a run happened; shared box, n=1),
+   [COUNTED] (exact arithmetic), [MODEL] (fitted/assumed). A "proves and
+   verifies" claim needs a generic honest witness (dense weights, heads that
+   differ) and a fresh-process verify from bytes. No privacy acceptance is
+   claimed by any lane; only the security review process can do that, and
+   rulings are Victor's (`docs/zkmatrix-poc/ZK60_DECISIONS.md`).
+9. **Final report** to the coordinator: what landed (with evidence paths),
+   numbers with labels, what failed, what is still running (should be
+   nothing), and the next concrete step.
+
+## Heavy-lock priority this evening
+
+1. GPU zero-check lane (speed plan task 2, the go/no-go bandwidth number).
+2. Native lane (R5 suite, task 1 acceptance, task 3 8B phase ladder).
+3. Review lane r3 (production-CLI checks; small).
+4. Privacy gate lane (controls arm, G-10).
+5. Calibration lane (8B B6; `light` class at ~3.5-4 GiB declared).
+
+Priority is a courtesy order for queuing, not a reason to wait idle: queue
+your job through the guard and keep doing non-heavy work meanwhile. Keep any
+single heavy job under ~30 minutes unless your brief says otherwise.

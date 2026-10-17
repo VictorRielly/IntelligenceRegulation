@@ -1,0 +1,8 @@
+[zk60-guard 06:50:55] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 06:51:55] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 06:52:55] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 06:53:55] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 06:54:55] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 06:55:55] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 06:56:20] START b0-warm-debug class=build need=3G cap=5G enforce=cgroup+watchdog waited=325s run=59557ed5248e
+[zk60-guard 06:57:02] END b0-warm-debug exit=0 child_wall=42s peak_rss=1.44G min_avail=9.89G

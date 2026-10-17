@@ -169,6 +169,87 @@ class Head:
                 "ppl_int": float(np.exp(nll_i / n)), "kl_float_to_int_mean": kl / n}
 
 
+# ------------------------------------------------------------------ B6 helpers
+
+WORDS = ("wq", "wk", "wv", "wo", "gamma_a", "gamma_m", "wg_t", "wu_t", "wd_t", "exp", "act")
+DTY = {"wq": "<i1", "wk": "<i1", "wv": "<i1", "wo": "<i1", "gamma_a": "<i1", "gamma_m": "<i1", "wg_t": "<i1",
+       "wu_t": "<i1", "wd_t": "<i1", "exp": "<i8", "act": "<i2"}
+
+
+def word_sha(P, name):
+    return hashlib.sha256(np.ascontiguousarray(getattr(P, name)).astype(DTY[name]).tobytes()).hexdigest()
+
+
+def glob_from_prepass(path: Path, tn: int):
+    pr = json.loads(path.read_text())["profile"]
+    return b3.Globals(s_in=pr["s_in"], s_out=pr["s_out"], cn_a=pr["cn_a"], cn_m=pr["cn_m"],
+                      K_a=b3.norm_K(pr["cn_a"], tn) if pr["cn_a"] else None, K_m=b3.norm_K(pr["cn_m"], tn) if pr["cn_m"] else None,
+                      e_s=pr["e_s"], silu=tuple(pr["silu"]) if pr["silu"] else None, shifts=pr["shifts"])
+
+
+def link_identical(ref_dir: Path, tgt_dir: Path) -> int:
+    """hard-link every file of tgt_dir whose bytes equal ref_dir's file of the same name (export/FORMAT_CHANGES.md)."""
+    n = 0
+    for q in sorted(tgt_dir.iterdir()):
+        r = ref_dir / q.name
+        if q.is_file() and not q.is_symlink() and r.is_file() and not r.is_symlink() and q.stat().st_size == r.stat().st_size \
+                and os.stat(q).st_ino != os.stat(r).st_ino and bl.sha_file(q) == bl.sha_file(r):
+            tmp = q.with_name(q.name + ".linktmp")
+            os.link(r, tmp)
+            os.replace(tmp, q)
+            n += 1
+    return n
+
+
+def perhead_qk(W, st, var, P, rep, raw_h):
+    """B6 experiment (NOT native): one score scale / exp table PER QUERY HEAD.
+    K at its lower bound per (kv, pair); each head h takes the smallest
+    P_h = 2^(e_s,h - SH_S) its own Q rows and score range allow; the exp lookup
+    then needs a table per head."""
+    g, m = tc.GEO, var.m
+    sh = rep["shifts"]
+    K_a = rep["norm_consts"]["K_a"]
+    ga = W["input_layernorm.weight"].astype(np.float64)
+    fold_a = ga * K_a / P.gamma_a.astype(np.float64)
+    Wq_e = W["self_attn.q_proj.weight"].astype(b3.WDT) * fold_a[None, :].astype(b3.WDT)
+    Wk_e = W["self_attn.k_proj.weight"].astype(b3.WDT) * fold_a[None, :].astype(b3.WDT)
+    s2 = 2.0 ** sh["qkv"]
+    Lq = np.maximum(b3.rb(st["q_pair"], m, var.margin_ch) / 127.0, s2 * b3._pairmax(np.abs(Wq_e).max(1), g.H) / 127.0)   # (H, half)
+    Lk = np.maximum(b3.rb(st["k_pair"], m, var.margin_ch) / 127.0, s2 * b3._pairmax(np.abs(Wk_e).max(1), g.KV) / 127.0)  # (KV, half)
+    Lk_h = np.repeat(Lk, g.G, axis=0)
+    need = (Lq * Lk_h).max(1)
+    e_rng = np.ceil(np.log2(raw_h * var.m2 / 127.0) - 1e-9).astype(int)
+    e_h = np.maximum(e_rng, np.ceil(np.log2(need) + sh["s"] - 1e-9).astype(int))
+    Ph = 2.0 ** (e_h - sh["s"])
+    # K is shared by the G query heads of a group: s_k in [Lk, U], U = min_h P_h / Lq(h, c); geometric middle
+    U = (Ph[:, None] / Lq).reshape(g.KV, g.G, g.half).min(1)
+    s_k = np.sqrt(Lk * U)
+    s_q = Ph[:, None] / np.repeat(s_k, g.G, axis=0)                                            # (H, half) >= Lq
+    q_rows = np.concatenate([s_q, s_q], 1).reshape(-1)
+    k_rows = b3.k_rows(s_k)
+    P.wq = b3.qw_rows(Wq_e, q_rows / s2, rep, "wq")
+    P.wk = b3.qw_rows(Wk_e, k_rows / s2, rep, "wk")
+    P.exp = np.stack([b3.exp_member(int(e), g.dh, P.f_e)[0] for e in e_h])
+    P._mats = {}
+    P.e_s = [int(e) for e in e_h]
+    P.diag["q"], P.diag["k"] = q_rows, k_rows
+    P.diag["s"] = (2.0 ** e_h).reshape(1, g.KV, g.G, 1, 1)
+    return e_h, e_rng
+
+
+def layer1_raw_per_head(ck, R, xc_f, rope_fc, chunk):
+    """max |q_h . k| over the calibration set at layer 1, per query head (float)."""
+    W0 = bl.load_layer(ck, 0, R)
+    x1 = np.concatenate([tc.f_block(xc_f[s:s + chunk], W0, *rope_fc) for s in range(0, len(xc_f), chunk)])
+    del W0
+    W1 = bl.load_layer(ck, 1, R)
+    raw_h = np.zeros(tc.GEO.H)
+    for s in range(0, len(x1), chunk):
+        _, parts = b3._f_block_parts(x1[s:s + chunk], W1, *rope_fc, tc.GEO)
+        raw_h = np.maximum(raw_h, np.abs(parts["raw"]).max(axis=(0, 3, 4)).reshape(-1))
+    return raw_h
+
+
 # ------------------------------------------------------------------ main
 
 def main():
@@ -190,6 +271,12 @@ def main():
     ap.add_argument("--tag", default="")
     ap.add_argument("--export", action="store_true")
     ap.add_argument("--export-seqs", type=int, default=2)
+    ap.add_argument("--export-name", default=None, help="export directory name (default: the run name)")
+    ap.add_argument("--profile-from", default=None, help="prepass.json of a run whose profile decisions to reuse (skips the pre-pass)")
+    ap.add_argument("--link-from", default=None, help="export dir whose byte-identical files to hard-link layer by layer")
+    ap.add_argument("--l1-mode", default="none", choices=["none", "s16", "perhead", "m2zero", "fe13"],
+                    help="B6 experiments on LAYER 1 only (NOT native except m2zero/fe13): see FIDELITY_OPTIONS_8B.md")
+    ap.add_argument("--check-against", default=None, help="export dir: compare every non-overridden layer's words")
     args = ap.parse_args()
     T, T_cal = args.T, args.calib_T or args.T
     tool_sha = {p: bl.sha_file(LANE1B / p) for p in ("tlcalib.py", "b3calib.py", "b3_ladder.py", "corpus.py", "corpus4.py")}
@@ -242,7 +329,11 @@ def main():
                                                                         + ("_SYN" if args.synthetic else "") + f"_L{L}.pkl"),
                            chunk=args.chunk)
     log(f"pass 1 done ({time.time() - t0:.0f}s)")
-    glob, caches, ptable = bl.prepass(ck, stats, var, R, L, "none")
+    if args.profile_from:
+        glob, caches, ptable = glob_from_prepass(Path(args.profile_from), var.tn), [{} for _ in range(L)], None
+        log(f"profile decisions REUSED from {args.profile_from}")
+    else:
+        glob, caches, ptable = bl.prepass(ck, stats, var, R, L, "none")
     prof = {"cn_a": glob.cn_a, "cn_m": glob.cn_m, "e_s": glob.e_s, "silu": glob.silu, "shifts": glob.shifts,
             "s_in": glob.s_in, "s_out": glob.s_out}
     log(f"profile decisions: cn {glob.cn_a}/{glob.cn_m} shifts {glob.shifts} s_x {glob.s_in[0]:.4g}")
@@ -258,12 +349,30 @@ def main():
     np.save(chain_dir / "x_L00.npy", xi_h.astype(np.int16))
     xf_h = xh_f
     layers = []
-    exp_root = HERE / "export" / name
+    exp_root = HERE / "export" / (args.export_name or name)
+    raw_h = layer1_raw_per_head(ck, R, xc_f, rope_fc, args.chunk) if args.l1_mode == "perhead" else None
+    if raw_h is not None:
+        log(f"layer-1 raw score max per query head: {np.round(raw_h, 1).tolist()}")
+    word_mismatch = {}
     iso = slice(0, min(args.iso_seqs, len(ho_ids)))
     for l in range(L):
         tl = time.time()
         W = bl.load_layer(ck, l, R)
-        P, rep = b3.solve_layer(W, stats[l], var, glob.s_in[l], glob.s_out[l], glob, caches[l])
+        var_l = var
+        if l == 1 and args.l1_mode in ("s16", "m2zero", "fe13"):
+            kw_l = dict(var.__dict__)
+            kw_l.update({"s16": {"s16": True}, "m2zero": {"margin_pow2": 0.0}, "fe13": {"f_e": 13}}[args.l1_mode])
+            var_l = b3.Variant(**kw_l)
+        P, rep = b3.solve_layer(W, stats[l], var_l, glob.s_in[l], glob.s_out[l], glob, caches[l])
+        if l == 1 and args.l1_mode == "perhead":
+            e_h, e_rng = perhead_qk(W, stats[l], var, P, rep, raw_h)
+            rep["perhead"] = {"e_s": e_h.tolist(), "e_range": e_rng.tolist()}
+            log(f"layer-1 per-head e_s {e_h.tolist()}")
+        if args.check_against and not (l == 1 and args.l1_mode != "none"):
+            man = json.loads((Path(args.check_against) / f"layer_{l:02d}" / "manifest.json").read_text())
+            bad = [n for n in WORDS if man["arrays"][n]["sha256"] != word_sha(P, n)]
+            if bad:
+                word_mismatch[l] = bad
         xf_next = np.concatenate([tc.f_block(xf_h[s:s + args.chunk], W, *rope_f) for s in range(0, len(ho_ids), args.chunk)])
         rh, ri = tc.Rec(len(ho_ids)), tc.Rec(iso.stop)
         xi_next = bl.run_int(xi_h, P, rope_i, rh, args.chunk)
@@ -287,6 +396,8 @@ def main():
         if args.export:
             bl.export_layer(exp_root, l, P, rep, T, var)
             entry["export_manifest_sha256"] = bl.sha_file(exp_root / f"layer_{l:02d}" / "manifest.json")
+            if args.link_from:
+                entry["hard_linked_files"] = link_identical(Path(args.link_from) / f"layer_{l:02d}", exp_root / f"layer_{l:02d}")
         layers.append(entry)
         (out / f"layer_{l:02d}.json").write_text(tc.jdump(entry))
         nv = lambda r: sum(s["violations"] for s in r.summary()["sites"].values())
@@ -302,7 +413,11 @@ def main():
                "checkpoint_identity": {k: ck.identity[k] for k in ("schema", "config_sha256", "shard_sha256", "tensor_count")},
                "calib_sequences": cal_meta, "heldout_sequences": ho_meta, "profile": prof, "heldout_refused": int(ref_h.sum()),
                "heldout_first_refusal": [None if f is None else {"layer": f[0], "site": f[1]} for f in first_h],
-               "calibration": {"T_cal": T_cal, "sequences": len(cal_ids)}, "tool_sha256": tool_sha}
+               "calibration": {"T_cal": T_cal, "sequences": len(cal_ids)}, "tool_sha256": tool_sha,
+               "l1_mode": args.l1_mode, "profile_from": args.profile_from,
+               "check_against": {"export": args.check_against, "layers_with_different_words": word_mismatch} if args.check_against else None}
+    if args.check_against:
+        log(f"words vs {args.check_against}: {len(word_mismatch)} layer(s) differ {word_mismatch}")
     if L == ck.config["layers"]:
         head = Head(ck)
         xf_fin = R.inv(xf_h).astype(np.float32)
@@ -344,6 +459,9 @@ def main():
         pc = layers[0]["constants"]
         uniform = {k: pc[k] if all(e["constants"][k] == pc[k] for e in layers) else None for k in pc}
         raw = R.sign.astype("<f8").tobytes()
+        for f_ in ("rotation_sign.bin", "rotation.json"):
+            if (exp_root / f_).exists():
+                (exp_root / f_).unlink()
         (exp_root / "rotation_sign.bin").write_bytes(raw)
         (exp_root / "rotation.json").write_text(json.dumps({"kind": "randomized Sylvester Hadamard", "n": tc.GEO.d, "seed": args.rotate,
                                                             "file": {"name": "rotation_sign.bin", "dtype": "float64 little-endian",

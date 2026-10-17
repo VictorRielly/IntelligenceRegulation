@@ -1,0 +1,5 @@
+{
+  "recorded_at": "2026-10-17T14:31:11.824942+00:00",
+  "error": "helpers incorrectly gated mutation was only sampled with nlk=0; differential comparisons passed before control assertion",
+  "corrective_action": "exercise mutation controls on every padded case, including paired/odd helper families"
+}

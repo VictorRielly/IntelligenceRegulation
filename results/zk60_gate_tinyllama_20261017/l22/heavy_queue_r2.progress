@@ -1,0 +1,5 @@
+13:41:27 no r4 guard before capture-l22r2-zero
+capture-l22r2-zero exit 0
+predict-l22r2-zero exit 1
+13:53:30 no r4 guard before tl-l22r2-zero-arms
+tl-l22r2-zero-arms exit 1

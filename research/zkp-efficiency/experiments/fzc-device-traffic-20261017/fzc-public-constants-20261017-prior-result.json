@@ -1,0 +1,90 @@
+{
+  "status": "pass",
+  "run_id": "20261017T132624Z-393ef603",
+  "cycle": "0063",
+  "seed": 2026101763,
+  "counts": {
+    "fixtures": 480,
+    "comparisons": 2480,
+    "round_samples": 528,
+    "folded_terminals": 32
+  },
+  "controls": {
+    "activation incorrectly gated": true,
+    "helpers incorrectly gated": true,
+    "pad term dropped": true,
+    "whole bracket gated": true,
+    "wrong helper index": true,
+    "host gate omitted": true,
+    "host half omitted": true,
+    "challenge coefficient truncated": true,
+    "activation helper dropped": true
+  },
+  "costs": {
+    "baseline": {
+      "nonhelper_full_extension_calls": 22,
+      "constant_base_calls": 0,
+      "helper_full_extension_calls": 14,
+      "helper_base_calls": 9,
+      "pad_full_extension_calls_unpadded": 1,
+      "pad_full_extension_calls_padded": 13,
+      "full_extension_calls_unpadded": 37,
+      "full_extension_calls_padded": 49
+    },
+    "base constants": {
+      "nonhelper_full_extension_calls": 17,
+      "constant_base_calls": 5,
+      "helper_full_extension_calls": 14,
+      "helper_base_calls": 9,
+      "pad_full_extension_calls_unpadded": 1,
+      "pad_full_extension_calls_padded": 13,
+      "full_extension_calls_unpadded": 32,
+      "full_extension_calls_padded": 44
+    },
+    "support hoist": {
+      "nonhelper_full_extension_calls": 20,
+      "constant_base_calls": 0,
+      "helper_full_extension_calls": 14,
+      "helper_base_calls": 9,
+      "pad_full_extension_calls_unpadded": 1,
+      "pad_full_extension_calls_padded": 13,
+      "full_extension_calls_unpadded": 35,
+      "full_extension_calls_padded": 47
+    },
+    "combined": {
+      "nonhelper_full_extension_calls": 15,
+      "constant_base_calls": 5,
+      "helper_full_extension_calls": 14,
+      "helper_base_calls": 9,
+      "pad_full_extension_calls_unpadded": 1,
+      "pad_full_extension_calls_padded": 13,
+      "full_extension_calls_unpadded": 30,
+      "full_extension_calls_padded": 42
+    }
+  },
+  "output_sha256": "3582dd70fee6811e364197664dd2451c4988619d5b2dd4860d5395c9de820664",
+  "wall_seconds": 1.691693132997898,
+  "peak_rss_kib": 17948,
+  "child_peak_rss_kib": 138316,
+  "cpu_affinity": [
+    0
+  ],
+  "threads": 1,
+  "nice": 19,
+  "compile_argv": [
+    "/home/victor/.rustup/toolchains/1.97.0-x86_64-unknown-linux-gnu/bin/rustc",
+    "--edition=2021",
+    "--crate-type=cdylib",
+    "-C",
+    "opt-level=3",
+    "-C",
+    "codegen-units=1",
+    "--emit=link,asm,llvm-ir",
+    "isolated.rs",
+    "-o",
+    "isolated.so"
+  ],
+  "source_sha256": "5708964caf7db644edbcf0e3090123a68bf6e49b2f2ad15d0e002c48ae90ef1e",
+  "limits": "59s CPU/wall,512MiB AS, one thread; standalone std-only harness; no Cargo/native proof/GPU",
+  "scope": "source-captured Rust arithmetic vs independent Python arbitrary-integer Fp2 reference; synthetic ordinary round samples; no masked proof, transcript, PCS, RNG, privacy or native runtime acceptance"
+}

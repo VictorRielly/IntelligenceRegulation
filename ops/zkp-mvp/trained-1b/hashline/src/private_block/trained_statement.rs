@@ -377,19 +377,22 @@ fn i64_bytes(vs: &[&[i64]]) -> Vec<u8> {
 impl LayerRecord {
     /// The record of one block's PUBLIC statement, computed from the words
     /// the prover and the verifier actually use.
+    /// ROUND 5 (R5-2): the record of a proving-pass RELOAD, which keeps only
+    /// the block (its digest is compared with the digest pass's record)
+    pub(crate) fn unhashed(index: u32) -> LayerRecord {
+        LayerRecord { index, block_digest: [0; 32], word_sha256: [[0; 32]; 9], table_sha256: [[0; 32]; 3], source_tensors: vec![], manifest_sha256: [0; 32], silu_member: (0, 0), exp_e_s: 0 }
+    }
+
     pub(crate) fn of_block(index: u32, blk: &BlockPublic, source_tensors: Vec<(String, [u8; 32])>) -> LayerRecord {
         let (a, f) = (blk.attention(), blk.feed_forward());
-        let word_sha256 = [
-            sha(&i8_bytes(&a.wq)),
-            sha(&i8_bytes(&a.wk)),
-            sha(&i8_bytes(&a.wv)),
-            sha(&i8_bytes(&a.wo)),
-            sha(&i8_bytes(&a.gamma_a)),
-            sha(&i8_bytes(&f.gamma_m)),
-            sha(&i8_bytes(&f.wg_t)),
-            sha(&i8_bytes(&f.wu_t)),
-            sha(&i8_bytes(&f.wd_t)),
-        ];
+        // ROUND 5 (R5-2): the nine padded-word SHA-256s IN PARALLEL (the
+        // same bytes, the same digests, in the same order)
+        let words: [&Vec<i8>; 9] = [&a.wq, &a.wk, &a.wv, &a.wo, &a.gamma_a, &f.gamma_m, &f.wg_t, &f.wu_t, &f.wd_t];
+        let hashed: Vec<[u8; 32]> = {
+            use rayon::prelude::*;
+            words.par_iter().map(|w| sha(&i8_bytes(w))).collect()
+        };
+        let word_sha256: [[u8; 32]; 9] = hashed.try_into().expect("nine digests");
         let act: Vec<u8> = f.act.iter().flat_map(|v| v.to_le_bytes()).collect();
         let table_sha256 = [sha(&i64_bytes(&[&a.rope_cos, &a.rope_sin])), sha(&i64_bytes(&[&a.exp])), sha(&act)];
         let mut source_tensors = source_tensors;

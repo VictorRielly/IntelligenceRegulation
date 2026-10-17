@@ -541,6 +541,11 @@ fn norm_limbs_are_the_pinned_count(shape: &Shape) -> Result<(), String> {
 pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedForwardPublic, input: &[i16]) -> Result<Witness, String> {
     let ids = Ids::new(shape)?;
     norm_limbs_are_the_pinned_count(shape)?;
+    // RULINGS CS-1 and CS-4 (ported from the 125M lane): the two halves are
+    // checked against the shape they are built at, attention first, before
+    // the input is read
+    public.check_for_shape(shape)?;
+    ff.check_for_shape(shape)?;
     let ap = |toy_id: usize| ids.at(toy_id);
     let g = Geom::new(shape);
     if input.len() != g.t * g.d {

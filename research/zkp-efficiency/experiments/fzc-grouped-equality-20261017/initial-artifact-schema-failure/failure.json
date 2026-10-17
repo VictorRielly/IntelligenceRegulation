@@ -1,0 +1,4 @@
+{
+  "error": "KeyError: id; earlier preserved source records use heterogeneous schemas",
+  "corrective_action": "retain all325old records byte-for-byte; uniqueness audit only the six appended IDs against old IDs where present"
+}

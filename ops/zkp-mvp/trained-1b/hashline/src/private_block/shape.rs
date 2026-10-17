@@ -322,6 +322,56 @@ fn bit_length(v: i128) -> u32 {
     128 - v.leading_zeros()
 }
 
+/// **RULING CS-9: THE BLOCK PROFILE REGISTRY** (ported from the 125M lane's
+/// stage 44): the nine frozen constructors, each its profile's entry (they
+/// build past CS-9's own check because each IS the entry).
+const REGISTERED_BLOCK_SHAPES: [fn() -> Shape; 9] = [Shape::toy, Shape::rung, Shape::rung_g, Shape::rung_k4, Shape::rung_p2, Shape::rung_c6, Shape::rung_w14, Shape::rung_e32, Shape::m125];
+
+/// The one shape a block profile string names (a trained-calibration
+/// profile: its geometry at `f_e`), or `None` for a string this build does
+/// not register. No profile string is written here.
+fn registered_block_shape(profile: &str, f_e: u32) -> Option<Result<Shape, String>> {
+    if let Some(r) = trained_geometry(profile, f_e) {
+        return Some(r);
+    }
+    REGISTERED_BLOCK_SHAPES.iter().map(|ctor| ctor()).find(|s| s.profile == profile).map(Ok)
+}
+
+/// **ROUND 5 (ruling CS-9 in this lane): the registered GEOMETRY of each
+/// trained-calibration profile at `f_e`**, built past CS-9's check because it
+/// IS the registry's entry; the calibration (and the trained windows) are
+/// the trained door's. The one source of these parameters: the trained
+/// constructors build through it.
+fn trained_geometry(profile: &str, f_e: u32) -> Option<Result<Shape, String>> {
+    let mask = super::endpoint_g::MASK_ROWS;
+    let tl = |name: &'static str, p: &'static str, tokens: usize, lc: usize| Shape::build(name, p, tokens, 2048, 5632, 32, 64, 4, lc, 4, f_e, ((tokens * 2048) >> lc) + mask, None, None, None, None);
+    Some(match profile {
+        TINYLLAMA_T32_TRAINED_PROFILE => tl("TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads)", TINYLLAMA_T32_TRAINED_PROFILE, 32, 12),
+        TINYLLAMA_T64_TRAINED_PROFILE => tl("TinyLlama-1.1B block geometry, trained calibration (T64 / d2048 / f5632, 32 heads of 64 over 4 KV heads)", TINYLLAMA_T64_TRAINED_PROFILE, 64, 13),
+        TINYLLAMA_T128_TRAINED_PROFILE => tl("TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads)", TINYLLAMA_T128_TRAINED_PROFILE, 128, 14),
+        LLAMA3_8B_T32_TRAINED_PROFILE => Shape::build(
+            "Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads)",
+            LLAMA3_8B_T32_TRAINED_PROFILE,
+            32,
+            4096,
+            14336,
+            32,
+            128,
+            8,
+            LLAMA3_8B_LOG_COLS,
+            4,
+            f_e,
+            ((32 * 4096) >> LLAMA3_8B_LOG_COLS) + mask,
+            None,
+            None,
+            None,
+            None,
+        ),
+        TRAINED_CALIB_RUNG_PROFILE => Shape::build("development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)", TRAINED_CALIB_RUNG_PROFILE, 32, 384, 512, 12, 32, 4, 10, 4, 12, 21, None, None, None, None),
+        _ => return None,
+    })
+}
+
 /// ONE block geometry, plus the PCS parameters its receipt is priced at.
 ///
 /// Built only through [`Shape::new`], which refuses by name every geometry the
@@ -395,7 +445,87 @@ pub(crate) struct Shape {
 
 impl Shape {
     #[allow(clippy::too_many_arguments)]
+    /// **THE one place a block profile string meets a geometry** (ruling
+    /// CS-9, ported from the 125M lane's stage 44): every refusal of the
+    /// construction ([`Shape::build`]), then the profile registry: a
+    /// REGISTERED block profile string is admitted only with the one shape it
+    /// is registered for (compared whole, as ruling CS-7 compares a run's
+    /// block shape), and a string this build does not register is refused —
+    /// outside `#[cfg(test)]` (a test build admits the probe and fixture
+    /// shapes the test files build under their own unregistered strings).
+    /// NATIVE LANE: a trained-calibration profile's registered entry is its
+    /// GEOMETRY at the handed `f_e` (the calibration is the trained door's).
+    #[allow(clippy::too_many_arguments)]
     pub(crate) fn new(
+        name: &'static str,
+        profile: &'static str,
+        tokens: usize,
+        width: usize,
+        hidden: usize,
+        q_heads: usize,
+        head_dim: usize,
+        kv_heads: usize,
+        log_cols: usize,
+        inv_rate: usize,
+        f_e: u32,
+        endpoint_rows: usize,
+        endpoint_log_n: Option<usize>,
+        endpoint_inv_rate: Option<usize>,
+        norm_wrho: Option<u32>,
+        wrho_s: Option<u32>,
+    ) -> Result<Shape, String> {
+        let sh = Shape::build(name, profile, tokens, width, hidden, q_heads, head_dim, kv_heads, log_cols, inv_rate, f_e, endpoint_rows, endpoint_log_n, endpoint_inv_rate, norm_wrho, wrho_s)?;
+        sh.block_profile_names_this_shape(cfg!(test))?;
+        Ok(sh)
+    }
+
+    /// **Ruling CS-9's check** (see [`Shape::new`]). `admit_unregistered` is
+    /// `cfg!(test)` at its one production caller.
+    fn block_profile_names_this_shape(&self, admit_unregistered: bool) -> Result<(), String> {
+        const CS9: &str = "private block shape: ruling CS-9 — ";
+        match registered_block_shape(self.profile, self.f_e) {
+            Some(Ok(reg)) if reg == *self => Ok(()),
+            Some(Ok(reg)) => {
+                let differ: Vec<&str> = [
+                    ("name", reg.name != self.name),
+                    ("tokens", reg.tokens != self.tokens),
+                    ("width", reg.width != self.width),
+                    ("hidden", reg.hidden != self.hidden),
+                    ("q_heads", reg.q_heads != self.q_heads),
+                    ("head_dim", reg.head_dim != self.head_dim),
+                    ("kv_heads", reg.kv_heads != self.kv_heads),
+                    ("log_cols", reg.log_cols != self.log_cols),
+                    ("inv_rate", reg.inv_rate != self.inv_rate),
+                    ("f_e", reg.f_e != self.f_e),
+                    ("endpoint_rows", reg.endpoint_rows != self.endpoint_rows),
+                    ("endpoint_log_n", reg.endpoint_log_n != self.endpoint_log_n),
+                    ("endpoint_inv_rate", reg.endpoint_inv_rate != self.endpoint_inv_rate),
+                    ("norm_wrho", reg.norm_wrho != self.norm_wrho),
+                    ("wrho_s", reg.wrho_s != self.wrho_s),
+                ]
+                .iter()
+                .filter(|(_, d)| *d)
+                .map(|(n, _)| *n)
+                .collect();
+                Err(format!("{CS9}the block profile {:?} is registered for exactly one shape, {:?}; the shape handed, {:?}, differs from it in {}", self.profile, reg.name, self.name, differ.join(", ")))
+            }
+            Some(Err(e)) => Err(format!("{CS9}the block profile {:?}'s registered geometry does not build at this f_e: {e}", self.profile)),
+            None if admit_unregistered => Ok(()),
+            None => Err(format!("{CS9}{:?} is not a block profile this build registers, so it names no shape ({:?} was handed)", self.profile, self.name)),
+        }
+    }
+
+    /// **TEST ONLY (ruling CS-9).** The check as a release build makes it.
+    #[cfg(test)]
+    pub(crate) fn check_block_profile_as_a_release_build(&self) -> Result<(), String> {
+        self.block_profile_names_this_shape(false)
+    }
+
+    /// Every refusal of the construction but ruling CS-9's. PRIVATE: called
+    /// by [`Shape::new`] and by the registry's own entries (the nine frozen
+    /// constructors and [`trained_geometry`]).
+    #[allow(clippy::too_many_arguments)]
+    fn build(
         name: &'static str,
         profile: &'static str,
         tokens: usize,
@@ -698,7 +828,7 @@ impl Shape {
 
     /// THE TOY, the only shape that proves anything today.
     pub(crate) fn toy() -> Shape {
-        Shape::new("toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)", TOY_PROFILE, 32, 16, 16, 2, 8, 1, 8, 8, 9, 7, None, None, None, None).expect("the toy shape is well formed")
+        Shape::build("toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)", TOY_PROFILE, 32, 16, 16, 2, 8, 1, 8, 8, 9, 7, None, None, None, None).expect("the toy shape is well formed")
     }
 
     /// THE DEVELOPMENT RUNG of ruling P-7 (memo §9a). `F_E = 12` is a
@@ -707,7 +837,7 @@ impl Shape {
     /// Development grade, never a deliverable: no receipt from it is shown to
     /// anyone and no soundness or privacy statement is made from it.
     pub(crate) fn rung() -> Shape {
-        Shape::new(
+        Shape::build(
             "development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)",
             FROZEN_SEAM_RUNG_PROFILE,
             24,
@@ -752,7 +882,7 @@ impl Shape {
     /// shape cannot use — and `4 + MASK_ROWS = 9` commitment rows.
     /// Development grade, never a deliverable.
     pub(crate) fn rung_g() -> Shape {
-        Shape::new(
+        Shape::build(
             "development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)",
             "hashline-zk-mr1/private-block-rung-g-t24-dev/1",
             24,
@@ -812,7 +942,7 @@ impl Shape {
     /// Development grade, never a deliverable (ruling P-7), its OWN profile
     /// (D17) and therefore its own hash-tag key set. No existing shape moves.
     pub(crate) fn rung_k4() -> Shape {
-        Shape::new(
+        Shape::build(
             "development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)",
             "hashline-zk-mr1/private-block-rung-k4-t24-dev/1",
             24,
@@ -875,7 +1005,7 @@ impl Shape {
     /// Development grade, never a deliverable (ruling P-7), its OWN profile
     /// (D17) and therefore its own hash-tag key set. No existing shape moves.
     pub(crate) fn rung_p2() -> Shape {
-        Shape::new(
+        Shape::build(
             "development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)",
             "hashline-zk-mr1/private-block-rung-p2-t32-dev/1",
             32,
@@ -950,7 +1080,7 @@ impl Shape {
     /// Development grade, never a deliverable (ruling P-7), its OWN profile
     /// (D17) and therefore its own hash-tag key set. No existing shape moves.
     pub(crate) fn rung_c6() -> Shape {
-        Shape::new(
+        Shape::build(
             "development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)",
             "hashline-zk-mr1/private-block-rung-c6-t32-dev/1",
             32,
@@ -1029,7 +1159,7 @@ impl Shape {
     /// Development grade, never a deliverable (ruling P-7), its OWN profile
     /// (D17) and therefore its own hash-tag key set. No existing shape moves.
     pub(crate) fn rung_w14() -> Shape {
-        Shape::new(
+        Shape::build(
             "development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)",
             "hashline-zk-mr1/private-block-rung-w14-t64-dev/1",
             64,
@@ -1091,7 +1221,7 @@ impl Shape {
     /// Development grade, never a deliverable (ruling P-7), its OWN profile
     /// (D17) and therefore its own hash-tag key set. No existing shape moves.
     pub(crate) fn rung_e32() -> Shape {
-        Shape::new(
+        Shape::build(
             "development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)",
             "hashline-zk-mr1/private-block-rung-e32-t32-dev/1",
             32,
@@ -1127,7 +1257,7 @@ impl Shape {
     /// 733,184 B. **Padding is what removes the need for C6 here**: there is
     /// no non-power-of-two plane left to batch over (finding S11b-F1).
     pub(crate) fn m125() -> Shape {
-        Shape::new("125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)", "hashline-zk-mr1/private-block-m125/1", 512, 768, 2048, 12, 64, 4, 14, 4, 9, 37, None, None, None, None)
+        Shape::build("125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)", "hashline-zk-mr1/private-block-m125/1", 512, 768, 2048, 12, 64, 4, 14, 4, 9, 37, None, None, None, None)
             .expect("the 125M shape is well formed")
     }
 
@@ -1343,20 +1473,80 @@ impl Shape {
         Shape::tinyllama_trained(32, cal, f_e)
     }
 
+    /// **RULING CS-8 (ported from the 125M lane's stage 43): is this value one
+    /// [`Shape::new`] builds?** `Shape`'s fields are readable (and writable)
+    /// across the crate, so the invariant is re-checked instead of sealed:
+    /// `Shape::new` is run again on this value's own parameters and the
+    /// result must equal this value, field for field. NATIVE LANE: a TRAINED
+    /// shape is rebuilt through the trained door at its own calibration (its
+    /// windows are derived there, so they are not passed as overrides), so
+    /// the declared classes, the derived windows and `D_max` are all re-run.
+    /// Called first at every single-block entry and in the two shared bodies.
+    /// It computes no digest, absorbs nothing, draws nothing.
+    pub(crate) fn check_constructed(&self) -> Result<(), String> {
+        const CS8: &str = "private block shape: ruling CS-8 — ";
+        let (nw, ws) = if self.trained_calibration { (None, None) } else { (Some(self.norm_wrho), Some(self.wrho_s)) };
+        let rebuilt = Shape::new(
+            self.name,
+            self.profile,
+            self.tokens,
+            self.width,
+            self.hidden,
+            self.q_heads,
+            self.head_dim,
+            self.kv_heads,
+            self.log_cols,
+            self.inv_rate,
+            self.f_e,
+            self.endpoint_rows,
+            Some(self.endpoint_log_n),
+            Some(self.endpoint_inv_rate),
+            nw,
+            ws,
+        )
+        .and_then(|b| if self.trained_calibration { b.with_trained_calibration(&self.norm_calibration()) } else { Ok(b) })
+        .map_err(|e| format!("{CS8}{:?} is not a shape Shape::new builds: Shape::new refuses its own parameters ({e})", self.name))?;
+        if rebuilt == *self {
+            return Ok(());
+        }
+        let differ: Vec<&str> = [
+            ("opened_cols", rebuilt.opened_cols != self.opened_cols),
+            ("endpoint_general", rebuilt.endpoint_general != self.endpoint_general),
+            ("t_pad", rebuilt.t_pad != self.t_pad),
+            ("d_pad", rebuilt.d_pad != self.d_pad),
+            ("h_pad", rebuilt.h_pad != self.h_pad),
+            ("f_pad", rebuilt.f_pad != self.f_pad),
+            ("d_max", rebuilt.d_max != self.d_max),
+            ("norm_wrho", rebuilt.norm_wrho != self.norm_wrho),
+            ("wrho_s", rebuilt.wrho_s != self.wrho_s),
+            ("the calibration", rebuilt.norm_calibration() != self.norm_calibration()),
+            ("trained_calibration", rebuilt.trained_calibration != self.trained_calibration),
+        ]
+        .iter()
+        .filter(|(_, d)| *d)
+        .map(|(n, _)| *n)
+        .collect();
+        Err(format!("{CS8}{:?} is not a shape Shape::new builds: its {} differ from what Shape::new derives from its parameters", self.name, differ.join(", ")))
+    }
+
     /// **ROUND 4 (R4-1): THE TRAINED Llama-3-8B BLOCK SHAPE at T = 32.** Row
     /// width [`LLAMA3_8B_LOG_COLS`], endpoint rows from the padded cube at that
     /// width plus the mask rows. The FFN pads 14336 to 16384 and the head
     /// axis is 32 slots of 128 (no padded head), the key-value groups of 4.
     pub(crate) fn llama3_8b_t32_trained(cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
-        Shape::llama3_8b_t32_at(LLAMA3_8B_LOG_COLS, cal, f_e)
+        Shape::check_f_e_class(32, f_e)?;
+        trained_geometry(LLAMA3_8B_T32_TRAINED_PROFILE, f_e).ok_or("private block shape: an unregistered trained profile")??.with_trained_calibration(cal)
     }
 
-    /// the same geometry at another row width (the counted-layout choice;
-    /// one profile string, so only [`LLAMA3_8B_LOG_COLS`] is proved)
+    /// **TEST ONLY: the same geometry at another row width, for the counted
+    /// layouts.** It builds past ruling CS-9 (one profile string names one
+    /// shape, and only [`LLAMA3_8B_LOG_COLS`] is registered), so it exists in
+    /// test builds only and its shapes are COUNTED, never proved.
+    #[cfg(test)]
     pub(crate) fn llama3_8b_t32_at(log_cols: usize, cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
         Shape::check_f_e_class(32, f_e)?;
         let rows = ((32 * 4096) >> log_cols) + super::endpoint_g::MASK_ROWS;
-        Shape::new(
+        Shape::build(
             "Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads)",
             LLAMA3_8B_T32_TRAINED_PROFILE,
             32,
@@ -1389,9 +1579,9 @@ impl Shape {
             128 => ("TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads)", TINYLLAMA_T128_TRAINED_PROFILE, 14),
             _ => return Err(format!("private block shape: no trained TinyLlama profile is registered at T = {tokens} (32, 64 and 128 are)")),
         };
+        let _ = (name, log_cols);
         Shape::check_f_e_class(tokens, f_e)?;
-        let rows = ((tokens * 2048) >> log_cols) + super::endpoint_g::MASK_ROWS;
-        Shape::new(name, profile, tokens, 2048, 5632, 32, 64, 4, log_cols, 4, f_e, rows, None, None, None, None)?.with_trained_calibration(cal)
+        trained_geometry(profile, f_e).ok_or("private block shape: an unregistered trained profile")??.with_trained_calibration(cal)
     }
 
     /// The same family at another token count, for the counted-layout ladder
@@ -1402,7 +1592,9 @@ impl Shape {
     #[cfg(test)]
     pub(crate) fn tinyllama_trained_ladder(tokens: usize, log_cols: usize, cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
         let rows = ((tokens.next_power_of_two() * 2048) >> log_cols) + super::endpoint_g::MASK_ROWS;
-        Shape::new(
+        // TEST ONLY and COUNTED, never proved: it builds past ruling CS-9
+        // (the T32 profile string names one shape)
+        Shape::build(
             "TinyLlama-1.1B block geometry, trained calibration, counted-layout ladder",
             TINYLLAMA_T32_TRAINED_PROFILE,
             tokens,
@@ -1429,25 +1621,7 @@ impl Shape {
     /// norm-alias cases (D16 item 6) and the coefficient tamper controls run
     /// in seconds. At width 384 the class admits `tn <= 11`.
     pub(crate) fn rung_tc(cal: &NormCalibration) -> Result<Shape, String> {
-        Shape::new(
-            "development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)",
-            TRAINED_CALIB_RUNG_PROFILE,
-            32,
-            384,
-            512,
-            12,
-            32,
-            4,
-            10,
-            4,
-            12,
-            21,
-            None,
-            None,
-            None,
-            None,
-        )?
-        .with_trained_calibration(cal)
+        trained_geometry(TRAINED_CALIB_RUNG_PROFILE, 12).ok_or("private block shape: an unregistered trained profile")??.with_trained_calibration(cal)
     }
 
     // ---- the head permutation (correction C-1, ruling P-2) -----------------

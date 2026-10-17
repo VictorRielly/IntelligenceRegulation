@@ -420,3 +420,32 @@ wrong exactly as named in advance (2,974 vs 32).
   - M9-1 and M9-2 fire; M9-3 fires on D, Kv, Q, S and T, with its wording
     criterion false (G-4), as predicted.
   - G-3: the trained-bundle channel sentence is in place.
+- 13:39 UTC: the native lane reports R4 done ("No job of mine is running").
+  BUT my first heavy queue (`l22/heavy_queue.sh`, pid 309499) is STALLED for
+  good. Its r4 check (`ps | grep guard | grep -- --label r4-`) matched the
+  command line of its own launching shell (pid 309497, the tool's `bash -c`,
+  whose heredoc text contains both strings). That shell stays alive as its
+  parent, so the check can never pass. This is the self-matching-watcher
+  trap the memory index warns about. I cannot stop it (a kill is refused by
+  the session classifier); it only sleeps and holds nothing.
+  Neutralised in case it ever wakes: its capture path
+  `/home/victor/zk60-artifacts/tinyllama-trained-capture-zero-l22` is now a
+  plain SENTINEL FILE. Its capture would then fail at write, its manifest
+  check would stop it, and it would run no gate pass (worst case: one wasted
+  ~10 min / 2.3 GiB guarded capture). **Owner action: `kill 309499` (its
+  parent 309497 then exits).**
+- 13:40 UTC: corrected queue `l22/heavy_queue_r2.sh`. Its r4 check looks at
+  PYTHON processes only (awk on `comm`), so it cannot match a shell. New
+  names: bundle `tinyllama-trained-capture-zero-l22r2`; records
+  `l22/capture-l22r2-zero.*`, `prediction_tinyllama_l22r2_zero.json`,
+  `tl-l22r2-{zero,dense}-arms.json`. The hand prediction of 12:56 applies
+  unchanged. 13:41 UTC: no r4 guard; the capture is waiting for the heavy
+  lock behind other lanes' builds.
+- 13:43-13:53 UTC **22-BLOCK ALL-ZERO CAPTURE DONE** (`l22/capture-l22r2-zero.*`,
+  guarded cpu 3 / 4.5 GiB, waited 137 s for the heavy lock behind other
+  lanes' builds): the all-zero plane on all 22 trained blocks proves and
+  VERIFIES as one bound run; bundle `tinyllama-trained-capture-zero-l22r2`,
+  371,073,602 B; 548.7 s, peak RSS 2.33 GiB (cgroup 2.78), as predicted.
+  Computed prediction (`prediction_tinyllama_l22r2_zero.json`) equal to the
+  dense one on every replay / hash / joint figure. The zero-arms pass is
+  queued next.

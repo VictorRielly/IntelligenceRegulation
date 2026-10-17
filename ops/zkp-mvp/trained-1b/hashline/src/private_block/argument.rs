@@ -1947,11 +1947,13 @@ pub(crate) fn argument(side: &mut Side, ctx: &Ctx, tr: &mut Transcript, ph: &mut
         #[cfg(test)]
         super::run_capture::start_slot(side, tr);
         let def = define(slot, ctx, &mut pts, tr)?;
+        // ROUND 5: the slot's counted ELEMENT-TERMS, its sumcheck cube
+        // `2^(main + extension rounds)` times its table count — a function of
+        // the shape and the declared schedule, nothing private
+        let n_tabs = def.tabs.len() as u64;
         run_slot(side, &mut acc, def, tr)?;
-        // the slot's own sumcheck cube, `2^(main + extension rounds)`: a
-        // function of the shape and the declared schedule, nothing private
         let (main, ext, _) = sh.slots()[slot];
-        ph.slot(slot, 1u64 << (main + ext), "cube");
+        ph.slot_work(slot, (1u64 << (main + ext)) * n_tabs);
     }
     let hosts = std::mem::take(&mut acc.host_fs);
     acc.fs.extend(hosts);

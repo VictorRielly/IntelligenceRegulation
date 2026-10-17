@@ -795,3 +795,182 @@ sumchecks (45-51%) all run on the CPU in both; the plane-to-row conversion
 openings and conversion are slower than the CPU run's (device-host
 traffic). So: (1) the five zero-check sumchecks on the device, (2) a
 parallel plane-to-row conversion, (3) batched parallel inverses.
+
+### R4-3 the trained Llama-3-8B export: parity, one block, the 32-block stack
+
+Export `results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_T32/`
+(calibration lane, independently verified; no geometry key, model block with
+`shards_sha256` -> the 8B profile; tn 9, Cn_a 2266, Cn_m 1557, Ceps 78617,
+shifts qkv 8 / s 6 / ao 3 / g 8 / h 14 / z 5, f_e 9, RoPE 500000, per-layer
+e_s and SiLU member). Round-4 CLIs (`r4/`, CPU sha256 ca736d48..., GPU
+9b1ae93b...; sources `r4/manifest_cli_sources.json`, unchanged since).
+
+- **Streaming blocks (needed for the 8B stack).** `run::BlockSource` (a slice,
+  or a one-block cache), `prove_run_with` / `verify_run_with` /
+  `verify_run_from_dir_with` (the slice forms delegate; the proving and
+  verifying paths are otherwise unchanged). The stack CLI now (1) runs a
+  DIGEST PASS (each layer loaded, its record and block digest kept, the block
+  dropped), (2) builds the run statement from the digests
+  (`new_bound_from_digests`), (3) proves with ONE block resident: a shared
+  `BlockCache` reloads block k from the export when the witness source first
+  asks (every array SHA-256-checked, tables against their generator members)
+  and refuses it unless its digest is the statement's; the prover reads the
+  same cached block, (4) verifies with a fresh cache, one block and one
+  segment resident; the run-level controls stream the same way (an order
+  map for the swapped-block controls). `trained_stack_tests` (3-layer rung
+  stack, 11 controls, the boundary lie) passes on it (`r4-stream-fast.log`).
+- **Parity and one trained block** (`r3_one.sh r4 ...`, `r3/one-r4-llama3_8b_pg_rot1_T32-*`,
+  16 threads) [MEASURED, shared box, n=1]: parity BIT-EXACT (131,072 words)
+  at layer 0 and layer 31 on BOTH held-out sequences (ho00 licence, ho36
+  FineWeb), 0.53-0.63 s each; each block proves as a bound one-block run in
+  3.1-3.6 s, segment 14,856,296 B, peak RSS 2.37-2.40 GiB with the controls
+  run (1.91 without), and verifies in a FRESH process (0.39-0.53 s after a
+  2.8-3.0 s layer load). Layer 0 / ho00 and layer 31 / ho36: 3
+  inconsistent-witness controls refused at prove time and all 19 verifier
+  controls refused in the fresh process (`verify-controls.log`).
+- **THE 32-BLOCK Llama-3-8B STACK AT T=32, ONE BOUND RUN**
+  (`r4_stack.sh cpu|gpu ho00`, `r4/stack-llama3_8b_pg_rot1_T32-ho00-{cpu,gpu}/`):
+  parity BIT-EXACT at all 32 layers inside the proving pass; receipt
+  465,815,776 B (32 segments); statement identity 259dad7cb2c9739e44cfdf5c27c4c87090458cf330e9d39b592221094ae3537f
+  (CPU and GPU agree); verified in a FRESH process from the directory; the
+  CPU run's verify ran all 11 run-level controls (all refused, the honest
+  run still verifies). GPU: "gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU",
+  `HL_GPU_REQUIRED=1`, 0 declines, peak VRAM 2,369 MiB.
+
+Table (`r4_table.py` -> `r4/TABLE.md`, `r4/table.json`; [MEASURED, shared
+box, n=1, RAYON_NUM_THREADS=16]; "block loads" = reloading each block from
+the export inside the proving pass; proofs only = prove_run - witness -
+block loads; "crypto only" = fresh verify minus its block loads):
+
+| run | mode | blocks | total wall (s) | digest pass (s) | witness (s) [per block] | block loads in proving pass (s) | proofs only (s) [per block] | in-proc verify (s) | fresh verify (s) [crypto only] | receipt (B) | peak RSS (GiB) | peak VRAM (MiB) | positions/s total | positions/s proofs |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| TinyLlama T32 (r3) | CPU | 22 | 56.2 | 9.703 | 2.683 [0.122] | 0.0 | 40.2 [1.83] | 3.015 | 3.152 [3.2] | 250,855,088 | 2.15 | - | 0.569 | 0.797 |
+| TinyLlama T32 (r3) | GPU | 22 | 60.8 | 9.147 | 2.774 [0.126] | 0.0 | 40.8 [1.85] | 3.376 | 3.431 [3.4] | 250,855,088 | 1.98 | 1281 | 0.527 | 0.785 |
+| TinyLlama T128 (r3) | CPU | 22 | 168.6 | 9.714 | 12.831 [0.583] | 0.0 | 136.2 [6.19] | 9.042 | 11.1 [11.1] | 497,665,904 | 4.82 | - | 0.759 | 0.94 |
+| TinyLlama T128 (r3) | GPU | 22 | 142.8 | 9.393 | 12.872 [0.585] | 0.0 | 107.1 [4.87] | 8.742 | 8.451 [8.5] | 497,665,904 | 3.03 | 3105 | 0.896 | 1.195 |
+| Llama-3-8B T32 | CPU | 32 | 384.5 | 83.012 | 18.629 [0.582] | 79.222 | 110.2 [3.44] | 93.356 | 96.103 [13.3] | 465,815,776 | 1.9 | - | 0.083 | 0.29 |
+| Llama-3-8B T32 | GPU | 32 | 391.3 | 79.49 | 18.109 [0.566] | 77.997 | 117.7 [3.68] | 92.741 | 90.935 [13.2] | 465,815,776 | 1.57 | 2369 | 0.082 | 0.272 |
+
+Reading: one Llama-3-8B block at T32 costs 3.4 s of proofs (CPU), against
+1.8 s for a TinyLlama block, and the whole 32-block stack fits in 1.9 GiB
+of RAM by streaming. The new overhead is loading the 8B weights: about 2.5 s
+per layer, done three times (digest pass 83 s, proving pass 79 s, in-process
+verify 83 s), which makes the total 385 s against 110 s of proofs; the
+fresh verifier's cryptography is 13 s of its 96 s. Levers: skip the
+in-process verify in production runs (the fresh verify is the check), keep
+the digest-pass records so the proving-pass reload need not recompute the
+padded-word SHA-256 (`LayerRecord::of_block`), and hash the arrays once. The
+GPU (commitments only) is level with the CPU at this size (117.7 vs 110.2 s
+of proofs), as at TinyLlama T32/T64; R4-4 says why (sumchecks 45-51% on the
+CPU in both).
+
+### Round-4 validation
+
+- 13:12-13:23 UTC: the first full release suite on the round-4 tree
+  (`r4-suite-final.log`): 534 passed, 1 failed —
+  `s25_tests::the_generator_is_never_cloned_and_each_prover_constructs_exactly_one`,
+  a SOURCE census that looks for the run's one `ZkRng::from_os` inside
+  `fn prove_run(`; round 4 moved that body into `prove_run_with` (`prove_run`
+  delegates). The census row now names `prove_run_with` (test-only edit;
+  the round-4 binaries are unaffected, their sources differ from
+  `r4/manifest_cli_sources.json` in `s25_tests.rs` only).
+- 13:23-13:31 UTC: full guarded release suite again (`r4-suite-final2.log`):
+  lib 535 passed / 0 failed / 29 ignored, every integration target ok (680
+  passed in all); guard wall 503 s, peak RSS 4.21 GiB.
+- `r4/round4-vs-r3.patch`: every source change of round 4 against the
+  round-3 tree (reconstructed as the frozen `trained-1b-review-r2` copy plus
+  `r3/round3-vs-review-r2.patch`, checked file for file against
+  `r3/manifest_cli_sources.json`); `r3/round3-vs-review-r2.patch` is kept.
+
+**Round 4 status at hand-back:** R4-1 done (8B profile, per-profile RoPE,
+pinned 8B checkpoint, reader); R4-2 done (memory gate: one 8B block 1.95
+GiB, 4.7 s prove); R4-3 done (parity at layers 0 and 31 on both sequences,
+trained blocks proved and fresh-verified with all controls, the 32-block
+Llama-3-8B stack at T32 proved as ONE bound run on CPU and GPU and verified
+in a fresh process with the run-level controls); R4-4 done (T128 phase
+breakdown). No job of mine is running.
+
+## Round 5 (coordinator, 2026-10-17 ~13:30 UTC): CS port, run hygiene + byte counters, re-measure
+
+Amendment (ZK60_SPEED_PLAN_20261017.md): R5-3 DROPPED (it was never started
+in this tree: no plane-to-row or batched-inverse change exists here). R5-2
+became the speed plan's task 1 (skip in-process verify by default, hash the
+weights once and in parallel, reuse the digest-pass records with no TOCTOU,
+per-phase byte counters, witness and conversion reported apart). No GPU
+sumcheck work in this tree.
+
+### R5-1 the 125M lane's later rulings (port, source applied 13:40-14:16 UTC)
+
+Read-only source: `/home/victor/wt-zk60-block125m` (its stage 40-44 tests and
+`ZK60_SHAPED_REFUSAL_CENSUS.md`). What this tree now carries:
+
+- CS-1 + S38-F1(a): `FeedForwardPublic::check_words` / `check_for_shape`
+  (the feed-forward statement against the shape it is proved at; `act[128]`
+  must be 0 where `Dom::F` pads). Called by `new_shaped`, the witness
+  builder, `prove_inner_at`, `prove_core`, `verify_bytes_at`,
+  `verify_inner_at`, `verify_core`.
+- CS-3: the honest prover refuses a lookup miss (U8 / exp / act) by family
+  name, never a count, before its `A` commitment (`refuse_lookup_misses`).
+  The `#[cfg(test)]` `CheatingProver::on()` switch turns it off; the tamper
+  harnesses (`tamper.rs`, `norm_alias.rs` incl. this tree's bound-run alias
+  helper, `rung_tests::assert_verifier_rejects`, `review_tests::outcome`,
+  the run tamper loop in `run_tests.rs`) prove with it on, as in the 125M
+  lane, so the verifier still has to speak.
+- CS-4: attention `check_words` / `check_for_shape`; `IoSpec::check_for_shape`
+  (plane, construction, parameters, hash tag) at every prover and verifier
+  entry, before anything is hashed. `hash_tag_tests` ported (each verifier
+  is handed its own rule's policy; the other rule's policy is refused by
+  CS-4's name).
+- CS-6: the run's blocks must be the statement's, refused BY NAME before
+  anything is absorbed — count first (`blocks.len() == L`), then
+  `blocks[k].digest() == st.block_digests[k]` for every k. In `prove_run_with`
+  / `RunVerifier::start` (hence `prove_run`, `verify_run`, `verify_run_with`,
+  `verify_run_from_dir`, `verify_run_from_dir_with`) and the run-statement
+  file reader. STREAMING ADAPTATION: a `BlockSource` cannot hand every block
+  up front without loading all of them, so the trait gained `count()`,
+  `fit_the_shape()` and `are_the_statements()`; the trained `BlockCache`
+  answers `are_the_statements` with its digest-pass list against
+  `st.block_digests()` (CS-6 by name, before absorption), and every reload is
+  compared with that digest again (no TOCTOU). Each block is still built
+  through `new_shaped` at the shape, and `prove_core` / `verify_core`
+  re-run CS-1/CS-4 before the stage commits.
+- CS-7: `RunShape::new` refuses a run profile not registered for its block
+  shape (frozen seven by equality; TinyLlama T32/T64/T128, rung-TC and the
+  8B T32 profile through the trained door at the shape's own calibration and
+  f_e). `RunShape` fields are private (accessors `sh()`, `l()`, `profile()`).
+- CS-8: `Shape::check_constructed` (rebuilds and compares, naming the fields
+  that differ), `Layout::check_is_for_shape`, IoSpec scale pin; called first
+  at every single-block entry and in both shared bodies.
+- CS-9: `Shape::new` refuses a registered block profile string at any shape
+  but its own, by name (release builds also refuse unregistered strings;
+  test builds admit them, as in the 125M lane). The registry is the nine
+  frozen constructors plus `trained_geometry` (TinyLlama T32/T64/T128, the
+  8B T32 profile and rung-TC at the requested f_e). Tests that wrote a
+  registered string at another geometry now reach the same value by a
+  test-side field write (`review_tests` head layout, `review_d24` r2_1).
+- G-2: `run_capture::SHARED_SOURCE_FILES` now pins
+  `zkp-core/src/pcs/encode_buffer.rs` and
+  `zkp-core/src/sumcheck/{rounds,grouped}.rs` (26 files).
+- Tests: `cs_port_tests.rs` (one named test per ruling, adapted to this
+  tree's shapes; the 125M lane's `s40`-`s44` files assume the 125M capture
+  and k8 rung, which this tree does not have) plus the edits above.
+
+### R5-2 (speed plan task 1) run hygiene + byte counters (source applied)
+
+- In-process verify OFF by default (`stack-prove --verify-in-process` turns
+  it on; `--lie-at-boundary` forces it). The `proved` event says
+  `in_process_verified`.
+- Weights hashed once and in parallel: the nine `LayerRecord::of_block`
+  word hashes run in parallel; the array loads of a layer run in parallel;
+  `pad_matrix` is parallel. The proving pass's `BlockCache` reloads WITHOUT
+  the per-array SHA-256 (`reload_block`) and checks each reloaded block's
+  public digest against the digest-pass record (the soundness check stays;
+  only the duplicate file hash goes). `weights_vanish_off_support` runs a
+  parallel pre-scan and falls back to the sequential loop on a violation (same
+  first error).
+- Phase clock (HL_PB_TIMING=1): new `run (witness, boundary)` half; marks
+  "run: block load + witness (the source)", "run: boundary B_k commitment",
+  "run: witness hand-over" separate witness/conversion from the stage
+  commitments; every row carries bytes and GB/s (A/H commitments
+  8 * rows * n * inv_rate, openings 8 * rows * n, inverses 16 per word,
+  sumcheck slots 16 * table terms).

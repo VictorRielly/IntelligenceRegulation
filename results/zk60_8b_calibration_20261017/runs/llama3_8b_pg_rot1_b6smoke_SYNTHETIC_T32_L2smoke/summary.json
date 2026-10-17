@@ -1,0 +1,339 @@
+{
+ "args": {
+  "T": 32,
+  "calib_T": null,
+  "calib_per": 3,
+  "check_against": null,
+  "chunk": 8,
+  "export": false,
+  "export_name": null,
+  "export_seqs": 2,
+  "fw_calib": 27,
+  "fw_heldout": 36,
+  "heldout_per": 4,
+  "iso_seqs": 12,
+  "l1_mode": "perhead",
+  "layers": 2,
+  "link_from": null,
+  "profile_from": "/home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/runs/llama3_8b_pg_rot1_T32/prepass.json",
+  "rotate": 1,
+  "site_seqs": 3,
+  "synthetic": true,
+  "tag": "b6smoke",
+  "tokenizer": null,
+  "variant": "pg"
+ },
+ "calib_sequences": [
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  }
+ ],
+ "calibration": {
+  "T_cal": 32,
+  "sequences": 24
+ },
+ "check_against": null,
+ "checkpoint_identity": {
+  "config_sha256": "2430cee764b6530ff8673cf9ba8561e1d5a33152d503cd0de909ff5718261441",
+  "schema": "zk60-llama-layer-inventory/1",
+  "shard_sha256": {
+   "model-00001-of-00004.safetensors": "f2c144103072514542e327fa8080bd375cb300f2d453fba9ca3aea81d0d4cf33",
+   "model-00002-of-00004.safetensors": "d9eee5f23d94405d90b7e9ff88b9443fee42f8528a658f54214c2aba7530d80c",
+   "model-00003-of-00004.safetensors": "4b8fbc5e113f69768dd8de84661ea20af8a32b734a9976144b4236c447b40ccc",
+   "model-00004-of-00004.safetensors": "5dc34e6bdf2da9e35f0d93b5c333c870f3677dc43dc3a91ea3a8ad28a1fe1acb"
+  },
+  "tensor_count": 291
+ },
+ "heldout_first_refusal": [
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null
+ ],
+ "heldout_refused": 0,
+ "heldout_sequences": [
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  }
+ ],
+ "l1_mode": "perhead",
+ "model": {
+  "licence": "Meta Llama 3 Community License: LICENSE (sha256 475211637354ce4c...) and USE_POLICY.md (sha256 003513f595a20b7d...) from the pinned revision, copied into each export with NOTICE",
+  "name": "Llama-3-8B (Meta Llama 3)",
+  "repo": "NousResearch/Meta-Llama-3-8B",
+  "revision": "315b20096dc791d381d514deb5f8bd9c8d6d3061",
+  "shards_sha256": {
+   "model-00001-of-00004.safetensors": "f2c144103072514542e327fa8080bd375cb300f2d453fba9ca3aea81d0d4cf33",
+   "model-00002-of-00004.safetensors": "d9eee5f23d94405d90b7e9ff88b9443fee42f8528a658f54214c2aba7530d80c",
+   "model-00003-of-00004.safetensors": "4b8fbc5e113f69768dd8de84661ea20af8a32b734a9976144b4236c447b40ccc",
+   "model-00004-of-00004.safetensors": "5dc34e6bdf2da9e35f0d93b5c333c870f3677dc43dc3a91ea3a8ad28a1fe1acb"
+  }
+ },
+ "profile": {
+  "cn_a": 2266,
+  "cn_m": 1557,
+  "e_s": null,
+  "s_in": [
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673
+  ],
+  "s_out": [
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673
+  ],
+  "shifts": {
+   "ao": 3,
+   "g": 8,
+   "h": 14,
+   "o": 9,
+   "qkv": 8,
+   "rope": 7,
+   "s": 6,
+   "u": 0,
+   "z": 5
+  },
+  "silu": null
+ },
+ "profile_from": "/home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/runs/llama3_8b_pg_rot1_T32/prepass.json",
+ "seconds": 202.30866265296936,
+ "tokenizer": {
+  "kind": "SYNTHETIC (plumbing only)"
+ },
+ "tool_sha256": {
+  "b3_ladder.py": "13675c3b7797bd65b1954b2cee922381333c0ecc323dd3b1be9e8be8e8b16f0b",
+  "b3calib.py": "f000ba5140f628587b83f207a3b08ac562da85ef1e2582de7a06a9db0267313f",
+  "b5_8b.py": "36ad1d0bd75a79513a1c39eb38dbb8ce1b53371a0a1622b9fca15dc598d6efaa",
+  "corpus.py": "273e4ef41f8b18fb14b0e3568f9825ba6c0d4c09e08ebfad323c6c77543ba7f6",
+  "corpus4.py": "1b3b08ca070391d76e8b8b91f3a5a7247d567553052085e9dd0f139f7f51da0c",
+  "tlcalib.py": "cb587ac669af50d78e36556bd0f18d9317318de666a072b2fd21a02c89c2466a"
+ },
+ "variant": "llama3_8b_pg_rot1_b6smoke_SYNTHETIC_T32_L2smoke",
+ "variant_options": {
+  "cn_max": 1048576,
+  "f_e": 9,
+  "f_p": 9,
+  "margin": 0.5,
+  "margin_ch": 3.0,
+  "margin_pow2": 0.25,
+  "name": "pg",
+  "norm_cn": "profile",
+  "o16": false,
+  "residual": "global",
+  "rotate": 1,
+  "s16": false,
+  "shapes": [
+   "range",
+   "smooth",
+   "gamma"
+  ],
+  "shifts": "profile",
+  "tables": "layer",
+  "tn": 9
+ }
+}

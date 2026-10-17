@@ -1,0 +1,147 @@
+   Compiling zkp-core v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3-scratch/zkp-core)
+   Compiling private-block-kernel v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3-scratch/private-block-kernel)
+   Compiling private-block-kernel-shaped v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3-scratch/private-block-kernel-shaped)
+   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3-scratch/hashline)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:830:13
+    |
+830 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:865:4
+    |
+865 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:477:5
+    |
+470 | struct Rec {
+    |        --- field in this struct
+...
+477 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:579:15
+    |
+579 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 15 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 3m 00s
+     Running unittests src/lib.rs (ops/zkp-mvp/trained-1b-review-r3-scratch/hashline/target/release/deps/hashline-1dcd60e8ad915e01)
+
+running 4 tests
+test private_block::review_r3_tests::r3_1_r2a_is_closed ... REVIEW-R3-1 non-door trained-string shape f_e 50: Layout refused: private block: hashline-zk-mr1/private-block-rung-tc-t32-dev/1 is a trained-calibration profile, but; single-block Some("private block: hashline-zk-mr1/private-block-rung-tc-t32-dev")
+REVIEW-R3-1 non-door trained-string shape f_e 12: Layout refused: private block: hashline-zk-mr1/private-block-rung-tc-t32-dev/1 is a trained-calibration profile, but; single-block Some("private block: hashline-zk-mr1/private-block-rung-tc-t32-dev")
+REVIEW-R3-1 frozen rung-C6 edited to f_e 50: refused: private block shape: hashline-zk-mr1/private-block-rung-c6-t32-dev/1's softmax window (wrho_s 55, clog2(T) + f_e = 55) e
+ok
+test private_block::review_r3_tests::r3_2_the_verifier_binds_the_chain_to_the_sealed_endpoints ... REVIEW-R3-2 honest two-block bound run: verifies
+REVIEW-R3-2 input endpoint one word off: verifier: slot 21 [IO-in endpoint equality]: sumcheck round 0: s(0) + s(1) != claim
+REVIEW-R3-2 output endpoint one word off: verifier: slot 22 [IO-out endpoint equality]: sumcheck round 0: s(0) + s(1) != claim
+REVIEW-R3-2 a different chain under the sealed endpoints: verifier: slot 21 [IO-in endpoint equality]: sumcheck round 0: s(0) + s(1) != claim
+REVIEW-R3-2 a different honest chain with its own endpoints: verifies (expected: the prover seals, D18)
+ok
+test private_block::review_r3_tests::r3_3_cs6_the_run_verifier_and_the_statements_block_digests ... REVIEW-R3-3 statement over blocks A, prover AND verifier handed blocks B (block 1 differs): ACCEPTED (the generic verifier does not check blocks[k].digest() against the statement)
+REVIEW-R3-3 same proof, verifier handed the statement's blocks A: rejected: verifier: M: mask: the product polynomial's sum != the combined functional
+ok
+test private_block::trained_block::review_r3_inner::r3_4_a_file_changed_between_the_digest_pass_and_the_reload ... REVIEW-R3-4 [profile carries manifest digests; array + manifest rewritten]: statement c0dbddae1fc0cb61 ; block 0 reload Ok(()); block 1 reload: refused: /tmp/zk60-review-r3-toctou-347968/c01/toctou/layer_01/manifest.json: SHA-256 e1f91b1c4073aeb01abd348f319efbdd643ea4c2c62c06da7589dd712fd4c788 is not profile.json's bad320
+REVIEW-R3-4 [profile carries NO manifest digests; array + manifest rewritten]: statement 2c6ed8dc1d99509c ; block 0 reload Ok(()); block 1 reload: refused: trained stack: layer 1's reloaded public statement is not the one the run statement binds
+REVIEW-R3-4 [array rewritten only]: statement c0dbddae1fc0cb61 ; block 0 reload Ok(()); block 1 reload: refused: array `wq`: SHA-256 mismatch: the manifest says f94ab8166717e894348f77fe051f0bc43a6483751677ba5d2c785dcb5787e752, the file is d5da26fa8a72ff033941b5b2dea743abcfc10d6dfd18
+ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 564 filtered out; finished in 20.12s
+

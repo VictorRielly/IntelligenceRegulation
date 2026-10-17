@@ -233,8 +233,15 @@ fn the_trained_door_refuses_every_frozen_profile() {
     assert_eq!(tinyllama().profile, TINYLLAMA_T32_TRAINED_PROFILE);
     let t = tinyllama();
     assert!(t.clone().with_trained_calibration(&c).unwrap_err().contains("once"), "a second application was accepted");
-    // a TinyLlama-profile shape built with a window override is refused
-    let over = Shape::new("override", TINYLLAMA_T32_TRAINED_PROFILE, 32, 2048, 5632, 32, 64, 4, 12, 4, 9, 21, None, None, Some(32), None).expect("constructs");
+    // a TinyLlama-profile shape built with a window override is refused —
+    // since round 5 by ruling CS-9 at `Shape::new` (the profile string names
+    // one shape), before the door's own override refusal is reached
+    let over = Shape::new("override", TINYLLAMA_T32_TRAINED_PROFILE, 32, 2048, 5632, 32, 64, 4, 12, 4, 9, 21, None, None, Some(32), None).expect_err("a TinyLlama-profile shape with a window override CONSTRUCTED");
+    assert!(over.contains("ruling CS-9"), "{over}");
+    // and the door's own refusal, on a value whose window was written
+    let mut over = Shape::tinyllama_t32_trained(&c, T3_F_E).unwrap();
+    over.trained_calibration = false;
+    over.norm_wrho = 32;
     assert!(over.with_trained_calibration(&c).unwrap_err().contains("override"));
     // and a shape whose fields were changed WITHOUT the door has no layout
     let mut sneaky = Shape::rung_c6();
@@ -442,12 +449,19 @@ fn ctx_t3() -> Digest {
 
 /// the run shape of a one-block run at a trained-calibration shape
 pub(super) fn run_shape_for(sh: &Shape, l: usize) -> super::run::RunShape {
+    run_shape_for_checked(sh, l).unwrap()
+}
+
+/// the same, refusing instead of panicking (ROUND 5: ruling CS-7 refuses a
+/// shape that is not its run profile's registered one, e.g. one edited after
+/// the door)
+pub(super) fn run_shape_for_checked(sh: &Shape, l: usize) -> Result<super::run::RunShape, String> {
     // ROUND 4: every trained-model profile (TinyLlama, Llama-3-8B) has its
     // own run profile; the development rung its own
     if sh.profile == super::shape::TRAINED_CALIB_RUNG_PROFILE {
-        super::run::RunShape::rung_tc(sh.clone(), l).unwrap()
+        super::run::RunShape::rung_tc(sh.clone(), l)
     } else {
-        super::run::RunShape::tinyllama_trained(sh.clone(), l).unwrap()
+        super::run::RunShape::tinyllama_trained(sh.clone(), l)
     }
 }
 
@@ -467,7 +481,7 @@ pub(super) fn synthetic_statement(sh: &Shape, blocks: &[BlockPublic]) -> super::
     prov.rope_theta = super::shape::trained_rope_theta(sh.profile).unwrap_or(prov.rope_theta);
     let cal = IntegerCalibration::as_the_code_proves(sh, &prov);
     let recs = blocks.iter().enumerate().map(|(k, b)| LayerRecord::of_block(k as u32, b, vec![])).collect();
-    let rp = run_shape_for(sh, 1).profile;
+    let rp = run_shape_for_checked(sh, 1).map(|r| r.profile()).unwrap_or(sh.profile);
     TrainedModelStatement::new_synthetic_at_trained_profile_for_tests(sh, rp, src, cal, recs).expect("the synthetic trained-model statement")
 }
 
@@ -482,7 +496,7 @@ pub(super) struct BoundOne {
 pub(super) fn bound_statement(sh: &Shape, blk: &BlockPublic, expected_bytes: &[u8]) -> Result<super::run::RunStatement, String> {
     let e = ExpectedIo::from_bytes_at(sh, expected_bytes)?;
     let blocks = vec![blk.clone()];
-    super::run::RunStatement::new_bound(run_shape_for(sh, 1), ctx_t3(), e, &blocks, &[(0, 0)], &synthetic_statement(sh, &blocks))
+    super::run::RunStatement::new_bound(run_shape_for_checked(sh, 1)?, ctx_t3(), e, &blocks, &[(0, 0)], &synthetic_statement(sh, &blocks))
 }
 
 struct OneWitness(Option<Witness>);

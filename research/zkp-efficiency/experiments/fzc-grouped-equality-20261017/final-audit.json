@@ -1,0 +1,12 @@
+{
+  "status": "pass",
+  "checks": 91,
+  "files_pinned": 68,
+  "completed_at_utc": "2026-10-17T14:38:35.972195+00:00",
+  "live_source_drifts": [],
+  "wall_seconds": 0.04118659500090871,
+  "peak_rss_kib": 21804,
+  "source_sha256": "a9b98b08fb1e3fb41be3048be446511b45a6e408695e4e617e202d6e004cebd6",
+  "limits": "one CPU thread, nice19,59s/512MiB caps; no native/proof/GPU tests",
+  "scope": "artifact/source/checkpoint provenance only"
+}

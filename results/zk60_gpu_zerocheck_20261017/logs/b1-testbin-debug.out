@@ -1,0 +1,2 @@
+[zk60-guard 11:28:33] START b1-testbin-debug class=build need=3G cap=5G enforce=cgroup+watchdog waited=0s run=99c4edb30020
+[zk60-guard 11:28:56] END b1-testbin-debug exit=0 child_wall=23s peak_rss=1.74G min_avail=12.33G

@@ -75,6 +75,14 @@ both be reported. Never describe a single block as a complete-model pass.
   token I/O spec `export/TOKEN_IO_SPEC.md`. The ~30% attention-output error
   is upstream score/value precision; an O-site layout change would buy at most
   +0.016 top-1 (not pursued).
+  **Llama-3-8B (B5, 2026-10-17, same mechanism, tn 9, RoPE 500000):** held-out
+  top-1 0.623 FineWeb / 0.547 licence at T32 (ppl 18.85 -> 37.11 FineWeb), 0.653 /
+  0.612 at T128 (ppl 10.59 -> 20.55 FineWeb), 0–1 refusals; one residual scale
+  survives in the rotated basis (BOS massive activations +226/-205/-202 from
+  layer 1 to 30). Weak spot: layer 1's attention sink forces a coarse score
+  scale (isolated cosine 0.73); an int16 score class (layout change) lifts it to
+  0.83. Export `results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_T32`
+  (profile sha256 2507fbde…), 32 layers bit-exact on two held-out sequences.
 - [x] Bind a separately versioned model/profile/calibration statement into
   the proof; preserve the frozen toy and existing development profiles.
   2026-10-17: trained-model statement schema v2 (model, export, tool and

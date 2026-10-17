@@ -10,6 +10,13 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDGXj+sv06S121ml/e6b8phe0WPqOAdfLFsRXlbKSpH
 
 ## Mac M3 Ultra (256 GB) — about one minute
 
+**Victor, 2026-10-16 19:53 PDT (Telegram): the Mac will be reached through
+Tailscale.** Then: install Tailscale on the Mac and sign in; on the laptop side
+either run Tailscale inside WSL (`curl -fsSL https://tailscale.com/install.sh | sh`,
+`sudo tailscale up`) or use the Windows Tailscale client with WSL mirrored
+networking; Remote Login and the key below are still needed; tell Claude the
+Mac's Tailscale name or 100.x address and user.
+
 1. System Settings > General > Sharing > **Remote Login: On** (allow your user).
 2. In Terminal on the Mac:
    ```

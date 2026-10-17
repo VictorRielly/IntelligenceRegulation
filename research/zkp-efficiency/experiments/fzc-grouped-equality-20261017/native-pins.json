@@ -1,0 +1,42 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/argument.rs",
+    "snapshot": "native/hashline__src__private_block__argument.rs",
+    "sha256": "02df55ebec4da046d5522dfc14bf17a691c1fca851f014ba50a759502804e3b5"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/layout.rs",
+    "snapshot": "native/hashline__src__private_block__layout.rs",
+    "sha256": "ee871fff7eed377cafcb05ec0438df95a70695ae8fdcd5b5822f5f40663b0ee9"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/shape.rs",
+    "snapshot": "native/hashline__src__private_block__shape.rs",
+    "sha256": "38d32443fb9399a7c2d2de501ef2fa0d73a696ed54dd254842756f7480b273d7"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/pad.rs",
+    "snapshot": "native/hashline__src__private_block__pad.rs",
+    "sha256": "4f0c11c50503dd8cb4fb38d2b5be5e4f08ec310ee916b83a357f0283ede9eb42"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/field.rs",
+    "snapshot": "native/zkp-core__src__field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/mle.rs",
+    "snapshot": "native/zkp-core__src__mle.rs",
+    "sha256": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/sumcheck/grouped.rs",
+    "snapshot": "native/zkp-core__src__sumcheck__grouped.rs",
+    "sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/sumcheck/rounds.rs",
+    "snapshot": "native/zkp-core__src__sumcheck__rounds.rs",
+    "sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df"
+  }
+]

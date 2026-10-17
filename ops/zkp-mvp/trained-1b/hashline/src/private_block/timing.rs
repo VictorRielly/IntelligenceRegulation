@@ -91,6 +91,11 @@ pub(crate) enum Half {
     Lookup,
     /// the two external endpoint equality slots
     Endpoint,
+    /// ROUND 5: a RUN's per-stage work before the block's body — the block
+    /// load and witness build of the witness source and the boundary `B_k`
+    /// commitment (the phase clock used to fold them into the first
+    /// prove_core phase)
+    Run,
     /// the `M`, `A`, `H` and endpoint openings (prover) or verifications
     Open,
     /// the wire frame: encode on the prover's side, decode on the verifier's
@@ -108,13 +113,14 @@ impl Half {
             Half::Residual => "residual",
             Half::Lookup => "lookup-table",
             Half::Endpoint => "endpoints",
+            Half::Run => "run (witness, boundary)",
             Half::Open => "openings",
             Half::Frame => "frame",
         }
     }
 }
 
-const HALVES: [Half; 10] = [Half::Setup, Half::Commit, Half::Norm, Half::Attn, Half::Ff, Half::Residual, Half::Lookup, Half::Endpoint, Half::Open, Half::Frame];
+const HALVES: [Half; 11] = [Half::Run, Half::Setup, Half::Commit, Half::Norm, Half::Attn, Half::Ff, Half::Residual, Half::Lookup, Half::Endpoint, Half::Open, Half::Frame];
 
 /// **THE SLOT-TO-HALF CLASSIFICATION, from the layout's own slot definitions.**
 /// Indexed by the slot constants of `layout.rs` (`SC_SS` = 0 … `SC_IO_OUT` =
@@ -190,6 +196,10 @@ struct Row {
     /// the counted figure this phase's seconds should be set against
     size: u64,
     unit: &'static str,
+    /// ROUND 5 (the speed plan's task 1): the BYTES the phase's counted work
+    /// touches (committed / encoded / hashed / opened / read), a function of
+    /// the shape alone; 0 where none is counted
+    bytes: u64,
     rss: f64,
     hwm: f64,
 }
@@ -222,7 +232,25 @@ impl Phases {
         if !self.on {
             return;
         }
-        self.push(half, label, None, size, unit);
+        self.push(half, label, None, size, unit, 0);
+    }
+
+    /// ROUND 5: [`Phases::mark`] with the counted BYTES the phase's work
+    /// touches, so the report gives ns per unit and GB/s
+    pub(crate) fn mark_bytes(&mut self, half: Half, label: &'static str, size: u64, unit: &'static str, bytes: u64) {
+        if !self.on {
+            return;
+        }
+        self.push(half, label, None, size, unit, bytes);
+    }
+
+    /// ROUND 5: one slot with its counted ELEMENT-TERMS (cube x tables) and
+    /// the bytes of one read of them (16 per extension-field element)
+    pub(crate) fn slot_work(&mut self, s: usize, element_terms: u64) {
+        if !self.on || s >= N_SLOTS {
+            return;
+        }
+        self.push(SLOT_HALF[s], SLOT_NAMES[s], Some(s), element_terms, "elem-terms", 16 * element_terms);
     }
 
     /// The same for one slot of the argument, labelled by the schedule's own
@@ -231,13 +259,13 @@ impl Phases {
         if !self.on || s >= N_SLOTS {
             return;
         }
-        self.push(SLOT_HALF[s], SLOT_NAMES[s], Some(s), size, unit);
+        self.push(SLOT_HALF[s], SLOT_NAMES[s], Some(s), size, unit, 0);
     }
 
-    fn push(&mut self, half: Half, label: &'static str, slot: Option<usize>, size: u64, unit: &'static str) {
+    fn push(&mut self, half: Half, label: &'static str, slot: Option<usize>, size: u64, unit: &'static str, bytes: u64) {
         let secs = self.tick.elapsed().as_secs_f64();
         let (rss, hwm) = mem_mib();
-        self.rows.push(Row { label, slot, half, secs, size, unit, rss, hwm });
+        self.rows.push(Row { label, slot, half, secs, size, unit, bytes, rss, hwm });
         // the clock restarts AFTER the `/proc` read, so the reading's own cost
         // lands in no phase
         self.tick = Instant::now();
@@ -255,14 +283,16 @@ impl Phases {
         let sum: f64 = self.rows.iter().map(|r| r.secs).sum();
         let pct = |s: f64| if wall > 0.0 { 100.0 * s / wall } else { 0.0 };
         println!("PB-TIMING {side} [{profile}] {} phases, wall {wall:.3} s ({ENV}=1; diagnostics on a shared box, not a receipt)", self.rows.len());
-        println!("PB-TIMING {side} | {:<44} | {:<12} | {:>8} | {:>6} | {:>14} | {:>9} | {:>9} |", "phase", "half", "seconds", "% wall", "size", "RSS MiB", "HWM MiB");
+        println!("PB-TIMING {side} | {:<44} | {:<12} | {:>8} | {:>6} | {:>14} | {:>9} | {:>9} | {:>10} | {:>14} | {:>8} |", "phase", "half", "seconds", "% wall", "size", "RSS MiB", "HWM MiB", "ns/unit", "bytes", "GB/s");
         for r in &self.rows {
             let name = match r.slot {
                 Some(s) => format!("slot {s:02} {}", r.label),
                 None => r.label.to_string(),
             };
             let size = format!("{} {}", r.size, r.unit);
-            println!("PB-TIMING {side} | {:<44} | {:<12} | {:>8.3} | {:>5.1}% | {:>14} | {:>9.0} | {:>9.0} |", name, r.half.label(), r.secs, pct(r.secs), size, r.rss, r.hwm);
+            let ns = if r.size > 0 { 1e9 * r.secs / r.size as f64 } else { 0.0 };
+            let gbs = if r.bytes > 0 && r.secs > 0.0 { r.bytes as f64 / r.secs / 1e9 } else { 0.0 };
+            println!("PB-TIMING {side} | {:<44} | {:<12} | {:>8.3} | {:>5.1}% | {:>14} | {:>9.0} | {:>9.0} | {:>10.3} | {:>14} | {:>8.3} |", name, r.half.label(), r.secs, pct(r.secs), size, r.rss, r.hwm, ns, r.bytes, gbs);
         }
         println!("PB-TIMING {side} | {:<44} | {:<12} | {:>8.3} | {:>5.1}% |", "SUM OF PHASES", "", sum, pct(sum));
         println!("PB-TIMING {side} | {:<44} | {:<12} | {:>8.3} | {:>5.1}% |", "WALL CLOCK OF THE CALL", "", wall, 100.0);

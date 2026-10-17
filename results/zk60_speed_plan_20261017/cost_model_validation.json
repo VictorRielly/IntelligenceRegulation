@@ -1,0 +1,235 @@
+{
+ "coefficients": {
+  "cpu": {
+   "f0": 0.08,
+   "conv": 6.172282142327693e-09,
+   "commit": 2.3051818947332605e-08,
+   "inv_u8": 1.0830840515857729e-08,
+   "inv_pair": 4.0169918175899615e-08,
+   "open": 5.8144541882144795e-09,
+   "ext": 2.991647431344697e-07,
+   "zc": {
+    "D": 6.383516973116583e-08,
+    "F": 3.5622540642233456e-08,
+    "S": 3.166529007288284e-08,
+    "Q": 5.248098662405303e-08,
+    "Kv": 1.3017987871503498e-07
+   },
+   "rest": {
+    "Dlin": 6.490382586490168e-07,
+    "Slin": 1.8664053551824058e-07,
+    "wfold": 1.681446265930095e-09,
+    "ncol": 5.81107829505441e-06,
+    "siterows": 1.6714968797411597e-08,
+    "u8": 1.3375572556099286e-09,
+    "const": 0.030854673495518525
+   },
+   "rest_total_T128": 0.6259090909090901
+  },
+  "gpu": {
+   "f0": 0.08,
+   "conv": 6.172282142327693e-09,
+   "commit": 5.06355896162221e-09,
+   "inv_u8": 1.0830840515857729e-08,
+   "inv_pair": 4.0169918175899615e-08,
+   "open": 5.8144541882144795e-09,
+   "ext": 2.991647431344697e-07,
+   "zc": {
+    "D": 6.383516973116583e-08,
+    "F": 3.5622540642233456e-08,
+    "S": 3.166529007288284e-08,
+    "Q": 5.248098662405303e-08,
+    "Kv": 1.3017987871503498e-07
+   },
+   "rest": {
+    "Dlin": 6.490382586490168e-07,
+    "Slin": 1.8664053551824058e-07,
+    "wfold": 1.681446265930095e-09,
+    "ncol": 5.81107829505441e-06,
+    "siterows": 1.6714968797411597e-08,
+    "u8": 1.3375572556099286e-09,
+    "const": 0.030854673495518525
+   },
+   "rest_total_T128": 0.6259090909090901
+  }
+ },
+ "validation": [
+  {
+   "model": "TinyLlama",
+   "T": 32,
+   "mode": "cpu",
+   "model_s": 1.791,
+   "measured_s": 1.827,
+   "error_pct": -2.0,
+   "phases": {
+    "conversion": 0.044,
+    "commit": 0.333,
+    "inverses": 0.077,
+    "zc_D": 0.372,
+    "zc_F": 0.26,
+    "zc_S": 0.128,
+    "zc_Q": 0.15,
+    "zc_Kv": 0.11,
+    "openings": 0.084,
+    "rest": 0.235,
+    "weight_fold_part_of_rest": 0.1,
+    "total": 1.791
+   }
+  },
+  {
+   "model": "TinyLlama",
+   "T": 64,
+   "mode": "cpu",
+   "model_s": 3.175,
+   "measured_s": 2.945,
+   "error_pct": 7.8,
+   "phases": {
+    "conversion": 0.092,
+    "commit": 0.707,
+    "inverses": 0.165,
+    "zc_D": 0.664,
+    "zc_F": 0.439,
+    "zc_S": 0.219,
+    "zc_Q": 0.22,
+    "zc_Kv": 0.14,
+    "openings": 0.178,
+    "rest": 0.352,
+    "weight_fold_part_of_rest": 0.1,
+    "total": 3.175
+   }
+  },
+  {
+   "model": "TinyLlama",
+   "T": 128,
+   "mode": "cpu",
+   "model_s": 6.317,
+   "measured_s": 6.191,
+   "error_pct": 2.0,
+   "phases": {
+    "conversion": 0.202,
+    "commit": 1.577,
+    "inverses": 0.377,
+    "zc_D": 1.248,
+    "zc_F": 0.798,
+    "zc_S": 0.532,
+    "zc_Q": 0.36,
+    "zc_Kv": 0.199,
+    "openings": 0.398,
+    "rest": 0.626,
+    "weight_fold_part_of_rest": 0.1,
+    "total": 6.317
+   }
+  },
+  {
+   "model": "Llama-3-8B",
+   "T": 32,
+   "mode": "cpu",
+   "model_s": 3.337,
+   "measured_s": 3.444,
+   "error_pct": -3.1,
+   "phases": {
+    "conversion": 0.086,
+    "commit": 0.652,
+    "inverses": 0.149,
+    "zc_D": 0.664,
+    "zc_F": 0.439,
+    "zc_S": 0.153,
+    "zc_Q": 0.22,
+    "zc_Kv": 0.167,
+    "openings": 0.165,
+    "rest": 0.641,
+    "weight_fold_part_of_rest": 0.409,
+    "total": 3.337
+   }
+  },
+  {
+   "model": "TinyLlama",
+   "T": 32,
+   "mode": "gpu",
+   "model_s": 1.836,
+   "measured_s": 1.855,
+   "error_pct": -1.0,
+   "phases": {
+    "conversion": 0.044,
+    "commit": 0.073,
+    "inverses": 0.077,
+    "zc_D": 0.372,
+    "zc_F": 0.26,
+    "zc_S": 0.128,
+    "zc_Q": 0.15,
+    "zc_Kv": 0.11,
+    "openings": 0.084,
+    "rest": 0.235,
+    "weight_fold_part_of_rest": 0.1,
+    "total": 1.836
+   }
+  },
+  {
+   "model": "TinyLlama",
+   "T": 64,
+   "mode": "gpu",
+   "model_s": 2.928,
+   "measured_s": 2.886,
+   "error_pct": 1.5,
+   "phases": {
+    "conversion": 0.092,
+    "commit": 0.155,
+    "inverses": 0.165,
+    "zc_D": 0.664,
+    "zc_F": 0.439,
+    "zc_S": 0.219,
+    "zc_Q": 0.22,
+    "zc_Kv": 0.14,
+    "openings": 0.178,
+    "rest": 0.352,
+    "weight_fold_part_of_rest": 0.1,
+    "total": 2.928
+   }
+  },
+  {
+   "model": "TinyLlama",
+   "T": 128,
+   "mode": "gpu",
+   "model_s": 5.391,
+   "measured_s": 4.868,
+   "error_pct": 10.7,
+   "phases": {
+    "conversion": 0.202,
+    "commit": 0.346,
+    "inverses": 0.377,
+    "zc_D": 1.248,
+    "zc_F": 0.798,
+    "zc_S": 0.532,
+    "zc_Q": 0.36,
+    "zc_Kv": 0.199,
+    "openings": 0.398,
+    "rest": 0.626,
+    "weight_fold_part_of_rest": 0.1,
+    "total": 5.391
+   }
+  },
+  {
+   "model": "Llama-3-8B",
+   "T": 32,
+   "mode": "gpu",
+   "model_s": 3.132,
+   "measured_s": 3.678,
+   "error_pct": -14.8,
+   "phases": {
+    "conversion": 0.086,
+    "commit": 0.143,
+    "inverses": 0.149,
+    "zc_D": 0.664,
+    "zc_F": 0.439,
+    "zc_S": 0.153,
+    "zc_Q": 0.22,
+    "zc_Kv": 0.167,
+    "openings": 0.165,
+    "rest": 0.641,
+    "weight_fold_part_of_rest": 0.409,
+    "total": 3.132
+   }
+  }
+ ],
+ "gpu_arm_fixed_overhead_s": 0.30468109394728154
+}

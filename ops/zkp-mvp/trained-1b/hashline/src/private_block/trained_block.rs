@@ -370,6 +370,16 @@ impl Array {
 }
 
 fn load_array(dir: &Path, name: &str, spec: &J) -> Result<Array, String> {
+    load_array_checked(dir, name, spec, true)
+}
+
+/// ROUND 5 (R5-2): `check_sha = false` is the proving-pass RELOAD of a block
+/// the digest pass already hashed: every dtype / shape / size check still
+/// runs, the per-array SHA-256 is skipped, and the caller compares the
+/// rebuilt block's digest with the digest pass's — the bytes proved are the
+/// bytes digested (no time-of-check/time-of-use gap: the digest is taken of
+/// the very block that is proved).
+fn load_array_checked(dir: &Path, name: &str, spec: &J, check_sha: bool) -> Result<Array, String> {
     let ctx = |e: String| format!("array `{name}`: {e}");
     let file = plain_name(spec.get("file").and_then(J::str).map_err(ctx)?).map_err(ctx)?;
     let dtype = Dtype::parse(spec.get("dtype").and_then(J::str).map_err(ctx)?).map_err(ctx)?;
@@ -380,7 +390,7 @@ fn load_array(dir: &Path, name: &str, spec: &J) -> Result<Array, String> {
     if bytes.len() != n {
         return Err(ctx(format!("{} bytes on disk, the manifest's dtype and shape give {n}", bytes.len())));
     }
-    let got = sha256(&bytes);
+    let got = if check_sha { sha256(&bytes) } else { want };
     if got != want {
         return Err(ctx(format!("SHA-256 mismatch: the manifest says {}, the file is {}", hex(&want), hex(&got))));
     }
@@ -836,6 +846,18 @@ impl TrainedExport {
     /// Load one layer: every array verified, the tables cross-checked, the
     /// words padded per the shape (ruling P-2) into the public statement.
     pub(crate) fn load_layer(&self, sh: &Shape, c: &Constants, index: u32, rope_from_export: bool) -> Result<TrainedLayer, String> {
+        self.load_layer_mode(sh, c, index, rope_from_export, true)
+    }
+
+    /// **ROUND 5 (R5-2): the proving-pass RELOAD.** The same block built by
+    /// the same code as [`TrainedExport::load_layer`], with the per-array
+    /// SHA-256s and the layer record (the padded-word SHA-256s) skipped; the
+    /// caller refuses it unless its digest is the digest pass's.
+    pub(crate) fn reload_block(&self, sh: &Shape, c: &Constants, index: u32, rope_from_export: bool) -> Result<BlockPublic, String> {
+        Ok(self.load_layer_mode(sh, c, index, rope_from_export, false)?.blk)
+    }
+
+    fn load_layer_mode(&self, sh: &Shape, c: &Constants, index: u32, rope_from_export: bool, full: bool) -> Result<TrainedLayer, String> {
         let dir = self.layer_dir(index);
         let (mpath, mbytes, m) = self.manifest(index)?;
         let ctx = |e: String| format!("{}: {e}", mpath.display());
@@ -853,7 +875,14 @@ impl TrainedExport {
             return Err(ctx("the shape was not built from the run's constants".into()));
         }
         let arrays = m.get("arrays").map_err(ctx)?;
-        let get = |name: &str| -> Result<Array, String> { load_array(&dir, name, arrays.get(name).map_err(ctx)?) };
+        // ROUND 5 (R5-2): the eleven arrays read and hashed IN PARALLEL (the
+        // same bytes, the same digests, the same checks)
+        let names = ["wq", "wk", "wv", "wo", "gamma_a", "gamma_m", "wg_t", "wu_t", "wd_t", "exp", "act"];
+        let mut loaded: std::collections::VecDeque<Result<Array, String>> = {
+            use rayon::prelude::*;
+            names.par_iter().map(|name| load_array_checked(&dir, name, arrays.get(name).map_err(ctx)?, full)).collect::<Vec<_>>().into()
+        };
+        let mut get = |_name: &str| -> Result<Array, String> { loaded.pop_front().expect("one result per name") };
         let (d, f, kvw, half) = (sh.width, sh.hidden, sh.kv_heads * sh.head_dim, sh.head_dim / 2);
         let wq = get("wq")?;
         wq.expect("wq", Dtype::I8, &[d, d])?;
@@ -889,7 +918,7 @@ impl TrainedExport {
         let (gcos, gsin) = crate::tables_attn::rope_tables_generate(sh.tokens, sh.head_dim, c.rope_theta, F_RO);
         let exported = match (arrays.opt("rope_cos").or_else(|| arrays.opt("cos")), arrays.opt("rope_sin").or_else(|| arrays.opt("sin"))) {
             (Some(cs), Some(ss)) => {
-                let (ca, sa) = (load_array(&dir, "rope_cos", cs)?, load_array(&dir, "rope_sin", ss)?);
+                let (ca, sa) = (load_array_checked(&dir, "rope_cos", cs, full)?, load_array_checked(&dir, "rope_sin", ss, full)?);
                 ca.expect("rope_cos", Dtype::I64, &[sh.tokens, half]).or_else(|_| ca.expect("rope_cos", Dtype::I64, &[sh.tokens * half]))?;
                 sa.expect("rope_sin", Dtype::I64, &[sh.tokens, half]).or_else(|_| sa.expect("rope_sin", Dtype::I64, &[sh.tokens * half]))?;
                 Some((ca.i64s(), sa.i64s()))
@@ -933,7 +962,7 @@ impl TrainedExport {
                 source_tensors.push((name.clone(), unhex32(v.str().map_err(ctx)?).map_err(ctx)?));
             }
         }
-        let mut record = LayerRecord::of_block(index, &blk, source_tensors);
+        let mut record = if full { LayerRecord::of_block(index, &blk, source_tensors) } else { LayerRecord::unhashed(index) };
         let manifest_sha256 = sha256(&mbytes);
         record.manifest_sha256 = manifest_sha256;
         record.silu_member = tk.silu;
@@ -997,13 +1026,29 @@ impl TrainedExport {
 
 /// a true `(to, ti)` row-major matrix placed into the padded `(po, pi)` one
 /// through the two index maps (ruling P-2; the same map as the driver's)
-fn pad_matrix(w: &[i8], to: usize, ti: usize, po: usize, pi: usize, omap: &dyn Fn(usize) -> usize, imap: &dyn Fn(usize) -> usize) -> Vec<i8> {
+fn pad_matrix(w: &[i8], to: usize, ti: usize, po: usize, pi: usize, omap: &(dyn Fn(usize) -> usize + Sync), imap: &(dyn Fn(usize) -> usize + Sync)) -> Vec<i8> {
+    // ROUND 5 (R5-2): the same placement, made row by row in PARALLEL over
+    // the destination rows, with a straight row copy where the inner map is
+    // the identity (every map here is injective; the pad stays zero)
+    use rayon::prelude::*;
     let mut out = vec![0i8; po * pi];
+    let mut src_of: Vec<Option<usize>> = vec![None; po];
     for o in 0..to {
-        for i in 0..ti {
-            out[omap(o) * pi + imap(i)] = w[o * ti + i];
-        }
+        src_of[omap(o)] = Some(o);
     }
+    let inner: Vec<usize> = (0..ti).map(imap).collect();
+    let identity = inner.iter().enumerate().all(|(i, j)| i == *j);
+    out.par_chunks_mut(pi).enumerate().for_each(|(r, row)| {
+        let Some(o) = src_of[r] else { return };
+        let src = &w[o * ti..(o + 1) * ti];
+        if identity {
+            row[..ti].copy_from_slice(src);
+        } else {
+            for (i, v) in src.iter().enumerate() {
+                row[inner[i]] = *v;
+            }
+        }
+    });
     out
 }
 
@@ -1568,11 +1613,14 @@ impl<'a> BlockCache<'a> {
         // drop the previous block BEFORE the next one is read
         self.cur = None;
         let t = Instant::now();
-        let lay = self.ex.load_layer(self.sh, self.c, self.layers[k], self.rope_from_export)?;
-        if lay.blk.digest() != self.digests[k] {
+        // ROUND 5 (R5-2): the reload skips the per-array and padded-word
+        // SHA-256s; the digest of the block it built — the bytes about to be
+        // proved — must be the digest pass's
+        let blk = self.ex.reload_block(self.sh, self.c, self.layers[k], self.rope_from_export)?;
+        if blk.digest() != self.digests[k] {
             return Err(format!("trained stack: layer {}'s reloaded public statement is not the one the run statement binds", self.layers[k]));
         }
-        let a = std::sync::Arc::new(lay.blk);
+        let a = std::sync::Arc::new(blk);
         self.cur = Some((k, a.clone()));
         self.loads += 1;
         self.load_s += t.elapsed().as_secs_f64();
@@ -1587,6 +1635,35 @@ impl run::BlockSource for CacheBlocks<'_> {
     fn block(&mut self, k: usize) -> Result<run::BlockRef<'_>, String> {
         let a = self.0.borrow_mut().get(k)?;
         Ok(run::BlockRef::Shared(a))
+    }
+    fn count(&self) -> usize {
+        self.0.borrow().layers.len()
+    }
+    /// RULINGS CS-1 / CS-4 for a STREAMING source: each block is built by
+    /// the loader through `new_shaped` at the run's shape (the constructor's
+    /// one check), and `prove_core` / `verify_core` re-run the check on it
+    /// before its stage commits or absorbs anything of it; the cache was
+    /// built for this shape, which is compared here.
+    fn fit_the_shape(&mut self, sh: &Shape) -> Result<(), String> {
+        let c = self.0.borrow();
+        if c.sh != sh {
+            return Err(format!("private run: the block cache was built for the shape {:?}, the run's is {:?}", c.sh.name, sh.name));
+        }
+        Ok(())
+    }
+    /// RULING CS-6 for a STREAMING source: the digest list the cache enforces
+    /// on every load (a reloaded block whose digest is not its entry is
+    /// refused) is the statement's, entry for entry
+    fn are_the_statements(&mut self, st: &RunStatement) -> Result<(), String> {
+        let c = self.0.borrow();
+        let want = st.block_digests();
+        if c.digests.len() != want.len() {
+            return Err(format!("private run: ruling CS-6 — the run statement holds {} block digests and {} blocks were handed", want.len(), c.digests.len()));
+        }
+        for (k, (got, w)) in c.digests.iter().zip(want).enumerate() {
+            run::digest_is_the_statements(k, got, w)?;
+        }
+        Ok(())
     }
 }
 
@@ -1718,10 +1795,23 @@ fn stack_records(ex: &TrainedExport, layers: &[u32], rope_from_export: bool) -> 
     let sh = ex.shape_for(&c)?;
     let mut metas = Vec::with_capacity(layers.len());
     let mut digests = Vec::with_capacity(layers.len());
-    for &l in layers {
-        let t = ex.load_layer(&sh, &c, l, rope_from_export)?;
-        digests.push(t.blk.digest());
-        metas.push(LayerMeta { index: t.index, manifest_sha256: t.manifest_sha256, record: t.record });
+    // ROUND 5 (R5-2): the digest pass loads DIGEST_PASS_WIDTH layers at a
+    // time, in parallel — the same loads and the same checks, the records and
+    // digests kept in layer order, and the first error IN LAYER ORDER is the
+    // one returned (what the sequential loop returned). Two at a time keeps
+    // the pass's transient memory at about two layers' (about 2 GiB at 8B).
+    const DIGEST_PASS_WIDTH: usize = 2;
+    for chunk in layers.chunks(DIGEST_PASS_WIDTH) {
+        let loaded: Vec<Result<TrainedLayer, String>> = {
+            use rayon::prelude::*;
+            chunk.par_iter().map(|&l| ex.load_layer(&sh, &c, l, rope_from_export)).collect()
+        };
+        for t in loaded {
+            let t = t?;
+            // the record already holds the block's digest (one blake3 pass)
+            digests.push(t.record.block_digest);
+            metas.push(LayerMeta { index: t.index, manifest_sha256: t.manifest_sha256, record: t.record });
+        }
     }
     let st = ex.statement_of_records(&sh, &c, metas.iter().map(|m| m.record.clone()).collect())?;
     Ok((c, sh, metas, digests, st))
@@ -1791,7 +1881,7 @@ const STACK_SCOPE: &str = "ALL the listed trained blocks of the export's model (
 /// plane after block K is off by one word, and the run must then FAIL to
 /// verify (exit 0 means the control behaved).
 pub fn trained_stack_prove_command(args: &[String]) -> i32 {
-    let f = match flags(args, &["--export", "--seq", "--out", "--layers", "--label", "--lie-at-boundary"], &["--rope-from-export"]) {
+    let f = match flags(args, &["--export", "--seq", "--out", "--layers", "--label", "--lie-at-boundary"], &["--rope-from-export", "--verify-in-process"]) {
         Ok(f) => f,
         Err(e) => {
             eprintln!("zk60_trained_block stack-prove: {e}");
@@ -1909,10 +1999,18 @@ fn stack_prove_inner(f: &[(String, String)]) -> Result<(), String> {
         (cb.loads, cb.load_s)
     };
     drop(cache);
-    // ---- in-process verification from the directory (a fresh cache)
+    // ---- in-process verification from the directory (a fresh cache).
+    //      ROUND 5 (R5-2): OFF by default — the fresh-process verify is the
+    //      check; `--verify-in-process` turns it on, and the boundary-lie
+    //      control always runs it (its verdict IS the control)
+    let in_process = flag(f, "--verify-in-process").is_some() || lie_at.is_some();
     let t = Instant::now();
-    let vcache = BlockCache::shared(&ex, &sh, &c, layers.clone(), digests.clone(), rope);
-    let verdict = run::verify_run_from_dir_with(&rst, &mut CacheBlocks(vcache), &out);
+    let verdict = if in_process {
+        let vcache = BlockCache::shared(&ex, &sh, &c, layers.clone(), digests.clone(), rope);
+        run::verify_run_from_dir_with(&rst, &mut CacheBlocks(vcache), &out)
+    } else {
+        Ok(())
+    };
     let verify_s = t.elapsed().as_secs_f64();
     if let Some(k) = lie_at {
         return match verdict {
@@ -1931,7 +2029,7 @@ fn stack_prove_inner(f: &[(String, String)]) -> Result<(), String> {
     let segs: Vec<String> = (0..l).map(|k| format!("{{\"file\":{},\"bytes\":{},\"sha256\":{}}}", js(&super::run_sink::segment_file_name(k)), disk.lengths()[k], js(&disk.digests()[k]))).collect();
     write_new(&sdir.join("segments.json"), format!("[\n {}\n]\n", segs.join(",\n ")).as_bytes())?;
     println!(
-        "{{\"event\":\"proved\",\"gpu\":{},\"gpu_declines\":{},\"blocks\":{l},\"receipt_bytes\":{},\"prove_run_seconds\":{prove_s:.3},\"of_which_witness_seconds\":{witness_s:.3},\"witness_seconds_per_block\":{:.3},\"of_which_block_load_seconds\":{block_load_s:.3},\"block_loads\":{block_loads},\"rayon_threads\":{},\"in_process_verify_seconds\":{verify_s:.3},\"sealing_pass_seconds\":{seal_s:.3},\"load_seconds\":{load_s:.3},\"total_seconds\":{:.3},\"vmhwm_mib\":{hwm:.0},\"statement_identity\":{},\"out\":{}}}",
+        "{{\"event\":\"proved\",\"gpu\":{},\"gpu_declines\":{},\"blocks\":{l},\"receipt_bytes\":{},\"prove_run_seconds\":{prove_s:.3},\"of_which_witness_seconds\":{witness_s:.3},\"witness_seconds_per_block\":{:.3},\"of_which_block_load_seconds\":{block_load_s:.3},\"block_loads\":{block_loads},\"rayon_threads\":{},\"in_process_verified\":{in_process},\"in_process_verify_seconds\":{verify_s:.3},\"sealing_pass_seconds\":{seal_s:.3},\"load_seconds\":{load_s:.3},\"total_seconds\":{:.3},\"vmhwm_mib\":{hwm:.0},\"statement_identity\":{},\"out\":{}}}",
         js(&crate::gpu::label()),
         crate::gpu::declines(),
         disk.total_bytes(),

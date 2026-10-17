@@ -1,0 +1,43 @@
+{
+  "run_id": "20261017T142624Z-6b84b6ef",
+  "native_live_web_tool": "web.run",
+  "search_queries": [
+    "sumcheck equality polynomial multiple groups optimization October2026",
+    "site:github.com sumcheck grouped equality2026 release",
+    "GKR multi output equality polynomial batching sumcheck CMT2012",
+    "site:github.com/arkworks-rs/sumcheck releases commit linear addends",
+    "site:arxiv.org October2026 sumcheck GPU Goldilocks",
+    "site:github.com sumcheck equality polynomial batching October2026 release"
+  ],
+  "recorded_at_utc": "2026-10-17T14:38:17.096580+00:00",
+  "primary_inspections_and_access_failures": "source-records.json",
+  "foreign_code_executed": false,
+  "raw_response_policy": "Large search/parser responses reduced to request/access metadata and local hashes; no full third-party articles/code are redistributed.",
+  "original_tool_response_hashes": [
+    {
+      "name": "web-raw-2.json",
+      "sha256": "31a72b1bc225bf15d4b8ca70db92bfc45a81d4747df0d98f82e95ef45cea9859",
+      "bytes": 30323
+    },
+    {
+      "name": "web-raw-3.json",
+      "sha256": "9089d7c9bfe6e7f7e7548bceaf1bc429a77ced311aeb64bad4be98867568d3e3",
+      "bytes": 26307
+    },
+    {
+      "name": "web-raw-4.json",
+      "sha256": "b073c4da7c974c48841ec1ee53b11f654615229594f2b179f332cca548ae0162",
+      "bytes": 28742
+    },
+    {
+      "name": "web-raw-5.json",
+      "sha256": "5bae25c6d8bf1be163050c61eccbcc73ffc42af02d1a66037182dc4fff46572c",
+      "bytes": 25671
+    },
+    {
+      "name": "web-raw-6.json",
+      "sha256": "6bd61b8b5a9b67bc3a3b26f3376136ce13dc8b84c0f147cf687b31511398c40b",
+      "bytes": 28535
+    }
+  ]
+}

@@ -484,8 +484,12 @@ def i_block(x: np.ndarray, P: LayerInt, rope: tuple, rec: Rec, seq0: int = 0, cl
     tri = np.tril(np.ones((T, T), dtype=bool))
     masked = np.where(tri, s8, -32767 if s16 else Native.MASK)
     best = masked.max(-1, keepdims=True)
-    delta = rec.check("exp difference", best - masked, 0, len(P.exp) - 1, seq0, clamp)
-    E = P.exp[delta]
+    delta = rec.check("exp difference", best - masked, 0, P.exp.shape[-1] - 1, seq0, clamp)
+    if P.exp.ndim == 2:     # B6 experiment hook (NOT native): one exp table per query head
+        ex = P.exp.reshape(g.KV, g.G, -1)
+        E = ex[np.arange(g.KV)[None, :, None, None, None], np.arange(g.G)[None, None, :, None, None], delta]
+    else:
+        E = P.exp[delta]
     total = np.where(tri, E, 0).sum(-1, keepdims=True)
     total = rec.check("softmax denominator", total, 1 << P.f_e, T << P.f_e, seq0, clamp)
     num = E << P.f_p

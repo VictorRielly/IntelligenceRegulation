@@ -1,0 +1,15 @@
+{
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "os": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "compiler": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+  "experiment_cpu_affinity": [
+    0
+  ],
+  "threads": 1,
+  "device": "CPU only; no GPU API initialized",
+  "gpu_driver_build_power": "not measured this cycle",
+  "max_memory_mib": 512,
+  "max_each_experiment_seconds": 59,
+  "nice": 19
+}

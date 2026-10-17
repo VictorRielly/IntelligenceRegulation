@@ -1,0 +1,36 @@
+[load          ]      5.6 s   peak RSS     856 MB   ok
+[replay        ]      3.3 s   peak RSS     856 MB   ok
+[hash          ]      2.4 s   peak RSS     856 MB   ok
+[terminals     ]     42.2 s   peak RSS     856 MB   ok
+[commitments   ]     61.0 s   peak RSS    1099 MB   ok
+[boundary      ]    566.9 s   peak RSS    5423 MB   ok
+[preimage      ]      2.5 s   peak RSS    5423 MB   ok
+[fullpreimage  ]   2726.3 s   peak RSS    5423 MB   ok
+[mask          ]    159.6 s   peak RSS    5423 MB   FAIL
+[joint         ]      0.0 s   peak RSS    5423 MB   FAIL
+[channels      ]      0.0 s   peak RSS    5423 MB   ok
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/l22/tl-l22r2-zero-arms.json   total 3569.8 s   peak RSS 5423 MB   ok=False
+Command exited with non-zero status 1
+	Command being timed: "python3 /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/scripts/zk60_native_rg_m125.py --bundle /home/victor/zk60-artifacts/tinyllama-trained-capture-zero-l22r2 --other /home/victor/zk60-artifacts/tinyllama-trained-capture-dense-l22 --stages load,replay,hash,terminals,commitments,boundary,preimage,fullpreimage,mask,joint,channels --evidence /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/l22 --name tl-l22r2-zero-arms"
+	User time (seconds): 3558.78
+	System time (seconds): 10.53
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 59:31.37
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 5553096
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 79
+	Minor (reclaiming a frame) page faults: 3065896
+	Voluntary context switches: 985
+	Involuntary context switches: 40347
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

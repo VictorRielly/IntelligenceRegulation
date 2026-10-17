@@ -1,0 +1,70 @@
+{
+  "status": "PASS",
+  "independent_schedule_and_source_checks": 148,
+  "eq_cases": [
+    {
+      "bits": 0,
+      "source_read_write_bytes": 16,
+      "owner_counted_output_bytes": 16,
+      "parameter_h2d_bytes": 0
+    },
+    {
+      "bits": 1,
+      "source_read_write_bytes": 64,
+      "owner_counted_output_bytes": 32,
+      "parameter_h2d_bytes": 16
+    },
+    {
+      "bits": 2,
+      "source_read_write_bytes": 192,
+      "owner_counted_output_bytes": 64,
+      "parameter_h2d_bytes": 32
+    },
+    {
+      "bits": 9,
+      "source_read_write_bytes": 81920,
+      "owner_counted_output_bytes": 8192,
+      "parameter_h2d_bytes": 144
+    },
+    {
+      "bits": 10,
+      "source_read_write_bytes": 180224,
+      "owner_counted_output_bytes": 16384,
+      "parameter_h2d_bytes": 160
+    },
+    {
+      "bits": 11,
+      "source_read_write_bytes": 108544,
+      "owner_counted_output_bytes": 32768,
+      "parameter_h2d_bytes": 176
+    },
+    {
+      "bits": 12,
+      "source_read_write_bytes": 210944,
+      "owner_counted_output_bytes": 65536,
+      "parameter_h2d_bytes": 192
+    }
+  ],
+  "independent_eq_words": 15374,
+  "negative_controls": {
+    "eq input reads omitted": true,
+    "split eq join inputs omitted": true,
+    "original stride omitted": true
+  },
+  "live_source_drift": [],
+  "wall_seconds": 0.17418753599997672,
+  "parent_peak_rss_kib": 16264,
+  "child_peak_rss_kib": 34912,
+  "compiler_argv": [
+    "/usr/bin/g++",
+    "-std=c++17",
+    "-O0",
+    "-shared",
+    "-fPIC",
+    "-Wno-unknown-pragmas",
+    "eq_shim.cpp",
+    "-o",
+    "eq.so"
+  ],
+  "limits": "one CPU thread, 59s wall/CPU, 512 MiB address space; no native crate/GPU"
+}

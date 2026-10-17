@@ -1,0 +1,342 @@
+[
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/argument-candidate.patch",
+    "sha256": "338ef50b5508562d37fe00b1ff5d39e1d190ba92455a1627de0d4642acd7de5b",
+    "bytes": 2413
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/argument-candidate.rs",
+    "sha256": "bb541a177851cb4d5093a853d6c8f1f6155ce0b70fa2c41b2350cd5d34ccbd24",
+    "bytes": 101742
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/audit-result.json",
+    "sha256": "c48e7785055d1b6029ef6301d528363e1558d4e427056f181b9385f3fde80956",
+    "bytes": 6782
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/audit.py",
+    "sha256": "8bd52b2cff1d4324bc0f9014840f19dc19ca08e5ebc59099b510fda3efa7a135",
+    "bytes": 4570
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/candidate-bracket.txt",
+    "sha256": "3a3497d335d1777416df6c30dae3409762e55e8e48b3baae0f2b46554ac4d1be",
+    "bytes": 1119
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/captured-full-closure.txt",
+    "sha256": "9d91e7d1dc8af8cae39594391ba592c90a1a1bfc25e8a3c98b5fa6d2420c35dc",
+    "bytes": 1128
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/checkpoint.py",
+    "sha256": "66bc3feb6662d2afc63bca403b6dc781306d90b4208db5163e470cb0db05f876",
+    "bytes": 32621
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/commands.json",
+    "sha256": "080c8de30c63cbf10a76f9be3c3681f4bbf996542b63d1daf2741b579875c153",
+    "bytes": 1449
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/compile.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/driver.rs",
+    "sha256": "44d27b064b202a6aadd9c35a0a61f6ebcd06675baf814dae29720e755cc76d53",
+    "bytes": 2362
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/final-report-edit-note.json",
+    "sha256": "077b7bfe61a453133b706ebc735a91f59761ca7e40ba58314ca51e545c5856ae",
+    "bytes": 340
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/final_audit.py",
+    "sha256": "a9b98b08fb1e3fb41be3048be446511b45a6e408695e4e617e202d6e004cebd6",
+    "bytes": 3471
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/hardware.json",
+    "sha256": "0e837862c8ee1fbe6b99ab0a5f598e5af0e9c959d0107fee22b5186d205d07b0",
+    "bytes": 753
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/initial-artifact-schema-failure/failure.json",
+    "sha256": "0ce9d5366fc335296b90af407dba9c286f8a7810259ddb8420dc6097fcb1e5b0",
+    "bytes": 229
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/initial-artifact-schema-failure/final_audit.py",
+    "sha256": "a4cf3c5ff714a7eb4a215df720173a65eb5999fa8e512126558efad6f460ddc3",
+    "bytes": 3389
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/initial-audit-indent-failure/argument-candidate.patch",
+    "sha256": "98162059267875f587594ff3b082de1ef4dbffceb55b5a8c1712496796fec994",
+    "bytes": 2425
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/initial-audit-indent-failure/audit.py",
+    "sha256": "8bd52b2cff1d4324bc0f9014840f19dc19ca08e5ebc59099b510fda3efa7a135",
+    "bytes": 4570
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/initial-audit-indent-failure/failure.json",
+    "sha256": "f740c65f9e7699a84a7d59c149a9a2a8bdbd75d0b43bb8f98689d0436f9f26a7",
+    "bytes": 206
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/initial-audit-indent-failure/prepare.py",
+    "sha256": "8df73f524ffa17e3fa62695f58b19baf5d421e4bcf0aaaf6c4f0d5e5d4a14bbb",
+    "bytes": 8025
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/initial-control-coverage-failure/compile.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/initial-control-coverage-failure/failure.json",
+    "sha256": "d4e27b05cf83585acbf5b6e49c3ec65c913353342e08ad41035245717d504f7a",
+    "bytes": 303
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/initial-control-coverage-failure/isolated.rs",
+    "sha256": "40eb72cfc561cb8fb1dda50190eaed8ab94190fb636b38dd8f3544c3b37bf4e6",
+    "bytes": 35190
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/initial-control-coverage-failure/prepare.py",
+    "sha256": "5f748e96c75d635515dcefc6272cf7fd4f078ab2ba2294b5701cc55636810e1b",
+    "bytes": 9312
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/initial-control-coverage-failure/run.py",
+    "sha256": "095b3755b6ae8fbf83ff4e2cc0731c1edcf7c758bf81c3e41ef3d08ea709eb43",
+    "bytes": 10039
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/isolated.rs",
+    "sha256": "40eb72cfc561cb8fb1dda50190eaed8ab94190fb636b38dd8f3544c3b37bf4e6",
+    "bytes": 35190
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/isolated.so",
+    "sha256": "2e92cf12248ac99bfd6325bde8faa0c4f54101ef240f61d3d4c9fc4b25ad1a4a",
+    "bytes": 4399920
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/native/docs__zkmatrix-poc__ZK60_SPEED_PLAN_20261017.md",
+    "sha256": "f89f7b91649d171f2d2404f36d8cfa814f199442d83dd59dc21b355559809894",
+    "bytes": 29584
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/native/hashline__src__private_block__argument.rs",
+    "sha256": "02df55ebec4da046d5522dfc14bf17a691c1fca851f014ba50a759502804e3b5",
+    "bytes": 101084
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/native/hashline__src__private_block__layout.rs",
+    "sha256": "ee871fff7eed377cafcb05ec0438df95a70695ae8fdcd5b5822f5f40663b0ee9",
+    "bytes": 66327
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/native/hashline__src__private_block__pad.rs",
+    "sha256": "4f0c11c50503dd8cb4fb38d2b5be5e4f08ec310ee916b83a357f0283ede9eb42",
+    "bytes": 56654
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/native/hashline__src__private_block__shape.rs",
+    "sha256": "38d32443fb9399a7c2d2de501ef2fa0d73a696ed54dd254842756f7480b273d7",
+    "bytes": 112532
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/native/results__zk60_1b_native_20261017__r4__PHASES_T128.md",
+    "sha256": "5f4b2b1e4aff5ab4cd6d7454d91a159124a2638ed91db7ce79346e4be5b5e98f",
+    "bytes": 6329
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/native/results__zk60_1b_native_20261017__r4__TABLE.md",
+    "sha256": "d6395b3d0a0f9eeec3daa4bf8e209728d219e6a10df151c7150408ea58294a3e",
+    "bytes": 1664
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/native/results__zk60_1b_native_20261017__r4__table.json",
+    "sha256": "cb43f862cbb8c76b8c7fbfe44c6b408eaca860e69443153a6c32d91a20aa64ed",
+    "bytes": 4213
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/native/zkp-core__src__field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "bytes": 11065
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/native/zkp-core__src__mle.rs",
+    "sha256": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e",
+    "bytes": 15255
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/native/zkp-core__src__sumcheck__grouped.rs",
+    "sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b",
+    "bytes": 7903
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/native/zkp-core__src__sumcheck__rounds.rs",
+    "sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df",
+    "bytes": 7092
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/native-pins.json",
+    "sha256": "19c0b61c5807c305f1ab5628568459f46243194d4927a68ac117b1e53797c51a",
+    "bytes": 2051
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/oracle.py",
+    "sha256": "ac9d63996d033b2e9b20b89d091c3600e5f332ffd3fc6a30eda8482b28eef532",
+    "bytes": 2599
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/owner-pins.json",
+    "sha256": "9fbb9f97e8d0f08c6dd9cbc5da98f93ad1038c2c54ec23e3d61a271173d38a5a",
+    "bytes": 1054
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/prepare.py",
+    "sha256": "f7a804b87351c5f068c366286aff6e3069bd4c66127b06f5198637cabffbe3a3",
+    "bytes": 8034
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/prior-oracle-provenance.json",
+    "sha256": "f5097b76a4085d15585060cd0bc031deda08866815515a877c75251ee71d2e6a",
+    "bytes": 205
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/prior-owner-accounting.json",
+    "sha256": "bd0093570d81da8cd33f880119a493e5ce5da86e58473eb0b8107ffcf0deefe1",
+    "bytes": 3003
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/result.json",
+    "sha256": "bb3e9454974fc9c97c806df4dd5713992ada86179f59e5681b15b2be9292cedf",
+    "bytes": 28042
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/run.py",
+    "sha256": "93031559d588149f321d4ca30ce622c2102202c5cd6afdbb470542e81bb38187",
+    "bytes": 10027
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/source-records.json",
+    "sha256": "5dcf58fa1952de9fa7bc10c1645cf3f49a1936ebea88c246718f8ee9eae765c4",
+    "bytes": 9072
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/startup/AGENDA.md",
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/startup/CLAUDE.md",
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/startup/FINDINGS.md",
+    "sha256": "86db7f8760499d59b9708b6cd572b6477dc36447411f8b13eb7625f88f3f83fd",
+    "bytes": 475935
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/startup/MVP_STATUS.md",
+    "sha256": "13287d20d2a1a3fbe2becc70c9eb0029b383402c7c3be3928c5c8e0976931bb2",
+    "bytes": 65029
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/startup/PROGRESS.md",
+    "sha256": "637020b5586c188480df235dfd5dcc5f446d41eab05e302c11272fb773799047",
+    "bytes": 2737
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/startup/START_HERE.md",
+    "sha256": "89f6732a39f4294f2f1b7b68add8fdcbb76b86006e21041f52c0f40d9e39df9d",
+    "bytes": 42025
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/startup/STATE.md",
+    "sha256": "d03ae63e0e90cbd71455e3cf7549e4e3ea4fa36ebf7dc9fd2e3c89e9852d49ee",
+    "bytes": 5090
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/startup/ZK60_CODEX_FABLE_COORDINATION.md",
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/startup/ZK60_DECISIONS.md",
+    "sha256": "b2e40604148ea8d336098fa3e6a0fc69d4d4598187cb2ef04617c3e8d0baccb5",
+    "bytes": 64466
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/startup/ZK60_SPEED_PLAN_20261017.md",
+    "sha256": "f89f7b91649d171f2d2404f36d8cfa814f199442d83dd59dc21b355559809894",
+    "bytes": 29584
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/startup/ZK60_THROUGHPUT_TARGET.md",
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/startup/ZK60_TRAINED_STACK_READINESS_20261017.md",
+    "sha256": "a77439ac7e986364b314c4b540ba89bb2be96e06df9d0ec4de2f98a8c150f385",
+    "bytes": 6909
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/startup/manifest.json",
+    "sha256": "e14b6b56bc484389ac784c2e403db0c5e544359e9d529ca9f86b481fb601c08d",
+    "bytes": 1961
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/startup/sources.jsonl",
+    "sha256": "edd2870438b88a27758444b5c01a45b7d0a8986fe0013a3ef75f71dc3a9d5a55",
+    "bytes": 408548
+  },
+  {
+    "path": "experiments/fzc-grouped-equality-20261017/web-search-log.json",
+    "sha256": "246f581e34822ac3cbd86fc7ab51a2937f774feb60981c4ca19d542b35632d83",
+    "bytes": 1643
+  },
+  {
+    "path": "STATE.md",
+    "sha256": "6b67997f8c2fdb617c3337b1e8fed362e88f850b1bf42385493f8801884b4ae4",
+    "bytes": 5303
+  },
+  {
+    "path": "PROGRESS.md",
+    "sha256": "0e9ac1444c006bb4cde4e7ba459fd09d8fdbd1b5f5fbbe3c733552e3cbe268e9",
+    "bytes": 2323
+  },
+  {
+    "path": "FINDINGS.md",
+    "sha256": "d51fe588b1693f27412318262d4b4ff53307b9aa1ee934d142b836ef84010970",
+    "bytes": 479525
+  },
+  {
+    "path": "sources.jsonl",
+    "sha256": "0341f1eca4a7e6e3a516a972acffd53fc774bc1d1b190561f3cf06afb51037be",
+    "bytes": 416983
+  },
+  {
+    "path": "progress/20261017T142624Z-6b84b6ef.md",
+    "sha256": "7e337bce39a2935e9fc26e7167ab8e9f87e8d9a42bc029e12aca149e0092a331",
+    "bytes": 10116
+  },
+  {
+    "path": "handoffs/20261017-fzc-grouped-equality.md",
+    "sha256": "c3efee9253cf446fa5c887808c867d8364d92021b3a864f9f4db4d194dae2859",
+    "bytes": 4058
+  }
+]

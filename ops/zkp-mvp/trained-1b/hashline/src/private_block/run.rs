@@ -94,19 +94,75 @@ pub(crate) const RUN_PROFILE_RUNG_TC: &str = "hashline-zk-mr1/private-run-rung-t
 /// One run's geometry: the per-block shape, how many blocks, and the run's own
 /// profile id. A run is a NEW profile under D17 — its own transcript, its own
 /// digests — so no byte of any single-block profile moves.
+///
+/// **RULING CS-8 (ported from the 125M lane's stage 43): the three fields
+/// are PRIVATE**; [`RunShape::new`] (ruling CS-7) is the only way in, and
+/// [`RunShape::sh`], [`RunShape::l`], [`RunShape::profile`] read them.
 #[derive(Clone, Debug)]
 pub(crate) struct RunShape {
-    pub sh: Shape,
-    pub l: usize,
-    pub profile: &'static str,
+    sh: Shape,
+    l: usize,
+    profile: &'static str,
+}
+
+/// **RULING CS-7 (ported from the 125M lane's stage 42): THE RUN PROFILE
+/// REGISTRY** — the one block shape each registered run profile names. The
+/// frozen profiles name one shape VALUE; NATIVE LANE: a trained-calibration
+/// run profile names its geometry under ANY admitted calibration, so its
+/// registered shape is rebuilt through the trained door at the handed
+/// shape's own calibration and `f_e` (and must then be equal, every field).
+/// `None` for a run profile this build does not register.
+fn registered_block_shape(profile: &str, sh: &Shape) -> Option<Result<Shape, String>> {
+    let cal = sh.norm_calibration();
+    Some(match profile {
+        RUN_PROFILE_RUNG_G => Ok(Shape::rung_g()),
+        RUN_PROFILE_RUNG_K4 => Ok(Shape::rung_k4()),
+        RUN_PROFILE_RUNG_P2 => Ok(Shape::rung_p2()),
+        RUN_PROFILE_RUNG_C6 => Ok(Shape::rung_c6()),
+        RUN_PROFILE_RUNG_W14 => Ok(Shape::rung_w14()),
+        RUN_PROFILE_RUNG_E32 => Ok(Shape::rung_e32()),
+        RUN_PROFILE_M125 => Ok(Shape::m125()),
+        RUN_PROFILE_RUNG_TC => Shape::rung_tc(&cal),
+        RUN_PROFILE_TINYLLAMA_T32_TRAINED => Shape::tinyllama_trained(32, &cal, sh.f_e),
+        RUN_PROFILE_TINYLLAMA_T64_TRAINED => Shape::tinyllama_trained(64, &cal, sh.f_e),
+        RUN_PROFILE_TINYLLAMA_T128_TRAINED => Shape::tinyllama_trained(128, &cal, sh.f_e),
+        RUN_PROFILE_LLAMA3_8B_T32_TRAINED => Shape::llama3_8b_t32_trained(&cal, sh.f_e),
+        #[cfg(test)]
+        RUN_PROFILE_TINYLLAMA_T32_DEV => Ok(Shape::tinyllama_t32_dev()),
+        _ => return None,
+    })
 }
 
 impl RunShape {
+    /// **RULING CS-7 (finding S41-N1 of the 125M lane).** A run profile names
+    /// exactly one block shape: it is admitted only over the shape it is
+    /// registered for, compared field by field, and a profile this build does
+    /// not register is refused. `L = 0` keeps its own refusal, first.
     pub(crate) fn new(sh: Shape, l: usize, profile: &'static str) -> Result<RunShape, String> {
         if l == 0 {
             return Err("private run: a run has at least one block".into());
         }
+        match registered_block_shape(profile, &sh) {
+            None => return Err(format!("private run: ruling CS-7 — {profile:?} is not a run profile this build registers, so it names no block shape ({:?} was given)", sh.name)),
+            Some(Err(e)) => return Err(format!("private run: ruling CS-7 — the run profile {profile:?} names a block shape the given {:?} ({}) is not: {e}", sh.name, sh.profile)),
+            Some(Ok(reg)) if reg != sh => {
+                return Err(format!("private run: ruling CS-7 — the run profile {profile:?} is registered for the block shape {:?} ({}), not for {:?} ({})", reg.name, reg.profile, sh.name, sh.profile));
+            }
+            Some(Ok(_)) => {}
+        }
         Ok(RunShape { sh, l, profile })
+    }
+    /// the per-block shape (ruling CS-8: read-only outside this module)
+    pub(crate) fn sh(&self) -> &Shape {
+        &self.sh
+    }
+    /// how many blocks (ruling CS-8: read-only outside this module)
+    pub(crate) fn l(&self) -> usize {
+        self.l
+    }
+    /// the run's own profile id (ruling CS-8: read-only outside this module)
+    pub(crate) fn profile(&self) -> &'static str {
+        self.profile
     }
     pub(crate) fn rung_g(l: usize) -> Result<RunShape, String> {
         RunShape::new(Shape::rung_g(), l, RUN_PROFILE_RUNG_G)
@@ -191,7 +247,8 @@ impl RunShape {
 /// and the calibration identity. The `L - 1` boundary ROOTS are deliberately
 /// NOT here — an internal boundary is a hidden intermediate, not an endpoint.
 pub(crate) struct RunStatement {
-    pub rs: RunShape,
+    /// RULING CS-8: private; [`RunStatement::rs`] reads it
+    rs: RunShape,
     expected: ExpectedIo,
     block_digests: Vec<Digest>,
     context: Digest,
@@ -203,6 +260,10 @@ pub(crate) struct RunStatement {
 }
 
 impl RunStatement {
+    /// the run's geometry (ruling CS-8: read-only outside this module)
+    pub(crate) fn rs(&self) -> &RunShape {
+        &self.rs
+    }
     /// `block_scales[k]` is block `k`'s declared `(input, output)` scale pair.
     /// A run in which block `k + 1` declares a different input scale than
     /// block `k`'s output scale DOES NOT CONSTRUCT: the two are collapsed into
@@ -217,6 +278,14 @@ impl RunStatement {
         if rs.sh.trained_calibration || [RUN_PROFILE_TINYLLAMA_T32_TRAINED, RUN_PROFILE_TINYLLAMA_T64_TRAINED, RUN_PROFILE_TINYLLAMA_T128_TRAINED, RUN_PROFILE_LLAMA3_8B_T32_TRAINED, RUN_PROFILE_RUNG_TC].contains(&rs.profile) {
             return Err(format!("private run: {} is a trained-calibration run; it needs its trained-model statement (RunStatement::new_bound)", rs.profile));
         }
+        if blocks.len() != rs.l || block_scales.len() != rs.l {
+            return Err(format!("private run: the statement is for {} blocks, {} public statements and {} scale pairs were given", rs.l, blocks.len(), block_scales.len()));
+        }
+        // RULINGS CS-1 and CS-4: every block's statement (both halves) and
+        // the endpoint policy against the run's shape, before any digest of
+        // either is taken
+        blocks_fit_the_shape(blocks, &rs.sh)?;
+        policy_fits_the_shape(&expected, &rs.sh)?;
         let digests: Vec<Digest> = blocks.iter().map(|b| b.digest()).collect();
         Self::new_with_calibration(rs, context, expected, digests, blocks.len(), block_scales, super::calibration_identity(), super::ENDPOINT_SCALES)
     }
@@ -230,6 +299,10 @@ impl RunStatement {
     /// this is the only constructor; at the toy, the rungs and 125M it is
     /// never called, so none of their bytes moves.
     pub(crate) fn new_bound(rs: RunShape, context: Digest, expected: ExpectedIo, blocks: &[BlockPublic], block_scales: &[(i32, i32)], model: &super::trained_statement::TrainedModelStatement) -> Result<RunStatement, String> {
+        // RULINGS CS-1 and CS-4 on the blocks handed, before they are digested
+        if blocks.len() == rs.l {
+            blocks_fit_the_shape(blocks, &rs.sh)?;
+        }
         let digests: Vec<Digest> = blocks.iter().map(|b| b.digest()).collect();
         Self::new_bound_from_digests(rs, context, expected, digests, block_scales, model)
     }
@@ -246,6 +319,8 @@ impl RunStatement {
         if digests.len() != rs.l {
             return Err(format!("private run: the statement is for {} blocks, {} block digests and {} scale pairs were given", rs.l, digests.len(), block_scales.len()));
         }
+        // RULING CS-4: the endpoint policy against the run's shape
+        policy_fits_the_shape(&expected, &rs.sh)?;
         model.check_against(&rs.sh, rs.profile, &digests, block_scales)?;
         let approved = model.calibration.block_scales;
         let n = digests.len();
@@ -640,6 +715,18 @@ fn words(v: &[i16]) -> Vec<Fp> {
 /// otherwise unchanged: block k is the same `&BlockPublic` they always read.
 pub(crate) trait BlockSource {
     fn block(&mut self, k: usize) -> Result<BlockRef<'_>, String>;
+    /// how many blocks the source holds
+    fn count(&self) -> usize;
+    /// **RULINGS CS-1 and CS-4** before anything is absorbed: a resident
+    /// slice re-checks every block against the run's shape here; a streaming
+    /// source builds each block through the constructor's own check at the
+    /// shape when it loads it, and `prove_core` / `verify_core` re-run the
+    /// check on it before its stage commits or absorbs anything of it.
+    fn fit_the_shape(&mut self, sh: &Shape) -> Result<(), String>;
+    /// **RULING CS-6** before anything is absorbed: the blocks are the ones
+    /// the statement names. A resident slice compares every block's digest;
+    /// a streaming source compares the digest list it enforces on every load.
+    fn are_the_statements(&mut self, st: &RunStatement) -> Result<(), String>;
 }
 
 /// one block, borrowed from a slice or shared out of a streaming cache
@@ -665,13 +752,85 @@ impl BlockSource for SliceBlocks<'_> {
     fn block(&mut self, k: usize) -> Result<BlockRef<'_>, String> {
         self.0.get(k).map(BlockRef::Borrowed).ok_or_else(|| format!("private run: no public statement for block {k}"))
     }
+    fn count(&self) -> usize {
+        self.0.len()
+    }
+    fn fit_the_shape(&mut self, sh: &Shape) -> Result<(), String> {
+        blocks_fit_the_shape(self.0, sh)
+    }
+    fn are_the_statements(&mut self, st: &RunStatement) -> Result<(), String> {
+        blocks_are_the_statements(st, self.0)
+    }
+}
+
+/// **RULINGS CS-1 and CS-4** at the run layer (ported from the 125M lane):
+/// every block's statement re-checked against the run's shape, refused by
+/// name with the block index.
+fn blocks_fit_the_shape(blocks: &[BlockPublic], sh: &Shape) -> Result<(), String> {
+    for (k, b) in blocks.iter().enumerate() {
+        b.check_for_shape(sh).map_err(|e| format!("private run: block {k}: {e}"))?;
+    }
+    Ok(())
+}
+
+/// **RULING CS-4** at the run layer: the run's external endpoint policy
+/// re-checked against the run's shape.
+fn policy_fits_the_shape(expected: &ExpectedIo, sh: &Shape) -> Result<(), String> {
+    expected.spec.check_for_shape(sh).map_err(|e| format!("private run: {e}"))
+}
+
+/// the first eight bytes of a digest, as lower-case hex, for a refusal text
+pub(crate) fn hex8(d: &Digest) -> String {
+    d[..8].iter().map(|b| format!("{b:02x}")).collect()
+}
+
+/// **RULING CS-6, the count** (ported from the 125M lane's stage 42).
+/// Exactly `L` blocks handed, and a statement holding exactly `L` digests.
+fn as_many_blocks_as_the_statement(st: &RunStatement, handed: usize) -> Result<(), String> {
+    let l = st.rs.l;
+    if handed != l {
+        return Err(format!("private run: ruling CS-6 — the run statement names {l} blocks and {handed} public statements were handed"));
+    }
+    if st.block_digests.len() != l {
+        return Err(format!("private run: ruling CS-6 — the run statement holds {} block digests and its run shape is for {l} blocks", st.block_digests.len()));
+    }
+    Ok(())
+}
+
+/// **RULING CS-6 (finding S41-N2 of the 125M lane, statement binding): a
+/// run is about the blocks its statement NAMES.** The run absorbs the
+/// statement's `block_digests[k]` while every slot of stage `k` is proved and
+/// checked against the block the caller HANDS in; so the run prover and the
+/// run verifier refuse, by name and before anything is absorbed, unless block
+/// `k`'s public digest is the statement's `block_digests[k]`.
+fn blocks_are_the_statements(st: &RunStatement, blocks: &[BlockPublic]) -> Result<(), String> {
+    as_many_blocks_as_the_statement(st, blocks.len())?;
+    for (k, (b, want)) in blocks.iter().zip(&st.block_digests).enumerate() {
+        digest_is_the_statements(k, &b.digest(), want)?;
+    }
+    Ok(())
+}
+
+/// block `k`'s digest against the statement's, by CS-6's name
+pub(crate) fn digest_is_the_statements(k: usize, got: &Digest, want: &Digest) -> Result<(), String> {
+    if got != want {
+        return Err(format!(
+            "private run: ruling CS-6 — block {k} handed to the run is not the block the run statement names (its public digest begins {}, the statement's {}); refused before anything is absorbed",
+            hex8(got),
+            hex8(want)
+        ));
+    }
+    Ok(())
+}
+
+/// the statement's block digests (a streaming source compares its own list)
+impl RunStatement {
+    pub(crate) fn block_digests(&self) -> &[Digest] {
+        &self.block_digests
+    }
 }
 
 pub(crate) fn prove_run(st: &RunStatement, blocks: &[BlockPublic], src: &mut dyn RunWitnessSource, externals: Endpoints, sink: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>) -> Result<RunStats, String> {
-    let l = st.rs.l;
-    if blocks.len() != l {
-        return Err(format!("private run: {} public statements for {l} blocks", blocks.len()));
-    }
     prove_run_with(st, &mut SliceBlocks(blocks), src, externals, sink)
 }
 
@@ -679,7 +838,24 @@ pub(crate) fn prove_run(st: &RunStatement, blocks: &[BlockPublic], src: &mut dyn
 pub(crate) fn prove_run_with(st: &RunStatement, blocks: &mut dyn BlockSource, src: &mut dyn RunWitnessSource, externals: Endpoints, sink: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>) -> Result<RunStats, String> {
     use std::time::Instant;
     let (sh, l) = (&st.rs.sh, st.rs.l);
+    as_many_blocks_as_the_statement(st, blocks.count())?;
     protocol::fits_the_ntt_tables(sh)?;
+    // RULINGS CS-1 and CS-4: the blocks and the endpoint policy, before the
+    // endpoint owners are opened, the run's randomness is seeded or its
+    // header is absorbed
+    blocks.fit_the_shape(sh)?;
+    policy_fits_the_shape(&st.expected, sh)?;
+    // RULING CS-6: the blocks handed are the ones the statement names, at
+    // the same point. A CHEATING prover runs none of the honest prover's own
+    // checks, and the soundness tests play one (ruling CS-3's `#[cfg(test)]`
+    // switch); the verifier's check never consults it.
+    #[cfg(test)]
+    let cheating = protocol::cheating_prover_is_on();
+    #[cfg(not(test))]
+    let cheating = false;
+    if !cheating {
+        blocks.are_the_statements(st)?;
+    }
     st.expected.spec.validate()?;
     let [ein, eout] = protocol::check_endpoints(sh, &st.expected, externals)?;
     let mut ein = Some(ein);
@@ -719,10 +895,14 @@ pub(crate) fn prove_run_with(st: &RunStatement, blocks: &mut dyn BlockSource, sr
         let cur = if k + 1 < l {
             let spec = st.boundary_spec(k)?;
             let plane = src.boundary_plane(k)?;
+            // ROUND 5: the source's work (block load, witness build) is its
+            // own phase, not the first phase of the block's body
+            ph.mark(timing::Half::Run, "run: block load + witness (the source)", 1, "block");
             if plane.len() != spec.len() {
                 return Err(format!("private run: boundary {k}'s plane is {} words, the padded plane is {}", plane.len(), spec.len()));
             }
             let p = boundary::prepare(&spec, &words(&plane), &ntt, &mut rng, &tag)?;
+            ph.mark_bytes(timing::Half::Run, "run: boundary B_k commitment", spec.len() as u64, "words", 8 * spec.len() as u64);
             protocol::absorb_root(&mut tr, b"B", &p.root(), spec.commitment_rows(), spec.log_n());
             Some((spec, p))
         } else {
@@ -731,6 +911,7 @@ pub(crate) fn prove_run_with(st: &RunStatement, blocks: &mut dyn BlockSource, sr
         // steps 3-8: the measured block, unchanged
         let lay = st.stage_layout(k)?;
         let wit = src.witness(k)?;
+        ph.mark(timing::Half::Run, "run: witness hand-over (the last block builds it here)", 1, "block");
         let core = {
             let in_data: &[Fp] = match &prev {
                 Some((_, p)) => p.data(),
@@ -822,7 +1003,16 @@ impl<'a> RunVerifier<'a> {
     /// statement's — never a frame's.
     fn start(st: &'a RunStatement, blocks: &'a mut dyn BlockSource) -> Result<RunVerifier<'a>, String> {
         let sh = &st.rs.sh;
+        as_many_blocks_as_the_statement(st, blocks.count())?;
         protocol::fits_the_ntt_tables(sh)?;
+        // RULINGS CS-1 and CS-4: the blocks and the endpoint policy, before
+        // the run header is absorbed
+        blocks.fit_the_shape(sh)?;
+        policy_fits_the_shape(&st.expected, sh)?;
+        // RULING CS-6: every block is the one the statement names, before the
+        // header that absorbs the statement's digests exists. Never consults
+        // the cheating-prover switch.
+        blocks.are_the_statements(st)?;
         st.expected.spec.validate()?;
         let ntt = NttTables::new(st.rs.ntt_log());
         let e_params = protocol::endpoint_pcs_params(sh);
@@ -1015,16 +1205,15 @@ impl<'a> RunVerifier<'a> {
 /// [`verify_run_from_dir`], which is the same verifier fed one segment at a
 /// time.
 pub(crate) fn verify_run(st: &RunStatement, blocks: &[BlockPublic], segments: &[Vec<u8>]) -> Result<(), String> {
-    let l = st.rs.l;
-    if blocks.len() != l {
-        return Err(format!("private run: {} public statements for {l} blocks", blocks.len()));
-    }
+    // RULING CS-6: the count, by name, before the segment count
+    as_many_blocks_as_the_statement(st, blocks.len())?;
     verify_run_with(st, &mut SliceBlocks(blocks), segments)
 }
 
 /// [`verify_run`] with the blocks from a [`BlockSource`] (ROUND 4)
 pub(crate) fn verify_run_with(st: &RunStatement, blocks: &mut dyn BlockSource, segments: &[Vec<u8>]) -> Result<(), String> {
     let l = st.rs.l;
+    as_many_blocks_as_the_statement(st, blocks.count())?;
     if segments.len() != l {
         return Err(format!("private run: {} segments were offered, this run has {l}", segments.len()));
     }
@@ -1047,10 +1236,8 @@ pub(crate) fn verify_run_with(st: &RunStatement, blocks: &mut dyn BlockSource, s
 /// ordinary verifier, so a swapped, duplicated, truncated, foreign or altered
 /// FILE is caught exactly as the same bytes in memory would be.
 pub(crate) fn verify_run_from_dir(st: &RunStatement, blocks: &[BlockPublic], dir: &std::path::Path) -> Result<(), String> {
-    let l = st.rs.l;
-    if blocks.len() != l {
-        return Err(format!("private run: {} public statements for {l} blocks", blocks.len()));
-    }
+    // RULING CS-6: the count, by name, before the directory is listed
+    as_many_blocks_as_the_statement(st, blocks.len())?;
     verify_run_from_dir_with(st, &mut SliceBlocks(blocks), dir)
 }
 
@@ -1058,8 +1245,10 @@ pub(crate) fn verify_run_from_dir(st: &RunStatement, blocks: &[BlockPublic], dir
 /// ONE segment and ONE block resident
 pub(crate) fn verify_run_from_dir_with(st: &RunStatement, blocks: &mut dyn BlockSource, dir: &std::path::Path) -> Result<(), String> {
     let l = st.rs.l;
-    let paths = run_sink::segment_paths(dir, l)?;
+    // RULING CS-6: the count and the digests (in `start`) before the
+    // directory is listed or any segment file is read
     let mut v = RunVerifier::start(st, blocks)?;
+    let paths = run_sink::segment_paths(dir, l)?;
     for (k, p) in paths.iter().enumerate() {
         // ONE segment's bytes are resident: read here, dropped at the end of
         // this iteration, before the next file is opened

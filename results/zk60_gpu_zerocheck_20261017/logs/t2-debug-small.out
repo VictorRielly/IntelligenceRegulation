@@ -1,0 +1,1 @@
+[zk60-guard 11:29:20] START t2-debug-small class=gpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=bf610ffb1d53

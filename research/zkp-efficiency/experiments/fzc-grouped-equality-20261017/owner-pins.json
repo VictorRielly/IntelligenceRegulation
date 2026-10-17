@@ -1,0 +1,22 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_SPEED_PLAN_20261017.md",
+    "snapshot": "native/docs__zkmatrix-poc__ZK60_SPEED_PLAN_20261017.md",
+    "sha256": "f89f7b91649d171f2d2404f36d8cfa814f199442d83dd59dc21b355559809894"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r4/TABLE.md",
+    "snapshot": "native/results__zk60_1b_native_20261017__r4__TABLE.md",
+    "sha256": "d6395b3d0a0f9eeec3daa4bf8e209728d219e6a10df151c7150408ea58294a3e"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r4/table.json",
+    "snapshot": "native/results__zk60_1b_native_20261017__r4__table.json",
+    "sha256": "cb43f862cbb8c76b8c7fbfe44c6b408eaca860e69443153a6c32d91a20aa64ed"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r4/PHASES_T128.md",
+    "snapshot": "native/results__zk60_1b_native_20261017__r4__PHASES_T128.md",
+    "sha256": "5f4b2b1e4aff5ab4cd6d7454d91a159124a2638ed91db7ce79346e4be5b5e98f"
+  }
+]

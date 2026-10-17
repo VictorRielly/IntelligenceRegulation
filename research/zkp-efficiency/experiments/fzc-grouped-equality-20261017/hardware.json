@@ -1,0 +1,14 @@
+{
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "kernel": "6.18.54.1-microsoft-standard-WSL2",
+  "machine": "x86_64",
+  "os_release": "PRETTY_NAME=\"Ubuntu 22.04.4 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"22.04\"\nVERSION=\"22.04.4 LTS (Jammy Jellyfish)\"\nVERSION_CODENAME=jammy\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=jammy\n",
+  "device_used": "CPU only; no GPU queried or launched",
+  "cpu_affinity": [
+    0
+  ],
+  "threads": 1,
+  "nice": 19,
+  "experiment_memory_limit_bytes": 536870912,
+  "experiment_wall_cpu_limit_s": 59
+}

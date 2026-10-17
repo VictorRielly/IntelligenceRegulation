@@ -1,0 +1,139 @@
+{
+ "TinyLlama T32": {
+  "domains_log2": {
+   "D": 16.0,
+   "Q": 16.0,
+   "Kv": 13.0,
+   "S": 15.0,
+   "F": 18.0
+  },
+  "clauses_log2": {
+   "norm R4": 48.0,
+   "norm C0": 48.039,
+   "norm C1": 41.0,
+   "Q/K/V host (sum over d_pad)": 24.99,
+   "RoPE clause": 15.576,
+   "score host (sum over head_dim)": 20.022,
+   "softmax c2": 31.0,
+   "softmax row sum": 21.0,
+   "PV host (sum over T)": 23.581,
+   "AO host (sum over d_pad)": 25.313,
+   "gate host (sum over d_pad)": 24.99,
+   "up (SH_U = 0, int16 by limbs)": 24.99,
+   "product clause": 31.585,
+   "down host (sum over f_pad)": 35.0,
+   "residuals (x1 = x + ao, x2 = x1 + z16)": 16.585,
+   "LogUp multiplicity bound (all U8 lookups, generous 64 per position)": 24.728
+  },
+  "worst_log2": 48.039,
+  "below_half_p": true
+ },
+ "TinyLlama T64": {
+  "domains_log2": {
+   "D": 17.0,
+   "Q": 17.0,
+   "Kv": 14.0,
+   "S": 17.0,
+   "F": 19.0
+  },
+  "clauses_log2": {
+   "norm R4": 48.0,
+   "norm C0": 48.039,
+   "norm C1": 41.0,
+   "Q/K/V host (sum over d_pad)": 24.99,
+   "RoPE clause": 15.576,
+   "score host (sum over head_dim)": 20.022,
+   "softmax c2": 32.0,
+   "softmax row sum": 22.0,
+   "PV host (sum over T)": 23.994,
+   "AO host (sum over d_pad)": 25.313,
+   "gate host (sum over d_pad)": 24.99,
+   "up (SH_U = 0, int16 by limbs)": 24.99,
+   "product clause": 31.585,
+   "down host (sum over f_pad)": 35.0,
+   "residuals (x1 = x + ao, x2 = x1 + z16)": 16.585,
+   "LogUp multiplicity bound (all U8 lookups, generous 64 per position)": 25.833
+  },
+  "worst_log2": 48.039,
+  "below_half_p": true
+ },
+ "TinyLlama T128": {
+  "domains_log2": {
+   "D": 18.0,
+   "Q": 18.0,
+   "Kv": 15.0,
+   "S": 19.0,
+   "F": 20.0
+  },
+  "clauses_log2": {
+   "norm R4": 48.0,
+   "norm C0": 48.039,
+   "norm C1": 41.0,
+   "Q/K/V host (sum over d_pad)": 24.99,
+   "RoPE clause": 15.576,
+   "score host (sum over head_dim)": 20.022,
+   "softmax c2": 33.0,
+   "softmax row sum": 23.0,
+   "PV host (sum over T)": 24.576,
+   "AO host (sum over d_pad)": 25.313,
+   "gate host (sum over d_pad)": 24.99,
+   "up (SH_U = 0, int16 by limbs)": 24.99,
+   "product clause": 31.585,
+   "down host (sum over f_pad)": 35.0,
+   "residuals (x1 = x + ao, x2 = x1 + z16)": 16.585,
+   "LogUp multiplicity bound (all U8 lookups, generous 64 per position)": 27.022
+  },
+  "worst_log2": 48.039,
+  "below_half_p": true
+ },
+ "Llama-3-8B T32": {
+  "domains_log2": {
+   "D": 17.0,
+   "Q": 17.0,
+   "Kv": 15.0,
+   "S": 15.0,
+   "F": 19.0
+  },
+  "clauses_log2": {
+   "norm R4": 48.0,
+   "norm C0": 48.039,
+   "norm C1": 41.0,
+   "Q/K/V host (sum over d_pad)": 25.989,
+   "RoPE clause": 15.576,
+   "score host (sum over head_dim)": 21.0,
+   "softmax c2": 31.0,
+   "softmax row sum": 21.0,
+   "PV host (sum over T)": 23.581,
+   "AO host (sum over d_pad)": 26.16,
+   "gate host (sum over d_pad)": 25.989,
+   "up (SH_U = 0, int16 by limbs)": 25.989,
+   "product clause": 31.585,
+   "down host (sum over f_pad)": 36.0,
+   "residuals (x1 = x + ao, x2 = x1 + z16)": 16.585,
+   "LogUp multiplicity bound (all U8 lookups, generous 64 per position)": 25.7
+  },
+  "worst_log2": 48.039,
+  "below_half_p": true
+ },
+ "8B D_max and max tn": {
+  "1": [
+   2097152,
+   9,
+   true
+  ],
+  "78617": [
+   2097152,
+   9,
+   true
+  ],
+  "1099511627776": [
+   2344687,
+   9,
+   true
+  ]
+ },
+ "8B export (tn 9, Ceps 78617)": {
+  "D_max": 2097152,
+  "wrho": 32
+ }
+}

@@ -1,0 +1,1 @@
+{"status":"fail","reason":"live native/source pin mismatch during final audit","affected":["layout.rs","shape.rs"],"preserved_in":"pin-drift.json; owner-drift/","kernel_result_changed":false}

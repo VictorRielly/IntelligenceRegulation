@@ -97,7 +97,11 @@ fn prove_tampered(edit: impl FnOnce(&BlockPublic, &mut Witness)) -> Result<(), S
     edit(&blk, &mut w);
     let output = w.output().unwrap_or(honest);
     let (expected, owners) = prepare_endpoints(spec(), &input, &output).unwrap();
-    // the prover pre-checks no relation: a false witness still yields a receipt
+    // a CHEATING prover pre-checks no relation: a false witness still yields a
+    // receipt (since stage 40, ruling CS-3 — ported in native round 5 — the
+    // honest prover refuses a lookup miss by name; the switch turns that off,
+    // as a cheater would)
+    let _cheating = super::protocol::CheatingProver::on();
     let (receipt, _) = prove_inner(&blk, w, &expected, owners)?;
     verify_inner(&blk, &expected, &receipt).map(|_| ())
 }
@@ -576,7 +580,11 @@ pub(super) fn prove_tampered_at(sh: &super::shape::Shape, blk: &BlockPublic, inp
     let _ = ids;
     // ROUND 2 (R2-4): a trained-calibration block proves only inside a run
     // bound to its statement, so the alias is proved and verified that way
+    // NATIVE ROUND 5 (ruling CS-3): proved as a CHEATING prover would, with
+    // the honest prover's lookup-miss refusal off, so the verifier has to speak
+    let cheating = super::protocol::CheatingProver::on();
     let b = super::trained_calib_tests::prove_one_bound(sh, blk, w)?;
+    drop(cheating);
     super::trained_calib_tests::verify_one_bound(sh, blk, &b.expected.to_bytes(), &b.seg)
 }
 

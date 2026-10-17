@@ -4422,3 +4422,130 @@ census. Histogram deduplication is demoted because its measured parent is tiny.
 The borrow handoff remains review-only; no native build or heavy job queued.
 
 Accepted independently verified complete private **8B** proofs / passes / positions: **0 / 0 / 0**. Context, steady-state and total-workload rates, startup seconds/fraction, witness/proof/serialization/independent-verification clocks, latency, lag and drain remain **unmeasured** for that target. Local experiment: one Intel Core Ultra 9 185H CPU thread, CPU0, nice 19; no GPU. No prefill proof, resident-pass sweep or decode ran here. Larger workloads remain allowed with fresh masks; dense attention grows approximately quadratically with context. The >=50 proved-token/s target is unchanged and unachieved.
+
+## Cycle 0063 — 2026-10-17 — F constants/support factoring; new 8B clocks
+
+Run `20261017T132624Z-393ef603`. AGENDA/target/durable/project memory and latest
+three results read, startup snapshots preserved, STATE checkpointed early.
+Five LIVE primary records appended (325 total), with exact access/date/license/
+commit scope and failed fetches. New older implementation leads: LambdaClass
+2025 SVO implementation (one-linear-factor boundary), PRPLL consumer-GPU NTT
+(different arithmetic; GPL3, no code copied). October16 Plonky3 rc.2 refreshed;
+recent algebraic-geometry primary still Internal Error. No author speedup is
+reproduced or transplanted.
+
+Current trained-lane SC_FZC captured with its actual field/helper/pad/gate code.
+Three variants against independent Python integer-pair Fp2 equations:480
+fixtures /2,480 comparisons (528 ordinary round-sample and32 final-terminal
+comparisons included),9 algebra mutation controls pass. All336 public-shift/
+pad/helper-size combinations occur. Actual Rust executed API census:combined
+37->30 general products unpadded,49->42 padded,9->14 mul_base calls. Three limb
+and two shift constants become base products; three clause support factors
+become one. Helper and activation LogUp remain ungated; host/pad terms intact.
+Added one accumulator and one addition, no tables/transfers/randomness.
+
+Isolated shared-host CPU medians:combined1.114x unpadded/1.098x padded;
+**negative preserved:**support-only0.990x unpadded despite fewer calls.
+Seven repeats x8,192 evals/variant/branch, first excluded; ranges overlap,
+setup excluded. Isolated LLVM arithmetic/capture also shrinks, not native
+instruction counts or peak. Differential1.692s/17,948KiB, compiler138,316KiB;
+separate45-check audit2.049s/19,308KiB, compiler137,956KiB. Seed2026101763,
+CPU0/IntelUltra9 185H, one thread, nice19,59s/512MiB caps. Two initial harness
+failures retained. Standalone std-only rustc, no Cargo/production build/proof.
+Unapplied patch and validation gates:
+[handoff](handoffs/20261017-fzc-public-constants.md),
+[experiment](experiments/fzc-public-constants-20261017/README.md).
+
+NEW retained owner8B functional diagnostics:32 linked blocks,Llama3-8B
+8,030,261,248 params,T32,one cold pass perCPU/GPU arm,16threads,public weights.
+CPU/RTX4070Laptop process384.542564/391.287091s; witness18.629/18.109;
+prove_run208.019/213.831 inclusive; block reload79.222/77.997;
+prove-minus-witness/reload110.168/117.725 still includes sink/serialization.
+Initial digestload83.012/79.490,seal.020/.044; partial pre-prove load/seal
+fraction21.595%/20.341%, full startup/prefill fraction unmeasured.
+Inprocessverify93.356/92.741;freshverify96.103/90.935 includes82.836/77.702
+block reload, plus initial fresh load80.675/78.635. First fresh success
+load+check176.778/169.570;CPU verifier guard456.227 includes11controls, GPU
+169.595 no controls. All success markers/aggregate events inspected, not rerun.
+Receipt465,815,776B perarm;sampledRSS1.90/1.57GiB, GPUVRAM2369MiB.
+Diagnostic32/process rates.083216/.081781 positions/s; no resident/decode slope.
+Shape privacy acceptance and8B independent review remain open; no target credit.
+Full clocks/source qualification in
+[dated report](progress/20261017T132624Z-393ef603.md) and owner-accounting.json.
+
+Ranked:1 public authenticated setup/weight residency (actual8B loading);
+2 owner D/F device/driver work;3 tested small F arithmetic candidate;
+4 new next-local three-bracket F grouped equality seam. Borrowing retained
+for capacity, demoted for speed; every prior negative/privacy finding preserved.
+F-deletion ceiling on earlier1.1B T128 GPU diagnostic1.137x. New8B F subclock
+absent. Deleting all new8B proof-minus-witness/reload caps cold-process ratio
+1.402xCPU/1.430xGPU, with other costs fixed; no5090 prediction. Need owner native
+shape/byte/RNG/PCS/transcript/privacy/fresh-verifier gates and enclosing A/B.
+Next local:complete F grouped-bracket oracle; next owner:review candidate and
+profile8B/public immutable reuse with real memory/lag/drain/serialization clocks.
+
+Target-compliant accepted private8B proofs/passes/positions **0/0/0**; distinguish
+the newly completed, freshly verified owner functional diagnostics above.
+Steady-state, full startup fraction, serialization, latency/lag/drain remain
+unmeasured. No long-context sweep/resident repeat/decode here. Larger workloads
+remain allowed with fresh masks; dense attention scales quadratically with
+context. >=50 proved tokens/s unchanged/unachieved. Research only; production,
+runtime,Git,calibration,receipts,gates,instructions/reviewer files untouched.
+
+
+Cycle0063 final addendum: live layout.rs/shape.rs changed with owner CS-8 validation methods. Initial final live-pin audit failed; exact drift/failure retained in experiment. Captured F argument/field stayed pinned; local results bind captured snapshot only. Rebase/review before native integration.
+
+
+## Cycle0064 — current F three-bracket grouped arithmetic, 2026-10-17
+
+Run `20261017T142624Z-6b84b6ef`. New captured F source test, not a repeat of
+generic equality algebra: B0 degree3; two host brackets degree1 unpadded/2
+padded. Current ClosureRounds.recover_one(None) baseline is retained and
+independently compared to unoptimized rounds and GroupedEqRounds. Full
+original-cube arbitrary-integer checks include off-grid extension points,
+actual zero-factor fallbacks and separate extension-like polynomial rows.
+72fixtures,1600 cross-evaluator round values,960 independent cube values,
+1512terminal words,512bracket values,128extension-like values,12controls pass;
+190recoveries/98fallbacks. Independent290-check degree/source/work audit passes.
+Run7.059977s/74824KiB; compiler149768KiB; audit0.005162s/16112KiB. Seed2026101764,
+IntelCoreUltra9 185H/CPU0,one thread,nice19,59s/512MiB limits. Native Rayon
+substituted with serial iteration. No native crate/proof/transcript/PCS/privacy
+or device gate. Three corrected harness/audit failures retained.
+
+For H=2^(n-1), current full closure9H-4 calls; main bracket7H-3; each host
+3H-1 unpadded/5H-2 padded. Added split Eq setup, weighting/interpolation,
+up to3(n-1) inversions and subgroup state. Original tables/folds remain.
+Small N16 grouped is slower (baseline/grouped0.633/0.731). N256/4096/8192
+ratios1.034–1.423; N8192 crosses the serialized chunk cutoff and padded gain
+falls to1.031. Shared-host microtiming, not a stable factor or native rate.
+Do not multiply it by the prior constant rewrite or a device forecast.
+
+Unapplied `handoffs/20261017-fzc-grouped-equality.md` identifies argument.rs
+SC_FZC + existing GroupedEqRounds. Native correctness/bytes/masks/RNG/PCS/M/
+shape-privacy and fresh-receipt verification remain owner gates. Active owner
+F-device work takes precedence; no duplicate production edit or GPU job here.
+Deleting ALL masked F16.457s from prior1.1B GPU161.857226s caps gain1.113184x;
+whole F19.484s deletion caps1.136852x. No actual8B F subclock or5090 evidence.
+
+Current owner public table/phase records re-read/pinned;8B T32 onepass perarm
+384.542564CPU/391.287091GPU seconds, witness18.629/18.109, inclusiveproof208.019/
+213.831 includes reload79.222/77.997 and remaining110.168/117.725. Diagnostic
+32/process0.083216/0.081781. Partial startup load+seal21.595%/20.341%; full
+startup/prefill and serialization isolated clocks absent. Fresh check96.103/
+90.935 plus initialload80.675/78.635. Owner functional freshlyverified stack
+evidence remains distinct from target credit; shapeprivacy/8Breview open.
+Accepted newlyproved targetpositions0. No resident/decode/longprefill result.
+
+Six LIVE primary records appended (331total). NEW older Arkworks product-list
+prover is common-degree, adjacent-pair/MSB incompatible without translation;
+not transplanted. Concrete Plonky3Eq PR has author small-shape and parallel
+regressions and a one-product Eq fill; local harness deliberately keeps native
+two-product fill. October preparation studies do not license private/mask
+reuse. Failed target commit/docs/license fetches explicitly retained.
+
+Rank:1owner F/D device arithmetic with full-workload costs;2owner immutable
+public residency across fresh complete passes;3tested F grouping, keep small
+negative;4NEW local audit of F-device logical-term bandwidth numerator versus
+actual table/buffer/DRAM traffic and arithmetic cost. No expected speed without
+measured subclocks/counters. Next local: source-captured buffer census, then
+lookup/softmax/composition rotation. Full dated report and limits retained.

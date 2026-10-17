@@ -221,8 +221,12 @@ fn prove_tampered_for(blk: &BlockPublic, input: &[i16], edit: impl FnOnce(&FeedF
     edit(blk.feed_forward(), &mut w);
     let output = w.output().unwrap_or(honest);
     let (expected, owners) = prepare_endpoints(spec(), input, &output).unwrap();
-    // the prover does not pre-check any relation: a false witness still yields
-    // a receipt, and that receipt must not verify
+    // a CHEATING prover pre-checks no relation: a false witness still yields
+    // a receipt, and that receipt must not verify. (Since stage 40, ruling
+    // CS-3 — ported in native round 5 — the HONEST prover refuses a lookup
+    // miss by name; the switch below turns that off, as a cheating prover
+    // would.)
+    let _cheating = super::protocol::CheatingProver::on();
     let (receipt, stats) = prove_inner(blk, w, &expected, owners)?;
     verify_inner(blk, &expected, &receipt).map(|_| stats)
 }
@@ -706,7 +710,11 @@ fn a_moved_activation_multiplicity_is_rejected_by_the_logup_sum_claim() {
     assert!(recompute_from_product(&mut w, ff));
     let output = w.output().expect("the tampered output is in class");
     let (expected, owners) = prepare_endpoints(spec(), &input, &output).unwrap();
-    let (receipt, stats) = prove_inner(&blk, w, &expected, owners).expect("the prover does not pre-check any relation");
+    // since stage 40 (ruling CS-3, ported in native round 5) only a CHEATING
+    // prover skips the lookup check
+    let cheating = super::protocol::CheatingProver::on();
+    let (receipt, stats) = prove_inner(&blk, w, &expected, owners).expect("a cheating prover does not pre-check any relation");
+    drop(cheating);
     // the TOTAL is preserved: one unit moved between rows, nothing created
     assert_eq!(stats.act_lookups, 512, "the activation histogram totals the Dom::F cube");
     let err = verify_inner(&blk, &expected, &receipt).expect_err("a moved activation multiplicity VERIFIED");

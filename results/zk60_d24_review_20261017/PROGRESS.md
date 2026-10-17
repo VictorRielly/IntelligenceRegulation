@@ -154,3 +154,59 @@ No git. Heavy jobs through scripts/zk60_resource_guard.py.
   pins, R-5): 91 passed, 0 failed, 6 ignored.
 - 10:18 UTC: round 2 closed; findings in the hand-back. Nothing of mine is
   running. Scratch artefacts: ops/zkp-mvp/trained-1b-review-r2-scratch/.
+
+## ROUND 3 (re-review of ops/zkp-mvp/trained-1b-review-r3/)
+
+- 13:33 UTC: opened. r3 sha256 list: 195 entries, all OK. Guard status:
+  heavy/build free, one calibration light job (4.5 GiB). Read the author's
+  PROGRESS Round 3 and Round 4 sections.
+- 13:45 UTC: read r2->r3 diff (r2-vs-r3.patch, 4,103 lines; changes only in
+  private_block: shape, layout, protocol, run, trained_block,
+  trained_statement, witness + tests). Scratch r3 copy created; new
+  review_r3_tests.rs (r3_1 R2-a, r3_2 endpoint lies, r3_3 CS-6 at the library
+  level) and a scratch-only child module in trained_block.rs (r3_4 TOCTOU
+  between the digest pass and the reload); write_stack_export made
+  pub(super) (scratch).
+- 13:41 UTC (CORRECTION: the entry above stamped 13:45 was really ~13:37):
+  r3-fast done (exit 0, r3-fast.log, 4 passed). r3_1: R2-a CLOSED (the
+  non-door trained-string shape at f_e 50 and at f_e 12 is refused by
+  Layout::for_shape and by single_block_profile_allowed; a frozen rung-C6
+  edited to f_e 50 is refused by the universal softmax-window check). r3_2:
+  in a two-block bound run at the rung, an input endpoint sealed one word off
+  is rejected at slot 21, an output endpoint one word off at slot 22, and a
+  DIFFERENT chain proved under the honest chain's sealed endpoints at slot 21
+  (a different honest chain with its own endpoints verifies: the prover
+  seals, D18). r3_3: CS-6 at the LIBRARY level — a statement over blocks A,
+  prover and verifier both handed blocks B (one gain word of block 1 moved):
+  run::verify_run ACCEPTS; the same proof against the statement's blocks A is
+  rejected. r3_4: TOCTOU between the stack's digest pass and the per-block
+  reload — refused in all three cases (manifest digest vs profile.json;
+  with no manifest digests in profile.json, the BlockCache's block-digest
+  check; array SHA vs manifest).
+- 13:38 UTC: reviewer_nowrap_r3.py (light, exit 0): at TinyLlama T32/T64/
+  T128 and Llama-3-8B T32 every geometry-dependent clause at the class
+  extremes is at most 2^48.039 (norm C0); score sums of 128 products 2^21;
+  down over f_pad 16384 2^36; softmax c2 at f_e 16 <= 2^33; LogUp
+  multiplicities tiny. 8B: D_max 2,097,152 (ceps 78617) -> window 32, max tn
+  9 for every ceps in the class, 2 D_max < 2^24.
+- 13:42 UTC: queued r3_queue.sh (serial, each leaf guarded): the author's
+  tests with my r3 binary, then a fresh-process stack-verify of the author's
+  32-block Llama-3-8B artifact with the r4 CLI (sha256 ca736d48...; its 159
+  manifest sources equal the r3 frozen copy except s25_tests.rs).
+- 13:56 UTC: r3_queue.sh done. r3-controls (the author's tests with my r3
+  binary): 99 passed, 0 failed, 10 ignored — incl. review_d24_tests (A-H,
+  r2_1, r2_b, the T -> profile mapping, G corner), r4_tests (8B counted
+  layouts, tn 9 at width 4096, RoPE + checkpoint pinned per profile, the 8B
+  table digests), trained_stack_tests (3-layer stack, 11 controls, boundary
+  lie), witness_speed (parallel == sequential at the rung), s24/s25/s33
+  registry + hash-length census with the T64/T128/8B strings, slot-IR pins,
+  toy pins, archived toy receipt, R-5. r3-8b-fresh-verify: the r4 CLI
+  stack-verify of the author's 32-block Llama-3-8B artifact in a fresh
+  process: "verified", 465,815,776 B, statement 259dad7c..., load 81.7 s,
+  verify 95.3 s (81.5 s of it block reloads), VmHWM 989 MiB.
+- 14:00 UTC: r3-art (build + ignored test r3_5, exit 0): a 2-layer rung
+  stack export + proved run directory under the r3 scratch review_out/stack2
+  (identity 72098637...), for the resource check with the production CLI.
+- 14:10 UTC: the production-CLI stack-verify (honest, --controls) and the
+  /dev/zero-segment check are queued for admission (budget full: the
+  calibration lane's 4.5 GiB light job + another lane's 7 GiB cpu job).
