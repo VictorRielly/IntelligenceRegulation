@@ -1,0 +1,10 @@
+capture-l1-dense exit 0
+capture-l1-zero exit 0
+predict-v1 exit 1
+predict-v2-dense exit 1
+predict-v2-zero exit 1
+tl-l1-dense-a exit 0
+tl-l1-zero-a exit 0
+tl-controls-l1-dense exit 0
+tl-l1-dense-everything exit 1
+tl-l2-zero-everything exit 1

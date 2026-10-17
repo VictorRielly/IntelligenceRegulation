@@ -1,0 +1,32 @@
+[load          ]     10.2 s   peak RSS     860 MB   ok
+[replay        ]      7.2 s   peak RSS     860 MB   ok
+[hash          ]      4.2 s   peak RSS     860 MB   ok
+[terminals     ]     69.3 s   peak RSS     860 MB   ok
+[commitments   ]     56.8 s   peak RSS    1103 MB   ok
+[boundary      ]    352.4 s   peak RSS    5662 MB   ok
+[preimage      ]      1.8 s   peak RSS    5662 MB   ok
+[channels      ]      0.0 s   peak RSS    5662 MB   ok
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/l22/tl-l22-dense-a.json   total 501.9 s   peak RSS 5662 MB   ok=True
+	Command being timed: "python3 /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/scripts/zk60_native_rg_m125.py --bundle /home/victor/zk60-artifacts/tinyllama-trained-capture-dense-l22 --stages load,replay,hash,terminals,commitments,boundary,preimage,channels --evidence /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/l22 --name tl-l22-dense-a"
+	User time (seconds): 495.54
+	System time (seconds): 6.63
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 8:22.43
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 5797756
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 2814733
+	Voluntary context switches: 106
+	Involuntary context switches: 455617
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

@@ -1,0 +1,4 @@
+[zk60-guard 05:55:47] START tl-equivalence-k4-v3 class=light need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=b198c323822c
+[zk60-guard 05:56:49] END tl-equivalence-k4-v3 exit=0 child_wall=62s peak_rss=0.28G min_avail=9.80G
+[zk60-guard 05:56:49] START tl-tl-l1-dense-runcontrols class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=57caac2b1c0e
+[zk60-guard 05:57:21] END tl-tl-l1-dense-runcontrols exit=1 child_wall=33s peak_rss=0.38G min_avail=9.80G

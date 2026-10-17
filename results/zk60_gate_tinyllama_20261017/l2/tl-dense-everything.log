@@ -15,3 +15,9 @@
 [commitments   ]     19.1 s   peak RSS     179 MB   ok
 [boundary      ]      2.6 s   peak RSS     188 MB   ok
 [preimage      ]      0.3 s   peak RSS     188 MB   ok
+[fullpreimage  ]    901.7 s   peak RSS     583 MB   ok
+[mask          ]     49.9 s   peak RSS     709 MB   ok
+[joint         ]      0.0 s   peak RSS     709 MB   ok
+[runcontrols   ]     27.6 s   peak RSS     709 MB   FAIL
+[channels      ]      0.0 s   peak RSS     709 MB   ok
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/l2/tl-dense-everything.json   total 1093.5 s   peak RSS 709 MB   ok=False

@@ -1,0 +1,15 @@
+{
+  "checkpoint_utc": "2026-10-17T11:39:04.976090+00:00",
+  "source_records_before": 309,
+  "source_records_after": 315,
+  "source_prefix_sha256": "5809b21e8c68641807aa5c2d5bcdd56c0ef8f6d236c7e39004d62378dc866616",
+  "findings_prefix_sha256": "5af32d8603c8d279451f7f606fedeeb3b36232c49f61a57fcc933e4bc5710041",
+  "new_source_ids": [
+    "cycle61-hybridspartan-october14-proof-size-cost-correction",
+    "cycle61-new-older-sublinear-space-merkle-transcript-boundary",
+    "cycle61-new-hc-stark-resource-bounds-and-version-scope",
+    "cycle61-epfl-unreleased-rewrite-and-rate-limited-pin",
+    "cycle61-cuda-ntt-invalid-hierarchy-negative-preserved",
+    "cycle61-october-algebraic-geometry-primary-access-blocked"
+  ]
+}

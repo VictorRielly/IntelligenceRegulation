@@ -107,8 +107,22 @@ both be reported. Never describe a single block as a complete-model pass.
   profile digest, every block digest, the calibration, `f_e` and the RoPE base.
   `results/zk60_1b_native_20261017/r2/stack-pg_rot1-ho00-cpu/`. Conditional on
   the round-2 re-review (running). Blocks only (D13); T32 only.
-- [ ] Complete the relevant privacy/soundness review. Verification alone
+- [~] Complete the relevant privacy/soundness review. Verification alone
   does not complete this item; D22 currently covers only the CPU toy.
+  Soundness: D24 + trained profile/loader accepted after two independent
+  review rounds (2026-10-17). Privacy evidence (2026-10-17, gate ported to the
+  trained T32 profile, `results/zk60_gate_tinyllama_20261017/`): per-commitment
+  disclosure A 0, H 2 (= public LogUp identity), endpoints 0, boundaries 0,
+  M 0 at L = 1, 2 and 22 (joint = sum of parts); blinding reproduced from
+  all-zero data with 0 differing (2.25 M entries at L = 2); joint assignment 0
+  differing; 98,822 challenges re-derived and 22,784 opened columns re-hashed
+  at L = 22; every control family fires; port equivalence on a frozen bundle
+  (5,261 fields, 0 unexplained). Open before an acceptance can be considered:
+  a privacy statement draft with the three arguments re-read at this layout,
+  the L = 22 all-zero capture and full joint arm, port of the 125M lane's
+  refusal/binding rulings CS-1..CS-9 (CS-6 statement-to-block binding) and
+  pinning three prover files (G-1/G-2), Victor's D23 ruling, and an
+  independent adversarial review. CPU-path receipts only.
 - [~] Run matched CPU/GPU full-stack measurements and the context/pass ladder,
   counting each proved position once, with no silent GPU fallback.
   2026-10-17, T32 only, same 22-block `pg_rot1` stack [MEASURED, shared box,

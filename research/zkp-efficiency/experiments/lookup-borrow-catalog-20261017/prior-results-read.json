@@ -1,0 +1,40 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/witness-plane-lifetimes-20261017/result.json",
+    "sha256": "04c9ce6970dd78b73817fbdb21261ad1c3bd3d3b7ef89587fc1522ed6ee82c6b",
+    "status": "pass",
+    "counts": {
+      "fixtures": 72,
+      "plane_checks": 5928,
+      "word_checks": 293384
+    },
+    "scope": "Python synthetic assembly and independent sparse last-write oracle; source counts and retained owner log audit; no native compile/proof/fresh verification"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/exact-witness-limb-census-20261017/result.json",
+    "sha256": "ae8a3420835d7c86483c8cd6e34154dea3cf4665385ebb21c78c72d828d411ca",
+    "status": "pass",
+    "counts": {
+      "fixtures": 200,
+      "raw_dot_reference_checks": 17820,
+      "kernel_output_checks": 59496,
+      "requant_reference_checks": 318888,
+      "padding_checks": 6348
+    },
+    "scope": "synthetic C helpers and Python arbitrary-integer reference; native source-loop census and existing public logs only; no Rust/native build, proof, fresh verify, GPU or privacy gate"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/trained-phase-accounting-20261017/result.json",
+    "sha256": "f1c759a6ba3af990a4b3b24ea3484434dca95d32c2904198af427f786cdaa919",
+    "status": "pass",
+    "counts": {
+      "retained_independent_block_diagnostics": 22,
+      "fresh_verifier_log_pairs": 22,
+      "accounting_reference_checks": 16219,
+      "synthetic_traces": 200,
+      "synthetic_spans": 16000,
+      "negative_controls": 15
+    },
+    "scope": "Read-only audit of existing public timing/size metadata. No fresh verification or native performance reproduction; no linked stack claim. Current stack source differs from t5 sources."
+  }
+]

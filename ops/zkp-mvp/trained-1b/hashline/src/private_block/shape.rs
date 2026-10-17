@@ -75,9 +75,16 @@ pub(crate) const TINYLLAMA_T128_TRAINED_PROFILE: &str = "hashline-zk-mr1/private
 /// the trained TinyLlama profiles: the pinned checkpoint's, at each
 /// registered context length
 pub(crate) const TINYLLAMA_TRAINED_PROFILES: [&str; 3] = [TINYLLAMA_T32_TRAINED_PROFILE, TINYLLAMA_T64_TRAINED_PROFILE, TINYLLAMA_T128_TRAINED_PROFILE];
+/// **ROUND 4 (R4-1): the Llama-3-8B block geometry under a trained
+/// calibration at T = 32** (NousResearch/Meta-Llama-3-8B at revision
+/// 315b2009: width 4096, FFN 14336 padded to 16384, 32 query heads of 128
+/// over 8 key-value heads, RoPE base 500000). The same trained door and the
+/// same declared classes as TinyLlama; at width 4096 the validator derives
+/// `tn <= 9`. Its own profile (D17).
+pub(crate) const LLAMA3_8B_T32_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-llama-3-8b-t32-trained/1";
 /// the profiles [`Shape::with_trained_calibration`] may give a non-frozen
 /// calibration to; every other profile's calibration is frozen
-pub(crate) const TRAINED_CALIBRATION_PROFILES: [&str; 4] = [TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIB_RUNG_PROFILE, TINYLLAMA_T64_TRAINED_PROFILE, TINYLLAMA_T128_TRAINED_PROFILE];
+pub(crate) const TRAINED_CALIBRATION_PROFILES: [&str; 5] = [TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIB_RUNG_PROFILE, TINYLLAMA_T64_TRAINED_PROFILE, TINYLLAMA_T128_TRAINED_PROFILE, LLAMA3_8B_T32_TRAINED_PROFILE];
 const INT16_MAX: i128 = 32_767;
 /// the absolute endpoint of signed int16 (`-32768`), used by the TRAINED
 /// calibration rule only; every frozen profile keeps the historical 32767
@@ -137,6 +144,26 @@ pub(crate) const TRAINED_EXP_E_S_RANGE: std::ops::RangeInclusive<i32> = -8..=8;
 /// table VALUES are `round(2^F_RO cos/sin)` in `[-128, 128]` for any base, so
 /// no field premise depends on it.)
 pub(crate) const TRAINED_ROPE_THETA: f64 = 10_000.0;
+/// ROUND 4 (R4-1): Llama-3-8B's `rope_theta`
+pub(crate) const LLAMA3_8B_ROPE_THETA: f64 = 500_000.0;
+/// ROUND 4 (R4-1): the 8B T32 row width, `2^13` (21 endpoint rows, as every
+/// TinyLlama rung); the counted alternatives are in
+/// `r4_tests::the_llama3_8b_counted_layouts`
+pub(crate) const LLAMA3_8B_LOG_COLS: usize = 13;
+
+/// **The RoPE base pinned PER PROFILE** (round 4): 10000 for the TinyLlama
+/// profiles and the development rung, 500000 for Llama-3-8B; `None` for a
+/// profile with no trained calibration. An export or statement naming any
+/// other base is refused.
+pub(crate) fn trained_rope_theta(profile: &str) -> Option<f64> {
+    if profile == LLAMA3_8B_T32_TRAINED_PROFILE {
+        Some(LLAMA3_8B_ROPE_THETA)
+    } else if TRAINED_CALIBRATION_PROFILES.contains(&profile) {
+        Some(TRAINED_ROPE_THETA)
+    } else {
+        None
+    }
+}
 
 /// **A trained calibration, as declared**: the norm constants (`tn`, the two
 /// multipliers, `Ceps`) and the requantization shifts the relations read
@@ -1314,6 +1341,40 @@ impl Shape {
     /// for every int16 input and every `ceps` in the class.
     pub(crate) fn tinyllama_t32_trained(cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
         Shape::tinyllama_trained(32, cal, f_e)
+    }
+
+    /// **ROUND 4 (R4-1): THE TRAINED Llama-3-8B BLOCK SHAPE at T = 32.** Row
+    /// width [`LLAMA3_8B_LOG_COLS`], endpoint rows from the padded cube at that
+    /// width plus the mask rows. The FFN pads 14336 to 16384 and the head
+    /// axis is 32 slots of 128 (no padded head), the key-value groups of 4.
+    pub(crate) fn llama3_8b_t32_trained(cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
+        Shape::llama3_8b_t32_at(LLAMA3_8B_LOG_COLS, cal, f_e)
+    }
+
+    /// the same geometry at another row width (the counted-layout choice;
+    /// one profile string, so only [`LLAMA3_8B_LOG_COLS`] is proved)
+    pub(crate) fn llama3_8b_t32_at(log_cols: usize, cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
+        Shape::check_f_e_class(32, f_e)?;
+        let rows = ((32 * 4096) >> log_cols) + super::endpoint_g::MASK_ROWS;
+        Shape::new(
+            "Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads)",
+            LLAMA3_8B_T32_TRAINED_PROFILE,
+            32,
+            4096,
+            14336,
+            32,
+            128,
+            8,
+            log_cols,
+            4,
+            f_e,
+            rows,
+            None,
+            None,
+            None,
+            None,
+        )?
+        .with_trained_calibration(cal)
     }
 
     /// **ROUND 3 (R3-2): the trained TinyLlama shape at a registered context

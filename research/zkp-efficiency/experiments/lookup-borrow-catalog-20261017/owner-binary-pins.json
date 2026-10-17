@@ -1,0 +1,12 @@
+{
+  "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r3/zk60_trained_block.release.bin": {
+    "sha256": "3a106486d8d6cd2dbd900e605f4e036f3b799c66cea7af72d3e9b78afe287f36",
+    "bytes": 1862904,
+    "scope": "file identity at final inspection; owner launcher names this binary; no reexecution or rebuild"
+  },
+  "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r3/zk60_trained_block.gpu.release.bin": {
+    "sha256": "5c7a6c9f6acc78ffe831ee380ce3920c3db7e81ba1110dc32f86de3de3f313b3",
+    "bytes": 2380512,
+    "scope": "file identity at final inspection; owner launcher names this binary; no reexecution or rebuild"
+  }
+}

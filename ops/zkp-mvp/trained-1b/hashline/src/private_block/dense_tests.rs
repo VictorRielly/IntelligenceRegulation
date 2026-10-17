@@ -209,7 +209,9 @@ fn tame_words(s: &Shape) -> ([Vec<i8>; 9], Vec<i16>) {
 
 /// the public statement of any nine words at a shape
 pub(super) fn statement_of_words(s: &Shape, w: &[Vec<i8>; 9]) -> (AttentionPublic, FeedForwardPublic) {
-    let (cos, sin) = crate::tables_attn::rope_tables_generate(s.tokens, s.head_dim, 10000.0, F_RO);
+    // ROUND 4: the RoPE base pinned for the shape's profile (500000 at the
+    // Llama-3-8B profile; 10000 everywhere else, as before)
+    let (cos, sin) = crate::tables_attn::rope_tables_generate(s.tokens, s.head_dim, super::shape::trained_rope_theta(s.profile).unwrap_or(10000.0), F_RO);
     let (exp, _) = crate::tables_attn::exp_member(0, s.head_dim, s.f_e);
     let (act, _) = crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, -3, -11).expect("frozen SiLU int16-out member");
     let aw = super::grow_tests::pad_attention_weights(s, &w[0], &w[1], &w[2], &w[3], &w[4]);

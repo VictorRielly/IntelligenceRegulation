@@ -1,0 +1,25 @@
+{
+ "what": "THE HAND PREDICTION and the COST PROJECTION for the trained TinyLlama 22-block bound run (all of pg_rot1_export_T32, layers 0..22, held-out ho00 -- the stack the native lane proved at 09:47 UTC), written 2026-10-17 ~11:47 UTC BEFORE the 22-block bundle exists. Dense only: at L = 1 and L = 2 the dense and the all-zero bundles differ in the sampled-column class and nothing else.",
+ "laws_from_L1_and_L2_records": {
+  "per_stage_challenges": "722 + 48 (M proximity) + A (120 + 1729) + H (50 + 1798) = 4467",
+  "per_endpoint_opening": "1 + 21 = 22 challenges", "per_boundary_opening": "2 + 22 = 24 challenges",
+  "positions": "1 + 118 L + 2 (3L + 1)",
+  "final_counter": "challenges + 64 (4L + 1)",
+  "generators": "104 + 102 (L - 1)  (L=1: 104, L=2: 206, measured)",
+  "coordinate_classes": "3567 L + 20  (L=1: 3587, L=2: 7154, measured)",
+  "pcs_roots": "3L + 1  (the integrity figure counts PCS openings, not M -- the L = 1 prediction's 5 was WRONG, the record says 4; corrected here before L = 22)"
+ },
+ "P1_integrity": {"blocks": 22, "boundaries": 21, "distinct_roots": 67, "manifest_files": 5, "findings": 0},
+ "P2_replay": {"positions": 2731, "challenges": 98822, "final_counter": 104518, "position_tags": 44, "run_binding_reproduced": true},
+ "P3_hash_layer": {"openings": 89, "columns": 22784, "column_bytes": 162197504},
+ "P4_terminals": "506 of 506 (23 x 22), all equal to the stored polynomial; 22 stages of DIFFERENT public tables (per-layer exp e_s and SiLU members and weight folds), every one digest-checked",
+ "P5_per_commitment": {"A@k": "22 x 0", "H@k": "22 x 2 (the LogUp identity)", "B_k": "21 x 0, reserved rank 6 of 6 each", "endpoints": "2 x 0", "M@k": "22 x 0"},
+ "P6_whole_run": {"matrix": "2246 x 78494", "generators": 2246, "identified_rows": 704, "joint": "44 = sum of parts 44 (22 H at 2)", "k0": 0, "u_star": 44, "three_role_per_boundary": "joint 0 = sum 0 at each of 21"},
+ "P13": "not run (dense only)",
+ "costs_projected": {
+  "capture": "about 10 minutes (22 x 2 witness builds of about 10 s, 22 proofs of about 2.5 s, one verify) and about 3.5 GiB (22 padded blocks 1.3 GiB held once, the proof's 0.9 GiB, 255 MB of segments, the bundle under construction)",
+  "pass_A": "about 10-15 minutes; peak about 6.5 GB, set by the whole-run joint system (2,246 x 78,494 = 176 M cells against 125M L = 12's 189 M cells at 6.8 GB)",
+  "full_preimage_arm": "NOT RUN in this round: about 22 x 2 min plus its controls, about an hour"
+ },
+ "privacy_acceptance": false
+}

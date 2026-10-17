@@ -1,0 +1,27 @@
+{"event":"run_header","gpu":"gpu: off (built without --features gpu-cuda)","hl_gpu_required":false}
+{"event":"loaded","variant":"pg_rot1_b4_T64_cal128","layers":"0..22","blocks":22,"statement_identity":"c2a42c61f2d88113bbdfed0591323685246491acdfdf7bd198c0762d8f756e93","seconds":9.266,"hl_gpu":"unset","scope":"ALL the listed trained TinyLlama-1.1B-Chat blocks as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"}
+{"event":"sealed","from":"the export's layer-0 x_in and layer-21 x_out (parity is checked per layer in the proving pass)","seconds":0.013,"rayon_threads":16}
+{"event":"segment","index":0,"layer":0,"bytes":14999496,"elapsed_seconds":3.226,"vmhwm_mib":2854}
+{"event":"segment","index":1,"layer":1,"bytes":15136712,"elapsed_seconds":6.334,"vmhwm_mib":2881}
+{"event":"segment","index":2,"layer":2,"bytes":15136712,"elapsed_seconds":9.394,"vmhwm_mib":2908}
+{"event":"segment","index":3,"layer":3,"bytes":15136712,"elapsed_seconds":12.619,"vmhwm_mib":2932}
+{"event":"segment","index":4,"layer":4,"bytes":15136712,"elapsed_seconds":15.845,"vmhwm_mib":2936}
+{"event":"segment","index":5,"layer":5,"bytes":15136712,"elapsed_seconds":18.999,"vmhwm_mib":2947}
+{"event":"segment","index":6,"layer":6,"bytes":15136712,"elapsed_seconds":22.171,"vmhwm_mib":2955}
+{"event":"segment","index":7,"layer":7,"bytes":15136712,"elapsed_seconds":25.389,"vmhwm_mib":2963}
+{"event":"segment","index":8,"layer":8,"bytes":15136712,"elapsed_seconds":28.686,"vmhwm_mib":2963}
+{"event":"segment","index":9,"layer":9,"bytes":15136712,"elapsed_seconds":31.868,"vmhwm_mib":2968}
+{"event":"segment","index":10,"layer":10,"bytes":15136712,"elapsed_seconds":35.095,"vmhwm_mib":2976}
+{"event":"segment","index":11,"layer":11,"bytes":15136712,"elapsed_seconds":38.273,"vmhwm_mib":2976}
+{"event":"segment","index":12,"layer":12,"bytes":15136712,"elapsed_seconds":41.450,"vmhwm_mib":2983}
+{"event":"segment","index":13,"layer":13,"bytes":15136712,"elapsed_seconds":44.607,"vmhwm_mib":2992}
+{"event":"segment","index":14,"layer":14,"bytes":15136712,"elapsed_seconds":47.775,"vmhwm_mib":2992}
+{"event":"segment","index":15,"layer":15,"bytes":15136712,"elapsed_seconds":50.970,"vmhwm_mib":2992}
+{"event":"segment","index":16,"layer":16,"bytes":15136712,"elapsed_seconds":54.009,"vmhwm_mib":2992}
+{"event":"segment","index":17,"layer":17,"bytes":15136712,"elapsed_seconds":57.205,"vmhwm_mib":2992}
+{"event":"segment","index":18,"layer":18,"bytes":15136712,"elapsed_seconds":60.367,"vmhwm_mib":2992}
+{"event":"segment","index":19,"layer":19,"bytes":15136712,"elapsed_seconds":63.555,"vmhwm_mib":2992}
+{"event":"segment","index":20,"layer":20,"bytes":15136712,"elapsed_seconds":66.755,"vmhwm_mib":2992}
+{"event":"segment","index":21,"layer":21,"bytes":15583144,"elapsed_seconds":69.916,"vmhwm_mib":2992}
+{"event":"parity","result":"bit-exact at every layer","layers":22,"words_per_layer":131072,"checked_in_the_proving_pass":true}
+{"event":"proved","gpu":"gpu: off (built without --features gpu-cuda)","gpu_declines":0,"blocks":22,"receipt_bytes":333316880,"prove_run_seconds":69.916,"of_which_witness_seconds":5.085,"witness_seconds_per_block":0.231,"rayon_threads":16,"in_process_verify_seconds":5.074,"sealing_pass_seconds":0.013,"load_seconds":9.266,"total_seconds":84.831,"vmhwm_mib":2992,"statement_identity":"c2a42c61f2d88113bbdfed0591323685246491acdfdf7bd198c0762d8f756e93","out":"/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r3/stack-pg_rot1_b4_T64_cal128-ho00-cpu/run"}

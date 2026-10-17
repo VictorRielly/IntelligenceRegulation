@@ -86,6 +86,8 @@ pub(crate) const RUN_PROFILE_TINYLLAMA_T32_TRAINED: &str = "hashline-zk-mr1/priv
 /// and T128 (one per shape, D17), named like T32's.
 pub(crate) const RUN_PROFILE_TINYLLAMA_T64_TRAINED: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t64-trained-statement/1";
 pub(crate) const RUN_PROFILE_TINYLLAMA_T128_TRAINED: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t128-trained-statement/1";
+/// ROUND 4 (R4-1): the run profile of the trained Llama-3-8B shape at T32.
+pub(crate) const RUN_PROFILE_LLAMA3_8B_T32_TRAINED: &str = "hashline-zk-mr1/private-run-llama-3-8b-t32-trained-statement/1";
 /// NATIVE LANE: the run profile of the trained-calibration development rung.
 pub(crate) const RUN_PROFILE_RUNG_TC: &str = "hashline-zk-mr1/private-run-rung-tc-t32-dev/1";
 
@@ -156,7 +158,8 @@ impl RunShape {
             p if p == TINYLLAMA_T32_TRAINED_PROFILE => RUN_PROFILE_TINYLLAMA_T32_TRAINED,
             p if p == TINYLLAMA_T64_TRAINED_PROFILE => RUN_PROFILE_TINYLLAMA_T64_TRAINED,
             p if p == TINYLLAMA_T128_TRAINED_PROFILE => RUN_PROFILE_TINYLLAMA_T128_TRAINED,
-            _ => return Err("private run: a trained TinyLlama run profile needs a trained TinyLlama shape".into()),
+            p if p == super::shape::LLAMA3_8B_T32_TRAINED_PROFILE => RUN_PROFILE_LLAMA3_8B_T32_TRAINED,
+            _ => return Err("private run: a trained-model run profile needs a trained TinyLlama or Llama-3-8B shape".into()),
         };
         if !sh.trained_calibration {
             return Err("private run: a trained TinyLlama run profile needs a trained TinyLlama shape".into());
@@ -211,7 +214,7 @@ impl RunStatement {
         // the SHAPE's own flag (it was a substring test on the run profile,
         // which let an unbound run at the trained-calibration rung absorb
         // `calibration_identity()`), and on the trained run profile by name.
-        if rs.sh.trained_calibration || [RUN_PROFILE_TINYLLAMA_T32_TRAINED, RUN_PROFILE_TINYLLAMA_T64_TRAINED, RUN_PROFILE_TINYLLAMA_T128_TRAINED, RUN_PROFILE_RUNG_TC].contains(&rs.profile) {
+        if rs.sh.trained_calibration || [RUN_PROFILE_TINYLLAMA_T32_TRAINED, RUN_PROFILE_TINYLLAMA_T64_TRAINED, RUN_PROFILE_TINYLLAMA_T128_TRAINED, RUN_PROFILE_LLAMA3_8B_T32_TRAINED, RUN_PROFILE_RUNG_TC].contains(&rs.profile) {
             return Err(format!("private run: {} is a trained-calibration run; it needs its trained-model statement (RunStatement::new_bound)", rs.profile));
         }
         let digests: Vec<Digest> = blocks.iter().map(|b| b.digest()).collect();
@@ -227,18 +230,26 @@ impl RunStatement {
     /// this is the only constructor; at the toy, the rungs and 125M it is
     /// never called, so none of their bytes moves.
     pub(crate) fn new_bound(rs: RunShape, context: Digest, expected: ExpectedIo, blocks: &[BlockPublic], block_scales: &[(i32, i32)], model: &super::trained_statement::TrainedModelStatement) -> Result<RunStatement, String> {
-        // review finding F-3: a model statement binds a TRAINED-calibration
-        // run only; a frozen profile keeps its synthetic calibration literal
+        let digests: Vec<Digest> = blocks.iter().map(|b| b.digest()).collect();
+        Self::new_bound_from_digests(rs, context, expected, digests, block_scales, model)
+    }
+
+    /// **ROUND 4: the same statement from the blocks' DIGESTS** (what the
+    /// statement holds of them), so a run whose public blocks do not fit in
+    /// memory together (32 Llama-3-8B blocks are 7.4 GB of padded int8) is
+    /// constructed without holding them; the prover and verifier then take
+    /// each block from a [`BlockSource`] that checks it against these digests.
+    pub(crate) fn new_bound_from_digests(rs: RunShape, context: Digest, expected: ExpectedIo, digests: Vec<Digest>, block_scales: &[(i32, i32)], model: &super::trained_statement::TrainedModelStatement) -> Result<RunStatement, String> {
         if !rs.sh.trained_calibration {
             return Err(format!("private run: {} is not a trained-calibration shape; a trained-model statement binds trained-calibration runs only", rs.sh.profile));
         }
-        let digests: Vec<Digest> = blocks.iter().map(|b| b.digest()).collect();
         if digests.len() != rs.l {
-            return Err(format!("private run: the statement is for {} blocks, {} public statements and {} scale pairs were given", rs.l, blocks.len(), block_scales.len()));
+            return Err(format!("private run: the statement is for {} blocks, {} block digests and {} scale pairs were given", rs.l, digests.len(), block_scales.len()));
         }
         model.check_against(&rs.sh, rs.profile, &digests, block_scales)?;
         let approved = model.calibration.block_scales;
-        Self::new_with_calibration(rs, context, expected, digests, blocks.len(), block_scales, model.identity(), approved)
+        let n = digests.len();
+        Self::new_with_calibration(rs, context, expected, digests, n, block_scales, model.identity(), approved)
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -620,12 +631,54 @@ fn words(v: &[i16]) -> Vec<Fp> {
 /// `MemorySink` keeps them (the development-rung tests) and `DirSink` writes
 /// each to its own file and keeps only a length and a SHA-256 (what a
 /// twelve-block 125M run, 484 MB of receipt, must use).
+/// **ROUND 4 (R4-3): where a run's public blocks come from.** A slice of
+/// resident blocks (every run before round 4, every one-block run), or a
+/// source that holds ONE block at a time and reloads the next on demand (the
+/// 32-block Llama-3-8B stack: 7.4 GB of padded public words do not fit
+/// beside the prover). A streaming source checks each block it hands out
+/// against the statement's digest of it. The proving and verifying paths are
+/// otherwise unchanged: block k is the same `&BlockPublic` they always read.
+pub(crate) trait BlockSource {
+    fn block(&mut self, k: usize) -> Result<BlockRef<'_>, String>;
+}
+
+/// one block, borrowed from a slice or shared out of a streaming cache
+pub(crate) enum BlockRef<'a> {
+    Borrowed(&'a BlockPublic),
+    Shared(std::sync::Arc<BlockPublic>),
+}
+
+impl std::ops::Deref for BlockRef<'_> {
+    type Target = BlockPublic;
+    fn deref(&self) -> &BlockPublic {
+        match self {
+            BlockRef::Borrowed(b) => b,
+            BlockRef::Shared(a) => a,
+        }
+    }
+}
+
+/// the resident blocks of every run before round 4
+pub(crate) struct SliceBlocks<'a>(pub &'a [BlockPublic]);
+
+impl BlockSource for SliceBlocks<'_> {
+    fn block(&mut self, k: usize) -> Result<BlockRef<'_>, String> {
+        self.0.get(k).map(BlockRef::Borrowed).ok_or_else(|| format!("private run: no public statement for block {k}"))
+    }
+}
+
 pub(crate) fn prove_run(st: &RunStatement, blocks: &[BlockPublic], src: &mut dyn RunWitnessSource, externals: Endpoints, sink: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>) -> Result<RunStats, String> {
-    use std::time::Instant;
-    let (sh, l) = (&st.rs.sh, st.rs.l);
+    let l = st.rs.l;
     if blocks.len() != l {
         return Err(format!("private run: {} public statements for {l} blocks", blocks.len()));
     }
+    prove_run_with(st, &mut SliceBlocks(blocks), src, externals, sink)
+}
+
+/// [`prove_run`] with the blocks from a [`BlockSource`] (ROUND 4)
+pub(crate) fn prove_run_with(st: &RunStatement, blocks: &mut dyn BlockSource, src: &mut dyn RunWitnessSource, externals: Endpoints, sink: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>) -> Result<RunStats, String> {
+    use std::time::Instant;
+    let (sh, l) = (&st.rs.sh, st.rs.l);
     protocol::fits_the_ntt_tables(sh)?;
     st.expected.spec.validate()?;
     let [ein, eout] = protocol::check_endpoints(sh, &st.expected, externals)?;
@@ -687,7 +740,8 @@ pub(crate) fn prove_run(st: &RunStatement, blocks: &[BlockPublic], src: &mut dyn
                 Some((_, p)) => p.data(),
                 None => &eout.as_ref().ok_or("private run: the output endpoint was already consumed")?.data,
             };
-            protocol::prove_core(sh, &lay, &blocks[k], wit, [in_data, out_data], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick)?
+            let blk = blocks.block(k)?;
+            protocol::prove_core(sh, &lay, &blk, wit, [in_data, out_data], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick)?
         };
         let [ic, oc] = core.io_claims;
         // the incoming commitment's claim list is complete NOW, and not before
@@ -750,7 +804,7 @@ pub(crate) fn prove_run(st: &RunStatement, blocks: &[BlockPublic], src: &mut dyn
 /// memory ceiling: see [`verify_run_from_dir`].
 struct RunVerifier<'a> {
     st: &'a RunStatement,
-    blocks: &'a [BlockPublic],
+    blocks: &'a mut dyn BlockSource,
     ntt: NttTables,
     e_params: PcsParams,
     e_zko: ZkOpts,
@@ -766,11 +820,8 @@ struct RunVerifier<'a> {
 impl<'a> RunVerifier<'a> {
     /// The run header, absorbed before any segment is looked at. `L` is the
     /// statement's — never a frame's.
-    fn start(st: &'a RunStatement, blocks: &'a [BlockPublic]) -> Result<RunVerifier<'a>, String> {
-        let (sh, l) = (&st.rs.sh, st.rs.l);
-        if blocks.len() != l {
-            return Err(format!("private run: {} public statements for {l} blocks", blocks.len()));
-        }
+    fn start(st: &'a RunStatement, blocks: &'a mut dyn BlockSource) -> Result<RunVerifier<'a>, String> {
+        let sh = &st.rs.sh;
         protocol::fits_the_ntt_tables(sh)?;
         st.expected.spec.validate()?;
         let ntt = NttTables::new(st.rs.ntt_log());
@@ -825,7 +876,9 @@ impl<'a> RunVerifier<'a> {
             a_open: &seg.a_open,
             h_open: &seg.h_open,
         };
-        let ([ic, oc], _) = protocol::verify_core(sh, &lay, &self.blocks[k], view, &self.ntt, &mut self.tr, &mut ph)?;
+        let blk = self.blocks.block(k)?;
+        let ([ic, oc], _) = protocol::verify_core(sh, &lay, &blk, view, &self.ntt, &mut self.tr, &mut ph)?;
+        drop(blk);
         match self.prev.take() {
             Some((spec, root)) => {
                 // the verifier's OWN pending claim, computed in stage k-1
@@ -966,6 +1019,12 @@ pub(crate) fn verify_run(st: &RunStatement, blocks: &[BlockPublic], segments: &[
     if blocks.len() != l {
         return Err(format!("private run: {} public statements for {l} blocks", blocks.len()));
     }
+    verify_run_with(st, &mut SliceBlocks(blocks), segments)
+}
+
+/// [`verify_run`] with the blocks from a [`BlockSource`] (ROUND 4)
+pub(crate) fn verify_run_with(st: &RunStatement, blocks: &mut dyn BlockSource, segments: &[Vec<u8>]) -> Result<(), String> {
+    let l = st.rs.l;
     if segments.len() != l {
         return Err(format!("private run: {} segments were offered, this run has {l}", segments.len()));
     }
@@ -992,6 +1051,13 @@ pub(crate) fn verify_run_from_dir(st: &RunStatement, blocks: &[BlockPublic], dir
     if blocks.len() != l {
         return Err(format!("private run: {} public statements for {l} blocks", blocks.len()));
     }
+    verify_run_from_dir_with(st, &mut SliceBlocks(blocks), dir)
+}
+
+/// [`verify_run_from_dir`] with the blocks from a [`BlockSource`] (ROUND 4):
+/// ONE segment and ONE block resident
+pub(crate) fn verify_run_from_dir_with(st: &RunStatement, blocks: &mut dyn BlockSource, dir: &std::path::Path) -> Result<(), String> {
+    let l = st.rs.l;
     let paths = run_sink::segment_paths(dir, l)?;
     let mut v = RunVerifier::start(st, blocks)?;
     for (k, p) in paths.iter().enumerate() {

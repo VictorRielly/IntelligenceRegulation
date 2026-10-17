@@ -1,0 +1,1 @@
+Final artifact audit assumed every historical source record has an id. Legacy schemas do not. Preserve the historical bytes and scope required-id/uniqueness checks to the five new records. No experiment or proof result changed.

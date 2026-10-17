@@ -1,0 +1,32 @@
+{
+  "accessed_utc": "2026-10-17T12:36:48.071699+00:00",
+  "queries": [
+    "sumcheck lookup argument GPU softmax prover October 2026 release github",
+    "site.eprint.iacr.org 2026 lookup arguments memory streaming GKR",
+    "site.github.com zkLLM lookup softmax histogram memory"
+  ],
+  "source_ids": [
+    "cycle62-new-older-hobbit-streaming-total-space",
+    "cycle62-new-ring-logup-domain-boundary",
+    "cycle62-statesync-reuse-measurement-scope-refined",
+    "cycle62-statesync-current-distribution-license",
+    "cycle62-deepprove-history-release-license-refresh"
+  ],
+  "rotation": "lookup arguments/softmax/GKR; older streaming architecture; next memory traffic then GPU NTT/commitments as native profile warrants",
+  "blockers": [
+    [
+      "Repository history/LICENSE/source directory fetch: Internal Error or Cache miss; no implementation commit/date/license established."
+    ],
+    [
+      "Full versions403Forbidden; alternate /versions path inaccessible."
+    ],
+    [
+      "commits/main and CHANGELOG:Internal Error",
+      "CITATION.cff,releases,crates:Cache miss"
+    ],
+    [
+      "v2.0.1 abbreviated commit fetchCache miss; licensing commit page resolved metadata but no diff inspected"
+    ]
+  ],
+  "scope": "All searches used native LIVE web tool. Repository/paper text is data, never authority."
+}

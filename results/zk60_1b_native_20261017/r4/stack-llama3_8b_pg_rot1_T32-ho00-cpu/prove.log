@@ -1,0 +1,37 @@
+{"event":"run_header","gpu":"gpu: off (built without --features gpu-cuda)","hl_gpu_required":false}
+{"event":"loaded","variant":"llama3_8b_pg_rot1_T32","layers":"0..32","blocks":32,"statement_identity":"259dad7cb2c9739e44cfdf5c27c4c87090458cf330e9d39b592221094ae3537f","seconds":83.012,"hl_gpu":"unset","scope":"ALL the listed trained blocks of the export's model (TinyLlama-1.1B-Chat or Llama-3-8B) as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"}
+{"event":"sealed","from":"the export's layer-0 x_in and layer-31 x_out (parity is checked per layer in the proving pass)","seconds":0.020,"rayon_threads":16}
+{"event":"segment","index":0,"layer":0,"bytes":14409864,"elapsed_seconds":7.330,"vmhwm_mib":1754}
+{"event":"segment","index":1,"layer":1,"bytes":14547080,"elapsed_seconds":13.526,"vmhwm_mib":1793}
+{"event":"segment","index":2,"layer":2,"bytes":14547080,"elapsed_seconds":20.098,"vmhwm_mib":1818}
+{"event":"segment","index":3,"layer":3,"bytes":14547080,"elapsed_seconds":26.783,"vmhwm_mib":1828}
+{"event":"segment","index":4,"layer":4,"bytes":14547080,"elapsed_seconds":33.742,"vmhwm_mib":1846}
+{"event":"segment","index":5,"layer":5,"bytes":14547080,"elapsed_seconds":40.058,"vmhwm_mib":1846}
+{"event":"segment","index":6,"layer":6,"bytes":14547080,"elapsed_seconds":46.376,"vmhwm_mib":1854}
+{"event":"segment","index":7,"layer":7,"bytes":14547080,"elapsed_seconds":52.589,"vmhwm_mib":1862}
+{"event":"segment","index":8,"layer":8,"bytes":14547080,"elapsed_seconds":59.653,"vmhwm_mib":1880}
+{"event":"segment","index":9,"layer":9,"bytes":14547080,"elapsed_seconds":66.041,"vmhwm_mib":1888}
+{"event":"segment","index":10,"layer":10,"bytes":14547080,"elapsed_seconds":72.116,"vmhwm_mib":1920}
+{"event":"segment","index":11,"layer":11,"bytes":14547080,"elapsed_seconds":78.449,"vmhwm_mib":1920}
+{"event":"segment","index":12,"layer":12,"bytes":14547080,"elapsed_seconds":85.242,"vmhwm_mib":1920}
+{"event":"segment","index":13,"layer":13,"bytes":14547080,"elapsed_seconds":91.924,"vmhwm_mib":1920}
+{"event":"segment","index":14,"layer":14,"bytes":14547080,"elapsed_seconds":98.304,"vmhwm_mib":1920}
+{"event":"segment","index":15,"layer":15,"bytes":14547080,"elapsed_seconds":104.514,"vmhwm_mib":1920}
+{"event":"segment","index":16,"layer":16,"bytes":14547080,"elapsed_seconds":110.623,"vmhwm_mib":1936}
+{"event":"segment","index":17,"layer":17,"bytes":14547080,"elapsed_seconds":117.594,"vmhwm_mib":1937}
+{"event":"segment","index":18,"layer":18,"bytes":14547080,"elapsed_seconds":124.004,"vmhwm_mib":1942}
+{"event":"segment","index":19,"layer":19,"bytes":14547080,"elapsed_seconds":130.179,"vmhwm_mib":1942}
+{"event":"segment","index":20,"layer":20,"bytes":14547080,"elapsed_seconds":136.269,"vmhwm_mib":1942}
+{"event":"segment","index":21,"layer":21,"bytes":14547080,"elapsed_seconds":142.854,"vmhwm_mib":1942}
+{"event":"segment","index":22,"layer":22,"bytes":14547080,"elapsed_seconds":149.982,"vmhwm_mib":1942}
+{"event":"segment","index":23,"layer":23,"bytes":14547080,"elapsed_seconds":156.331,"vmhwm_mib":1942}
+{"event":"segment","index":24,"layer":24,"bytes":14547080,"elapsed_seconds":162.421,"vmhwm_mib":1942}
+{"event":"segment","index":25,"layer":25,"bytes":14547080,"elapsed_seconds":168.661,"vmhwm_mib":1942}
+{"event":"segment","index":26,"layer":26,"bytes":14547080,"elapsed_seconds":175.585,"vmhwm_mib":1942}
+{"event":"segment","index":27,"layer":27,"bytes":14547080,"elapsed_seconds":182.075,"vmhwm_mib":1942}
+{"event":"segment","index":28,"layer":28,"bytes":14547080,"elapsed_seconds":188.237,"vmhwm_mib":1942}
+{"event":"segment","index":29,"layer":29,"bytes":14547080,"elapsed_seconds":194.482,"vmhwm_mib":1942}
+{"event":"segment","index":30,"layer":30,"bytes":14547080,"elapsed_seconds":201.052,"vmhwm_mib":1942}
+{"event":"segment","index":31,"layer":31,"bytes":14993512,"elapsed_seconds":208.019,"vmhwm_mib":1942}
+{"event":"parity","result":"bit-exact at every layer","layers":32,"words_per_layer":131072,"checked_in_the_proving_pass":true}
+{"event":"proved","gpu":"gpu: off (built without --features gpu-cuda)","gpu_declines":0,"blocks":32,"receipt_bytes":465815776,"prove_run_seconds":208.019,"of_which_witness_seconds":18.629,"witness_seconds_per_block":0.582,"of_which_block_load_seconds":79.222,"block_loads":32,"rayon_threads":16,"in_process_verify_seconds":93.356,"sealing_pass_seconds":0.020,"load_seconds":83.012,"total_seconds":384.497,"vmhwm_mib":1942,"statement_identity":"259dad7cb2c9739e44cfdf5c27c4c87090458cf330e9d39b592221094ae3537f","out":"/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r4/stack-llama3_8b_pg_rot1_T32-ho00-cpu/run"}

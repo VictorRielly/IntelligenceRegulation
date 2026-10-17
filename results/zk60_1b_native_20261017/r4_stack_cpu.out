@@ -1,0 +1,5 @@
+[zk60-guard 05:48:13] START r4-stack-8b-cpu class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=6ee5f2b69c16
+[zk60-guard 05:54:37] END r4-stack-8b-cpu exit=0 child_wall=385s peak_rss=1.90G min_avail=8.85G
+[zk60-guard 05:54:37] START r4-stack-8b-verify-cpu class=cpu need=2.5G cap=5G enforce=cgroup+watchdog waited=0s run=db6a03c9b41a
+[zk60-guard 06:02:14] END r4-stack-8b-verify-cpu exit=0 child_wall=456s peak_rss=1.61G min_avail=9.24G
+stack-verify cpu exit 0

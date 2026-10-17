@@ -1,0 +1,6 @@
+[zk60-guard 04:28:14] admission waiting: budget: 6+6 GiB > 11.9 GiB with live [b5-pg_T32(light,4.5G), tl-tl-zero-arms(light,1.5G)]
+[zk60-guard 04:29:14] admission waiting: budget: 6+6 GiB > 11.9 GiB with live [b5-pg_T32(light,4.5G), tl-tl-zero-arms(light,1.5G)]
+[zk60-guard 04:30:14] admission waiting: budget: 6+6 GiB > 11.9 GiB with live [b5-pg_T32(light,4.5G), tl-tl-zero-arms(light,1.5G)]
+[zk60-guard 04:30:50] START r4-generic-8b class=cpu need=6G cap=9G enforce=cgroup+watchdog waited=155s run=5fec93a7eaaf
+[zk60-guard 04:33:48] END r4-generic-8b exit=101 child_wall=178s peak_rss=1.71G min_avail=9.50G
+prove exit 101

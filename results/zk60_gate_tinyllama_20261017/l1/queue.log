@@ -1,0 +1,30 @@
+[zk60-guard 04:37:08] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 04:38:08] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 04:39:09] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 04:40:09] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 04:41:09] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 04:41:53] START tl-capture-l1-dense class=cpu need=2G cap=3.5G enforce=cgroup+watchdog waited=284s run=add985d09dc6
+[zk60-guard 04:42:18] END tl-capture-l1-dense exit=0 child_wall=25s peak_rss=0.82G min_avail=9.79G
+[zk60-guard 04:42:18] START tl-capture-l1-zero class=cpu need=2G cap=3.5G enforce=cgroup+watchdog waited=0s run=9b8e93f18b91
+[zk60-guard 04:42:44] END tl-capture-l1-zero exit=0 child_wall=26s peak_rss=0.81G min_avail=10.55G
+[zk60-guard 04:42:44] START tl-predict-v1 class=light need=1G cap=1.5G enforce=cgroup+watchdog waited=0s run=169772515499
+[zk60-guard 04:42:45] END tl-predict-v1 exit=1 child_wall=1s peak_rss=0.06G min_avail=11.88G
+[zk60-guard 04:42:45] START tl-predict-v2-dense class=light need=1G cap=1.5G enforce=cgroup+watchdog waited=0s run=2ad827fc97dd
+[zk60-guard 04:42:46] END tl-predict-v2-dense exit=1 child_wall=0s peak_rss=0.00G min_avail=11.79G
+[zk60-guard 04:42:46] START tl-predict-v2-zero class=light need=1G cap=1.5G enforce=cgroup+watchdog waited=0s run=5703a8c40bb8
+[zk60-guard 04:42:46] END tl-predict-v2-zero exit=1 child_wall=0s peak_rss=0.00G min_avail=11.70G
+[zk60-guard 04:42:46] START tl-tl-l1-dense-a class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=b7a2e9500180
+[zk60-guard 04:43:05] END tl-tl-l1-dense-a exit=0 child_wall=18s peak_rss=0.11G min_avail=9.87G
+[zk60-guard 04:43:05] START tl-tl-l1-zero-a class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=c3c63d6c7f81
+[zk60-guard 04:43:24] END tl-tl-l1-zero-a exit=0 child_wall=20s peak_rss=0.11G min_avail=9.19G
+[zk60-guard 04:43:25] START tl-tl-controls-l1-dense class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=e127f104b4ed
+[zk60-guard 04:43:46] END tl-tl-controls-l1-dense exit=0 child_wall=21s peak_rss=0.14G min_avail=9.68G
+[zk60-guard 04:43:46] admission waiting: budget: 10.5+1.5 GiB > 11.9 GiB with live [b5-pg_T32(light,4.5G), r4-generic-8b(cpu,6G)]
+[zk60-guard 04:44:46] admission waiting: budget: 10.5+1.5 GiB > 11.9 GiB with live [b5-pg_T32(light,4.5G), r4-generic-8b(cpu,6G)]
+[zk60-guard 04:45:46] admission waiting: budget: 10.5+1.5 GiB > 11.9 GiB with live [b5-pg_T32(light,4.5G), r4-generic-8b(cpu,6G)]
+[zk60-guard 04:46:46] admission waiting: budget: 10.5+1.5 GiB > 11.9 GiB with live [b5-pg_T32(light,4.5G), r4-generic-8b(cpu,6G)]
+[zk60-guard 04:47:46] admission waiting: budget: 10.5+1.5 GiB > 11.9 GiB with live [b5-pg_T32(light,4.5G), r4-generic-8b(cpu,6G)]
+[zk60-guard 04:48:01] START tl-tl-l1-dense-everything class=light need=1.5G cap=3G enforce=cgroup+watchdog waited=256s run=faac486e75a5
+[zk60-guard 05:00:32] END tl-tl-l1-dense-everything exit=1 child_wall=750s peak_rss=0.59G min_avail=9.84G
+[zk60-guard 05:00:32] START tl-tl-l2-zero-everything class=light need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=d1e720045614
+[zk60-guard 05:17:34] END tl-tl-l2-zero-everything exit=1 child_wall=1022s peak_rss=0.57G min_avail=8.60G

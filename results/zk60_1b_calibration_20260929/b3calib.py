@@ -114,11 +114,11 @@ def silu_member(e_in: int, e_out: int):
     return t, d
 
 
-def exp_generate(e_s: int, head_dim: int = 64, f_e: int = F_E) -> np.ndarray:
+def exp_generate(e_s: int, head_dim: int = 64, f_e: int = F_E, n: int = 256) -> np.ndarray:
     """hashline tables_attn.rs `exp_table_generate`."""
     lam = (2.0 ** e_s) / math.sqrt(head_dim)
     scale = 2.0 ** f_e
-    return np.array([math.floor(scale * math.exp(-float(d) * lam) + 0.5) for d in range(256)], dtype=np.int64)
+    return np.array([math.floor(scale * math.exp(-float(d) * lam) + 0.5) for d in range(n)], dtype=np.int64)
 
 
 def exp_digest(e_s: int, head_dim: int, f_e: int, table: np.ndarray) -> str:
@@ -131,8 +131,8 @@ def exp_digest(e_s: int, head_dim: int, f_e: int, table: np.ndarray) -> str:
     return hashlib.sha256(js.encode()).hexdigest()
 
 
-def exp_member(e_s: int, head_dim: int = 64, f_e: int = F_E):
-    t = exp_generate(e_s, head_dim, f_e)
+def exp_member(e_s: int, head_dim: int = 64, f_e: int = F_E, n: int = 256):
+    t = exp_generate(e_s, head_dim, f_e, n)
     assert t[0] == 1 << f_e and np.all((t >= 0) & (t <= 1 << f_e)) and np.all(np.diff(t) <= 0)
     return t, exp_digest(e_s, head_dim, f_e, t)
 
@@ -387,6 +387,7 @@ class Variant:
     cn_max: int = 65536           # contract-review no-wrap bound (HANDOFF: CN <= 65536)
     shapes: tuple = ("range", "smooth", "gamma")
     o16: bool = False             # B4-3 experiment (NOT native): o as int16 with SH_O = 1, SH_AO window 1..16
+    s16: bool = False             # B5 experiment (NOT native): score int16, SH_S = 1, exp table of 65536 rows
     f_e: int = 9                  # B4-3 experiment knobs: exp-table fractional bits (native shape field, 9)
     f_p: int = 9                  # and softmax probability bits (native F_P = SH_O = 9, coupled to the p limbs)
 
@@ -424,6 +425,8 @@ def variant_by_name(name: str, rotate: int | None = None, margin: float | None =
     for tok in name.split("+")[1:]:
         if tok == "o16":
             kw["o16"] = True
+        elif tok == "s16":
+            kw["s16"] = True
         elif tok.startswith("fe"):
             kw["f_e"] = int(tok[2:])
         elif tok.startswith("fp"):
@@ -481,7 +484,7 @@ def _pairmax(rm, heads):
     return np.maximum(r[:, :GEO.half], r[:, GEO.half:])
 
 
-def qk_scales(rmq, rmk, st, m, sh_qkv, sh_s, e_s_fixed, free, mc=3.0, m2=1.25):
+def qk_scales(rmq, rmk, st, m, sh_qkv, sh_s, e_s_fixed, free, mc=3.0, m2=1.25, s_cls=127.0):
     """The Q/K/score chain at one layer: per (kv head, RoPE pair) lower bounds
     (output range; no weight clipping), the exp-table exponent e_s, the score
     shift, and the scales with s_q,c s_k,c 2^SH_S = 2^e_s. None if a fixed
@@ -492,7 +495,7 @@ def qk_scales(rmq, rmk, st, m, sh_qkv, sh_s, e_s_fixed, free, mc=3.0, m2=1.25):
     Lk = np.maximum(rb(st["k_pair"], m, mc) / 127.0, sh * _pairmax(rmk, g.KV) / 127.0)
     need_P = float(np.max(Lq * Lk))
     raw = float(st["raw_kv"].max())
-    e_range = int(math.ceil(_l2(raw * m2 / 127.0) - 1e-9))
+    e_range = int(math.ceil(_l2(raw * m2 / s_cls) - 1e-9))
     if e_s_fixed is not None:
         e_s = e_s_fixed
         if free:
@@ -718,7 +721,7 @@ class AttnObjective:
         ey2 = ey2d.astype(np.float32)
         Wq, Wk, Wv = self.Wq * scale, self.Wk * scale, self.Wv * scale
         qk = qk_scales(np.abs(Wq).max(1), np.abs(Wk).max(1), st, var.m, self.sh_qkv, self.sh_s, self.e_s_fixed, self.free,
-                       var.margin_ch, var.m2)
+                       var.margin_ch, var.m2, 32767.0 if var.s16 else 127.0)
         if qk is None:
             return math.inf, None
         sq, sk = q_rows(qk["s_q"]), k_rows(qk["s_k"])
@@ -792,9 +795,13 @@ def _shift_mode(var, glob):
     if glob.shifts is not None:
         sh = dict(glob.shifts)
         sh["o"] = 1 if var.o16 else var.f_p
+        if var.s16:
+            sh["s"] = 1
         return False, sh
     sh = dict(NATIVE_SHIFTS)
     sh["o"] = 1 if var.o16 else var.f_p     # native: SH_O = F_P
+    if var.s16:
+        sh["s"] = 1
     return var.shifts in ("free", "profile"), sh
 
 
@@ -883,7 +890,8 @@ def solve_layer(W, st, var, s_x: float, s_x_out: float, glob: Globals, cache: di
     Wq_e = W["self_attn.q_proj.weight"].astype(WDT) * fold_a[None, :].astype(WDT)
     Wk_e = W["self_attn.k_proj.weight"].astype(WDT) * fold_a[None, :].astype(WDT)
     Wv_e = W["self_attn.v_proj.weight"].astype(WDT) * fold_a[None, :].astype(WDT)
-    qk = qk_scales(np.abs(Wq_e).max(1), np.abs(Wk_e).max(1), st, m, sh["qkv"], sh["s"], glob.e_s, free, var.margin_ch, var.m2)
+    qk = qk_scales(np.abs(Wq_e).max(1), np.abs(Wk_e).max(1), st, m, sh["qkv"], sh["s"], glob.e_s, free, var.margin_ch, var.m2,
+                   32767.0 if var.s16 else 127.0)
     if qk is None:
         raise ValueError("score chain infeasible at the profile e_s")
     e_s, sh["s"], s_q, s_k = qk["e_s"], qk["sh_s"], qk["s_q"], qk["s_k"]
@@ -891,7 +899,7 @@ def solve_layer(W, st, var, s_x: float, s_x_out: float, glob: Globals, cache: di
                     "s_fill_calib": qk["raw"] / (127.0 * 2.0 ** e_s), "qk_slack_bits_mean": 2 * float(np.mean(np.log2(qk["slack"])))}
     wq = qw_rows(Wq_e, q_rows(s_q) / 2.0 ** sh["qkv"], rep, "wq")
     wk = qw_rows(Wk_e, k_rows(s_k) / 2.0 ** sh["qkv"], rep, "wk")
-    exp_t, exp_d = exp_member(e_s, g.dh, var.f_e)
+    exp_t, exp_d = exp_member(e_s, g.dh, var.f_e, 65536 if var.s16 else 256)
 
     # ---------------- V / O / Wo per kv channel: s_v,c s_wo,(h,c) 2^SH_AO = s_x
     Lv = np.maximum(rb(st["v_max"], m, var.margin_ch) / 127.0, (2.0 ** sh["qkv"]) * np.abs(Wv_e).max(1) / 127.0)
@@ -956,6 +964,8 @@ def solve_layer(W, st, var, s_x: float, s_x_out: float, glob: Globals, cache: di
     P_int.e_s, P_int.silu, P_int.exp_digest, P_int.act_digest = e_s, (e_in, e_out), exp_d, act_d
     if var.o16:
         P_int.o_class16 = True          # B4-3 experiment: o in the int16 class (NOT a native relation)
+    if var.s16:
+        P_int.s16 = True                # B5 experiment: int16 scores + 65536-row exp table (NOT native)
     # diagnostic only (site_errors): per-row real scales of every integer plane
     P_int.diag = {"ya": K_a / g_a.astype(np.float64), "ym": K_m / g_m.astype(np.float64), "q": q_rows(s_q), "k": k_rows(s_k),
                   "v": s_v, "o": np.repeat(s_o.reshape(g.KV, 1, g.dh), g.G, 1).reshape(-1), "s": 2.0 ** e_s,

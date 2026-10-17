@@ -1,0 +1,4 @@
+[zk60-guard 04:42:11] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 04:42:44] START r4-generic-8b class=cpu need=6G cap=9G enforce=cgroup+watchdog waited=33s run=b00c2d14cabe
+[zk60-guard 04:47:57] END r4-generic-8b exit=101 child_wall=313s peak_rss=1.94G min_avail=9.13G
+prove exit 101

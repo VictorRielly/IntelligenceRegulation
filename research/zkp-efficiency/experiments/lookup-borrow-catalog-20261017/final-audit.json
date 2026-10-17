@@ -1,0 +1,30 @@
+{
+  "status": "pass",
+  "checks": 45,
+  "source_records": 320,
+  "historical_prefixes_preserved": true,
+  "native_pins_stable": true,
+  "artifacts_pinned": 49,
+  "owner_phase_diagnostics": [
+    {
+      "device": "cpu",
+      "process_seconds": 175.25863218307495,
+      "lookup_hist_seconds": 0.5170000000000001,
+      "conditional_direct_delete_mark_multiplier": 1.0029586538338977,
+      "credited_positions": 0
+    },
+    {
+      "device": "gpu",
+      "process_seconds": 161.85722613334656,
+      "lookup_hist_seconds": 0.7480000000000002,
+      "conditional_direct_delete_mark_multiplier": 1.0046428129409601,
+      "credited_positions": 0
+    }
+  ],
+  "newly_credited_positions": 0,
+  "wall_seconds": 0.015830201002245303,
+  "peak_rss_kib": 19132,
+  "threads": 1,
+  "checkpoint_utc": "2026-10-17T12:41:09.436082+00:00",
+  "scope": "artifact/source/metadata checks; no native compile, proof, GPU or independent proof verification"
+}

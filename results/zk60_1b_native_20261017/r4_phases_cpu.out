@@ -1,0 +1,13 @@
+[zk60-guard 05:20:21] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 05:21:21] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 05:22:21] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 05:23:21] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 05:24:21] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 05:25:21] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 05:26:21] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 05:27:21] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 05:28:21] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 05:29:21] waiting for /tmp/zk-heavy.lock (541s)
+[zk60-guard 05:29:53] START r4-phases-T128-cpu class=cpu need=6G cap=10G enforce=cgroup+watchdog waited=572s run=d253132e0a44
+[zk60-guard 05:32:48] END r4-phases-T128-cpu exit=0 child_wall=175s peak_rss=4.81G min_avail=6.32G
+phases cpu exit 0

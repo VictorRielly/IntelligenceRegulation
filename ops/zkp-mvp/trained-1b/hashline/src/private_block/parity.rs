@@ -411,7 +411,9 @@ fn shaped_case(s: &Shape, idx: usize) -> ShapedCase {
 /// module's kernel comparison without a second harness. `shaped_case` is this
 /// with its own generated words.
 pub(super) fn shaped_case_from_words(s: &Shape, words: [Vec<i8>; 9], input: Vec<i16>) -> ShapedCase {
-    let (cos, sin) = crate::tables_attn::rope_tables_generate(s.tokens, s.head_dim, 10000.0, F_RO);
+    // ROUND 4: the RoPE base pinned for the shape's profile (500000 at the
+    // Llama-3-8B profile; 10000 everywhere else, as before)
+    let (cos, sin) = crate::tables_attn::rope_tables_generate(s.tokens, s.head_dim, super::shape::trained_rope_theta(s.profile).unwrap_or(10000.0), F_RO);
     let (exp, _) = crate::tables_attn::exp_member(0, s.head_dim, s.f_e);
     let (act, _) = crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, -3, -11).expect("frozen SiLU int16-out member (-3, -11)");
     // the module takes the PADDED, head-permuted statement (ruling P-2); the

@@ -1,0 +1,8 @@
+{
+  "checkpoint_utc": "2026-10-17T12:39:34.547783+00:00",
+  "change": "GPU phase diagnostic completed after first report; speed priority reranked to D/F; histogram dedup demoted; next local full F closure specialization",
+  "cpu_proof_path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r4/phases-T128-cpu/prove.log",
+  "gpu_proof_path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r4/phases-T128-gpu/prove.log",
+  "newly_credited_positions": 0,
+  "reason": "No independent fresh-verifier evidence inspected for these new samples"
+}

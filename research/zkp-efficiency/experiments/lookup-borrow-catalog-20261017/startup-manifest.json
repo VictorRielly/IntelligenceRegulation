@@ -1,0 +1,46 @@
+{
+  "/home/victor/IntelligenceRegulation/CLAUDE.md": {
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089
+  },
+  "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/START_HERE.md": {
+    "sha256": "89f6732a39f4294f2f1b7b68add8fdcbb76b86006e21041f52c0f40d9e39df9d",
+    "bytes": 42025
+  },
+  "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md": {
+    "sha256": "eb0adb72c2b545c2c7cfefa9d3f691469b92d4aafe7b11cb903615da902a7d22",
+    "bytes": 62682
+  },
+  "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md": {
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941
+  },
+  "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md": {
+    "sha256": "b2e40604148ea8d336098fa3e6a0fc69d4d4598187cb2ef04617c3e8d0baccb5",
+    "bytes": 64466
+  },
+  "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md": {
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889
+  },
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md": {
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603
+  },
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/STATE.md": {
+    "sha256": "438977124b760b9ec10f4bda95b63ff97058cfc54a671b74d08d28d1ca9ab0ea",
+    "bytes": 4682
+  },
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/FINDINGS.md": {
+    "sha256": "da08a54a881706ca37d58f1ab30b16fe78a51457b7b6a464e7130361fc16a475",
+    "bytes": 463546
+  },
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/sources.jsonl": {
+    "sha256": "7b293839b57f3ba555ad49cc2405723ae200a993593a985c92ac482e13cf6301",
+    "bytes": 393838
+  },
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/PROGRESS.md": {
+    "sha256": "5cbbd70b59fa3f48d31d891b18257c481b50864d3133a6e85061f816164a1a1d",
+    "bytes": 2850
+  }
+}

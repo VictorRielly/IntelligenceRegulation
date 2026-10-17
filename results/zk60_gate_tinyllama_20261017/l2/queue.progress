@@ -4,3 +4,5 @@ tl-zero-a exit 0
 tl-controls-dense exit 0
 tl-controls-zero exit 0
 witcmp exit 0
+tl-dense-everything exit 1
+tl-zero-arms exit 1

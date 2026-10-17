@@ -1,0 +1,13 @@
+[load          ]      0.3 s   peak RSS      90 MB   ok
+[replay        ]      0.2 s   peak RSS      90 MB   ok
+[hash          ]      0.1 s   peak RSS      90 MB   ok
+[terminals     ]     42.0 s   peak RSS     152 MB   FAIL
+[commitments   ]     15.2 s   peak RSS     152 MB   ok
+[boundary      ]      0.3 s   peak RSS     152 MB   ok
+[preimage      ]      0.1 s   peak RSS     152 MB   ok
+[fullpreimage  ]    656.6 s   peak RSS     536 MB   ok
+[mask          ]     35.2 s   peak RSS     600 MB   ok
+[joint         ]      0.0 s   peak RSS     600 MB   ok
+[runcontrols   ]      0.2 s   peak RSS     600 MB   RAISED   KeyError: 'B0'
+[channels      ]      0.0 s   peak RSS     600 MB   ok
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/l1/tl-l1-dense-everything.json   total 750.2 s   peak RSS 600 MB   ok=False

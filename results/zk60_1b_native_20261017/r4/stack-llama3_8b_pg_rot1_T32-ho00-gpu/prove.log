@@ -1,0 +1,134 @@
+{"event":"run_header","gpu":"gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)","hl_gpu_required":true}
+{"event":"loaded","variant":"llama3_8b_pg_rot1_T32","layers":"0..32","blocks":32,"statement_identity":"259dad7cb2c9739e44cfdf5c27c4c87090458cf330e9d39b592221094ae3537f","seconds":79.490,"hl_gpu":"1","scope":"ALL the listed trained blocks of the export's model (TinyLlama-1.1B-Chat or Llama-3-8B) as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"}
+{"event":"sealed","from":"the export's layer-0 x_in and layer-31 x_out (parity is checked per layer in the proving pass)","seconds":0.044,"rayon_threads":16}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":0,"layer":0,"bytes":14409864,"elapsed_seconds":6.873,"vmhwm_mib":1215}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":1,"layer":1,"bytes":14547080,"elapsed_seconds":13.062,"vmhwm_mib":1487}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":2,"layer":2,"bytes":14547080,"elapsed_seconds":20.098,"vmhwm_mib":1514}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":3,"layer":3,"bytes":14547080,"elapsed_seconds":27.084,"vmhwm_mib":1545}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":4,"layer":4,"bytes":14547080,"elapsed_seconds":34.080,"vmhwm_mib":1560}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":5,"layer":5,"bytes":14547080,"elapsed_seconds":40.696,"vmhwm_mib":1587}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":6,"layer":6,"bytes":14547080,"elapsed_seconds":47.261,"vmhwm_mib":1596}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":7,"layer":7,"bytes":14547080,"elapsed_seconds":53.461,"vmhwm_mib":1596}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":8,"layer":8,"bytes":14547080,"elapsed_seconds":60.845,"vmhwm_mib":1599}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":9,"layer":9,"bytes":14547080,"elapsed_seconds":67.880,"vmhwm_mib":1599}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":10,"layer":10,"bytes":14547080,"elapsed_seconds":74.386,"vmhwm_mib":1599}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":11,"layer":11,"bytes":14547080,"elapsed_seconds":80.449,"vmhwm_mib":1599}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":12,"layer":12,"bytes":14547080,"elapsed_seconds":86.852,"vmhwm_mib":1599}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":13,"layer":13,"bytes":14547080,"elapsed_seconds":93.068,"vmhwm_mib":1604}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":14,"layer":14,"bytes":14547080,"elapsed_seconds":100.062,"vmhwm_mib":1608}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":15,"layer":15,"bytes":14547080,"elapsed_seconds":107.061,"vmhwm_mib":1613}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":16,"layer":16,"bytes":14547080,"elapsed_seconds":113.799,"vmhwm_mib":1613}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":17,"layer":17,"bytes":14547080,"elapsed_seconds":120.068,"vmhwm_mib":1613}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":18,"layer":18,"bytes":14547080,"elapsed_seconds":126.264,"vmhwm_mib":1617}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":19,"layer":19,"bytes":14547080,"elapsed_seconds":133.219,"vmhwm_mib":1638}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":20,"layer":20,"bytes":14547080,"elapsed_seconds":140.672,"vmhwm_mib":1638}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":21,"layer":21,"bytes":14547080,"elapsed_seconds":147.394,"vmhwm_mib":1638}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":22,"layer":22,"bytes":14547080,"elapsed_seconds":153.649,"vmhwm_mib":1638}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":23,"layer":23,"bytes":14547080,"elapsed_seconds":160.254,"vmhwm_mib":1638}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":24,"layer":24,"bytes":14547080,"elapsed_seconds":166.377,"vmhwm_mib":1638}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":25,"layer":25,"bytes":14547080,"elapsed_seconds":173.243,"vmhwm_mib":1638}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":26,"layer":26,"bytes":14547080,"elapsed_seconds":180.576,"vmhwm_mib":1638}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":27,"layer":27,"bytes":14547080,"elapsed_seconds":187.648,"vmhwm_mib":1638}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":28,"layer":28,"bytes":14547080,"elapsed_seconds":194.144,"vmhwm_mib":1638}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":29,"layer":29,"bytes":14547080,"elapsed_seconds":200.637,"vmhwm_mib":1638}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":30,"layer":30,"bytes":14547080,"elapsed_seconds":206.824,"vmhwm_mib":1638}
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+{"event":"segment","index":31,"layer":31,"bytes":14993512,"elapsed_seconds":213.831,"vmhwm_mib":1638}
+{"event":"parity","result":"bit-exact at every layer","layers":32,"words_per_layer":131072,"checked_in_the_proving_pass":true}
+{"event":"proved","gpu":"gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)","gpu_declines":0,"blocks":32,"receipt_bytes":465815776,"prove_run_seconds":213.831,"of_which_witness_seconds":18.109,"witness_seconds_per_block":0.566,"of_which_block_load_seconds":77.997,"block_loads":32,"rayon_threads":16,"in_process_verify_seconds":92.741,"sealing_pass_seconds":0.044,"load_seconds":79.490,"total_seconds":391.012,"vmhwm_mib":1638,"statement_identity":"259dad7cb2c9739e44cfdf5c27c4c87090458cf330e9d39b592221094ae3537f","out":"/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r4/stack-llama3_8b_pg_rot1_T32-ho00-gpu/run"}

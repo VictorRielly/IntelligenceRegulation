@@ -1,0 +1,1 @@
+{"status": "pass", "checks": 162, "live_source_drift": [], "wall_seconds": 0.0023785090015735477, "peak_rss_kib": 14472, "scope": "independent integer census, single-hunk patch reconstruction and retained source/log provenance; no native compile or verify"}

@@ -58,3 +58,25 @@ Calibration data, not a proof, not a privacy claim.
 - 11:06 UTC: launched `logs/b5_serial.sh` (one guarded job at a time):
   pg+rot T=32 with export (need 4.5 / cap 6) -> independent verifier ->
   pg+rot T=128 (smaller sets).
+- 12:35 UTC: pg+rot T=32 DONE (`logs/b5-pg_T32.*`, `runs/llama3_8b_pg_rot1_T32`):
+  calibration 27 licence + 27 FineWeb seqs, held-out 36 + 36. Profile shifts
+  qkv 8 s 6 ao 3 g 8 h 14 z 5 (same set as TinyLlama's B3 pg_rot1), one s_x
+  in the rotated basis (~5.6e-4). FineWeb top-1 0.623, ppl 18.85 -> 37.11,
+  KL 0.737, 1/36 refused; licence 0.547, ppl 22.81 -> 49.75, KL 1.06, 0/36.
+  Peak RSS 3.45 GiB (cgroup 6.0 incl. page cache), wall 94 min.
+  Weak spot: LAYER 1 (creates the BOS massive activation): its attention has
+  raw scores up to 223 (BOS sink) so e_s = 2 (score quantum 4 raw = 0.35
+  logit at head_dim 128); score error 0.67, prob 0.81, o 2.1; isolated cos
+  0.735, chain cos 0.947 -> 0.71 across that layer (other layers isolated
+  0.95-0.996). FFN of layer 1 is fine (h 0.03). No clipping anywhere.
+  Export `export/llama3_8b_pg_rot1_T32` (6.6 GB) profile sha256 2507fbde...
+- 12:37 UTC: export VERIFIED (`logs/b5-verify-pg_T32.*`, report
+  `logs/b5-verify-pg_T32.report.json`): 32 layers bit-exact on seq_ho00
+  (licence) and seq_ho36 (FineWeb), every sha256 / table key / no -128;
+  156 s, peak 1.58 GiB. README.md written (sha256 0fcd7649...). Profile:
+  tn 9, Cn_a 2266, Cn_m 1557, Ceps 78617, shifts qkv 8 s 6 ao 3 g 8 h 14 z 5,
+  per-layer e_s and SiLU member, RoPE theta 500000.
+- 12:38 UTC: added the `s16` experiment knob (int16 score class, SH_S = 1,
+  65536-row exp table; NOT native; no-op for every default path) and
+  `b5_layer1.py` (layer-1 isolated comparison, int8 vs int16 scores), queued
+  after the T=128 run (`logs/b5_serial2.sh`, one guarded job at a time).

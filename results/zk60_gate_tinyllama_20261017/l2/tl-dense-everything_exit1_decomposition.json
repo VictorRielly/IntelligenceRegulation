@@ -1,0 +1,12 @@
+{
+ "record": "tl-dense-everything.json",
+ "exit": 1,
+ "what": "why the everything pass on the dense trained bundle exits 1, item by item; every item is the SAME bookkeeping state the 125M everything records carry (m125-dense-everything.json, block-m125-dense-everything.json of the joint-view lane), and none is a figure that failed",
+ "items": [
+  {"stage": "stage8 terminals, controls", "item": "CT-4 not fired: SKIPPED BY NAME, 'no old bundle was supplied (--old)'. The staged driver never passes an old (pre-stage-15) bundle; the 125M everything pass skipped it the same way. CT-1..CT-3 and CT-5..CT-9 fire (CT-5 now on supp(Dom::F), slot 18, because S does not pad here)."},
+  {"stage": "stage6 run controls, hash-rule family", "item": "CH-6 SKIPPED BY NAME, 'no legacy-rule bundle was supplied' -- the 125M record's own state ('CH-6 skipped -> stage 6 ok false, round 9c's bookkeeping'). CH-1..CH-5 and CH-7 (against the rung-K4 cross-profile bundle) fire."},
+  {"stage": "stage6 run controls, round-9 family", "item": "M9-3 FIRES on all five domains that do not pad at TinyLlama (D, Kv, Q, S, T): each, made to look padded, makes its host slot refuse by name. Its own `ok` also asks that the refusal name the two DEFINITION-DRAW counts; here (as in every 125M record, where T, Kv and F were faked) the earlier public-table-count refusal ('the port declares N public tables, the capture has N-1') fires first, so that sub-criterion is false at both shapes. NEW at TinyLlama: for D and S the sub-criterion 'only this slot stopped being checked' is false, because supp(D) also gates slots 00/01 (SC_SS, SC_SSM) and supp(S) also gates slot 04 (SC_RS) -- `pad.rs::indicator_slots`; at 125M D and S pad, so this was never exercised. Expected, not a failure of the shape."}
+ ],
+ "every_other_family": "X (24 exclusivity controls fire, every clause exercised; the old check accepts the same seven as at 125M: X01, X06, X09a, X10a, X11, X14, X16), GQ 13 of 13, P-1..P-6 6 of 6, M1..M6 6 of 6, C1..C6 6 of 6, M9-1 and M9-2 fire; the port's own TL-1..TL-3 15 of 15 (separate records tl-controls-{dense,zero}.json)",
+ "channels": "28: 10 constructed / 5 derived / 5 argued / 8 open -- the 125M everything table"
+}

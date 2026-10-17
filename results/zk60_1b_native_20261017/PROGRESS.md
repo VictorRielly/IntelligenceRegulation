@@ -702,3 +702,96 @@ R3-1 done (one parallel witness pass, 53x per block at T32, parity per layer
 kept); R3-2 done for T64 and T128 (T256/T512 not registered: memory gate and
 no export); R3-3 ladder measured at T32/T64/T128 on CPU and GPU, every run
 verified in a fresh process. No job of mine is running.
+
+## Round 4 (coordinator, 2026-10-17 ~11:20 UTC): Llama-3-8B at T=32
+
+### R4-1 the trained Llama-3-8B profile
+
+- Registered `hashline-zk-mr1/private-block-llama-3-8b-t32-trained/1` and
+  run profile `hashline-zk-mr1/private-run-llama-3-8b-t32-trained-statement/1`
+  (one per shape, D17; the s24/s25/s33 registry and hash-length census pass
+  with them). `Shape::llama3_8b_t32_trained(cal, f_e)`: T32, width 4096, FFN
+  14336 padded to 16384, 32 query heads of 128 over 8 key-value heads (group
+  4, no padded head slot), row width 2^13 (21 endpoint rows), through the
+  SAME trained door and declared classes. Counted layouts
+  (`r4_tests::the_llama3_8b_counted_layouts`): 2^11 28,970,648 B; 2^12
+  17,878,872 B; **2^13 14,856,216 B (registered, smallest)**; 2^14 18,374,872
+  B; 2^15 30,177,688 B; 2^16 refused (Kv lifted by P-3). The validator
+  DERIVES tn <= 9 at width 4096 (D_max 2,097,152, window 32, C-6); tn 10 is
+  refused by name.
+- RoPE base pinned PER PROFILE (`shape::trained_rope_theta`): 10000 for the
+  TinyLlama profiles and the rung, 500000 for Llama-3-8B; the loader's
+  `constants_of` and the statement's `check_honoured_by_code` refuse any
+  other. The Rust generators reproduce the calibration lane's 8B table
+  digests exactly: RoPE T32 head_dim 128 base 500000 d937dca078d3...,
+  exp head_dim 128 f_e 9 e_s 1 a28d48125914..., e_s 2 423a43e7b2cf...
+- Pinned-checkpoint rule for the 8B profile: `ModelSource::llama3_8b()`
+  (NousResearch/Meta-Llama-3-8B rev 315b20096dc791d381d514deb5f8bd9c8d6d3061,
+  config sha256 2430cee7..., 8,030,261,248 parameters, 32 layers; weights
+  digest = SHA-256 of the canonical shard list `name hex\n` in name order =
+  7b8447563053...). `ModelSource::pinned_for_profile` carries each trained
+  profile's pin (TinyLlama x3, Llama-3-8B); another checkpoint or a synthetic
+  recipe at the 8B profile is refused, and the TinyLlama pin at the 8B
+  profile (or vice versa) too.
+- Reader: an export naming no geometry is the geometry of its MODEL (the
+  pinned Llama-3-8B repo -> the 8B profile, which fixes T = 32; otherwise
+  TinyLlama at its T); the model block may carry `sha256` (one file) or
+  `shards_sha256` (the B5 writer's four shards -> the canonical digest);
+  exactly one is required; repo, revision and digest must equal the pin.
+- `RunStatement::new_bound_from_digests` (the statement from the block
+  digests alone, for runs whose blocks cannot all be resident; `new_bound`
+  delegates to it); the registry census builds its L = 22 trained runs from
+  one block's digest (22 clones of an 8B block would be 5 GB).
+
+### R4-2 one generic block at the true 8B T32 geometry (memory gate)
+
+- Test `r4_tests::native_r4_2_generic_llama3_8b_block_proves_verifies_and_every_control_refuses`
+  (release, guarded; evidence `r4/generic/`): dense synthetic words, every
+  query head and all 8 key-value groups live and different, the upper
+  hidden half 98% live, the witness equal to the independent shape-driven
+  kernel. Bands: TinyLlama's attn 8 refuses at the score at width 4096; the
+  test picks the first admissible of a fixed list (attn 6 / gate 8 / down 2).
+  Calibration: the B5 smoke constants with Cn_a 6380 / Cn_m 6672 (the
+  smoke's Cn_m 834 gave max|y_m| 6 on synthetic words; the generic check asks
+  >= 8); witness max |y_a| 43, |y_m| 46, |q8| 74, |s8| 93, |g8| 107.
+- Memory gate: the FIRST run at need 6 / cap 9 GiB (as directed) measured
+  peak RSS 1.94 GiB with the block proved (it then failed in a control
+  helper whose shift move left its window at sh_h 16; fixed: moves now stay
+  inside their windows). The completed run used need 3 / cap 5 GiB:
+  [MEASURED, shared box, n=1, 16 threads] witness 0.57 s, **prove 4.68 s,
+  verify from bytes 1.34 s, segment 14,856,296 B, peak RSS 1.95 GiB** (guard
+  2.10 GiB); 11 coefficient / shift / receipt controls and 4
+  inconsistent-witness controls refuse (tn-1 & Cn/2, cn_m+7 and sh_z-1 at
+  slot 14; ceps x4 at slot 2). FRESH-process verify of the saved segment
+  1.22 s, peak 924 MiB, the 11 verifier controls refuse there too. One 8B
+  block at T32 fits this laptop with large margin. (An earlier attempt of
+  mine waited for admission at need 6 while HOLDING the heavy lock; I
+  stopped it with SIGTERM — the guard's documented graceful path — and
+  re-queued at the measured need.)
+
+### R4-4 phase breakdown of the T128 TinyLlama proofs
+
+`HL_PB_TIMING=1` (the existing phase clock, `private_block/timing.rs`), one
+guarded run each of the 22-block pg_rot1_b4_T128 stack with the round-3
+CLIs (`r4_phases.sh cpu|gpu`); summed over the 22 per-block tables by
+`r4_phase_table.py` into `r4/PHASES_T128.md` [MEASURED, shared box, n=1,
+16 threads]:
+
+| share of the block walls | CPU (152.2 s) | GPU (134.8 s) |
+|---|---|---|
+| zero-check sumchecks, slots 14 D / 18 F / 17 softmax / 15 Q / 16 KV | 27.5 / 17.6 / 11.5 / 8.0 / 4.4 s = 45% | 25.4 / 19.5 / 11.8 / 8.0 / 3.9 s = 51% |
+| commitments A + H (encode + Merkle) | 16.6 + 18.1 s = 23% | 4.0 + 3.6 s = 6% |
+| A: witness planes -> committed rows (allocation + conversion) | 17.7 s = 12% | 21.2 s = 16% |
+| H: LogUp helper inverses (+ exp/act) | 6.9 + 1.4 s = 5% | 8.8 + 1.8 s = 8% |
+| openings A + H | 5.2 + 3.6 s = 6% | 9.2 + 3.0 s = 9% |
+| norm, lookup tables, endpoints, the rest | about 9% | about 10% |
+
+Inside the slots, the masked sumcheck body (`zk.rs`) is most of each
+(slot 14 21.1 of 27.5 s, slot 18 14.6 of 17.6 s), the extension rounds
+the rest; table building is under 1 s per slot. Reading for the speed plan:
+the GPU today accelerates only the commitments (34.7 -> 7.6 s); the
+sumchecks (45-51%) all run on the CPU in both; the plane-to-row conversion
+(12-16%) and the LogUp inverses (5-8%) are CPU work too; the GPU run's
+openings and conversion are slower than the CPU run's (device-host
+traffic). So: (1) the five zero-check sumchecks on the device, (2) a
+parallel plane-to-row conversion, (3) batched parallel inverses.

@@ -54,6 +54,7 @@ pub(crate) const PROFILE_SCHEMA: &str = "zk60-trained-profile-export/1";
 const MAX_JSON_BYTES: u64 = 4 * 1024 * 1024;
 const MAX_ARRAY_BYTES: u64 = 256 * 1024 * 1024;
 const SCOPE: &str = "ONE trained TinyLlama-1.1B-Chat block (of 22) at the export's T (32, 64 or 128), CPU unless the run line says gpu; the integer model the calibration export names; NOT a model pass; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement";
+const SCOPE_8B: &str = "ONE trained Llama-3-8B block (of 32) at T=32, CPU unless the run line says gpu; the integer model the calibration export names; NOT a model pass; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement";
 const SCOPE_RUNG: &str = "SYNTHETIC development export at the trained-calibration rung (rung-TC, width 384): NOT a trained model, NOT TinyLlama; a test of the export reader and the driver only; no privacy acceptance";
 
 // ------------------------------------------------------------------ JSON
@@ -422,7 +423,7 @@ pub(crate) const RUN_LEVEL_KEYS: [&str; 18] = [
     "norm_tn", "norm_cn_a", "norm_cn_m", "norm_ceps", "sh_ao", "sh_qkv", "sh_s", "sh_o", "sh_g", "sh_h", "sh_z", "f_e", "rope_theta", "sh_rope", "sh_u", "f_p", "f_ro", "sh_r2",
 ];
 
-fn constants_of(c: &J, what: &str) -> Result<Constants, String> {
+fn constants_of(c: &J, what: &str, rope_pin: f64) -> Result<Constants, String> {
     let ctx = |e: String| format!("{what}: {e}");
     let int = |k: &str| -> Result<i64, String> { c.get(k).and_then(J::i64).map_err(|e| format!("{what}: constant `{k}`: {e}")) };
     for (k, want) in fixed_constants() {
@@ -441,8 +442,8 @@ fn constants_of(c: &J, what: &str) -> Result<Constants, String> {
         return Err(format!("{what}: f_e {f_e} is outside its declared class {:?} (the softmax quotient relation's no-wrap premise is derived for that class only; review finding F-1)", super::shape::TRAINED_F_E_RANGE));
     }
     let rope_theta = c.get("rope_theta").and_then(J::f64).map_err(ctx)?;
-    if rope_theta != super::shape::TRAINED_ROPE_THETA {
-        return Err(format!("{what}: rope_theta {rope_theta} is not the trained geometry's RoPE base {} (a model fact, not a calibration choice)", super::shape::TRAINED_ROPE_THETA));
+    if rope_theta != rope_pin {
+        return Err(format!("{what}: rope_theta {rope_theta} is not the trained geometry's RoPE base {rope_pin} (a model fact, not a calibration choice; pinned per profile)"));
     }
     Ok(Constants {
         cal: NormCalibration {
@@ -493,6 +494,8 @@ pub(crate) enum Geometry {
     /// ROUND 3 (R3-2): the trained TinyLlama geometry at a registered
     /// context length (32, 64 or 128), each its own profile
     TinyLlama(usize),
+    /// ROUND 4 (R4-1): Llama-3-8B at T = 32
+    Llama3_8B,
     RungTcDev,
 }
 
@@ -502,15 +505,23 @@ impl Geometry {
             "tinyllama-1.1b-t32" => Ok(Geometry::TinyLlama(32)),
             "tinyllama-1.1b-t64" => Ok(Geometry::TinyLlama(64)),
             "tinyllama-1.1b-t128" => Ok(Geometry::TinyLlama(128)),
+            "llama-3-8b-t32" => Ok(Geometry::Llama3_8B),
             "rung-tc-t32-dev" => Ok(Geometry::RungTcDev),
-            _ => Err(format!("geometry `{s}` is not one of tinyllama-1.1b-t32 / -t64 / -t128 / rung-tc-t32-dev")),
+            _ => Err(format!("geometry `{s}` is not one of tinyllama-1.1b-t32 / -t64 / -t128 / llama-3-8b-t32 / rung-tc-t32-dev")),
         }
     }
     /// the context length the geometry fixes
     pub(crate) fn tokens(self) -> usize {
         match self {
             Geometry::TinyLlama(t) => t,
-            Geometry::RungTcDev => 32,
+            Geometry::Llama3_8B | Geometry::RungTcDev => 32,
+        }
+    }
+    /// the RoPE base the geometry's model fixes (pinned per profile)
+    pub(crate) fn rope_theta(self) -> f64 {
+        match self {
+            Geometry::Llama3_8B => super::shape::LLAMA3_8B_ROPE_THETA,
+            _ => super::shape::TRAINED_ROPE_THETA,
         }
     }
     pub(crate) fn run_profile(self) -> &'static str {
@@ -518,12 +529,13 @@ impl Geometry {
             Geometry::TinyLlama(64) => super::run::RUN_PROFILE_TINYLLAMA_T64_TRAINED,
             Geometry::TinyLlama(128) => super::run::RUN_PROFILE_TINYLLAMA_T128_TRAINED,
             Geometry::TinyLlama(_) => RUN_PROFILE_TINYLLAMA_T32_TRAINED,
+            Geometry::Llama3_8B => super::run::RUN_PROFILE_LLAMA3_8B_T32_TRAINED,
             Geometry::RungTcDev => RUN_PROFILE_RUNG_TC,
         }
     }
     pub(crate) fn run_shape(self, sh: &Shape, l: usize) -> Result<RunShape, String> {
         match self {
-            Geometry::TinyLlama(_) => RunShape::tinyllama_trained(sh.clone(), l),
+            Geometry::TinyLlama(_) | Geometry::Llama3_8B => RunShape::tinyllama_trained(sh.clone(), l),
             Geometry::RungTcDev => RunShape::rung_tc(sh.clone(), l),
         }
     }
@@ -531,12 +543,14 @@ impl Geometry {
     pub(crate) fn scope(self) -> &'static str {
         match self {
             Geometry::TinyLlama(_) => SCOPE,
+            Geometry::Llama3_8B => SCOPE_8B,
             Geometry::RungTcDev => SCOPE_RUNG,
         }
     }
     pub(crate) fn shape_at(self, cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
         match self {
             Geometry::TinyLlama(t) => Shape::tinyllama_trained(t, cal, f_e),
+            Geometry::Llama3_8B => Shape::llama3_8b_t32_trained(cal, f_e),
             Geometry::RungTcDev => {
                 if f_e != 12 {
                     return Err(format!("trained export: the rung-TC geometry fixes f_e = 12, the export declares {f_e}"));
@@ -597,7 +611,14 @@ impl TrainedExport {
         // geometry at its own `T`; one that names a geometry must name the
         // one its `T` is
         let tokens = usize::try_from(p.get_any(&["T", "tokens"]).and_then(J::i64).map_err(ctx)?).map_err(|_| ctx("T is negative".into()))?;
+        // ROUND 4: an export naming no geometry is the geometry of its
+        // MODEL (the pinned Llama-3-8B repository -> Llama-3-8B; otherwise
+        // TinyLlama) at its `T`
+        let m = p.get("model").map_err(ctx)?;
+        let repo = m.get("repo").and_then(J::str).map_err(ctx)?;
+        let llama_pin = ModelSource::llama3_8b();
         let geometry = match p.opt("geometry") {
+            None if repo == llama_pin.repo => Geometry::Llama3_8B,
             None => match tokens {
                 32 | 64 | 128 => Geometry::TinyLlama(tokens),
                 _ => return Err(ctx(format!("T = {tokens}: no trained TinyLlama profile is registered at this context length (32, 64 and 128 are)"))),
@@ -609,10 +630,32 @@ impl TrainedExport {
         }
         // the model pin: THE pinned source for TinyLlama, a synthetic recipe
         // for the development rung
-        let m = p.get("model").map_err(ctx)?;
         let pin = ModelSource::tinyllama_chat_v1_0();
-        let (repo, rev, msha) = (m.get("repo").and_then(J::str).map_err(ctx)?, m.get("revision").and_then(J::str).map_err(ctx)?, unhex32(m.get("sha256").and_then(J::str).map_err(ctx)?).map_err(ctx)?);
+        let rev = m.get("revision").and_then(J::str).map_err(ctx)?;
+        // the weights digest: one file's SHA-256 (`sha256`), or, for a sharded
+        // checkpoint, the canonical digest of its shard list
+        // (`shards_sha256`: `name hex\n` per shard in name order)
+        let msha = match (m.opt("sha256"), m.opt("shards_sha256")) {
+            (Some(h), None) => unhex32(h.str().map_err(ctx)?).map_err(ctx)?,
+            (None, Some(sh)) => {
+                let mut v: Vec<(String, String)> = Vec::new();
+                for (name, h) in sh.obj().map_err(ctx)? {
+                    let h = h.str().map_err(ctx)?;
+                    unhex32(h).map_err(ctx)?;
+                    v.push((name.clone(), h.to_string()));
+                }
+                let r: Vec<(&str, &str)> = v.iter().map(|(a, b)| (a.as_str(), b.as_str())).collect();
+                super::trained_statement::shards_digest(&r)
+            }
+            _ => return Err(ctx("model: exactly one of `sha256` / `shards_sha256` is required".into())),
+        };
         let source = match geometry {
+            Geometry::Llama3_8B => {
+                if repo != llama_pin.repo || rev != llama_pin.revision || msha != llama_pin.weights_sha256 {
+                    return Err(ctx(format!("the model pin ({repo}, {rev}, {}) is not the pinned Llama-3-8B source ({}, {}, {})", hex(&msha), llama_pin.repo, llama_pin.revision, hex(&llama_pin.weights_sha256))));
+                }
+                llama_pin
+            }
             Geometry::TinyLlama(_) => {
                 if repo != pin.repo || rev != pin.revision || msha != pin.weights_sha256 {
                     return Err(ctx(format!("the model pin ({repo}, {rev}, {}) is not the pinned TinyLlama source ({}, {}, {})", hex(&msha), pin.repo, pin.revision, hex(&pin.weights_sha256))));
@@ -661,7 +704,7 @@ impl TrainedExport {
         if sorted_nulls != per_layer_differ {
             return Err(ctx(format!("profile_constants has null {sorted_nulls:?} but per_layer_constants_differ names {per_layer_differ:?}")));
         }
-        let constants = if nulls.iter().all(|k| !RUN_LEVEL_KEYS.contains(&k.as_str())) { Some(constants_of(pc, &path.display().to_string())?) } else { None };
+        let constants = if nulls.iter().all(|k| !RUN_LEVEL_KEYS.contains(&k.as_str())) { Some(constants_of(pc, &path.display().to_string(), geometry.rope_theta())?) } else { None };
         let mut layers = Vec::new();
         let mut layer_manifest_sha256 = Vec::new();
         for l in p.get("layers").and_then(J::arr).map_err(ctx)? {
@@ -757,7 +800,7 @@ impl TrainedExport {
         let mut out = self.constants.clone();
         for &l in layers {
             let (mpath, _, m) = self.manifest(l)?;
-            let c = constants_of(m.get("constants").map_err(|e| format!("{}: {e}", mpath.display()))?, &mpath.display().to_string())?;
+            let c = constants_of(m.get("constants").map_err(|e| format!("{}: {e}", mpath.display()))?, &mpath.display().to_string(), self.geometry.rope_theta())?;
             match &out {
                 Some(o) if *o != c => {
                     return Err(format!(
@@ -800,7 +843,7 @@ impl TrainedExport {
         if mi != i64::from(index) {
             return Err(ctx(format!("the manifest is for layer {mi}, not {index}")));
         }
-        let lc = constants_of(m.get("constants").map_err(ctx)?, &mpath.display().to_string())?;
+        let lc = constants_of(m.get("constants").map_err(ctx)?, &mpath.display().to_string(), self.geometry.rope_theta())?;
         if lc != *c {
             return Err(ctx("this layer's constants are not the run's (one calibration per run)".into()));
         }
@@ -1461,7 +1504,9 @@ fn controls(ex: &TrainedExport, rc: &Constants, sh: &Shape, layer: &TrainedLayer
 /// commitment no longer holds block `lie_at`'s output.
 struct StackSource<'a> {
     sh: &'a Shape,
-    blocks: &'a [BlockPublic],
+    /// ROUND 4: the shared one-block cache (and the run's block count)
+    blocks: SharedCache<'a>,
+    n: usize,
     ids: Ids,
     x: Vec<i16>,
     next: usize,
@@ -1486,19 +1531,80 @@ struct StackParity {
     checked: usize,
 }
 
+/// **ROUND 4 (R4-3): the stack's public blocks, ONE resident at a time.**
+/// Block k is reloaded from the export when first asked for (every array
+/// SHA-256-checked against its manifest, the tables against their generator
+/// members, exactly as the digest pass loaded it) and refused unless its
+/// digest is the statement's; the witness source and the prover share the
+/// one cache, so each block is loaded once per pass. `order` maps a run
+/// position to a layer position (the swapped-block controls).
+struct BlockCache<'a> {
+    ex: &'a TrainedExport,
+    sh: &'a Shape,
+    c: &'a Constants,
+    layers: Vec<u32>,
+    digests: Vec<Digest>,
+    rope_from_export: bool,
+    cur: Option<(usize, std::sync::Arc<BlockPublic>)>,
+    loads: usize,
+    load_s: f64,
+}
+
+type SharedCache<'a> = std::rc::Rc<std::cell::RefCell<BlockCache<'a>>>;
+
+impl<'a> BlockCache<'a> {
+    fn shared(ex: &'a TrainedExport, sh: &'a Shape, c: &'a Constants, layers: Vec<u32>, digests: Vec<Digest>, rope_from_export: bool) -> SharedCache<'a> {
+        std::rc::Rc::new(std::cell::RefCell::new(BlockCache { ex, sh, c, layers, digests, rope_from_export, cur: None, loads: 0, load_s: 0.0 }))
+    }
+    fn get(&mut self, k: usize) -> Result<std::sync::Arc<BlockPublic>, String> {
+        if let Some((j, a)) = &self.cur {
+            if *j == k {
+                return Ok(a.clone());
+            }
+        }
+        if k >= self.layers.len() {
+            return Err(format!("trained stack: no block {k} in a {}-block run", self.layers.len()));
+        }
+        // drop the previous block BEFORE the next one is read
+        self.cur = None;
+        let t = Instant::now();
+        let lay = self.ex.load_layer(self.sh, self.c, self.layers[k], self.rope_from_export)?;
+        if lay.blk.digest() != self.digests[k] {
+            return Err(format!("trained stack: layer {}'s reloaded public statement is not the one the run statement binds", self.layers[k]));
+        }
+        let a = std::sync::Arc::new(lay.blk);
+        self.cur = Some((k, a.clone()));
+        self.loads += 1;
+        self.load_s += t.elapsed().as_secs_f64();
+        Ok(a)
+    }
+}
+
+/// the cache as the run prover's / verifier's block source
+struct CacheBlocks<'a>(SharedCache<'a>);
+
+impl run::BlockSource for CacheBlocks<'_> {
+    fn block(&mut self, k: usize) -> Result<run::BlockRef<'_>, String> {
+        let a = self.0.borrow_mut().get(k)?;
+        Ok(run::BlockRef::Shared(a))
+    }
+}
+
 impl<'a> StackSource<'a> {
-    fn new(sh: &'a Shape, blocks: &'a [BlockPublic], x0: Vec<i16>, lie_at: Option<usize>) -> Result<StackSource<'a>, String> {
+    fn new(sh: &'a Shape, blocks: SharedCache<'a>, n: usize, x0: Vec<i16>, lie_at: Option<usize>) -> Result<StackSource<'a>, String> {
         if x0.len() != sh.tokens * sh.width {
             return Err("trained stack: the first input is not tokens x width".into());
         }
-        Ok(StackSource { sh, blocks, ids: Ids::new(sh)?, x: x0, next: 0, cached: None, lie_at, busy_s: 0.0, parity: None })
+        Ok(StackSource { sh, blocks, n, ids: Ids::new(sh)?, x: x0, next: 0, cached: None, lie_at, busy_s: 0.0, parity: None })
     }
     fn advance(&mut self, k: usize) -> Result<(Witness, Vec<i16>), String> {
-        if k != self.next || k >= self.blocks.len() {
+        if k != self.next || k >= self.n {
             return Err(format!("trained stack: block {k} was asked for out of order (next is {})", self.next));
         }
+        let blk = self.blocks.borrow_mut().get(k)?;
         let t = Instant::now();
-        let w = witness::build_shaped(self.sh, self.blocks[k].attention(), self.blocks[k].feed_forward(), &self.x)?;
+        let w = witness::build_shaped(self.sh, blk.attention(), blk.feed_forward(), &self.x)?;
+        drop(blk);
         let out = padded_plane(&w, self.ids.at(A_X2))?;
         self.x = true_words(self.sh, &out);
         self.next = k + 1;
@@ -1601,21 +1707,24 @@ struct LayerMeta {
     record: LayerRecord,
 }
 
-/// Load the export's public side for a run over `layers`: the run constants,
-/// the shape, every block (once), the layer records and the trained-model
-/// statement.
-fn load_stack(ex: &TrainedExport, layers: &[u32], rope_from_export: bool) -> Result<(Constants, Shape, Vec<BlockPublic>, Vec<LayerMeta>, TrainedModelStatement), String> {
+/// **THE DIGEST PASS (ROUND 4).** The export's public side for a run over
+/// `layers`: the run constants, the shape, every layer's record and block
+/// digest (each block loaded, digested and DROPPED: one resident at a time),
+/// and the trained-model statement. The blocks are reloaded one at a time by
+/// [`BlockCache`] when they are proved or verified.
+#[allow(clippy::type_complexity)]
+fn stack_records(ex: &TrainedExport, layers: &[u32], rope_from_export: bool) -> Result<(Constants, Shape, Vec<LayerMeta>, Vec<Digest>, TrainedModelStatement), String> {
     let c = ex.run_constants(layers)?;
     let sh = ex.shape_for(&c)?;
-    let mut blocks = Vec::with_capacity(layers.len());
     let mut metas = Vec::with_capacity(layers.len());
+    let mut digests = Vec::with_capacity(layers.len());
     for &l in layers {
         let t = ex.load_layer(&sh, &c, l, rope_from_export)?;
+        digests.push(t.blk.digest());
         metas.push(LayerMeta { index: t.index, manifest_sha256: t.manifest_sha256, record: t.record });
-        blocks.push(t.blk);
     }
     let st = ex.statement_of_records(&sh, &c, metas.iter().map(|m| m.record.clone()).collect())?;
-    Ok((c, sh, blocks, metas, st))
+    Ok((c, sh, metas, digests, st))
 }
 
 fn render_stack_statement(ex: &TrainedExport, sh: &Shape, layers: &[LayerMeta], st: &TrainedModelStatement, ctx: &Digest, expected: &ExpectedIo, label: &str) -> String {
@@ -1665,7 +1774,7 @@ fn render_stack_statement(ex: &TrainedExport, sh: &Shape, layers: &[LayerMeta], 
     )
 }
 
-const STACK_SCOPE: &str = "ALL the listed trained TinyLlama-1.1B-Chat blocks as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement";
+const STACK_SCOPE: &str = "ALL the listed trained blocks of the export's model (TinyLlama-1.1B-Chat or Llama-3-8B) as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement";
 
 /// `stack-prove --export DIR --seq ID --out DIR [--layers A..B] [--label L]
 /// [--rope-from-export] [--lie-at-boundary K]`
@@ -1724,7 +1833,8 @@ fn stack_prove_inner(f: &[(String, String)]) -> Result<(), String> {
             return Err("--lie-at-boundary: there is no boundary after the last block".into());
         }
     }
-    let (_c, sh, blocks, loaded, st) = load_stack(&ex, &layers, flag(f, "--rope-from-export").is_some())?;
+    let rope = flag(f, "--rope-from-export").is_some();
+    let (c, sh, loaded, digests, st) = stack_records(&ex, &layers, rope)?;
     let load_s = t.elapsed().as_secs_f64();
     println!(
         "{{\"event\":\"loaded\",\"variant\":{},\"layers\":\"{}..{}\",\"blocks\":{l},\"statement_identity\":{},\"seconds\":{load_s:.3},\"hl_gpu\":{},\"scope\":{}}}",
@@ -1750,7 +1860,8 @@ fn stack_prove_inner(f: &[(String, String)]) -> Result<(), String> {
     }
     let first = pad_d_plane(&sh, &x_in0)?;
     let last = pad_d_plane(&sh, &x_outs[l - 1])?;
-    let mut src = StackSource::new(&sh, &blocks, x_in0, lie_at)?;
+    let cache = BlockCache::shared(&ex, &sh, &c, layers.clone(), digests.clone(), rope);
+    let mut src = StackSource::new(&sh, cache.clone(), l, x_in0, lie_at)?;
     let seal_s = t.elapsed().as_secs_f64();
     println!(
         "{{\"event\":\"sealed\",\"from\":\"the export's layer-{} x_in and layer-{} x_out (parity is checked per layer in the proving pass)\",\"seconds\":{seal_s:.3},\"rayon_threads\":{}}}",
@@ -1763,7 +1874,7 @@ fn stack_prove_inner(f: &[(String, String)]) -> Result<(), String> {
     let spec = IoSpec::new_shaped(&sh, ctx, 0, 0)?;
     let (expected, owners) = prepare_endpoints(spec, &first, &last)?;
     src.parity = Some(StackParity { layers: layers.clone(), x_outs, first, last, checked: 0 });
-    let rst = RunStatement::new_bound(ex.geometry.run_shape(&sh, l)?, ctx, expected.clone(), &blocks, &vec![(0, 0); l], &st)?;
+    let rst = RunStatement::new_bound_from_digests(ex.geometry.run_shape(&sh, l)?, ctx, expected.clone(), digests.clone(), &vec![(0, 0); l], &st)?;
     // ---- the proving pass
     std::fs::create_dir(&out).map_err(|e| format!("{}: {e}", out.display()))?;
     let mut disk = super::run_sink::DirSink::create(&out, l)?;
@@ -1775,7 +1886,7 @@ fn stack_prove_inner(f: &[(String, String)]) -> Result<(), String> {
             println!("{{\"event\":\"segment\",\"index\":{k},\"layer\":{},\"bytes\":{n},\"elapsed_seconds\":{:.3},\"vmhwm_mib\":{:.0}}}", layers[k], t.elapsed().as_secs_f64(), peak_rss_mib());
             Ok(())
         };
-        run::prove_run(&rst, &blocks, &mut src, owners, &mut sink)
+        run::prove_run_with(&rst, &mut CacheBlocks(cache.clone()), &mut src, owners, &mut sink)
     };
     let prove_s = t.elapsed().as_secs_f64();
     let witness_s = src.busy_s;
@@ -1793,9 +1904,15 @@ fn stack_prove_inner(f: &[(String, String)]) -> Result<(), String> {
     }
     println!("{{\"event\":\"parity\",\"result\":\"bit-exact at every layer\",\"layers\":{l},\"words_per_layer\":{},\"checked_in_the_proving_pass\":true}}", sh.tokens * sh.width);
     let hwm = peak_rss_mib();
-    // ---- in-process verification from the directory
+    let (block_loads, block_load_s) = {
+        let cb = cache.borrow();
+        (cb.loads, cb.load_s)
+    };
+    drop(cache);
+    // ---- in-process verification from the directory (a fresh cache)
     let t = Instant::now();
-    let verdict = run::verify_run_from_dir(&rst, &blocks, &out);
+    let vcache = BlockCache::shared(&ex, &sh, &c, layers.clone(), digests.clone(), rope);
+    let verdict = run::verify_run_from_dir_with(&rst, &mut CacheBlocks(vcache), &out);
     let verify_s = t.elapsed().as_secs_f64();
     if let Some(k) = lie_at {
         return match verdict {
@@ -1814,7 +1931,7 @@ fn stack_prove_inner(f: &[(String, String)]) -> Result<(), String> {
     let segs: Vec<String> = (0..l).map(|k| format!("{{\"file\":{},\"bytes\":{},\"sha256\":{}}}", js(&super::run_sink::segment_file_name(k)), disk.lengths()[k], js(&disk.digests()[k]))).collect();
     write_new(&sdir.join("segments.json"), format!("[\n {}\n]\n", segs.join(",\n ")).as_bytes())?;
     println!(
-        "{{\"event\":\"proved\",\"gpu\":{},\"gpu_declines\":{},\"blocks\":{l},\"receipt_bytes\":{},\"prove_run_seconds\":{prove_s:.3},\"of_which_witness_seconds\":{witness_s:.3},\"witness_seconds_per_block\":{:.3},\"rayon_threads\":{},\"in_process_verify_seconds\":{verify_s:.3},\"sealing_pass_seconds\":{seal_s:.3},\"load_seconds\":{load_s:.3},\"total_seconds\":{:.3},\"vmhwm_mib\":{hwm:.0},\"statement_identity\":{},\"out\":{}}}",
+        "{{\"event\":\"proved\",\"gpu\":{},\"gpu_declines\":{},\"blocks\":{l},\"receipt_bytes\":{},\"prove_run_seconds\":{prove_s:.3},\"of_which_witness_seconds\":{witness_s:.3},\"witness_seconds_per_block\":{:.3},\"of_which_block_load_seconds\":{block_load_s:.3},\"block_loads\":{block_loads},\"rayon_threads\":{},\"in_process_verify_seconds\":{verify_s:.3},\"sealing_pass_seconds\":{seal_s:.3},\"load_seconds\":{load_s:.3},\"total_seconds\":{:.3},\"vmhwm_mib\":{hwm:.0},\"statement_identity\":{},\"out\":{}}}",
         js(&crate::gpu::label()),
         crate::gpu::declines(),
         disk.total_bytes(),
@@ -1865,7 +1982,8 @@ fn stack_verify_inner(f: &[(String, String)]) -> Result<(), String> {
     let ex = TrainedExport::load(&export)?;
     let layers = parse_layers(flag(f, "--layers"), &ex.layers)?;
     let l = layers.len();
-    let (c, sh, blocks, loaded, st) = load_stack(&ex, &layers, flag(f, "--rope-from-export").is_some())?;
+    let rope = flag(f, "--rope-from-export").is_some();
+    let (c, sh, loaded, digests, st) = stack_records(&ex, &layers, rope)?;
     if st.identity() != pin {
         return Err(format!("the rebuilt trained statement {} is not the pinned {}", hex(&st.identity()), hex(&pin)));
     }
@@ -1874,26 +1992,28 @@ fn stack_verify_inner(f: &[(String, String)]) -> Result<(), String> {
     if expected.to_bytes()[8..40] != ctx {
         return Err("the artifact's endpoint policy carries another context".into());
     }
-    let rst = RunStatement::new_bound(ex.geometry.run_shape(&sh, l)?, ctx, expected.clone(), &blocks, &vec![(0, 0); l], &st)?;
+    let rst = RunStatement::new_bound_from_digests(ex.geometry.run_shape(&sh, l)?, ctx, expected.clone(), digests.clone(), &vec![(0, 0); l], &st)?;
     let load_s = t.elapsed().as_secs_f64();
     let t = Instant::now();
-    run::verify_run_from_dir(&rst, &blocks, &art)?;
+    let vcache = BlockCache::shared(&ex, &sh, &c, layers.clone(), digests.clone(), rope);
+    run::verify_run_from_dir_with(&rst, &mut CacheBlocks(vcache.clone()), &art)?;
     let verify_s = t.elapsed().as_secs_f64();
+    let block_load_s = vcache.borrow().load_s;
     let total: u64 = super::run_sink::segment_paths(&art, l)?.iter().map(|p| std::fs::metadata(p).map(|m| m.len()).unwrap_or(0)).sum();
     println!(
-        "{{\"event\":\"verified\",\"blocks\":{l},\"receipt_bytes\":{total},\"load_seconds\":{load_s:.3},\"verify_seconds\":{verify_s:.3},\"vmhwm_mib\":{:.0},\"statement_identity\":{},\"scope\":{}}}",
+        "{{\"event\":\"verified\",\"blocks\":{l},\"receipt_bytes\":{total},\"load_seconds\":{load_s:.3},\"verify_seconds\":{verify_s:.3},\"of_which_block_load_seconds\":{block_load_s:.3},\"vmhwm_mib\":{:.0},\"statement_identity\":{},\"scope\":{}}}",
         peak_rss_mib(),
         js(&hex(&st.identity())),
         js(STACK_SCOPE)
     );
     if flag(f, "--controls").is_some() {
-        stack_controls(&ex, &c, &sh, &layers, blocks, &loaded, &st, ctx, &expected, &art)?;
+        stack_controls(&ex, &c, &sh, &layers, &digests, rope, &loaded, &st, ctx, &expected, &art)?;
     }
     Ok(())
 }
 
 #[allow(clippy::too_many_arguments)]
-fn stack_controls(ex: &TrainedExport, rc: &Constants, sh: &Shape, layers: &[u32], mut blocks: Vec<BlockPublic>, loaded: &[LayerMeta], st: &TrainedModelStatement, ctx: Digest, expected: &ExpectedIo, art: &Path) -> Result<(), String> {
+fn stack_controls(ex: &TrainedExport, rc: &Constants, sh: &Shape, layers: &[u32], digests: &[Digest], rope: bool, loaded: &[LayerMeta], st: &TrainedModelStatement, ctx: Digest, expected: &ExpectedIo, art: &Path) -> Result<(), String> {
     let l = layers.len();
     if l < 2 {
         return Err("trained stack: the run-level controls need at least two blocks".into());
@@ -1910,29 +2030,30 @@ fn stack_controls(ex: &TrainedExport, rc: &Constants, sh: &Shape, layers: &[u32]
             }
         }
     };
-    let run_with = |bl: &[BlockPublic], stm: &TrainedModelStatement, s: &Shape, e: &ExpectedIo, sg: &[Vec<u8>]| -> Result<(), String> {
-        let r = RunStatement::new_bound(ex.geometry.run_shape(s, bl.len())?, ctx, e.clone(), bl, &vec![(0, 0); bl.len()], stm)?;
-        run::verify_run(&r, bl, sg)
+    // ROUND 4: every control verifies with ONE block resident; `order` is
+    // the run position -> layer position map of the verifier's block list
+    let cache_for = |order: &[usize]| BlockCache::shared(ex, sh, rc, order.iter().map(|&p| layers[p]).collect(), order.iter().map(|&p| digests[p]).collect(), rope);
+    let run_with = |order: &[usize], stm: &TrainedModelStatement, s: &Shape, e: &ExpectedIo, sg: &[Vec<u8>]| -> Result<(), String> {
+        let d: Vec<Digest> = order.iter().map(|&p| digests[p]).collect();
+        let r = RunStatement::new_bound_from_digests(ex.geometry.run_shape(s, order.len())?, ctx, e.clone(), d, &vec![(0, 0); order.len()], stm)?;
+        run::verify_run_with(&r, &mut CacheBlocks(cache_for(order)), sg)
     };
+    let ident: Vec<usize> = (0..l).collect();
     let (a, b) = (l / 2 - 1, l / 2);
-    // (1) a statement (and block list) with two adjacent blocks swapped; the
-    //     block list is swapped IN PLACE (no second copy of 1.25 GB) and
-    //     swapped back afterwards
+    // (1) a statement (and the verifier's block list) with two adjacent
+    //     blocks swapped, and the honest statement over the swapped list
     {
         let mut recs: Vec<LayerRecord> = loaded.iter().map(|x| x.record.clone()).collect();
         recs.swap(a, b);
-        // the records keep their checkpoint indices in order
         for (k, r) in recs.iter_mut().enumerate() {
             r.index = layers[k];
         }
         let mut st2 = st.clone();
         st2.layers = recs;
-        blocks.swap(a, b);
-        let r1 = run_with(&blocks, &st2, sh, expected, &segs);
-        let r2 = run_with(&blocks, st, sh, expected, &segs);
-        blocks.swap(a, b);
-        refuse(&format!("a statement with blocks {a} and {b} swapped"), r1)?;
-        refuse(&format!("the honest statement with the verifier's block list {a} <-> {b} swapped"), r2)?;
+        let mut sw = ident.clone();
+        sw.swap(a, b);
+        refuse(&format!("a statement with blocks {a} and {b} swapped"), run_with(&sw, &st2, sh, expected, &segs))?;
+        refuse(&format!("the honest statement with the verifier's block list {a} <-> {b} swapped"), run_with(&sw, st, sh, expected, &segs))?;
     }
     // (2) one calibration constant moved (the verifier's shape and statement)
     for (name, v) in [("norm_cn_a + 1", NormCalibration { cn_a: rc.cal.cn_a + 1, ..rc.cal }), ("sh_z moved by one", NormCalibration { sh_z: nudge(rc.cal.sh_z, 1, 8), ..rc.cal }), ("sh_qkv moved by one", NormCalibration { sh_qkv: nudge(rc.cal.sh_qkv, 1, 8), ..rc.cal })] {
@@ -1940,7 +2061,7 @@ fn stack_controls(ex: &TrainedExport, rc: &Constants, sh: &Shape, layers: &[u32]
             let s2 = ex.geometry.shape_at(&v, rc.f_e)?;
             let st2 = ex.statement_of_records(&s2, &Constants { cal: v, ..rc.clone() }, loaded.iter().map(|m| m.record.clone()).collect())?;
             let e2 = ExpectedIo::from_bytes_at(&s2, &expected.to_bytes())?;
-            run_with(&blocks, &st2, &s2, &e2, &segs)
+            run_with(&ident, &st2, &s2, &e2, &segs)
         })();
         refuse(&format!("a verifier statement with {name}"), r)?;
     }
@@ -1951,7 +2072,7 @@ fn stack_controls(ex: &TrainedExport, rc: &Constants, sh: &Shape, layers: &[u32]
             let s2 = ex.geometry.shape_at(&rc.cal, fe2)?;
             let st2 = ex.statement_of_records(&s2, &Constants { f_e: fe2, ..rc.clone() }, loaded.iter().map(|m| m.record.clone()).collect())?;
             let e2 = ExpectedIo::from_bytes_at(&s2, &expected.to_bytes())?;
-            run_with(&blocks, &st2, &s2, &e2, &segs)
+            run_with(&ident, &st2, &s2, &e2, &segs)
         })();
         refuse("a verifier statement with f_e moved by one", r)?;
     }
@@ -1959,35 +2080,32 @@ fn stack_controls(ex: &TrainedExport, rc: &Constants, sh: &Shape, layers: &[u32]
     {
         let mut st2 = st.clone();
         st2.calibration.export_profile_sha256[0] ^= 1;
-        refuse("a verifier statement with another export profile digest", run_with(&blocks, &st2, sh, expected, &segs))?;
+        refuse("a verifier statement with another export profile digest", run_with(&ident, &st2, sh, expected, &segs))?;
     }
     // (4) one block fewer (the last one dropped)
     {
         let mut st2 = st.clone();
         st2.layers.pop();
-        refuse("a verifier statement and block list one block shorter", run_with(&blocks[..l - 1], &st2, sh, expected, &segs[..l - 1]))?;
+        refuse("a verifier statement and block list one block shorter", run_with(&ident[..l - 1], &st2, sh, expected, &segs[..l - 1]))?;
     }
-    // (5) segment mutations: a byte flipped in a middle segment, two segments
-    //     swapped, a truncated segment
-    let rst = RunStatement::new_bound(ex.geometry.run_shape(sh, l)?, ctx, expected.clone(), &blocks, &vec![(0, 0); l], st)?;
-    // (each mutation is made IN PLACE and undone, so no second copy of a
-    // quarter-gigabyte receipt is ever resident)
+    // (5) segment mutations, each made IN PLACE and undone
+    let rst = RunStatement::new_bound_from_digests(ex.geometry.run_shape(sh, l)?, ctx, expected.clone(), digests.to_vec(), &vec![(0, 0); l], st)?;
     {
         let m = segs[b].len() / 2;
         segs[b][m] ^= 0x01;
-        let r = run::verify_run(&rst, &blocks, &segs);
+        let r = run::verify_run_with(&rst, &mut CacheBlocks(cache_for(&ident)), &segs);
         segs[b][m] ^= 0x01;
         refuse(&format!("segment {b} with one byte flipped"), r)?;
         segs.swap(a, b);
-        let r = run::verify_run(&rst, &blocks, &segs);
+        let r = run::verify_run_with(&rst, &mut CacheBlocks(cache_for(&ident)), &segs);
         segs.swap(a, b);
         refuse(&format!("segments {a} and {b} swapped"), r)?;
         let last = segs[l - 1].pop().ok_or("an empty last segment")?;
-        let r = run::verify_run(&rst, &blocks, &segs);
+        let r = run::verify_run_with(&rst, &mut CacheBlocks(cache_for(&ident)), &segs);
         segs[l - 1].push(last);
         refuse("the last segment truncated by one byte", r)?;
     }
-    run::verify_run(&rst, &blocks, &segs)?;
+    run::verify_run_with(&rst, &mut CacheBlocks(cache_for(&ident)), &segs)?;
     println!("{{\"event\":\"stack-controls\",\"refused\":{n},\"honest_still_verifies\":true}}");
     Ok(())
 }

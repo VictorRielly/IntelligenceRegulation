@@ -479,11 +479,12 @@ def i_block(x: np.ndarray, P: LayerInt, rope: tuple, rec: Rec, seq0: int = 0, cl
     qg = qr.reshape(N, T, g.KV, g.G, g.dh).transpose(0, 2, 3, 1, 4)
     kg = kr.transpose(0, 2, 3, 1)[:, :, None]
     sacc = exact_bmm(qg, kg)                                       # (N,KV,G,T,T), all (t, j)
-    s8 = rec.check("score", requant(sacc, P.sh_s), *I8N, seq0, clamp)
+    s16 = getattr(P, "s16", False)      # B5 experiment hook (NOT native): int16 score class
+    s8 = rec.check("score", requant(sacc, P.sh_s), *((-32767, 32767) if s16 else I8N), seq0, clamp)
     tri = np.tril(np.ones((T, T), dtype=bool))
-    masked = np.where(tri, s8, Native.MASK)
+    masked = np.where(tri, s8, -32767 if s16 else Native.MASK)
     best = masked.max(-1, keepdims=True)
-    delta = rec.check("exp difference", best - masked, 0, 255, seq0, clamp)
+    delta = rec.check("exp difference", best - masked, 0, len(P.exp) - 1, seq0, clamp)
     E = P.exp[delta]
     total = np.where(tri, E, 0).sum(-1, keepdims=True)
     total = rec.check("softmax denominator", total, 1 << P.f_e, T << P.f_e, seq0, clamp)

@@ -463,7 +463,14 @@ def predict(bundle) -> dict:
     standalone = getattr(bundle, "standalone", False)
     if bundle.boundaries:
         ident_rows = bundle.boundary(0)["data_rows"]
-    elif standalone:
+    # [TINYLLAMA PORT, tools v2, 2026-10-17] a ONE-BLOCK RUN (the only form
+    # a trained block proves in: R2-4 refuses a single-block receipt at a
+    # trained profile) has no boundary either; its identified rows are the
+    # two external endpoints' data planes, exactly as a standalone block's.
+    # The fallback below (the FIRST role's, which is A's) was never right for
+    # it -- named as expected-wrong in `l1/prediction_tinyllama_l1_by_hand`
+    # before any L = 1 bundle existed.  A run with a boundary is unaffected.
+    elif standalone or bundle.blocks == 1:
         ident_rows = next(r["data_rows_declared"] for r in geo["roles"]
                           if r["kind"] == "external-endpoint")
     else:

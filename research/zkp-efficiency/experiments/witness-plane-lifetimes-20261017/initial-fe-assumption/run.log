@@ -1,0 +1,1 @@
+{"status": "pass", "counts": {"fixtures": 72, "plane_checks": 5928, "word_checks": 293384}, "controls": ["premature moved-plane read", "scatter plane incorrectly deferred", "missing final move", "short producer vector", "required untouched padding changed", "exp padded completion omitted"], "experiment_wall_seconds": 0.24930787899938878, "peak_rss_kib": 17220}

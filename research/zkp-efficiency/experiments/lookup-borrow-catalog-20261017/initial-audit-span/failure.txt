@@ -1,0 +1,1 @@
+Audit failed at line44: span comparison included newly inserted lookup_columns_at. Sentinel was a following comment; correction will compare balanced function bodies. Experiment result itself passed.

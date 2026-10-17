@@ -1,0 +1,11 @@
+{
+ "written": "2026-10-17 12:56 UTC, BEFORE the 22-block all-zero bundle exists and before either 22-block arm pass runs",
+ "zero_capture": {"proves_and_verifies": true, "segments_bytes": 250855088, "bundle_bytes": "about 371 MB", "peak": "about 2.3 GiB", "wall": "about 10 min"},
+ "zero_pass_figures": "every figure of the dense pass A (`tl-l22-dense-a.json`) except the sampled-column class: 67 PCS roots none twice, 2,731 positions, 98,822 challenges, final counter 104,518, 44 tags; 89 openings / 22,784 columns / 162,197,504 B; 506 of 506 terminal checks; 22 A at 0, 22 H at 2, 21 B at 0 (6 of 6), 2 E at 0, 22 M at 0; 2,246 x 78,494, joint 44 = 44, u* 44; 21 three-role 0 = 0; 21 adjacent pairs 4 = 4",
+ "full_preimage_arm": {"commitments_exhibited": "67 of 67 (22 A, 22 H, 21 B, 2 E)", "view_entries_differing": 0, "salted_leaves": 17152, "view_entries": "about 24.7 M (law from L = 1 and L = 2: 1,125,324 + 21 x ~1,121,065; the sampled-column class moves it by thousands, so not predicted to the unit)"},
+ "mask_arm": {"stages": 22, "entries_differing": 0, "salted_leaves": 5632, "entries": "355,410 (dense, measured in pass M); zero not predicted to the unit"},
+ "joint_arm": {"entries_differing": 0, "salted_leaves": 22784, "couplings": "all four respected", "C1_identified_pairs": "704, all data rows"},
+ "bookkeeping_expected": "without --controls the mask stage's ok is false ('controls not requested') and the joint stage inherits it, exactly as tl-zero-arms.json at L = 2; controls fired at L = 1 and 2 and M1..M6 at L = 22 (pass M)",
+ "costs": {"per_arm_pass": "about 55 min (full preimage ~22 x 2 min + boundary stage ~6 min + mask ~3 min), peak about 5.7-6 GiB set by the boundary stage's whole-run system"},
+ "privacy_acceptance": false
+}

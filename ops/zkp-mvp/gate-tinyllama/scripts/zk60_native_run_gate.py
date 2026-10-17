@@ -1257,9 +1257,23 @@ def channels(bundle, record):
             "status": "open",
             "assumption": None,
             "preimage_exhibited": None,
-            "reason": "history item H9: a retained capture is a published opening.  "
-            "This bundle is of a deliberately public synthetic fixture and its writer "
-            "is behind #[cfg(test)]",
+            # [TINYLLAMA PORT, tools v3, finding G-3] a TRAINED bundle's
+            # hidden input is not a synthetic fixture: it is held-out
+            # calibration data (or the all-zero plane).  Frozen-profile
+            # records keep their sentence byte for byte.
+            "reason": ("history item H9: a retained capture is a published "
+                       "opening.  This bundle's hidden input is REAL held-out "
+                       "calibration data of the trained export (or the all-zero "
+                       "plane), which the export itself stores in the repository "
+                       "(seq_*/x_in_L*.bin), so retaining it publishes nothing "
+                       "new; a capture of a NON-public input would be a published "
+                       "opening of a real input and falls under D21.  The writer "
+                       "is behind #[cfg(test)]"
+                       if bundle.run["shape"].get("trained_calibration") is True
+                       else
+                       "history item H9: a retained capture is a published opening.  "
+                       "This bundle is of a deliberately public synthetic fixture and its writer "
+                       "is behind #[cfg(test)]"),
         },
         {
             "channel": "timing, memory, power",

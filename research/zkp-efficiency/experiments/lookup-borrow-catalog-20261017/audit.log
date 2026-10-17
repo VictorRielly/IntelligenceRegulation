@@ -1,0 +1,1 @@
+{"status": "pass", "checks": 235, "independent_closed_form_rows": 12, "public_layer_manifests": 22, "scope": "independent accounting and source-identity audit; no native compile or proof", "wall_seconds": 0.011947651997616049, "peak_rss_kib": 14904, "threads": 1, "source_sha256": "cd68e5fe7bc731e6e8673e45e3b7a4ad8e4914344044127676ec85053688cb97"}

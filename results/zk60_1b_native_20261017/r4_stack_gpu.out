@@ -1,0 +1,5 @@
+[zk60-guard 06:02:42] START r4-stack-8b-gpu class=gpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=b3c20f657630
+[zk60-guard 06:09:13] END r4-stack-8b-gpu exit=0 child_wall=391s peak_rss=1.57G min_avail=9.15G peak_vram=2369MiB
+[zk60-guard 06:09:13] START r4-stack-8b-verify-gpu class=cpu need=2.5G cap=5G enforce=cgroup+watchdog waited=0s run=3dcfe1b6912a
+[zk60-guard 06:12:03] END r4-stack-8b-verify-gpu exit=0 child_wall=170s peak_rss=0.95G min_avail=9.82G
+stack-verify gpu exit 0

@@ -1,0 +1,32 @@
+[
+  {
+    "command": [
+      "python3",
+      "experiments/lookup-borrow-catalog-20261017/run.py"
+    ],
+    "started_utc": "2026-10-17T12:32:31.911386+00:00",
+    "exit_code": 0,
+    "log": "experiments/lookup-borrow-catalog-20261017/run.log",
+    "source_sha256": "bf071a0404feb3123004975b3e0c4516ae68365fdfa60009315ba672210dfb9c"
+  },
+  {
+    "command": [
+      "python3",
+      "experiments/lookup-borrow-catalog-20261017/prepare_candidate.py"
+    ],
+    "started_utc": "2026-10-17T12:32:33.043699+00:00",
+    "exit_code": 0,
+    "log": "experiments/lookup-borrow-catalog-20261017/prepare_candidate.log",
+    "source_sha256": "630e2be0ef6dc2a2fd6e527b85566b363b893adf2664d344aa39c3b25e44a074"
+  },
+  {
+    "command": [
+      "python3",
+      "experiments/lookup-borrow-catalog-20261017/audit.py"
+    ],
+    "started_utc": "2026-10-17T12:32:33.071621+00:00",
+    "exit_code": 0,
+    "log": "experiments/lookup-borrow-catalog-20261017/audit.log",
+    "source_sha256": "cd68e5fe7bc731e6e8673e45e3b7a4ad8e4914344044127676ec85053688cb97"
+  }
+]

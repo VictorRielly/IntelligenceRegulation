@@ -1,0 +1,4 @@
+[load          ]      4.8 s   peak RSS     860 MB   ok
+[replay        ]      3.3 s   peak RSS     860 MB   ok
+[mask          ]    206.0 s   peak RSS     921 MB   ok
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/l22/tl-l22-dense-m.json   total 214.1 s   peak RSS 921 MB   ok=True

@@ -1,0 +1,66 @@
+--- a/hashline/src/private_block/protocol.rs
++++ b/hashline/src/private_block/protocol.rs
+@@ -400,6 +400,27 @@
+     lks.iter().map(col).collect()
+ }
+ 
++/// Review candidate: borrow exact identity lookup columns for this invocation.
++/// Nonidentity maps retain the original wrapping arithmetic and indexed order.
++pub(super) fn lookup_columns_at<'a>(lay: &Layout, wit: &'a Witness, dom: Dom, par_min: usize) -> Vec<std::borrow::Cow<'a, [i64]>> {
++    use std::borrow::Cow;
++    let len = lay.shape().size(dom);
++    let lks = lay.lookups(dom);
++    let col = |l: &Lk| -> Cow<'a, [i64]> {
++        if l.cst == 0 {
++            if let [(p, 1)] = l.terms.as_slice() {
++                return Cow::Borrowed(&wit.planes[*p][..len]);
++            }
++        }
++        Cow::Owned((0..len).map(|x| l.terms.iter().fold(l.cst, |a, (p, c)| a.wrapping_add(c.wrapping_mul(wit.planes[*p][x])))).collect())
++    };
++    if lks.len() > 1 && lks.len() * len >= par_min {
++        use rayon::prelude::*;
++        return lks.par_iter().map(&col).collect();
++    }
++    lks.iter().map(col).collect()
++}
++
+ /// **STAGE 29 (finding S28-R1).** The word count above which the byte
+ /// histogram is summed in chunks, as stage 28 chose it: a constant of the
+ /// PRODUCTION call and an ARGUMENT of [`byte_histogram_at`].
+@@ -414,7 +435,7 @@
+ /// outside the table counts into entry 0, exactly as before: only the LogUp
+ /// identity can catch it.) `lookup_words` is the PUBLIC word count of the
+ /// shape, which is what chooses the branch — never a witness value.
+-pub(super) fn byte_histogram_at(looked: &[(Dom, Vec<Vec<i64>>)], lookup_words: u64, par_min: u64) -> Vec<u64> {
++pub(super) fn byte_histogram_at<C: AsRef<[i64]> + Sync>(looked: &[(Dom, Vec<C>)], lookup_words: u64, par_min: u64) -> Vec<u64> {
+     let bin = |v: &i64| -> usize {
+         if (0..U8_LEN as i64).contains(v) {
+             *v as usize
+@@ -424,7 +445,7 @@
+     };
+     if lookup_words >= par_min {
+         use rayon::prelude::*;
+-        let cols: Vec<&Vec<i64>> = looked.iter().flat_map(|(_, cols)| cols.iter()).collect();
++        let cols: Vec<&[i64]> = looked.iter().flat_map(|(_, cols)| cols.iter().map(|c| c.as_ref())).collect();
+         return cols
+             .par_iter()
+             .flat_map(|c| c.par_chunks(1 << 16))
+@@ -447,7 +468,7 @@
+     }
+     let mut m_u8 = vec![0u64; U8_LEN];
+     for (_, cols) in looked {
+-        for v in cols.iter().flatten() {
++        for v in cols.iter().flat_map(|c| c.as_ref().iter()) {
+             m_u8[bin(v)] += 1;
+         }
+     }
+@@ -831,7 +852,7 @@
+     // `N` (trap T-1). The two guards that index `public.exp` (256 words) and
+     // `ff.act` (`[i16; 256]`) are what stops a widened `N` from turning a
+     // graceful bucket-0 fallback into an out-of-bounds panic (missed pin M-4).
+-    let looked: Vec<(Dom, Vec<Vec<i64>>)> = lay.lookup_doms().iter().map(|d| (*d, lookup_values(&lay, &wit, *d))).collect();
++    let looked: Vec<(Dom, Vec<std::borrow::Cow<'_, [i64]>>)> = lay.lookup_doms().iter().map(|d| (*d, lookup_columns_at(&lay, &wit, *d, LOOKUP_PAR_MIN))).collect();
+     // a public count: how many lookup words the six lookup domains carry at
+     // THIS shape. It is a function of the geometry and of nothing private.
+     let lookup_words: u64 = looked.iter().map(|(d, cols)| (cols.len() * sh.size(*d)) as u64).sum();

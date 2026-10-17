@@ -1,0 +1,18 @@
+--- a/hashline/src/private_block/witness.rs
++++ b/hashline/src/private_block/witness.rs
+@@ -552,7 +552,14 @@
+     let sup_kv = g.support(Dom::Kv);
+     let sup_s = g.support(Dom::S);
+     let sup_f = g.support(Dom::F);
+-    let mut pl: Vec<Vec<i64>> = (0..ids.n_a()).map(|q| if ids.is_multiplicity(q) { Vec::new() } else { vec![0i64; g.len(ids.dom(q))] }).collect();
++    // Owned producers below replace these entire vectors before any read.
++    // Every scatter plane keeps its original zero-filled padded domain.
++    let mut moved_in = vec![false; ids.n_a()];
++    for toy_id in [A_D, A_DSQ, A_LIMB, A_Y, A_AO, A_RAL, A_Q8, A_RQL, A_QR8, A_RQRL, A_O8, A_K8, A_RKL, A_V8, A_RVL, A_KR8, A_RKRL, A_S8, A_RSL, A_DM, A_DSQM, A_LIMBM, A_YM, A_G8, A_RGL, A_A16, A_U16, A_H16, A_Z16, A_RDL] { moved_in[ap(toy_id)] = true; }
++    for k in 0..g.ln {
++        for q in [ids.nr(k), ids.ns(k), ids.mr(k), ids.ms(k)] { moved_in[q] = true; }
++    }
++    let mut pl: Vec<Vec<i64>> = (0..ids.n_a()).map(|q| if ids.is_multiplicity(q) || moved_in[q] { Vec::new() } else { vec![0i64; g.len(ids.dom(q))] }).collect();
+     let mut x = vec![0i64; g.len(Dom::D)];
+     for t in 0..g.t {
+         for i in 0..g.d {

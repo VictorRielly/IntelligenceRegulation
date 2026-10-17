@@ -1,0 +1,4 @@
+capture-l22-dense exit 0
+predict-l22 exit 1
+tl-l22-dense-a exit 0
+tl-l22-dense-m exit 0

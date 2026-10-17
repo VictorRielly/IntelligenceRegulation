@@ -1,0 +1,9 @@
+[load          ]      0.3 s   peak RSS      90 MB   ok
+[replay        ]      0.1 s   peak RSS      90 MB   ok
+[terminals     ]      1.9 s   peak RSS     145 MB   ok
+[commitments   ]     17.7 s   peak RSS     145 MB   ok
+[boundary      ]      0.4 s   peak RSS     145 MB   ok
+[preimage      ]      0.1 s   peak RSS     145 MB   ok
+[runcontrols   ]     12.4 s   peak RSS     407 MB   FAIL
+[channels      ]      0.0 s   peak RSS     407 MB   ok
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/p2/tl-l1-dense-runcontrols.json   total 32.9 s   peak RSS 407 MB   ok=False

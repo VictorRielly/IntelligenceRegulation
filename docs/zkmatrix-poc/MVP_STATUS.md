@@ -1,5 +1,20 @@
 # Where the MVP stands, in plain words
 
+**2026-10-17 13:20 UTC — first complete private proof of a trained 8B model's
+transformer stack.** All 32 blocks of Llama-3-8B (NousResearch/Meta-Llama-3-8B
+rev 315b2009…, 8,030,261,248 parameters) proved as ONE bound private run at
+T=32 (hidden input, output, activations and boundaries; public weights);
+native witness bit-exact with the Python integer reference at all 32 layers;
+calibration export `llama3_8b_pg_rot1_T32` (held-out top-1 0.62 FineWeb /
+0.55 licence). Laptop CPU, shared box, n=1: total 384 s (weight loading 79 s,
+witness 19 s, block proofs ~110 s, in-process verify 93 s), receipt
+465,815,776 B in 32 segments, fresh-process verify 96 s, peak RSS < 2 GiB; 11
+run-level tamper controls refused, honest run still verifies. Statement
+identity 259dad7c…. Evidence `results/zk60_1b_native_20261017/r4/`.
+**Not yet:** speed (0.08 proved positions/s total; target 50 on a 5090),
+T > 32, embedding/head (D13), fidelity (layer-1 attention sink), independent
+review of the 8B profile changes, privacy acceptance at this shape, D23.
+
 **2026-10-17 11:15 UTC — trained 1.1B stack 9x faster; first context ladder.**
 Building the witness once and in parallel took the 22-block TinyLlama stack
 from 529 s to 56 s at T32. Ladder on identical weights (CPU / laptop GPU,

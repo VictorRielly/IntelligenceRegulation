@@ -86,6 +86,24 @@ pub(crate) struct ModelSource {
     pub checkpoint_layers: u32,
 }
 
+/// the four Llama-3-8B shards and their SHA-256 (source.json, inventory)
+pub(crate) const LLAMA3_8B_SHARDS: [(&str, &str); 4] = [
+    ("model-00001-of-00004.safetensors", "f2c144103072514542e327fa8080bd375cb300f2d453fba9ca3aea81d0d4cf33"),
+    ("model-00002-of-00004.safetensors", "d9eee5f23d94405d90b7e9ff88b9443fee42f8528a658f54214c2aba7530d80c"),
+    ("model-00003-of-00004.safetensors", "4b8fbc5e113f69768dd8de84661ea20af8a32b734a9976144b4236c447b40ccc"),
+    ("model-00004-of-00004.safetensors", "5dc34e6bdf2da9e35f0d93b5c333c870f3677dc43dc3a91ea3a8ad28a1fe1acb"),
+];
+
+/// **The digest of a sharded checkpoint**: SHA-256 of `name hex\n` per shard,
+/// sorted by name, hex lower case (the loader computes the same from an
+/// export's `model.shards_sha256`)
+pub(crate) fn shards_digest(shards: &[(&str, &str)]) -> [u8; 32] {
+    let mut v: Vec<(String, String)> = shards.iter().map(|(n, h)| (n.to_string(), h.to_ascii_lowercase())).collect();
+    v.sort();
+    let text: String = v.iter().map(|(n, x)| format!("{n} {x}\n")).collect();
+    sha(text.as_bytes())
+}
+
 fn hex32(s: &str) -> [u8; 32] {
     assert_eq!(s.len(), 64, "a SHA-256 is 64 hex characters");
     let mut out = [0u8; 32];
@@ -108,6 +126,34 @@ impl ModelSource {
             config_sha256: hex32("486bedda3a6988332e60d9638a09ca4b260d34ebcf1b19e22cf3b140b63d8fe9"),
             checkpoint_parameters: 1_100_048_384,
             checkpoint_layers: 22,
+        }
+    }
+
+    /// **ROUND 4 (R4-1): the pinned Llama-3-8B source**
+    /// (`results/zk60_mvp_20260929/llama3-8b/source.json` and the inventory
+    /// of 2026-10-17): four safetensors shards, so the weights digest is the
+    /// SHA-256 of the canonical shard list — `name hex\n` per shard in name
+    /// order ([`shards_digest`]); 32 layers, 8,030,261,248 parameters.
+    pub(crate) fn llama3_8b() -> ModelSource {
+        ModelSource {
+            kind: SourceKind::HfCheckpoint,
+            repo: "NousResearch/Meta-Llama-3-8B".into(),
+            revision: "315b20096dc791d381d514deb5f8bd9c8d6d3061".into(),
+            weights_sha256: shards_digest(&LLAMA3_8B_SHARDS),
+            config_sha256: hex32("2430cee764b6530ff8673cf9ba8561e1d5a33152d503cd0de909ff5718261441"),
+            checkpoint_parameters: 8_030_261_248,
+            checkpoint_layers: 32,
+        }
+    }
+
+    /// the pinned source a trained-model profile carries, if it has one
+    pub(crate) fn pinned_for_profile(profile: &str) -> Option<ModelSource> {
+        if super::shape::TINYLLAMA_TRAINED_PROFILES.contains(&profile) {
+            Some(ModelSource::tinyllama_chat_v1_0())
+        } else if profile == super::shape::LLAMA3_8B_T32_TRAINED_PROFILE {
+            Some(ModelSource::llama3_8b())
+        } else {
+            None
         }
     }
 
@@ -280,8 +326,12 @@ impl IntegerCalibration {
         }
         // the review's general rule: at a trained shape the RoPE base is the
         // geometry's (a model fact, not a calibration choice)
-        if sh.trained_calibration && self.rope_theta_f64_bits != super::shape::TRAINED_ROPE_THETA.to_bits() {
-            return Err(format!("trained statement: the RoPE base {} is not the trained geometry's {}", f64::from_bits(self.rope_theta_f64_bits), super::shape::TRAINED_ROPE_THETA));
+        // ROUND 4: pinned PER PROFILE (10000 TinyLlama / rung, 500000 8B)
+        if sh.trained_calibration {
+            let want = super::shape::trained_rope_theta(sh.profile).ok_or("trained statement: a trained shape with no pinned RoPE base")?;
+            if self.rope_theta_f64_bits != want.to_bits() {
+                return Err(format!("trained statement: the RoPE base {} is not the profile's {want}", f64::from_bits(self.rope_theta_f64_bits)));
+            }
         }
         Ok(())
     }
@@ -471,9 +521,14 @@ impl TrainedModelStatement {
         // review finding F-3: keyed on the profile's IDENTITY (it was a
         // substring test): the trained TinyLlama profile is the pinned
         // checkpoint's, and nothing else's
-        let tiny = super::shape::TINYLLAMA_TRAINED_PROFILES.contains(&self.block_profile.as_str());
-        if tiny && !synthetic_at_trained_ok && self.source != ModelSource::tinyllama_chat_v1_0() {
-            return Err("trained statement: the trained TinyLlama profile is the pinned TinyLlama-1.1B-Chat checkpoint's; this statement names another source".into());
+        // ROUND 4: every trained-model profile (TinyLlama at T32/T64/T128,
+        // Llama-3-8B at T32) carries ITS pinned checkpoint and nothing else
+        let pinned = ModelSource::pinned_for_profile(&self.block_profile);
+        let tiny = pinned.is_some();
+        if let Some(pin) = &pinned {
+            if !synthetic_at_trained_ok && self.source != *pin {
+                return Err(format!("trained statement: the profile {} is the pinned {} checkpoint's; this statement names another source", self.block_profile, pin.repo));
+            }
         }
         if tiny && self.source.kind == SourceKind::PublicSyntheticRecipe && !synthetic_at_trained_ok {
             return Err("trained statement: a synthetic recipe may not carry a trained (non-development) profile".into());

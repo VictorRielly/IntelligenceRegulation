@@ -1,0 +1,3 @@
+timeout 59s python3 experiments/witness-plane-lifetimes-20261017/run.py > experiments/witness-plane-lifetimes-20261017/run.log 2>&1
+timeout 59s python3 experiments/witness-plane-lifetimes-20261017/audit.py > experiments/witness-plane-lifetimes-20261017/audit.log 2>&1
+Both final commands exited 0. Source enforces one affinity, nice19,59s CPU/alarm and512MiB AS; no heavy/native job.

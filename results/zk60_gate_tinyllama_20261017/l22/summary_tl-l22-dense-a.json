@@ -1,0 +1,1435 @@
+{
+ "record": "tl-l22-dense-a.json",
+ "bundle": "tinyllama-trained-capture-dense-l22",
+ "ok": true,
+ "total_seconds": 501.9,
+ "peak_rss_mb": 5662,
+ "timings": {
+  "load": [
+   10.2,
+   860,
+   null
+  ],
+  "replay": [
+   7.2,
+   860,
+   null
+  ],
+  "hash": [
+   4.2,
+   860,
+   null
+  ],
+  "terminals": [
+   69.3,
+   860,
+   null
+  ],
+  "commitments": [
+   56.8,
+   1103,
+   null
+  ],
+  "boundary": [
+   352.4,
+   5662,
+   null
+  ],
+  "preimage": [
+   1.8,
+   5662,
+   null
+  ],
+  "channels": [
+   0.0,
+   5662,
+   null
+  ]
+ },
+ "P1": {
+  "ok": true,
+  "findings": 0,
+  "blocks": 22,
+  "boundaries": 21,
+  "roots": 67,
+  "twice": false,
+  "manifest_files": 25
+ },
+ "pins_ok": true,
+ "shared_pins_ok": true,
+ "P2": {
+  "ok": true,
+  "positions": 2731,
+  "challenges": 98822,
+  "final_counter": 104518,
+  "binding": true,
+  "tags_ok": true,
+  "failures": 0
+ },
+ "P3": {
+  "ok": true,
+  "openings": 89,
+  "columns": 22784,
+  "authenticated": 22784,
+  "bytes": 162197504,
+  "distinct_salted_leaves": 22462,
+  "wrong_rules_reaching_root": []
+ },
+ "P4": {
+  "ok": true,
+  "equal": 506,
+  "expected": 506,
+  "matching_stored": 506,
+  "open": 0,
+  "group": "repaired",
+  "tables_digest_checked": 484,
+  "structure_checks": 330,
+  "structure_failures": 0,
+  "channel": "derived",
+  "controls_ok": false,
+  "controls_not_fired": null
+ },
+ "P5": {
+  "A@0": {
+   "rows": 1729,
+   "data": 1487,
+   "claims": 120,
+   "groups": 36,
+   "disclosed": 0,
+   "rank_P1": 74,
+   "k0": 0,
+   "non_data": 242,
+   "excl": 16,
+   "distinct_cols": 255,
+   "meets": true
+  },
+  "H@0": {
+   "rows": 1798,
+   "data": 1696,
+   "claims": 50,
+   "groups": 9,
+   "disclosed": 2,
+   "rank_P1": 20,
+   "k0": 0,
+   "non_data": 102,
+   "excl": 16,
+   "distinct_cols": 251,
+   "meets": true
+  },
+  "E-Input": {
+   "rows": 21,
+   "data": 16,
+   "claims": 1,
+   "groups": 1,
+   "disclosed": 0,
+   "rank_P1": 4,
+   "k0": 0,
+   "non_data": 5,
+   "excl": 16,
+   "distinct_cols": 254,
+   "meets": true
+  },
+  "A@1": {
+   "rows": 1729,
+   "data": 1487,
+   "claims": 120,
+   "groups": 36,
+   "disclosed": 0,
+   "rank_P1": 74,
+   "k0": 0,
+   "non_data": 242,
+   "excl": 16,
+   "distinct_cols": 256,
+   "meets": true
+  },
+  "H@1": {
+   "rows": 1798,
+   "data": 1696,
+   "claims": 50,
+   "groups": 9,
+   "disclosed": 2,
+   "rank_P1": 20,
+   "k0": 0,
+   "non_data": 102,
+   "excl": 16,
+   "distinct_cols": 254,
+   "meets": true
+  },
+  "B0": {
+   "rows": 22,
+   "data": 16,
+   "claims": 2,
+   "groups": 2,
+   "disclosed": 0,
+   "rank_P1": 6,
+   "k0": 0,
+   "non_data": 6,
+   "excl": 16,
+   "distinct_cols": 256,
+   "meets": true
+  },
+  "A@2": {
+   "rows": 1729,
+   "data": 1487,
+   "claims": 120,
+   "groups": 36,
+   "disclosed": 0,
+   "rank_P1": 74,
+   "k0": 0,
+   "non_data": 242,
+   "excl": 16,
+   "distinct_cols": 256,
+   "meets": true
+  },
+  "H@2": {
+   "rows": 1798,
+   "data": 1696,
+   "claims": 50,
+   "groups": 9,
+   "disclosed": 2,
+   "rank_P1": 20,
+   "k0": 0,
+   "non_data": 102,
+   "excl": 16,
+   "distinct_cols": 252,
+   "meets": true
+  },
+  "B1": {
+   "rows": 22,
+   "data": 16,
+   "claims": 2,
+   "groups": 2,
+   "disclosed": 0,
+   "rank_P1": 6,
+   "k0": 0,
+   "non_data": 6,
+   "excl": 16,
+   "distinct_cols": 253,
+   "meets": true
+  },
+  "A@3": {
+   "rows": 1729,
+   "data": 1487,
+   "claims": 120,
+   "groups": 36,
+   "disclosed": 0,
+   "rank_P1": 74,
+   "k0": 0,
+   "non_data": 242,
+   "excl": 16,
+   "distinct_cols": 254,
+   "meets": true
+  },
+  "H@3": {
+   "rows": 1798,
+   "data": 1696,
+   "claims": 50,
+   "groups": 9,
+   "disclosed": 2,
+   "rank_P1": 20,
+   "k0": 0,
+   "non_data": 102,
+   "excl": 16,
+   "distinct_cols": 254,
+   "meets": true
+  },
+  "B2": {
+   "rows": 22,
+   "data": 16,
+   "claims": 2,
+   "groups": 2,
+   "disclosed": 0,
+   "rank_P1": 6,
+   "k0": 0,
+   "non_data": 6,
+   "excl": 16,
+   "distinct_cols": 254,
+   "meets": true
+  },
+  "A@4": {
+   "rows": 1729,
+   "data": 1487,
+   "claims": 120,
+   "groups": 36,
+   "disclosed": 0,
+   "rank_P1": 74,
+   "k0": 0,
+   "non_data": 242,
+   "excl": 16,
+   "distinct_cols": 253,
+   "meets": true
+  },
+  "H@4": {
+   "rows": 1798,
+   "data": 1696,
+   "claims": 50,
+   "groups": 9,
+   "disclosed": 2,
+   "rank_P1": 20,
+   "k0": 0,
+   "non_data": 102,
+   "excl": 16,
+   "distinct_cols": 253,
+   "meets": true
+  },
+  "B3": {
+   "rows": 22,
+   "data": 16,
+   "claims": 2,
+   "groups": 2,
+   "disclosed": 0,
+   "rank_P1": 6,
+   "k0": 0,
+   "non_data": 6,
+   "excl": 16,
+   "distinct_cols": 256,
+   "meets": true
+  },
+  "A@5": {
+   "rows": 1729,
+   "data": 1487,
+   "claims": 120,
+   "groups": 36,
+   "disclosed": 0,
+   "rank_P1": 74,
+   "k0": 0,
+   "non_data": 242,
+   "excl": 16,
+   "distinct_cols": 256,
+   "meets": true
+  },
+  "H@5": {
+   "rows": 1798,
+   "data": 1696,
+   "claims": 50,
+   "groups": 9,
+   "disclosed": 2,
+   "rank_P1": 20,
+   "k0": 0,
+   "non_data": 102,
+   "excl": 16,
+   "distinct_cols": 254,
+   "meets": true
+  },
+  "B4": {
+   "rows": 22,
+   "data": 16,
+   "claims": 2,
+   "groups": 2,
+   "disclosed": 0,
+   "rank_P1": 6,
+   "k0": 0,
+   "non_data": 6,
+   "excl": 16,
+   "distinct_cols": 255,
+   "meets": true
+  },
+  "A@6": {
+   "rows": 1729,
+   "data": 1487,
+   "claims": 120,
+   "groups": 36,
+   "disclosed": 0,
+   "rank_P1": 74,
+   "k0": 0,
+   "non_data": 242,
+   "excl": 16,
+   "distinct_cols": 252,
+   "meets": true
+  },
+  "H@6": {
+   "rows": 1798,
+   "data": 1696,
+   "claims": 50,
+   "groups": 9,
+   "disclosed": 2,
+   "rank_P1": 20,
+   "k0": 0,
+   "non_data": 102,
+   "excl": 16,
+   "distinct_cols": 254,
+   "meets": true
+  },
+  "B5": {
+   "rows": 22,
+   "data": 16,
+   "claims": 2,
+   "groups": 2,
+   "disclosed": 0,
+   "rank_P1": 6,
+   "k0": 0,
+   "non_data": 6,
+   "excl": 16,
+   "distinct_cols": 252,
+   "meets": true
+  },
+  "A@7": {
+   "rows": 1729,
+   "data": 1487,
+   "claims": 120,
+   "groups": 36,
+   "disclosed": 0,
+   "rank_P1": 74,
+   "k0": 0,
+   "non_data": 242,
+   "excl": 16,
+   "distinct_cols": 251,
+   "meets": true
+  },
+  "H@7": {
+   "rows": 1798,
+   "data": 1696,
+   "claims": 50,
+   "groups": 9,
+   "disclosed": 2,
+   "rank_P1": 20,
+   "k0": 0,
+   "non_data": 102,
+   "excl": 16,
+   "distinct_cols": 253,
+   "meets": true
+  },
+  "B6": {
+   "rows": 22,
+   "data": 16,
+   "claims": 2,
+   "groups": 2,
+   "disclosed": 0,
+   "rank_P1": 6,
+   "k0": 0,
+   "non_data": 6,
+   "excl": 16,
+   "distinct_cols": 254,
+   "meets": true
+  },
+  "A@8": {
+   "rows": 1729,
+   "data": 1487,
+   "claims": 120,
+   "groups": 36,
+   "disclosed": 0,
+   "rank_P1": 74,
+   "k0": 0,
+   "non_data": 242,
+   "excl": 16,
+   "distinct_cols": 254,
+   "meets": true
+  },
+  "H@8": {
+   "rows": 1798,
+   "data": 1696,
+   "claims": 50,
+   "groups": 9,
+   "disclosed": 2,
+   "rank_P1": 20,
+   "k0": 0,
+   "non_data": 102,
+   "excl": 16,
+   "distinct_cols": 256,
+   "meets": true
+  },
+  "B7": {
+   "rows": 22,
+   "data": 16,
+   "claims": 2,
+   "groups": 2,
+   "disclosed": 0,
+   "rank_P1": 6,
+   "k0": 0,
+   "non_data": 6,
+   "excl": 16,
+   "distinct_cols": 253,
+   "meets": true
+  },
+  "A@9": {
+   "rows": 1729,
+   "data": 1487,
+   "claims": 120,
+   "groups": 36,
+   "disclosed": 0,
+   "rank_P1": 74,
+   "k0": 0,
+   "non_data": 242,
+   "excl": 16,
+   "distinct_cols": 253,
+   "meets": true
+  },
+  "H@9": {
+   "rows": 1798,
+   "data": 1696,
+   "claims": 50,
+   "groups": 9,
+   "disclosed": 2,
+   "rank_P1": 20,
+   "k0": 0,
+   "non_data": 102,
+   "excl": 16,
+   "distinct_cols": 252,
+   "meets": true
+  },
+  "B8": {
+   "rows": 22,
+   "data": 16,
+   "claims": 2,
+   "groups": 2,
+   "disclosed": 0,
+   "rank_P1": 6,
+   "k0": 0,
+   "non_data": 6,
+   "excl": 16,
+   "distinct_cols": 255,
+   "meets": true
+  },
+  "A@10": {
+   "rows": 1729,
+   "data": 1487,
+   "claims": 120,
+   "groups": 36,
+   "disclosed": 0,
+   "rank_P1": 74,
+   "k0": 0,
+   "non_data": 242,
+   "excl": 16,
+   "distinct_cols": 253,
+   "meets": true
+  },
+  "H@10": {
+   "rows": 1798,
+   "data": 1696,
+   "claims": 50,
+   "groups": 9,
+   "disclosed": 2,
+   "rank_P1": 20,
+   "k0": 0,
+   "non_data": 102,
+   "excl": 16,
+   "distinct_cols": 253,
+   "meets": true
+  },
+  "B9": {
+   "rows": 22,
+   "data": 16,
+   "claims": 2,
+   "groups": 2,
+   "disclosed": 0,
+   "rank_P1": 6,
+   "k0": 0,
+   "non_data": 6,
+   "excl": 16,
+   "distinct_cols": 256,
+   "meets": true
+  },
+  "A@11": {
+   "rows": 1729,
+   "data": 1487,
+   "claims": 120,
+   "groups": 36,
+   "disclosed": 0,
+   "rank_P1": 74,
+   "k0": 0,
+   "non_data": 242,
+   "excl": 16,
+   "distinct_cols": 253,
+   "meets": true
+  },
+  "H@11": {
+   "rows": 1798,
+   "data": 1696,
+   "claims": 50,
+   "groups": 9,
+   "disclosed": 2,
+   "rank_P1": 20,
+   "k0": 0,
+   "non_data": 102,
+   "excl": 16,
+   "distinct_cols": 255,
+   "meets": true
+  },
+  "B10": {
+   "rows": 22,
+   "data": 16,
+   "claims": 2,
+   "groups": 2,
+   "disclosed": 0,
+   "rank_P1": 6,
+   "k0": 0,
+   "non_data": 6,
+   "excl": 16,
+   "distinct_cols": 255,
+   "meets": true
+  },
+  "A@12": {
+   "rows": 1729,
+   "data": 1487,
+   "claims": 120,
+   "groups": 36,
+   "disclosed": 0,
+   "rank_P1": 74,
+   "k0": 0,
+   "non_data": 242,
+   "excl": 16,
+   "distinct_cols": 255,
+   "meets": true
+  },
+  "H@12": {
+   "rows": 1798,
+   "data": 1696,
+   "claims": 50,
+   "groups": 9,
+   "disclosed": 2,
+   "rank_P1": 20,
+   "k0": 0,
+   "non_data": 102,
+   "excl": 16,
+   "distinct_cols": 256,
+   "meets": true
+  },
+  "B11": {
+   "rows": 22,
+   "data": 16,
+   "claims": 2,
+   "groups": 2,
+   "disclosed": 0,
+   "rank_P1": 6,
+   "k0": 0,
+   "non_data": 6,
+   "excl": 16,
+   "distinct_cols": 255,
+   "meets": true
+  },
+  "A@13": {
+   "rows": 1729,
+   "data": 1487,
+   "claims": 120,
+   "groups": 36,
+   "disclosed": 0,
+   "rank_P1": 74,
+   "k0": 0,
+   "non_data": 242,
+   "excl": 16,
+   "distinct_cols": 255,
+   "meets": true
+  },
+  "H@13": {
+   "rows": 1798,
+   "data": 1696,
+   "claims": 50,
+   "groups": 9,
+   "disclosed": 2,
+   "rank_P1": 20,
+   "k0": 0,
+   "non_data": 102,
+   "excl": 16,
+   "distinct_cols": 254,
+   "meets": true
+  },
+  "B12": {
+   "rows": 22,
+   "data": 16,
+   "claims": 2,
+   "groups": 2,
+   "disclosed": 0,
+   "rank_P1": 6,
+   "k0": 0,
+   "non_data": 6,
+   "excl": 16,
+   "distinct_cols": 250,
+   "meets": true
+  },
+  "A@14": {
+   "rows": 1729,
+   "data": 1487,
+   "claims": 120,
+   "groups": 36,
+   "disclosed": 0,
+   "rank_P1": 74,
+   "k0": 0,
+   "non_data": 242,
+   "excl": 16,
+   "distinct_cols": 255,
+   "meets": true
+  },
+  "H@14": {
+   "rows": 1798,
+   "data": 1696,
+   "claims": 50,
+   "groups": 9,
+   "disclosed": 2,
+   "rank_P1": 20,
+   "k0": 0,
+   "non_data": 102,
+   "excl": 16,
+   "distinct_cols": 253,
+   "meets": true
+  },
+  "B13": {
+   "rows": 22,
+   "data": 16,
+   "claims": 2,
+   "groups": 2,
+   "disclosed": 0,
+   "rank_P1": 6,
+   "k0": 0,
+   "non_data": 6,
+   "excl": 16,
+   "distinct_cols": 256,
+   "meets": true
+  },
+  "A@15": {
+   "rows": 1729,
+   "data": 1487,
+   "claims": 120,
+   "groups": 36,
+   "disclosed": 0,
+   "rank_P1": 74,
+   "k0": 0,
+   "non_data": 242,
+   "excl": 16,
+   "distinct_cols": 255,
+   "meets": true
+  },
+  "H@15": {
+   "rows": 1798,
+   "data": 1696,
+   "claims": 50,
+   "groups": 9,
+   "disclosed": 2,
+   "rank_P1": 20,
+   "k0": 0,
+   "non_data": 102,
+   "excl": 16,
+   "distinct_cols": 254,
+   "meets": true
+  },
+  "B14": {
+   "rows": 22,
+   "data": 16,
+   "claims": 2,
+   "groups": 2,
+   "disclosed": 0,
+   "rank_P1": 6,
+   "k0": 0,
+   "non_data": 6,
+   "excl": 16,
+   "distinct_cols": 251,
+   "meets": true
+  },
+  "A@16": {
+   "rows": 1729,
+   "data": 1487,
+   "claims": 120,
+   "groups": 36,
+   "disclosed": 0,
+   "rank_P1": 74,
+   "k0": 0,
+   "non_data": 242,
+   "excl": 16,
+   "distinct_cols": 255,
+   "meets": true
+  },
+  "H@16": {
+   "rows": 1798,
+   "data": 1696,
+   "claims": 50,
+   "groups": 9,
+   "disclosed": 2,
+   "rank_P1": 20,
+   "k0": 0,
+   "non_data": 102,
+   "excl": 16,
+   "distinct_cols": 253,
+   "meets": true
+  },
+  "B15": {
+   "rows": 22,
+   "data": 16,
+   "claims": 2,
+   "groups": 2,
+   "disclosed": 0,
+   "rank_P1": 6,
+   "k0": 0,
+   "non_data": 6,
+   "excl": 16,
+   "distinct_cols": 253,
+   "meets": true
+  },
+  "A@17": {
+   "rows": 1729,
+   "data": 1487,
+   "claims": 120,
+   "groups": 36,
+   "disclosed": 0,
+   "rank_P1": 74,
+   "k0": 0,
+   "non_data": 242,
+   "excl": 16,
+   "distinct_cols": 253,
+   "meets": true
+  },
+  "H@17": {
+   "rows": 1798,
+   "data": 1696,
+   "claims": 50,
+   "groups": 9,
+   "disclosed": 2,
+   "rank_P1": 20,
+   "k0": 0,
+   "non_data": 102,
+   "excl": 16,
+   "distinct_cols": 253,
+   "meets": true
+  },
+  "B16": {
+   "rows": 22,
+   "data": 16,
+   "claims": 2,
+   "groups": 2,
+   "disclosed": 0,
+   "rank_P1": 6,
+   "k0": 0,
+   "non_data": 6,
+   "excl": 16,
+   "distinct_cols": 252,
+   "meets": true
+  },
+  "A@18": {
+   "rows": 1729,
+   "data": 1487,
+   "claims": 120,
+   "groups": 36,
+   "disclosed": 0,
+   "rank_P1": 74,
+   "k0": 0,
+   "non_data": 242,
+   "excl": 16,
+   "distinct_cols": 253,
+   "meets": true
+  },
+  "H@18": {
+   "rows": 1798,
+   "data": 1696,
+   "claims": 50,
+   "groups": 9,
+   "disclosed": 2,
+   "rank_P1": 20,
+   "k0": 0,
+   "non_data": 102,
+   "excl": 16,
+   "distinct_cols": 255,
+   "meets": true
+  },
+  "B17": {
+   "rows": 22,
+   "data": 16,
+   "claims": 2,
+   "groups": 2,
+   "disclosed": 0,
+   "rank_P1": 6,
+   "k0": 0,
+   "non_data": 6,
+   "excl": 16,
+   "distinct_cols": 253,
+   "meets": true
+  },
+  "A@19": {
+   "rows": 1729,
+   "data": 1487,
+   "claims": 120,
+   "groups": 36,
+   "disclosed": 0,
+   "rank_P1": 74,
+   "k0": 0,
+   "non_data": 242,
+   "excl": 16,
+   "distinct_cols": 254,
+   "meets": true
+  },
+  "H@19": {
+   "rows": 1798,
+   "data": 1696,
+   "claims": 50,
+   "groups": 9,
+   "disclosed": 2,
+   "rank_P1": 20,
+   "k0": 0,
+   "non_data": 102,
+   "excl": 16,
+   "distinct_cols": 254,
+   "meets": true
+  },
+  "B18": {
+   "rows": 22,
+   "data": 16,
+   "claims": 2,
+   "groups": 2,
+   "disclosed": 0,
+   "rank_P1": 6,
+   "k0": 0,
+   "non_data": 6,
+   "excl": 16,
+   "distinct_cols": 251,
+   "meets": true
+  },
+  "A@20": {
+   "rows": 1729,
+   "data": 1487,
+   "claims": 120,
+   "groups": 36,
+   "disclosed": 0,
+   "rank_P1": 74,
+   "k0": 0,
+   "non_data": 242,
+   "excl": 16,
+   "distinct_cols": 255,
+   "meets": true
+  },
+  "H@20": {
+   "rows": 1798,
+   "data": 1696,
+   "claims": 50,
+   "groups": 9,
+   "disclosed": 2,
+   "rank_P1": 20,
+   "k0": 0,
+   "non_data": 102,
+   "excl": 16,
+   "distinct_cols": 255,
+   "meets": true
+  },
+  "B19": {
+   "rows": 22,
+   "data": 16,
+   "claims": 2,
+   "groups": 2,
+   "disclosed": 0,
+   "rank_P1": 6,
+   "k0": 0,
+   "non_data": 6,
+   "excl": 16,
+   "distinct_cols": 256,
+   "meets": true
+  },
+  "A@21": {
+   "rows": 1729,
+   "data": 1487,
+   "claims": 120,
+   "groups": 36,
+   "disclosed": 0,
+   "rank_P1": 74,
+   "k0": 0,
+   "non_data": 242,
+   "excl": 16,
+   "distinct_cols": 253,
+   "meets": true
+  },
+  "H@21": {
+   "rows": 1798,
+   "data": 1696,
+   "claims": 50,
+   "groups": 9,
+   "disclosed": 2,
+   "rank_P1": 20,
+   "k0": 0,
+   "non_data": 102,
+   "excl": 16,
+   "distinct_cols": 253,
+   "meets": true
+  },
+  "B20": {
+   "rows": 22,
+   "data": 16,
+   "claims": 2,
+   "groups": 2,
+   "disclosed": 0,
+   "rank_P1": 6,
+   "k0": 0,
+   "non_data": 6,
+   "excl": 16,
+   "distinct_cols": 255,
+   "meets": true
+  },
+  "E-Output": {
+   "rows": 21,
+   "data": 16,
+   "claims": 1,
+   "groups": 1,
+   "disclosed": 0,
+   "rank_P1": 4,
+   "k0": 0,
+   "non_data": 5,
+   "excl": 16,
+   "distinct_cols": 254,
+   "meets": true
+  }
+ },
+ "P5_M": [
+  [
+   "M@0",
+   0
+  ],
+  [
+   "M@1",
+   0
+  ],
+  [
+   "M@2",
+   0
+  ],
+  [
+   "M@3",
+   0
+  ],
+  [
+   "M@4",
+   0
+  ],
+  [
+   "M@5",
+   0
+  ],
+  [
+   "M@6",
+   0
+  ],
+  [
+   "M@7",
+   0
+  ],
+  [
+   "M@8",
+   0
+  ],
+  [
+   "M@9",
+   0
+  ],
+  [
+   "M@10",
+   0
+  ],
+  [
+   "M@11",
+   0
+  ],
+  [
+   "M@12",
+   0
+  ],
+  [
+   "M@13",
+   0
+  ],
+  [
+   "M@14",
+   0
+  ],
+  [
+   "M@15",
+   0
+  ],
+  [
+   "M@16",
+   0
+  ],
+  [
+   "M@17",
+   0
+  ],
+  [
+   "M@18",
+   0
+  ],
+  [
+   "M@19",
+   0
+  ],
+  [
+   "M@20",
+   0
+  ],
+  [
+   "M@21",
+   0
+  ]
+ ],
+ "P5_exclusivity_controls": true,
+ "P5_hpad": {
+  "commitment": "B0",
+  "distinct_columns": 256,
+  "exact_rank_of_the_pad_block": 256,
+  "full_rank": true
+ },
+ "P6": {
+  "ok": true,
+  "matrix": "2246 x 78494",
+  "generators": 2246,
+  "identified": 704,
+  "joint": 44,
+  "parts": 44,
+  "equal": true,
+  "k0": 0,
+  "u_star": 44
+ },
+ "P6_boundaries": [
+  {
+   "rank": 6,
+   "generators": 6,
+   "disclosed": 0,
+   "three_role": [
+    null,
+    0,
+    0
+   ]
+  },
+  {
+   "rank": 6,
+   "generators": 6,
+   "disclosed": 0,
+   "three_role": [
+    null,
+    0,
+    0
+   ]
+  },
+  {
+   "rank": 6,
+   "generators": 6,
+   "disclosed": 0,
+   "three_role": [
+    null,
+    0,
+    0
+   ]
+  },
+  {
+   "rank": 6,
+   "generators": 6,
+   "disclosed": 0,
+   "three_role": [
+    null,
+    0,
+    0
+   ]
+  },
+  {
+   "rank": 6,
+   "generators": 6,
+   "disclosed": 0,
+   "three_role": [
+    null,
+    0,
+    0
+   ]
+  },
+  {
+   "rank": 6,
+   "generators": 6,
+   "disclosed": 0,
+   "three_role": [
+    null,
+    0,
+    0
+   ]
+  },
+  {
+   "rank": 6,
+   "generators": 6,
+   "disclosed": 0,
+   "three_role": [
+    null,
+    0,
+    0
+   ]
+  },
+  {
+   "rank": 6,
+   "generators": 6,
+   "disclosed": 0,
+   "three_role": [
+    null,
+    0,
+    0
+   ]
+  },
+  {
+   "rank": 6,
+   "generators": 6,
+   "disclosed": 0,
+   "three_role": [
+    null,
+    0,
+    0
+   ]
+  },
+  {
+   "rank": 6,
+   "generators": 6,
+   "disclosed": 0,
+   "three_role": [
+    null,
+    0,
+    0
+   ]
+  },
+  {
+   "rank": 6,
+   "generators": 6,
+   "disclosed": 0,
+   "three_role": [
+    null,
+    0,
+    0
+   ]
+  },
+  {
+   "rank": 6,
+   "generators": 6,
+   "disclosed": 0,
+   "three_role": [
+    null,
+    0,
+    0
+   ]
+  },
+  {
+   "rank": 6,
+   "generators": 6,
+   "disclosed": 0,
+   "three_role": [
+    null,
+    0,
+    0
+   ]
+  },
+  {
+   "rank": 6,
+   "generators": 6,
+   "disclosed": 0,
+   "three_role": [
+    null,
+    0,
+    0
+   ]
+  },
+  {
+   "rank": 6,
+   "generators": 6,
+   "disclosed": 0,
+   "three_role": [
+    null,
+    0,
+    0
+   ]
+  },
+  {
+   "rank": 6,
+   "generators": 6,
+   "disclosed": 0,
+   "three_role": [
+    null,
+    0,
+    0
+   ]
+  },
+  {
+   "rank": 6,
+   "generators": 6,
+   "disclosed": 0,
+   "three_role": [
+    null,
+    0,
+    0
+   ]
+  },
+  {
+   "rank": 6,
+   "generators": 6,
+   "disclosed": 0,
+   "three_role": [
+    null,
+    0,
+    0
+   ]
+  },
+  {
+   "rank": 6,
+   "generators": 6,
+   "disclosed": 0,
+   "three_role": [
+    null,
+    0,
+    0
+   ]
+  },
+  {
+   "rank": 6,
+   "generators": 6,
+   "disclosed": 0,
+   "three_role": [
+    null,
+    0,
+    0
+   ]
+  },
+  {
+   "rank": 6,
+   "generators": 6,
+   "disclosed": 0,
+   "three_role": [
+    null,
+    0,
+    0
+   ]
+  }
+ ],
+ "P7": [
+  [
+   "B0",
+   true,
+   0,
+   0
+  ],
+  [
+   "B1",
+   true,
+   0,
+   0
+  ],
+  [
+   "B10",
+   true,
+   0,
+   0
+  ],
+  [
+   "B11",
+   true,
+   0,
+   0
+  ],
+  [
+   "B12",
+   true,
+   0,
+   0
+  ],
+  [
+   "B13",
+   true,
+   0,
+   0
+  ],
+  [
+   "B14",
+   true,
+   0,
+   0
+  ],
+  [
+   "B15",
+   true,
+   0,
+   0
+  ],
+  [
+   "B16",
+   true,
+   0,
+   0
+  ],
+  [
+   "B17",
+   true,
+   0,
+   0
+  ],
+  [
+   "B18",
+   true,
+   0,
+   0
+  ],
+  [
+   "B19",
+   true,
+   0,
+   0
+  ],
+  [
+   "B2",
+   true,
+   0,
+   0
+  ],
+  [
+   "B20",
+   true,
+   0,
+   0
+  ],
+  [
+   "B3",
+   true,
+   0,
+   0
+  ],
+  [
+   "B4",
+   true,
+   0,
+   0
+  ],
+  [
+   "B5",
+   true,
+   0,
+   0
+  ],
+  [
+   "B6",
+   true,
+   0,
+   0
+  ],
+  [
+   "B7",
+   true,
+   0,
+   0
+  ],
+  [
+   "B8",
+   true,
+   0,
+   0
+  ],
+  [
+   "B9",
+   true,
+   0,
+   0
+  ],
+  [
+   "E-Input",
+   true,
+   1,
+   0
+  ],
+  [
+   "E-Output",
+   true,
+   1,
+   0
+  ]
+ ],
+ "P12": {
+  "total": 28,
+  "counts": {
+   "argued": 5,
+   "constructed": 2,
+   "derived": 5,
+   "open": 16
+  },
+  "grading_failures": []
+ }
+}

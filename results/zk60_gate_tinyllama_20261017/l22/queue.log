@@ -1,0 +1,17 @@
+[zk60-guard 05:17:41] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 05:18:41] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 05:19:41] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 05:20:12] START tl-capture-l22-dense class=cpu need=4.5G cap=6G enforce=cgroup+watchdog waited=150s run=1d0dcedf074b
+[zk60-guard 05:29:52] END tl-capture-l22-dense exit=0 child_wall=580s peak_rss=2.33G min_avail=8.89G
+[zk60-guard 05:29:52] START tl-predict-l22 class=light need=1G cap=1.5G enforce=cgroup+watchdog waited=0s run=52fed7ac3fce
+[zk60-guard 05:29:58] END tl-predict-l22 exit=1 child_wall=6s peak_rss=0.57G min_avail=10.33G
+[zk60-guard 05:29:58] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 05:30:58] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 05:31:58] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 05:32:58] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 05:33:59] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 05:34:59] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 05:35:31] START tl-tl-l22-dense-a class=cpu need=7.5G cap=9G enforce=cgroup+watchdog waited=332s run=8efe47a83078
+[zk60-guard 05:43:53] END tl-tl-l22-dense-a exit=0 child_wall=502s peak_rss=5.53G min_avail=8.76G
+[zk60-guard 05:43:53] START tl-tl-l22-dense-m class=light need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=ec85e0a62eff
+[zk60-guard 05:47:28] END tl-tl-l22-dense-m exit=0 child_wall=214s peak_rss=0.89G min_avail=8.08G

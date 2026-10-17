@@ -1,0 +1,7 @@
+{
+  "status": "uncompiled unapplied review candidate",
+  "baseline_sha256": "8c02c9e3f4f6c4225de6f48ec2353158212ae8d8859ea78c5f7924634d6f66bd",
+  "candidate_sha256": "a7ff50feb6d780e9153227617163b79a26a7cd40080a315b186d38100f8733da",
+  "replacements": 5,
+  "scope": "Cow columns, generic histogram; helpers/transcript/RNG/table inversions/drop order unchanged"
+}

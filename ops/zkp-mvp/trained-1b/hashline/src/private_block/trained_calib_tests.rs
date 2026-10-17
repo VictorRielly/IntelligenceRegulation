@@ -119,15 +119,37 @@ fn variations(c: NormCalibration) -> Vec<(&'static str, NormCalibration)> {
         ("cn_a + 1", NormCalibration { cn_a: c.cn_a + 1, ..c }),
         ("cn_m + 1", NormCalibration { cn_m: c.cn_m + 1, ..c }),
         ("ceps + 1", NormCalibration { ceps: c.ceps + 1, ..c }),
-        ("sh_ao + 1", NormCalibration { sh_ao: c.sh_ao + 1, ..c }),
+        ("sh_ao moved by one", NormCalibration { sh_ao: nudge(c.sh_ao, 0, 8), ..c }),
         // ROUND 2: each windowed shift moved by one, inside its window
-        ("sh_qkv - 1", NormCalibration { sh_qkv: c.sh_qkv - 1, ..c }),
-        ("sh_s + 1", NormCalibration { sh_s: c.sh_s + 1, ..c }),
-        ("sh_o + 1", NormCalibration { sh_o: c.sh_o + 1, ..c }),
-        ("sh_g - 1", NormCalibration { sh_g: c.sh_g - 1, ..c }),
-        ("sh_h + 1", NormCalibration { sh_h: c.sh_h + 1, ..c }),
-        ("sh_z + 1", NormCalibration { sh_z: c.sh_z + 1, ..c }),
+        // (ROUND 4: toward the inside when it sits at a window edge, as the
+        // 8B calibration's sh_h = 16 does)
+        ("sh_qkv moved by one", NormCalibration { sh_qkv: nudge_down(c.sh_qkv, 1, 8), ..c }),
+        ("sh_s moved by one", NormCalibration { sh_s: nudge(c.sh_s, 1, 8), ..c }),
+        ("sh_o moved by one", NormCalibration { sh_o: nudge(c.sh_o, 9, 16), ..c }),
+        ("sh_g moved by one", NormCalibration { sh_g: nudge_down(c.sh_g, 1, 8), ..c }),
+        ("sh_h moved by one", NormCalibration { sh_h: nudge(c.sh_h, 9, 16), ..c }),
+        ("sh_z moved by one", NormCalibration { sh_z: nudge(c.sh_z, 1, 8), ..c }),
     ]
+}
+
+/// one step up inside `lo..=hi`, or down at the top
+fn nudge(v: u32, lo: u32, hi: u32) -> u32 {
+    if v < hi {
+        v + 1
+    } else {
+        assert!(v > lo);
+        v - 1
+    }
+}
+
+/// one step down inside `lo..=hi`, or up at the bottom
+fn nudge_down(v: u32, lo: u32, hi: u32) -> u32 {
+    if v > lo {
+        v - 1
+    } else {
+        assert!(v < hi);
+        v + 1
+    }
 }
 
 // ------------------------------------------------------------- T2: validator
@@ -200,7 +222,7 @@ fn the_trained_door_refuses_every_frozen_profile() {
         assert!(e.contains("is frozen"), "{}: {e}", sh.name);
         assert!(!sh.trained_calibration && sh.norm_calibration() == NormCalibration::FROZEN, "{}: a registered shape carries a non-frozen calibration", sh.name);
     }
-    assert_eq!(TRAINED_CALIBRATION_PROFILES, [TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIB_RUNG_PROFILE, super::shape::TINYLLAMA_T64_TRAINED_PROFILE, super::shape::TINYLLAMA_T128_TRAINED_PROFILE]);
+    assert_eq!(TRAINED_CALIBRATION_PROFILES, [TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIB_RUNG_PROFILE, super::shape::TINYLLAMA_T64_TRAINED_PROFILE, super::shape::TINYLLAMA_T128_TRAINED_PROFILE, super::shape::LLAMA3_8B_T32_TRAINED_PROFILE]);
     // ROUND 3 (R3-2): one profile per context length; any other T is refused
     for t in [16usize, 48, 256, 512] {
         assert!(Shape::tinyllama_trained(t, &c, T3_F_E).unwrap_err().contains("no trained TinyLlama profile"), "T{t}");
@@ -347,7 +369,12 @@ fn max_abs(v: &[i64]) -> i64 {
 /// hidden half live, norm outputs not saturated nor trivially small) and
 /// compare it plane for plane with the independent shape-driven kernel.
 pub(super) fn generic_witness(sh: &Shape) -> (BlockPublic, Vec<i16>, Witness) {
-    let (w, input) = trained_dense_words(sh, TRAINED_BANDS);
+    generic_witness_with(sh, TRAINED_BANDS)
+}
+
+/// the same at other dense bands (ROUND 4: the 8B geometry's own bands)
+pub(super) fn generic_witness_with(sh: &Shape, bands: Bands) -> (BlockPublic, Vec<i16>, Witness) {
+    let (w, input) = trained_dense_words(sh, bands);
     let (public, ff) = super::dense_tests::statement_of_words(sh, &w);
     let t0 = std::time::Instant::now();
     let wit = witness::build_shaped(sh, &public, &ff, &input).unwrap_or_else(|m| panic!("{}: the trained-dense recipe is not admissible: {m}", sh.name));
@@ -390,7 +417,7 @@ pub(super) fn generic_witness(sh: &Shape) -> (BlockPublic, Vec<i16>, Witness) {
     assert_eq!(wout, kout, "{}: the block outputs of the witness and the kernel differ", sh.name);
     // and the kernel at the FROZEN calibration computes something else, so
     // the calibration is live in both implementations
-    let frozen_case = super::parity::shaped_case_from_words(sh, trained_dense_words(sh, TRAINED_BANDS).0, input.clone());
+    let frozen_case = super::parity::shaped_case_from_words(sh, trained_dense_words(sh, bands).0, input.clone());
     let fk = super::parity::kernel_shape(sh).with_norm_calibration(11, 1024, 1024, 1, 7);
     let mut scratch = vec![0i64; fk.scratch_len()];
     let mut out = vec![0i16; fk.x_len()];
@@ -415,10 +442,12 @@ fn ctx_t3() -> Digest {
 
 /// the run shape of a one-block run at a trained-calibration shape
 pub(super) fn run_shape_for(sh: &Shape, l: usize) -> super::run::RunShape {
-    if super::shape::TINYLLAMA_TRAINED_PROFILES.contains(&sh.profile) {
-        super::run::RunShape::tinyllama_trained(sh.clone(), l).unwrap()
-    } else {
+    // ROUND 4: every trained-model profile (TinyLlama, Llama-3-8B) has its
+    // own run profile; the development rung its own
+    if sh.profile == super::shape::TRAINED_CALIB_RUNG_PROFILE {
         super::run::RunShape::rung_tc(sh.clone(), l).unwrap()
+    } else {
+        super::run::RunShape::tinyllama_trained(sh.clone(), l).unwrap()
     }
 }
 
@@ -434,7 +463,9 @@ pub(super) fn synthetic_statement(sh: &Shape, blocks: &[BlockPublic]) -> super::
         checkpoint_parameters: 0,
         checkpoint_layers: blocks.len() as u32,
     };
-    let cal = IntegerCalibration::as_the_code_proves(sh, &Provenance::recipe("native/synthetic", 1.0 / 512.0, [5; 32], [6; 32]));
+    let mut prov = Provenance::recipe("native/synthetic", 1.0 / 512.0, [5; 32], [6; 32]);
+    prov.rope_theta = super::shape::trained_rope_theta(sh.profile).unwrap_or(prov.rope_theta);
+    let cal = IntegerCalibration::as_the_code_proves(sh, &prov);
     let recs = blocks.iter().enumerate().map(|(k, b)| LayerRecord::of_block(k as u32, b, vec![])).collect();
     let rp = run_shape_for(sh, 1).profile;
     TrainedModelStatement::new_synthetic_at_trained_profile_for_tests(sh, rp, src, cal, recs).expect("the synthetic trained-model statement")
@@ -490,7 +521,7 @@ pub(super) fn verify_one_bound(sh: &Shape, blk: &BlockPublic, expected_bytes: &[
 
 /// prove one block at `sh` as a bound run and verify it; returns the policy,
 /// the segment and the prove seconds
-fn prove_bytes(sh: &Shape, blk: &BlockPublic, w: Witness) -> (ExpectedIo, Vec<u8>, f64) {
+pub(super) fn prove_bytes(sh: &Shape, blk: &BlockPublic, w: Witness) -> (ExpectedIo, Vec<u8>, f64) {
     let t0 = std::time::Instant::now();
     let b = prove_one_bound(sh, blk, w).expect("the honest block proves as a bound one-block run");
     let s = t0.elapsed().as_secs_f64();
@@ -953,7 +984,18 @@ fn every_committed_value_under_a_non_unit_coefficient_is_range_proved_at_the_tra
 /// the calibration values; the calibration is bound through the schedule
 /// digest and the statement), and each run profile with its block shape.
 pub(super) fn registered_trained_shapes() -> Vec<Shape> {
-    vec![tinyllama(), rung_tc(), tinyllama_at(64), tinyllama_at(128)]
+    vec![tinyllama(), rung_tc(), tinyllama_at(64), tinyllama_at(128), llama3_8b()]
+}
+
+/// ROUND 4 (R4-1): the trained Llama-3-8B shape with the B5 smoke's
+/// calibration (tn 9, Cn 1595 / 834, Ceps 129,746, shifts qkv 8 / s 7 / ao 6
+/// / g 8 / h 16 / z 5), f_e 9
+pub(super) fn llama3_8b_calibration() -> NormCalibration {
+    NormCalibration { tn: 9, cn_a: 1595, cn_m: 834, ceps: 129_746, sh_ao: 6, sh_qkv: 8, sh_s: 7, sh_o: 9, sh_g: 8, sh_h: 16, sh_z: 5 }
+}
+
+pub(super) fn llama3_8b() -> Shape {
+    Shape::llama3_8b_t32_trained(&llama3_8b_calibration(), 9).expect("the trained Llama-3-8B shape")
 }
 
 pub(super) fn registered_trained_runs() -> Vec<(&'static str, Shape)> {
@@ -962,6 +1004,7 @@ pub(super) fn registered_trained_runs() -> Vec<(&'static str, Shape)> {
         (super::run::RUN_PROFILE_RUNG_TC, rung_tc()),
         (super::run::RUN_PROFILE_TINYLLAMA_T64_TRAINED, tinyllama_at(64)),
         (super::run::RUN_PROFILE_TINYLLAMA_T128_TRAINED, tinyllama_at(128)),
+        (super::run::RUN_PROFILE_LLAMA3_8B_T32_TRAINED, llama3_8b()),
     ]
 }
 
@@ -972,12 +1015,13 @@ pub(super) fn registered_trained_runs() -> Vec<(&'static str, Shape)> {
 pub(super) fn trained_run_statement(sh: &Shape, profile: &'static str, l: usize, ctx: Digest, expected: ExpectedIo) -> super::run::RunStatement {
     use super::run::{RunShape, RunStatement};
     use super::trained_statement::*;
+    // ROUND 4: ONE block and its digest repeated (`new_bound_from_digests`):
+    // 22 clones of a Llama-3-8B block would be 5 GB in a test
     let (public, ff, _) = super::grow_tests::tame_case(sh);
     let one = BlockPublic::new(public, ff);
-    let blocks: Vec<BlockPublic> = (0..l).map(|_| one.clone()).collect();
-    let tiny = [super::run::RUN_PROFILE_TINYLLAMA_T32_TRAINED, super::run::RUN_PROFILE_TINYLLAMA_T64_TRAINED, super::run::RUN_PROFILE_TINYLLAMA_T128_TRAINED].contains(&profile);
-    let source = if tiny {
-        ModelSource::tinyllama_chat_v1_0()
+    let pinned = ModelSource::pinned_for_profile(sh.profile);
+    let source = if let Some(pin) = pinned {
+        pin
     } else {
         ModelSource {
             kind: SourceKind::PublicSyntheticRecipe,
@@ -989,9 +1033,12 @@ pub(super) fn trained_run_statement(sh: &Shape, profile: &'static str, l: usize,
             checkpoint_layers: l as u32,
         }
     };
-    let recs = blocks.iter().enumerate().map(|(k, b)| LayerRecord::of_block(k as u32, b, vec![])).collect();
-    let cal = IntegerCalibration::as_the_code_proves(sh, &Provenance::recipe("registry", 1.0 / 1024.0, [1; 32], [2; 32]));
+    let rec0 = LayerRecord::of_block(0, &one, vec![]);
+    let recs = (0..l).map(|k| LayerRecord { index: k as u32, ..rec0.clone() }).collect();
+    let mut prov = Provenance::recipe("registry", 1.0 / 1024.0, [1; 32], [2; 32]);
+    prov.rope_theta = super::shape::trained_rope_theta(sh.profile).unwrap_or(prov.rope_theta);
+    let cal = IntegerCalibration::as_the_code_proves(sh, &prov);
     let model = TrainedModelStatement::new(sh, profile, source, cal, recs).expect("the registry's trained statement");
-    let rs = if tiny { RunShape::tinyllama_trained(sh.clone(), l) } else { RunShape::rung_tc(sh.clone(), l) }.expect("the trained run shape");
-    RunStatement::new_bound(rs, ctx, expected, &blocks, &vec![(0, 0); l], &model).expect("the trained run statement")
+    let rs = if sh.profile == super::shape::TRAINED_CALIB_RUNG_PROFILE { RunShape::rung_tc(sh.clone(), l) } else { RunShape::tinyllama_trained(sh.clone(), l) }.expect("the trained run shape");
+    RunStatement::new_bound_from_digests(rs, ctx, expected, vec![one.digest(); l], &vec![(0, 0); l], &model).expect("the trained run statement")
 }
