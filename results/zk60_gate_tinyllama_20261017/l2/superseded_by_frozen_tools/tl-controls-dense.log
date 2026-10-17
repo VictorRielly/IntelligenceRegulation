@@ -1,0 +1,16 @@
+TL-1                         ok=True  failing=[2, 14, 15, 16, 18] predicted=[2, 14, 15, 16, 18]
+TL-2/norm_tn                 ok=True  failing=[14] predicted=[14]
+TL-2/norm_cn_a               ok=True  failing=[14] predicted=[14]
+TL-2/norm_cn_m               ok=True  failing=[14] predicted=[14]
+TL-2/norm_ceps               ok=True  failing=[2] predicted=[2]
+TL-2/sh_ao                   ok=True  failing=[14] predicted=[14]
+TL-2/sh_qkv                  ok=True  failing=[15, 16] predicted=[15, 16]
+TL-2/sh_s                    ok=True  failing=[17] predicted=[17]
+TL-2/sh_o                    ok=True  failing=[15] predicted=[15]
+TL-2/sh_g                    ok=True  failing=[18] predicted=[18]
+TL-2/sh_h                    ok=True  failing=[18] predicted=[18]
+TL-2/sh_z                    ok=True  failing=[14] predicted=[14]
+TL-3/keys-without-flag       ok=True  refused=True
+TL-3/flag-without-a-key      ok=True  refused=True
+TL-3/flag-false-with-keys    ok=True  refused=True
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/l2/tl-controls-dense.json  15 of 15 fire  ok=True

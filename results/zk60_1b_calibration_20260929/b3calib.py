@@ -55,6 +55,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import tlcalib as tc  # noqa: E402
 
 GEO = tc.GEO
+# weight-transform precision: float64 for TinyLlama (B3/B4 results unchanged);
+# float32 for the 8B (memory: a 14336 x 4096 float64 copy is 470 MB). Weight
+# rounding to int8 is a calibration choice either way; the integer block that
+# consumes the int8 words is exact.
+WDT = np.float32 if tc.MODEL_NAME == "llama3-8b" else np.float64
+ROW_BLOCK = 2048
 F_E, F_P, F_RO = 9, 9, 7
 MASK = -127
 
@@ -213,7 +219,10 @@ class Rotation:
         self.n, self.seed = n, seed
         self.sign = np.where(np.random.default_rng(seed).integers(0, 2, n) == 1, 1.0, -1.0)
 
-    def fwd(self, x):       # x R^T
+    def fwd(self, x):       # x R^T (row-blocked for 2-D inputs; identical per-row arithmetic)
+        x = np.asarray(x)
+        if x.ndim == 2 and x.shape[0] > ROW_BLOCK:
+            return np.concatenate([self.fwd(x[i:i + ROW_BLOCK]) for i in range(0, x.shape[0], ROW_BLOCK)])
         return fwht(np.asarray(x, dtype=np.float64) * self.sign) / math.sqrt(self.n)
 
     def inv(self, y):       # y R
@@ -232,12 +241,16 @@ def rotate_layer(W: dict, R: Rotation) -> dict:
     gm = W["post_attention_layernorm.weight"].astype(np.float64)
     for n in ("q", "k", "v"):
         k = f"self_attn.{n}_proj.weight"
-        out[k] = R.fwd(W[k].astype(np.float64) * ga[None, :]).astype(np.float32)
+        out[k] = np.concatenate([R.fwd(W[k][i:i + ROW_BLOCK].astype(np.float64) * ga[None, :]).astype(np.float32)
+                                 for i in range(0, W[k].shape[0], ROW_BLOCK)])
     for n in ("gate", "up"):
         k = f"mlp.{n}_proj.weight"
-        out[k] = R.fwd(W[k].astype(np.float64) * gm[None, :]).astype(np.float32)
+        out[k] = np.concatenate([R.fwd(W[k][i:i + ROW_BLOCK].astype(np.float64) * gm[None, :]).astype(np.float32)
+                                 for i in range(0, W[k].shape[0], ROW_BLOCK)])
     for k in ("self_attn.o_proj.weight", "mlp.down_proj.weight"):
-        out[k] = np.ascontiguousarray(R.fwd(W[k].astype(np.float64).T).T).astype(np.float32)
+        Wt = W[k].T
+        out[k] = np.ascontiguousarray(np.concatenate([R.fwd(Wt[i:i + ROW_BLOCK].astype(np.float64)).astype(np.float32)
+                                                      for i in range(0, Wt.shape[0], ROW_BLOCK)]).T)
     out["input_layernorm.weight"] = np.ones_like(W["input_layernorm.weight"])
     out["post_attention_layernorm.weight"] = np.ones_like(W["post_attention_layernorm.weight"])
     return out
@@ -575,13 +588,18 @@ def choose_norm(gamma, A, ms, mats, objective, var, K_fixed, shapes=None, r_step
 def qw_rows(Wp: np.ndarray, s_rows: np.ndarray, rep: dict, name: str) -> np.ndarray:
     """int8 weights with a per-ROW real scale. Clipping is counted: a public
     weight change, never an activation clamp."""
-    q = np.floor(Wp.astype(np.float64) / s_rows[:, None] + 0.5)
-    clipped = int((np.abs(q) > 127).sum())
+    out = np.empty(Wp.shape, dtype=np.int8)
+    clipped, qmax = 0, 0.0
+    for i in range(0, Wp.shape[0], ROW_BLOCK):
+        q = np.floor(Wp[i:i + ROW_BLOCK].astype(np.float64 if WDT is np.float64 else WDT) / s_rows[i:i + ROW_BLOCK, None].astype(WDT) + 0.5)
+        clipped += int((np.abs(q) > 127).sum())
+        qmax = max(qmax, float(np.abs(q).max()))
+        out[i:i + ROW_BLOCK] = np.clip(q, -127, 127).astype(np.int8)
     rep.setdefault("weights_clipped", {})[name] = clipped
     if clipped:
-        rep.setdefault("weights_clip_factor", {})[name] = float(np.abs(q).max() / 127.0)
-    rep.setdefault("weights_absmax_int", {})[name] = int(min(127, np.abs(q).max()))
-    return np.clip(q, -127, 127).astype(np.int8)
+        rep.setdefault("weights_clip_factor", {})[name] = qmax / 127.0
+    rep.setdefault("weights_absmax_int", {})[name] = int(min(127, qmax))
+    return out
 
 
 def qw_cols(Wp: np.ndarray, s_cols: np.ndarray, rep: dict, name: str) -> np.ndarray:
@@ -680,7 +698,7 @@ class AttnObjective:
         self.Wq = W["self_attn.q_proj.weight"].astype(np.float32)
         self.Wk = W["self_attn.k_proj.weight"].astype(np.float32)
         self.Wv = W["self_attn.v_proj.weight"].astype(np.float32)
-        Wo = W["self_attn.o_proj.weight"].astype(np.float64)
+        Wo = W["self_attn.o_proj.weight"].astype(WDT)
         self.wo_colmax = np.abs(Wo).max(0).reshape(g.KV, g.G, g.dh).max(1).reshape(-1)
         self.wo_col2_cols = (Wo ** 2).sum(0)                                     # (H*dh,)
         self.wo_col2 = self.wo_col2_cols.reshape(g.KV, g.G, g.dh).sum(1).reshape(-1)
@@ -862,9 +880,9 @@ def solve_layer(W, st, var, s_x: float, s_x_out: float, glob: Globals, cache: di
     fold_a = ga * K_a / g_a.astype(np.float64)
 
     # ---------------- Q / K per (kv head, RoPE pair); scores; exp table
-    Wq_e = W["self_attn.q_proj.weight"].astype(np.float64) * fold_a[None, :]
-    Wk_e = W["self_attn.k_proj.weight"].astype(np.float64) * fold_a[None, :]
-    Wv_e = W["self_attn.v_proj.weight"].astype(np.float64) * fold_a[None, :]
+    Wq_e = W["self_attn.q_proj.weight"].astype(WDT) * fold_a[None, :].astype(WDT)
+    Wk_e = W["self_attn.k_proj.weight"].astype(WDT) * fold_a[None, :].astype(WDT)
+    Wv_e = W["self_attn.v_proj.weight"].astype(WDT) * fold_a[None, :].astype(WDT)
     qk = qk_scales(np.abs(Wq_e).max(1), np.abs(Wk_e).max(1), st, m, sh["qkv"], sh["s"], glob.e_s, free, var.margin_ch, var.m2)
     if qk is None:
         raise ValueError("score chain infeasible at the profile e_s")
@@ -877,7 +895,7 @@ def solve_layer(W, st, var, s_x: float, s_x_out: float, glob: Globals, cache: di
 
     # ---------------- V / O / Wo per kv channel: s_v,c s_wo,(h,c) 2^SH_AO = s_x
     Lv = np.maximum(rb(st["v_max"], m, var.margin_ch) / 127.0, (2.0 ** sh["qkv"]) * np.abs(Wv_e).max(1) / 127.0)
-    Wo = W["self_attn.o_proj.weight"].astype(np.float64)
+    Wo = W["self_attn.o_proj.weight"].astype(WDT)
     wo_colmax = np.abs(Wo).max(0).reshape(g.KV, g.G, g.dh).max(1).reshape(-1)
     wo_col2 = (Wo ** 2).sum(0).reshape(g.KV, g.G, g.dh).sum(1).reshape(-1)
     o_ms_g = st["o_ms"].reshape(g.KV, g.G, g.dh).sum(1).reshape(-1)
@@ -901,7 +919,7 @@ def solve_layer(W, st, var, s_x: float, s_x_out: float, glob: Globals, cache: di
     fold_m = gm * K_m / g_m.astype(np.float64)
 
     # ---------------- gate: scale pinned to 2^e_in
-    Wg_e = W["mlp.gate_proj.weight"].astype(np.float64) * fold_m[None, :]
+    Wg_e = W["mlp.gate_proj.weight"].astype(WDT) * fold_m[None, :].astype(WDT)
     s_wg = 2.0 ** (e_in - sh["g"])
     wg = qw_rows(Wg_e, np.full(Wg_e.shape[0], s_wg), rep, "wg")
     gmax = max(st["gate_pos"], st["gate_neg"])
@@ -911,11 +929,11 @@ def solve_layer(W, st, var, s_x: float, s_x_out: float, glob: Globals, cache: di
                   "act_saturates_above": float(32767 * 2.0 ** e_out) if int(act_t.max()) == 32767 else None}
 
     # ---------------- up / product / down per FFN channel j
-    Wu_e = W["mlp.up_proj.weight"].astype(np.float64) * fold_m[None, :]
+    Wu_e = W["mlp.up_proj.weight"].astype(WDT) * fold_m[None, :].astype(WDT)
     hs = 2.0 ** (e_out + sh["h"])
     Lu = np.maximum.reduce([rb(st["up_max"], m, var.margin_ch) / 32767.0, np.abs(Wu_e).max(1) / 127.0,
                             np.full(Wu_e.shape[0], float(st["h_max"].max()) * m / (32767.0 * hs))])
-    Wd = W["mlp.down_proj.weight"].astype(np.float64)
+    Wd = W["mlp.down_proj.weight"].astype(WDT)
     wd_colmax = np.abs(Wd).max(0)
     sy_m = float(np.sum(st["xm_ms"] * (g_m.astype(np.float64) / K_m) ** 2))
     s_u, sh["z"], Uu = u_chain(Lu, wd_colmax, (Wd ** 2).sum(0), st["actc_ms"], st["h_ms"], sy_m, hs, s_x_out, sh["z"], free)

@@ -1,0 +1,49 @@
+{
+ "allowed_to_differ": [
+  "gate",
+  "peak_rss_mb",
+  "shape_name",
+  "timings",
+  "tool_sha256",
+  "total_seconds",
+  "what_it_does_not_show",
+  "what_this_is"
+ ],
+ "bundle": "run-i-dense-k4",
+ "controls": true,
+ "counts": {
+  "differ": 3,
+  "only_original": 0,
+  "only_port": 2
+ },
+ "exit_codes": {
+  "original": 1,
+  "ported": 1
+ },
+ "leaves_compared": 5261,
+ "leaves_only_in_the_original": [],
+ "leaves_only_in_the_port": [
+  "/stage3_per_commitment/per_slot_terminal_check/source_pins/argument_definitions_this_port_implements/9b26bda8105c",
+  "/stage8_plane_index_and_terminals/terminal_identity/source_pins/argument_definitions_this_port_implements/9b26bda8105c"
+ ],
+ "leaves_that_differ": [
+  [
+   "/stage3_per_commitment/pad_block_exact_rank_cross_check/seconds",
+   4.1,
+   4.2
+  ],
+  [
+   "/stage4_the_boundary/whole_run/seconds",
+   1.8,
+   2.0
+  ],
+  [
+   "/stage8_plane_index_and_terminals/controls/controls[4]/what",
+   "one entry (index 0) of the rebuilt supp(Dom::S) table flipped from 1 to 0",
+   "one entry (index 0) of the rebuilt supp(Dom::S) table (slot 17) flipped from 1 to 0"
+  ]
+ ],
+ "ok": false,
+ "stages": "load,replay,hash,terminals,commitments,boundary,preimage,channels",
+ "what": "THE PORT MOVES NO FROZEN FIGURE: run the ORIGINAL gate tools"
+}

@@ -1,0 +1,1103 @@
+diff -ruN '--exclude=target' '--exclude=target-gpu' /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r2/hashline/src/private_block/layout.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/layout.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r2/hashline/src/private_block/layout.rs	2026-10-17 02:08:38.781672863 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/layout.rs	2026-10-17 03:20:15.170881010 -0700
+@@ -1080,6 +1080,15 @@
+         if sh.trained_calibration {
+             sh.check_trained_class()?;
+         }
++        // re-review R2-a (2026-10-17): a trained-calibration profile STRING
++        // without the door's flag is refused (a shape built by `Shape::new`
++        // under that string would otherwise skip every class check), and the
++        // softmax window is at most three limbs at EVERY shape (every
++        // registered frozen shape has 14..=18 bits)
++        if !sh.trained_calibration && super::shape::TRAINED_CALIBRATION_PROFILES.contains(&sh.profile) {
++            return Err(format!("private block: {} is a trained-calibration profile, but this shape did not come through the trained door", sh.profile));
++        }
++        super::shape::Shape::check_softmax_window(sh)?;
+         let ids = Ids::new(sh)?;
+         let hids = HIds::new(sh)?;
+         let n = 1usize << sh.log_cols;
+diff -ruN '--exclude=target' '--exclude=target-gpu' /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r2/hashline/src/private_block/protocol.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/protocol.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r2/hashline/src/private_block/protocol.rs	2026-10-17 02:08:52.843913435 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/protocol.rs	2026-10-17 03:20:15.171714462 -0700
+@@ -680,7 +680,8 @@
+ /// point — prove, verify, encode, decode — refuses such a shape by name, and
+ /// a trained block is proved as a one-block (or longer) BOUND run.
+ pub(crate) fn single_block_profile_allowed(sh: &Shape) -> Result<(), String> {
+-    if sh.trained_calibration {
++    // re-review R2-a: the profile STRING decides too, not only the door's flag
++    if sh.trained_calibration || super::shape::TRAINED_CALIBRATION_PROFILES.contains(&sh.profile) {
+         return Err(format!(
+             "private block: {} has a trained calibration; it proves only inside a run bound to its trained-model statement (a single-block receipt would carry the synthetic calibration literal, R2-4)",
+             sh.profile
+diff -ruN '--exclude=target' '--exclude=target-gpu' /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r2/hashline/src/private_block/review_d24_tests.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/review_d24_tests.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r2/hashline/src/private_block/review_d24_tests.rs	2026-10-17 02:13:28.563171670 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/review_d24_tests.rs	2026-10-17 03:38:14.483903045 -0700
+@@ -117,7 +117,7 @@
+     }
+     assert_eq!(admitted, TRAINED_F_E_RANGE.collect::<Vec<u32>>(), "the admitted f_e set is not the declared class");
+     eprintln!("REVIEW-A (fixed) admitted f_e at the trained TinyLlama profile: {admitted:?}");
+-    // the three-limb rule at other token counts (only T = 32 is registered)
++    // the three-limb rule at other token counts
+     assert!(Shape::check_f_e_class(512, 15).is_ok());
+     assert!(Shape::check_f_e_class(512, 16).unwrap_err().contains("three sigma_s limbs"));
+     // the trained-model statement cannot even be asked for at f_e 50: there
+@@ -260,6 +260,11 @@
+ /// read; the refusal text is asserted, so a door that moved later would fail
+ /// this test rather than refuse for another reason)
+ fn write_tinyllama_profile(vdir: &std::path::Path, cal: &NormCalibration, f_e: u32) {
++    write_tinyllama_profile_at(vdir, cal, f_e, 32, Some("tinyllama-1.1b-t32"));
++}
++
++/// the same at a declared `T`, with or without a `geometry` key
++fn write_tinyllama_profile_at(vdir: &std::path::Path, cal: &NormCalibration, f_e: u32, tokens: usize, geometry: Option<&str>) {
+     use super::trained_block::{hex, sha256};
+     let ldir = vdir.join("layer_00");
+     std::fs::create_dir_all(&ldir).unwrap();
+@@ -271,8 +276,9 @@
+     let manifest = format!("{{\"layer\": 0, \"constants\": {consts}, \"arrays\": {{}}}}\n");
+     std::fs::write(ldir.join("manifest.json"), &manifest).unwrap();
+     let pin = super::trained_statement::ModelSource::tinyllama_chat_v1_0();
++    let geo = geometry.map(|g| format!("\"geometry\": \"{g}\", ")).unwrap_or_default();
+     let profile = format!(
+-        "{{\"schema\": \"zk60-trained-profile-export/1\", \"kind\": \"profile\", \"variant\": \"review-fe{f_e}\", \"geometry\": \"tinyllama-1.1b-t32\", \"model\": {{\"repo\": \"{}\", \"revision\": \"{}\", \"sha256\": \"{}\"}}, \"calibration_tool\": {{\"path\": \"review\", \"sha256\": \"{}\"}}, \"T\": 32, \"profile_constants\": {consts}, \"layers\": [{{\"layer\": 0, \"dir\": \"layer_00\", \"manifest_sha256\": \"{}\"}}], \"sequences\": [\"seq_s0\"]}}\n",
++        "{{\"schema\": \"zk60-trained-profile-export/1\", \"kind\": \"profile\", \"variant\": \"review-fe{f_e}\", {geo}\"model\": {{\"repo\": \"{}\", \"revision\": \"{}\", \"sha256\": \"{}\"}}, \"calibration_tool\": {{\"path\": \"review\", \"sha256\": \"{}\"}}, \"T\": {tokens}, \"profile_constants\": {consts}, \"layers\": [{{\"layer\": 0, \"dir\": \"layer_00\", \"manifest_sha256\": \"{}\"}}], \"sequences\": [\"seq_s0\"]}}\n",
+         pin.repo,
+         pin.revision,
+         hex(&pin.weights_sha256),
+@@ -447,3 +453,114 @@
+     }
+     assert!(rejected >= 3, "only {rejected} neighbouring witnesses ran");
+ }
++
++// ------------------------------------------------- the round-2 re-review
++
++/// **Re-review R2-a, the reviewer's `r2_1` turned around.** A shape built by
++/// `Shape::new` under the trained rung's profile STRING, without the door
++/// (flag false, frozen calibration) and with `f_e = 50`, used to pass
++/// `Layout::for_shape` and the single-block path, and the round-1 wrapping
++/// softmax forgery verified through `verify_bytes_at`. Now: the trained
++/// profile string without the door is refused by `Layout::for_shape` and by
++/// every single-block entry point, and a softmax window above 24 bits is
++/// refused at EVERY shape (a frozen profile edited to `f_e = 50` too).
++#[test]
++fn review_r2_1_a_non_door_shape_under_a_trained_profile_string_is_refused() {
++    use super::shape::TRAINED_CALIB_RUNG_PROFILE;
++    let sh = Shape::new("re-review r2_1: non-door shape under the trained rung string", TRAINED_CALIB_RUNG_PROFILE, 32, 384, 512, 12, 32, 4, 10, 4, 50, 21, None, None, None, None).expect("Shape::new constructs");
++    assert!(!sh.trained_calibration && sh.norm_calibration() == NormCalibration::FROZEN && sh.f_e == 50);
++    let e = Layout::for_shape(&sh).err().expect("Layout::for_shape ACCEPTED a non-door shape under a trained profile string");
++    eprintln!("REVIEW-R2-1 (fixed) Layout::for_shape: {e}");
++    assert!(super::protocol::single_block_profile_allowed(&sh).is_err(), "the single-block path admitted a trained profile string");
++    // the same string at an admissible f_e is still refused: the STRING decides
++    let sh12 = Shape::new("re-review r2_1 at f_e 12", TRAINED_CALIB_RUNG_PROFILE, 32, 384, 512, 12, 32, 4, 10, 4, 12, 21, None, None, None, None).unwrap();
++    assert!(Layout::for_shape(&sh12).err().expect("the non-door string at f_e 12 was accepted").contains("did not come through the trained door"));
++    // the forgery itself: the forged witness builds, the single-block prover
++    // and verifier refuse before any transcript
++    let (mut w, input) = super::trained_calib_tests::trained_dense_words(&sh, super::trained_calib_tests::TRAINED_BANDS);
++    for v in w[1].iter_mut() {
++        *v = 0;
++    }
++    let (public, ff) = super::dense_tests::statement_of_words(&sh, &w);
++    let blk = BlockPublic::new(public.clone(), ff.clone());
++    set_forge(Some(Forge { h: 0, t: 31, j: 0, delta: 511, k: 1, naive: false }));
++    let fw = witness::build_shaped(&sh, &public, &ff, &input);
++    let n = forged_count();
++    set_forge(None);
++    let fw = fw.expect("the forged witness builds");
++    assert_eq!(n, 1);
++    let ids = Ids::new(&sh).unwrap();
++    let plane = |p: usize| -> Vec<i16> { fw.planes[p].iter().map(|v| *v as i16).collect() };
++    let ctx = *blake3::hash(b"re-review r2-1").as_bytes();
++    let (expected, owners) = prepare_endpoints(IoSpec::new_shaped(&sh, ctx, 0, 0).unwrap(), &plane(ids.at(A_X)), &plane(ids.at(A_X2))).unwrap();
++    let e = super::protocol::prove_inner_at(&sh, &blk, fw, &expected, owners).err().expect("the single-block prover PROVED at a non-door trained string");
++    assert!(e.contains("R2-4"), "{e}");
++    assert!(verify_bytes_at(&sh, &blk, &expected, &[0u8; 64]).is_err(), "the single-block verifier got past its entry");
++    // EVERY shape: a frozen profile edited to f_e 50 (with or without its
++    // window) is refused, and so is a window of 25 bits
++    for (name, fe, ws) in [("f_e 50 with its window", 50u32, 55u32), ("f_e 50 under a 17-bit window", 50, 17), ("a 25-bit window", 12, 25)] {
++        let mut s = Shape::rung_c6();
++        s.f_e = fe;
++        s.wrho_s = ws;
++        let e = Layout::for_shape(&s).err().unwrap_or_else(|| panic!("a frozen shape edited to {name} was ACCEPTED"));
++        assert!(e.contains("softmax window"), "{name}: {e}");
++    }
++}
++
++/// **Re-review R2-b.** The "trained TinyLlama profile carries the pinned
++/// checkpoint" rule is no longer waived for every test build: a statement
++/// built by the production constructor and then given a synthetic source is
++/// refused by `check_against` in `cargo test` exactly as in production; only
++/// a statement from the explicit test-only constructor carries the waiver.
++#[test]
++fn review_r2_b_the_pinned_checkpoint_rule_is_enforced_in_test_builds() {
++    use super::trained_statement::*;
++    let tsh = Shape::tinyllama_t32_trained(&pg(), 9).unwrap();
++    let prov = Provenance::recipe("re-review/r2-b", 1.0, [1; 32], [2; 32]);
++    let cal = IntegerCalibration::as_the_code_proves(&tsh, &prov);
++    let rec = vec![LayerRecord { index: 0, block_digest: [1; 32], word_sha256: [[2; 32]; 9], table_sha256: [[3; 32]; 3], source_tensors: vec![], manifest_sha256: [4; 32], silu_member: (-3, -11), exp_e_s: 1 }];
++    let rp = super::run::RUN_PROFILE_TINYLLAMA_T32_TRAINED;
++    let mut st = TrainedModelStatement::new(&tsh, rp, ModelSource::tinyllama_chat_v1_0(), cal.clone(), rec.clone()).unwrap();
++    st.check_against(&tsh, rp, &[[1; 32]], &[(0, 0)]).expect("the honest statement");
++    st.source = ModelSource { kind: SourceKind::PublicSyntheticRecipe, repo: "synthetic/x".into(), revision: "r".into(), weights_sha256: [0; 32], config_sha256: [0; 32], checkpoint_parameters: 0, checkpoint_layers: 22 };
++    let e = st.check_against(&tsh, rp, &[[1; 32]], &[(0, 0)]).err().expect("a synthetic source at the trained TinyLlama profile passed check_against in a test build");
++    eprintln!("REVIEW-R2-b (fixed): {e}");
++    // the explicit test-only constructor is the one waiver
++    let src = st.source.clone();
++    let w = TrainedModelStatement::new_synthetic_at_trained_profile_for_tests(&tsh, rp, src, cal, rec).unwrap();
++    w.check_against(&tsh, rp, &[[1; 32]], &[(0, 0)]).expect("the test-only constructor's statement");
++}
++
++// ------------------------------------------------- R3-2: the context ladder
++
++/// **R3-2: the reader maps an export's `T` to its registered TinyLlama
++/// profile** (the B4 writer names no geometry): T 32 / 64 / 128 load, with
++/// the declared classes checked as at T32; any other T is refused; a named
++/// geometry must be the one its `T` is.
++#[test]
++fn the_reader_maps_t_to_the_registered_tinyllama_profiles() {
++    use super::trained_block_tests::base_dir;
++    let root = base_dir("ladder-reader");
++    for (t, geo, ok) in [(32usize, None, true), (64, None, true), (128, None, true), (64, Some("tinyllama-1.1b-t64"), true), (128, Some("tinyllama-1.1b-t128"), true), (96, None, false), (256, None, false), (64, Some("tinyllama-1.1b-t32"), false), (32, Some("tinyllama-1.1b-t128"), false)] {
++        let vdir = root.join(format!("t{t}-{}", geo.unwrap_or("none")));
++        write_tinyllama_profile_at(&vdir, &pg(), 9, t, geo);
++        let r = super::trained_block::TrainedExport::load(&vdir).and_then(|ex| {
++            let c = ex.run_constants(&[0])?;
++            ex.shape_for(&c)
++        });
++        match (ok, r) {
++            (true, Ok(sh)) => {
++                assert_eq!(sh.tokens, t);
++                assert_eq!(sh.profile, Shape::tinyllama_trained(t, &pg(), 9).unwrap().profile);
++            }
++            (false, Err(e)) => eprintln!("R3-2 reader: T {t} geometry {geo:?} refused: {e}"),
++            (true, Err(e)) => panic!("T {t} geometry {geo:?} was refused: {e}"),
++            (false, Ok(_)) => panic!("T {t} geometry {geo:?} was ACCEPTED"),
++        }
++    }
++    // f_e 16 is the class edge at every registered T (window 21..23 bits)
++    for t in [32usize, 64, 128] {
++        Shape::tinyllama_trained(t, &pg(), 16).unwrap_or_else(|e| panic!("T{t} f_e 16: {e}"));
++    }
++    let _ = std::fs::remove_dir_all(&root);
++}
+diff -ruN '--exclude=target' '--exclude=target-gpu' /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r2/hashline/src/private_block/run.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/run.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r2/hashline/src/private_block/run.rs	2026-10-17 02:14:34.320544647 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/run.rs	2026-10-17 03:36:22.197840400 -0700
+@@ -82,6 +82,10 @@
+ /// absorb in the same keyed function (`s25_tests`' census refused it). At 66
+ /// bytes the constructor is 78, with no hash input kind at 77, 78 or 79.
+ pub(crate) const RUN_PROFILE_TINYLLAMA_T32_TRAINED: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t32-trained-statement/1";
++/// ROUND 3 (R3-2): the run profiles of the trained TinyLlama shapes at T64
++/// and T128 (one per shape, D17), named like T32's.
++pub(crate) const RUN_PROFILE_TINYLLAMA_T64_TRAINED: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t64-trained-statement/1";
++pub(crate) const RUN_PROFILE_TINYLLAMA_T128_TRAINED: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t128-trained-statement/1";
+ /// NATIVE LANE: the run profile of the trained-calibration development rung.
+ pub(crate) const RUN_PROFILE_RUNG_TC: &str = "hashline-zk-mr1/private-run-rung-tc-t32-dev/1";
+ 
+@@ -144,6 +148,21 @@
+         }
+         RunShape::new(sh, l, RUN_PROFILE_TINYLLAMA_T32_TRAINED)
+     }
++    /// ROUND 3 (R3-2): a run at a trained TinyLlama shape of any registered
++    /// context length; its run profile is the shape's own (one per shape)
++    pub(crate) fn tinyllama_trained(sh: Shape, l: usize) -> Result<RunShape, String> {
++        use super::shape::{TINYLLAMA_T128_TRAINED_PROFILE, TINYLLAMA_T32_TRAINED_PROFILE, TINYLLAMA_T64_TRAINED_PROFILE};
++        let rp = match sh.profile {
++            p if p == TINYLLAMA_T32_TRAINED_PROFILE => RUN_PROFILE_TINYLLAMA_T32_TRAINED,
++            p if p == TINYLLAMA_T64_TRAINED_PROFILE => RUN_PROFILE_TINYLLAMA_T64_TRAINED,
++            p if p == TINYLLAMA_T128_TRAINED_PROFILE => RUN_PROFILE_TINYLLAMA_T128_TRAINED,
++            _ => return Err("private run: a trained TinyLlama run profile needs a trained TinyLlama shape".into()),
++        };
++        if !sh.trained_calibration {
++            return Err("private run: a trained TinyLlama run profile needs a trained TinyLlama shape".into());
++        }
++        RunShape::new(sh, l, rp)
++    }
+     /// NATIVE LANE: a run at the trained-calibration development rung.
+     pub(crate) fn rung_tc(sh: Shape, l: usize) -> Result<RunShape, String> {
+         if sh.profile != super::shape::TRAINED_CALIB_RUNG_PROFILE || !sh.trained_calibration {
+@@ -192,7 +211,7 @@
+         // the SHAPE's own flag (it was a substring test on the run profile,
+         // which let an unbound run at the trained-calibration rung absorb
+         // `calibration_identity()`), and on the trained run profile by name.
+-        if rs.sh.trained_calibration || rs.profile == RUN_PROFILE_TINYLLAMA_T32_TRAINED || rs.profile == RUN_PROFILE_RUNG_TC {
++        if rs.sh.trained_calibration || [RUN_PROFILE_TINYLLAMA_T32_TRAINED, RUN_PROFILE_TINYLLAMA_T64_TRAINED, RUN_PROFILE_TINYLLAMA_T128_TRAINED, RUN_PROFILE_RUNG_TC].contains(&rs.profile) {
+             return Err(format!("private run: {} is a trained-calibration run; it needs its trained-model statement (RunStatement::new_bound)", rs.profile));
+         }
+         let digests: Vec<Digest> = blocks.iter().map(|b| b.digest()).collect();
+diff -ruN '--exclude=target' '--exclude=target-gpu' /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r2/hashline/src/private_block/shape.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/shape.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r2/hashline/src/private_block/shape.rs	2026-10-17 02:08:38.781208268 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/shape.rs	2026-10-17 03:43:27.125563297 -0700
+@@ -59,9 +59,25 @@
+ /// 6) run in the ordinary test filter in seconds. Development grade, never a
+ /// deliverable, its own profile (D17).
+ pub(crate) const TRAINED_CALIB_RUNG_PROFILE: &str = "hashline-zk-mr1/private-block-rung-tc-t32-dev/1";
++/// **ROUND 3 (R3-2): the context ladder.** The same TinyLlama-1.1B block
++/// geometry under the same trained-calibration rule at T = 64 and T = 128,
++/// each its OWN profile string (D17: one profile per shape). Row width
++/// `2^(log2 T + 7)` keeps 21 endpoint rows, as at T32, and gives the smallest
++/// counted receipt of the admissible widths (T64: 15,445,848 B at 2^13;
++/// T128: 23,049,192 B at 2^14, `the_trained_tinyllama_counted_layout_ladder`).
++pub(crate) const TINYLLAMA_T64_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-tinyllama-1.1b-t64-trained/1";
++/// The T128 string carries a `-block` suffix: at the T32/T64 length plus
++/// one (60 bytes) its transcript constructor would be 71 bytes, the length of
++/// the `pb-term` absorb with 16 bytes of data in the same keyed function
++/// (`s25_tests`' census refuses that); at 66 bytes the constructor is 77,
++/// where this profile hashes no other kind.
++pub(crate) const TINYLLAMA_T128_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-block/1";
++/// the trained TinyLlama profiles: the pinned checkpoint's, at each
++/// registered context length
++pub(crate) const TINYLLAMA_TRAINED_PROFILES: [&str; 3] = [TINYLLAMA_T32_TRAINED_PROFILE, TINYLLAMA_T64_TRAINED_PROFILE, TINYLLAMA_T128_TRAINED_PROFILE];
+ /// the profiles [`Shape::with_trained_calibration`] may give a non-frozen
+ /// calibration to; every other profile's calibration is frozen
+-pub(crate) const TRAINED_CALIBRATION_PROFILES: [&str; 2] = [TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIB_RUNG_PROFILE];
++pub(crate) const TRAINED_CALIBRATION_PROFILES: [&str; 4] = [TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIB_RUNG_PROFILE, TINYLLAMA_T64_TRAINED_PROFILE, TINYLLAMA_T128_TRAINED_PROFILE];
+ const INT16_MAX: i128 = 32_767;
+ /// the absolute endpoint of signed int16 (`-32768`), used by the TRAINED
+ /// calibration rule only; every frozen profile keeps the historical 32767
+@@ -1247,6 +1263,18 @@
+         Ok(())
+     }
+ 
++    /// **Every shape's softmax window** (re-review R2-a): `wrho_s` at most
++    /// [`TRAINED_WRHO_S_MAX`] (three limbs) and `clog2(T) + f_e` too, so
++    /// `e <= 2^f_e <= 2^24` and `Sum <= T 2^f_e <= 2^24` bound the quotient
++    /// clause far below `p` whatever the profile. Every registered frozen
++    /// shape has 14..=18 bits.
++    pub(crate) fn check_softmax_window(sh: &Shape) -> Result<(), String> {
++        if sh.wrho_s > TRAINED_WRHO_S_MAX || clog2(sh.tokens) as u32 + sh.f_e > TRAINED_WRHO_S_MAX {
++            return Err(format!("private block shape: {}'s softmax window (wrho_s {}, clog2(T) + f_e = {}) exceeds {TRAINED_WRHO_S_MAX} bits", sh.profile, sh.wrho_s, clog2(sh.tokens) as u32 + sh.f_e));
++        }
++        Ok(())
++    }
++
+     /// `f_e` inside its declared class at `tokens` (review finding F-1): in
+     /// [`TRAINED_F_E_RANGE`] and `clog2(T) + f_e <= 24`. The loader calls this
+     /// before it builds a shape, the door and `Layout::for_shape` after.
+@@ -1285,25 +1313,24 @@
+     /// `tn = 10` the derived norm window is exactly 32 bits (four limbs, C-6),
+     /// for every int16 input and every `ceps` in the class.
+     pub(crate) fn tinyllama_t32_trained(cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
+-        Shape::new(
+-            "TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads)",
+-            TINYLLAMA_T32_TRAINED_PROFILE,
+-            32,
+-            2048,
+-            5632,
+-            32,
+-            64,
+-            4,
+-            12,
+-            4,
+-            f_e,
+-            21,
+-            None,
+-            None,
+-            None,
+-            None,
+-        )?
+-        .with_trained_calibration(cal)
++        Shape::tinyllama_trained(32, cal, f_e)
++    }
++
++    /// **ROUND 3 (R3-2): the trained TinyLlama shape at a registered context
++    /// length** (32, 64 or 128), each with its own profile string. At T = 32
++    /// this is exactly the round-2 shape (same name, profile, row width 2^12
++    /// and 21 endpoint rows). The softmax rule `clog2(T) + f_e <= 24` and
++    /// every declared class are checked by the door.
++    pub(crate) fn tinyllama_trained(tokens: usize, cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
++        let (name, profile, log_cols) = match tokens {
++            32 => ("TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads)", TINYLLAMA_T32_TRAINED_PROFILE, 12),
++            64 => ("TinyLlama-1.1B block geometry, trained calibration (T64 / d2048 / f5632, 32 heads of 64 over 4 KV heads)", TINYLLAMA_T64_TRAINED_PROFILE, 13),
++            128 => ("TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads)", TINYLLAMA_T128_TRAINED_PROFILE, 14),
++            _ => return Err(format!("private block shape: no trained TinyLlama profile is registered at T = {tokens} (32, 64 and 128 are)")),
++        };
++        Shape::check_f_e_class(tokens, f_e)?;
++        let rows = ((tokens * 2048) >> log_cols) + super::endpoint_g::MASK_ROWS;
++        Shape::new(name, profile, tokens, 2048, 5632, 32, 64, 4, log_cols, 4, f_e, rows, None, None, None, None)?.with_trained_calibration(cal)
+     }
+ 
+     /// The same family at another token count, for the counted-layout ladder
+diff -ruN '--exclude=target' '--exclude=target-gpu' /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r2/hashline/src/private_block/trained_block.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/trained_block.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r2/hashline/src/private_block/trained_block.rs	2026-10-17 02:28:44.328280725 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/trained_block.rs	2026-10-17 03:38:20.949733681 -0700
+@@ -53,7 +53,7 @@
+ pub(crate) const PROFILE_SCHEMA: &str = "zk60-trained-profile-export/1";
+ const MAX_JSON_BYTES: u64 = 4 * 1024 * 1024;
+ const MAX_ARRAY_BYTES: u64 = 256 * 1024 * 1024;
+-const SCOPE: &str = "ONE trained TinyLlama-1.1B-Chat block (of 22) at T=32, CPU; the integer model the calibration export names; NOT a model pass; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement";
++const SCOPE: &str = "ONE trained TinyLlama-1.1B-Chat block (of 22) at the export's T (32, 64 or 128), CPU unless the run line says gpu; the integer model the calibration export names; NOT a model pass; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement";
+ const SCOPE_RUNG: &str = "SYNTHETIC development export at the trained-calibration rung (rung-TC, width 384): NOT a trained model, NOT TinyLlama; a test of the export reader and the driver only; no privacy acceptance";
+ 
+ // ------------------------------------------------------------------ JSON
+@@ -291,7 +291,13 @@
+ }
+ 
+ fn read_bounded(path: &Path, max: u64) -> Result<Vec<u8>, String> {
+-    let meta = std::fs::metadata(path).map_err(|e| format!("{}: {e}", path.display()))?;
++    // ROUND 3: a symbolic link is refused (the B4 writer shares weight files
++    // between exports by HARD link, which are ordinary files; every array is
++    // still SHA-256-checked against its manifest exactly as before)
++    let meta = std::fs::symlink_metadata(path).map_err(|e| format!("{}: {e}", path.display()))?;
++    if meta.file_type().is_symlink() {
++        return Err(format!("{}: a symbolic link (the reader reads regular files only)", path.display()));
++    }
+     if !meta.is_file() {
+         return Err(format!("{}: not a regular file", path.display()));
+     }
+@@ -484,40 +490,53 @@
+ /// name THE pinned checkpoint.
+ #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+ pub(crate) enum Geometry {
+-    TinyLlamaT32,
++    /// ROUND 3 (R3-2): the trained TinyLlama geometry at a registered
++    /// context length (32, 64 or 128), each its own profile
++    TinyLlama(usize),
+     RungTcDev,
+ }
+ 
+ impl Geometry {
+     fn parse(s: &str) -> Result<Geometry, String> {
+         match s {
+-            "tinyllama-1.1b-t32" => Ok(Geometry::TinyLlamaT32),
++            "tinyllama-1.1b-t32" => Ok(Geometry::TinyLlama(32)),
++            "tinyllama-1.1b-t64" => Ok(Geometry::TinyLlama(64)),
++            "tinyllama-1.1b-t128" => Ok(Geometry::TinyLlama(128)),
+             "rung-tc-t32-dev" => Ok(Geometry::RungTcDev),
+-            _ => Err(format!("geometry `{s}` is not one of tinyllama-1.1b-t32 / rung-tc-t32-dev")),
++            _ => Err(format!("geometry `{s}` is not one of tinyllama-1.1b-t32 / -t64 / -t128 / rung-tc-t32-dev")),
++        }
++    }
++    /// the context length the geometry fixes
++    pub(crate) fn tokens(self) -> usize {
++        match self {
++            Geometry::TinyLlama(t) => t,
++            Geometry::RungTcDev => 32,
+         }
+     }
+     pub(crate) fn run_profile(self) -> &'static str {
+         match self {
+-            Geometry::TinyLlamaT32 => RUN_PROFILE_TINYLLAMA_T32_TRAINED,
++            Geometry::TinyLlama(64) => super::run::RUN_PROFILE_TINYLLAMA_T64_TRAINED,
++            Geometry::TinyLlama(128) => super::run::RUN_PROFILE_TINYLLAMA_T128_TRAINED,
++            Geometry::TinyLlama(_) => RUN_PROFILE_TINYLLAMA_T32_TRAINED,
+             Geometry::RungTcDev => RUN_PROFILE_RUNG_TC,
+         }
+     }
+     pub(crate) fn run_shape(self, sh: &Shape, l: usize) -> Result<RunShape, String> {
+         match self {
+-            Geometry::TinyLlamaT32 => RunShape::tinyllama_t32_trained(sh.clone(), l),
++            Geometry::TinyLlama(_) => RunShape::tinyllama_trained(sh.clone(), l),
+             Geometry::RungTcDev => RunShape::rung_tc(sh.clone(), l),
+         }
+     }
+     /// the shape at a calibration (the controls rebuild it at other ones)
+     pub(crate) fn scope(self) -> &'static str {
+         match self {
+-            Geometry::TinyLlamaT32 => SCOPE,
++            Geometry::TinyLlama(_) => SCOPE,
+             Geometry::RungTcDev => SCOPE_RUNG,
+         }
+     }
+     pub(crate) fn shape_at(self, cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
+         match self {
+-            Geometry::TinyLlamaT32 => Shape::tinyllama_t32_trained(cal, f_e),
++            Geometry::TinyLlama(t) => Shape::tinyllama_trained(t, cal, f_e),
+             Geometry::RungTcDev => {
+                 if f_e != 12 {
+                     return Err(format!("trained export: the rung-TC geometry fixes f_e = 12, the export declares {f_e}"));
+@@ -573,17 +592,28 @@
+         if schema != PROFILE_SCHEMA {
+             return Err(ctx(format!("schema `{schema}`, this reader reads `{PROFILE_SCHEMA}`")));
+         }
++        // ROUND 3 (R3-2): the context length decides the TinyLlama profile.
++        // An export that names no geometry (the B4 writer) is the TinyLlama
++        // geometry at its own `T`; one that names a geometry must name the
++        // one its `T` is
++        let tokens = usize::try_from(p.get_any(&["T", "tokens"]).and_then(J::i64).map_err(ctx)?).map_err(|_| ctx("T is negative".into()))?;
+         let geometry = match p.opt("geometry") {
+-            None => Geometry::TinyLlamaT32,
++            None => match tokens {
++                32 | 64 | 128 => Geometry::TinyLlama(tokens),
++                _ => return Err(ctx(format!("T = {tokens}: no trained TinyLlama profile is registered at this context length (32, 64 and 128 are)"))),
++            },
+             Some(g) => Geometry::parse(g.str().map_err(ctx)?).map_err(ctx)?,
+         };
++        if geometry.tokens() != tokens {
++            return Err(ctx(format!("the geometry fixes T = {}, the profile declares T = {tokens}", geometry.tokens())));
++        }
+         // the model pin: THE pinned source for TinyLlama, a synthetic recipe
+         // for the development rung
+         let m = p.get("model").map_err(ctx)?;
+         let pin = ModelSource::tinyllama_chat_v1_0();
+         let (repo, rev, msha) = (m.get("repo").and_then(J::str).map_err(ctx)?, m.get("revision").and_then(J::str).map_err(ctx)?, unhex32(m.get("sha256").and_then(J::str).map_err(ctx)?).map_err(ctx)?);
+         let source = match geometry {
+-            Geometry::TinyLlamaT32 => {
++            Geometry::TinyLlama(_) => {
+                 if repo != pin.repo || rev != pin.revision || msha != pin.weights_sha256 {
+                     return Err(ctx(format!("the model pin ({repo}, {rev}, {}) is not the pinned TinyLlama source ({}, {}, {})", hex(&msha), pin.repo, pin.revision, hex(&pin.weights_sha256))));
+                 }
+@@ -619,7 +649,6 @@
+             }
+             _ => return Err(ctx("calibration_tool.sha256 is neither a digest nor an object of digests".into())),
+         };
+-        let tokens = usize::try_from(p.get_any(&["T", "tokens"]).and_then(J::i64).map_err(ctx)?).map_err(|_| ctx("T is negative".into()))?;
+         let pc = p.get_any(&["constants", "profile", "profile_constants"]).map_err(ctx)?;
+         let nulls: Vec<String> = pc.obj().map_err(ctx)?.iter().filter(|(_, v)| *v == J::Null).map(|(k, _)| k.clone()).collect();
+         let mut per_layer_differ: Vec<String> = match p.opt("per_layer_constants_differ") {
+@@ -744,11 +773,11 @@
+         out.ok_or_else(|| "trained export: no layer given and no uniform profile constants".to_string())
+     }
+ 
+-    /// The trained shape of a run with these constants (only T = 32 is
+-    /// registered).
++    /// The trained shape of a run with these constants, at the export's T
++    /// (round 3: 32, 64 or 128 for TinyLlama, each its own profile).
+     pub(crate) fn shape_for(&self, c: &Constants) -> Result<Shape, String> {
+-        if self.tokens != 32 {
+-            return Err(format!("trained export: T = {}; only T = 32 is registered", self.tokens));
++        if self.tokens != self.geometry.tokens() {
++            return Err(format!("trained export: T = {} is not the geometry's {}", self.tokens, self.geometry.tokens()));
+         }
+         // review finding F-1, mirrored before any shape is built
+         Shape::check_f_e_class(self.tokens, c.f_e)?;
+@@ -1434,12 +1463,27 @@
+     sh: &'a Shape,
+     blocks: &'a [BlockPublic],
+     ids: Ids,
+-    x0: Vec<i16>,
+     x: Vec<i16>,
+     next: usize,
+     cached: Option<(usize, Witness)>,
+     lie_at: Option<usize>,
+     busy_s: f64,
++    /// ROUND 3 (R3-1): the export's checks, made AS EACH WITNESS IS BUILT
++    /// (one witness pass instead of a sealing pass and a proving pass)
++    parity: Option<StackParity>,
++}
++
++/// **R3-1: parity inside the proving pass.** Layer k's native output must
++/// equal the export's `x_out` of that layer bit for bit before block k is
++/// proved; the committed endpoints (taken from the export) must be the first
++/// witness's input plane and the last witness's output plane. A failure
++/// aborts the run before that block's segment exists.
++struct StackParity {
++    layers: Vec<u32>,
++    x_outs: Vec<Vec<i16>>,
++    first: Vec<i16>,
++    last: Vec<i16>,
++    checked: usize,
+ }
+ 
+ impl<'a> StackSource<'a> {
+@@ -1447,13 +1491,7 @@
+         if x0.len() != sh.tokens * sh.width {
+             return Err("trained stack: the first input is not tokens x width".into());
+         }
+-        Ok(StackSource { sh, blocks, ids: Ids::new(sh)?, x: x0.clone(), x0, next: 0, cached: None, lie_at, busy_s: 0.0 })
+-    }
+-    fn restart(&mut self) {
+-        self.x = self.x0.clone();
+-        self.next = 0;
+-        self.cached = None;
+-        self.busy_s = 0.0;
++        Ok(StackSource { sh, blocks, ids: Ids::new(sh)?, x: x0, next: 0, cached: None, lie_at, busy_s: 0.0, parity: None })
+     }
+     fn advance(&mut self, k: usize) -> Result<(Witness, Vec<i16>), String> {
+         if k != self.next || k >= self.blocks.len() {
+@@ -1464,6 +1502,21 @@
+         let out = padded_plane(&w, self.ids.at(A_X2))?;
+         self.x = true_words(self.sh, &out);
+         self.next = k + 1;
++        if let Some(p) = self.parity.as_mut() {
++            let layer = p.layers[k];
++            if k == 0 && padded_plane(&w, self.ids.at(A_X))? != p.first {
++                return Err(format!("trained stack: the committed input endpoint is not block 0's input plane (layer {layer})"));
++            }
++            let n = self.x.iter().zip(p.x_outs[k].iter()).filter(|(a, b)| a != b).count();
++            if n != 0 {
++                let q = self.x.iter().zip(p.x_outs[k].iter()).position(|(a, b)| a != b).unwrap_or(0);
++                return Err(format!("parity: layer {layer}'s native output differs from the export's x_out in {n} words (first at token {}, channel {}); no value is printed", q / self.sh.width, q % self.sh.width));
++            }
++            if k + 1 == p.x_outs.len() && out != p.last {
++                return Err(format!("trained stack: the committed output endpoint is not the last block's output plane (layer {layer})"));
++            }
++            p.checked += 1;
++        }
+         self.busy_s += t.elapsed().as_secs_f64();
+         Ok((w, out))
+     }
+@@ -1474,6 +1527,20 @@
+     (0..sh.tokens).flat_map(|t| plane[t * sh.d_pad..t * sh.d_pad + sh.width].to_vec()).collect()
+ }
+ 
++/// the padded `Dom::D` plane of true `[T, d]` words (zero on the pad): the
++/// inverse of [`true_words`], and what `padded_plane(witness, A_X / A_X2)`
++/// holds for an honest witness (asserted per run on the first and last block)
++fn pad_d_plane(sh: &Shape, words: &[i16]) -> Result<Vec<i16>, String> {
++    if words.len() != sh.tokens * sh.width {
++        return Err("trained stack: an endpoint is not tokens x width".into());
++    }
++    let mut v = vec![0i16; sh.size(super::layout::Dom::D)];
++    for t in 0..sh.tokens {
++        v[t * sh.d_pad..t * sh.d_pad + sh.width].copy_from_slice(&words[t * sh.width..(t + 1) * sh.width]);
++    }
++    Ok(v)
++}
++
+ impl RunWitnessSource for StackSource<'_> {
+     fn boundary_plane(&mut self, k: usize) -> Result<Vec<i16>, String> {
+         if self.cached.is_some() {
+@@ -1598,7 +1665,7 @@
+     )
+ }
+ 
+-const STACK_SCOPE: &str = "ALL the listed trained TinyLlama-1.1B-Chat blocks as ONE bound run at T=32 (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement";
++const STACK_SCOPE: &str = "ALL the listed trained TinyLlama-1.1B-Chat blocks as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement";
+ 
+ /// `stack-prove --export DIR --seq ID --out DIR [--layers A..B] [--label L]
+ /// [--rope-from-export] [--lie-at-boundary K]`
+@@ -1668,39 +1735,34 @@
+         js(&std::env::var("HL_GPU").unwrap_or_else(|_| "unset".into())),
+         js(STACK_SCOPE)
+     );
+-    // ---- the sealing pass, with PARITY against the export at every layer
++    // ---- ROUND 3 (R3-1): ONE witness pass. The endpoints are sealed from
++    //      the export's own words (layer 0's x_in, the last layer's x_out);
++    //      every block's witness is then built ONCE, in the proving pass, and
++    //      checked against the export's x_out of its layer (and the two
++    //      endpoints against the first input / last output plane) BEFORE its
++    //      segment is proved. Parity stays mandatory at every layer; a
++    //      mismatch aborts the run and removes the run directory.
+     let t = Instant::now();
+     let (x_in0, _) = ex.load_seq(&sh, seq, layers[0])?;
+-    let mut src = StackSource::new(&sh, &blocks, x_in0, None)?;
+-    let mut first: Option<Vec<i16>> = None;
+-    let mut last: Option<Vec<i16>> = None;
+-    for (k, &layer) in layers.iter().enumerate() {
+-        let (w, out_plane) = src.advance(k).map_err(|e| format!("block {k} (layer {layer}): {e}"))?;
+-        if k == 0 {
+-            first = Some(padded_plane(&w, src.ids.at(A_X))?);
+-        }
+-        drop(w);
+-        let (_, x_out) = ex.load_seq(&sh, seq, layer)?;
+-        let mine = true_words(&sh, &out_plane);
+-        let n = mine.iter().zip(x_out.iter()).filter(|(a, b)| a != b).count();
+-        if n != 0 {
+-            let p = mine.iter().zip(x_out.iter()).position(|(a, b)| a != b).unwrap_or(0);
+-            return Err(format!("parity: layer {layer}'s native output differs from the export's x_out in {n} words (first at token {}, channel {}); no value is printed", p / sh.width, p % sh.width));
+-        }
+-        if k + 1 == l {
+-            last = Some(out_plane);
+-        }
+-    }
+-    let (first, last) = (first.ok_or("no first plane")?, last.ok_or("no last plane")?);
+-    src.lie_at = lie_at;
+-    src.restart();
++    let mut x_outs = Vec::with_capacity(l);
++    for &layer in &layers {
++        x_outs.push(ex.load_seq(&sh, seq, layer)?.1);
++    }
++    let first = pad_d_plane(&sh, &x_in0)?;
++    let last = pad_d_plane(&sh, &x_outs[l - 1])?;
++    let mut src = StackSource::new(&sh, &blocks, x_in0, lie_at)?;
+     let seal_s = t.elapsed().as_secs_f64();
+-    println!("{{\"event\":\"parity\",\"result\":\"bit-exact at every layer\",\"layers\":{l},\"words_per_layer\":{},\"sealing_pass_seconds\":{seal_s:.3}}}", sh.tokens * sh.width);
++    println!(
++        "{{\"event\":\"sealed\",\"from\":\"the export's layer-{} x_in and layer-{} x_out (parity is checked per layer in the proving pass)\",\"seconds\":{seal_s:.3},\"rayon_threads\":{}}}",
++        layers[0],
++        layers[l - 1],
++        rayon::current_num_threads()
++    );
+     // ---- endpoints and the bound run statement
+     let ctx = stack_context(&ex.variant, &layers, label);
+     let spec = IoSpec::new_shaped(&sh, ctx, 0, 0)?;
+     let (expected, owners) = prepare_endpoints(spec, &first, &last)?;
+-    drop((first, last));
++    src.parity = Some(StackParity { layers: layers.clone(), x_outs, first, last, checked: 0 });
+     let rst = RunStatement::new_bound(ex.geometry.run_shape(&sh, l)?, ctx, expected.clone(), &blocks, &vec![(0, 0); l], &st)?;
+     // ---- the proving pass
+     std::fs::create_dir(&out).map_err(|e| format!("{}: {e}", out.display()))?;
+@@ -1717,10 +1779,19 @@
+     };
+     let prove_s = t.elapsed().as_secs_f64();
+     let witness_s = src.busy_s;
++    let parity_layers = src.parity.as_ref().map(|p| p.checked).unwrap_or(0);
+     drop(src);
+     if let Err(e) = stats {
++        // the run directory is this process's own, created above: a run
++        // that did not complete leaves nothing a verifier could mistake
++        let _ = std::fs::remove_dir_all(&out);
+         return Err(format!("prove_run: {e}"));
+     }
++    if parity_layers != l {
++        let _ = std::fs::remove_dir_all(&out);
++        return Err(format!("trained stack: parity was checked at {parity_layers} of {l} layers"));
++    }
++    println!("{{\"event\":\"parity\",\"result\":\"bit-exact at every layer\",\"layers\":{l},\"words_per_layer\":{},\"checked_in_the_proving_pass\":true}}", sh.tokens * sh.width);
+     let hwm = peak_rss_mib();
+     // ---- in-process verification from the directory
+     let t = Instant::now();
+@@ -1743,10 +1814,12 @@
+     let segs: Vec<String> = (0..l).map(|k| format!("{{\"file\":{},\"bytes\":{},\"sha256\":{}}}", js(&super::run_sink::segment_file_name(k)), disk.lengths()[k], js(&disk.digests()[k]))).collect();
+     write_new(&sdir.join("segments.json"), format!("[\n {}\n]\n", segs.join(",\n ")).as_bytes())?;
+     println!(
+-        "{{\"event\":\"proved\",\"gpu\":{},\"gpu_declines\":{},\"blocks\":{l},\"receipt_bytes\":{},\"prove_run_seconds\":{prove_s:.3},\"of_which_witness_rebuild_seconds\":{witness_s:.3},\"in_process_verify_seconds\":{verify_s:.3},\"sealing_pass_seconds\":{seal_s:.3},\"load_seconds\":{load_s:.3},\"total_seconds\":{:.3},\"vmhwm_mib\":{hwm:.0},\"statement_identity\":{},\"out\":{}}}",
++        "{{\"event\":\"proved\",\"gpu\":{},\"gpu_declines\":{},\"blocks\":{l},\"receipt_bytes\":{},\"prove_run_seconds\":{prove_s:.3},\"of_which_witness_seconds\":{witness_s:.3},\"witness_seconds_per_block\":{:.3},\"rayon_threads\":{},\"in_process_verify_seconds\":{verify_s:.3},\"sealing_pass_seconds\":{seal_s:.3},\"load_seconds\":{load_s:.3},\"total_seconds\":{:.3},\"vmhwm_mib\":{hwm:.0},\"statement_identity\":{},\"out\":{}}}",
+         js(&crate::gpu::label()),
+         crate::gpu::declines(),
+         disk.total_bytes(),
++        witness_s / l as f64,
++        rayon::current_num_threads(),
+         t_total.elapsed().as_secs_f64(),
+         js(&hex(&st.identity())),
+         js(&out.display().to_string())
+diff -ruN '--exclude=target' '--exclude=target-gpu' /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r2/hashline/src/private_block/trained_calib_tests.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/trained_calib_tests.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r2/hashline/src/private_block/trained_calib_tests.rs	2026-10-17 02:14:34.320317741 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/trained_calib_tests.rs	2026-10-17 03:37:18.952372946 -0700
+@@ -107,6 +107,11 @@
+     Shape::tinyllama_t32_trained(&t3_calibration(), T3_F_E).expect("the trained TinyLlama shape")
+ }
+ 
++/// ROUND 3 (R3-2): the trained TinyLlama shape at another registered T
++pub(super) fn tinyllama_at(t: usize) -> Shape {
++    Shape::tinyllama_trained(t, &t3_calibration(), T3_F_E).expect("the trained TinyLlama shape at T")
++}
++
+ /// the five single-constant variations of a calibration
+ fn variations(c: NormCalibration) -> Vec<(&'static str, NormCalibration)> {
+     vec![
+@@ -195,7 +200,15 @@
+         assert!(e.contains("is frozen"), "{}: {e}", sh.name);
+         assert!(!sh.trained_calibration && sh.norm_calibration() == NormCalibration::FROZEN, "{}: a registered shape carries a non-frozen calibration", sh.name);
+     }
+-    assert_eq!(TRAINED_CALIBRATION_PROFILES, [TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIB_RUNG_PROFILE]);
++    assert_eq!(TRAINED_CALIBRATION_PROFILES, [TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIB_RUNG_PROFILE, super::shape::TINYLLAMA_T64_TRAINED_PROFILE, super::shape::TINYLLAMA_T128_TRAINED_PROFILE]);
++    // ROUND 3 (R3-2): one profile per context length; any other T is refused
++    for t in [16usize, 48, 256, 512] {
++        assert!(Shape::tinyllama_trained(t, &c, T3_F_E).unwrap_err().contains("no trained TinyLlama profile"), "T{t}");
++    }
++    let (s64, s128) = (tinyllama_at(64), tinyllama_at(128));
++    assert_eq!((s64.log_cols, s64.endpoint_rows, s64.wrho_s), (13, 21, 15));
++    assert_eq!((s128.log_cols, s128.endpoint_rows, s128.wrho_s), (14, 21, 16));
++    assert_eq!(tinyllama().profile, TINYLLAMA_T32_TRAINED_PROFILE);
+     let t = tinyllama();
+     assert!(t.clone().with_trained_calibration(&c).unwrap_err().contains("once"), "a second application was accepted");
+     // a TinyLlama-profile shape built with a window override is refused
+@@ -402,8 +415,8 @@
+ 
+ /// the run shape of a one-block run at a trained-calibration shape
+ pub(super) fn run_shape_for(sh: &Shape, l: usize) -> super::run::RunShape {
+-    if sh.profile == TINYLLAMA_T32_TRAINED_PROFILE {
+-        super::run::RunShape::tinyllama_t32_trained(sh.clone(), l).unwrap()
++    if super::shape::TINYLLAMA_TRAINED_PROFILES.contains(&sh.profile) {
++        super::run::RunShape::tinyllama_trained(sh.clone(), l).unwrap()
+     } else {
+         super::run::RunShape::rung_tc(sh.clone(), l).unwrap()
+     }
+@@ -940,11 +953,16 @@
+ /// the calibration values; the calibration is bound through the schedule
+ /// digest and the statement), and each run profile with its block shape.
+ pub(super) fn registered_trained_shapes() -> Vec<Shape> {
+-    vec![tinyllama(), rung_tc()]
++    vec![tinyllama(), rung_tc(), tinyllama_at(64), tinyllama_at(128)]
+ }
+ 
+ pub(super) fn registered_trained_runs() -> Vec<(&'static str, Shape)> {
+-    vec![(super::run::RUN_PROFILE_TINYLLAMA_T32_TRAINED, tinyllama()), (super::run::RUN_PROFILE_RUNG_TC, rung_tc())]
++    vec![
++        (super::run::RUN_PROFILE_TINYLLAMA_T32_TRAINED, tinyllama()),
++        (super::run::RUN_PROFILE_RUNG_TC, rung_tc()),
++        (super::run::RUN_PROFILE_TINYLLAMA_T64_TRAINED, tinyllama_at(64)),
++        (super::run::RUN_PROFILE_TINYLLAMA_T128_TRAINED, tinyllama_at(128)),
++    ]
+ }
+ 
+ /// A REAL run statement at a trained run profile, with no commitment (the
+@@ -957,7 +975,7 @@
+     let (public, ff, _) = super::grow_tests::tame_case(sh);
+     let one = BlockPublic::new(public, ff);
+     let blocks: Vec<BlockPublic> = (0..l).map(|_| one.clone()).collect();
+-    let tiny = profile == super::run::RUN_PROFILE_TINYLLAMA_T32_TRAINED;
++    let tiny = [super::run::RUN_PROFILE_TINYLLAMA_T32_TRAINED, super::run::RUN_PROFILE_TINYLLAMA_T64_TRAINED, super::run::RUN_PROFILE_TINYLLAMA_T128_TRAINED].contains(&profile);
+     let source = if tiny {
+         ModelSource::tinyllama_chat_v1_0()
+     } else {
+@@ -974,6 +992,6 @@
+     let recs = blocks.iter().enumerate().map(|(k, b)| LayerRecord::of_block(k as u32, b, vec![])).collect();
+     let cal = IntegerCalibration::as_the_code_proves(sh, &Provenance::recipe("registry", 1.0 / 1024.0, [1; 32], [2; 32]));
+     let model = TrainedModelStatement::new(sh, profile, source, cal, recs).expect("the registry's trained statement");
+-    let rs = if tiny { RunShape::tinyllama_t32_trained(sh.clone(), l) } else { RunShape::rung_tc(sh.clone(), l) }.expect("the trained run shape");
++    let rs = if tiny { RunShape::tinyllama_trained(sh.clone(), l) } else { RunShape::rung_tc(sh.clone(), l) }.expect("the trained run shape");
+     RunStatement::new_bound(rs, ctx, expected, &blocks, &vec![(0, 0); l], &model).expect("the trained run statement")
+ }
+diff -ruN '--exclude=target' '--exclude=target-gpu' /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r2/hashline/src/private_block/trained_statement.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/trained_statement.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r2/hashline/src/private_block/trained_statement.rs	2026-10-17 02:09:20.257095405 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/trained_statement.rs	2026-10-17 03:36:22.198923227 -0700
+@@ -364,6 +364,12 @@
+     pub calibration: IntegerCalibration,
+     pub layers: Vec<LayerRecord>,
+     pub coverage: String,
++    /// re-review R2-b: set ONLY by the test-only constructor
++    /// [`TrainedModelStatement::new_synthetic_at_trained_profile_for_tests`];
++    /// every other statement, in test builds too, is checked by the strict
++    /// production rule. Not part of the encoding (not a statement field).
++    #[cfg(test)]
++    pub test_synthetic_waiver: bool,
+ }
+ 
+ fn geometry_of(sh: &Shape) -> [u64; 9] {
+@@ -398,6 +404,8 @@
+             calibration,
+             layers,
+             coverage: COVERAGE_D13.into(),
++            #[cfg(test)]
++            test_synthetic_waiver: false,
+         };
+         st.check_self(sh)?;
+         Ok(st)
+@@ -422,11 +430,25 @@
+             calibration,
+             layers,
+             coverage: COVERAGE_D13.into(),
++            test_synthetic_waiver: true,
+         };
+         st.check_self_with(sh, true)?;
+         Ok(st)
+     }
+ 
++    /// re-review R2-b: true only for a statement from the test-only
++    /// constructor, and never in a production build
++    fn waived_for_tests(&self) -> bool {
++        #[cfg(test)]
++        {
++            self.test_synthetic_waiver
++        }
++        #[cfg(not(test))]
++        {
++            false
++        }
++    }
++
+     fn check_self(&self, sh: &Shape) -> Result<(), String> {
+         self.check_self_with(sh, false)
+     }
+@@ -449,10 +471,11 @@
+         // review finding F-3: keyed on the profile's IDENTITY (it was a
+         // substring test): the trained TinyLlama profile is the pinned
+         // checkpoint's, and nothing else's
+-        if self.block_profile == super::shape::TINYLLAMA_T32_TRAINED_PROFILE && !synthetic_at_trained_ok && self.source != ModelSource::tinyllama_chat_v1_0() {
++        let tiny = super::shape::TINYLLAMA_TRAINED_PROFILES.contains(&self.block_profile.as_str());
++        if tiny && !synthetic_at_trained_ok && self.source != ModelSource::tinyllama_chat_v1_0() {
+             return Err("trained statement: the trained TinyLlama profile is the pinned TinyLlama-1.1B-Chat checkpoint's; this statement names another source".into());
+         }
+-        if self.block_profile == super::shape::TINYLLAMA_T32_TRAINED_PROFILE && self.source.kind == SourceKind::PublicSyntheticRecipe && !synthetic_at_trained_ok {
++        if tiny && self.source.kind == SourceKind::PublicSyntheticRecipe && !synthetic_at_trained_ok {
+             return Err("trained statement: a synthetic recipe may not carry a trained (non-development) profile".into());
+         }
+         // ROUND 2 / the review's general rule: the per-block table keys are
+@@ -563,10 +586,11 @@
+     /// Is this the statement of THIS run? Every check is against the run's
+     /// own quantities (never against a receipt).
+     pub(crate) fn check_against(&self, sh: &Shape, run_profile: &str, block_digests: &[Digest], block_scales: &[(i32, i32)]) -> Result<(), String> {
+-        // the test-only waiver of `new_synthetic_at_trained_profile_for_tests`
+-        // reaches the run constructor in test builds only; production checks
+-        // exactly what `new` checked
+-        self.check_self_with(sh, cfg!(test))?;
++        // re-review R2-b: the waiver reaches the run constructor ONLY for a
++        // statement built by the test-only constructor (a field that exists
++        // in test builds only); every other statement, in `cargo test` too,
++        // is checked exactly as production checks it
++        self.check_self_with(sh, self.waived_for_tests())?;
+         if self.block_profile != sh.profile || self.run_profile != run_profile {
+             return Err(format!("trained statement: it is for profiles ({}, {}), this run is ({}, {run_profile})", self.block_profile, self.run_profile, sh.profile));
+         }
+diff -ruN '--exclude=target' '--exclude=target-gpu' /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r2/hashline/src/private_block/witness.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/witness.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r2/hashline/src/private_block/witness.rs	2026-10-17 02:17:34.468629965 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/witness.rs	2026-10-17 03:34:43.013403533 -0700
+@@ -295,30 +295,130 @@
+     Ok((y, r))
+ }
+ 
++// ROUND 3 (R3-1, 2026-10-17): the matrix products are PARALLEL (rayon, over
++// chunks of each output row) and cache-friendly. They are EXACT integer sums,
++// so neither the order nor the split of the accumulation can change a value:
++// every plane is bit-identical to the sequential form (`matmul_reference`,
++// kept for the equality test). The `x` words of every call site are inside
++// int16 (`y`, `o8`, `nm` are int8, `h16` int16), so one product `x w` fits an
++// i32 and is widened to i64 before it is accumulated; a word outside
++// `|x| < 2^23` sends the call to the i64 path, so the result is exact for any
++// input.
++
++/// the output-chunk length the parallel products split a row into: a
++/// power-of-two divisor of the row stride, so no chunk straddles two rows
++fn out_chunk(os: usize, want: usize) -> usize {
++    let mut c = want.min(os).max(1);
++    while c > 1 && os % c != 0 {
++        c /= 2;
++    }
++    c
++}
++
++/// the `x` words as i32 when every product `x w` (|w| <= 128) fits an i32
++fn narrow(x: &[i64]) -> Option<Vec<i32>> {
++    if x.iter().all(|v| v.unsigned_abs() < 1 << 23) {
++        Some(x.iter().map(|v| *v as i32).collect())
++    } else {
++        None
++    }
++}
++
+ /// `out[t, j] = sum_i x[t, i] * w[j, i]`, `w` stored (output, input), reading
+ /// `x` at stride `xs` and writing at stride `os` on a plane of `out_len`.
+ fn matmul(g: &Geom, x: &[i64], xs: usize, w: &[i8], inner: usize, outer: usize, os: usize, out_len: usize) -> Vec<i64> {
++    use rayon::prelude::*;
+     let mut out = vec![0i64; out_len];
+-    for t in 0..g.t {
+-        for j in 0..outer {
+-            out[t * os + j] = (0..inner).map(|i| x[t * xs + i] * i64::from(w[j * inner + i])).sum();
++    let c = out_chunk(os, 256);
++    let x32 = narrow(x);
++    out.par_chunks_mut(c).enumerate().for_each(|(ci, chunk)| {
++        let start = ci * c;
++        let (t, j0) = (start / os, start % os);
++        if t >= g.t || j0 >= outer {
++            return;
+         }
+-    }
++        let jn = (outer - j0).min(chunk.len());
++        for (dj, o) in chunk[..jn].iter_mut().enumerate() {
++            let wr = &w[(j0 + dj) * inner..(j0 + dj + 1) * inner];
++            *o = match &x32 {
++                Some(x32) => x32[t * xs..t * xs + inner].iter().zip(wr).map(|(a, b)| i64::from(a * i32::from(*b))).sum(),
++                None => x[t * xs..t * xs + inner].iter().zip(wr).map(|(a, b)| a * i64::from(*b)).sum(),
++            };
++        }
++    });
+     out
+ }
+ 
+ /// `out[t, j] = sum_i x[t, i] * w[i, j]`, `w` stored (input, output) — the
+-/// feed-forward orientation, the kernel's `matmul_in_out`
++/// feed-forward orientation, the kernel's `matmul_in_out`. ROUND 3: the
++/// loop order is (row, i, j) so each weight row is read contiguously (the
++/// sequential form walked `w` at stride `outer`).
+ fn matmul_in_out(g: &Geom, x: &[i64], xs: usize, w: &[i8], inner: usize, outer: usize, os: usize, out_len: usize) -> Vec<i64> {
++    use rayon::prelude::*;
+     let mut out = vec![0i64; out_len];
+-    for t in 0..g.t {
++    let c = out_chunk(os, 512);
++    let x32 = narrow(x);
++    out.par_chunks_mut(c).enumerate().for_each(|(ci, chunk)| {
++        let start = ci * c;
++        let (t, j0) = (start / os, start % os);
++        if t >= g.t || j0 >= outer {
++            return;
++        }
++        let jn = (outer - j0).min(chunk.len());
++        let acc = &mut chunk[..jn];
++        for i in 0..inner {
++            let wr = &w[i * outer + j0..i * outer + j0 + jn];
++            match &x32 {
++                Some(x32) => {
++                    let xv = x32[t * xs + i];
++                    if xv != 0 {
++                        for (a, wv) in acc.iter_mut().zip(wr) {
++                            *a += i64::from(xv * i32::from(*wv));
++                        }
++                    }
++                }
++                None => {
++                    let xv = x[t * xs + i];
++                    if xv != 0 {
++                        for (a, wv) in acc.iter_mut().zip(wr) {
++                            *a += xv * i64::from(*wv);
++                        }
++                    }
++                }
++            }
++        }
++    });
++    out
++}
++
++/// the SEQUENTIAL products of the round-2 builder, verbatim: the reference
++/// the parallel ones are tested equal to (`witness_speed_tests`)
++#[cfg(test)]
++pub(super) fn matmul_reference(t_true: usize, x: &[i64], xs: usize, w: &[i8], inner: usize, outer: usize, os: usize, out_len: usize, in_out: bool) -> Vec<i64> {
++    let mut out = vec![0i64; out_len];
++    for t in 0..t_true {
+         for j in 0..outer {
+-            out[t * os + j] = (0..inner).map(|i| x[t * xs + i] * i64::from(w[i * outer + j])).sum();
++            out[t * os + j] = if in_out {
++                (0..inner).map(|i| x[t * xs + i] * i64::from(w[i * outer + j])).sum()
++            } else {
++                (0..inner).map(|i| x[t * xs + i] * i64::from(w[j * inner + i])).sum()
++            };
+         }
+     }
+     out
+ }
+ 
++/// the parallel products at a shape, for the equality test
++#[cfg(test)]
++pub(super) fn matmul_parallel(sh: &Shape, x: &[i64], xs: usize, w: &[i8], inner: usize, outer: usize, os: usize, out_len: usize, in_out: bool) -> Vec<i64> {
++    let g = Geom::new(sh);
++    if in_out {
++        matmul_in_out(&g, x, xs, w, inner, outer, os, out_len)
++    } else {
++        matmul(&g, x, xs, w, inner, outer, os, out_len)
++    }
++}
++
+ /// half-split RoPE over `heads` heads per row, at stride `ws` on a plane of
+ /// `out_len`
+ fn rotate(g: &Geom, x: &[i64], heads: usize, ws: usize, out_len: usize, cos: &[i64], sin: &[i64]) -> Vec<i64> {
+@@ -497,16 +597,26 @@
+ 
+     // ---- scores over ALL (h, t, j): an out-of-range masked score still refuses ----
+     let mut sacc = vec![0i64; sl];
+-    for h in 0..g.hq {
+-        // S9: the logical head sits at its padded SLOT, and its key-value
+-        // head is the slot's HIGH bits (correction C-1)
+-        let hs = g.slot(h);
+-        let kv = h / g.group;
+-        for t in 0..g.t {
+-            for j in 0..g.t {
+-                sacc[g.six(hs, t, j)] = (0..g.dh).map(|i| qr8[g.qix(t, hs, i)] * kr8[g.kvix(j, kv, i)]).sum();
+-            }
++    // ROUND 3: one parallel task per padded head SLOT (each slot owns the
++    // contiguous `t_pad x t_pad` block of `Dom::S`); a padding slot stays zero
++    {
++        use rayon::prelude::*;
++        let mut head_of_slot: Vec<Option<usize>> = vec![None; g.h_pad];
++        for h in 0..g.hq {
++            head_of_slot[g.slot(h)] = Some(h);
+         }
++        let blk = g.t_pad * g.t_pad;
++        sacc.par_chunks_mut(blk).enumerate().for_each(|(hs, ch)| {
++            // S9: the logical head sits at its padded SLOT, and its key-value
++            // head is the slot's HIGH bits (correction C-1)
++            let Some(h) = head_of_slot.get(hs).copied().flatten() else { return };
++            let kv = h / g.group;
++            for t in 0..g.t {
++                for j in 0..g.t {
++                    ch[t * g.t_pad + j] = (0..g.dh).map(|i| qr8[g.qix(t, hs, i)] * kr8[g.kvix(j, kv, i)]).sum();
++                }
++            }
++        });
+     }
+     let (s8, rsl) = quantize(&sacc, &sup_s, shape.sh_s, -127, 127, "score")?;
+ 
+diff -ruN '--exclude=target' '--exclude=target-gpu' /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r2/hashline/src/private_block/witness_speed_tests.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/witness_speed_tests.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r2/hashline/src/private_block/witness_speed_tests.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/witness_speed_tests.rs	2026-10-17 03:37:40.613950119 -0700
+@@ -0,0 +1,95 @@
++//! **ROUND 3 (R3-1): the parallel witness products equal the sequential
++//! ones.** TEST CODE ONLY. The witness builder's matrix products became
++//! parallel (rayon) and cache-friendly; they are exact integer sums, so the
++//! planes cannot move. This module checks it directly against the round-2
++//! sequential products (`witness::matmul_reference`, verbatim), on random
++//! words of every class the call sites see (int8 and int16 inputs, zeros,
++//! and inputs outside the i32 fast path), at the trained rung's dimensions in
++//! the ordinary filter and at TinyLlama's in release (ignored). The whole
++//! witness's bit-exactness is also held by the frozen receipts, the slot-IR
++//! digests and the kernel parity tests of the suite, which this round leaves
++//! unchanged.
++
++use super::shape::Shape;
++use super::witness;
++
++/// a small deterministic generator (xorshift64*)
++struct Rng(u64);
++
++impl Rng {
++    fn next(&mut self) -> u64 {
++        self.0 ^= self.0 >> 12;
++        self.0 ^= self.0 << 25;
++        self.0 ^= self.0 >> 27;
++        self.0.wrapping_mul(0x2545_F491_4F6C_DD1D)
++    }
++    fn range(&mut self, lo: i64, hi: i64) -> i64 {
++        lo + (self.next() % ((hi - lo + 1) as u64)) as i64
++    }
++}
++
++/// one product at a shape's real dimensions, parallel against sequential
++#[allow(clippy::too_many_arguments)]
++fn check(sh: &Shape, r: &mut Rng, xs: usize, inner: usize, outer: usize, os: usize, in_out: bool, xlo: i64, xhi: i64) {
++    let rows = sh.t_pad;
++    let mut x = vec![0i64; rows * xs];
++    for t in 0..sh.tokens {
++        for i in 0..inner {
++            // a sprinkling of zeros exercises the skip on the in-out path
++            x[t * xs + i] = if r.next() % 7 == 0 { 0 } else { r.range(xlo, xhi) };
++        }
++    }
++    let w: Vec<i8> = (0..inner * outer).map(|_| r.range(-128, 127) as i8).collect();
++    let out_len = rows * os;
++    let want = witness::matmul_reference(sh.tokens, &x, xs, &w, inner, outer, os, out_len, in_out);
++    let got = witness::matmul_parallel(sh, &x, xs, &w, inner, outer, os, out_len, in_out);
++    assert_eq!(got, want, "{}: {} product {inner} -> {outer} (x in [{xlo}, {xhi}]) differs from the sequential one", sh.name, if in_out { "in-out" } else { "out-in" });
++}
++
++/// every product the builder makes at `sh`, with every input class
++fn every_product(sh: &Shape, seed: u64) {
++    let mut r = Rng(seed);
++    let (dp, fp, kvw) = (sh.d_pad, sh.f_pad, sh.kv_heads * sh.head_dim);
++    for (xlo, xhi) in [(-127i64, 127i64), (-32768, 32767), (-(1i64 << 40), 1i64 << 40)] {
++        // Wq, Wo (d -> d), Wk / Wv (d -> kvw): out-in
++        check(sh, &mut r, dp, dp, dp, dp, false, xlo, xhi);
++        check(sh, &mut r, dp, dp, kvw, kvw, false, xlo, xhi);
++        // Wg / Wu (d -> f), Wd (f -> d): in-out
++        check(sh, &mut r, dp, dp, fp, fp, true, xlo, xhi);
++        check(sh, &mut r, fp, fp, dp, dp, true, xlo, xhi);
++    }
++}
++
++#[test]
++fn the_parallel_products_equal_the_sequential_ones_at_the_trained_rung() {
++    every_product(&Shape::rung_tc(&super::trained_calib_tests::rung_tc_calibration()).unwrap(), 0x5233_0001);
++    every_product(&Shape::rung_c6(), 0x5233_0002);
++}
++
++/// the TinyLlama dimensions (heavy only because the SEQUENTIAL reference is
++/// slow: two products of 2048 x 8192 per input class)
++#[test]
++#[ignore = "release: the sequential reference at TinyLlama's dimensions"]
++fn the_parallel_products_equal_the_sequential_ones_at_the_tinyllama_dimensions() {
++    every_product(&super::trained_calib_tests::tinyllama_at(64), 0x5233_0003);
++}
++
++/// **The per-block witness time** at the trained TinyLlama shapes (generic
++/// dense witness), printed for the record with the thread count. Release.
++#[test]
++#[ignore = "release timing: TinyLlama witnesses at T32, T64 and T128"]
++fn native_witness_time_per_block_at_the_trained_tinyllama_shapes() {
++    for t in [32usize, 64, 128] {
++        let sh = super::trained_calib_tests::tinyllama_at(t);
++        let (w, input) = super::trained_calib_tests::trained_dense_words(&sh, super::trained_calib_tests::TRAINED_BANDS);
++        let (public, ff) = super::dense_tests::statement_of_words(&sh, &w);
++        let mut best = f64::MAX;
++        for _ in 0..3 {
++            let t0 = std::time::Instant::now();
++            let wit = witness::build_shaped(&sh, &public, &ff, &input).expect("the generic witness");
++            best = best.min(t0.elapsed().as_secs_f64());
++            drop(wit);
++        }
++        eprintln!("NATIVE R3-1 witness T{t}: best of 3 {best:.3} s per block on {} rayon threads (dense synthetic words; shared box)", rayon::current_num_threads());
++    }
++}
+diff -ruN '--exclude=target' '--exclude=target-gpu' /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r2/hashline/src/private_block.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r2/hashline/src/private_block.rs	2026-10-17 02:28:44.328778451 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block.rs	2026-10-17 03:37:48.229033448 -0700
+@@ -149,6 +149,9 @@
+ // R2-3: the stack CLI on a small chained multi-layer export (test only)
+ #[cfg(test)]
+ mod trained_stack_tests;
++// R3-1: the parallel witness products against the sequential ones (test only)
++#[cfg(test)]
++mod witness_speed_tests;
+ // STAGE 19 (test-only): DENSE public weights and a numerically non-trivial
+ // witness at the shaped geometries, where the diagonal fixture leaves every
+ // hidden unit above `d` with no input and no output weight.

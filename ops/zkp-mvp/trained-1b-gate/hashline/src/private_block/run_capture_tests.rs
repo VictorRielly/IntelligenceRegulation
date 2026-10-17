@@ -2097,15 +2097,17 @@ fn capture_a_125m_run() {
 /// One honest trained chain: the export's own public block per layer (each
 /// with ITS tables), the hidden inputs and the `l + 1` padded planes the
 /// run's IO commitments carry. Prover side only; none of it reaches a bundle.
-struct TrainedChain {
+struct TrainedChain<'a> {
     sh: Shape,
-    blocks: Vec<BlockPublic>,
+    // BORROWED, never cloned: 22 padded TinyLlama blocks are about 1.3 GB,
+    // and the stack holds them once (the stack CLI's own rule)
+    blocks: &'a [BlockPublic],
     inputs: Vec<Vec<i16>>,
     planes: Vec<Vec<i16>>,
 }
 
-impl TrainedChain {
-    fn build(sh: &Shape, blocks: &[BlockPublic], x0: Vec<i16>) -> TrainedChain {
+impl<'a> TrainedChain<'a> {
+    fn build(sh: &Shape, blocks: &'a [BlockPublic], x0: Vec<i16>) -> TrainedChain<'a> {
         let ids = Ids::new(sh).expect("the trained shape has a plane map");
         let mut inputs = Vec::with_capacity(blocks.len());
         let mut planes = Vec::with_capacity(blocks.len() + 1);
@@ -2119,7 +2121,7 @@ impl TrainedChain {
             inputs.push(x);
             x = true_input(sh, &padded(&w, ids.at(A_X2)));
         }
-        TrainedChain { sh: sh.clone(), blocks: blocks.to_vec(), inputs, planes }
+        TrainedChain { sh: sh.clone(), blocks, inputs, planes }
     }
     /// the true `[T, d]` output words of block `k` (for the parity check)
     fn output_words(&self, k: usize) -> Vec<i16> {
@@ -2127,7 +2129,7 @@ impl TrainedChain {
     }
 }
 
-impl RunWitnessSource for TrainedChain {
+impl RunWitnessSource for TrainedChain<'_> {
     fn witness(&mut self, k: usize) -> Result<Witness, String> {
         witness::build_shaped(&self.sh, self.blocks[k].attention(), self.blocks[k].feed_forward(), &self.inputs[k])
     }

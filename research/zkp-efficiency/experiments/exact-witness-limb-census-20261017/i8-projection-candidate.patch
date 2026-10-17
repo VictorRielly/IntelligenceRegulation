@@ -1,0 +1,101 @@
+--- a/hashline/src/private_block/witness.rs
++++ b/hashline/src/private_block/witness.rs
+@@ -319,6 +319,63 @@
+     out
+ }
+ 
++// Research candidate: uncompiled, unintegrated, no privacy/receipt claim.
++// Only six proven [-127,127] projection inputs may use this helper.
++// A shape-bound or input-class failure preserves the scalar helper's behavior.
++// The int16 FFN down call stays on matmul_in_out.
++#[allow(clippy::too_many_arguments)]
++fn matmul_i8_projection(
++    g: &Geom, x: &[i64], xs: usize, w: &[i8], inner: usize,
++    outer: usize, os: usize, out_len: usize, in_out: bool,
++) -> Vec<i64> {
++    let fallback = || {
++        if in_out { matmul_in_out(g, x, xs, w, inner, outer, os, out_len) }
++        else { matmul(g, x, xs, w, inner, outer, os, out_len) }
++    };
++    // Absolute-sum bound protects EVERY partial sum, in any reduction order.
++    // Both signs of -128 weights are included; no saturation or wrapping.
++    if inner > (i32::MAX as usize) / (127 * 128) {
++        return fallback();
++    }
++    let mut packed = Vec::<i8>::with_capacity(g.t * inner);
++    for t in 0..g.t {
++        for i in 0..inner {
++            let v = x[t * xs + i];
++            if !(-127..=127).contains(&v) {
++                return fallback();
++            }
++            packed.push(v as i8);
++        }
++    }
++    let mut out = vec![0i64; out_len];
++    for t in 0..g.t {
++        if !in_out {
++            for j in 0..outer {
++                let acc: i32 = (0..inner).map(|i|
++                    i32::from(packed[t * inner + i]) * i32::from(w[j * inner + i])
++                ).sum();
++                out[t * os + j] = i64::from(acc);
++            }
++        } else {
++            for j0 in (0..outer).step_by(64) {
++                let count = (outer - j0).min(64);
++                let mut acc = [0i32; 64];
++                for i in 0..inner {
++                    let xi = i32::from(packed[t * inner + i]);
++                    let wi = &w[i * outer + j0..i * outer + j0 + count];
++                    for j in 0..count {
++                        acc[j] += xi * i32::from(wi[j]);
++                    }
++                }
++                for j in 0..count {
++                    out[t * os + j0 + j] = i64::from(acc[j]);
++                }
++            }
++        }
++    }
++    out
++}
++
+ /// half-split RoPE over `heads` heads per row, at stride `ws` on a plane of
+ /// `out_len`
+ fn rotate(g: &Geom, x: &[i64], heads: usize, ws: usize, out_len: usize, cos: &[i64], sin: &[i64]) -> Vec<i64> {
+@@ -486,9 +543,9 @@
+     // P-2), so every matmul folds over the padded inner index and `Wq` writes
+     // the `Dom::Q` axis in SLOT order. The padded rows and columns are zero
+     // by construction check, so the accumulation is unchanged on the support.
+-    let (q8, rql) = quantize(&matmul(&g, &y, g.d_pad, &public.wq, g.d_pad, g.d_pad, g.d_pad, dl), &sup_q, shape.sh_qkv, -127, 127, "Q")?;
+-    let (k8, rkl) = quantize(&matmul(&g, &y, g.d_pad, &public.wk, g.d_pad, g.kvw, g.kvw, kvl), &sup_kv, shape.sh_qkv, -127, 127, "K")?;
+-    let (v8, rvl) = quantize(&matmul(&g, &y, g.d_pad, &public.wv, g.d_pad, g.kvw, g.kvw, kvl), &sup_kv, shape.sh_qkv, -127, 127, "V")?;
++    let (q8, rql) = quantize(&matmul_i8_projection(&g, &y, g.d_pad, &public.wq, g.d_pad, g.d_pad, g.d_pad, dl, false), &sup_q, shape.sh_qkv, -127, 127, "Q")?;
++    let (k8, rkl) = quantize(&matmul_i8_projection(&g, &y, g.d_pad, &public.wk, g.d_pad, g.kvw, g.kvw, kvl, false), &sup_kv, shape.sh_qkv, -127, 127, "K")?;
++    let (v8, rvl) = quantize(&matmul_i8_projection(&g, &y, g.d_pad, &public.wv, g.d_pad, g.kvw, g.kvw, kvl, false), &sup_kv, shape.sh_qkv, -127, 127, "V")?;
+     // the rotation runs over every padded head SLOT; a padded slot holds
+     // zeros, so it rotates to zero and the pad stays zero
+     let (qr8, rqrl) = quantize(&rotate(&g, &q8, g.h_pad, g.d_pad, dl, &public.rope_cos, &public.rope_sin), &sup_q, SH_ROPE, -127, 127, "QR")?;
+@@ -601,7 +658,7 @@
+     // `Wo` reads the head-permuted `Dom::Q` axis and writes `Dom::D`: both
+     // are the PADDED width, with the padded head columns and the padded
+     // output rows zero (ruling P-2, checked at construction)
+-    let (ao, ral) = quantize(&matmul(&g, &o8, g.d_pad, &public.wo, g.d_pad, g.d_pad, g.d_pad, dl), &sup_d, shape.sh_ao, -32768, 32767, "AO")?;
++    let (ao, ral) = quantize(&matmul_i8_projection(&g, &o8, g.d_pad, &public.wo, g.d_pad, g.d_pad, g.d_pad, dl, false), &sup_d, shape.sh_ao, -32768, 32767, "AO")?;
+ 
+     // ---- residual 1 (all three shifts are 0: xres1 = x + ao exactly) ----
+     for &idx in &sup_d {
+@@ -674,10 +731,10 @@
+     // R1: the gate. Its class is the kernel's `I8`, which INCLUDES -128, not
+     // the attention subset: the activation table has 256 rows, so `sym()`
+     // would prove the wrong window (T2 section A.2).
+-    let (g8, rgl) = quantize(&matmul_in_out(&g, &nm, g.d_pad, &ff.wg_t, g.d_pad, g.f_pad, g.f_pad, fl), &sup_f, shape.sh_g, -128, 127, "FFN gate")?;
++    let (g8, rgl) = quantize(&matmul_i8_projection(&g, &nm, g.d_pad, &ff.wg_t, g.d_pad, g.f_pad, g.f_pad, fl, true), &sup_f, shape.sh_g, -128, 127, "FFN gate")?;
+     // R3: up. SH_U = 0, so `requant` is the identity: no remainder plane, no
+     // limbs for it, only the int16 class (T2 section A.4).
+-    let u16 = matmul_in_out(&g, &nm, g.d_pad, &ff.wu_t, g.d_pad, g.f_pad, g.f_pad, fl);
++    let u16 = matmul_i8_projection(&g, &nm, g.d_pad, &ff.wu_t, g.d_pad, g.f_pad, g.f_pad, fl, true);
+     if sup_f.iter().any(|k| !(-32768..=32767).contains(&u16[*k])) {
+         return Err(range("FFN up"));
+     }

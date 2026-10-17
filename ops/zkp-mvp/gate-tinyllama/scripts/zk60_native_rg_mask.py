@@ -540,6 +540,12 @@ MASK_LAYER_PINS = {
     },
 }
 
+# [TINYLLAMA PORT 2026-10-17] the trained bundles' argument.rs, layout.rs
+# and shape.rs digests, each READ (`zk60_native_rg_tinyllama_pins`).
+from zk60_native_rg_tinyllama_pins import (  # noqa: E402
+    MASK_LAYER_PINS as _TL_MLP, merge_two_level as _tl_merge2)
+_tl_merge2(MASK_LAYER_PINS, _TL_MLP, "MASK_LAYER_PINS")
+
 # Files the mask port transcribes that NO bundle pins, so that nothing in
 # this module can check them.  The digests were read at the capture commits
 # on 2026-09-21 with `git show <commit>:<path>` in the read-only Rust lane,

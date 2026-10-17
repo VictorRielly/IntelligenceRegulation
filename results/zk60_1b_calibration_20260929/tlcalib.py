@@ -46,8 +46,21 @@ import numpy as np
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
 IMPORTER_DIR = REPO / "results" / "zk60_1b_checkpoint_20260927"
+# Model selection (lane B5): ZK60_MODEL=llama3-8b before import switches the
+# checkpoint, the geometry GEO and the shard pins; default = TinyLlama (B/B2/B3/B4).
+MODEL_NAME = os.environ.get("ZK60_MODEL", "tinyllama")
 MODEL_DIR = Path("/home/victor/models/tinyllama-1.1b-chat-fe8a4ea1")
 MODEL_SHA256 = "6e6001da2106d4757498752a021df6c2bdc332c650aae4bae6b0c004dcf14933"
+MODEL_SHARDS = {"model.safetensors": MODEL_SHA256}
+if MODEL_NAME == "llama3-8b":
+    MODEL_DIR = REPO / "local-models" / "zk60-llama3-8b"
+    MODEL_SHARDS = {
+        "model-00001-of-00004.safetensors": "f2c144103072514542e327fa8080bd375cb300f2d453fba9ca3aea81d0d4cf33",
+        "model-00002-of-00004.safetensors": "d9eee5f23d94405d90b7e9ff88b9443fee42f8528a658f54214c2aba7530d80c",
+        "model-00003-of-00004.safetensors": "4b8fbc5e113f69768dd8de84661ea20af8a32b734a9976144b4236c447b40ccc",
+        "model-00004-of-00004.safetensors": "5dc34e6bdf2da9e35f0d93b5c333c870f3677dc43dc3a91ea3a8ad28a1fe1acb"}
+elif MODEL_NAME != "tinyllama":
+    raise ValueError(f"unknown ZK60_MODEL {MODEL_NAME}")
 sys.path.insert(0, str(IMPORTER_DIR))
 import importer_zk60_1b_checkpoint as importer  # noqa: E402
 
@@ -83,16 +96,18 @@ class Native:
 # hold 9..16 (layout.rs lookup lists, argument.rs host relations).
 SHIFT_WINDOW = {"qkv": (1, 8), "rope": (1, 8), "s": (1, 8), "o": (9, 16), "ao": (1, 8),
                 "g": (1, 8), "h": (9, 16), "z": (1, 8)}
+if os.environ.get("ZK60_MODEL", "tinyllama") == "llama3-8b":
+    SHIFT_WINDOW["ao"] = (0, 8)      # D24 accepted windows for the 8B profile: ao 0..8
 
 
 # ------------------------------------------------------------------ checkpoint
 
 def open_checkpoint():
-    return importer.Checkpoint(MODEL_DIR, expected_shards={"model.safetensors": MODEL_SHA256})
+    return importer.Checkpoint(MODEL_DIR, expected_shards=MODEL_SHARDS)
 
 
-def tensor_f32(ref) -> np.ndarray:
-    raw = ref.read_bytes()
+def tensor_f32(ref, max_bytes: int | None = None) -> np.ndarray:
+    raw = ref.read_bytes() if max_bytes is None else ref.read_bytes(max_bytes=max_bytes)
     u = np.frombuffer(raw, dtype="<u2").astype(np.uint32) << 16
     return u.view(np.float32).reshape(ref.shape)
 
@@ -124,7 +139,7 @@ class Geo:
         return self.KV * self.dh
 
 
-GEO = Geo()
+GEO = Geo() if MODEL_NAME == "tinyllama" else Geo(d=4096, f=14336, H=32, KV=8, dh=128, eps=1e-5, theta=500000.0)
 
 
 # ------------------------------------------------------------------ float reference
@@ -227,19 +242,30 @@ def isqrt_vec(v: np.ndarray) -> np.ndarray:
 
 
 class ExactMat:
-    """A public int8 matrix prepared for exact products `x @ M` with x integer.
-    Stored as float64 (inner, outer)."""
+    """A public int8 matrix prepared for exact products `x @ M` with x integer
+    (float64 BLAS; every partial sum below 2^53, asserted). Large matrices
+    (> 16M words, the 8B FFN) stay int8 and are converted in column blocks."""
+
+    BLOCKED_ABOVE = 16 * 1024 * 1024
+    BLOCK = 2048
 
     def __init__(self, m_in_out: np.ndarray):
-        self.m = m_in_out.astype(np.float64)
-        self.wmax = int(np.abs(m_in_out).max()) if m_in_out.size else 0
+        self.wmax = int(np.abs(m_in_out.astype(np.int64)).max()) if m_in_out.size else 0
         self.inner = m_in_out.shape[0]
+        self.blocked = m_in_out.size > self.BLOCKED_ABOVE
+        self.m = np.ascontiguousarray(m_in_out) if self.blocked else m_in_out.astype(np.float64)
 
     def __call__(self, x: np.ndarray) -> np.ndarray:
         xmax = int(np.abs(x).max()) if x.size else 0
         if xmax * self.wmax * self.inner >= TWO53:
             raise OverflowError("exact float64 product bound exceeded")
-        return (x.astype(np.float64) @ self.m).astype(np.int64)
+        xf = x.astype(np.float64)
+        if not self.blocked:
+            return (xf @ self.m).astype(np.int64)
+        out = np.empty(x.shape[:-1] + (self.m.shape[1],), dtype=np.int64)
+        for c0 in range(0, self.m.shape[1], self.BLOCK):
+            out[..., c0:c0 + self.BLOCK] = (xf @ self.m[:, c0:c0 + self.BLOCK].astype(np.float64)).astype(np.int64)
+        return out
 
 
 def exact_bmm(a: np.ndarray, b: np.ndarray) -> np.ndarray:
@@ -372,8 +398,10 @@ class LayerInt:
 
 
 def norm_window(width: int, tn: int) -> int:
-    """shape.rs §3.3: tn + 1 + bits(isqrt(1 + width * 32767^2))."""
-    dmax = math.isqrt(1 + width * 32767 * 32767)
+    """tn + 1 + bits(isqrt(1 + width * 32768^2)) — the int16 class includes
+    -32768 (contract review 2026-09-30). Equals the 32767 form at width 2048
+    (21 bits either way); at width 4096 it is 22 bits (D_max = 2^21)."""
+    dmax = math.isqrt(1 + width * 32768 * 32768)
     return tn + 1 + dmax.bit_length()
 
 

@@ -1,0 +1,22 @@
++ S=/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/scripts
++ A=/home/victor/zk60-artifacts
++ P=/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/l2
++ X=/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-i-dense-k4
++ D=/home/victor/zk60-artifacts/tinyllama-trained-capture-dense-l2
++ Z=/home/victor/zk60-artifacts/tinyllama-trained-capture-zero-l2
++ PA=load,replay,hash,terminals,commitments,boundary,preimage,channels
++ ALL=load,replay,hash,terminals,commitments,boundary,preimage,fullpreimage,mask,joint,runcontrols,channels
++ case "$1" in
++ '[' dense = zero ']'
++ B=/home/victor/zk60-artifacts/tinyllama-trained-capture-dense-l2
++ O=/home/victor/zk60-artifacts/tinyllama-trained-capture-zero-l2
++ /usr/bin/time -v python3 /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/scripts/zk60_native_rg_m125.py --bundle /home/victor/zk60-artifacts/tinyllama-trained-capture-dense-l2 --other /home/victor/zk60-artifacts/tinyllama-trained-capture-zero-l2 --stages load,replay,hash,terminals,commitments,boundary,preimage,channels --evidence /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/l2 --name tl-dense-a
+[load          ]      0.5 s   peak RSS     128 MB   ok
+[replay        ]      0.3 s   peak RSS     128 MB   ok
+[hash          ]      0.2 s   peak RSS     128 MB   ok
+[terminals     ]      3.6 s   peak RSS     171 MB   ok
+[commitments   ]     18.6 s   peak RSS     171 MB   ok
+[boundary      ]      3.4 s   peak RSS     188 MB   ok
+[preimage      ]      0.2 s   peak RSS     188 MB   ok
+[channels      ]      0.0 s   peak RSS     188 MB   ok
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/l2/tl-dense-a.json   total 26.8 s   peak RSS 188 MB   ok=True

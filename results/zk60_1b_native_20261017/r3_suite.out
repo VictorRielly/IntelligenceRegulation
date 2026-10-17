@@ -1,0 +1,3 @@
+[zk60-guard 03:24:07] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 03:24:47] START r3-suite-r2ab class=cpu need=5G cap=8G enforce=cgroup+watchdog waited=40s run=a7f0462c361c
+[zk60-guard 03:38:27] END r3-suite-r2ab exit=0 child_wall=820s peak_rss=4.22G min_avail=8.34G

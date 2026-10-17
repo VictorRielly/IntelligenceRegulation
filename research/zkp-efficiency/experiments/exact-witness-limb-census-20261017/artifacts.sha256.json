@@ -1,0 +1,317 @@
+[
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/README.md",
+    "bytes": 13326,
+    "sha256": "c849151a5feb5dd15e3ef1ecbf7bfcd37b04844c582bb9ffb8979c87a3931802"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/audit-before-live-source-drift.json",
+    "bytes": 307,
+    "sha256": "30ab050ca05de6ce3e9500443041b41a75ce5f664802c52340aee397d5c0d1ae"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/audit-live-hash-failure.log",
+    "bytes": 256,
+    "sha256": "9f7c415d81a27aca75ae216cc0f0b7cad656bd47e804e4e4f24a637833b32f78"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/audit-result.json",
+    "bytes": 1745,
+    "sha256": "3ca84d6e18a2b9353a438f9bc5771c492a9afbda6113b5a055ea8c8baa258382"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/audit.py",
+    "bytes": 4515,
+    "sha256": "9b73c67c0c2acbdcc4d588cb08c97e41007a7e5b7071a6f07c2fc0b92aa6f61a"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/awe-filter-result.json",
+    "bytes": 1225,
+    "sha256": "9d7bfbf3789a67acc41c7ba24d2a74572cd5c1b9291bde254c1e49669ccdaeeb"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/awe_filter.py",
+    "bytes": 2609,
+    "sha256": "7cd41e17f06ab7221257dbd03186e4b99f69e61ce5897448cb294cee63cb50f1"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/before-control-label-correction/result.json",
+    "bytes": 23845,
+    "sha256": "a9cc1fb2035f608dd56f8f13d8ab1e4448b4e28b633d433c7e6f17dcf82be376"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/before-control-label-correction/run.log",
+    "bytes": 527,
+    "sha256": "e9d9d414c39c8c8126487fa864a173bffdfb55f7bc0b870879e4f35bd2b43274"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/before-provenance-and-temp-placement/result.json",
+    "bytes": 23858,
+    "sha256": "db15923407e31515401e8e4164f97af9eedddce820602772abe116ff0b3e126b"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/before-provenance-and-temp-placement/run.log",
+    "bytes": 528,
+    "sha256": "37299056a9071981d2d93bccbb8fb56a383c79ba83f8305dcdf43eb4c1b3c881"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/candidate/witness.rs",
+    "bytes": 32372,
+    "sha256": "9b3ee8d81b95e6901ac3f599176825af36e034a702a4bf6650e46b56672e246c"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/candidate-metadata.json",
+    "bytes": 1811,
+    "sha256": "fb2f7aac6134d7013c056a72cef745be65f338dfdde2795e16a92b248f82922e"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/causal-axis-selector-20261017-prior-result.json",
+    "bytes": 7259,
+    "sha256": "b7ca565358d61af63a513a8edb16ea13806aec2da99c9e66080de5da7253be90"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/checkpoint.py",
+    "bytes": 31186,
+    "sha256": "e2dbfa47fc901c7e00274753dfb7cf22e578268bc8bee5bc32d0458189da403f"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/compile.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/final-live-source-drift.json",
+    "bytes": 1651,
+    "sha256": "2e6f103a0c60fa6b38f9758779d285fc213e17ff3819fff0277b5ac55e943e0c"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/i8-projection-candidate.patch",
+    "bytes": 5577,
+    "sha256": "14f7693f59044dd0784a63c72bbbfe5c32c5182a001b81aff8ff59cc9bfd1eb0"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/i8_projection.rs",
+    "bytes": 2125,
+    "sha256": "103d379a45dbb83d593014b6ba3a42f3d2c4e4ee5e14d800e6c5d5ddfb45fbf8"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/initial-before-real-refusal-control/compile.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/initial-before-real-refusal-control/result.json",
+    "bytes": 23867,
+    "sha256": "13be9f7d69b98c156351410bf3696a56b41d3bcd1c832fedb58d3664b0c94421"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/kernels.c",
+    "bytes": 2274,
+    "sha256": "e658924b09135d4aac7f9ef30f2c761e9a704f02253271422f88a309f1c7f893"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/kernels.so",
+    "bytes": 19656,
+    "sha256": "bfde38e3cc5c3a1545d5c1e2e5c5bc140953d9ed1e787956056d6f937daf2a01"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/live-search-raw.json",
+    "bytes": 30515,
+    "sha256": "8631f8436ecb6bba76a6b0951b2e825001c542426265e6506d2d581c7ec350a9"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/live-source-drift.json",
+    "bytes": 26378,
+    "sha256": "196edc1d1ea47ccc6f5d83b98e9bad217e2a4af1ad2054a1b09f472daa562e92"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/native/ops__zkp-mvp__trained-1b__hashline__examples__zk60_trained_block.rs",
+    "bytes": 3056,
+    "sha256": "a9ce02e90675d68af85a37c4e1f5a716f0f99d284d7d32b4a6d4bb4c91132721"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/native/ops__zkp-mvp__trained-1b__hashline__src__private_block__mvp_driver.rs",
+    "bytes": 57022,
+    "sha256": "5782211834b899e08ff3d4097b4a40a652156768e1d479476adbfdfa54a20260"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/native/ops__zkp-mvp__trained-1b__hashline__src__private_block__run.rs",
+    "bytes": 51941,
+    "sha256": "296aeaafd3bd8a026c93f04f66d5a0dd4c200c81fa31f94e71a86d8d8eebdbe5"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/native/ops__zkp-mvp__trained-1b__hashline__src__private_block__shape.rs",
+    "bytes": 97324,
+    "sha256": "840543909944b68a09d523e839b4b97348bf1c12ebc1e3525a72f5f9970aa100"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/native/ops__zkp-mvp__trained-1b__hashline__src__private_block__trained_block.rs",
+    "bytes": 92983,
+    "sha256": "46a77d378e6907f7eb229a0235e261e99f23dc8b127db0e4dea70d11fe3a1922"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/native/ops__zkp-mvp__trained-1b__hashline__src__private_block__witness.rs",
+    "bytes": 30136,
+    "sha256": "73a06441e7d8d1720da3e6ad0421fdca8a481235de26fe746f7bbb4e28f6a3f5"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/native/results__zk60_1b_native_20261017__r2__stack-pg_rot1-ho00-cpu__prove.log",
+    "bytes": 3515,
+    "sha256": "de54a93acdaeb091b773827a6a1776ad986ebdfecbd87fb1992b1a52df75a53b"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/native/results__zk60_1b_native_20261017__r2__stack-pg_rot1-ho00-cpu__verify.log",
+    "bytes": 2326,
+    "sha256": "6bc4400dabfd67b53083244ac5d008bda895b1de6e3c14fc957fa379ea594717"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/native/results__zk60_1b_native_20261017__r2__stack-pg_rot1-ho00-gpu__prove.log",
+    "bytes": 5972,
+    "sha256": "5e5023c21b884f70f4ede9680e72833bd3aedda1646d8034c658a4aecf18c384"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/native/results__zk60_1b_native_20261017__r2__stack-pg_rot1-ho00-gpu__verify.log",
+    "bytes": 563,
+    "sha256": "b309f1cf5598b9b5fe0e1c8458780cee3c9039023a84367d671338fdc2e5d8ee"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/native-after-owner-change/run.rs",
+    "bytes": 53388,
+    "sha256": "a3b2320066e210326c5781e633adbfb2f1757dbacce5cb78b6ea8afa3683b4dc"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/native-after-owner-change/shape.rs",
+    "bytes": 99360,
+    "sha256": "a82f2fff2d8780c9e2e3e3daafbd4a81060c54fee3a099b2d8b31578e19004fc"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/native-after-owner-change/trained_block.rs",
+    "bytes": 97472,
+    "sha256": "011a50aa89ae4ef609a7ae7a62098936d7e6696503a9f9a3abfdbe9f7659c74a"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/native-after-owner-change/witness.rs",
+    "bytes": 34614,
+    "sha256": "7b89ac672bb81978a05a1a6571a1a15b59f76d718e0be36da3bb6d4cb347f205"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/native-capture-adapter-20261017-prior-result.json",
+    "bytes": 10423,
+    "sha256": "5dc29e0adb4d08221e8d79b5c9ac7ff360ee41873164767bb3ea4a02a466ec08"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/native-pins.json",
+    "bytes": 3678,
+    "sha256": "3168078b59ed6354e12cefcc6b3e369851faacc4d9f122462d92a8af700a9fc0"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/prepare_candidate.py",
+    "bytes": 2452,
+    "sha256": "36561fe77bc453fc39b1c6d93b8bf9bf3ea3a0bea10cf147d4ddc431c88c828f"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/primary-metadata-raw.json",
+    "bytes": 11179,
+    "sha256": "a0d191e11ba4ba6f8b820bde9fdaee8ab63fa3b77c1c6d74b20ddb2607ad25ab"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/queries.json",
+    "bytes": 545,
+    "sha256": "131178d0ffc6bbe0612e6925d843b1575f47589ba2ab9e3aa89c3bad98711697"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/result.json",
+    "bytes": 24399,
+    "sha256": "ae8a3420835d7c86483c8cd6e34154dea3cf4665385ebb21c78c72d828d411ca"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/run.log",
+    "bytes": 528,
+    "sha256": "12a3ac7daabb9fcfd5aa80d939864e45a52151ad093e6bf3363750b769777f86"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/run.py",
+    "bytes": 13744,
+    "sha256": "1398d67dd45fec85a69a5342b1c6f5894b76cb08276479478192d83d76c81fa6"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/sources-this-cycle.json",
+    "bytes": 9023,
+    "sha256": "9c179ad21b9d67c191da803ab29370c495911cd13c0b3b156775a4b5d5286e33"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/startup/AGENDA.md",
+    "bytes": 5603,
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/startup/CLAUDE.md",
+    "bytes": 14089,
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/startup/FINDINGS.md",
+    "bytes": 441141,
+    "sha256": "55470965f28a5ae6cf3d6acf376af4474cb70cc65d1a48f134683d820c9b010a"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/startup/MVP_STATUS.md",
+    "bytes": 61926,
+    "sha256": "0fc9269a515a1a6b827580b73fba50e11d900c49ec4e4439d850e2d7c2c842a6"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/startup/PROGRESS.md",
+    "bytes": 2577,
+    "sha256": "9dac8e692820dc580847e5f08e53169d2d5f2fe17900d718208994633ff032fb"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/startup/START_HERE.md",
+    "bytes": 42025,
+    "sha256": "89f6732a39f4294f2f1b7b68add8fdcbb76b86006e21041f52c0f40d9e39df9d"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/startup/STATE.md",
+    "bytes": 5042,
+    "sha256": "3929cc9169fbeb51ed1ffb6cc380f0bf34ea555022d8fc8bafac99a2f0fc92d8"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/startup/ZK60_1B_CHECKPOINT.md",
+    "bytes": 11215,
+    "sha256": "ac9a09f6047dc326d715c91e346ab853e1b013b390c35241ddd453d073cba4c9"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/startup/ZK60_CODEX_FABLE_COORDINATION.md",
+    "bytes": 64889,
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/startup/ZK60_DECISIONS.md",
+    "bytes": 64466,
+    "sha256": "b2e40604148ea8d336098fa3e6a0fc69d4d4598187cb2ef04617c3e8d0baccb5"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/startup/ZK60_PRIVACY_REQUIREMENTS.md",
+    "bytes": 2264,
+    "sha256": "77037699ed0a89471d72795e112812276bdca1850078fbdd24abee26d7ff04a3"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/startup/ZK60_THROUGHPUT_TARGET.md",
+    "bytes": 4941,
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/startup/sources.jsonl",
+    "bytes": 377772,
+    "sha256": "46b27e82544eee9098a3af01b6b3752e8509f53b46759e904187cf378a2ace9c"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/startup-pins.json",
+    "bytes": 3283,
+    "sha256": "50629d4b3ea0bebf979e24c720c35f93bc193a0de1f0b1ee70975a46f26add56"
+  },
+  {
+    "path": "experiments/exact-witness-limb-census-20261017/trained-phase-accounting-20261017-prior-result.json",
+    "bytes": 3805,
+    "sha256": "f1c759a6ba3af990a4b3b24ea3484434dca95d32c2904198af427f786cdaa919"
+  }
+]

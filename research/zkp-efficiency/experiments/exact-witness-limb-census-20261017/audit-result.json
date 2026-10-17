@@ -1,0 +1,35 @@
+{
+  "status": "pass_snapshot_checks_with_integration_blocker",
+  "snapshot_validation": "pass",
+  "live_source_drift": [
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/witness.rs",
+      "snapshot_sha256": "73a06441e7d8d1720da3e6ad0421fdca8a481235de26fe746f7bbb4e28f6a3f5",
+      "current_sha256": "7b89ac672bb81978a05a1a6571a1a15b59f76d718e0be36da3bb6d4cb347f205"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/shape.rs",
+      "snapshot_sha256": "840543909944b68a09d523e839b4b97348bf1c12ebc1e3525a72f5f9970aa100",
+      "current_sha256": "a82f2fff2d8780c9e2e3e3daafbd4a81060c54fee3a099b2d8b31578e19004fc"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/run.rs",
+      "snapshot_sha256": "296aeaafd3bd8a026c93f04f66d5a0dd4c200c81fa31f94e71a86d8d8eebdbe5",
+      "current_sha256": "a3b2320066e210326c5781e633adbfb2f1757dbacce5cb78b6ea8afa3683b4dc"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/trained_block.rs",
+      "snapshot_sha256": "46a77d378e6907f7eb229a0235e261e99f23dc8b127db0e4dea70d11fe3a1922",
+      "current_sha256": "011a50aa89ae4ef609a7ae7a62098936d7e6696503a9f9a3abfdbe9f7659c74a"
+    }
+  ],
+  "native_candidate_current": false,
+  "checks": 145,
+  "wall_seconds": 0.0019507640026859008,
+  "max_rss_KiB": 15080,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "scope": "independent snapshot integrity, inverse patch, Decimal accounting, census formula and bilinear coefficient checks; live hash drift is an explicit integration blocker; no native proof or privacy gate"
+}

@@ -313,3 +313,27 @@ these x_in/x_out. It is making shifts per-profile to prove pg_rot1, then the
   | dg+rot T128 | FineWeb | 0.809 | 12.67 -> 14.53 | 0.161 | 0/36 |
   | dg+rot T128 | licence | 0.793 | 7.96 -> 9.87 | 0.280 | 0/36 |
   B4-3 f_e/F_P runs proceeding serially (`logs/b4_serial3.sh`).
+- 10:45 UTC: B4-3 DONE (Python only; pg+rot, T=32, both domains; tables in
+  `runs/b4_summary.{txt,json}`): o16 (o int16, SH_O 1) top-1 0.720 -> 0.736
+  (all 72), KL 0.409 -> 0.377; dg+rot 0.784 -> 0.788, KL 0.228 -> 0.202;
+  f_e 13: 0.721; F_P 13: 0.715; both: 0.720 (no gain). o's site error stays
+  ~0.325 under f_e/F_P 13 and is 0.302 with o16; the probability error stays
+  0.079. ATTRIBUTION (corrects B3): the ~30% o/ao error is cancellation
+  amplification of the upstream score (0.073: int8 q/k + int8 score at
+  2^e_s) and v (0.062) errors, not o's own representation. An O-site layout
+  change buys <= +0.016 top-1 / -8% KL: not worth it now; the bigger lever is
+  per-layer shifts (dg vs pg: +0.065 top-1, KL 0.41 -> 0.23). The f_e+F_P+o16
+  combination refuses everything as configured (SH_O = 1 with F_P = 13
+  overflows int16; it would need SH_O >= 5) and is reported as invalid.
+- 10:45 UTC: B4-4 DONE: `export/TOKEN_IO_SPEC.md` (token ids -> x_in_L00 via
+  bf16 widening, Hadamard forward in float64, cast to float32, round-half-up
+  at s_in; x_out_L21 -> logits via s_out, inverse rotation, float32 RMSNorm,
+  LM head; folded rotated-head form for a future proved head), reference
+  implementation `b4_token_io.py`, and an exact int16 embedding lookup table
+  `embedding_int16.bin` (sha256 ad68c716...) in each pg_rot1_b4_* export,
+  checked: table[tokens] == x_in_L00 == float recomputation on all six
+  exported sequences.
+- 10:45 UTC: all B4 jobs finished; nothing of mine running. Exports kept:
+  a_export_T32, pg_rot1_export_T32, dg_rot1_export_T32 (B3, untouched) and the
+  pg_rot1_b4_{T128, T64_cal128, T32_cal128} family (shared weights by hard
+  link); export tree 3.9 GB on disk.

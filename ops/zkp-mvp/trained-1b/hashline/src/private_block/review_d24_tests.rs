@@ -117,7 +117,7 @@ fn review_a_the_trained_door_admits_f_e_9_to_16_and_nothing_else() {
     }
     assert_eq!(admitted, TRAINED_F_E_RANGE.collect::<Vec<u32>>(), "the admitted f_e set is not the declared class");
     eprintln!("REVIEW-A (fixed) admitted f_e at the trained TinyLlama profile: {admitted:?}");
-    // the three-limb rule at other token counts (only T = 32 is registered)
+    // the three-limb rule at other token counts
     assert!(Shape::check_f_e_class(512, 15).is_ok());
     assert!(Shape::check_f_e_class(512, 16).unwrap_err().contains("three sigma_s limbs"));
     // the trained-model statement cannot even be asked for at f_e 50: there
@@ -260,6 +260,11 @@ fn review_d_the_statement_identity_does_not_depend_on_the_directory_name() {
 /// read; the refusal text is asserted, so a door that moved later would fail
 /// this test rather than refuse for another reason)
 fn write_tinyllama_profile(vdir: &std::path::Path, cal: &NormCalibration, f_e: u32) {
+    write_tinyllama_profile_at(vdir, cal, f_e, 32, Some("tinyllama-1.1b-t32"));
+}
+
+/// the same at a declared `T`, with or without a `geometry` key
+fn write_tinyllama_profile_at(vdir: &std::path::Path, cal: &NormCalibration, f_e: u32, tokens: usize, geometry: Option<&str>) {
     use super::trained_block::{hex, sha256};
     let ldir = vdir.join("layer_00");
     std::fs::create_dir_all(&ldir).unwrap();
@@ -271,8 +276,9 @@ fn write_tinyllama_profile(vdir: &std::path::Path, cal: &NormCalibration, f_e: u
     let manifest = format!("{{\"layer\": 0, \"constants\": {consts}, \"arrays\": {{}}}}\n");
     std::fs::write(ldir.join("manifest.json"), &manifest).unwrap();
     let pin = super::trained_statement::ModelSource::tinyllama_chat_v1_0();
+    let geo = geometry.map(|g| format!("\"geometry\": \"{g}\", ")).unwrap_or_default();
     let profile = format!(
-        "{{\"schema\": \"zk60-trained-profile-export/1\", \"kind\": \"profile\", \"variant\": \"review-fe{f_e}\", \"geometry\": \"tinyllama-1.1b-t32\", \"model\": {{\"repo\": \"{}\", \"revision\": \"{}\", \"sha256\": \"{}\"}}, \"calibration_tool\": {{\"path\": \"review\", \"sha256\": \"{}\"}}, \"T\": 32, \"profile_constants\": {consts}, \"layers\": [{{\"layer\": 0, \"dir\": \"layer_00\", \"manifest_sha256\": \"{}\"}}], \"sequences\": [\"seq_s0\"]}}\n",
+        "{{\"schema\": \"zk60-trained-profile-export/1\", \"kind\": \"profile\", \"variant\": \"review-fe{f_e}\", {geo}\"model\": {{\"repo\": \"{}\", \"revision\": \"{}\", \"sha256\": \"{}\"}}, \"calibration_tool\": {{\"path\": \"review\", \"sha256\": \"{}\"}}, \"T\": {tokens}, \"profile_constants\": {consts}, \"layers\": [{{\"layer\": 0, \"dir\": \"layer_00\", \"manifest_sha256\": \"{}\"}}], \"sequences\": [\"seq_s0\"]}}\n",
         pin.repo,
         pin.revision,
         hex(&pin.weights_sha256),
@@ -446,4 +452,115 @@ fn review_g_the_class_corner_proves_and_its_neighbours_refuse() {
         rejected += 1;
     }
     assert!(rejected >= 3, "only {rejected} neighbouring witnesses ran");
+}
+
+// ------------------------------------------------- the round-2 re-review
+
+/// **Re-review R2-a, the reviewer's `r2_1` turned around.** A shape built by
+/// `Shape::new` under the trained rung's profile STRING, without the door
+/// (flag false, frozen calibration) and with `f_e = 50`, used to pass
+/// `Layout::for_shape` and the single-block path, and the round-1 wrapping
+/// softmax forgery verified through `verify_bytes_at`. Now: the trained
+/// profile string without the door is refused by `Layout::for_shape` and by
+/// every single-block entry point, and a softmax window above 24 bits is
+/// refused at EVERY shape (a frozen profile edited to `f_e = 50` too).
+#[test]
+fn review_r2_1_a_non_door_shape_under_a_trained_profile_string_is_refused() {
+    use super::shape::TRAINED_CALIB_RUNG_PROFILE;
+    let sh = Shape::new("re-review r2_1: non-door shape under the trained rung string", TRAINED_CALIB_RUNG_PROFILE, 32, 384, 512, 12, 32, 4, 10, 4, 50, 21, None, None, None, None).expect("Shape::new constructs");
+    assert!(!sh.trained_calibration && sh.norm_calibration() == NormCalibration::FROZEN && sh.f_e == 50);
+    let e = Layout::for_shape(&sh).err().expect("Layout::for_shape ACCEPTED a non-door shape under a trained profile string");
+    eprintln!("REVIEW-R2-1 (fixed) Layout::for_shape: {e}");
+    assert!(super::protocol::single_block_profile_allowed(&sh).is_err(), "the single-block path admitted a trained profile string");
+    // the same string at an admissible f_e is still refused: the STRING decides
+    let sh12 = Shape::new("re-review r2_1 at f_e 12", TRAINED_CALIB_RUNG_PROFILE, 32, 384, 512, 12, 32, 4, 10, 4, 12, 21, None, None, None, None).unwrap();
+    assert!(Layout::for_shape(&sh12).err().expect("the non-door string at f_e 12 was accepted").contains("did not come through the trained door"));
+    // the forgery itself: the forged witness builds, the single-block prover
+    // and verifier refuse before any transcript
+    let (mut w, input) = super::trained_calib_tests::trained_dense_words(&sh, super::trained_calib_tests::TRAINED_BANDS);
+    for v in w[1].iter_mut() {
+        *v = 0;
+    }
+    let (public, ff) = super::dense_tests::statement_of_words(&sh, &w);
+    let blk = BlockPublic::new(public.clone(), ff.clone());
+    set_forge(Some(Forge { h: 0, t: 31, j: 0, delta: 511, k: 1, naive: false }));
+    let fw = witness::build_shaped(&sh, &public, &ff, &input);
+    let n = forged_count();
+    set_forge(None);
+    let fw = fw.expect("the forged witness builds");
+    assert_eq!(n, 1);
+    let ids = Ids::new(&sh).unwrap();
+    let plane = |p: usize| -> Vec<i16> { fw.planes[p].iter().map(|v| *v as i16).collect() };
+    let ctx = *blake3::hash(b"re-review r2-1").as_bytes();
+    let (expected, owners) = prepare_endpoints(IoSpec::new_shaped(&sh, ctx, 0, 0).unwrap(), &plane(ids.at(A_X)), &plane(ids.at(A_X2))).unwrap();
+    let e = super::protocol::prove_inner_at(&sh, &blk, fw, &expected, owners).err().expect("the single-block prover PROVED at a non-door trained string");
+    assert!(e.contains("R2-4"), "{e}");
+    assert!(verify_bytes_at(&sh, &blk, &expected, &[0u8; 64]).is_err(), "the single-block verifier got past its entry");
+    // EVERY shape: a frozen profile edited to f_e 50 (with or without its
+    // window) is refused, and so is a window of 25 bits
+    for (name, fe, ws) in [("f_e 50 with its window", 50u32, 55u32), ("f_e 50 under a 17-bit window", 50, 17), ("a 25-bit window", 12, 25)] {
+        let mut s = Shape::rung_c6();
+        s.f_e = fe;
+        s.wrho_s = ws;
+        let e = Layout::for_shape(&s).err().unwrap_or_else(|| panic!("a frozen shape edited to {name} was ACCEPTED"));
+        assert!(e.contains("softmax window"), "{name}: {e}");
+    }
+}
+
+/// **Re-review R2-b.** The "trained TinyLlama profile carries the pinned
+/// checkpoint" rule is no longer waived for every test build: a statement
+/// built by the production constructor and then given a synthetic source is
+/// refused by `check_against` in `cargo test` exactly as in production; only
+/// a statement from the explicit test-only constructor carries the waiver.
+#[test]
+fn review_r2_b_the_pinned_checkpoint_rule_is_enforced_in_test_builds() {
+    use super::trained_statement::*;
+    let tsh = Shape::tinyllama_t32_trained(&pg(), 9).unwrap();
+    let prov = Provenance::recipe("re-review/r2-b", 1.0, [1; 32], [2; 32]);
+    let cal = IntegerCalibration::as_the_code_proves(&tsh, &prov);
+    let rec = vec![LayerRecord { index: 0, block_digest: [1; 32], word_sha256: [[2; 32]; 9], table_sha256: [[3; 32]; 3], source_tensors: vec![], manifest_sha256: [4; 32], silu_member: (-3, -11), exp_e_s: 1 }];
+    let rp = super::run::RUN_PROFILE_TINYLLAMA_T32_TRAINED;
+    let mut st = TrainedModelStatement::new(&tsh, rp, ModelSource::tinyllama_chat_v1_0(), cal.clone(), rec.clone()).unwrap();
+    st.check_against(&tsh, rp, &[[1; 32]], &[(0, 0)]).expect("the honest statement");
+    st.source = ModelSource { kind: SourceKind::PublicSyntheticRecipe, repo: "synthetic/x".into(), revision: "r".into(), weights_sha256: [0; 32], config_sha256: [0; 32], checkpoint_parameters: 0, checkpoint_layers: 22 };
+    let e = st.check_against(&tsh, rp, &[[1; 32]], &[(0, 0)]).err().expect("a synthetic source at the trained TinyLlama profile passed check_against in a test build");
+    eprintln!("REVIEW-R2-b (fixed): {e}");
+    // the explicit test-only constructor is the one waiver
+    let src = st.source.clone();
+    let w = TrainedModelStatement::new_synthetic_at_trained_profile_for_tests(&tsh, rp, src, cal, rec).unwrap();
+    w.check_against(&tsh, rp, &[[1; 32]], &[(0, 0)]).expect("the test-only constructor's statement");
+}
+
+// ------------------------------------------------- R3-2: the context ladder
+
+/// **R3-2: the reader maps an export's `T` to its registered TinyLlama
+/// profile** (the B4 writer names no geometry): T 32 / 64 / 128 load, with
+/// the declared classes checked as at T32; any other T is refused; a named
+/// geometry must be the one its `T` is.
+#[test]
+fn the_reader_maps_t_to_the_registered_tinyllama_profiles() {
+    use super::trained_block_tests::base_dir;
+    let root = base_dir("ladder-reader");
+    for (t, geo, ok) in [(32usize, None, true), (64, None, true), (128, None, true), (64, Some("tinyllama-1.1b-t64"), true), (128, Some("tinyllama-1.1b-t128"), true), (96, None, false), (256, None, false), (64, Some("tinyllama-1.1b-t32"), false), (32, Some("tinyllama-1.1b-t128"), false)] {
+        let vdir = root.join(format!("t{t}-{}", geo.unwrap_or("none")));
+        write_tinyllama_profile_at(&vdir, &pg(), 9, t, geo);
+        let r = super::trained_block::TrainedExport::load(&vdir).and_then(|ex| {
+            let c = ex.run_constants(&[0])?;
+            ex.shape_for(&c)
+        });
+        match (ok, r) {
+            (true, Ok(sh)) => {
+                assert_eq!(sh.tokens, t);
+                assert_eq!(sh.profile, Shape::tinyllama_trained(t, &pg(), 9).unwrap().profile);
+            }
+            (false, Err(e)) => eprintln!("R3-2 reader: T {t} geometry {geo:?} refused: {e}"),
+            (true, Err(e)) => panic!("T {t} geometry {geo:?} was refused: {e}"),
+            (false, Ok(_)) => panic!("T {t} geometry {geo:?} was ACCEPTED"),
+        }
+    }
+    // f_e 16 is the class edge at every registered T (window 21..23 bits)
+    for t in [32usize, 64, 128] {
+        Shape::tinyllama_trained(t, &pg(), 16).unwrap_or_else(|e| panic!("T{t} f_e 16: {e}"));
+    }
+    let _ = std::fs::remove_dir_all(&root);
 }

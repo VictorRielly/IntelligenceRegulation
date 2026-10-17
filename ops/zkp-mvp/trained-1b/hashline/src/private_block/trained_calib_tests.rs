@@ -107,6 +107,11 @@ fn tinyllama() -> Shape {
     Shape::tinyllama_t32_trained(&t3_calibration(), T3_F_E).expect("the trained TinyLlama shape")
 }
 
+/// ROUND 3 (R3-2): the trained TinyLlama shape at another registered T
+pub(super) fn tinyllama_at(t: usize) -> Shape {
+    Shape::tinyllama_trained(t, &t3_calibration(), T3_F_E).expect("the trained TinyLlama shape at T")
+}
+
 /// the five single-constant variations of a calibration
 fn variations(c: NormCalibration) -> Vec<(&'static str, NormCalibration)> {
     vec![
@@ -195,7 +200,15 @@ fn the_trained_door_refuses_every_frozen_profile() {
         assert!(e.contains("is frozen"), "{}: {e}", sh.name);
         assert!(!sh.trained_calibration && sh.norm_calibration() == NormCalibration::FROZEN, "{}: a registered shape carries a non-frozen calibration", sh.name);
     }
-    assert_eq!(TRAINED_CALIBRATION_PROFILES, [TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIB_RUNG_PROFILE]);
+    assert_eq!(TRAINED_CALIBRATION_PROFILES, [TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIB_RUNG_PROFILE, super::shape::TINYLLAMA_T64_TRAINED_PROFILE, super::shape::TINYLLAMA_T128_TRAINED_PROFILE]);
+    // ROUND 3 (R3-2): one profile per context length; any other T is refused
+    for t in [16usize, 48, 256, 512] {
+        assert!(Shape::tinyllama_trained(t, &c, T3_F_E).unwrap_err().contains("no trained TinyLlama profile"), "T{t}");
+    }
+    let (s64, s128) = (tinyllama_at(64), tinyllama_at(128));
+    assert_eq!((s64.log_cols, s64.endpoint_rows, s64.wrho_s), (13, 21, 15));
+    assert_eq!((s128.log_cols, s128.endpoint_rows, s128.wrho_s), (14, 21, 16));
+    assert_eq!(tinyllama().profile, TINYLLAMA_T32_TRAINED_PROFILE);
     let t = tinyllama();
     assert!(t.clone().with_trained_calibration(&c).unwrap_err().contains("once"), "a second application was accepted");
     // a TinyLlama-profile shape built with a window override is refused
@@ -402,8 +415,8 @@ fn ctx_t3() -> Digest {
 
 /// the run shape of a one-block run at a trained-calibration shape
 pub(super) fn run_shape_for(sh: &Shape, l: usize) -> super::run::RunShape {
-    if sh.profile == TINYLLAMA_T32_TRAINED_PROFILE {
-        super::run::RunShape::tinyllama_t32_trained(sh.clone(), l).unwrap()
+    if super::shape::TINYLLAMA_TRAINED_PROFILES.contains(&sh.profile) {
+        super::run::RunShape::tinyllama_trained(sh.clone(), l).unwrap()
     } else {
         super::run::RunShape::rung_tc(sh.clone(), l).unwrap()
     }
@@ -940,11 +953,16 @@ fn every_committed_value_under_a_non_unit_coefficient_is_range_proved_at_the_tra
 /// the calibration values; the calibration is bound through the schedule
 /// digest and the statement), and each run profile with its block shape.
 pub(super) fn registered_trained_shapes() -> Vec<Shape> {
-    vec![tinyllama(), rung_tc()]
+    vec![tinyllama(), rung_tc(), tinyllama_at(64), tinyllama_at(128)]
 }
 
 pub(super) fn registered_trained_runs() -> Vec<(&'static str, Shape)> {
-    vec![(super::run::RUN_PROFILE_TINYLLAMA_T32_TRAINED, tinyllama()), (super::run::RUN_PROFILE_RUNG_TC, rung_tc())]
+    vec![
+        (super::run::RUN_PROFILE_TINYLLAMA_T32_TRAINED, tinyllama()),
+        (super::run::RUN_PROFILE_RUNG_TC, rung_tc()),
+        (super::run::RUN_PROFILE_TINYLLAMA_T64_TRAINED, tinyllama_at(64)),
+        (super::run::RUN_PROFILE_TINYLLAMA_T128_TRAINED, tinyllama_at(128)),
+    ]
 }
 
 /// A REAL run statement at a trained run profile, with no commitment (the
@@ -957,7 +975,7 @@ pub(super) fn trained_run_statement(sh: &Shape, profile: &'static str, l: usize,
     let (public, ff, _) = super::grow_tests::tame_case(sh);
     let one = BlockPublic::new(public, ff);
     let blocks: Vec<BlockPublic> = (0..l).map(|_| one.clone()).collect();
-    let tiny = profile == super::run::RUN_PROFILE_TINYLLAMA_T32_TRAINED;
+    let tiny = [super::run::RUN_PROFILE_TINYLLAMA_T32_TRAINED, super::run::RUN_PROFILE_TINYLLAMA_T64_TRAINED, super::run::RUN_PROFILE_TINYLLAMA_T128_TRAINED].contains(&profile);
     let source = if tiny {
         ModelSource::tinyllama_chat_v1_0()
     } else {
@@ -974,6 +992,6 @@ pub(super) fn trained_run_statement(sh: &Shape, profile: &'static str, l: usize,
     let recs = blocks.iter().enumerate().map(|(k, b)| LayerRecord::of_block(k as u32, b, vec![])).collect();
     let cal = IntegerCalibration::as_the_code_proves(sh, &Provenance::recipe("registry", 1.0 / 1024.0, [1; 32], [2; 32]));
     let model = TrainedModelStatement::new(sh, profile, source, cal, recs).expect("the registry's trained statement");
-    let rs = if tiny { RunShape::tinyllama_t32_trained(sh.clone(), l) } else { RunShape::rung_tc(sh.clone(), l) }.expect("the trained run shape");
+    let rs = if tiny { RunShape::tinyllama_trained(sh.clone(), l) } else { RunShape::rung_tc(sh.clone(), l) }.expect("the trained run shape");
     RunStatement::new_bound(rs, ctx, expected, &blocks, &vec![(0, 0); l], &model).expect("the trained run statement")
 }

@@ -554,6 +554,16 @@ PINNED_IF_PRESENT = {
     },
 }
 
+# [TINYLLAMA PORT 2026-10-17] the trained bundles' layout.rs, protocol.rs,
+# plane_index.rs, shape.rs and pad.rs digests, each READ
+# (`zk60_native_rg_tinyllama_pins`); no entry above changes.
+from zk60_native_rg_tinyllama_pins import (  # noqa: E402
+    TERMINALS_ALSO_ACCEPTED as _TL_AA,
+    TERMINALS_PINNED_IF_PRESENT as _TL_PIP,
+    merge_two_level as _tl_merge2)
+_tl_merge2(ALSO_ACCEPTED, _TL_AA, "ALSO_ACCEPTED")
+_tl_merge2(PINNED_IF_PRESENT, _TL_PIP, "PINNED_IF_PRESENT")
+
 # **ROUND 4 (2026-09-20), finding S19-F1.**  `argument.rs` is the file that
 # decides what a slot's polynomial IS, and its stage-20 digest carries a
 # DIFFERENT definition of slots 08 and 09 from every earlier one.  It is
@@ -651,6 +661,70 @@ TAG_EXP, TAG_U8, TAG_ACT = 129, 133, 134
 
 POW256 = [(pow(256, j, P), 0) for j in range(4)]
 
+# ------------------------------------------------ [TINYLLAMA PORT 2026-10-17]
+# THE CALIBRATION, PER BUNDLE.  The constants above are the FROZEN
+# calibration every registered profile proves with (`shape.rs`:
+# `NormCalibration::FROZEN`).  A TRAINED-calibration profile (decision D24
+# and round 2 of the native lane) carries its own `tn`, two norm multipliers
+# `Cn_a` / `Cn_m`, `Ceps` and seven windowed requantization shifts as SHAPE
+# fields; the relations read them from the shape (`argument.rs` SC_TZC,
+# SC_DZC, SC_FZC, SC_QZC / SC_KVZC, SC_SZC; `layout.rs::lookups_at`'s top-limb
+# coefficients), each the frozen literal at a frozen shape.  The trained
+# capture writes them into `run.json["shape"]` beside `trained_calibration:
+# true`; this class reads them from there and falls back to the frozen values
+# ONLY when the bundle declares no trained calibration -- a bundle that names
+# some trained keys and not the flag, or the flag and not every key, is a
+# refusal, never a silent mixture.  At a frozen bundle every coefficient below
+# equals the literal this port used before, so no frozen figure can move.
+FROZEN_CALIBRATION = {
+    "norm_tn": NORM_TN, "norm_cn_a": NORM_CN, "norm_cn_m": NORM_CN,
+    "norm_ceps": NORM_CEPS, "sh_ao": SH_AO, "sh_qkv": SH_QKV, "sh_s": SH_S,
+    "sh_o": SH_O, "sh_g": SH_G, "sh_h": SH_H_PROD, "sh_z": SH_Z,
+}
+TRAINED_KEYS = tuple(FROZEN_CALIBRATION)
+
+
+class Calibration:
+    """`Shape::norm_calibration()` read from a bundle's shape."""
+
+    def __init__(self, shape_raw: dict):
+        flag = shape_raw.get("trained_calibration")
+        present = [kk for kk in TRAINED_KEYS if kk in shape_raw]
+        if flag is True:
+            missing = [kk for kk in TRAINED_KEYS if kk not in shape_raw]
+            if missing:
+                raise ValueError("run.json shape declares a trained calibration "
+                                 f"but not {missing}")
+            self.values = {kk: int(shape_raw[kk]) for kk in TRAINED_KEYS}
+            self.trained = True
+        elif flag is None and not present:
+            self.values = dict(FROZEN_CALIBRATION)
+            self.trained = False
+        else:
+            raise ValueError("run.json shape: trained calibration keys "
+                             f"{present} without trained_calibration: true "
+                             f"(flag {flag!r})")
+        for kk, v in self.values.items():
+            setattr(self, kk, v)
+
+    @staticmethod
+    def half(sh: int) -> int:
+        """`witness::half` (witness.rs:93): 0 at sh = 0, else 2^(sh-1)."""
+        return 0 if sh == 0 else 1 << (sh - 1)
+
+    @staticmethod
+    def one(sh: int) -> int:
+        """`lookups_at`'s one-limb top pin `2^(8 - sh)` (layout.rs)."""
+        return 1 << (8 - sh)
+
+    @staticmethod
+    def two(sh: int) -> int:
+        """`lookups_at`'s two-limb top pin `2^(16 - sh)` (layout.rs)."""
+        return 1 << (16 - sh)
+
+    def record(self) -> dict:
+        return {"trained": self.trained, **self.values}
+
 
 def k(v: int):
     """`Fp2::from_i64` (zkp-core/src/field.rs:148)."""
@@ -682,6 +756,8 @@ class PadGeometry:
     def __init__(self, shape_raw: dict, domain_log: dict):
         self.s = shape_raw
         self.domain_log = dict(domain_log)
+        # [TINYLLAMA PORT] the bundle's calibration (frozen when undeclared)
+        self.cal = Calibration(shape_raw)
 
     def log(self, dom: str) -> int:
         return self.domain_log[dom]
@@ -885,6 +961,11 @@ def lookups_at(dom: str, counts: dict, shape_raw: dict):
     """
     ln, ls, lp = counts["ln"], counts["ls"], counts["lp"]
     norm_wrho, wrho_s = shape_raw["norm_wrho"], shape_raw["wrho_s"]
+    # [TINYLLAMA PORT] the windowed top-limb pins are the SHAPE's
+    # (layout.rs `one(sh) = 2^(8-sh)`, `two(sh) = 2^(16-sh)`); the frozen
+    # shifts give the historical literals 2, 4, 2, 4, 2, 128, 4
+    cal = Calibration(shape_raw)
+    one, two = Calibration.one, Calibration.two
     norm_top = norm_wrho != 8 * ln           # `Shape::norm_top_is_full_byte`
     norm_scale = 1 << (8 * ln - norm_wrho)
     sigma_scale = 1 << (8 * ls - wrho_s)
@@ -902,7 +983,7 @@ def lookups_at(dom: str, counts: dict, shape_raw: dict):
         if norm_top:
             v += [_scaled(f"A_NS{ln - 1}", norm_scale)]
         v += [_byte("A_AL0"), _byte("A_AL1"), _byte("A_RAL"),
-              _scaled("A_RAL", 2), _byte("A_X1L0"), _byte("A_X1L1")]
+              _scaled("A_RAL", one(cal.sh_ao)), _byte("A_X1L0"), _byte("A_X1L1")]
         v += _sym("A_YM")
         v += [_byte(f"A_MR{j}") for j in range(ln)]
         if norm_top:
@@ -911,29 +992,30 @@ def lookups_at(dom: str, counts: dict, shape_raw: dict):
         if norm_top:
             v += [_scaled(f"A_MS{ln - 1}", norm_scale)]
         v += [_byte("A_X2L0"), _byte("A_X2L1")]
-        v += [_byte("A_ZL0"), _byte("A_ZL1"), _byte("A_RDL"), _scaled("A_RDL", 4)]
+        v += [_byte("A_ZL0"), _byte("A_ZL1"), _byte("A_RDL"),
+              _scaled("A_RDL", one(cal.sh_z))]
     elif dom == "F":
-        v += [_byte("A_RGL"), _scaled("A_RGL", 2)]
+        v += [_byte("A_RGL"), _scaled("A_RGL", one(cal.sh_g))]
         v += [_byte("A_UL0"), _byte("A_UL1")]
         v += [_byte("A_HL0"), _byte("A_HL1")]
-        v += [_byte("A_RH0"), _byte("A_RH1"), _scaled("A_RH1", 4)]
+        v += [_byte("A_RH0"), _byte("A_RH1"), _scaled("A_RH1", two(cal.sh_h))]
     elif dom == "Q":
         v += _sym("A_Q8")
-        v += [_byte("A_RQL"), _scaled("A_RQL", 2)]
+        v += [_byte("A_RQL"), _scaled("A_RQL", one(cal.sh_qkv))]
         v += _sym("A_QR8")
         v += [_byte("A_RQRL"), _scaled("A_RQRL", 2)]
         v += _sym("A_O8")
-        v += [_byte("A_RO0"), _byte("A_RO1"), _scaled("A_RO1", 128)]
+        v += [_byte("A_RO0"), _byte("A_RO1"), _scaled("A_RO1", two(cal.sh_o))]
     elif dom == "Kv":
         v += _sym("A_K8")
-        v += [_byte("A_RKL"), _scaled("A_RKL", 2)]
+        v += [_byte("A_RKL"), _scaled("A_RKL", one(cal.sh_qkv))]
         v += _sym("A_V8")
-        v += [_byte("A_RVL"), _scaled("A_RVL", 2)]
+        v += [_byte("A_RVL"), _scaled("A_RVL", one(cal.sh_qkv))]
         v += _sym("A_KR8")
         v += [_byte("A_RKRL"), _scaled("A_RKRL", 2)]
     elif dom == "S":
         v += _sym("A_S8")
-        v += [_byte("A_RSL"), _scaled("A_RSL", 4)]
+        v += [_byte("A_RSL"), _scaled("A_RSL", one(cal.sh_s))]
         v += [_byte(f"A_PL{j}") for j in range(lp)]
         v += [_scaled(f"A_PL{lp - 1}", p_scale)]
         v += [_byte(f"A_SR{j}") for j in range(ls)]
@@ -1280,7 +1362,7 @@ def sc_tzc(v, cx):
         pz.mu = mu[6]
         pz.add(gi, cx.zero_planes("T"), zeta)
     g = gate_at(gi, v)
-    ceps = k(NORM_CEPS)
+    ceps = k(cx.g.cal.norm_ceps)              # [TINYLLAMA PORT] the shape's
     return add(add(mul(v[i_tau], add(zc, pz.eval(v))),
                    mul(mul(mul(nu[0], v[i_rt]), g), sub(add(dsq, a1), ceps))),
                mul(mul(mul(nu[1], v[i_rt2]), g), sub(add(dsqm, a1m), ceps)))
@@ -1403,7 +1485,9 @@ def sc_szc(v, cx):
     for m, c in zip(mu, [c0, c1, c2, c3, c4]):
         zc = add(zc, mul(mul(m, g), c))
     host_rs = add(sm, cx.lam_z)
-    host_s = sub(add(mul(k(1 << SH_S), s8), v[cx.t("A_RSL")]), k(1 << (SH_S - 1)))
+    cal = cx.g.cal                            # [TINYLLAMA PORT] the shape's
+    host_s = sub(add(mul(k(1 << cal.sh_s), s8), v[cx.t("A_RSL")]),
+                 k(Calibration.half(cal.sh_s)))
     return add(add(mul(v[cx.eq(0)], zc),
                    mul(mul(mul(nu[0], v[cx.eq(1)]), gate_at(ght, v)), host_rs)),
                mul(mul(mul(nu[1], v[cx.eq(2)]), g), host_s))
@@ -1432,8 +1516,9 @@ def sc_fzc(v, cx):
 
     g8, a16 = v[cx.t("A_G8")], v[cx.t("A_A16")]
     u16, h16 = v[cx.t("A_U16")], v[cx.t("A_H16")]
-    f0 = add(sub(sub(mul(a16, u16), mul(k(1 << SH_H_PROD), h16)),
-                 l2("A_RH0", "A_RH1")), k(1 << (SH_H_PROD - 1)))
+    cal = cx.g.cal                            # [TINYLLAMA PORT] the shape's
+    f0 = add(sub(sub(mul(a16, u16), mul(k(1 << cal.sh_h), h16)),
+                 l2("A_RH0", "A_RH1")), k(Calibration.half(cal.sh_h)))
     f1 = sub(add(u16, k(32768)), l2("A_UL0", "A_UL1"))
     f2 = sub(add(h16, k(32768)), l2("A_HL0", "A_HL1"))
     # the activation PAIR lookup's helper relation: the LogUp arm, never gated
@@ -1445,7 +1530,8 @@ def sc_fzc(v, cx):
                  mul(mu[3], f_act)), pz.eval(v))
     for m, c in zip(mu, [f0, f1, f2]):
         zc = add(zc, mul(mul(m, g), c))
-    host_g = sub(add(mul(k(1 << SH_G), g8), v[cx.t("A_RGL")]), k(1 << (SH_G - 1)))
+    host_g = sub(add(mul(k(1 << cal.sh_g), g8), v[cx.t("A_RGL")]),
+                 k(Calibration.half(cal.sh_g)))
     host_u = u16                       # SH_U = 0: no coefficient (T2 A.4)
     return add(add(mul(v[cx.eq(0)], zc),
                    mul(mul(mul(nu[0], v[cx.eq(1)]), g), host_g)),
@@ -1570,7 +1656,12 @@ def sc_dzc(v, cx):
     ns = limbs(v, [cx.t(f"A_NS{j}") for j in range(ln)])
     mr = limbs(v, [cx.t(f"A_MR{j}") for j in range(ln)])
     ms = limbs(v, [cx.t(f"A_MS{j}") for j in range(ln)])
-    k_num, k_dv, k_den = k(2 * NORM_CN), k(1 << NORM_TN), k(1 << (NORM_TN + 1))
+    # [TINYLLAMA PORT] tn, the two norms' SEPARATE multipliers and the AO / Z
+    # shifts are the shape's (argument.rs SC_DZC: b_num = 2 cn_a for norm_a,
+    # b_num_m = 2 cn_m for norm_m's clause c6)
+    cal = cx.g.cal
+    k_num, k_num_m = k(2 * cal.norm_cn_a), k(2 * cal.norm_cn_m)
+    k_dv, k_den = k(1 << cal.norm_tn), k(1 << (cal.norm_tn + 1))
     c0 = sub(sub(add(mul(mul(k_num, v[ig]), x), mul(k_dv, d)),
                  mul(mul(k_den, y), d)), nr)
     c1 = sub(add(add(ns, nr), ONE), mul(k_den, d))
@@ -1578,7 +1669,7 @@ def sc_dzc(v, cx):
     c3 = sub(add(ao, k(32768)), l2("A_AL0", "A_AL1"))
     c4 = sub(add(x1, k(32768)), l2("A_X1L0", "A_X1L1"))
     c5 = sub(sub(x1, x), ao)
-    c6 = sub(sub(add(mul(mul(k_num, v[igm]), x1), mul(k_dv, dm)),
+    c6 = sub(sub(add(mul(mul(k_num_m, v[igm]), x1), mul(k_dv, dm)),
                  mul(mul(k_den, nmm), dm)), mr)
     c7 = sub(add(add(ms, mr), ONE), mul(k_den, dm))
     c8 = sub(add(x2, k(32768)), l2("A_X2L0", "A_X2L1"))
@@ -1593,8 +1684,10 @@ def sc_dzc(v, cx):
     zc = add(helper_sum(v, lks, cx.t("H_D0"), cx.alpha, mu[11:]), pz.eval(v))
     for m, c in zip(mu, [c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10]):
         zc = add(zc, mul(mul(m, g), c))
-    host_wo = sub(add(mul(k(1 << SH_AO), ao), at("A_RAL")), k(1 << (SH_AO - 1)))
-    host_dmm = sub(add(mul(k(1 << SH_Z), z16), at("A_RDL")), k(1 << (SH_Z - 1)))
+    host_wo = sub(add(mul(k(1 << cal.sh_ao), ao), at("A_RAL")),
+                  k(Calibration.half(cal.sh_ao)))
+    host_dmm = sub(add(mul(k(1 << cal.sh_z), z16), at("A_RDL")),
+                   k(Calibration.half(cal.sh_z)))
     return add(add(mul(v[cx.eq(0)], zc),
                    mul(mul(mul(nu[0], v[cx.eq(1)]), g), host_wo)),
                mul(mul(mul(nu[1], v[cx.eq(2)]), g), host_dmm))
@@ -1644,14 +1737,17 @@ def _zc_rope(v, cx, q):
     zc = add(add(mul(mul(mu[0], g), rope),
                  helper_sum(v, lks, cx.t(f"{hp}0"), cx.alpha, mu[1:])),
              pz.eval(v))
-    half = k(1 << (SH_QKV - 1))
+    # [TINYLLAMA PORT] the Q/K/V and PV-output shifts are the shape's
+    cal = cx.g.cal
+    kq, half = k(1 << cal.sh_qkv), k(Calibration.half(cal.sh_qkv))
     if q:
-        host1 = sub(add(mul(k(1 << SH_QKV), at("A_Q8")), at("A_RQL")), half)
-        host2 = sub(add(add(mul(k(1 << SH_O), at("A_O8")), at("A_RO0")),
-                        mul(at("A_RO1"), POW256[1])), k(1 << (SH_O - 1)))
+        host1 = sub(add(mul(kq, at("A_Q8")), at("A_RQL")), half)
+        host2 = sub(add(add(mul(k(1 << cal.sh_o), at("A_O8")), at("A_RO0")),
+                        mul(at("A_RO1"), POW256[1])),
+                    k(Calibration.half(cal.sh_o)))
     else:
-        host1 = sub(add(mul(k(1 << SH_QKV), at("A_K8")), at("A_RKL")), half)
-        host2 = sub(add(mul(k(1 << SH_QKV), at("A_V8")), at("A_RVL")), half)
+        host1 = sub(add(mul(kq, at("A_K8")), at("A_RKL")), half)
+        host2 = sub(add(mul(kq, at("A_V8")), at("A_RVL")), half)
     return add(add(mul(v[cx.eq(0)], zc),
                    mul(mul(mul(nu[0], v[cx.eq(1)]), g), host1)),
                mul(mul(mul(nu[1], v[cx.eq(2)]), g), host2))
@@ -1883,6 +1979,8 @@ class TerminalGate:
         self.index = index
         self.shape_raw = bundle.run["shape"]
         self.geom = PadGeometry(self.shape_raw, index.domain_log)
+        # [TINYLLAMA PORT] the slot closures read `cx.g.cal`
+        self.cal = self.geom.cal
         self.alpha = self.beta = None
         self.g_u8 = self.g_exp = self.g_act = None
         self.public_tables: dict[tuple, str] = {}
@@ -2177,12 +2275,14 @@ class TerminalGate:
             ]
         binv = f2_inv(self.beta)
         big = []
+        recovered = []
         for i in range(U8_LEN):
             t = mul(sub(sub(vals[i], k(i)), g), binv)
             if t[1] != 0:
                 out.append(f"{label}: entry {i} does not recover a base-field value")
                 break
             signed = t[0] if t[0] < P // 2 else t[0] - P
+            recovered.append(signed)
             if abs(signed) >= 1 << 32:
                 big.append(i)
         if big:
@@ -2190,7 +2290,25 @@ class TerminalGate:
                 f"{label}: {len(big)} recovered entries are not small integers "
                 f"(first {big[0]})"
             )
-        self.structure_detail.setdefault(label, []).append({"recovered_entries": U8_LEN})
+        detail = {"recovered_entries": U8_LEN}
+        # [TINYLLAMA PORT 2026-10-17] at a TRAINED profile each block carries
+        # its OWN exp / SiLU table (per-layer table keys), so the record names
+        # which table each stage carried -- the SHA-256 of the recovered
+        # int64 entries -- and the two entries a pad relies on: exp[0] =
+        # 2^f_e and act[128] = 0 (the condition ruling S38-F1(a) refused
+        # otherwise, absent from the trained tree, finding G-1).  Recorded
+        # only when the bundle declares a trained calibration, so no frozen
+        # record gains a leaf.
+        if self.cal.trained and len(recovered) == U8_LEN:
+            raw = b"".join(int(v).to_bytes(8, "little", signed=True)
+                           for v in recovered)
+            detail["recovered_sha256"] = hashlib.sha256(raw).hexdigest()
+            if label == "act_values":
+                detail["act_128"] = recovered[128]
+                detail["act_128_is_zero"] = recovered[128] == 0
+            else:
+                detail["exp_0"] = recovered[0]
+        self.structure_detail.setdefault(label, []).append(detail)
         return out
 
     # --------------------------------------------------------- the vals list

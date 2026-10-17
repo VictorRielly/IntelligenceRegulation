@@ -364,6 +364,12 @@ pub(crate) struct TrainedModelStatement {
     pub calibration: IntegerCalibration,
     pub layers: Vec<LayerRecord>,
     pub coverage: String,
+    /// re-review R2-b: set ONLY by the test-only constructor
+    /// [`TrainedModelStatement::new_synthetic_at_trained_profile_for_tests`];
+    /// every other statement, in test builds too, is checked by the strict
+    /// production rule. Not part of the encoding (not a statement field).
+    #[cfg(test)]
+    pub test_synthetic_waiver: bool,
 }
 
 fn geometry_of(sh: &Shape) -> [u64; 9] {
@@ -398,6 +404,8 @@ impl TrainedModelStatement {
             calibration,
             layers,
             coverage: COVERAGE_D13.into(),
+            #[cfg(test)]
+            test_synthetic_waiver: false,
         };
         st.check_self(sh)?;
         Ok(st)
@@ -422,9 +430,23 @@ impl TrainedModelStatement {
             calibration,
             layers,
             coverage: COVERAGE_D13.into(),
+            test_synthetic_waiver: true,
         };
         st.check_self_with(sh, true)?;
         Ok(st)
+    }
+
+    /// re-review R2-b: true only for a statement from the test-only
+    /// constructor, and never in a production build
+    fn waived_for_tests(&self) -> bool {
+        #[cfg(test)]
+        {
+            self.test_synthetic_waiver
+        }
+        #[cfg(not(test))]
+        {
+            false
+        }
     }
 
     fn check_self(&self, sh: &Shape) -> Result<(), String> {
@@ -449,10 +471,11 @@ impl TrainedModelStatement {
         // review finding F-3: keyed on the profile's IDENTITY (it was a
         // substring test): the trained TinyLlama profile is the pinned
         // checkpoint's, and nothing else's
-        if self.block_profile == super::shape::TINYLLAMA_T32_TRAINED_PROFILE && !synthetic_at_trained_ok && self.source != ModelSource::tinyllama_chat_v1_0() {
+        let tiny = super::shape::TINYLLAMA_TRAINED_PROFILES.contains(&self.block_profile.as_str());
+        if tiny && !synthetic_at_trained_ok && self.source != ModelSource::tinyllama_chat_v1_0() {
             return Err("trained statement: the trained TinyLlama profile is the pinned TinyLlama-1.1B-Chat checkpoint's; this statement names another source".into());
         }
-        if self.block_profile == super::shape::TINYLLAMA_T32_TRAINED_PROFILE && self.source.kind == SourceKind::PublicSyntheticRecipe && !synthetic_at_trained_ok {
+        if tiny && self.source.kind == SourceKind::PublicSyntheticRecipe && !synthetic_at_trained_ok {
             return Err("trained statement: a synthetic recipe may not carry a trained (non-development) profile".into());
         }
         // ROUND 2 / the review's general rule: the per-block table keys are
@@ -563,10 +586,11 @@ impl TrainedModelStatement {
     /// Is this the statement of THIS run? Every check is against the run's
     /// own quantities (never against a receipt).
     pub(crate) fn check_against(&self, sh: &Shape, run_profile: &str, block_digests: &[Digest], block_scales: &[(i32, i32)]) -> Result<(), String> {
-        // the test-only waiver of `new_synthetic_at_trained_profile_for_tests`
-        // reaches the run constructor in test builds only; production checks
-        // exactly what `new` checked
-        self.check_self_with(sh, cfg!(test))?;
+        // re-review R2-b: the waiver reaches the run constructor ONLY for a
+        // statement built by the test-only constructor (a field that exists
+        // in test builds only); every other statement, in `cargo test` too,
+        // is checked exactly as production checks it
+        self.check_self_with(sh, self.waived_for_tests())?;
         if self.block_profile != sh.profile || self.run_profile != run_profile {
             return Err(format!("trained statement: it is for profiles ({}, {}), this run is ({}, {run_profile})", self.block_profile, self.run_profile, sh.profile));
         }

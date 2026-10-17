@@ -194,6 +194,13 @@ ARGUMENT_DEFINITIONS = {
 }
 
 
+# [TINYLLAMA PORT 2026-10-17] the trained bundles' argument.rs, READ: the
+# repaired definition (`zk60_native_rg_tinyllama_pins`).
+from zk60_native_rg_tinyllama_pins import (  # noqa: E402
+    ARGUMENT_DEFINITIONS as _TL_ARG, merge_one_level as _tl_merge1)
+_tl_merge1(ARGUMENT_DEFINITIONS, _TL_ARG, "ARGUMENT_DEFINITIONS")
+
+
 def clog2(v: int) -> int:
     """`shape.rs::clog2` (shape.rs:68)."""
     if v <= 0:

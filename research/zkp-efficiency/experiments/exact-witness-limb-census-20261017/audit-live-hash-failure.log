@@ -1,0 +1,1 @@
+At 2026-10-17 ~10:36 UTC, audit.py failed its live SHA equality at line16. Original pinned witness.rs and trained_block.rs changed concurrently. Exact diffs and hashes: live-source-drift.json. Snapshot validation retained; no native pin silently replaced.

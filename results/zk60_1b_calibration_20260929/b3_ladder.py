@@ -127,7 +127,7 @@ def float_stats(ck, xc, rope_f, L, R, cache_path: Path, chunk: int = 27):
             log(f"pass 1 L{l:02d}: {st['excluded_here']} calibration sequence(s) with |gate| > 63.5 (no frozen SiLU member "
                 f"can carry it; max {st['gate_absmax_all_sequences']:.1f}) excluded from this layer's statistics on")
         stats.append(b3.finalize_stats(st))
-    if L == 22:
+    if L == ck.config["layers"]:
         # atomic: concurrent runs may compute the same cache
         tmp = cache_path.with_suffix(f".tmp{os.getpid()}")
         with tmp.open("wb") as f:
@@ -273,11 +273,11 @@ def export_layer(root: Path, l: int, P, rep, T: int, var) -> dict:
         "rope_cos": write_bin(d, "rope_cos", c, "<i8"), "rope_sin": write_bin(d, "rope_sin", s, "<i8"),
     }
     man = {"schema": SCHEMA, "kind": "layer", "variant": var.name, "layer": l, "constants": layer_constants(P, var),
-           "tables": {"exp": {"generator": "hashline tables_attn.rs exp_member(e_s, head_dim 64, f_e)", "e_s": P.e_s,
+           "tables": {"exp": {"generator": f"hashline tables_attn.rs exp_member(e_s, head_dim {tc.GEO.dh}, f_e)", "e_s": P.e_s,
                               "spec_digest": P.exp_digest},
                       "act": {"generator": "zkp-core tables.rs int16out_member(Silu, e_in, e_out) (frozen registry)",
                               "silu_member": list(P.silu), "spec_digest": P.act_digest},
-                      "rope": {"generator": "hashline tables_attn.rs rope_tables_generate(T, 64, 10000.0, 7)", "t_max": T,
+                      "rope": {"generator": f"hashline tables_attn.rs rope_tables_generate(T, {tc.GEO.dh}, {tc.GEO.theta}, {P.f_ro})", "t_max": T,
                                "spec_digest": b3.rope_digest(T, tc.GEO.dh, tc.GEO.theta, P.f_ro, c, s)}},
            "orientation": {"wq/wk/wv/wo": "(output, input) row-major", "wg_t/wu_t": "(input d, output f) row-major",
                            "wd_t": "(input f, output d) row-major", "padding": "none (true extents)"},

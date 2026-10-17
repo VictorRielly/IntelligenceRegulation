@@ -1,0 +1,8 @@
+{"event":"run_header","gpu":"gpu: off (built without --features gpu-cuda)","hl_gpu_required":false}
+{"event":"loaded","variant":"pg_rot1_b4_T128","layers":"0..3","blocks":3,"statement_identity":"e942b7d39d81e48b5461c9058ebf50fae9998347a6ea2e34cc492ebc9ce880f2","seconds":1.411,"hl_gpu":"unset","scope":"ALL the listed trained TinyLlama-1.1B-Chat blocks as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"}
+{"event":"sealed","from":"the export's layer-0 x_in and layer-2 x_out (parity is checked per layer in the proving pass)","seconds":0.009,"rayon_threads":16}
+{"event":"segment","index":0,"layer":0,"bytes":22332504,"elapsed_seconds":6.256,"vmhwm_mib":3584}
+{"event":"segment","index":1,"layer":1,"bytes":22600792,"elapsed_seconds":12.713,"vmhwm_mib":3611}
+{"event":"segment","index":2,"layer":2,"bytes":23317560,"elapsed_seconds":18.761,"vmhwm_mib":3671}
+{"event":"parity","result":"bit-exact at every layer","layers":3,"words_per_layer":262144,"checked_in_the_proving_pass":true}
+{"event":"control-refused","control":"the boundary plane after block 1 off by one word","error":"slot 22 [IO-out endpoint equality]: sumcheck round 0: s(0) + s(1) != claim"}

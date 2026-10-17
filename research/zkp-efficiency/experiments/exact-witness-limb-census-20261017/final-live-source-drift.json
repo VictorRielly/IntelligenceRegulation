@@ -1,0 +1,26 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/witness.rs",
+    "original_sha256": "73a06441e7d8d1720da3e6ad0421fdca8a481235de26fe746f7bbb4e28f6a3f5",
+    "current_sha256": "7b89ac672bb81978a05a1a6571a1a15b59f76d718e0be36da3bb6d4cb347f205",
+    "current_snapshot": "experiments/exact-witness-limb-census-20261017/native-after-owner-change/witness.rs"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/shape.rs",
+    "original_sha256": "840543909944b68a09d523e839b4b97348bf1c12ebc1e3525a72f5f9970aa100",
+    "current_sha256": "a82f2fff2d8780c9e2e3e3daafbd4a81060c54fee3a099b2d8b31578e19004fc",
+    "current_snapshot": "experiments/exact-witness-limb-census-20261017/native-after-owner-change/shape.rs"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/run.rs",
+    "original_sha256": "296aeaafd3bd8a026c93f04f66d5a0dd4c200c81fa31f94e71a86d8d8eebdbe5",
+    "current_sha256": "a3b2320066e210326c5781e633adbfb2f1757dbacce5cb78b6ea8afa3683b4dc",
+    "current_snapshot": "experiments/exact-witness-limb-census-20261017/native-after-owner-change/run.rs"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/trained_block.rs",
+    "original_sha256": "46a77d378e6907f7eb229a0235e261e99f23dc8b127db0e4dea70d11fe3a1922",
+    "current_sha256": "011a50aa89ae4ef609a7ae7a62098936d7e6696503a9f9a3abfdbe9f7659c74a",
+    "current_snapshot": "experiments/exact-witness-limb-census-20261017/native-after-owner-change/trained_block.rs"
+  }
+]

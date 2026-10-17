@@ -149,6 +149,9 @@ mod review_d24_tests;
 // R2-3: the stack CLI on a small chained multi-layer export (test only)
 #[cfg(test)]
 mod trained_stack_tests;
+// R3-1: the parallel witness products against the sequential ones (test only)
+#[cfg(test)]
+mod witness_speed_tests;
 // STAGE 19 (test-only): DENSE public weights and a numerically non-trivial
 // witness at the shaped geometries, where the diagonal fixture leaves every
 // hidden unit above `d` with no input and no output weight.

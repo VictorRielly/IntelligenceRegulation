@@ -1,0 +1,10 @@
+[zk60-guard 03:48:29] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 03:49:29] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 03:50:29] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 03:51:29] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 03:52:29] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 03:53:29] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 03:54:29] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 03:55:29] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 03:55:43] START r3-gpu-build class=build need=3G cap=5G enforce=cgroup+watchdog waited=434s run=044997d88c33
+[zk60-guard 03:56:50] END r3-gpu-build exit=0 child_wall=67s peak_rss=1.08G min_avail=10.37G

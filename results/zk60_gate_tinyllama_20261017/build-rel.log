@@ -142,3 +142,6 @@ warning: method `pd` is never used
 1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
      |        ^^
 
+warning: `hashline` (lib test) generated 15 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 3m 09s
+  Executable unittests src/lib.rs (ops/zkp-mvp/trained-1b-gate/hashline/target/release/deps/hashline-771b814586910244)

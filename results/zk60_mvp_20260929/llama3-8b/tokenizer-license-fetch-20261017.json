@@ -1,0 +1,38 @@
+{
+ "tokenizer.json": {
+  "size": 9085698,
+  "sha256": "e134af98b985517b4f068e3755ae90d4e9cd2d45d328325dc503f1c6b2d06cc7",
+  "git_blob": "b197f72effb9d5ed16ee0f5663e11e4cfac2ba62",
+  "pinned_blob": "b197f72effb9d5ed16ee0f5663e11e4cfac2ba62",
+  "match": true
+ },
+ "tokenizer_config.json": {
+  "size": 50566,
+  "sha256": "690727b4fed286383df1c7ca5e805124cb70c6eb4529f807c7b2e60ff741da7e",
+  "git_blob": "72193e9eb5cb6126087980deffb4930ec27a72a9",
+  "pinned_blob": "72193e9eb5cb6126087980deffb4930ec27a72a9",
+  "match": true
+ },
+ "special_tokens_map.json": {
+  "size": 73,
+  "sha256": "462d91939dbc37178aa5a3eae7068d1990ccc92e09f288cc71f42cdf139d69cc",
+  "git_blob": "d8cd5076496dbe4be2320312abc10adc43097b81",
+  "pinned_blob": "d8cd5076496dbe4be2320312abc10adc43097b81",
+  "match": true
+ },
+ "LICENSE": {
+  "size": 7801,
+  "sha256": "475211637354ce4c14b9c3dacccbefbaba735fe1b0db97d6c4fd11cd1356819f",
+  "git_blob": "4c763399690c7fec642231350756e4ee9184b5ce",
+  "pinned_blob": "4c763399690c7fec642231350756e4ee9184b5ce",
+  "match": true
+ },
+ "USE_POLICY.md": {
+  "size": 4696,
+  "sha256": "003513f595a20b7d63c609dfe80879531acb9caef6376fcc109bf0827471f3d1",
+  "git_blob": "6f8e5f6e3243c92046a133c92eb62b1ed7975a0b",
+  "pinned_blob": "6f8e5f6e3243c92046a133c92eb62b1ed7975a0b",
+  "match": true
+ },
+ "_source": "https://huggingface.co/NousResearch/Meta-Llama-3-8B/resolve/315b20096dc791d381d514deb5f8bd9c8d6d3061/<file>, fetched 2026-10-17 by Claude (orchestrator)"
+}

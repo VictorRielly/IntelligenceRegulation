@@ -59,9 +59,25 @@ pub(crate) const TINYLLAMA_T32_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-
 /// 6) run in the ordinary test filter in seconds. Development grade, never a
 /// deliverable, its own profile (D17).
 pub(crate) const TRAINED_CALIB_RUNG_PROFILE: &str = "hashline-zk-mr1/private-block-rung-tc-t32-dev/1";
+/// **ROUND 3 (R3-2): the context ladder.** The same TinyLlama-1.1B block
+/// geometry under the same trained-calibration rule at T = 64 and T = 128,
+/// each its OWN profile string (D17: one profile per shape). Row width
+/// `2^(log2 T + 7)` keeps 21 endpoint rows, as at T32, and gives the smallest
+/// counted receipt of the admissible widths (T64: 15,445,848 B at 2^13;
+/// T128: 23,049,192 B at 2^14, `the_trained_tinyllama_counted_layout_ladder`).
+pub(crate) const TINYLLAMA_T64_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-tinyllama-1.1b-t64-trained/1";
+/// The T128 string carries a `-block` suffix: at the T32/T64 length plus
+/// one (60 bytes) its transcript constructor would be 71 bytes, the length of
+/// the `pb-term` absorb with 16 bytes of data in the same keyed function
+/// (`s25_tests`' census refuses that); at 66 bytes the constructor is 77,
+/// where this profile hashes no other kind.
+pub(crate) const TINYLLAMA_T128_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-block/1";
+/// the trained TinyLlama profiles: the pinned checkpoint's, at each
+/// registered context length
+pub(crate) const TINYLLAMA_TRAINED_PROFILES: [&str; 3] = [TINYLLAMA_T32_TRAINED_PROFILE, TINYLLAMA_T64_TRAINED_PROFILE, TINYLLAMA_T128_TRAINED_PROFILE];
 /// the profiles [`Shape::with_trained_calibration`] may give a non-frozen
 /// calibration to; every other profile's calibration is frozen
-pub(crate) const TRAINED_CALIBRATION_PROFILES: [&str; 2] = [TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIB_RUNG_PROFILE];
+pub(crate) const TRAINED_CALIBRATION_PROFILES: [&str; 4] = [TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIB_RUNG_PROFILE, TINYLLAMA_T64_TRAINED_PROFILE, TINYLLAMA_T128_TRAINED_PROFILE];
 const INT16_MAX: i128 = 32_767;
 /// the absolute endpoint of signed int16 (`-32768`), used by the TRAINED
 /// calibration rule only; every frozen profile keeps the historical 32767
@@ -1247,6 +1263,18 @@ impl Shape {
         Ok(())
     }
 
+    /// **Every shape's softmax window** (re-review R2-a): `wrho_s` at most
+    /// [`TRAINED_WRHO_S_MAX`] (three limbs) and `clog2(T) + f_e` too, so
+    /// `e <= 2^f_e <= 2^24` and `Sum <= T 2^f_e <= 2^24` bound the quotient
+    /// clause far below `p` whatever the profile. Every registered frozen
+    /// shape has 14..=18 bits.
+    pub(crate) fn check_softmax_window(sh: &Shape) -> Result<(), String> {
+        if sh.wrho_s > TRAINED_WRHO_S_MAX || clog2(sh.tokens) as u32 + sh.f_e > TRAINED_WRHO_S_MAX {
+            return Err(format!("private block shape: {}'s softmax window (wrho_s {}, clog2(T) + f_e = {}) exceeds {TRAINED_WRHO_S_MAX} bits", sh.profile, sh.wrho_s, clog2(sh.tokens) as u32 + sh.f_e));
+        }
+        Ok(())
+    }
+
     /// `f_e` inside its declared class at `tokens` (review finding F-1): in
     /// [`TRAINED_F_E_RANGE`] and `clog2(T) + f_e <= 24`. The loader calls this
     /// before it builds a shape, the door and `Layout::for_shape` after.
@@ -1285,25 +1313,24 @@ impl Shape {
     /// `tn = 10` the derived norm window is exactly 32 bits (four limbs, C-6),
     /// for every int16 input and every `ceps` in the class.
     pub(crate) fn tinyllama_t32_trained(cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
-        Shape::new(
-            "TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads)",
-            TINYLLAMA_T32_TRAINED_PROFILE,
-            32,
-            2048,
-            5632,
-            32,
-            64,
-            4,
-            12,
-            4,
-            f_e,
-            21,
-            None,
-            None,
-            None,
-            None,
-        )?
-        .with_trained_calibration(cal)
+        Shape::tinyllama_trained(32, cal, f_e)
+    }
+
+    /// **ROUND 3 (R3-2): the trained TinyLlama shape at a registered context
+    /// length** (32, 64 or 128), each with its own profile string. At T = 32
+    /// this is exactly the round-2 shape (same name, profile, row width 2^12
+    /// and 21 endpoint rows). The softmax rule `clog2(T) + f_e <= 24` and
+    /// every declared class are checked by the door.
+    pub(crate) fn tinyllama_trained(tokens: usize, cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
+        let (name, profile, log_cols) = match tokens {
+            32 => ("TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads)", TINYLLAMA_T32_TRAINED_PROFILE, 12),
+            64 => ("TinyLlama-1.1B block geometry, trained calibration (T64 / d2048 / f5632, 32 heads of 64 over 4 KV heads)", TINYLLAMA_T64_TRAINED_PROFILE, 13),
+            128 => ("TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads)", TINYLLAMA_T128_TRAINED_PROFILE, 14),
+            _ => return Err(format!("private block shape: no trained TinyLlama profile is registered at T = {tokens} (32, 64 and 128 are)")),
+        };
+        Shape::check_f_e_class(tokens, f_e)?;
+        let rows = ((tokens * 2048) >> log_cols) + super::endpoint_g::MASK_ROWS;
+        Shape::new(name, profile, tokens, 2048, 5632, 32, 64, 4, log_cols, 4, f_e, rows, None, None, None, None)?.with_trained_calibration(cal)
     }
 
     /// The same family at another token count, for the counted-layout ladder

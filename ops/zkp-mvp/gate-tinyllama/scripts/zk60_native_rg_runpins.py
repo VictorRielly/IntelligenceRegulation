@@ -412,6 +412,12 @@ SHARED_ALSO_READ = {
     },
 }
 
+# [TINYLLAMA PORT 2026-10-17] the trained bundles' shared files at second
+# digests, each READ -- the readings are in `zk60_native_rg_tinyllama_pins`.
+from zk60_native_rg_tinyllama_pins import (  # noqa: E402
+    SHARED_ALSO_READ as _TL_SHARED, merge_two_level as _tl_merge2)
+_tl_merge2(SHARED_ALSO_READ, _TL_SHARED, "SHARED_ALSO_READ")
+
 # The seven `private_block` files stage 27 added to the bundle's OWN pins,
 # with what this gate reads from each.  Four of them are exactly the four
 # `NOT_PINNABLE_FROM_A_BUNDLE` names above; the other three were pinned by
@@ -947,6 +953,14 @@ READINGS = {
         "and ruling M-1's refusal are byte-identical, and the ports read "
         "only those",
 }
+
+# [TINYLLAMA PORT 2026-10-17] the trained bundles' run-layer digests and
+# their readings (`zk60_native_rg_tinyllama_pins`); no entry above changes.
+from zk60_native_rg_tinyllama_pins import (  # noqa: E402
+    READINGS as _TL_READINGS, RUN_LAYER_PINS as _TL_RLP,
+    merge_one_level as _tl_merge1)
+_tl_merge2(RUN_LAYER_PINS, _TL_RLP, "RUN_LAYER_PINS")
+_tl_merge1(READINGS, _TL_READINGS, "READINGS")
 
 # --------------------------------------------------------------------------
 # 4.  WHICH STAGES A MOVED PIN SUSPENDS

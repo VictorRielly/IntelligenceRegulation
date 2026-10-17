@@ -1,0 +1,16 @@
+{
+ "what": "THE HAND PREDICTION for the trained TinyLlama ONE-BLOCK bound run ('the standalone block' at a trained profile: R2-4 refuses a single-block receipt there, so a block is proved as an L = 1 run bound to its trained-model statement). Written 2026-10-17 ~11:10 UTC, BEFORE either L = 1 bundle exists. Layer 0 of pg_rot1_export_T32 (exp e_s 1, SiLU (-5,-13)); dense = held-out ho00 entering layer 0 (the real embedding output), zero = the all-zero plane.",
+ "laws": "from the L = 2 records: per stage 3 LogUp + 378 definition draws + 23 mask multipliers + 317 sumcheck rounds + 1 theta = 722 challenges, M proximity 48; per opening claims + rows (A 120 + 1729, H 50 + 1798, an endpoint 1 + 21); final counter = challenges + 64 (4L + 1)",
+ "P1_integrity": {"blocks": 1, "boundaries": 0, "distinct_roots": 5, "manifest_files": 4, "findings": 0},
+ "P2_replay": {"positions": 127, "challenges": 4511, "final_counter": 4831, "position_tags": 2, "run_binding_reproduced": true},
+ "P3_hash_layer": {"openings": 5, "columns": 1280, "column_bytes": 7411712},
+ "P4_terminals": "23 of 23 equal to the stored polynomial, 0 open; group factor repaired",
+ "P5_per_commitment": {"A@0": "0 (1729 rows, 120 claims, 36 groups, rank_P1 74)", "H@0": "2 (the LogUp identity)", "E-Input": 0, "E-Output": 0, "M@0": 0},
+ "P6_whole_run": {"generators": 104, "identified_rows": 32, "joint": "2 = sum of parts 2", "boundaries": "none: no reserved-block figure exists"},
+ "P8_P9": "mask/CFS 1 stage, 0 differing; full preimage 5 of 5, 0 differing, 1,280 salted leaves",
+ "risks_named_before_the_run": [
+  "no one-block RUN bundle has ever been read by this gate (round 9j's L = 1 figures are STANDALONE block bundles, `block.json`, a different reader); `zk60_native_rg_predict` falls back to the FIRST role's data rows for the identified-row count when a run has no boundary, which is A's (1,487), not the endpoints' -- so the computed half is expected to say 2 x 1,487 and to be WRONG there; the hand figure above (32) is the law",
+  "the run controls C1 / C2 perturb an internal boundary and have nothing to perturb at L = 1; they are expected to be skipped or to refuse to run, and either is reported as such, never as a pass"
+ ],
+ "privacy_acceptance": false
+}

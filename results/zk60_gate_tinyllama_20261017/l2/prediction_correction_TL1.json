@@ -1,0 +1,6 @@
+{
+ "written": "2026-10-17 10:55 UTC, BEFORE the TL controls ran on any bundle",
+ "corrects": "prediction_tinyllama_l2_by_hand.json P4_terminals.what_would_falsify_the_port, which said all six calibration-reading slots (02, 14, 15, 16, 17, 18) must fail under the FROZEN constants (control TL-1)",
+ "correction": "pg_rot1's sh_s = 6, sh_o = 9 and sh_h = 14 COINCIDE with the frozen values, so TL-1 moves only tn, Cn_a, Cn_m, Ceps, sh_ao, sh_qkv, sh_g and sh_z. Slot 17 (SC_SZC) reads only sh_s and must therefore still HOLD under TL-1; slot 15 still fails through sh_qkv and slot 18 through sh_g. Corrected TL-1 prediction: failing slots {2, 14, 15, 16, 18}, slot 17 and every other slot equal. TL-2 (each constant moved by one inside its class) predicts {2} for Ceps, {14} for tn / Cn_a / Cn_m / sh_ao / sh_z, {15, 16} for sh_qkv, {15} for sh_o, {17} for sh_s, {18} for sh_g / sh_h.",
+ "how_found": "writing the control code, which derives the expected set from the two calibrations instead of a list"
+}

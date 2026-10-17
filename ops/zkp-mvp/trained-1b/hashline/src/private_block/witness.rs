@@ -295,28 +295,128 @@ fn quantize(acc: &[i64], sup: &[usize], sh: u32, lo: i64, hi: i64, site: &'stati
     Ok((y, r))
 }
 
+// ROUND 3 (R3-1, 2026-10-17): the matrix products are PARALLEL (rayon, over
+// chunks of each output row) and cache-friendly. They are EXACT integer sums,
+// so neither the order nor the split of the accumulation can change a value:
+// every plane is bit-identical to the sequential form (`matmul_reference`,
+// kept for the equality test). The `x` words of every call site are inside
+// int16 (`y`, `o8`, `nm` are int8, `h16` int16), so one product `x w` fits an
+// i32 and is widened to i64 before it is accumulated; a word outside
+// `|x| < 2^23` sends the call to the i64 path, so the result is exact for any
+// input.
+
+/// the output-chunk length the parallel products split a row into: a
+/// power-of-two divisor of the row stride, so no chunk straddles two rows
+fn out_chunk(os: usize, want: usize) -> usize {
+    let mut c = want.min(os).max(1);
+    while c > 1 && os % c != 0 {
+        c /= 2;
+    }
+    c
+}
+
+/// the `x` words as i32 when every product `x w` (|w| <= 128) fits an i32
+fn narrow(x: &[i64]) -> Option<Vec<i32>> {
+    if x.iter().all(|v| v.unsigned_abs() < 1 << 23) {
+        Some(x.iter().map(|v| *v as i32).collect())
+    } else {
+        None
+    }
+}
+
 /// `out[t, j] = sum_i x[t, i] * w[j, i]`, `w` stored (output, input), reading
 /// `x` at stride `xs` and writing at stride `os` on a plane of `out_len`.
 fn matmul(g: &Geom, x: &[i64], xs: usize, w: &[i8], inner: usize, outer: usize, os: usize, out_len: usize) -> Vec<i64> {
+    use rayon::prelude::*;
     let mut out = vec![0i64; out_len];
-    for t in 0..g.t {
+    let c = out_chunk(os, 256);
+    let x32 = narrow(x);
+    out.par_chunks_mut(c).enumerate().for_each(|(ci, chunk)| {
+        let start = ci * c;
+        let (t, j0) = (start / os, start % os);
+        if t >= g.t || j0 >= outer {
+            return;
+        }
+        let jn = (outer - j0).min(chunk.len());
+        for (dj, o) in chunk[..jn].iter_mut().enumerate() {
+            let wr = &w[(j0 + dj) * inner..(j0 + dj + 1) * inner];
+            *o = match &x32 {
+                Some(x32) => x32[t * xs..t * xs + inner].iter().zip(wr).map(|(a, b)| i64::from(a * i32::from(*b))).sum(),
+                None => x[t * xs..t * xs + inner].iter().zip(wr).map(|(a, b)| a * i64::from(*b)).sum(),
+            };
+        }
+    });
+    out
+}
+
+/// `out[t, j] = sum_i x[t, i] * w[i, j]`, `w` stored (input, output) — the
+/// feed-forward orientation, the kernel's `matmul_in_out`. ROUND 3: the
+/// loop order is (row, i, j) so each weight row is read contiguously (the
+/// sequential form walked `w` at stride `outer`).
+fn matmul_in_out(g: &Geom, x: &[i64], xs: usize, w: &[i8], inner: usize, outer: usize, os: usize, out_len: usize) -> Vec<i64> {
+    use rayon::prelude::*;
+    let mut out = vec![0i64; out_len];
+    let c = out_chunk(os, 512);
+    let x32 = narrow(x);
+    out.par_chunks_mut(c).enumerate().for_each(|(ci, chunk)| {
+        let start = ci * c;
+        let (t, j0) = (start / os, start % os);
+        if t >= g.t || j0 >= outer {
+            return;
+        }
+        let jn = (outer - j0).min(chunk.len());
+        let acc = &mut chunk[..jn];
+        for i in 0..inner {
+            let wr = &w[i * outer + j0..i * outer + j0 + jn];
+            match &x32 {
+                Some(x32) => {
+                    let xv = x32[t * xs + i];
+                    if xv != 0 {
+                        for (a, wv) in acc.iter_mut().zip(wr) {
+                            *a += i64::from(xv * i32::from(*wv));
+                        }
+                    }
+                }
+                None => {
+                    let xv = x[t * xs + i];
+                    if xv != 0 {
+                        for (a, wv) in acc.iter_mut().zip(wr) {
+                            *a += xv * i64::from(*wv);
+                        }
+                    }
+                }
+            }
+        }
+    });
+    out
+}
+
+/// the SEQUENTIAL products of the round-2 builder, verbatim: the reference
+/// the parallel ones are tested equal to (`witness_speed_tests`)
+#[cfg(test)]
+pub(super) fn matmul_reference(t_true: usize, x: &[i64], xs: usize, w: &[i8], inner: usize, outer: usize, os: usize, out_len: usize, in_out: bool) -> Vec<i64> {
+    let mut out = vec![0i64; out_len];
+    for t in 0..t_true {
         for j in 0..outer {
-            out[t * os + j] = (0..inner).map(|i| x[t * xs + i] * i64::from(w[j * inner + i])).sum();
+            out[t * os + j] = if in_out {
+                (0..inner).map(|i| x[t * xs + i] * i64::from(w[i * outer + j])).sum()
+            } else {
+                (0..inner).map(|i| x[t * xs + i] * i64::from(w[j * inner + i])).sum()
+            };
         }
     }
     out
 }
 
-/// `out[t, j] = sum_i x[t, i] * w[i, j]`, `w` stored (input, output) — the
-/// feed-forward orientation, the kernel's `matmul_in_out`
-fn matmul_in_out(g: &Geom, x: &[i64], xs: usize, w: &[i8], inner: usize, outer: usize, os: usize, out_len: usize) -> Vec<i64> {
-    let mut out = vec![0i64; out_len];
-    for t in 0..g.t {
-        for j in 0..outer {
-            out[t * os + j] = (0..inner).map(|i| x[t * xs + i] * i64::from(w[i * outer + j])).sum();
-        }
+/// the parallel products at a shape, for the equality test
+#[cfg(test)]
+pub(super) fn matmul_parallel(sh: &Shape, x: &[i64], xs: usize, w: &[i8], inner: usize, outer: usize, os: usize, out_len: usize, in_out: bool) -> Vec<i64> {
+    let g = Geom::new(sh);
+    if in_out {
+        matmul_in_out(&g, x, xs, w, inner, outer, os, out_len)
+    } else {
+        matmul(&g, x, xs, w, inner, outer, os, out_len)
     }
-    out
 }
 
 /// half-split RoPE over `heads` heads per row, at stride `ws` on a plane of
@@ -497,16 +597,26 @@ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedFor
 
     // ---- scores over ALL (h, t, j): an out-of-range masked score still refuses ----
     let mut sacc = vec![0i64; sl];
-    for h in 0..g.hq {
-        // S9: the logical head sits at its padded SLOT, and its key-value
-        // head is the slot's HIGH bits (correction C-1)
-        let hs = g.slot(h);
-        let kv = h / g.group;
-        for t in 0..g.t {
-            for j in 0..g.t {
-                sacc[g.six(hs, t, j)] = (0..g.dh).map(|i| qr8[g.qix(t, hs, i)] * kr8[g.kvix(j, kv, i)]).sum();
-            }
+    // ROUND 3: one parallel task per padded head SLOT (each slot owns the
+    // contiguous `t_pad x t_pad` block of `Dom::S`); a padding slot stays zero
+    {
+        use rayon::prelude::*;
+        let mut head_of_slot: Vec<Option<usize>> = vec![None; g.h_pad];
+        for h in 0..g.hq {
+            head_of_slot[g.slot(h)] = Some(h);
         }
+        let blk = g.t_pad * g.t_pad;
+        sacc.par_chunks_mut(blk).enumerate().for_each(|(hs, ch)| {
+            // S9: the logical head sits at its padded SLOT, and its key-value
+            // head is the slot's HIGH bits (correction C-1)
+            let Some(h) = head_of_slot.get(hs).copied().flatten() else { return };
+            let kv = h / g.group;
+            for t in 0..g.t {
+                for j in 0..g.t {
+                    ch[t * g.t_pad + j] = (0..g.dh).map(|i| qr8[g.qix(t, hs, i)] * kr8[g.kvix(j, kv, i)]).sum();
+                }
+            }
+        });
     }
     let (s8, rsl) = quantize(&sacc, &sup_s, shape.sh_s, -127, 127, "score")?;
 

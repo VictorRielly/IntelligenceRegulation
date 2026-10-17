@@ -1,0 +1,18 @@
+[zk60-guard 03:48:14] START r3-stack-cpu-pg_rot1_b4_T32_cal128 class=cpu need=4G cap=7G enforce=cgroup+watchdog waited=0s run=561e0826303d
+[zk60-guard 03:49:10] END r3-stack-cpu-pg_rot1_b4_T32_cal128 exit=0 child_wall=56s peak_rss=2.15G min_avail=9.84G
+[zk60-guard 03:49:10] START r3-stack-verify-pg_rot1_b4_T32_cal128 class=cpu need=4G cap=7G enforce=cgroup+watchdog waited=0s run=cd2134c4c79a
+[zk60-guard 03:49:37] END r3-stack-verify-pg_rot1_b4_T32_cal128 exit=0 child_wall=27s peak_rss=1.57G min_avail=11.71G
+stack-verify pg_rot1_b4_T32_cal128 exit 0
+[zk60-guard 03:49:37] START r3-stack-cpu-pg_rot1_b4_T64_cal128 class=cpu need=4G cap=8G enforce=cgroup+watchdog waited=0s run=ab3cd6b176a6
+[zk60-guard 03:51:02] END r3-stack-cpu-pg_rot1_b4_T64_cal128 exit=0 child_wall=85s peak_rss=2.92G min_avail=10.20G
+[zk60-guard 03:51:02] START r3-stack-verify-pg_rot1_b4_T64_cal128 class=cpu need=4G cap=7G enforce=cgroup+watchdog waited=0s run=87ccac30c2d1
+[zk60-guard 03:51:37] END r3-stack-verify-pg_rot1_b4_T64_cal128 exit=0 child_wall=35s peak_rss=1.70G min_avail=11.71G
+stack-verify pg_rot1_b4_T64_cal128 exit 0
+[zk60-guard 03:51:37] START r3-stack-cpu-pg_rot1_b4_T128 class=cpu need=6G cap=10G enforce=cgroup+watchdog waited=0s run=7dabbaa0092d
+[zk60-guard 03:54:26] END r3-stack-cpu-pg_rot1_b4_T128 exit=0 child_wall=169s peak_rss=4.82G min_avail=5.94G
+[zk60-guard 03:54:26] START r3-stack-verify-pg_rot1_b4_T128 class=cpu need=4G cap=7G enforce=cgroup+watchdog waited=0s run=ce8411568d96
+[zk60-guard 03:55:21] END r3-stack-verify-pg_rot1_b4_T128 exit=0 child_wall=56s peak_rss=1.86G min_avail=8.80G
+stack-verify pg_rot1_b4_T128 exit 0
+[zk60-guard 03:55:21] START r3-stack-lie-T128 class=cpu need=5G cap=8G enforce=cgroup+watchdog waited=0s run=96912cf78f91
+[zk60-guard 03:55:42] END r3-stack-lie-T128 exit=0 child_wall=21s peak_rss=3.59G min_avail=7.86G
+lie control exit 0

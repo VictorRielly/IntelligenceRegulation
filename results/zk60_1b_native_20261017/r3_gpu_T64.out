@@ -1,0 +1,5 @@
+[zk60-guard 03:58:22] START r3-stack-gpu-pg_rot1_b4_T64_cal128 class=gpu need=4G cap=7G enforce=cgroup+watchdog waited=0s run=cd3c81b275d4
+[zk60-guard 03:59:51] END r3-stack-gpu-pg_rot1_b4_T64_cal128 exit=0 child_wall=89s peak_rss=2.31G min_avail=9.89G peak_vram=2529MiB
+[zk60-guard 03:59:51] START r3-stack-gpu-verify-pg_rot1_b4_T64_cal128 class=cpu need=4G cap=7G enforce=cgroup+watchdog waited=0s run=72d29cdc0d9b
+[zk60-guard 04:00:06] END r3-stack-gpu-verify-pg_rot1_b4_T64_cal128 exit=0 child_wall=15s peak_rss=1.44G min_avail=11.90G
+cpu verify of the gpu run exit 0

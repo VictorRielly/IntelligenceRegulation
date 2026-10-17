@@ -1,0 +1,35 @@
+{
+  "status": "pass",
+  "source": "https://arxiv.org/html/2609.24519v1",
+  "published": "2026-09-21",
+  "scope": "arithmetic reproduction of one encoding only; source peak ratios are author theoretical estimates, not GPU measurements",
+  "independent_pair_checks": 65536,
+  "contiguous_symmetric_coverage": 148,
+  "mutated_coefficient_mismatches": 42849,
+  "max_stored_plane_abs": 6,
+  "coefficients": [
+    -65,
+    -261,
+    259,
+    29,
+    37,
+    1073
+  ],
+  "fp32_accumulator_abs_sum_K_bound": 466033,
+  "native_i32_projection_K_bound": 132104,
+  "author_sm120_rtx_pro6000_awe_over_native_int8_peak_ratio": 0.3333333333333333,
+  "hardware_transfer_limit": "RTX PRO6000/B200 theoretical source; no5090 implementation/measurement. Six FP4 products+packing+reconstruction versus one native INT8. Do not promote reduced9->6 product count as improvement over native1.",
+  "seed": null,
+  "deterministic": true,
+  "wall_seconds": 0.16461372299818322,
+  "peak_rss_kib": 14352,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "estimated_memory_MiB": 32,
+  "AS_limit_MiB": 512,
+  "wall_cpu_limit_s": 59,
+  "output_sha256": "f0ba53f6de6e24d8f5e89203466337a133cca5a0beb1eb1a8d6841f1fd589de7",
+  "accepted_complete_8b_positions": 0
+}

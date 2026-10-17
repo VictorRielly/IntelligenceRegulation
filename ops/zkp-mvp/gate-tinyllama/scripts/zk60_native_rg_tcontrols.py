@@ -294,17 +294,29 @@ def terminal_controls(bundle, index, replay=None, old_bundle=None) -> dict:
 
     # ---------------------------------- CT-5: a flipped public-table entry
     geom = PadGeometry(bundle.run["shape"], index.domain_log)
-    cube = 1 << bundle.stages[0].doc["arguments"][17]["main"]
-    real = geom.supp("S", cube)
+    # [TINYLLAMA PORT 2026-10-17] CT-5 flipped an entry of supp(Dom::S),
+    # which exists only where Dom::S PADS -- every shape before TinyLlama.
+    # At the trained TinyLlama shape S, D, Q, Kv, Ht and T are exact and
+    # only F, L and Tab pad, so `supp("S")` is None.  The control's meaning
+    # is "a rebuilt public support table, one entry flipped, is caught by the
+    # capture's own digest"; it now takes the FIRST padded domain of this
+    # list, in its host slot, so at every earlier shape it is still Dom::S in
+    # slot 17 and no earlier record moves.
+    for dom5, slot5 in (("S", 17), ("F", 18), ("D", 14), ("Q", 15),
+                        ("Kv", 16), ("L", 3), ("T", 2), ("Tab", 19)):
+        cube = 1 << bundle.stages[0].doc["arguments"][slot5]["main"]
+        real = geom.supp(dom5, cube)
+        if real is not None:
+            break
     flipped = list(real)
     at = next(i2 for i2, x in enumerate(flipped) if x == 1)
     flipped[at] = 0
-    captured = next(t["sha256"] for t in bundle.stages[0].doc["arguments"][17]["tables"]
+    captured = next(t["sha256"] for t in bundle.stages[0].doc["arguments"][slot5]["tables"]
                     if t["kind"] == "public" and t["sha256"] == table_digest(real))
     out["controls"].append({
         "control": "CT-5",
-        "what": f"one entry (index {at}) of the rebuilt supp(Dom::S) table flipped "
-                "from 1 to 0",
+        "what": f"one entry (index {at}) of the rebuilt supp(Dom::{dom5}) table "
+                f"(slot {slot5:02d}) flipped from 1 to 0",
         "mechanism": "the SHA-256 the capture carries for that public table",
         "the_honest_table_matches_the_capture": table_digest(real) == captured,
         "the_flipped_table_does_not": table_digest(flipped) != captured,

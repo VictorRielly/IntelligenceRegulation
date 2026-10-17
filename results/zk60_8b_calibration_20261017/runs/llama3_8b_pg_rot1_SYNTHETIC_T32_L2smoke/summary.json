@@ -1,0 +1,270 @@
+{
+ "args": {
+  "T": 32,
+  "calib_T": null,
+  "calib_per": 3,
+  "chunk": 8,
+  "export": false,
+  "export_seqs": 2,
+  "fw_calib": 27,
+  "fw_heldout": 36,
+  "heldout_per": 4,
+  "iso_seqs": 12,
+  "layers": 2,
+  "rotate": 1,
+  "site_seqs": 3,
+  "synthetic": true,
+  "tag": "",
+  "tokenizer": null,
+  "variant": "pg"
+ },
+ "calib_sequences": [
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  }
+ ],
+ "calibration": {
+  "T_cal": 32,
+  "sequences": 24
+ },
+ "checkpoint_identity": {
+  "config_sha256": "2430cee764b6530ff8673cf9ba8561e1d5a33152d503cd0de909ff5718261441",
+  "schema": "zk60-llama-layer-inventory/1",
+  "shard_sha256": {
+   "model-00001-of-00004.safetensors": "f2c144103072514542e327fa8080bd375cb300f2d453fba9ca3aea81d0d4cf33",
+   "model-00002-of-00004.safetensors": "d9eee5f23d94405d90b7e9ff88b9443fee42f8528a658f54214c2aba7530d80c",
+   "model-00003-of-00004.safetensors": "4b8fbc5e113f69768dd8de84661ea20af8a32b734a9976144b4236c447b40ccc",
+   "model-00004-of-00004.safetensors": "5dc34e6bdf2da9e35f0d93b5c333c870f3677dc43dc3a91ea3a8ad28a1fe1acb"
+  },
+  "tensor_count": 291
+ },
+ "heldout_first_refusal": [
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null
+ ],
+ "heldout_refused": 0,
+ "heldout_sequences": [
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  },
+  {
+   "domain": "synthetic",
+   "source": "synthetic"
+  }
+ ],
+ "model": {
+  "licence": "Meta Llama 3 Community License (text recorded from the repo's model card in results/zk60_mvp_20260929/llama3-8b/provider_metadata.json; LICENSE / USE_POLICY.md not downloaded)",
+  "name": "Llama-3-8B (Meta Llama 3)",
+  "repo": "NousResearch/Meta-Llama-3-8B",
+  "revision": "315b20096dc791d381d514deb5f8bd9c8d6d3061",
+  "shards_sha256": {
+   "model-00001-of-00004.safetensors": "f2c144103072514542e327fa8080bd375cb300f2d453fba9ca3aea81d0d4cf33",
+   "model-00002-of-00004.safetensors": "d9eee5f23d94405d90b7e9ff88b9443fee42f8528a658f54214c2aba7530d80c",
+   "model-00003-of-00004.safetensors": "4b8fbc5e113f69768dd8de84661ea20af8a32b734a9976144b4236c447b40ccc",
+   "model-00004-of-00004.safetensors": "5dc34e6bdf2da9e35f0d93b5c333c870f3677dc43dc3a91ea3a8ad28a1fe1acb"
+  }
+ },
+ "profile": {
+  "cn_a": 1595,
+  "cn_m": 834,
+  "e_s": null,
+  "s_in": [
+   0.000557280374074632,
+   0.000557280374074632
+  ],
+  "s_out": [
+   0.000557280374074632,
+   0.000557280374074632
+  ],
+  "shifts": {
+   "ao": 6,
+   "g": 8,
+   "h": 16,
+   "o": 9,
+   "qkv": 8,
+   "rope": 7,
+   "s": 7,
+   "u": 0,
+   "z": 5
+  },
+  "silu": null
+ },
+ "seconds": 307.3846924304962,
+ "tokenizer": {
+  "kind": "SYNTHETIC (plumbing only)"
+ },
+ "tool_sha256": {
+  "b3_ladder.py": "13675c3b7797bd65b1954b2cee922381333c0ecc323dd3b1be9e8be8e8b16f0b",
+  "b3calib.py": "f2994c63649328569d92923bf615f0dd97d2664853c350faadec1472cfdbe27c",
+  "b5_8b.py": "b7f87d18de451289998ae3d73f17d5eaadac6c21fb2da4808dab0641d41628d9",
+  "corpus.py": "273e4ef41f8b18fb14b0e3568f9825ba6c0d4c09e08ebfad323c6c77543ba7f6",
+  "corpus4.py": "1b3b08ca070391d76e8b8b91f3a5a7247d567553052085e9dd0f139f7f51da0c",
+  "tlcalib.py": "1c373d16e66b575261b995015e5b72f686bfb08cf02a588a1f1d86b1bdba56c3"
+ },
+ "variant": "llama3_8b_pg_rot1_SYNTHETIC_T32_L2smoke",
+ "variant_options": {
+  "cn_max": 1048576,
+  "f_e": 9,
+  "f_p": 9,
+  "margin": 0.5,
+  "margin_ch": 3.0,
+  "margin_pow2": 0.25,
+  "name": "pg",
+  "norm_cn": "profile",
+  "o16": false,
+  "residual": "global",
+  "rotate": 1,
+  "shapes": [
+   "range",
+   "smooth",
+   "gamma"
+  ],
+  "shifts": "profile",
+  "tables": "layer",
+  "tn": 9
+ }
+}

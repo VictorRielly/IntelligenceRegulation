@@ -1,0 +1,9 @@
+[
+  "exact quantized integer matrix multiplication GPU int64 accumulation overflow CUTLASS2026 zero knowledge witness",
+  "zero knowledge inference exact quantization rounding witness GPU2026 zkLLM zkGPT",
+  "Ozaki scheme int8 exact integer matrix multiplication2025 2026 Ootomo Ozaki ozIMMU GitHub",
+  "site:github.com/NVIDIA/cutlass int8 saturating OpMultiplyAddSaturate int32",
+  "site:arxiv.org integer matrix2026 exact GPU witness",
+  "site:github.com/NVIDIA/cutlass/releases4.8.0",
+  "DGEMM on Integer Matrix Multiplication Unit ozIMMU"
+]

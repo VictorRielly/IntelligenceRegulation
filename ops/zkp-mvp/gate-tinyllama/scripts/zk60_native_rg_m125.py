@@ -90,7 +90,9 @@ class Driver:
         os.makedirs(evidence, exist_ok=True)
         self.path = os.path.join(evidence, f"{name}.json")
         self.rec = {
-            "gate": "zk60-native-run-gate, staged at the 125M shape",
+            # [TINYLLAMA PORT] the shape is named from the bundle at load;
+            # this placeholder never survives a run that loads one
+            "gate": "zk60-native-run-gate, staged (shape named at load)",
             "round": 9,
             "privacy_property_established": False,
             "privacy_acceptance": False,
@@ -158,6 +160,20 @@ class Driver:
         self.rec["bundle_dir"] = self.bundle.dir
         self.rec["schema"] = self.bundle.schema
         self.rec["blocks"] = self.bundle.blocks
+        # [TINYLLAMA PORT 2026-10-17] the record names the shape it read
+        # instead of the literal "125M" the 125M round wrote; a bundle
+        # whose shape declares a trained calibration also records it
+        shape_name = self.bundle.run["shape"]["name"]
+        self.rec["gate"] = f"zk60-native-run-gate, staged at the shape {shape_name!r}"
+        self.rec["shape_name"] = shape_name
+        self.rec["what_this_is"] = (
+            "the linear channels of ONE captured private run at the shape "
+            f"{shape_name!r}, at that run's real challenges, stage by stage "
+            "with each stage's wall clock and the process's peak resident set")
+        if self.bundle.run["shape"].get("trained_calibration") is True:
+            from zk60_native_rg_terminals import Calibration
+            self.rec["trained_calibration"] = Calibration(
+                self.bundle.run["shape"]).record()
         self.rec["prediction"] = predict(self.bundle)
         if block:
             self.rec["standalone_block"] = True
@@ -361,11 +377,14 @@ class Driver:
         block = getattr(self.bundle, "standalone", False)
         # [ROUND 9m] the run sentence said "two-block" as a literal; a
         # twelve-block run gets its own (a two-block record keeps its bytes)
-        two = ("linear channels of ONE captured two-block run at the 125M "
-               "shape, at that run's real challenges.  Two runs are not a "
+        # [TINYLLAMA PORT] the shape's own name, not the literal "125M"
+        at = (" at the 125M shape" if "125M" in self.rec.get("shape_name", "125M")
+              else f" at the shape {self.rec.get('shape_name')!r}")
+        two = (f"linear channels of ONE captured two-block run{at}, at that "
+               "run's real challenges.  Two runs are not a "
                "distribution and two blocks are not twelve")
         many = (f"linear channels of ONE captured {self.bundle.blocks}-block "
-                "run at the 125M shape, at that run's real challenges.  One "
+                f"run{at}, at that run's real challenges.  One "
                 "run is not a distribution, and a dense and an all-zero run "
                 "are two witnesses, not the space of witnesses")
         self.rec["what_it_does_not_show"] = [

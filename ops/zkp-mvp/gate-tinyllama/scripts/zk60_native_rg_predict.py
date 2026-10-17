@@ -225,8 +225,20 @@ def corrections_and_geometry(bundle) -> dict:
       reserved IO-tab row.
     """
     sh = bundle.shape.raw
-    d_max = _isqrt(1 + sh["width"] * 32767 ** 2)
-    wrho = 12 + d_max.bit_length()
+    # [TINYLLAMA PORT 2026-10-17] decision D24's window.  A TRAINED-
+    # calibration shape derives `D_max = isqrt(Ceps + width * 32768^2)` --
+    # int16 INCLUDES -32768 (contract review of 2026-09-30) and Ceps is the
+    # profile's -- and `wrho = tn + 1 + bit_length(D_max)`
+    # (`NormCalibration::derive_at_width`).  A frozen shape keeps the frozen
+    # rule `isqrt(1 + width * 32767^2)` and `12 + bit_length` byte for byte,
+    # so no prediction validated at a development shape moves.
+    trained = sh.get("trained_calibration") is True
+    if trained:
+        d_max = _isqrt(sh["norm_ceps"] + sh["width"] * 32768 ** 2)
+        wrho = sh["norm_tn"] + 1 + d_max.bit_length()
+    else:
+        d_max = _isqrt(1 + sh["width"] * 32767 ** 2)
+        wrho = 12 + d_max.bit_length()
     c6 = wrho % 8 == 0
     logs = domain_logs(bundle)
     helps = helper_counts(bundle)
@@ -238,12 +250,24 @@ def corrections_and_geometry(bundle) -> dict:
     return {
         "correction_c6": {
             "d_max": d_max,
+            # [TINYLLAMA PORT] which rule derived it, and the shape's own
+            # `d_max` beside it (present only on a trained bundle, so a
+            # frozen record gains no leaf)
+            **({"window_rule": "D24 trained: isqrt(Ceps + width * 32768^2), "
+                "tn + 1 + bit_length(D_max)",
+                "d_max_declared": sh.get("d_max"),
+                "d_max_equal": d_max == sh.get("d_max"),
+                "norm_tn": sh["norm_tn"], "norm_ceps": sh["norm_ceps"]}
+               if trained else {}),
             "norm_wrho_derived": wrho,
             "norm_wrho_declared": sh.get("norm_wrho"),
             "norm_wrho_equal": wrho == sh.get("norm_wrho"),
             "norm_top_is_full_byte": c6,
-            "why": "the window is 12 + bit_length(D_max) and C-6 applies "
-            "exactly when that is a multiple of 8, which needs width > 256",
+            "why": ("the window is tn + 1 + bit_length(D_max) (D24) and C-6 "
+                    "applies exactly when that is a multiple of 8"
+                    if trained else
+                    "the window is 12 + bit_length(D_max) and C-6 applies "
+                    "exactly when that is a multiple of 8, which needs width > 256"),
             "lookups_dropped": 4 if c6 else 0,
             "d_helper_planes_predicted":
                 D_HELPERS_C6_ON if c6 else D_HELPERS_C6_OFF,

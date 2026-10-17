@@ -1,0 +1,16 @@
+[10:51:21Z] B5 llama3_8b_pg_rot1_SYNTHETIC_T32_L2smoke: {'variant': 'pg', 'rotate': 1, 'T': 32, 'calib_T': None, 'tokenizer': None, 'synthetic': True, 'calib_per': 3, 'heldout_per': 4, 'fw_calib': 27, 'fw_heldout': 36, 'iso_seqs': 12, 'site_seqs': 3, 'chunk': 8, 'layers': 2, 'tag': '', 'export': False, 'export_seqs': 2}; Variant(name='pg', norm_cn='profile', tables='layer', residual='global', shifts='profile', rotate=1, margin=0.5, margin_ch=3.0, margin_pow2=0.25, tn=9, cn_max=1048576, shapes=('range', 'smooth', 'gamma'), o16=False, f_e=9, f_p=9); threads 4
+[10:51:21Z] exact-mm selfcheck {'int8xint8 d2048': True, 'int16xint8 f5632': True}; native table pins True
+[10:51:44Z] checkpoint pinned (23s): {'model-00001-of-00004.safetensors': 'f2c144103072514542e327fa8080bd375cb300f2d453fba9ca3aea81d0d4cf33', 'model-00002-of-00004.safetensors': 'd9eee5f23d94405d90b7e9ff88b9443fee42f8528a658f54214c2aba7530d80c', 'model-00003-of-00004.safetensors': '4b8fbc5e113f69768dd8de84661ea20af8a32b734a9976144b4236c447b40ccc', 'model-00004-of-00004.safetensors': '5dc34e6bdf2da9e35f0d93b5c333c870f3677dc43dc3a91ea3a8ad28a1fe1acb'}
+[10:51:44Z] tokenizer {'kind': 'SYNTHETIC (plumbing only)'}; calib (24, 32) held-out (12, 32) domains {'synthetic': 12}
+[10:52:35Z] pass 1 done (74s)
+[10:53:26Z] prepass-1 L00 cn 1595/834 shape gamma/gamma noise 0.101/0.008 e_s 2 silu [-4, -12] shifts {'qkv': 8, 'rope': 7, 's': 7, 'o': 9, 'ao': 7, 'g': 8, 'u': 0, 'h': 16, 'z': 8} (51s)
+[10:54:20Z] prepass-1 L01 cn 1385/438 shape gamma/gamma noise 0.111/0.000 e_s 2 silu [-2, -11] shifts {'qkv': 8, 'rope': 7, 's': 7, 'o': 9, 'ao': 6, 'g': 8, 'u': 0, 'h': 16, 'z': 5} (105s)
+[10:54:20Z] profile shift set (min over layers for ao/z, median otherwise): {'qkv': 8, 'rope': 7, 's': 7, 'o': 9, 'ao': 6, 'g': 8, 'u': 0, 'h': 16, 'z': 5}
+[10:54:52Z] prepass-2 L00 e_s 2 range in/out 2.41e-06/2.49e-05 floors ao 0.000165 z 2.59e-05 (138s)
+[10:55:26Z] prepass-2 L01 e_s 2 range in/out 2.5e-05/0.000557 floors ao 0.000371 z 0.000297 (171s)
+[10:55:26Z] profile decisions: cn 1595/834 shifts {'qkv': 8, 'rope': 7, 's': 7, 'o': 9, 'ao': 6, 'g': 8, 'u': 0, 'h': 16, 'z': 5} s_x 0.0005573
+[10:55:58Z] L00 e_s 2 silu (-4, -12) | iso cos 0.98038 dcos 0.9705 | chain cos 0.98038 | viol iso 0 chain 0 | refused 0 | clip {} | float absmax 0.5 (p0 0.5) (32s)
+[10:55:58Z]     site rel err: norm_a 0.049 q 0.087 k 0.069 v 0.060 qr 0.093 kr 0.073 score 0.080 prob 0.170 o 0.273 ao 0.235 norm_m 0.155 gate 0.233 act 0.238 up 0.181 h 0.142 z 0.119 x2 0.114 update 0.121
+[10:56:28Z] L01 e_s 2 silu (-2, -11) | iso cos 0.82025 dcos 0.7123 | chain cos 0.81229 | viol iso 0 chain 0 | refused 0 | clip {} | float absmax 11.7 (p0 11.7) (30s)
+[10:56:28Z]     site rel err: norm_a 0.048 q 0.129 k 0.092 v 0.057 qr 0.132 kr 0.093 score 0.419 prob 0.677 o 1.974 ao 1.700 norm_m 0.549 gate 0.842 act 0.788 up 0.580 h 0.018 z 0.013 x2 0.016 update 0.016
+[10:56:28Z] done (307s) -> /home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/runs/llama3_8b_pg_rot1_SYNTHETIC_T32_L2smoke

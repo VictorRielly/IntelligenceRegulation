@@ -1,0 +1,62 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/witness.rs",
+    "snapshot": "experiments/exact-witness-limb-census-20261017/native/ops__zkp-mvp__trained-1b__hashline__src__private_block__witness.rs",
+    "sha256": "73a06441e7d8d1720da3e6ad0421fdca8a481235de26fe746f7bbb4e28f6a3f5",
+    "bytes": 30136
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/shape.rs",
+    "snapshot": "experiments/exact-witness-limb-census-20261017/native/ops__zkp-mvp__trained-1b__hashline__src__private_block__shape.rs",
+    "sha256": "840543909944b68a09d523e839b4b97348bf1c12ebc1e3525a72f5f9970aa100",
+    "bytes": 97324
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/run.rs",
+    "snapshot": "experiments/exact-witness-limb-census-20261017/native/ops__zkp-mvp__trained-1b__hashline__src__private_block__run.rs",
+    "sha256": "296aeaafd3bd8a026c93f04f66d5a0dd4c200c81fa31f94e71a86d8d8eebdbe5",
+    "bytes": 51941
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/trained_block.rs",
+    "snapshot": "experiments/exact-witness-limb-census-20261017/native/ops__zkp-mvp__trained-1b__hashline__src__private_block__trained_block.rs",
+    "sha256": "46a77d378e6907f7eb229a0235e261e99f23dc8b127db0e4dea70d11fe3a1922",
+    "bytes": 92983
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/mvp_driver.rs",
+    "snapshot": "experiments/exact-witness-limb-census-20261017/native/ops__zkp-mvp__trained-1b__hashline__src__private_block__mvp_driver.rs",
+    "sha256": "5782211834b899e08ff3d4097b4a40a652156768e1d479476adbfdfa54a20260",
+    "bytes": 57022
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r2/stack-pg_rot1-ho00-cpu/prove.log",
+    "snapshot": "experiments/exact-witness-limb-census-20261017/native/results__zk60_1b_native_20261017__r2__stack-pg_rot1-ho00-cpu__prove.log",
+    "sha256": "de54a93acdaeb091b773827a6a1776ad986ebdfecbd87fb1992b1a52df75a53b",
+    "bytes": 3515
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r2/stack-pg_rot1-ho00-cpu/verify.log",
+    "snapshot": "experiments/exact-witness-limb-census-20261017/native/results__zk60_1b_native_20261017__r2__stack-pg_rot1-ho00-cpu__verify.log",
+    "sha256": "6bc4400dabfd67b53083244ac5d008bda895b1de6e3c14fc957fa379ea594717",
+    "bytes": 2326
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r2/stack-pg_rot1-ho00-gpu/prove.log",
+    "snapshot": "experiments/exact-witness-limb-census-20261017/native/results__zk60_1b_native_20261017__r2__stack-pg_rot1-ho00-gpu__prove.log",
+    "sha256": "5e5023c21b884f70f4ede9680e72833bd3aedda1646d8034c658a4aecf18c384",
+    "bytes": 5972
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r2/stack-pg_rot1-ho00-gpu/verify.log",
+    "snapshot": "experiments/exact-witness-limb-census-20261017/native/results__zk60_1b_native_20261017__r2__stack-pg_rot1-ho00-gpu__verify.log",
+    "sha256": "b309f1cf5598b9b5fe0e1c8458780cee3c9039023a84367d671338fdc2e5d8ee",
+    "bytes": 563
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/examples/zk60_trained_block.rs",
+    "snapshot": "experiments/exact-witness-limb-census-20261017/native/ops__zkp-mvp__trained-1b__hashline__examples__zk60_trained_block.rs",
+    "sha256": "a9ce02e90675d68af85a37c4e1f5a716f0f99d284d7d32b4a6d4bb4c91132721",
+    "bytes": 3056
+  }
+]

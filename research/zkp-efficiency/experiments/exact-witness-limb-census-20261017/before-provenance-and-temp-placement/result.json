@@ -1,0 +1,852 @@
+{
+  "status": "pass",
+  "cycle": "0060",
+  "run_id": "20261017T102624Z-c13de864",
+  "seed": 2026101760,
+  "counts": {
+    "fixtures": 200,
+    "raw_dot_reference_checks": 17820,
+    "kernel_output_checks": 59496,
+    "requant_reference_checks": 318888,
+    "padding_checks": 6348
+  },
+  "controls": {
+    "unchecked narrow cast of128": "detected",
+    "norm class excludes minus128": "detected",
+    "shape K above exact i32 bound": "detected",
+    "transpose orientation": "detected",
+    "drop supplied padded K coordinate": "detected",
+    "unsigned weight conversion": "detected",
+    "ties to even changes native plus infinity": "detected",
+    "negative tie ties-to-even changes quotient and remainder": "detected",
+    "partial K requantization": "detected",
+    "FP32 accumulation loses cancellation": "detected",
+    "wrongly route int16 down to direct i32": "detected",
+    "up failure before gate refusal": "detected"
+  },
+  "extremes": [
+    {
+      "k": 2048,
+      "x": -127,
+      "w": -128,
+      "dot": 33292288,
+      "orientation": 0
+    },
+    {
+      "k": 2048,
+      "x": -127,
+      "w": -128,
+      "dot": 33292288,
+      "orientation": 1
+    },
+    {
+      "k": 2048,
+      "x": -127,
+      "w": 127,
+      "dot": -33032192,
+      "orientation": 0
+    },
+    {
+      "k": 2048,
+      "x": -127,
+      "w": 127,
+      "dot": -33032192,
+      "orientation": 1
+    },
+    {
+      "k": 2048,
+      "x": 127,
+      "w": -128,
+      "dot": -33292288,
+      "orientation": 0
+    },
+    {
+      "k": 2048,
+      "x": 127,
+      "w": -128,
+      "dot": -33292288,
+      "orientation": 1
+    },
+    {
+      "k": 2048,
+      "x": 127,
+      "w": 127,
+      "dot": 33032192,
+      "orientation": 0
+    },
+    {
+      "k": 2048,
+      "x": 127,
+      "w": 127,
+      "dot": 33032192,
+      "orientation": 1
+    },
+    {
+      "k": 4096,
+      "x": -127,
+      "w": -128,
+      "dot": 66584576,
+      "orientation": 0
+    },
+    {
+      "k": 4096,
+      "x": -127,
+      "w": -128,
+      "dot": 66584576,
+      "orientation": 1
+    },
+    {
+      "k": 4096,
+      "x": -127,
+      "w": 127,
+      "dot": -66064384,
+      "orientation": 0
+    },
+    {
+      "k": 4096,
+      "x": -127,
+      "w": 127,
+      "dot": -66064384,
+      "orientation": 1
+    },
+    {
+      "k": 4096,
+      "x": 127,
+      "w": -128,
+      "dot": -66584576,
+      "orientation": 0
+    },
+    {
+      "k": 4096,
+      "x": 127,
+      "w": -128,
+      "dot": -66584576,
+      "orientation": 1
+    },
+    {
+      "k": 4096,
+      "x": 127,
+      "w": 127,
+      "dot": 66064384,
+      "orientation": 0
+    },
+    {
+      "k": 4096,
+      "x": 127,
+      "w": 127,
+      "dot": 66064384,
+      "orientation": 1
+    },
+    {
+      "k": 8192,
+      "x": -127,
+      "w": -128,
+      "dot": 133169152,
+      "orientation": 0
+    },
+    {
+      "k": 8192,
+      "x": -127,
+      "w": -128,
+      "dot": 133169152,
+      "orientation": 1
+    },
+    {
+      "k": 8192,
+      "x": -127,
+      "w": 127,
+      "dot": -132128768,
+      "orientation": 0
+    },
+    {
+      "k": 8192,
+      "x": -127,
+      "w": 127,
+      "dot": -132128768,
+      "orientation": 1
+    },
+    {
+      "k": 8192,
+      "x": 127,
+      "w": -128,
+      "dot": -133169152,
+      "orientation": 0
+    },
+    {
+      "k": 8192,
+      "x": 127,
+      "w": -128,
+      "dot": -133169152,
+      "orientation": 1
+    },
+    {
+      "k": 8192,
+      "x": 127,
+      "w": 127,
+      "dot": 132128768,
+      "orientation": 0
+    },
+    {
+      "k": 8192,
+      "x": 127,
+      "w": 127,
+      "dot": 132128768,
+      "orientation": 1
+    },
+    {
+      "k": 16384,
+      "x": -127,
+      "w": -128,
+      "dot": 266338304,
+      "orientation": 0
+    },
+    {
+      "k": 16384,
+      "x": -127,
+      "w": -128,
+      "dot": 266338304,
+      "orientation": 1
+    },
+    {
+      "k": 16384,
+      "x": -127,
+      "w": 127,
+      "dot": -264257536,
+      "orientation": 0
+    },
+    {
+      "k": 16384,
+      "x": -127,
+      "w": 127,
+      "dot": -264257536,
+      "orientation": 1
+    },
+    {
+      "k": 16384,
+      "x": 127,
+      "w": -128,
+      "dot": -266338304,
+      "orientation": 0
+    },
+    {
+      "k": 16384,
+      "x": 127,
+      "w": -128,
+      "dot": -266338304,
+      "orientation": 1
+    },
+    {
+      "k": 16384,
+      "x": 127,
+      "w": 127,
+      "dot": 264257536,
+      "orientation": 0
+    },
+    {
+      "k": 16384,
+      "x": 127,
+      "w": 127,
+      "dot": 264257536,
+      "orientation": 1
+    }
+  ],
+  "cpu_microbenchmarks": [
+    {
+      "orientation": "OI",
+      "T": 4,
+      "K": 128,
+      "N": 256,
+      "macs": 131072,
+      "seconds_samples": {
+        "0": [
+          7.820266667598237e-05,
+          7.785466489925359e-05,
+          8.95736666279845e-05,
+          7.51530023990199e-05,
+          7.521166601994385e-05,
+          9.935866546584293e-05,
+          8.005666798756768e-05
+        ],
+        "1": [
+          1.6517001010167103e-05,
+          1.6125668480526656e-05,
+          1.6328667697962373e-05,
+          1.5613334350443136e-05,
+          1.5702333863979828e-05,
+          1.5552000453074772e-05,
+          1.65946670070601e-05
+        ],
+        "2": [
+          1.6229998436756432e-05,
+          1.6178666555788368e-05,
+          1.5803001588210464e-05,
+          1.570466459573557e-05,
+          1.5847331572634477e-05,
+          1.5650664863642305e-05,
+          1.6451333067379892e-05
+        ]
+      },
+      "median_seconds": {
+        "0": 7.820266667598237e-05,
+        "1": 1.6125668480526656e-05,
+        "2": 1.5847331572634477e-05
+      },
+      "wide_over_narrow": 4.849576733542541,
+      "wide_over_tiled": 4.934752978288437,
+      "scope": "shared CPU synthetic C helper incl pack/zero/widen; common allocations excluded; not Rust/native/model proof"
+    },
+    {
+      "orientation": "OI",
+      "T": 8,
+      "K": 256,
+      "N": 512,
+      "macs": 1048576,
+      "seconds_samples": {
+        "0": [
+          0.0010368343331113767,
+          0.0008425333338285176,
+          0.000854023999030081,
+          0.0010217863333915982,
+          0.0009703760006232187,
+          0.0009178076676713923,
+          0.0007982426662541305
+        ],
+        "1": [
+          0.00021065599867142737,
+          0.0002001570004116123,
+          0.00022147666701736549,
+          0.00019518600068598366,
+          0.0001866536670907711,
+          0.0001879626676479044,
+          0.00021064300138580924
+        ],
+        "2": [
+          0.00020385033470423272,
+          0.00021522700020189708,
+          0.00018451833360207578,
+          0.0002025300006304557,
+          0.00020152799940357605,
+          0.0001866516686277464,
+          0.0002069656644986632
+        ]
+      },
+      "median_seconds": {
+        "0": 0.0009178076676713923,
+        "1": 0.0002001570004116123,
+        "2": 0.0002025300006304557
+      },
+      "wide_over_narrow": 4.585438759493644,
+      "wide_over_tiled": 4.531712165182188,
+      "scope": "shared CPU synthetic C helper incl pack/zero/widen; common allocations excluded; not Rust/native/model proof"
+    },
+    {
+      "orientation": "OI",
+      "T": 4,
+      "K": 512,
+      "N": 1024,
+      "macs": 2097152,
+      "seconds_samples": {
+        "0": [
+          0.0020543643331620842,
+          0.0019971816655015573,
+          0.0019092350000088725,
+          0.002014987333192645,
+          0.0020562743326687873,
+          0.0015923790003095444,
+          0.001329194667050615
+        ],
+        "1": [
+          0.0003851119981845841,
+          0.0003413856660093491,
+          0.0003521416656440124,
+          0.00041003966665205854,
+          0.0004263836672180332,
+          0.0003833469988118547,
+          0.0002698043341903637
+        ],
+        "2": [
+          0.00034684400210001815,
+          0.0002565573328562702,
+          0.0003971419985949372,
+          0.0004246479996557658,
+          0.00043584233450625714,
+          0.0004259993341596176,
+          0.00028308800150019425
+        ]
+      },
+      "median_seconds": {
+        "0": 0.0019971816655015573,
+        "1": 0.0003833469988118547,
+        "2": 0.0003971419985949372
+      },
+      "wide_over_narrow": 5.209853400943845,
+      "wide_over_tiled": 5.028885568807775,
+      "scope": "shared CPU synthetic C helper incl pack/zero/widen; common allocations excluded; not Rust/native/model proof"
+    },
+    {
+      "orientation": "IO",
+      "T": 4,
+      "K": 128,
+      "N": 256,
+      "macs": 131072,
+      "seconds_samples": {
+        "0": [
+          0.00012915933378584063,
+          0.00013400166790233925,
+          0.00013067266506065303,
+          0.00013594733415326724,
+          6.172566645545885e-05,
+          6.59956664700682e-05,
+          5.478199940019598e-05
+        ],
+        "1": [
+          0.00014297433275108537,
+          0.0001408206662745215,
+          0.00014133300040460503,
+          0.00014791933305483931,
+          7.79986658017151e-05,
+          6.751933445533116e-05,
+          6.378700102989872e-05
+        ],
+        "2": [
+          2.6555331714916974e-05,
+          2.5464333399819832e-05,
+          2.567933309668054e-05,
+          2.5114333160066355e-05,
+          2.279833279317245e-05,
+          1.8279334957090516e-05,
+          1.7819998902268708e-05
+        ]
+      },
+      "median_seconds": {
+        "0": 0.00012915933378584063,
+        "1": 0.0001408206662745215,
+        "2": 2.5114333160066355e-05
+      },
+      "wide_over_narrow": 0.9171901909202177,
+      "wide_over_tiled": 5.14285340417533,
+      "scope": "shared CPU synthetic C helper incl pack/zero/widen; common allocations excluded; not Rust/native/model proof"
+    },
+    {
+      "orientation": "IO",
+      "T": 8,
+      "K": 256,
+      "N": 512,
+      "macs": 1048576,
+      "seconds_samples": {
+        "0": [
+          0.0013599493346797924,
+          0.0014002916650497355,
+          0.0013181019991558667,
+          0.001355246332726286,
+          0.0013372626660081248,
+          0.001137974664743524,
+          0.0015550886649483193
+        ],
+        "1": [
+          0.0012752046677633189,
+          0.0013407403336411032,
+          0.0015034639994458605,
+          0.0018667826661840081,
+          0.0018081913318989489,
+          0.0013432286674894083,
+          0.0014002576669251237
+        ],
+        "2": [
+          0.00011999566777376458,
+          0.00014477999987623966,
+          0.00018179633237499124,
+          0.0001841300011922916,
+          0.00019329933517534906,
+          0.00018401733298863596,
+          0.000152393666212447
+        ]
+      },
+      "median_seconds": {
+        "0": 0.001355246332726286,
+        "1": 0.0014002576669251237,
+        "2": 0.00018179633237499124
+      },
+      "wide_over_narrow": 0.9678549632242474,
+      "wide_over_tiled": 7.454750681827947,
+      "scope": "shared CPU synthetic C helper incl pack/zero/widen; common allocations excluded; not Rust/native/model proof"
+    },
+    {
+      "orientation": "IO",
+      "T": 4,
+      "K": 512,
+      "N": 1024,
+      "macs": 2097152,
+      "seconds_samples": {
+        "0": [
+          0.002833417999985007,
+          0.002971230666541184,
+          0.002636300998953326,
+          0.002430808999633882,
+          0.0026410330004485636,
+          0.0026540396647760645,
+          0.0029122043342795223
+        ],
+        "1": [
+          0.0024638406660718224,
+          0.0030193136675128094,
+          0.0034725529985735193,
+          0.001988920999186424,
+          0.001987993333993169,
+          0.0029729376668304517,
+          0.0032038849991901466
+        ],
+        "2": [
+          0.00032950666597268236,
+          0.0002483730010377864,
+          0.0002891363328672014,
+          0.00023869500000728294,
+          0.0003754009982609811,
+          0.0003571163324522786,
+          0.000407889332564082
+        ]
+      },
+      "median_seconds": {
+        "0": 0.0026540396647760645,
+        "1": 0.0029729376668304517,
+        "2": 0.00032950666597268236
+      },
+      "wide_over_narrow": 0.8927330345293196,
+      "wide_over_tiled": 8.05458565441009,
+      "scope": "shared CPU synthetic C helper incl pack/zero/widen; common allocations excluded; not Rust/native/model proof"
+    }
+  ],
+  "source_loop_census": [
+    {
+      "name": "TinyLlama-trained-T32",
+      "T": 32,
+      "D": 2048,
+      "F": 5632,
+      "Dpad": 2048,
+      "Fpad": 8192,
+      "kv_width": 256,
+      "layers": 22,
+      "sites": [
+        {
+          "name": "Q",
+          "K": 2048,
+          "N": 2048,
+          "orientation": "OI",
+          "activation_abs_bound": 127,
+          "acc_abs_bound": 33292288,
+          "direct_i32_exact": true,
+          "macs_one_build": 134217728
+        },
+        {
+          "name": "K",
+          "K": 2048,
+          "N": 256,
+          "orientation": "OI",
+          "activation_abs_bound": 127,
+          "acc_abs_bound": 33292288,
+          "direct_i32_exact": true,
+          "macs_one_build": 16777216
+        },
+        {
+          "name": "V",
+          "K": 2048,
+          "N": 256,
+          "orientation": "OI",
+          "activation_abs_bound": 127,
+          "acc_abs_bound": 33292288,
+          "direct_i32_exact": true,
+          "macs_one_build": 16777216
+        },
+        {
+          "name": "AO",
+          "K": 2048,
+          "N": 2048,
+          "orientation": "OI",
+          "activation_abs_bound": 127,
+          "acc_abs_bound": 33292288,
+          "direct_i32_exact": true,
+          "macs_one_build": 134217728
+        },
+        {
+          "name": "gate",
+          "K": 2048,
+          "N": 8192,
+          "orientation": "IO",
+          "activation_abs_bound": 127,
+          "acc_abs_bound": 33292288,
+          "direct_i32_exact": true,
+          "macs_one_build": 536870912
+        },
+        {
+          "name": "up",
+          "K": 2048,
+          "N": 8192,
+          "orientation": "IO",
+          "activation_abs_bound": 127,
+          "acc_abs_bound": 33292288,
+          "direct_i32_exact": true,
+          "macs_one_build": 536870912
+        },
+        {
+          "name": "down",
+          "K": 8192,
+          "N": 2048,
+          "orientation": "IO",
+          "activation_abs_bound": 32768,
+          "acc_abs_bound": 34359738368,
+          "direct_i32_exact": false,
+          "macs_one_build": 536870912
+        }
+      ],
+      "projection_macs_one_build": 1912602624,
+      "direct_i32_projection_mac_fraction": 0.7192982456140351,
+      "direct_i32_projection_macs": 1375731712,
+      "score_macs_all_future_pairs": 2097152,
+      "pv_macs_causal": 1081344,
+      "double_build_projection_macs_whole_stack": 84154515456,
+      "split_down_extra_mac_fraction_if_two_products": 0.2807017543859649,
+      "scope": "allocation-free source-loop counts, no time, profiles beyond T32 not admitted"
+    },
+    {
+      "name": "Llama3-8B-hypothetical-T512",
+      "T": 512,
+      "D": 4096,
+      "F": 14336,
+      "Dpad": 4096,
+      "Fpad": 16384,
+      "kv_width": 1024,
+      "layers": 32,
+      "sites": [
+        {
+          "name": "Q",
+          "K": 4096,
+          "N": 4096,
+          "orientation": "OI",
+          "activation_abs_bound": 127,
+          "acc_abs_bound": 66584576,
+          "direct_i32_exact": true,
+          "macs_one_build": 8589934592
+        },
+        {
+          "name": "K",
+          "K": 4096,
+          "N": 1024,
+          "orientation": "OI",
+          "activation_abs_bound": 127,
+          "acc_abs_bound": 66584576,
+          "direct_i32_exact": true,
+          "macs_one_build": 2147483648
+        },
+        {
+          "name": "V",
+          "K": 4096,
+          "N": 1024,
+          "orientation": "OI",
+          "activation_abs_bound": 127,
+          "acc_abs_bound": 66584576,
+          "direct_i32_exact": true,
+          "macs_one_build": 2147483648
+        },
+        {
+          "name": "AO",
+          "K": 4096,
+          "N": 4096,
+          "orientation": "OI",
+          "activation_abs_bound": 127,
+          "acc_abs_bound": 66584576,
+          "direct_i32_exact": true,
+          "macs_one_build": 8589934592
+        },
+        {
+          "name": "gate",
+          "K": 4096,
+          "N": 16384,
+          "orientation": "IO",
+          "activation_abs_bound": 127,
+          "acc_abs_bound": 66584576,
+          "direct_i32_exact": true,
+          "macs_one_build": 34359738368
+        },
+        {
+          "name": "up",
+          "K": 4096,
+          "N": 16384,
+          "orientation": "IO",
+          "activation_abs_bound": 127,
+          "acc_abs_bound": 66584576,
+          "direct_i32_exact": true,
+          "macs_one_build": 34359738368
+        },
+        {
+          "name": "down",
+          "K": 16384,
+          "N": 4096,
+          "orientation": "IO",
+          "activation_abs_bound": 32768,
+          "acc_abs_bound": 68719476736,
+          "direct_i32_exact": false,
+          "macs_one_build": 34359738368
+        }
+      ],
+      "projection_macs_one_build": 124554051584,
+      "direct_i32_projection_mac_fraction": 0.7241379310344828,
+      "direct_i32_projection_macs": 90194313216,
+      "score_macs_all_future_pairs": 1073741824,
+      "pv_macs_causal": 537919488,
+      "double_build_projection_macs_whole_stack": 7971459301376,
+      "split_down_extra_mac_fraction_if_two_products": 0.27586206896551724,
+      "scope": "allocation-free source-loop counts, no time, profiles beyond T32 not admitted"
+    }
+  ],
+  "retained_linked_stack_accounting": [
+    {
+      "device_label": "cpu",
+      "proved_log_event": {
+        "event": "proved",
+        "gpu": "gpu: off (built without --features gpu-cuda)",
+        "gpu_declines": 0,
+        "blocks": 22,
+        "receipt_bytes": 250855088,
+        "prove_run_seconds": 282.618,
+        "of_which_witness_rebuild_seconds": 222.999,
+        "in_process_verify_seconds": 4.872,
+        "sealing_pass_seconds": 230.648,
+        "load_seconds": 10.203,
+        "total_seconds": 528.926,
+        "vmhwm_mib": 2200,
+        "statement_identity": "68ad19c83a3ae1a345f1a5a8b5dcdc02679fc71e89a4d1eb19d55eb446b9f487",
+        "out": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r2/stack-pg_rot1-ho00-cpu/run"
+      },
+      "fresh_verifier_log_event": {
+        "event": "verified",
+        "blocks": 22,
+        "receipt_bytes": 250855088,
+        "load_seconds": 10.253,
+        "verify_seconds": 4.886,
+        "vmhwm_mib": 1471,
+        "statement_identity": "68ad19c83a3ae1a345f1a5a8b5dcdc02679fc71e89a4d1eb19d55eb446b9f487",
+        "scope": "ALL the listed trained TinyLlama-1.1B-Chat blocks as ONE bound run at T=32 (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"
+      },
+      "two_witness_seconds": 453.647,
+      "witness_fraction_of_reported_total": 0.8576757429205597,
+      "prove_run_excluding_witness_rebuild_inclusive_seconds": 59.619,
+      "delete_all_witness_upper_bound_factor": 7.02620916855962,
+      "delete_sealing_only_upper_bound_factor": 1.7732652089661323,
+      "reported_run_positions_per_second": 0.06049995651565625,
+      "steady_rate": null,
+      "startup_seconds": null,
+      "startup_fraction": null,
+      "serialization_seconds": null,
+      "verification_scope": "owner-retained fresh-process log, not rerun by explorer; privacy acceptance at shape missing; no8B tokens",
+      "sha256": {
+        "prove.log": "de54a93acdaeb091b773827a6a1776ad986ebdfecbd87fb1992b1a52df75a53b",
+        "verify.log": "6bc4400dabfd67b53083244ac5d008bda895b1de6e3c14fc957fa379ea594717"
+      }
+    },
+    {
+      "device_label": "gpu",
+      "proved_log_event": {
+        "event": "proved",
+        "gpu": "gpu: ON \u2014 NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)",
+        "gpu_declines": 0,
+        "blocks": 22,
+        "receipt_bytes": 250855088,
+        "prove_run_seconds": 296.036,
+        "of_which_witness_rebuild_seconds": 227.97,
+        "in_process_verify_seconds": 4.901,
+        "sealing_pass_seconds": 229.941,
+        "load_seconds": 9.063,
+        "total_seconds": 545.079,
+        "vmhwm_mib": 2032,
+        "statement_identity": "68ad19c83a3ae1a345f1a5a8b5dcdc02679fc71e89a4d1eb19d55eb446b9f487",
+        "out": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r2/stack-pg_rot1-ho00-gpu/run"
+      },
+      "fresh_verifier_log_event": {
+        "event": "verified",
+        "blocks": 22,
+        "receipt_bytes": 250855088,
+        "load_seconds": 9.795,
+        "verify_seconds": 4.979,
+        "vmhwm_mib": 1471,
+        "statement_identity": "68ad19c83a3ae1a345f1a5a8b5dcdc02679fc71e89a4d1eb19d55eb446b9f487",
+        "scope": "ALL the listed trained TinyLlama-1.1B-Chat blocks as ONE bound run at T=32 (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"
+      },
+      "two_witness_seconds": 457.911,
+      "witness_fraction_of_reported_total": 0.8400818963856616,
+      "prove_run_excluding_witness_rebuild_inclusive_seconds": 68.066,
+      "delete_all_witness_upper_bound_factor": 6.253200715859034,
+      "delete_sealing_only_upper_bound_factor": 1.729651771604821,
+      "reported_run_positions_per_second": 0.05870708649571897,
+      "steady_rate": null,
+      "startup_seconds": null,
+      "startup_fraction": null,
+      "serialization_seconds": null,
+      "verification_scope": "owner-retained fresh-process log, not rerun by explorer; privacy acceptance at shape missing; no8B tokens",
+      "sha256": {
+        "prove.log": "5e5023c21b884f70f4ede9680e72833bd3aedda1646d8034c658a4aecf18c384",
+        "verify.log": "b309f1cf5598b9b5fe0e1c8458780cee3c9039023a84367d671338fdc2e5d8ee"
+      }
+    }
+  ],
+  "float_cancellation_control": {
+    "exact_sum": 1,
+    "f32_sum": 0.0,
+    "terms": 2085
+  },
+  "direct_i32_K_max": 132104,
+  "down_control_terms": 1034,
+  "output_sha256": "ecb2bfc4e84701b049f32a30088c99fe7570009ae40032b9f9a4a41964daaf86",
+  "hardware": {
+    "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+    "threads": 1,
+    "affinity": [
+      0
+    ],
+    "nice": 19,
+    "gpu": null
+  },
+  "compile_command": [
+    "/usr/bin/gcc",
+    "-O3",
+    "-std=c11",
+    "-shared",
+    "-fPIC",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/exact-witness-limb-census-20261017/kernels.c",
+    "-o",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/exact-witness-limb-census-20261017/kernels.so"
+  ],
+  "compile_returncode": 0,
+  "compiler_version": "gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+  "experiment_wall_seconds": 2.636018517005141,
+  "peak_rss_kib": 37972,
+  "compiler_child_peak_rss_kib": 37972,
+  "limits": {
+    "wall_cpu_seconds": 59,
+    "AS_bytes": 536870912,
+    "estimated_MiB": 96
+  },
+  "scope": "synthetic C helpers and Python arbitrary-integer reference; native source-loop census and existing public logs only; no Rust/native build, proof, fresh verify, GPU or privacy gate",
+  "proof_accounting": {
+    "accepted_complete_private_8b_proofs": 0,
+    "passes": 0,
+    "positions": 0,
+    "context_length": null,
+    "steady_state_tokens_per_second": null,
+    "total_workload_tokens_per_second": null,
+    "startup_seconds": null,
+    "startup_fraction": null,
+    "witness_seconds": null,
+    "proof_seconds": null,
+    "serialization_seconds": null,
+    "independent_verification_seconds": null,
+    "proof_latency_seconds": null,
+    "proof_lag_seconds": null,
+    "pipeline_drain_seconds": null,
+    "long_context_prefill_ran": false,
+    "resident_passes_ran": false,
+    "decode_ran": false
+  }
+}

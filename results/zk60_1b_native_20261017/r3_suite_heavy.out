@@ -1,0 +1,6 @@
+[zk60-guard 04:03:31] START r3-suite-final class=cpu need=5G cap=8G enforce=cgroup+watchdog waited=0s run=c4fc12a216a7
+[zk60-guard 04:16:17] END r3-suite-final exit=0 child_wall=766s peak_rss=4.16G min_avail=6.93G
+suite exit 0
+[zk60-guard 04:16:17] START r3-heavy class=cpu need=5G cap=8G enforce=cgroup+watchdog waited=0s run=75f1511a3c98
+[zk60-guard 04:17:52] END r3-heavy exit=0 child_wall=95s peak_rss=1.04G min_avail=9.48G
+heavy exit 0

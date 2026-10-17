@@ -82,6 +82,10 @@ pub(crate) const RUN_PROFILE_TINYLLAMA_T32_DEV: &str = "unregistered-dev-twin/pr
 /// absorb in the same keyed function (`s25_tests`' census refused it). At 66
 /// bytes the constructor is 78, with no hash input kind at 77, 78 or 79.
 pub(crate) const RUN_PROFILE_TINYLLAMA_T32_TRAINED: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t32-trained-statement/1";
+/// ROUND 3 (R3-2): the run profiles of the trained TinyLlama shapes at T64
+/// and T128 (one per shape, D17), named like T32's.
+pub(crate) const RUN_PROFILE_TINYLLAMA_T64_TRAINED: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t64-trained-statement/1";
+pub(crate) const RUN_PROFILE_TINYLLAMA_T128_TRAINED: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t128-trained-statement/1";
 /// NATIVE LANE: the run profile of the trained-calibration development rung.
 pub(crate) const RUN_PROFILE_RUNG_TC: &str = "hashline-zk-mr1/private-run-rung-tc-t32-dev/1";
 
@@ -144,6 +148,21 @@ impl RunShape {
         }
         RunShape::new(sh, l, RUN_PROFILE_TINYLLAMA_T32_TRAINED)
     }
+    /// ROUND 3 (R3-2): a run at a trained TinyLlama shape of any registered
+    /// context length; its run profile is the shape's own (one per shape)
+    pub(crate) fn tinyllama_trained(sh: Shape, l: usize) -> Result<RunShape, String> {
+        use super::shape::{TINYLLAMA_T128_TRAINED_PROFILE, TINYLLAMA_T32_TRAINED_PROFILE, TINYLLAMA_T64_TRAINED_PROFILE};
+        let rp = match sh.profile {
+            p if p == TINYLLAMA_T32_TRAINED_PROFILE => RUN_PROFILE_TINYLLAMA_T32_TRAINED,
+            p if p == TINYLLAMA_T64_TRAINED_PROFILE => RUN_PROFILE_TINYLLAMA_T64_TRAINED,
+            p if p == TINYLLAMA_T128_TRAINED_PROFILE => RUN_PROFILE_TINYLLAMA_T128_TRAINED,
+            _ => return Err("private run: a trained TinyLlama run profile needs a trained TinyLlama shape".into()),
+        };
+        if !sh.trained_calibration {
+            return Err("private run: a trained TinyLlama run profile needs a trained TinyLlama shape".into());
+        }
+        RunShape::new(sh, l, rp)
+    }
     /// NATIVE LANE: a run at the trained-calibration development rung.
     pub(crate) fn rung_tc(sh: Shape, l: usize) -> Result<RunShape, String> {
         if sh.profile != super::shape::TRAINED_CALIB_RUNG_PROFILE || !sh.trained_calibration {
@@ -192,7 +211,7 @@ impl RunStatement {
         // the SHAPE's own flag (it was a substring test on the run profile,
         // which let an unbound run at the trained-calibration rung absorb
         // `calibration_identity()`), and on the trained run profile by name.
-        if rs.sh.trained_calibration || rs.profile == RUN_PROFILE_TINYLLAMA_T32_TRAINED || rs.profile == RUN_PROFILE_RUNG_TC {
+        if rs.sh.trained_calibration || [RUN_PROFILE_TINYLLAMA_T32_TRAINED, RUN_PROFILE_TINYLLAMA_T64_TRAINED, RUN_PROFILE_TINYLLAMA_T128_TRAINED, RUN_PROFILE_RUNG_TC].contains(&rs.profile) {
             return Err(format!("private run: {} is a trained-calibration run; it needs its trained-model statement (RunStatement::new_bound)", rs.profile));
         }
         let digests: Vec<Digest> = blocks.iter().map(|b| b.digest()).collect();

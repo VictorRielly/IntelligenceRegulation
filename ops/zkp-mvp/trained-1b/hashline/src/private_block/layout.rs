@@ -1080,6 +1080,15 @@ impl Layout {
         if sh.trained_calibration {
             sh.check_trained_class()?;
         }
+        // re-review R2-a (2026-10-17): a trained-calibration profile STRING
+        // without the door's flag is refused (a shape built by `Shape::new`
+        // under that string would otherwise skip every class check), and the
+        // softmax window is at most three limbs at EVERY shape (every
+        // registered frozen shape has 14..=18 bits)
+        if !sh.trained_calibration && super::shape::TRAINED_CALIBRATION_PROFILES.contains(&sh.profile) {
+            return Err(format!("private block: {} is a trained-calibration profile, but this shape did not come through the trained door", sh.profile));
+        }
+        super::shape::Shape::check_softmax_window(sh)?;
         let ids = Ids::new(sh)?;
         let hids = HIds::new(sh)?;
         let n = 1usize << sh.log_cols;

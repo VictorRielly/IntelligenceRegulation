@@ -1,0 +1,3 @@
+[load          ]      0.9 s   peak RSS     130 MB   ok
+[replay        ]      0.6 s   peak RSS     130 MB   ok
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/probe_before_port/probe-dense-load-replay.json   total 1.5 s   peak RSS 130 MB   ok=True

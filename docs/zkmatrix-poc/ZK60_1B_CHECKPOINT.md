@@ -67,6 +67,14 @@ both be reported. Never describe a single block as a complete-model pass.
   basis, per-layer tables): top-1 0.698, perplexity 36.5 vs 29.3 float, 0/36
   refused (T32, licence/docstring text). Native support for its shifts is in
   progress. `results/zk60_1b_calibration_20260929/PROGRESS.md`.
+  B4 (2026-10-17, FineWeb-Edu + licence held-out, 36 docs each): one-profile
+  `pg+rot` top-1 0.725 (T32) / 0.745 (T128), perplexity 12.67 -> 15.80 at
+  T128, 0 refusals; per-layer shifts `dg+rot` 0.803 / 0.809 (needs per-stage
+  layouts, deferred). Ladder exports `pg_rot1_b4_{T32_cal128,T64_cal128,T128}`
+  share identical weights (hard links) and carry the int16 embedding table;
+  token I/O spec `export/TOKEN_IO_SPEC.md`. The ~30% attention-output error
+  is upstream score/value precision; an O-site layout change would buy at most
+  +0.016 top-1 (not pursued).
 - [x] Bind a separately versioned model/profile/calibration statement into
   the proof; preserve the frozen toy and existing development profiles.
   2026-10-17: trained-model statement schema v2 (model, export, tool and
@@ -109,8 +117,23 @@ both be reported. Never describe a single block as a complete-model pass.
   prove_run 296.0 s (proofs alone 68.1 s), total 545.1 s, peak VRAM 1,281 MiB,
   same statement identity, verified by the CPU binary in a fresh process. No
   GPU gain at T32: 86% of wall is the single-threaded witness builder, run twice.
-  0.06 proved positions/s total wall. Next: parallel single-pass witness, then
-  T64/T128 (and T256/T512 after a memory gate). `r2/stack-pg_rot1-ho00-{cpu,gpu}/`.
+  0.06 proved positions/s total wall. `r2/stack-pg_rot1-ho00-{cpu,gpu}/`.
+  **Round 3 (11:03 UTC): witness built once and in parallel (53x per block);
+  the ladder on the `pg_rot1_b4` family (identical weights), 22-block stacks,
+  each verified in a fresh process with 11 run-level controls refused
+  [MEASURED, shared box, n=1, 16 threads]:**
+
+  | T | CPU total | GPU total | proofs only CPU / GPU | positions/s total CPU / GPU | receipt | peak RSS CPU / GPU | peak VRAM |
+  |---|---:|---:|---:|---:|---:|---:|---:|
+  | 32 | 56.2 s | 60.8 s | 40.2 / 40.8 s | 0.57 / 0.53 | 251 MB | 2.15 / 1.98 GiB | 1.3 GiB |
+  | 64 | 84.9 s | 89.3 s | 64.8 / 63.5 s | 0.75 / 0.72 | 333 MB | 2.92 / 2.31 GiB | 2.5 GiB |
+  | 128 | 168.6 s | 142.8 s | 136.2 / 107.1 s | 0.76 / 0.90 | 498 MB | 4.82 / 3.03 GiB | 3.1 GiB |
+
+  Proofs now dominate (72% of wall at T32, 81% at T128); the GPU (commitments
+  only) helps from T128. T256/T512 not run: one-block peak RSS doubles per
+  T doubling (0.85 / 1.64 / 3.39 GiB), projecting ~7 / ~14 GiB per block —
+  beyond this laptop; the Mac (256 GB) or the 5090 machine is needed.
+  `results/zk60_1b_native_20261017/r3/LADDER.md`.
 
 Completed checks need a retained command, source/artifact pins, exit status
 and their exact scope. Small synthetic parser or polynomial tests complete

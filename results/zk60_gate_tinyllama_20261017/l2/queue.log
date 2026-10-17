@@ -1,0 +1,13 @@
+[zk60-guard 04:04:09] START tl-equivalence-k4 class=light need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=289ca61b3c9a
+[zk60-guard 04:05:08] END tl-equivalence-k4 exit=0 child_wall=59s peak_rss=0.28G min_avail=8.05G
+[zk60-guard 04:05:08] START tl-tl-dense-a class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=5eec8d33968c
+[zk60-guard 04:05:35] END tl-tl-dense-a exit=0 child_wall=27s peak_rss=0.19G min_avail=8.55G
+[zk60-guard 04:05:35] START tl-tl-zero-a class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=fce163c3e237
+[zk60-guard 04:06:03] END tl-tl-zero-a exit=0 child_wall=27s peak_rss=0.18G min_avail=8.46G
+[zk60-guard 04:06:03] START tl-tl-controls-dense class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=f53f3789425c
+[zk60-guard 04:06:45] END tl-tl-controls-dense exit=0 child_wall=42s peak_rss=0.16G min_avail=9.42G
+[zk60-guard 04:06:45] START tl-tl-controls-zero class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=19dfc1906144
+[zk60-guard 04:07:26] END tl-tl-controls-zero exit=0 child_wall=41s peak_rss=0.16G min_avail=9.55G
+[zk60-guard 04:07:26] START tl-witcmp class=light need=1G cap=1.5G enforce=cgroup+watchdog waited=0s run=722f0ebb410e
+[zk60-guard 04:07:26] END tl-witcmp exit=0 child_wall=0s peak_rss=0.00G min_avail=10.71G
+[zk60-guard 04:07:26] START tl-tl-dense-everything class=light need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=833450e1672e

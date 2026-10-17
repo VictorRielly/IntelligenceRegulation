@@ -1,0 +1,43 @@
+{
+ "ts_end": "2026-10-17T11:02:14Z",
+ "run_id": "76ec32614b03",
+ "label": "gate-tl-dense-everything-probe",
+ "class": "light",
+ "cmd": [
+  "bash",
+  "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/l2/gate.sh",
+  "b"
+ ],
+ "need_gib": 1.5,
+ "cap_gib": 3.0,
+ "exit": 0,
+ "child_rc": 0,
+ "guard_killed": null,
+ "child_wall_seconds": 940.0541987419128,
+ "refused": null,
+ "guard_error": null,
+ "guard_pid": 250002,
+ "boot_id": "08875671-f12b-4ca1-b89c-fac3acf1c90c",
+ "pid_ns": "pid:[4026532216]",
+ "guard_starttime_ticks": 3471686,
+ "lock_ids": {
+  "heavy": "2096:1134147",
+  "build": "2096:1134148"
+ },
+ "enforcement": "cgroup+watchdog",
+ "waited_s": 0.0,
+ "guard_wall_s": 940.1,
+ "stragglers_killed": 0,
+ "hard_killed": 0,
+ "scope_unit": "zk60-76ec32614b03.scope",
+ "scope_adopted": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/zk60.slice/zk60-76ec32614b03.scope",
+ "foreign_cgroups_refused": [],
+ "peak_rss_gib": 0.6,
+ "peak_cgroup_gib": 0.57,
+ "peak_vram_mib": null,
+ "min_mem_available_gib": 5.9,
+ "vram_drain_s": null,
+ "gpu_drain_failed": false,
+ "gpu_telemetry_lost": false,
+ "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+}

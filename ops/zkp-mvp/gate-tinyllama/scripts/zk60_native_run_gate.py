@@ -166,6 +166,12 @@ TOOLS = [
     "zk60_native_pg_pcs.py",
     "zk60_native_pg_cfs.py",
     "zk60_native_mask_commit.py",
+    # [TINYLLAMA PORT 2026-10-17] the port's readings, its prediction, its
+    # staged driver and its own controls are tools of every record too
+    "zk60_native_rg_tinyllama_pins.py",
+    "zk60_native_rg_tlcontrols.py",
+    "zk60_native_rg_predict.py",
+    "zk60_native_rg_m125.py",
 ]
 
 EXPECTED_DISCLOSED = {

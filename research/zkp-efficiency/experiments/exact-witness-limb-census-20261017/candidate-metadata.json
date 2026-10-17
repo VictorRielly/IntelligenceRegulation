@@ -1,0 +1,37 @@
+{
+  "source_pin": {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/witness.rs",
+    "snapshot": "experiments/exact-witness-limb-census-20261017/native/ops__zkp-mvp__trained-1b__hashline__src__private_block__witness.rs",
+    "sha256": "73a06441e7d8d1720da3e6ad0421fdca8a481235de26fe746f7bbb4e28f6a3f5",
+    "bytes": 30136
+  },
+  "candidate_sha256": "9b3ee8d81b95e6901ac3f599176825af36e034a702a4bf6650e46b56672e246c",
+  "call_replacements": [
+    [
+      "matmul(&g, &y, g.d_pad, &public.wq, g.d_pad, g.d_pad, g.d_pad, dl)",
+      "matmul_i8_projection(&g, &y, g.d_pad, &public.wq, g.d_pad, g.d_pad, g.d_pad, dl, false)"
+    ],
+    [
+      "matmul(&g, &y, g.d_pad, &public.wk, g.d_pad, g.kvw, g.kvw, kvl)",
+      "matmul_i8_projection(&g, &y, g.d_pad, &public.wk, g.d_pad, g.kvw, g.kvw, kvl, false)"
+    ],
+    [
+      "matmul(&g, &y, g.d_pad, &public.wv, g.d_pad, g.kvw, g.kvw, kvl)",
+      "matmul_i8_projection(&g, &y, g.d_pad, &public.wv, g.d_pad, g.kvw, g.kvw, kvl, false)"
+    ],
+    [
+      "matmul(&g, &o8, g.d_pad, &public.wo, g.d_pad, g.d_pad, g.d_pad, dl)",
+      "matmul_i8_projection(&g, &o8, g.d_pad, &public.wo, g.d_pad, g.d_pad, g.d_pad, dl, false)"
+    ],
+    [
+      "matmul_in_out(&g, &nm, g.d_pad, &ff.wg_t, g.d_pad, g.f_pad, g.f_pad, fl)",
+      "matmul_i8_projection(&g, &nm, g.d_pad, &ff.wg_t, g.d_pad, g.f_pad, g.f_pad, fl, true)"
+    ],
+    [
+      "matmul_in_out(&g, &nm, g.d_pad, &ff.wu_t, g.d_pad, g.f_pad, g.f_pad, fl)",
+      "matmul_i8_projection(&g, &nm, g.d_pad, &ff.wu_t, g.d_pad, g.f_pad, g.f_pad, fl, true)"
+    ]
+  ],
+  "added_helper_sha256": "103d379a45dbb83d593014b6ba3a42f3d2c4e4ee5e14d800e6c5d5ddfb45fbf8",
+  "scope": "source reconstruction only; no Rust compile/native witness/refusal/transcript/bytes/privacy gates"
+}

@@ -53,7 +53,7 @@ use std::time::Instant;
 pub(crate) const PROFILE_SCHEMA: &str = "zk60-trained-profile-export/1";
 const MAX_JSON_BYTES: u64 = 4 * 1024 * 1024;
 const MAX_ARRAY_BYTES: u64 = 256 * 1024 * 1024;
-const SCOPE: &str = "ONE trained TinyLlama-1.1B-Chat block (of 22) at T=32, CPU; the integer model the calibration export names; NOT a model pass; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement";
+const SCOPE: &str = "ONE trained TinyLlama-1.1B-Chat block (of 22) at the export's T (32, 64 or 128), CPU unless the run line says gpu; the integer model the calibration export names; NOT a model pass; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement";
 const SCOPE_RUNG: &str = "SYNTHETIC development export at the trained-calibration rung (rung-TC, width 384): NOT a trained model, NOT TinyLlama; a test of the export reader and the driver only; no privacy acceptance";
 
 // ------------------------------------------------------------------ JSON
@@ -291,7 +291,13 @@ pub(crate) fn unhex32(s: &str) -> Result<[u8; 32], String> {
 }
 
 fn read_bounded(path: &Path, max: u64) -> Result<Vec<u8>, String> {
-    let meta = std::fs::metadata(path).map_err(|e| format!("{}: {e}", path.display()))?;
+    // ROUND 3: a symbolic link is refused (the B4 writer shares weight files
+    // between exports by HARD link, which are ordinary files; every array is
+    // still SHA-256-checked against its manifest exactly as before)
+    let meta = std::fs::symlink_metadata(path).map_err(|e| format!("{}: {e}", path.display()))?;
+    if meta.file_type().is_symlink() {
+        return Err(format!("{}: a symbolic link (the reader reads regular files only)", path.display()));
+    }
     if !meta.is_file() {
         return Err(format!("{}: not a regular file", path.display()));
     }
@@ -484,40 +490,53 @@ fn table_keys_of(c: &J, what: &str) -> Result<TableKeys, String> {
 /// name THE pinned checkpoint.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum Geometry {
-    TinyLlamaT32,
+    /// ROUND 3 (R3-2): the trained TinyLlama geometry at a registered
+    /// context length (32, 64 or 128), each its own profile
+    TinyLlama(usize),
     RungTcDev,
 }
 
 impl Geometry {
     fn parse(s: &str) -> Result<Geometry, String> {
         match s {
-            "tinyllama-1.1b-t32" => Ok(Geometry::TinyLlamaT32),
+            "tinyllama-1.1b-t32" => Ok(Geometry::TinyLlama(32)),
+            "tinyllama-1.1b-t64" => Ok(Geometry::TinyLlama(64)),
+            "tinyllama-1.1b-t128" => Ok(Geometry::TinyLlama(128)),
             "rung-tc-t32-dev" => Ok(Geometry::RungTcDev),
-            _ => Err(format!("geometry `{s}` is not one of tinyllama-1.1b-t32 / rung-tc-t32-dev")),
+            _ => Err(format!("geometry `{s}` is not one of tinyllama-1.1b-t32 / -t64 / -t128 / rung-tc-t32-dev")),
+        }
+    }
+    /// the context length the geometry fixes
+    pub(crate) fn tokens(self) -> usize {
+        match self {
+            Geometry::TinyLlama(t) => t,
+            Geometry::RungTcDev => 32,
         }
     }
     pub(crate) fn run_profile(self) -> &'static str {
         match self {
-            Geometry::TinyLlamaT32 => RUN_PROFILE_TINYLLAMA_T32_TRAINED,
+            Geometry::TinyLlama(64) => super::run::RUN_PROFILE_TINYLLAMA_T64_TRAINED,
+            Geometry::TinyLlama(128) => super::run::RUN_PROFILE_TINYLLAMA_T128_TRAINED,
+            Geometry::TinyLlama(_) => RUN_PROFILE_TINYLLAMA_T32_TRAINED,
             Geometry::RungTcDev => RUN_PROFILE_RUNG_TC,
         }
     }
     pub(crate) fn run_shape(self, sh: &Shape, l: usize) -> Result<RunShape, String> {
         match self {
-            Geometry::TinyLlamaT32 => RunShape::tinyllama_t32_trained(sh.clone(), l),
+            Geometry::TinyLlama(_) => RunShape::tinyllama_trained(sh.clone(), l),
             Geometry::RungTcDev => RunShape::rung_tc(sh.clone(), l),
         }
     }
     /// the shape at a calibration (the controls rebuild it at other ones)
     pub(crate) fn scope(self) -> &'static str {
         match self {
-            Geometry::TinyLlamaT32 => SCOPE,
+            Geometry::TinyLlama(_) => SCOPE,
             Geometry::RungTcDev => SCOPE_RUNG,
         }
     }
     pub(crate) fn shape_at(self, cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
         match self {
-            Geometry::TinyLlamaT32 => Shape::tinyllama_t32_trained(cal, f_e),
+            Geometry::TinyLlama(t) => Shape::tinyllama_trained(t, cal, f_e),
             Geometry::RungTcDev => {
                 if f_e != 12 {
                     return Err(format!("trained export: the rung-TC geometry fixes f_e = 12, the export declares {f_e}"));
@@ -573,17 +592,28 @@ impl TrainedExport {
         if schema != PROFILE_SCHEMA {
             return Err(ctx(format!("schema `{schema}`, this reader reads `{PROFILE_SCHEMA}`")));
         }
+        // ROUND 3 (R3-2): the context length decides the TinyLlama profile.
+        // An export that names no geometry (the B4 writer) is the TinyLlama
+        // geometry at its own `T`; one that names a geometry must name the
+        // one its `T` is
+        let tokens = usize::try_from(p.get_any(&["T", "tokens"]).and_then(J::i64).map_err(ctx)?).map_err(|_| ctx("T is negative".into()))?;
         let geometry = match p.opt("geometry") {
-            None => Geometry::TinyLlamaT32,
+            None => match tokens {
+                32 | 64 | 128 => Geometry::TinyLlama(tokens),
+                _ => return Err(ctx(format!("T = {tokens}: no trained TinyLlama profile is registered at this context length (32, 64 and 128 are)"))),
+            },
             Some(g) => Geometry::parse(g.str().map_err(ctx)?).map_err(ctx)?,
         };
+        if geometry.tokens() != tokens {
+            return Err(ctx(format!("the geometry fixes T = {}, the profile declares T = {tokens}", geometry.tokens())));
+        }
         // the model pin: THE pinned source for TinyLlama, a synthetic recipe
         // for the development rung
         let m = p.get("model").map_err(ctx)?;
         let pin = ModelSource::tinyllama_chat_v1_0();
         let (repo, rev, msha) = (m.get("repo").and_then(J::str).map_err(ctx)?, m.get("revision").and_then(J::str).map_err(ctx)?, unhex32(m.get("sha256").and_then(J::str).map_err(ctx)?).map_err(ctx)?);
         let source = match geometry {
-            Geometry::TinyLlamaT32 => {
+            Geometry::TinyLlama(_) => {
                 if repo != pin.repo || rev != pin.revision || msha != pin.weights_sha256 {
                     return Err(ctx(format!("the model pin ({repo}, {rev}, {}) is not the pinned TinyLlama source ({}, {}, {})", hex(&msha), pin.repo, pin.revision, hex(&pin.weights_sha256))));
                 }
@@ -619,7 +649,6 @@ impl TrainedExport {
             }
             _ => return Err(ctx("calibration_tool.sha256 is neither a digest nor an object of digests".into())),
         };
-        let tokens = usize::try_from(p.get_any(&["T", "tokens"]).and_then(J::i64).map_err(ctx)?).map_err(|_| ctx("T is negative".into()))?;
         let pc = p.get_any(&["constants", "profile", "profile_constants"]).map_err(ctx)?;
         let nulls: Vec<String> = pc.obj().map_err(ctx)?.iter().filter(|(_, v)| *v == J::Null).map(|(k, _)| k.clone()).collect();
         let mut per_layer_differ: Vec<String> = match p.opt("per_layer_constants_differ") {
@@ -744,11 +773,11 @@ impl TrainedExport {
         out.ok_or_else(|| "trained export: no layer given and no uniform profile constants".to_string())
     }
 
-    /// The trained shape of a run with these constants (only T = 32 is
-    /// registered).
+    /// The trained shape of a run with these constants, at the export's T
+    /// (round 3: 32, 64 or 128 for TinyLlama, each its own profile).
     pub(crate) fn shape_for(&self, c: &Constants) -> Result<Shape, String> {
-        if self.tokens != 32 {
-            return Err(format!("trained export: T = {}; only T = 32 is registered", self.tokens));
+        if self.tokens != self.geometry.tokens() {
+            return Err(format!("trained export: T = {} is not the geometry's {}", self.tokens, self.geometry.tokens()));
         }
         // review finding F-1, mirrored before any shape is built
         Shape::check_f_e_class(self.tokens, c.f_e)?;
@@ -1434,12 +1463,27 @@ struct StackSource<'a> {
     sh: &'a Shape,
     blocks: &'a [BlockPublic],
     ids: Ids,
-    x0: Vec<i16>,
     x: Vec<i16>,
     next: usize,
     cached: Option<(usize, Witness)>,
     lie_at: Option<usize>,
     busy_s: f64,
+    /// ROUND 3 (R3-1): the export's checks, made AS EACH WITNESS IS BUILT
+    /// (one witness pass instead of a sealing pass and a proving pass)
+    parity: Option<StackParity>,
+}
+
+/// **R3-1: parity inside the proving pass.** Layer k's native output must
+/// equal the export's `x_out` of that layer bit for bit before block k is
+/// proved; the committed endpoints (taken from the export) must be the first
+/// witness's input plane and the last witness's output plane. A failure
+/// aborts the run before that block's segment exists.
+struct StackParity {
+    layers: Vec<u32>,
+    x_outs: Vec<Vec<i16>>,
+    first: Vec<i16>,
+    last: Vec<i16>,
+    checked: usize,
 }
 
 impl<'a> StackSource<'a> {
@@ -1447,13 +1491,7 @@ impl<'a> StackSource<'a> {
         if x0.len() != sh.tokens * sh.width {
             return Err("trained stack: the first input is not tokens x width".into());
         }
-        Ok(StackSource { sh, blocks, ids: Ids::new(sh)?, x: x0.clone(), x0, next: 0, cached: None, lie_at, busy_s: 0.0 })
-    }
-    fn restart(&mut self) {
-        self.x = self.x0.clone();
-        self.next = 0;
-        self.cached = None;
-        self.busy_s = 0.0;
+        Ok(StackSource { sh, blocks, ids: Ids::new(sh)?, x: x0, next: 0, cached: None, lie_at, busy_s: 0.0, parity: None })
     }
     fn advance(&mut self, k: usize) -> Result<(Witness, Vec<i16>), String> {
         if k != self.next || k >= self.blocks.len() {
@@ -1464,6 +1502,21 @@ impl<'a> StackSource<'a> {
         let out = padded_plane(&w, self.ids.at(A_X2))?;
         self.x = true_words(self.sh, &out);
         self.next = k + 1;
+        if let Some(p) = self.parity.as_mut() {
+            let layer = p.layers[k];
+            if k == 0 && padded_plane(&w, self.ids.at(A_X))? != p.first {
+                return Err(format!("trained stack: the committed input endpoint is not block 0's input plane (layer {layer})"));
+            }
+            let n = self.x.iter().zip(p.x_outs[k].iter()).filter(|(a, b)| a != b).count();
+            if n != 0 {
+                let q = self.x.iter().zip(p.x_outs[k].iter()).position(|(a, b)| a != b).unwrap_or(0);
+                return Err(format!("parity: layer {layer}'s native output differs from the export's x_out in {n} words (first at token {}, channel {}); no value is printed", q / self.sh.width, q % self.sh.width));
+            }
+            if k + 1 == p.x_outs.len() && out != p.last {
+                return Err(format!("trained stack: the committed output endpoint is not the last block's output plane (layer {layer})"));
+            }
+            p.checked += 1;
+        }
         self.busy_s += t.elapsed().as_secs_f64();
         Ok((w, out))
     }
@@ -1472,6 +1525,20 @@ impl<'a> StackSource<'a> {
 /// the true `[T, d]` words of a padded `Dom::D` plane
 fn true_words(sh: &Shape, plane: &[i16]) -> Vec<i16> {
     (0..sh.tokens).flat_map(|t| plane[t * sh.d_pad..t * sh.d_pad + sh.width].to_vec()).collect()
+}
+
+/// the padded `Dom::D` plane of true `[T, d]` words (zero on the pad): the
+/// inverse of [`true_words`], and what `padded_plane(witness, A_X / A_X2)`
+/// holds for an honest witness (asserted per run on the first and last block)
+fn pad_d_plane(sh: &Shape, words: &[i16]) -> Result<Vec<i16>, String> {
+    if words.len() != sh.tokens * sh.width {
+        return Err("trained stack: an endpoint is not tokens x width".into());
+    }
+    let mut v = vec![0i16; sh.size(super::layout::Dom::D)];
+    for t in 0..sh.tokens {
+        v[t * sh.d_pad..t * sh.d_pad + sh.width].copy_from_slice(&words[t * sh.width..(t + 1) * sh.width]);
+    }
+    Ok(v)
 }
 
 impl RunWitnessSource for StackSource<'_> {
@@ -1598,7 +1665,7 @@ fn render_stack_statement(ex: &TrainedExport, sh: &Shape, layers: &[LayerMeta], 
     )
 }
 
-const STACK_SCOPE: &str = "ALL the listed trained TinyLlama-1.1B-Chat blocks as ONE bound run at T=32 (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement";
+const STACK_SCOPE: &str = "ALL the listed trained TinyLlama-1.1B-Chat blocks as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement";
 
 /// `stack-prove --export DIR --seq ID --out DIR [--layers A..B] [--label L]
 /// [--rope-from-export] [--lie-at-boundary K]`
@@ -1668,39 +1735,34 @@ fn stack_prove_inner(f: &[(String, String)]) -> Result<(), String> {
         js(&std::env::var("HL_GPU").unwrap_or_else(|_| "unset".into())),
         js(STACK_SCOPE)
     );
-    // ---- the sealing pass, with PARITY against the export at every layer
+    // ---- ROUND 3 (R3-1): ONE witness pass. The endpoints are sealed from
+    //      the export's own words (layer 0's x_in, the last layer's x_out);
+    //      every block's witness is then built ONCE, in the proving pass, and
+    //      checked against the export's x_out of its layer (and the two
+    //      endpoints against the first input / last output plane) BEFORE its
+    //      segment is proved. Parity stays mandatory at every layer; a
+    //      mismatch aborts the run and removes the run directory.
     let t = Instant::now();
     let (x_in0, _) = ex.load_seq(&sh, seq, layers[0])?;
-    let mut src = StackSource::new(&sh, &blocks, x_in0, None)?;
-    let mut first: Option<Vec<i16>> = None;
-    let mut last: Option<Vec<i16>> = None;
-    for (k, &layer) in layers.iter().enumerate() {
-        let (w, out_plane) = src.advance(k).map_err(|e| format!("block {k} (layer {layer}): {e}"))?;
-        if k == 0 {
-            first = Some(padded_plane(&w, src.ids.at(A_X))?);
-        }
-        drop(w);
-        let (_, x_out) = ex.load_seq(&sh, seq, layer)?;
-        let mine = true_words(&sh, &out_plane);
-        let n = mine.iter().zip(x_out.iter()).filter(|(a, b)| a != b).count();
-        if n != 0 {
-            let p = mine.iter().zip(x_out.iter()).position(|(a, b)| a != b).unwrap_or(0);
-            return Err(format!("parity: layer {layer}'s native output differs from the export's x_out in {n} words (first at token {}, channel {}); no value is printed", p / sh.width, p % sh.width));
-        }
-        if k + 1 == l {
-            last = Some(out_plane);
-        }
+    let mut x_outs = Vec::with_capacity(l);
+    for &layer in &layers {
+        x_outs.push(ex.load_seq(&sh, seq, layer)?.1);
     }
-    let (first, last) = (first.ok_or("no first plane")?, last.ok_or("no last plane")?);
-    src.lie_at = lie_at;
-    src.restart();
+    let first = pad_d_plane(&sh, &x_in0)?;
+    let last = pad_d_plane(&sh, &x_outs[l - 1])?;
+    let mut src = StackSource::new(&sh, &blocks, x_in0, lie_at)?;
     let seal_s = t.elapsed().as_secs_f64();
-    println!("{{\"event\":\"parity\",\"result\":\"bit-exact at every layer\",\"layers\":{l},\"words_per_layer\":{},\"sealing_pass_seconds\":{seal_s:.3}}}", sh.tokens * sh.width);
+    println!(
+        "{{\"event\":\"sealed\",\"from\":\"the export's layer-{} x_in and layer-{} x_out (parity is checked per layer in the proving pass)\",\"seconds\":{seal_s:.3},\"rayon_threads\":{}}}",
+        layers[0],
+        layers[l - 1],
+        rayon::current_num_threads()
+    );
     // ---- endpoints and the bound run statement
     let ctx = stack_context(&ex.variant, &layers, label);
     let spec = IoSpec::new_shaped(&sh, ctx, 0, 0)?;
     let (expected, owners) = prepare_endpoints(spec, &first, &last)?;
-    drop((first, last));
+    src.parity = Some(StackParity { layers: layers.clone(), x_outs, first, last, checked: 0 });
     let rst = RunStatement::new_bound(ex.geometry.run_shape(&sh, l)?, ctx, expected.clone(), &blocks, &vec![(0, 0); l], &st)?;
     // ---- the proving pass
     std::fs::create_dir(&out).map_err(|e| format!("{}: {e}", out.display()))?;
@@ -1717,10 +1779,19 @@ fn stack_prove_inner(f: &[(String, String)]) -> Result<(), String> {
     };
     let prove_s = t.elapsed().as_secs_f64();
     let witness_s = src.busy_s;
+    let parity_layers = src.parity.as_ref().map(|p| p.checked).unwrap_or(0);
     drop(src);
     if let Err(e) = stats {
+        // the run directory is this process's own, created above: a run
+        // that did not complete leaves nothing a verifier could mistake
+        let _ = std::fs::remove_dir_all(&out);
         return Err(format!("prove_run: {e}"));
     }
+    if parity_layers != l {
+        let _ = std::fs::remove_dir_all(&out);
+        return Err(format!("trained stack: parity was checked at {parity_layers} of {l} layers"));
+    }
+    println!("{{\"event\":\"parity\",\"result\":\"bit-exact at every layer\",\"layers\":{l},\"words_per_layer\":{},\"checked_in_the_proving_pass\":true}}", sh.tokens * sh.width);
     let hwm = peak_rss_mib();
     // ---- in-process verification from the directory
     let t = Instant::now();
@@ -1743,10 +1814,12 @@ fn stack_prove_inner(f: &[(String, String)]) -> Result<(), String> {
     let segs: Vec<String> = (0..l).map(|k| format!("{{\"file\":{},\"bytes\":{},\"sha256\":{}}}", js(&super::run_sink::segment_file_name(k)), disk.lengths()[k], js(&disk.digests()[k]))).collect();
     write_new(&sdir.join("segments.json"), format!("[\n {}\n]\n", segs.join(",\n ")).as_bytes())?;
     println!(
-        "{{\"event\":\"proved\",\"gpu\":{},\"gpu_declines\":{},\"blocks\":{l},\"receipt_bytes\":{},\"prove_run_seconds\":{prove_s:.3},\"of_which_witness_rebuild_seconds\":{witness_s:.3},\"in_process_verify_seconds\":{verify_s:.3},\"sealing_pass_seconds\":{seal_s:.3},\"load_seconds\":{load_s:.3},\"total_seconds\":{:.3},\"vmhwm_mib\":{hwm:.0},\"statement_identity\":{},\"out\":{}}}",
+        "{{\"event\":\"proved\",\"gpu\":{},\"gpu_declines\":{},\"blocks\":{l},\"receipt_bytes\":{},\"prove_run_seconds\":{prove_s:.3},\"of_which_witness_seconds\":{witness_s:.3},\"witness_seconds_per_block\":{:.3},\"rayon_threads\":{},\"in_process_verify_seconds\":{verify_s:.3},\"sealing_pass_seconds\":{seal_s:.3},\"load_seconds\":{load_s:.3},\"total_seconds\":{:.3},\"vmhwm_mib\":{hwm:.0},\"statement_identity\":{},\"out\":{}}}",
         js(&crate::gpu::label()),
         crate::gpu::declines(),
         disk.total_bytes(),
+        witness_s / l as f64,
+        rayon::current_num_threads(),
         t_total.elapsed().as_secs_f64(),
         js(&hex(&st.identity())),
         js(&out.display().to_string())

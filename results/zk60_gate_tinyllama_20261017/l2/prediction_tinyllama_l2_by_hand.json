@@ -1,0 +1,38 @@
+{
+ "what": "THE HAND HALF of the prediction for the two trained TinyLlama T32 two-block bundles (layers 7..9 of pg_rot1_export_T32; dense = held-out ho00, zero = the all-zero plane), written 2026-10-17 ~10:45 UTC BEFORE the gate reads either bundle past `load`, after the computed half (`prediction_tinyllama_l2_{dense,zero}.json`, validated OK x4 on rung-K4 / rung-P2 / rung-E32 / rung-K8 records). The law is the 125M round's: every figure is SHAPE-INDEPENDENT (must equal 125M's) or SCALES by an arithmetic law written here. Figures the round could not predict to the unit are named as such.",
+ "honesty_note": "The failing-first probe (probe_before_port/, 10:2x UTC) ran `load` and `replay` with the UNEDITED tools on the dense bundle before this file was written, so P1's integrity figures and P2's replay counts were SEEN first; they are listed for completeness and are not predictions. Everything from P3 on was not observed before this file.",
+ "P1_integrity": {"blocks": 2, "boundaries": 1, "manifest_files": 5, "distinct_roots": 7, "any_root_opened_twice": false, "findings": 0, "seen_before_prediction": true},
+ "P2_replay": {"positions": 251, "challenges": 9002, "position_tags": 4, "run_binding_reproduced": true, "final_counter": 9578, "final_counter_law": "challenges + 256 per stage + 64 once (round 9m's corrected law): 9002 + 512 + 64 = 9578", "seen_before_prediction": true},
+ "P3_hash_layer": {"openings": 9, "columns": 2304, "column_bytes": 14782464, "law": "7 PCS openings x 256 columns x rows x 8 B + 2 M openings x 256 columns x 50 rows x 8 B; A 1729 rows, H 1798, endpoints 21, boundary 22", "all_rehashed_and_reauthenticated": true, "distinct_salted_leaves": "not predicted to the unit (the sampled-column class)"},
+ "P4_terminals": {"slot_checks": "46 of 46 (23 x 2), all equal to the stored terminal polynomial, 0 open, channel DERIVED", "group_factor": "repaired", "constants_read_from_the_bundle": {"trained": true, "norm_tn": 10, "norm_cn_a": 3999, "norm_cn_m": 3122, "norm_ceps": 91255, "sh_ao": 3, "sh_qkv": 8, "sh_s": 6, "sh_o": 9, "sh_g": 8, "sh_h": 14, "sh_z": 5}, "top_limb_pins": {"RAL": 32, "RDL": 8, "RGL": 1, "RH1": 4, "RQL": 1, "RKL": 1, "RVL": 1, "RO1": 128, "RSL": 4}, "what_would_falsify_the_port": "a slot whose identity fails only at the trained constants (SC_TZC, SC_DZC, SC_QZC, SC_KVZC, SC_SZC, SC_FZC) would mean a constant was transcribed wrongly; with the FROZEN constants those six slots must FAIL on these bundles (control TL-1)"},
+ "P5_per_commitment": {
+  "A@k": {"rows": 1729, "data_rows": 1487, "claims": 120, "groups": 36, "disclosed": 0, "rank_P1": 74, "non_data_rows": 242},
+  "H@k": {"rows": 1798, "data_rows": 1698, "claims": 50, "groups": 9, "disclosed": 2, "exact_u_star": 2, "per_indicator": 2, "generators": 20, "non_data_rows": 102, "the_2_is": "the public LogUp identity, checked to be it"},
+  "B0": {"rows": 22, "data_rows": 16, "groups": 2, "disclosed": 0, "reserved_rank": "6 of 6"},
+  "E-Input / E-Output": {"rows": 21, "data_rows": 16, "groups": 1, "disclosed": 0, "generators": 4},
+  "M@k": {"rows": 50, "functionals": 34, "disclosed": 0},
+  "exclusivity_clauses": "16 of 16 on all 7 commitments",
+  "k0_everywhere": 0,
+  "x_controls": "every X-control fires; the old check accepts the same seven it accepted at 125M (X01, X06, X09a, X10a, X11, X14, X16)",
+  "125M_comparison": "A 120 claims / 242 non-data here against 122 / 246 at 125M: the claim count is declared by the capture, and the law non-data = 2 claims + 2 holds at both (checked in the computed half)"
+ },
+ "P6_boundary": {"boundaries": 1, "reserved_block_rank": "6 of 6", "disclosed": 0, "three_role_generators": 154, "three_role_joint": "0 = sum 0", "three_role_columns": "not predicted to the unit"},
+ "P6pp_whole_run": {"generators": 206, "identified_rows": 64, "joint": "4 = sum of parts 4 (two H at 2)", "exact_u_star": 4, "k0": 0, "shared_non_data_classes": 0},
+ "P7_singleton_preimage": "E-Input, E-Output and B0 exhibited: B0 0 free Fp; each endpoint 1 free Fp per position (as at 125M)",
+ "P8_mask_cfs": {"stages": 2, "differing": 0, "leaves": 512, "slot_lengths_L_s": "the computed half's list; largest 97 at slot 18 (SC_FZC: degree 5 because Dom::F pads), C-4 headroom 159", "coefficient_unknowns_fp_per_stage": 1958, "M1_to_M6": "fire", "entries_per_stage": "not predicted to the unit"},
+ "P9_full_preimage": {"commitments": "7 of 7", "differing": 0, "salted_leaves": 1792, "P1_to_P6_controls": "6 of 6 fire", "fibres_and_entries": "not predicted to the unit"},
+ "P10_joint_preimage": {"leaves": 2304, "couplings": 4, "C1_identified_pairs": "64, all data rows"},
+ "P11_controls": {"C1_to_C6": "6 of 6", "CH": "CH-1/2/4/5/7 fire (CH-7 against a cross-profile rung-K4 bundle), CH-3 identity, CH-6 skipped by name (no legacy bundle) exactly as at 125M", "M9": "M9-1, M9-2, M9-3 fire", "CT_GQ": "CT-1..CT-9 and GQ-1..GQ-7 fire", "TL": "the port's own controls fire: TL-1 frozen constants on a trained bundle make the six calibration slots fail; TL-2 one trained constant moved by one makes its slot fail; TL-3 a bundle that drops one trained key is refused by the loader"},
+ "P12_channels": "28 channels, the same table as 125M (10 constructed / 5 derived / 5 argued / 8 open in the everything pass)",
+ "P13_dense_vs_zero": "identical but for the sampled-column class: distinct opened-column counts and their pad margins, the H-pad cross-check's distinct columns and rank on B0, distinct salted leaves, and the bundles' own bytes. No rank, disclosed dimension, joint, challenge count, slot check or control verdict moves with the witness",
+ "T_tinyllama_specific": {
+  "T1_pad_set": "{F, L, Tab} pad; {D, Ht, Kv, Q, S, T} do not (the computed half: CHECKED from the capture, all derived draw counts equal) -- the runbook's [UNCHECKED] item 4 is now checked",
+  "T2_F_indicator": "hidden 5632 inside 8192 has NO closed BitForm (neither 5632 nor 2560 is a power of two), so supp_F is the builder's public support table; the port must take it from the capture's digest-checked public table, exactly as supp_L at 125M",
+  "T3_per_stage_tables": "stage 0 (layer 7) and stage 1 (layer 8) carry DIFFERENT exp tables (e_s 1 vs 2) and act tables (SiLU (-1,-10) vs (-4,-13)) and different weight folds; the U8 byte table, the RoPE pair and the shape-only indicator tables are equal across stages",
+  "T4_act_128": "act[128] == 0 in both stages' activation tables (the condition ruling S38-F1(a) refused otherwise; the trained tree no longer carries that refusal, finding G-1, so the gate checks it from the bundle)",
+  "T5_window": "D_max 1,482,910, norm window 32 (C-6 on): D24's formula, equal to the bundle's declared d_max and norm_wrho (computed half: CHECKED)"
+ },
+ "costs": {"pass_A_records_of_record": "under 5 minutes and under 1.5 GB per bundle", "everything_pass": "under 30 minutes and under 2 GB (A has 1,729 rows over 2^12 + 256 columns against 125M's 5,681 over 2^14 + 256: about 12.6x fewer cells per A)", "basis": "125M L=2 everything pass ~2.2 h at 5.5 GB"},
+ "privacy_acceptance": false,
+ "privacy_property_established": false
+}

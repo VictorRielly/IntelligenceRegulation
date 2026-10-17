@@ -531,3 +531,174 @@ a trained profile; transcript asserts it); R2-5 done (fail-closed, per-profile
 wire cap, one GPU-assisted 22-block run: no speed-up at this size). D24
 review F-1..F-6 fixed with permanent tests; full release suite green
 (lib 527 / 0 / 25 ignored). No job of mine is running.
+
+## Round 3 (coordinator, 2026-10-17 ~10:17 UTC): witness speed, context ladder
+
+Re-review of round 2 (frozen copy `ops/zkp-mvp/trained-1b-review-r2/`): no
+blocking or serious finding; two minor conditions, done FIRST:
+
+- **R2-a — FIXED.** `Layout::for_shape` now refuses (1) any shape whose
+  profile string is in `TRAINED_CALIBRATION_PROFILES` while its trained flag
+  is false (a `Shape::new` under a trained string skips the door), and (2) a
+  softmax window above 24 bits at EVERY shape (`Shape::check_softmax_window`:
+  `wrho_s <= 24` and `clog2(T) + f_e <= 24`; the registered frozen shapes
+  have 14..=18). `single_block_profile_allowed` also refuses on the profile
+  string, not only on the flag. The reviewer's `r2_1` is permanent and
+  refusing (`review_d24_tests::review_r2_1_...`): the non-door shape at f_e
+  50 and at f_e 12 is refused by `Layout::for_shape`; the wrapping forgery
+  builds a witness but the single-block prover refuses (R2-4) and the
+  verifier refuses at its entry; a frozen rung-C6 edited to f_e 50 (with and
+  without its window) or to a 25-bit window is refused.
+- **R2-b — FIXED.** `check_against` no longer waives the "trained TinyLlama
+  profile carries the pinned checkpoint" rule for every test build
+  (`cfg!(test)`): the waiver is a test-build-only FIELD set only by the
+  explicit test-only constructor `new_synthetic_at_trained_profile_for_tests`
+  (not encoded, absent in production builds). Test `review_r2_b_...`: a
+  production-constructed statement given a synthetic source is refused by
+  `check_against` in `cargo test`; the test-only constructor's statement
+  passes.
+- 10:22-10:24 UTC: guarded debug run `r3-r2ab-fast.log` (95 passed, 0
+  failed); 10:24-10:38 UTC: full guarded release suite on that tree
+  (`r3-suite-r2ab.log`): lib 529 passed / 0 failed / 25 ignored, all
+  integration targets ok (674 passed in all); guard wall 820 s, peak RSS 4.22
+  GiB. (Compiled before any round-3 R3-x edit.)
+
+### R3-1 witness speed (bit-exact)
+
+- (a) `witness.rs`: the matrix products (`matmul` for Wq/Wk/Wv/Wo, and
+  `matmul_in_out` for Wg/Wu/Wd) run in PARALLEL with rayon over chunks of
+  each output row (a power-of-two divisor of the row stride, so no chunk
+  straddles rows), and `matmul_in_out` now reads each weight row
+  contiguously (loop order row, i, j; the round-2 form walked `w` at stride
+  `outer`). Products are formed in i32 (every call site's `x` is int8 or
+  int16, so `|x w| < 2^30`) and widened to i64 before accumulating; any word
+  with `|x| >= 2^23` takes the exact i64 path. The score products run one
+  parallel task per padded head slot. Integer sums are exact, so no plane
+  moves: `witness_speed_tests` checks the parallel products equal the
+  round-2 sequential ones verbatim (`matmul_reference`) on random int8,
+  int16, zero-sprinkled and 2^40-sized inputs at rung-TC and rung-C6 (fast)
+  and at TinyLlama T64 dimensions (heavy, release); the frozen receipts,
+  slot-IR digests and kernel parity tests of the suite still hold. The
+  softmax and norm loops stay sequential (small at these T).
+- (b) the stack builds every witness ONCE: the endpoints are sealed from the
+  export's own words (layer 0's x_in, the last layer's x_out, padded), and
+  each block's witness is built in the proving pass and checked against the
+  export's x_out of its layer BEFORE its segment is proved (block 0's input
+  plane and the last block's output plane are asserted equal to the sealed
+  endpoints). A parity failure aborts the run and removes the run
+  directory. No pipelining: the witness is now 5% of the wall, so
+  overlapping it with the proofs (which already use every thread) would
+  gain little. Threads are explicit: every round-3 run sets
+  `RAYON_NUM_THREADS=16` and prints `rayon_threads` in its log.
+- (c) parity stays mandatory at every layer; receipts are unchanged in
+  length and statement identity per honest run (same identity for the same
+  export, layers and label; segment bytes differ only by fresh randomness).
+- **Before/after per block** [MEASURED, shared box, n=1, 16 threads], same
+  export (`pg_rot1_b4_T32_cal128`), layer 0, ho00, one-block CLI (`parity`
+  event = sequence load + witness + parity): round-2 CLI **7.581 s** ->
+  round-3 CLI **0.143 s** (53x); same statement identity c3b0d468...,
+  same segment length 11,627,288 B (`r3/one-{before,after}-...`). In the
+  22-block stack: round 2 built each witness twice, 10.1 s each (sealing
+  230.6 s + rebuild 223.0 s of 529 s); round 3 builds it once, 0.122 s per
+  block at T32, 0.231 s at T64, 0.583 s at T128.
+
+### R3-2 context ladder profiles
+
+- Registered `hashline-zk-mr1/private-block-tinyllama-1.1b-t64-trained/1`
+  (row width 2^13) and `...-t128-trained-block/1` (2^14), run profiles
+  `...-t64-trained-statement/1` and `...-t128-trained-statement/1`; one
+  profile per shape (D17), 21 endpoint rows each, the smallest counted
+  receipt of the admissible widths. The T128 block string carries a
+  `-block` suffix because at 60 bytes its transcript constructor (71 B)
+  would collide in length with the `pb-term` absorb in the same keyed
+  function (`s25_tests` census refused it; at 66 bytes it is 77 B, free).
+  `Shape::tinyllama_trained(T, cal, f_e)` (T32 is byte-identical to round 2),
+  `RunShape::tinyllama_trained`, the same declared classes and the softmax
+  rule (T64 window 15 bits, T128 16 bits, both two limbs); any other T is
+  refused by name. `TINYLLAMA_TRAINED_PROFILES` carries the pinned-checkpoint
+  rule to all three; the registries, census and statement tests cover them.
+- Reader: the B4 writer names no `geometry`, so the geometry is the TinyLlama
+  profile of the export's `T` (32/64/128; anything else refused; a named
+  geometry must match its T). Hard-linked weight files are ordinary files:
+  no digest check moved; `read_bounded` now REFUSES symbolic links
+  (`symlink_metadata`). Test `the_reader_maps_t_to_the_registered_tinyllama_profiles`.
+- One block of each b4 export (layer 0, ho00, round-3 CLI, 16 threads):
+  T64 parity bit-exact (131,072 words) 0.295 s, prove 3.0 s, segment
+  15,445,928 B, peak RSS 1.64 GiB; T128 parity bit-exact (262,144 words)
+  0.609 s, prove 5.7 s, segment 23,049,272 B, peak RSS 3.39 GiB; each
+  verified in a fresh process.
+- **T256 / T512 not registered (memory gate + no export).** Measured
+  one-block peak RSS doubles per T doubling (0.85 -> 1.64 -> 3.39 GiB), so
+  T256 projects to about 7 GiB per block (stack about 9-10 GiB with the 1.25
+  GB of blocks) and T512 to about 14 GiB, above this 15 GiB shared box. No
+  T256/T512 export exists. Counted layouts stand (T256 at 2^15: 38.8 MB per
+  segment, under the 256 MiB trained wire cap).
+
+### R3-3 the ladder (22-block pg_rot1_b4 stacks, CPU and GPU)
+
+10:48-11:03 UTC, scripts `r3_ladder_cpu.sh ho00` (CPU: T32, T64, T128, each
+verified in a FRESH process with all 11 run-level controls, plus the
+boundary-lie control on a 3-block T128 stack) and `r3_stack_gpu.sh <export>
+ho00` (one GPU pass per invocation, launched one after another;
+`HL_GPU=1 HL_GPU_REQUIRED=1`, header "gpu: ON — NVIDIA GeForce RTX 4070
+Laptop GPU", 0 declines; verified in a fresh process by the CPU binary).
+Same weights at every rung (the calibration lane's b4 family, cal128).
+Table generated by `r3_ladder_table.py` from the logs and guard records
+(`r3/LADDER.md`, `r3/ladder.json`) [MEASURED, shared box, n=1,
+RAYON_NUM_THREADS=16 in round 3; round-2 rows used the 22-thread default]:
+
+| rung | mode | total wall (s) | sealing (s) | witness (s) [per block] | proofs only (s) | in-proc verify (s) | fresh verify (s) | receipt (B) | peak RSS (GiB) | peak VRAM (MiB) | positions/s total | positions/s proofs |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| T32 (r2 ref) | CPU r2 | 529.0 | 230.648 | 222.999 [10.136] | 59.6 | 4.872 | 4.886 | 250,855,088 | 2.15 | - | 0.06 | 0.537 |
+| T32 (r2 ref) | GPU r2 | 545.2 | 229.941 | 227.97 [10.362] | 68.1 | 4.901 | 4.979 | 250,855,088 | 1.99 | 1281 | 0.059 | 0.47 |
+| T32  | CPU | 56.2 | 0.022 | 2.683 [0.122] | 40.2 | 3.015 | 3.152 | 250,855,088 | 2.15 | - | 0.569 | 0.797 |
+| T32  | GPU | 60.8 | 0.023 | 2.774 [0.126] | 40.8 | 3.376 | 3.431 | 250,855,088 | 1.98 | 1281 | 0.527 | 0.785 |
+| T64  | CPU | 84.9 | 0.013 | 5.085 [0.231] | 64.8 | 5.074 | 4.925 | 333,316,880 | 2.92 | - | 0.754 | 0.987 |
+| T64  | GPU | 89.3 | 0.042 | 5.246 [0.238] | 63.5 | 5.097 | 5.011 | 333,316,880 | 2.31 | 2529 | 0.717 | 1.008 |
+| T128  | CPU | 168.6 | 0.05 | 12.831 [0.583] | 136.2 | 9.042 | 11.1 | 497,665,904 | 4.82 | - | 0.759 | 0.94 |
+| T128  | GPU | 142.8 | 0.045 | 12.872 [0.585] | 107.1 | 8.742 | 8.451 | 497,665,904 | 3.03 | 3105 | 0.896 | 1.195 |
+T32 CPU r2 threads default (22) controls 11 declines 0 id 68ad19c83a3ae1a3 load 10.203 fresh-verify wall 34.4
+
+Columns: total wall = guard child wall of the prove job (load about 9-10 s,
+sealing, proving pass, in-process verify); witness = the single witness
+pass (round 2: the rebuild only; its sealing pass rebuilt them all again);
+proofs only = prove_run minus witness; positions/s = T / total wall and
+T / proofs only. Statement identities: T32 9b71dfb0..., T64 c2a42c61...,
+T128 53a5667d... (CPU and GPU runs of a rung agree). All CPU fresh verifies
+ran the 11 run-level controls (all refused); the T128 boundary lie fails at
+"slot 22 [IO-out endpoint equality]". Reading: the single parallel witness
+pass took the T32 stack from 529 s to 56 s; the proofs now dominate (72% at
+T32, 81% at T128); the GPU (commitments only) is level at T32/T64 and 21%
+faster in the proofs at T128 (107 vs 136 s), with peak VRAM 1.3 / 2.5 /
+3.1 GiB. Throughput rises from 0.57 to 0.76 positions/s (CPU) and 0.90
+(GPU) at T128.
+
+### Round-3 validation
+
+- 11:03-11:16 UTC: full guarded release suite on the round-3 tree
+  (`r3-suite-final.log`): lib 531 passed / 0 failed / 27 ignored, every
+  integration target ok (676 passed in all); guard wall 766 s, peak RSS 4.16
+  GiB. Same sources as both round-3 CLIs (`r3/manifest_cli_sources.json`:
+  no file changed since the CPU build; the GPU build used the same tree).
+- 11:16-11:18 UTC: heavy round-3 and TinyLlama tests in release
+  (`r3-heavy.log`, 5/5, RAYON_NUM_THREADS=16): the parallel products equal
+  the sequential ones at TinyLlama T64 dimensions; witness per block (dense
+  synthetic words, best of 3) 0.134 s at T32, 0.285 s at T64, 0.607 s at
+  T128; review F (naive p + 1) rejected at slot 17; the D16 item-6 half-p
+  aliases rejected at the pg TinyLlama calibration; the T3 generic TinyLlama
+  block proves (2.28 s) with every control refusing.
+- Binaries: `r3/zk60_trained_block.release.bin` sha256 3a106486...,
+  `r3/zk60_trained_block.gpu.release.bin` sha256 5c7a6c9f...
+- `r3/round3-vs-review-r2.patch`: every source change since the frozen
+  re-review copy `ops/zkp-mvp/trained-1b-review-r2/` (R2-a, R2-b, R3-1,
+  R3-2); `r2/round2-vs-review-r1.patch` is kept.
+- Disk: the round-3 run directories hold about 2.2 GB of segment bytes
+  (`r3/stack-*/run/segment-*.bin`); the committable record is each run's
+  `statement/segments.json` (lengths and SHA-256), `statement.json`,
+  `expected.bin`, the logs and guard records.
+
+**Round 3 status at hand-back:** R2-a and R2-b fixed with permanent tests;
+R3-1 done (one parallel witness pass, 53x per block at T32, parity per layer
+kept); R3-2 done for T64 and T128 (T256/T512 not registered: memory gate and
+no export); R3-3 ladder measured at T32/T64/T128 on CPU and GPU, every run
+verified in a fresh process. No job of mine is running.

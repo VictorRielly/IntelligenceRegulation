@@ -1,5 +1,16 @@
 # Where the MVP stands, in plain words
 
+**2026-10-17 11:15 UTC — trained 1.1B stack 9x faster; first context ladder.**
+Building the witness once and in parallel took the 22-block TinyLlama stack
+from 529 s to 56 s at T32. Ladder on identical weights (CPU / laptop GPU,
+shared box, n=1, each verified in a fresh process): T32 56 / 61 s, T64 85 /
+89 s, T128 169 / 143 s — **0.76 proved positions/s on CPU and 0.90 with the
+GPU at T128**, receipts 251 / 333 / 498 MB. The block proofs are now 72–81% of
+the time; GPU commitments help from T128. T256+ needs more host memory than the
+laptop has. D24 and the trained profile are accepted on soundness after two
+independent review rounds. Next: Llama-3-8B calibration (running), an 8B
+profile, and a T32 private 8B stack attempt on this laptop.
+
 **2026-10-17 10:15 UTC — first complete linked proof of a trained model's
 transformer stack.** All 22 TinyLlama-1.1B blocks as ONE private run (hidden
 32-token input, output, activations and every block boundary; public weights),

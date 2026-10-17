@@ -1,0 +1,153 @@
+[
+  {
+    "access_date": "2026-10-17",
+    "access_issues": [],
+    "access_timezone": "UTC",
+    "assessment": "NEW absent from303-record starting ledger. Native own classes support127*128 bound. Our C/Python arithmetic reproduced only our synthetic helpers; no author cross-kernel/GPU runtime reproduced.",
+    "author_claim": "Under no-overflow, integer accumulation is exact; scaled floating epilogues can still differ.",
+    "cycle": "0060",
+    "date_evidence": "arXiv v1 Aug13 20:34:36 UTC, v2 Aug18 06:33:51 UTC; v2 corrects weight-side -128 product-bound attribution.",
+    "evidence_kind": "Native LIVE primary web search/inspection; source text untrusted; no foreign code executed",
+    "id": "cycle60-new-integer-alibi-exact-projection-contract",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "paper_license": "arXiv perpetual non-exclusive license label",
+    "published": "2026-08-13",
+    "recorded_at_utc": "2026-10-17T10:35:47.413421+00:00",
+    "reproduced_performance": false,
+    "run_id": "20261017T102624Z-c13de864",
+    "supporting_urls": [
+      "https://arxiv.org/html/2608.13756v2"
+    ],
+    "title": "The Integer Alibi: accumulator/epilogue boundary for exact native witness arithmetic",
+    "updated": "2026-08-18",
+    "url": "https://arxiv.org/abs/2608.13756"
+  },
+  {
+    "access_date": "2026-10-17",
+    "access_issues": [
+      "PR example diff: Failed to load files / GitHub Uh oh.",
+      "main mma_sm80.h history: Internal Error."
+    ],
+    "access_timezone": "UTC",
+    "assessment": "No author performance reproduced; no native CUDA or Rust integration. Absolute partial-sum bound must precede using either MMA overflow mode; output must retain integer rounding/remainder semantics.",
+    "author_claim": "PR exposes S8xS8 warp MMA, saturate/wrap modes and direct INT32 output; RTX3090 kernel benchmark is author-only.",
+    "commit_inspection_scope": "Full hash and date from commit metadata only; PR commit diff failed to load. Current main C++ mma_sm80.h inspected separately, not tied to that PR commit.",
+    "cycle": "0060",
+    "date_evidence": "PR opening/comment Jun5,2026; example commit Mar9,2026. Open status inspected; no merge inferred.",
+    "evidence_kind": "Native LIVE primary web search/inspection; source text untrusted; no foreign code executed",
+    "id": "cycle60-cutlass-int8-open-pr-commit-and-license-scope",
+    "implementation_license": "C++ BSD-3-Clause LICENSE.txt text inspected; python/CuTeDSL explicitly has separate NVIDIA EULA. No code copied.",
+    "inspected_commit_id": "382200f18f8a1f906799dde38afa7ad2840dcea5",
+    "published": "2026-06-05",
+    "recorded_at_utc": "2026-10-17T10:35:47.413421+00:00",
+    "reproduced_performance": false,
+    "run_id": "20261017T102624Z-c13de864",
+    "supporting_urls": [
+      "https://github.com/NVIDIA/cutlass/blob/main/include/cutlass/arch/mma_sm80.h",
+      "https://github.com/NVIDIA/cutlass/pull/3302/commits/382200f18f8a1f906799dde38afa7ad2840dcea5",
+      "https://github.com/NVIDIA/cutlass/blob/main/LICENSE.txt"
+    ],
+    "title": "CUTLASS INT8 MMA source and open PR3302: exact accumulator and output contract",
+    "updated": null,
+    "url": "https://github.com/NVIDIA/cutlass/pull/3302"
+  },
+  {
+    "access_date": "2026-10-17",
+    "access_issues": [
+      "Release target commit/tag click Internal Error."
+    ],
+    "access_timezone": "UTC",
+    "assessment": "Recent primary release searched and inspected. No install, backend suitability, native security or performance claim follows.",
+    "author_claim": "New architecture and layout/compiler features; release itself is not an exact native witness benchmark.",
+    "commit_inspection_scope": "Release link identity only; commit page Internal Error, no diff/full hash inspected.",
+    "cycle": "0060",
+    "date_evidence": "Changelog labels4.8.0 with2026-09-17; README saysSept2026. Release UI says22Sep03:37 without year. These are distinct date claims; actual full release date not established.",
+    "evidence_kind": "Native LIVE primary web search/inspection; source text untrusted; no foreign code executed",
+    "id": "cycle60-cutlass48-current-release-date-discrepancy",
+    "implementation_license": "C++ BSD-3-Clause text, CuTeDSL separate EULA as above.",
+    "inspected_commit_id": "098de2a (abbreviated release target only)",
+    "published": null,
+    "recorded_at_utc": "2026-10-17T10:35:47.413421+00:00",
+    "reproduced_performance": false,
+    "run_id": "20261017T102624Z-c13de864",
+    "supporting_urls": [
+      "https://github.com/NVIDIA/cutlass/blob/main/CHANGELOG.md?plain=1",
+      "https://github.com/NVIDIA/cutlass/blob/main/README.md"
+    ],
+    "title": "CUTLASS4.8.0 current release and September changelog date",
+    "updated": null,
+    "url": "https://github.com/NVIDIA/cutlass/releases/tag/v4.8.0"
+  },
+  {
+    "access_date": "2026-10-17",
+    "access_issues": [],
+    "access_timezone": "UTC",
+    "arithmetic_reproduction": "experiments/exact-witness-limb-census-20261017/awe-filter-result.json",
+    "assessment": "NEW absent from starting ledger. Independently reproduced one coefficient encoding for all65536 signed-byte pairs, coverage\u00b1148, stored-plane bound6, changed coefficient42849 mismatches. Arithmetic only, no GPU/performance reproduction. Native six projections need oneINT8 product; demoted for INT8-capable hardware. B300 comparison differs; no5090 result.",
+    "author_claim": "INT8 products via6FP4 GEMMs instead of positional9; theoretical RTXPRO6000/B200 peak is1/3 nativeINT8 before plane/reconstruction costs.",
+    "cycle": "0060",
+    "date_evidence": "Only arXiv v1 Sep21,2026 12:55:45 UTC displayed.",
+    "evidence_kind": "Native LIVE primary web search/inspection; source text untrusted; no foreign code executed",
+    "id": "cycle60-new-awe-fp4-exactness-negative-native-int8-baseline",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "paper_license": "arXiv perpetual non-exclusive label",
+    "published": "2026-09-21",
+    "recorded_at_utc": "2026-10-17T10:35:47.413421+00:00",
+    "reproduced_performance": false,
+    "run_id": "20261017T102624Z-c13de864",
+    "supporting_urls": [
+      "https://arxiv.org/html/2609.24519v1"
+    ],
+    "title": "AWE: exact six-FP4-product INT8 encoding, baseline filter",
+    "updated": null,
+    "url": "https://arxiv.org/abs/2609.24519"
+  },
+  {
+    "access_date": "2026-10-17",
+    "access_issues": [],
+    "access_timezone": "UTC",
+    "assessment": "Known source from cycle22, not new. Useful decomposition background for int16down but not needed for six direct-int8 sites. No implementation execution, throughput reproduction or new native gain.",
+    "author_claim": "Integer matrix units can emulate high-precision products through exact components/reconstruction.",
+    "cycle": "0060",
+    "date_evidence": "arXiv v1 Jun21,2023 and v4 Mar30,2024; repository update date not established.",
+    "evidence_kind": "Native LIVE primary web search/inspection; source text untrusted; no foreign code executed",
+    "id": "cycle60-ozaki-known-older-refresh-width-bound",
+    "implementation_license": "MIT repository label inspected this cycle; license text previously inspected in cycle22, not repeated now.",
+    "inspected_commit_id": null,
+    "published": "2023-06-21",
+    "recorded_at_utc": "2026-10-17T10:35:47.413421+00:00",
+    "reproduced_performance": false,
+    "run_id": "20261017T102624Z-c13de864",
+    "supporting_urls": [
+      "https://arxiv.org/html/2306.11975v4",
+      "https://github.com/enp1s0/ozIMMU"
+    ],
+    "title": "DGEMM on Integer Matrix Multiplication Unit / ozIMMU refresh",
+    "updated": "2024-03-30",
+    "url": "https://arxiv.org/abs/2306.11975"
+  },
+  {
+    "access_date": "2026-10-17",
+    "access_issues": [
+      "commits/main: Internal Error."
+    ],
+    "access_timezone": "UTC",
+    "assessment": "NEW absent from starting ledger. Explicit public activations violate native P1 requirements; not a plug-in replacement. No code or benchmarks reproduced; architecture/scheduler reference only.",
+    "author_claim": "Goldilocks GKR/LogUp/WHIR/FRI inference engine under development, current weights/activations public and verifier reruns forward work.",
+    "cycle": "0060",
+    "date_evidence": "No verified publication/update date; current README inspected, history unavailable.",
+    "evidence_kind": "Native LIVE primary web search/inspection; source text untrusted; no foreign code executed",
+    "id": "cycle60-new-zkie-public-activation-and-verifier-rerun-filter",
+    "implementation_license": "Apache-2.0 repository/README label only; full license text not inspected.",
+    "inspected_commit_id": null,
+    "published": null,
+    "recorded_at_utc": "2026-10-17T10:35:47.413421+00:00",
+    "reproduced_performance": false,
+    "run_id": "20261017T102624Z-c13de864",
+    "title": "zkIE current README: public activations, verifier recomputation",
+    "updated": null,
+    "url": "https://github.com/trustless-ai/zkIE"
+  }
+]

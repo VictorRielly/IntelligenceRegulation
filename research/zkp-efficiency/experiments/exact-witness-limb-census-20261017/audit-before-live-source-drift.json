@@ -1,0 +1,11 @@
+{
+  "status": "pass",
+  "checks": 149,
+  "wall_seconds": 0.0030985260018496774,
+  "max_rss_KiB": 14960,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "scope": "independent source integrity, inverse patch, Decimal accounting, census formula and bilinear coefficient checks; no native proof or privacy gate"
+}
