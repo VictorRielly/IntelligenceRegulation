@@ -1,0 +1,47 @@
+{
+  "run_id": "20261017T192105Z-c342a26b",
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "experiments/lookup-helper-staging-20261017/prepare.py"
+      ],
+      "exit_code": 0,
+      "note": "Initial capture plus separately retained pcs.rs; prepare now includes pcs.rs."
+    },
+    {
+      "argv": [
+        "python3",
+        "experiments/lookup-helper-staging-20261017/run.py"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 4.336897213999691
+    },
+    {
+      "argv": [
+        "python3",
+        "experiments/lookup-helper-staging-20261017/audit.py"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.19214783999996143
+    }
+  ],
+  "compiler_argv": [
+    "/home/victor/.rustup/toolchains/1.97.0-x86_64-unknown-linux-gnu/bin/rustc",
+    "--edition=2021",
+    "--crate-type=cdylib",
+    "-C",
+    "opt-level=2",
+    "-C",
+    "codegen-units=1",
+    "isolated.rs",
+    "-o",
+    "isolated.so"
+  ],
+  "compiler_environment": {
+    "TMPDIR": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-helper-staging-20261017/tmp",
+    "RAYON_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1"
+  },
+  "scope": "Final test runs; earlier passing versions retained. All final experiments CPU-light; no native crate/GPU/receipt executed."
+}

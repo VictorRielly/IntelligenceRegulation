@@ -1,0 +1,22 @@
+l1/tl-l1-dense-a.json                                ok True ->True  pins True  status PASS->PASS unexpl 0->0
+l1/tl-l1-dense-everything.json                       ok False->False pins True  status NOT-OK->NOT-OK unexpl 5->5
+l1/tl-l1-zero-a.json                                 ok True ->True  pins True  status PASS->PASS unexpl 0->0
+l2/tl-dense-a.json                                   ok True ->True  pins True  status PASS->PASS unexpl 0->0
+l2/tl-dense-everything.json                          ok False->False pins True  status NOT-OK->NOT-OK unexpl 8->7
+l2/tl-zero-a.json                                    ok True ->True  pins True  status PASS->PASS unexpl 0->0
+l2/tl-zero-arms.json                                 ok False->False pins True  status ARMS-ONLY->ARMS-ONLY unexpl 0->0
+l2/tl-zero-everything.json                           ok False->False pins True  status NOT-OK->NOT-OK unexpl 8->7
+l22/tl-l22-dense-a.json                              ok True ->True  pins True  status PASS->PASS unexpl 0->0
+l22/tl-l22-dense-m.json                              ok True ->True  pins True  status PASS->PASS unexpl 0->0
+l22/tl-l22r2-zero-arms.json                          ok False->False pins True  status ARMS-ONLY->ARMS-ONLY unexpl 0->0
+p2/equivalence-k4-v3-original.json                   ok False->False pins True  status NOT-OK->NOT-OK unexpl 4->4
+p2/equivalence-k4-v3-ported.json                     ok False->False pins True  status NOT-OK->NOT-OK unexpl 4->4
+p2/tl-l1-dense-runcontrols.json                      ok False->False pins True  status NOT-OK->NOT-OK unexpl 7->6
+v4/equivalence-k4-v4-original.json                   ok False->False pins True  status NOT-OK->NOT-OK unexpl 4->4
+v4/equivalence-k4-v4-ported.json                     ok False->False pins True  status NOT-OK->NOT-OK unexpl 4->4
+v4/tl-l1-dense-runcontrols-v4.json                   ok False->False pins True  status NOT-OK->NOT-OK unexpl 4->3
+v4/tl-l22-dense-f.json                               ok True ->True  pins True  status PASS->PASS unexpl 1->0
+v4/tl-l22r2-zero-m.json                              ok True ->True  pins True  status PASS->PASS unexpl 0->0
+equivalence/equivalence-k4-ported.json               ok False->False pins True  status NOT-OK->NOT-OK unexpl 4->4
+equivalence/equivalence-k4-original.json             ok False->False pins True  status NOT-OK->NOT-OK unexpl 4->4
+records 21; ok unchanged True; status unchanged True; pins ok True

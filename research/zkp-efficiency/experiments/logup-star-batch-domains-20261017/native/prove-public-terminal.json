@@ -1,0 +1,21 @@
+{
+  "event": "proved",
+  "gpu": "gpu: off (built without --features gpu-cuda)",
+  "gpu_declines": 0,
+  "blocks": 32,
+  "receipt_bytes": 465815776,
+  "prove_run_seconds": 156.143,
+  "of_which_witness_seconds": 21.376,
+  "witness_seconds_per_block": 0.668,
+  "of_which_block_load_seconds": 15.993,
+  "block_loads": 32,
+  "rayon_threads": 16,
+  "in_process_verified": false,
+  "in_process_verify_seconds": 0.0,
+  "sealing_pass_seconds": 0.051,
+  "load_seconds": 15.294,
+  "total_seconds": 171.578,
+  "vmhwm_mib": 2127,
+  "statement_identity": "259dad7cb2c9739e44cfdf5c27c4c87090458cf330e9d39b592221094ae3537f",
+  "out": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/stack-llama3_8b_pg_rot1_T32-ho00-cpu-cli3/run"
+}

@@ -1,0 +1,37 @@
+{
+ "kind": "token-io R2 head (per-row int8 + 12-bit multipliers, D25 T4 as amended)",
+ "source": "results/zk60_token_io_fidelity_20261017/tools/s4_head.py build_heads (read-only import)",
+ "V": 32000,
+ "d": 2048,
+ "head_int8_perrow.bin": {
+  "dtype": "int8",
+  "shape": [
+   32000,
+   2048
+  ],
+  "sha256": "b99cbec5f457e47ca2441de517135ba1bd1870e2ae8abe2038dbd84617436280"
+ },
+ "head_mult12.bin": {
+  "dtype": "int64 little-endian",
+  "shape": [
+   32000
+  ],
+  "sha256": "7824019e82a62fd6e36c165b9aabfd3711d03b815731e298b356a734a7ea663f",
+  "rule": "m_j = max(1, floor(2^12 s_j / max s + 0.5))",
+  "min": 1027,
+  "max": 4096,
+  "distinct": 1836
+ },
+ "scales_f64_sha256": "5eb2b350e384749b9f7ab976e1f5027a4793e6a5a75515af9577e43ad5ea1b1c",
+ "minus128": 0,
+ "final_norm": {
+  "g0": 127,
+  "tn": 10,
+  "ceps": 74429,
+  "cn_calibrated": 5664,
+  "cn_refusal_free": 1024,
+  "window_bits": 32
+ },
+ "bos": 1,
+ "seconds": 21.99484920501709
+}

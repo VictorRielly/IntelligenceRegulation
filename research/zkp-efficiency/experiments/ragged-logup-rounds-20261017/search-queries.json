@@ -1,0 +1,17 @@
+{
+  "native_live_queries": [
+    "ragged sumcheck heterogeneous batch sumcheck padding prover unequal length github",
+    "GPU sumcheck GKR October 2026 release padding memory traffic",
+    "\"LogUp\" \"ragged\" sumcheck",
+    "\"sumcheck\" \"virtual\" \"padding\" 2025 paper",
+    "site:docs.rs/crate/sp1-gpu-jagged-sumcheck \"2026\" \"6.3\"",
+    "site:github.com/google/longfellow-zk sumcheck padding",
+    "site:eprint.iacr.org sumcheck sparse batching different sizes 2023 2024",
+    "site:github.com \"FLI\" \"Folding Lookup Instances\"",
+    "site:docs.rs/crate/sp1-sdk/6.9.0 \"2026-10-10\"",
+    "site:github.com/longfellow-zk/longfellow-zk \"padding\" sumcheck",
+    "site:github.com/succinctlabs/sp1/pull/2990 \"bit\" \"transpose\"",
+    "site:github.com/succinctlabs/sp1/pull/2993 \"Sep\" \"constraint\""
+  ],
+  "excluded": "Third-party tutorials/search-only hits were not used as technical evidence; failed primary URLs and inspected records are in searched-sources.json."
+}

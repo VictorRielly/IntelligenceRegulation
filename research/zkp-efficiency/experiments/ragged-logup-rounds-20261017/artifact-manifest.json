@@ -1,0 +1,322 @@
+[
+  {
+    "path": "FINDINGS.md",
+    "bytes": 503044,
+    "sha256": "86480be1770725742da1fdd7a33c7ed48ebbe0489835f45a4c67bd165df78397"
+  },
+  {
+    "path": "PROGRESS.md",
+    "bytes": 1833,
+    "sha256": "7ecca6c23991fe889750db04b9cb687856af49d85b6ae31d25ea7565878c58eb"
+  },
+  {
+    "path": "STATE.md",
+    "bytes": 6804,
+    "sha256": "76d0f1baed661df598ef421798ebb11e13e9ac6341d9cba1b01e26b92504cdaf"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/README.md",
+    "bytes": 5022,
+    "sha256": "03033d8e1beef2fa419df64310cd1feb19ac3d6136b4e16afba297b540e4860c"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/account.log",
+    "bytes": 1231,
+    "sha256": "0d2ae2d34c6c9ac90246bbefde9ce6fa34dc744e814df4a9fbdc40937a9664a6"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/account.py",
+    "bytes": 3414,
+    "sha256": "c6595ebe14bac84db470b0ff8a64e8c5767611bffdde18c01680272321a5b43d"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/accounting.json",
+    "bytes": 4114,
+    "sha256": "4234aa865f187cee85fbb0e12699e8c6cb5cedfdf4fc2d6a53de1977871c8ec0"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/artifact-audit-first-error.json",
+    "bytes": 553,
+    "sha256": "ac5f3df01e9603b6b73d1fc6b754294687eea6c71cce4a8e3731ee3df1191119"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/audit-result.json",
+    "bytes": 470,
+    "sha256": "9082a7cbfdd13233af47118dcce28ca8f6de6afd83b64de60af590b1165691e3"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/audit.log",
+    "bytes": 470,
+    "sha256": "9082a7cbfdd13233af47118dcce28ca8f6de6afd83b64de60af590b1165691e3"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/audit.py",
+    "bytes": 4631,
+    "sha256": "042ec6ef9c2debea213bb63bf32ce312d1df82d1ef0b5d2d7cc64e2cd47f6341"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/captured-mask.rs",
+    "bytes": 2802,
+    "sha256": "744c062733ac65106d157070204921112f79dcc73f29d6f4b4ffa911322664e8"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/checkpoint.json",
+    "bytes": 833,
+    "sha256": "f33e743688eb790fa7c41d30abce98eeffeb1254aba7840f327465214b28c78f"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/commands.json",
+    "bytes": 1735,
+    "sha256": "d12e3473c9813d6a70e349eddd564f25d35aa43bb1ab89a087497b733558b798"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/compile.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/environment.json",
+    "bytes": 241,
+    "sha256": "9f68aa6e9315b984b07216642fdff6dc9d0c82cc8b9b913e3fa06fa99e0e58f1"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/field-only.rs",
+    "bytes": 7648,
+    "sha256": "f787ef8ccc83b5f494039b958fa4261fb720f497e04f3b75b74d3c600fb77873"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/finalize.py",
+    "bytes": 4553,
+    "sha256": "ba1fb3a64b1e61b2f7d122ab90b8084d181822d7256b02648a30cea99b2ad464"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/first-pass/accounting.json",
+    "bytes": 4114,
+    "sha256": "919bdb0420b31ddcfcb39a235c26e581a22885c2001f6baf2b7c11531fba4310"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/first-pass/audit-result.json",
+    "bytes": 470,
+    "sha256": "dcafb9716bfb73184be66c3ded7c058a59bd58a8d06a27deba1a24e05c0ad784"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/first-pass/audit.py",
+    "bytes": 4168,
+    "sha256": "fe72d9fe3b90781a12caa7c2bdbd183bb786dc9f90fc4653d5a2536df4f8068d"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/first-pass/fixtures.json",
+    "bytes": 424469,
+    "sha256": "0f09085dfa7eaad2b6da4a0f9d5e9fc405120e50343e1cb2519c6065b29c8fe6"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/first-pass/result.json",
+    "bytes": 2442,
+    "sha256": "512ed7673539e891faa4284186e8e0aa034eb7fe26a736fe33cfaa53a8055113"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/first-pass/run.py",
+    "bytes": 10948,
+    "sha256": "664cf87f8cdabd2ea6ffd8c850f8688e16909b488a75295f9f64883b3be100ab"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/fixtures.json",
+    "bytes": 458765,
+    "sha256": "f538f3093683bc17d5258fed0af43b91ec9ab8c5463458c8dc8bd1933945132b"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/isolated.rs",
+    "bytes": 10598,
+    "sha256": "80e5560f1863e1516da32bb2347d21cc5397b9d8ee8f2f26db903729ec923c08"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/isolated.so",
+    "bytes": 4341736,
+    "sha256": "35470a4bb6400e21ef09175f9edf0af875aa60668c7853bb32f3838512e7b6ee"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/native/PHASES_8B_T32_cli3.md",
+    "bytes": 3357,
+    "sha256": "89bf16d4ad2323f9a56235fd20bfbdc71ef6ebf0c3f9e3ddf3b4914073d8aefd"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/native/argument.rs",
+    "bytes": 108798,
+    "sha256": "2475e3a222e32aa26969182b5ab7228756d633fa67bdde1f9520818ef7a2bb0e"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/native/field.rs",
+    "bytes": 11065,
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/native/layout.rs",
+    "bytes": 64489,
+    "sha256": "fcf9dda4e507d2a347f786ddc537feff3ac57779abae88cea91ee48d4b34c855"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/native/owner-gpu-progress.md",
+    "bytes": 18797,
+    "sha256": "f0344eeb558435c51d9eb3b382f36233634ca9791f50f3a4237930f0654b77d3"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/native/owner-native-progress.md",
+    "bytes": 93588,
+    "sha256": "9fa46fd53947ae5a37525a16c7663ce9687ba644e47c02b39ae01f927b7c97a2"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/native/protocol.rs",
+    "bytes": 63656,
+    "sha256": "4612a955a1148ba821e3d8722684ccb1d73304bb34955dcd3be28cafdbdc8e7d"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/native/rounds.rs",
+    "bytes": 7092,
+    "sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/native/shape.rs",
+    "bytes": 102462,
+    "sha256": "e6c7290b5c2d897ccaaa6284c813bbcfea563aaef7594c309b955a5588c1e073"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/native/sumcheck.rs",
+    "bytes": 22023,
+    "sha256": "fc7374bbd5e5cc4ede62e8a21d325eb62acff9b9dcc786d12eae39efbdfdbb95"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/native-pins.json",
+    "bytes": 2587,
+    "sha256": "a15996d489b9b6ee59b91bcd9e732b53ee7046b740200975dc6855dd23d22b55"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/prior-accounting.json",
+    "bytes": 7792,
+    "sha256": "e30ef891a68a9e34ff5adc97a7b85335b9fabc379682bba3d208bb9e50f602ef"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/ragged.rs",
+    "bytes": 2950,
+    "sha256": "bc4b0800cac96a5e08b146c9bf96d8bbf70e393b22170377c10da50a59df77a7"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/record.py",
+    "bytes": 1174,
+    "sha256": "abc147be8bd0954faecd6d4fb201cb14f9c4cccd9db176414fc6fe0d1ce8a3c5"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/result.json",
+    "bytes": 2519,
+    "sha256": "0ac46003570ef510fb04953a6cbd2b9d89b169975932a331feb6449f63ff0221"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/run.log",
+    "bytes": 2519,
+    "sha256": "0ac46003570ef510fb04953a6cbd2b9d89b169975932a331feb6449f63ff0221"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/run.py",
+    "bytes": 12058,
+    "sha256": "47053d4880bd7fa91b174026c0b8674eed7851ef2d261e37e39465e100961b1a"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/save_sources.py",
+    "bytes": 8588,
+    "sha256": "a38327596310400b699b34bab50da897a89fa5f57b8431802e33d93ca0776caf"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/search-queries.json",
+    "bytes": 987,
+    "sha256": "33c203cc0691217d41ed176798e2fb4ee240909ba4ab36d0e2ac358d23213599"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/searched-sources.json",
+    "bytes": 11357,
+    "sha256": "c014769b7698ea25dac685905cf019f5358424167e95e17d934bef777f260212"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/source-append-audit.json",
+    "bytes": 289,
+    "sha256": "fe9b5fc4082c14c4ff1638857c26799097d2acdfebf150db8e1ae71a3c0dc6d2"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/source-drift.json",
+    "bytes": 3215,
+    "sha256": "e95c6d57f1269d901a79532f3175f9abfe4c20486b451c124a408676311de0b7"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/startup/AGENDA.md",
+    "bytes": 5603,
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/startup/CLAUDE.md",
+    "bytes": 14089,
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/startup/FINDINGS.md",
+    "bytes": 496240,
+    "sha256": "d8c467685337ad980cd660110047e1ca9b3ff0d78ab92137a802f826eef0e362"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/startup/MVP_STATUS.md",
+    "bytes": 69398,
+    "sha256": "36e5bd608c0148ead448cc5c498328a6f704cedc5ae9c82ad8b6444fcfefcd4f"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/startup/PROGRESS.md",
+    "bytes": 1803,
+    "sha256": "a51c761033e2473fd1beb0ae1cf40ad27d8baa1dc2159b2f4c48b7a3dcceb747"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/startup/STATE.md",
+    "bytes": 6022,
+    "sha256": "fe7e01afbf55fa35e3d4df7bc2c70b4f6445a7c5a4351e38806d8ffa9057fd48"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/startup/ZK60_CODEX_FABLE_COORDINATION.md",
+    "bytes": 64889,
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/startup/ZK60_DECISIONS.md",
+    "bytes": 77429,
+    "sha256": "bec16b7ab83b856967451ed3cfabc59564ea5649f78b20e3e2ab2c500c0f2be0"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/startup/ZK60_SPEED_PLAN_20261017.md",
+    "bytes": 29584,
+    "sha256": "f89f7b91649d171f2d2404f36d8cfa814f199442d83dd59dc21b355559809894"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/startup/ZK60_THROUGHPUT_TARGET.md",
+    "bytes": 4941,
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/startup/manifest.json",
+    "bytes": 2168,
+    "sha256": "fc6e09de9df58992b556b10c9d1dcd2356b8e15bc5f0c2f08487ce3b251929b8"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/startup/sources.jsonl",
+    "bytes": 453513,
+    "sha256": "9fe226c0911612f395329cc94be1a9b4309dffd4e662d950169852aab069450b"
+  },
+  {
+    "path": "handoffs/20261017-ragged-logup-rounds.md",
+    "bytes": 4566,
+    "sha256": "13065264f89878579ffb5e520aa54200505dd22ae226111589338584aa445207"
+  },
+  {
+    "path": "progress/20261017T222105Z-d6d7aa4d.md",
+    "bytes": 12311,
+    "sha256": "c63bcfc81ac1f1e1c9281600612ce89c818380064b57ac842bc01a2cb2cc67f4"
+  },
+  {
+    "path": "sources.jsonl",
+    "bytes": 464015,
+    "sha256": "6b321d4d6f90a6daa3933974c172f4dc77c4c7843b9c187722929e2a69709de7"
+  }
+]

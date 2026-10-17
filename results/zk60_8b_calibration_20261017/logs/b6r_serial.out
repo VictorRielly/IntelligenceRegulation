@@ -1,0 +1,68 @@
+[zk60-guard 11:31:07] START b6r-verify-llama3_8b_pg_rot1_b6_T128 class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=235a121b56c8
+[zk60-guard 11:37:43] END b6r-verify-llama3_8b_pg_rot1_b6_T128 exit=0 child_wall=396s peak_rss=2.00G min_avail=10.69G
+[zk60-guard 11:37:43] START b5-b6r_T64 class=light need=4G cap=5G enforce=cgroup+watchdog waited=0s run=e6cf65dcfa3c
+[zk60-guard 12:05:19] END b5-b6r_T64 exit=0 child_wall=1655s peak_rss=3.02G min_avail=6.67G
+[zk60-guard 12:05:19] START b6r-verify-llama3_8b_pg_rot1_b6_T64 class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=e5900a4fa236
+[zk60-guard 12:08:36] END b6r-verify-llama3_8b_pg_rot1_b6_T64 exit=0 child_wall=197s peak_rss=1.69G min_avail=9.07G
+[zk60-guard 12:08:36] START b5-b6_l1_s16 class=light need=4G cap=5G enforce=cgroup+watchdog waited=0s run=1461e17bb583
+[zk60-guard 12:48:34] END b5-b6_l1_s16 exit=0 child_wall=2398s peak_rss=3.01G min_avail=6.73G
+[b5_run 19:49:04Z] hold released for b5-b6_l1_perhead
+[zk60-guard 12:49:04] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [tl-v4-l22-dense-f(light,6G), t9-seeded-tl128(gpu,4.5G)]
+[zk60-guard 12:50:04] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [tl-v4-l22-dense-f(light,6G), t9-seeded-tl128(gpu,4.5G)]
+[zk60-guard 12:51:04] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [tl-v4-l22-dense-f(light,6G), t9-seeded-tl128(gpu,4.5G)]
+[zk60-guard 12:52:05] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gzc-stack-s1-lean(gpu,4.5G), tl-v4-l22-dense-f(light,6G)]
+[zk60-guard 12:53:05] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gzc-stack-s1-lean(gpu,4.5G), tl-v4-l22-dense-f(light,6G)]
+[zk60-guard 12:54:05] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gzc-stack-s1-lean(gpu,4.5G), tl-v4-l22-dense-f(light,6G)]
+[zk60-guard 12:55:05] admission waiting: budget: 11.5+4 GiB > 11.9 GiB with live [b7-testbin-release(build,3G), fid-s4-smoke(light,2.5G), tl-v4-l22-dense-f(light,6G)]
+[zk60-guard 12:56:05] admission waiting: budget: 11.5+4 GiB > 11.9 GiB with live [b7-testbin-release(build,3G), tl-v4-l22-dense-f(light,6G), fid-s4-head(light,2.5G)]
+[zk60-guard 12:57:05] admission waiting: budget: 11.5+4 GiB > 11.9 GiB with live [b7-testbin-release(build,3G), tl-v4-l22-dense-f(light,6G), fid-s4-head(light,2.5G)]
+[zk60-guard 12:58:06] admission waiting: budget: 11.5+4 GiB > 11.9 GiB with live [b8-example-release(build,3G), tl-v4-l22-dense-f(light,6G), fid-s4-head(light,2.5G)]
+[zk60-guard 12:59:06] admission waiting: budget: 11.5+4 GiB > 11.9 GiB with live [b8-example-release(build,3G), tl-v4-l22-dense-f(light,6G), fid-s4-head(light,2.5G)]
+[zk60-guard 13:00:06] admission waiting: budget: 11.5+4 GiB > 11.9 GiB with live [tl-v4-l22-dense-f(light,6G), fid-s4-head(light,2.5G), b6-testbin-release(build,3G)]
+[zk60-guard 13:01:06] admission waiting: budget: 11+4 GiB > 11.9 GiB with live [tl-v4-l22-dense-f(light,6G), fid-s7-decomp(light,2G), b6-testbin-release(build,3G)]
+[zk60-guard 13:02:06] admission waiting: budget: 11+4 GiB > 11.9 GiB with live [tl-v4-l22-dense-f(light,6G), fid-s7-decomp(light,2G), b6-testbin-release(build,3G)]
+[zk60-guard 13:03:06] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [tl-v4-l22-dense-f(light,6G), t10-trained-all-r2(gpu,4.5G)]
+[zk60-guard 13:04:06] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [tl-v4-l22-dense-f(light,6G), t10-trained-all-r2(gpu,4.5G)]
+[zk60-guard 13:05:07] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [tl-v4-l22-dense-f(light,6G), t10-trained-all-r2(gpu,4.5G)]
+[zk60-guard 13:06:07] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [tl-v4-l22-dense-f(light,6G), t10-trained-all-r2(gpu,4.5G)]
+[zk60-guard 13:07:07] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [tl-v4-l22-dense-f(light,6G), t10-trained-all-r2(gpu,4.5G)]
+[zk60-guard 13:08:07] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [tl-v4-l22-dense-f(light,6G), t10-trained-all-r2(gpu,4.5G)]
+[zk60-guard 13:09:07] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [tl-v4-l22-dense-f(light,6G), t10-trained-all-r2(gpu,4.5G)]
+[zk60-guard 13:10:07] admission waiting: budget: 11+4 GiB > 11.9 GiB with live [r5-cli3-gpu-build(build,3G), tl-v4-l22-dense-f(light,6G), fid-s7-decomp2(light,2G)]
+[zk60-guard 13:11:07] admission waiting: budget: 11+4 GiB > 11.9 GiB with live [r5-stack-llama3_8b_pg_rot1_T32-cpu(cpu,3G), tl-v4-l22-dense-f(light,6G), fid-s7-decomp2(light,2G)]
+[zk60-guard 13:12:08] admission waiting: budget: 9+4 GiB > 11.9 GiB with live [r5-stack-llama3_8b_pg_rot1_T32-cpu(cpu,3G), tl-v4-l22-dense-f(light,6G)]
+[zk60-guard 13:13:08] admission waiting: budget: 9+4 GiB > 11.9 GiB with live [r5-stack-llama3_8b_pg_rot1_T32-cpu(cpu,3G), tl-v4-l22-dense-f(light,6G)]
+[zk60-guard 13:14:08] admission waiting: budget: 8.5+4 GiB > 11.9 GiB with live [r4-cli-build(build,2.5G), tl-v4-l22-dense-f(light,6G)]
+[zk60-guard 13:15:08] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [t3-lib(cpu,4.5G), tl-v4-l22-dense-f(light,6G)]
+[zk60-guard 13:16:08] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [t3-lib(cpu,4.5G), tl-v4-l22-dense-f(light,6G)]
+[zk60-guard 13:17:08] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [t3-lib(cpu,4.5G), tl-v4-l22-dense-f(light,6G)]
+[zk60-guard 13:18:08] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [t3-lib(cpu,4.5G), tl-v4-l22-dense-f(light,6G)]
+[zk60-guard 13:19:09] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [t3-lib(cpu,4.5G), tl-v4-l22-dense-f(light,6G)]
+[zk60-guard 13:20:09] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [t3-lib(cpu,4.5G), tl-v4-l22-dense-f(light,6G)]
+[zk60-guard 13:21:09] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [t3-lib(cpu,4.5G), tl-v4-l22-dense-f(light,6G)]
+[zk60-guard 13:22:09] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [tl-v4-l22-dense-f(light,6G), r5-ladder8b-T64-cpu(cpu,4.5G)]
+[zk60-guard 13:23:09] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [tl-v4-l22-dense-f(light,6G), r5-ladder8b-T64-cpu(cpu,4.5G)]
+[zk60-guard 13:24:09] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [tl-v4-l22-dense-f(light,6G), r5-ladder8b-T64-cpu(cpu,4.5G)]
+[zk60-guard 13:25:10] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [tl-v4-l22-dense-f(light,6G), r5-ladder8b-T64-cpu(cpu,4.5G)]
+[zk60-guard 13:26:10] START b5-b6_l1_perhead class=light need=4G cap=5G enforce=cgroup+watchdog waited=2225s run=cafacb2fafe4
+[zk60-guard 13:58:37] END b5-b6_l1_perhead exit=0 child_wall=1948s peak_rss=3.06G min_avail=9.79G
+[b5_run 21:26:46Z] hold #2 released for b5-b6_l1_m2zero (need 3.5 / cap 4.5)
+[zk60-guard 14:26:46] START b5-b6_l1_m2zero class=light need=3.5G cap=4.5G enforce=cgroup+watchdog waited=0s run=fba153f0ae9d
+[zk60-guard 15:03:10] END b5-b6_l1_m2zero exit=0 child_wall=2184s peak_rss=3.00G min_avail=4.66G
+[b5_run 22:03:10Z] hold #2 released for b5-b6_l1_none (need 3.5 / cap 4.5)
+[zk60-guard 15:03:10] START b5-b6_l1_none class=light need=3.5G cap=4.5G enforce=cgroup+watchdog waited=0s run=d8d92e65c7fb
+[zk60-guard 15:08:09] END b5-b6_l1_none exit=0 child_wall=299s peak_rss=3.03G min_avail=7.75G
+[b5_run 22:10:22Z] hold #2 released for b5-b6_l1_s0m (need 3.5 / cap 4.5)
+[zk60-guard 15:10:22] START b5-b6_l1_s0m class=light need=3.5G cap=4.5G enforce=cgroup+watchdog waited=0s run=eaa3980b8a45
+[zk60-guard 15:49:56] END b5-b6_l1_s0m exit=0 child_wall=2374s peak_rss=3.03G min_avail=7.15G
+[b5_run 22:50:02Z] hold #2 released for b5-b6_l1_scr_sh7 (need 3.5 / cap 4.5)
+[zk60-guard 15:50:02] START b5-b6_l1_scr_sh7 class=light need=3.5G cap=4.5G enforce=cgroup+watchdog waited=0s run=fa314204a232
+[zk60-guard 15:53:28] END b5-b6_l1_scr_sh7 exit=0 child_wall=206s peak_rss=3.08G min_avail=7.21G
+[b5_run 22:53:28Z] hold #2 released for b5-b6_l1_scr_o16 (need 3.5 / cap 4.5)
+[zk60-guard 15:53:28] START b5-b6_l1_scr_o16 class=light need=3.5G cap=4.5G enforce=cgroup+watchdog waited=0s run=f9d92297e599
+[zk60-guard 15:57:27] END b5-b6_l1_scr_o16 exit=0 child_wall=239s peak_rss=3.04G min_avail=6.37G
+[b5_run 22:57:27Z] hold #2 released for b5-b6_l1_scr_sh7o16 (need 3.5 / cap 4.5)
+[zk60-guard 15:57:28] START b5-b6_l1_scr_sh7o16 class=light need=3.5G cap=4.5G enforce=cgroup+watchdog waited=0s run=b5ef231b08fb
+[zk60-guard 16:00:59] END b5-b6_l1_scr_sh7o16 exit=0 child_wall=211s peak_rss=3.06G min_avail=8.92G
+[b5_run 23:03:08Z] hold #2 released for b5-b6_l1_sh7_T128 (need 3.5 / cap 4.5)
+[zk60-guard 16:03:08] START b5-b6_l1_sh7_T128 class=light need=3.5G cap=4.5G enforce=cgroup+watchdog waited=0s run=0a16b0ad3a32

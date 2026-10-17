@@ -1,0 +1,76 @@
+[zk60-guard 11:43:49] START tl-v4-equivalence-k4 class=light need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=95ba46d3fe2d
+[zk60-guard 11:44:53] END tl-v4-equivalence-k4 exit=0 child_wall=64s peak_rss=0.28G min_avail=10.47G
+[zk60-guard 11:44:53] START tl-v4-g10-l1 class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=2fab33b98875
+[zk60-guard 11:44:54] END tl-v4-g10-l1 exit=0 child_wall=1s peak_rss=0.13G min_avail=10.69G
+[zk60-guard 11:44:54] START tl-v4-g10-l2 class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=1639be7e5561
+[zk60-guard 11:44:56] END tl-v4-g10-l2 exit=0 child_wall=2s peak_rss=0.17G min_avail=10.55G
+[zk60-guard 11:44:56] START tl-v4-g10-k4 class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=6fadaf02a44f
+[zk60-guard 11:44:59] END tl-v4-g10-k4 exit=0 child_wall=3s peak_rss=0.41G min_avail=10.90G
+[zk60-guard 11:44:59] START tl-v4-g10-l22 class=light need=3G cap=4G enforce=cgroup+watchdog waited=0s run=e8e630b43633
+[zk60-guard 11:45:14] END tl-v4-g10-l22 exit=0 child_wall=16s peak_rss=1.37G min_avail=9.86G
+[zk60-guard 11:45:15] START tl-v4-integrity-inert class=light need=3G cap=4G enforce=cgroup+watchdog waited=0s run=d64407b84b3c
+[zk60-guard 11:46:00] END tl-v4-integrity-inert exit=0 child_wall=46s peak_rss=1.55G min_avail=10.06G
+[zk60-guard 11:46:01] START tl-v4-l1-dense-runcontrols class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=df86e2d2af34
+[zk60-guard 11:46:35] END tl-v4-l1-dense-runcontrols exit=1 child_wall=34s peak_rss=0.37G min_avail=10.49G
+[zk60-guard 11:46:35] START tl-v4-l22-zero-m class=light need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=b563edbd1ece
+[zk60-guard 11:50:38] END tl-v4-l22-zero-m exit=0 child_wall=243s peak_rss=0.92G min_avail=8.52G
+[zk60-guard 11:50:39] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [r5-suite(cpu,4.5G), b5-b6r_T64(light,4G)]
+[zk60-guard 11:51:39] admission waiting: budget: 9.5+6 GiB > 11.9 GiB with live [r5-suite(cpu,4.5G), tl-v4-l1-dense-runcontrols(light,1G), b5-b6r_T64(light,4G)]
+[zk60-guard 11:52:39] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [r5-suite(cpu,4.5G), b5-b6r_T64(light,4G)]
+[zk60-guard 11:53:39] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [r5-suite(cpu,4.5G), b5-b6r_T64(light,4G)]
+[zk60-guard 11:54:39] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [r5-suite(cpu,4.5G), b5-b6r_T64(light,4G)]
+[zk60-guard 11:55:39] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [r5-suite(cpu,4.5G), b5-b6r_T64(light,4G)]
+[zk60-guard 11:56:40] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [r5-suite(cpu,4.5G), b5-b6r_T64(light,4G)]
+[zk60-guard 11:57:40] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [r5-suite(cpu,4.5G), b5-b6r_T64(light,4G)]
+[zk60-guard 11:58:40] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [r5-suite(cpu,4.5G), b5-b6r_T64(light,4G)]
+[zk60-guard 11:59:40] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [r5-suite(cpu,4.5G), b5-b6r_T64(light,4G)]
+[zk60-guard 12:00:40] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [r5-suite(cpu,4.5G), b5-b6r_T64(light,4G)]
+[zk60-guard 12:01:41] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [r5-suite(cpu,4.5G), b5-b6r_T64(light,4G)]
+[zk60-guard 12:02:41] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [r5-suite(cpu,4.5G), b5-b6r_T64(light,4G)]
+[zk60-guard 12:03:41] admission waiting: budget: 8+6 GiB > 11.9 GiB with live [t4-release-trained(gpu,4G), b5-b6r_T64(light,4G)]
+[zk60-guard 12:04:41] admission waiting: budget: 8+6 GiB > 11.9 GiB with live [t4-release-trained(gpu,4G), b5-b6r_T64(light,4G)]
+[zk60-guard 12:05:41] admission waiting: budget: 6.5+6 GiB > 11.9 GiB with live [t4-release-trained(gpu,4G), b6r-verify-llama3_8b_pg_rot1_b6_T64(light,2.5G)]
+[zk60-guard 12:06:41] admission waiting: budget: 6.5+6 GiB > 11.9 GiB with live [t4-release-trained(gpu,4G), b6r-verify-llama3_8b_pg_rot1_b6_T64(light,2.5G)]
+[zk60-guard 12:07:42] admission waiting: budget: 9+6 GiB > 11.9 GiB with live [fid-s3-int-T32(light,2G), fid-s2-float(light,2G), r5-cli2-build(build,2.5G), b6r-verify-llama3_8b_pg_rot1_b6_T64(light,2.5G)]
+[zk60-guard 12:08:42] admission waiting: budget: 11+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), fid-s3-int-T32(light,2G), r5-stack-llama3_8b_pg_rot1_T32-cpu(cpu,3G), fid-s2-float(light,2G)]
+[zk60-guard 12:09:42] admission waiting: budget: 11+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), fid-s3-int-T32(light,2G), r5-stack-llama3_8b_pg_rot1_T32-cpu(cpu,3G), fid-s2-float(light,2G)]
+[zk60-guard 12:10:42] admission waiting: budget: 9+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), r5-stack-llama3_8b_pg_rot1_T32-cpu(cpu,3G), fid-s2-float(light,2G)]
+[zk60-guard 12:11:43] admission waiting: budget: 11.5+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), r5-stack-llama3_8b_pg_rot1_T32-cpu(cpu,3G), fid-s2-float(light,2G), fid-s3-int-T128(light,1.5G), fid-s5-prefix(light,1G)]
+[zk60-guard 12:12:43] admission waiting: budget: 11+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), fid-s2-float(light,2G), fid-s3-int-T128(light,1.5G), fid-s5-prefix(light,1G), r5-stack-verify-llama3_8b_pg_rot1_T32-cpu(cpu,2.5G)]
+[zk60-guard 12:13:43] admission waiting: budget: 10+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), fid-s2-float(light,2G), fid-s3-int-T128(light,1.5G), r5-stack-verify-llama3_8b_pg_rot1_T32-cpu(cpu,2.5G)]
+[zk60-guard 12:14:43] admission waiting: budget: 10+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), fid-s2-float(light,2G), fid-s3-int-T128(light,1.5G), r5-stack-verify-llama3_8b_pg_rot1_T32-cpu(cpu,2.5G)]
+[zk60-guard 12:15:43] admission waiting: budget: 10+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), fid-s2-float(light,2G), fid-s3-int-T128(light,1.5G), r5-stack-verify-llama3_8b_pg_rot1_T32-cpu(cpu,2.5G)]
+[zk60-guard 12:16:44] admission waiting: budget: 10.5+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), fid-s2-float(light,2G), r5-stack-pg_rot1_b4_T32_cal128-cpu(cpu,3G), fid-s3-int-T128(light,1.5G)]
+[zk60-guard 12:17:44] admission waiting: budget: 10+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), r5-stack-verify-pg_rot1_b4_T32_cal128-cpu(cpu,2.5G), fid-s2-float(light,2G), fid-s3-int-T128(light,1.5G)]
+[zk60-guard 12:18:44] admission waiting: budget: 10.5+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), fid-s2-float(light,2G), fid-s3-int-T128(light,1.5G), b4-testbin-release(build,3G)]
+[zk60-guard 12:19:44] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), fid-s3-int-T128(light,1.5G), b4-testbin-release(build,3G)]
+[zk60-guard 12:20:44] admission waiting: budget: 7+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), b4-testbin-release(build,3G)]
+[zk60-guard 12:21:45] admission waiting: budget: 7+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), b5-example-release(build,3G)]
+[zk60-guard 12:22:45] admission waiting: budget: 7+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), b5-example-release(build,3G)]
+[zk60-guard 12:23:45] admission waiting: budget: 9.5+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), r5-stack-pg_rot1_b4_T128-cpu(cpu,5.5G)]
+[zk60-guard 12:24:45] admission waiting: budget: 9.5+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), r5-stack-pg_rot1_b4_T128-cpu(cpu,5.5G)]
+[zk60-guard 12:25:45] admission waiting: budget: 9.5+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), r5-stack-pg_rot1_b4_T128-cpu(cpu,5.5G)]
+[zk60-guard 12:26:45] admission waiting: budget: 6.5+6 GiB > 11.9 GiB with live [r5-stack-verify-pg_rot1_b4_T128-cpu(cpu,2.5G), b5-b6_l1_s16(light,4G)]
+[zk60-guard 12:27:46] admission waiting: budget: 8+6 GiB > 11.9 GiB with live [t6-release-seeded-failclosed(gpu,4G), b5-b6_l1_s16(light,4G)]
+[zk60-guard 12:28:46] admission waiting: budget: 8+6 GiB > 11.9 GiB with live [t6-release-seeded-failclosed(gpu,4G), b5-b6_l1_s16(light,4G)]
+[zk60-guard 12:29:46] admission waiting: budget: 8+6 GiB > 11.9 GiB with live [t6-release-seeded-failclosed(gpu,4G), b5-b6_l1_s16(light,4G)]
+[zk60-guard 12:30:46] admission waiting: budget: 8+6 GiB > 11.9 GiB with live [t6-release-seeded-failclosed(gpu,4G), b5-b6_l1_s16(light,4G)]
+[zk60-guard 12:31:46] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), r5-suite2(cpu,4.5G)]
+[zk60-guard 12:32:46] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), r5-suite2(cpu,4.5G)]
+[zk60-guard 12:33:46] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), r5-suite2(cpu,4.5G)]
+[zk60-guard 12:34:47] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), r5-suite2(cpu,4.5G)]
+[zk60-guard 12:35:47] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), r5-suite2(cpu,4.5G)]
+[zk60-guard 12:36:47] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), r5-suite2(cpu,4.5G)]
+[zk60-guard 12:37:47] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), r5-suite2(cpu,4.5G)]
+[zk60-guard 12:38:47] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), r5-suite2(cpu,4.5G)]
+[zk60-guard 12:39:47] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), r5-suite2(cpu,4.5G)]
+[zk60-guard 12:40:48] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), r5-suite2(cpu,4.5G)]
+[zk60-guard 12:41:48] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), r5-suite2(cpu,4.5G)]
+[zk60-guard 12:42:48] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), r5-suite2(cpu,4.5G)]
+[zk60-guard 12:43:48] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), r5-suite2(cpu,4.5G)]
+[zk60-guard 12:44:48] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), r5-suite2(cpu,4.5G)]
+[zk60-guard 12:45:49] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), r5-suite2(cpu,4.5G)]
+[zk60-guard 12:46:49] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), r5-suite2(cpu,4.5G)]
+[zk60-guard 12:47:49] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [b5-b6_l1_s16(light,4G), r5-suite2(cpu,4.5G)]
+[zk60-guard 12:48:34] START tl-v4-l22-dense-f class=light need=6G cap=7G enforce=cgroup+watchdog waited=3475s run=8f1dc7408aab
+[zk60-guard 14:03:12] END tl-v4-l22-dense-f exit=0 child_wall=4478s peak_rss=5.26G min_avail=6.21G

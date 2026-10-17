@@ -449,3 +449,444 @@ wrong exactly as named in advance (2,974 vs 32).
   Computed prediction (`prediction_tinyllama_l22r2_zero.json`) equal to the
   dense one on every replay / hash / joint figure. The zero-arms pass is
   queued next.
+
+## Round 3 (coordinator, 18:40 UTC brief; box rebooted 18:21 UTC)
+
+Brief: (1) confirm or refute "L22 zero arms exit 1 only because controls were
+not requested" from the tool source, record it honestly; decide whether the
+L22 mask/joint controls must run at L22; (2) repair G-10 with its own
+negative control, freeze tools v4 (manifest + patch); (3) re-run only what
+the changes require, long passes as guard class `light` with a declared need;
+(4) advance the draft's open list. Lane rules read:
+`ops/zkp-mvp/LANE_RULES_20261017.md`.
+
+- 18:34 UTC: resumed. The heavy queue r2 (`l22/heavy_queue_r2.sh`) ran the
+  zero capture, its prediction and the zero arms pass; the DENSE arms pass
+  never started (the queue was in its 30 s r4 re-check at 14:59:36-14:59:58
+  when the box shut down; no `tl-l22r2-dense-arms.*` file exists). The first
+  stalled queue (pid 309499) died with the reboot; the sentinel file
+  `~/zk60-artifacts/tinyllama-trained-capture-zero-l22` is left in place.
+  Nothing of this lane is running. Guard status 18:34: two other lanes'
+  jobs live (heavy and build locks held), 5.5 of 11.89 GiB committed.
+- 18:35-18:40 UTC **TASK 1, the L22 zero-arms reading: CONFIRMED from the
+  source.** `l22/tl-l22r2-zero-arms.json` (record sha256 bc7f58cf...) has
+  exactly 7 false leaves: the top-level `ok`; four `controls` entries that
+  read exactly `{"skipped": "controls not requested", "ok": false}` (stages
+  8, 10, 11, 12); `stage12_mask_and_cfs.ok`; `stage13_joint_run_preimage.ok`.
+  No stage raised. Why, in the code (tools v3, unchanged here):
+  `zk60_native_run_gate.stage12` sets `out["ok"] = arm_ok AND
+  controls.get("ok")` even when the controls were not requested (the
+  skipped dict carries ok false); `zk60_native_rg_mjoint.joint_run_preimage`
+  sets `ok = pcs_ok AND mask_ok AND couplings AND differing == 0` with
+  `mask_ok = s12.requested AND s12.ok AND s12.differing == 0`, and its one
+  finding is "round 8's arm is off or did not close". The staged driver
+  does NOT conjoin skipped controls into stage 11 (`fullpreimage`) or into
+  stages 8/10 when `--controls` is absent, so those stages read ok. Figures:
+  mask 22 of 22 stages ok, 355,410 entries / 0 differing, 5,632 salted
+  leaves, no stage refused, pins accepted; joint 25,005,697 entries / 0
+  differing (PCS 24,650,287 + mask 355,410), all four couplings respected
+  (C1: 704 identified pairs, all data rows); full preimage 67 of 67
+  commitments, 24,650,287 / 0, 17,152 salted leaves. The same state holds
+  mechanically for `l2/tl-zero-arms.json` and for the 125M lane's
+  `m125-zero-full.json` (joint-view worktree).
+- 18:36-18:41 UTC **TOOLS v4** (v3 kept byte-exact in
+  `ops/zkp-mvp/gate-tinyllama/frozen_v3/`, checked against the v3
+  manifest; helper `v4/freeze.py`):
+  * NEW `zk60_native_rg_status.py`: a record's STATUS beside `ok`, never
+    changing `ok`. PASS (ok true) / ARMS-ONLY (no control family requested,
+    no stage raised, every false leaf is (a) a "controls not requested"
+    entry, (b) stage 12's ok with the mask arm recomputed closed from its
+    own fields, (c) stage 13's ok with the joint recomputed closed and its
+    only finding the masking-side one, or (d) the top-level ok) / NOT-OK
+    (anything else, incl. by-name skips such as CT-4, CH-6). The staged
+    driver now writes `<name>.status.json` beside every record (no record
+    gains a leaf), prints ARMS-ONLY instead of FAIL for such a stage, and
+    exits 3 for ARMS-ONLY (0 PASS, 1 otherwise).
+    Status files written for the two existing arms records:
+    `l22/tl-l22r2-zero-arms.status.json` and `l2/tl-zero-arms.status.json`,
+    both ARMS-ONLY, 0 unexplained. The everything records classify NOT-OK
+    (by-name skips are deliberately not this state).
+  * G-10 REPAIRED in `zk60_native_rg_bundle.integrity` (run mode): each
+    external-endpoint opening (Input at stage 0, Output at stage L-1) must
+    exist, carry run.json's `external_endpoints` root and row count;
+    `opened_at_stage` must be [0, L-1]; the policy the header absorbs must
+    name the same roots, scales and context. Every new finding is tagged
+    "(finding G-10)". Probed first on all 30 run bundles on disk: equal
+    everywhere, so inert on honest bundles.
+  * NEW `zk60_native_rg_g10controls.py`, G-10's own negative controls:
+    G10-1 stage 0's Input opening root flipped; G10-2 the last stage's
+    Output opening root flipped; G10-3 run.json's declared input_root
+    flipped; G10-4 stage 0 swapped for the other run's (C5's swap on the
+    endpoint stage). Each must be refused by the v4 integrity pass with a
+    G-10 finding; each is also run through the frozen v3 pass (failing
+    first) and the record names what v3 accepted.
+  * `zk60_native_run_gate.TOOLS` gains the two new modules.
+  * NEW unit tests `tests/test_v4_status_g10.py` (19: status negatives for
+    every recomputed condition, G-10 at L = 1 / 2 / rung-K4, v4 integrity
+    == v3 on honest bundles): with the 10 existing, 29 OK.
+  * Frozen: `gate-tinyllama.tools.frozen.v4.sha256` (48 files, sha256
+    3478adf4...), `gate-tinyllama-vs-original.v4.patch` (b831350b...),
+    `gate-tinyllama-v3-to-v4.scripts.patch` (1854cbf7...) and
+    `.tests.patch` (4561fe82...). Note: the v4 patches exclude the
+    `__pycache__` "Binary files ... differ" noise lines the v1-v3 patches
+    carried (regenerating v3 that way reproduces its text hunks exactly).
+  * Driver smoke test (scratch, not evidence): L = 1 mask arm without
+    controls prints ARMS-ONLY, exit 3; with controls PASS, exit 0.
+- 18:43 UTC: hand prediction of every v4 record written first
+  (`v4/prediction_v4_by_hand.json`). 18:43:49 UTC: `v4/queue.sh` launched
+  detached (marker `v4/queue.done`, progress `v4/queue.progress`), one
+  guarded LIGHT job at a time: equivalence v4 on rung-K4; G-10 controls at
+  L = 1, 2, rung-K4, 22; integrity inertness on all 30 bundles; L = 1
+  run controls (C5 must now fire on integrity too); L22 zero mask arm WITH
+  M1..M6; then, only if every v4 check is ok, the L22 DENSE pass F (every
+  arm and every per-stage/per-boundary control: P-1..P-6, M1..M6, X,
+  C1..C6, CH-1..CH-7, M9-1/2; light need 6 / cap 7 GiB, the 125M lane's
+  L = 12 pass F stage list).
+- Decision on the L22 controls (task 1): M1..M6 already FIRED at L22 on the
+  dense bundle (`l22/tl-l22-dense-m.json`, stage 0) and on both L = 2
+  bundles (`l2/tl-{dense,zero}-everything.json`); P-1..P-6 fired at L = 2
+  on both bundles and at L = 1 dense; the joint stage has no controls of
+  its own (its failure modes are P-5, M-5 and C3, all fired at L = 2 on
+  both bundles). Controls test the tool on stage 0's A/H/M, whose geometry
+  is identical at every L of this profile, so the zero record's arms were
+  covered in substance. Run anyway because cheap or owed: M1..M6 on the
+  L22 ZERO bundle (~4 min; the 125M lane's L = 12 pass M did the same) and
+  the L22 DENSE pass F, which was owed regardless (queued 13:40 behind the
+  zero arms, never started because of the 14:59 shutdown) and fires P, M,
+  C, CH and M9 at L22. The zero-arms hour is NOT re-run: v4 changes only
+  integrity (inert, shown on both L22 bundles by `v4/integrity-inert.json`)
+  and adds the status; the arms' code is unchanged.
+- 18:43-18:46 UTC **v4 records, first half** (all guarded light, shared box):
+  * `v4/equivalence-k4-v4.json`: ORIGINAL vs v4 on frozen rung-K4, pass-A
+    stages with controls: 5,261 leaves, 0 unexplained, exit 1 / 1 (CT-4
+    skipped by name on both); explained: the two argument.rs listing
+    leaves, CT-5's description and two wall-clock `seconds` leaves (I
+    predicted one; same explained class). 63.9 s, 0.28 GiB.
+  * G-10 controls (`v4/g10-{l1,l2,k4,l22}.json`): 4 of 4 fire on every
+    bundle; the frozen v3 integrity pass ACCEPTED all four at L = 1 and
+    G10-1..G10-3 at L = 2, L = 22 and rung-K4 (G10-4 is refused by v3's
+    boundary-0 root check at L >= 2), exactly as predicted. L22: 15.8 s,
+    1.37 GiB.
+  * `v4/integrity-inert.json`: v4 == v3 integrity record on all 30 run
+    bundles on disk (16 frozen development runs, 4 at 125M incl. L = 12,
+    the joint-view rungs, the 6 trained captures incl. both L22), no G-10
+    finding, every one ok. 45.9 s, 1.55 GiB (cgroup 3.88 incl. page cache).
+  * L = 1 run controls with v4: C5 now FIRES (replay 4,770 failures as
+    before AND integrity refuses, first finding "stage-00.json Input: the
+    opened external-endpoint root is not run.json's external_endpoints
+    input_root (finding G-10)"); run_controls all_fire true (C1..C4 n/a by
+    name). BUT my queue line copied round 2's FIRST attempt's stage list,
+    which omits `preimage`, so the channels stage raised (KeyError
+    stage5_zero_data_preimage), the same slip round 2 made. Kept in
+    `v4/attempts/`; to be re-run with the record-of-record stage list
+    (load,replay,terminals,commitments,boundary,preimage,runcontrols,
+    channels + --cross-profile rung-K4) after the queue, so this lane keeps
+    one guarded job at a time.
+- 18:46-18:50 UTC `v4/tl-l22r2-zero-m.json` (L22 ZERO bundle, load, replay,
+  mask WITH controls; the 125M lane's L = 12 pass M): mask 22 of 22
+  stages, 355,410 entries / 0 differing, 5,632 salted leaves, **M1..M6 all
+  fire** (stage 0), integrity ok with the G-10 lines (0 findings), 98,822
+  challenges; status PASS, exit 0. 243 s, 0.92 GiB. With this, M1..M6 have
+  fired at L22 on BOTH bundles.
+- 18:50:39 UTC the queue's gate passed (equivalence, four G-10 records,
+  inertness all ok); the L22 dense pass F is waiting for admission (needs
+  6 GiB; another lane's r5-suite 4.5 GiB and the calibration lane's 4 GiB
+  are live).
+- 18:51:04-18:51:41 UTC corrected L = 1 run-controls record
+  `v4/tl-l1-dense-runcontrols-v4.json` (guarded light, 37 s, 0.38 GiB; run
+  while pass F only waits for admission): **C5 FIRES** (replay 4,770
+  failures; integrity refuses, first finding the G-10 Input-root line),
+  C6 fires, C1..C4 not applicable by name: run_controls all_fire true.
+  CH-1..CH-5, CH-7 fire, CH-6 skipped by name; M9-1, M9-2 fire, M9-3 fires
+  with its wording criterion false (G-4). Status NOT-OK with exactly the
+  predicted 7 false leaves (CH-6, M9-3 and their parents, plus the stage
+  8 / 10 controls not requested). So the only remaining false items of the
+  L = 1 run-control family are by-name / G-4 bookkeeping, as at L = 2 and
+  at 125M.
+- 18:50 UTC: read the native lane's Round 5 (delegated read-only survey of
+  `results/zk60_1b_native_20261017/PROGRESS.md` l. 893-1017 and
+  `ops/zkp-mvp/trained-1b/`): R5-1 PORTED CS-1, CS-3 (`refuse_lookup_misses`
+  before the A commitment, `protocol.rs:948`; nothing drawn or absorbed
+  before it), CS-4, CS-6, CS-7, CS-8, CS-9, S38-F1(a)
+  (`private_block.rs:677-678`) and G-2 (`run_capture.rs:168`,
+  `SHARED_SOURCE_FILES` now 26 incl. encode_buffer.rs, sumcheck/rounds.rs,
+  grouped.rs), with `cs_port_tests.rs` (7 tests). NOT ported: CS-2, CS-5,
+  the stage-36 draw observers, the stage-47 root-rebuild check. NO R5 test
+  run has passed yet (r5-suite-a killed by the 14:59 shutdown; r5-suite
+  live since 18:48 UTC). Six files the gate's bundles pin differ between
+  the native tree and the gate's capture tree (run.rs, layout.rs,
+  argument.rs, protocol.rs, shape.rs, run_capture.rs; the native digests
+  may still move: r3_6 fix landed 18:40). Consequence for this lane: every
+  record here is of the PRE-PORT tree; the G-1 / G-8 items close only when
+  bundles are captured from a frozen post-port tree, its new digests are
+  read and re-pinned, and the gate is re-run.
+- 18:52-19:05 UTC: draft revised (sections 0, 3, 5, 7, 8, 10, 11; pass F
+  figures left as marked placeholders until the record lands). READ at
+  19:05: the native lane's first R5 suite (`r5-suite`, ended 19:02:43 UTC,
+  exit 101) has 542 passed, 1 FAILED (`cs_port_tests::cs6_the_run_prover_
+  and_verifiers_refuse_blocks_that_are_not_the_statements`, panic at
+  cs_port_tests.rs:206), 29 ignored -- recorded in the draft as READ, the
+  native lane's to resolve.
+- 19:09 UTC: pass F still waiting for admission (6 GiB). The guard admits
+  smaller jobs of other lanes as they arrive (11.0 of 11.89 GiB committed
+  at 19:09), so a 6 GiB job can wait a long time; its wait limit is 4 h.
+- 19:29 UTC: coordinator message: Victor ACCEPTED D23 and D19b at
+  2026-10-17 19:28 UTC. Checked in `docs/zkmatrix-poc/ZK60_DECISIONS.md`
+  rows D19b and D23: "ACCEPTED by Victor 2026-10-17 19:28 UTC ('all
+  recommendations yes', ... answering ZK60_RULINGS_FOR_VICTOR_20261017.md)".
+  Draft updated: D23 and D19b closed by ruling (§10a rows, §2, §3 step 5,
+  §6, §9, §0), citing the register; not a privacy acceptance; adversarial
+  review and the re-reading of the arguments stay open. The coordinator
+  also asked the light lanes to hold new launches until pass F starts.
+- 19:48:34 UTC: pass F ADMITTED after 3,475 s of waiting (light need 6 /
+  cap 7 GiB); projected 4,000-4,600 s single-threaded, end about 21:00 UTC.
+  Log `v4/v4-l22-dense-f.log`, record `v4/tl-l22-dense-f.json`, marker
+  `v4/v4-l22-dense-f.done`, queue marker `v4/queue.done`.
+- 19:48:34-21:03:12 UTC **22-BLOCK DENSE PASS F** (`v4/tl-l22-dense-f.json`,
+  tools v4, `--controls --other zero-l22r2 --cross-profile rung-K4`, stages
+  load,replay,hash,commitments,boundary,preimage,fullpreimage,mask,joint,
+  runcontrols,channels; guarded light 6 / 7 GiB, admitted after 3,475 s;
+  4,478 s single-threaded, peak RSS 5.26 GiB = cgroup 5.26; shared box,
+  n=1): **ok TRUE, status PASS, exit 0.** Integrity ok (0 findings incl.
+  G-10 lines, 67 roots, 25 files); replay 2,731 / 98,822 / final counter
+  104,518; hash 89 openings, 22,784 of 22,784 columns, 162,197,504 B;
+  boundary whole run joint 44 = 44; FULL PREIMAGE 67 of 67 commitments,
+  24,621,305 view entries / 0 differing, 17,152 salted leaves, P-1..P-6
+  6 of 6 fire; mask 355,410 / 0, 5,632 leaves, M1..M6 fire; JOINT
+  24,976,715 / 0, four couplings respected, 704 data-row pairs, 22,784
+  leaves, ok true; C1..C6 6 of 6 (C5: replay 99,674 failures, integrity
+  first finding the boundary-0 root); CH-1..CH-5, CH-7 fire, CH-6 skipped
+  by name (the hash-rule family counts live controls only,
+  `zk60_native_rg_hcontrols.py:303-304`, so it does not fail the record);
+  M9-1, M9-2 fire (no M9-3: no terminal stage in the pass); channels 10
+  constructed / 3 derived / 5 argued / 10 open (= the 125M lane's L = 12
+  pass F table). The one false leaf is CH-6's `fires` (skipped by name).
+  PREDICTION MISSES (mine, written 18:43): I predicted NOT-OK / exit 1 from
+  CH-6 (wrong: see above; at L = 2 the stage-6 failure was M9-3's
+  criterion, absent here) and peak 5.4-5.7 GiB (measured 5.26). Every other
+  predicted figure held (PCS entries within 0.12% of the zero record's).
+- 21:03 UTC: `v4/queue.done` = 0, `v4/queue.finished` 21:03:12. No job of
+  this lane is running or queued (guard status 21:03: only another lane's
+  job live).
+- 21:04 UTC: draft finished for this round (placeholders filled, D19b/D23
+  closed by ruling, §10a closed list with evidence paths, §10b remaining
+  list). Round-3 evidence manifest `EVIDENCE.round3.sha256` (63 files,
+  sha256 6dd1c834...).
+
+## Results table, L = 22 columns after round 3 (pre-port tree; NOT a privacy acceptance)
+
+| Step | L = 22 dense ho00 | L = 22 all-zero |
+|---|---|---|
+| 1. All-zero proves and verifies | (dense) proves, verifies, parity bit-exact | YES, one bound run, captured verify |
+| 2. Linear view per commitment | 22 A 0, 22 H 2, 21 B 0 (6/6), 2 E 0, 22 M 0; whole run 2,246 x 78,494, joint 44 = 44 | the same (prediction equal on every figure; arms record stages 3/4 ok) |
+| 3. Blinding reproduced from zero data | 24,621,305 / 0 (67 of 67); mask 355,410 / 0 | 24,650,287 / 0 (67 of 67); mask 355,410 / 0 |
+| 4. Joint assignment | 24,976,715 / 0, couplings respected, record ok TRUE | 25,005,697 / 0, couplings respected, status ARMS-ONLY |
+| 5. Hash layer | 98,822 challenges; 22,784 columns, 162.2 MB | the same |
+| Terminal identity | 506 / 506 (pass A) | 506 / 506 (arms record) |
+| Controls at L = 22 | P 6/6, M 6/6, X, C 6/6, CH 6 of 7 (CH-6 by name), M9-1/2 (pass F) | M 6/6 (`v4/tl-l22r2-zero-m.json`) |
+| Not at L = 22 | CT, GQ, M9-3 (no terminal stage with --controls; fired at L = 1 / 2) | P, C, CH, M9 (fired on the dense L22 bundle and on both L = 2 bundles) |
+
+Next concrete step for this lane: when the native lane's post-port tree is
+frozen with a green suite, capture L = 1 / 2 / 22 from it, read and re-pin
+its six changed pinned files plus G-2's three, and re-run the gate.
+
+## Round 4 (coordinator, ~21:05 UTC): capture from the native lane's frozen R5 tree, re-pin, re-gate, pass T
+
+Brief: the native R5 tree is frozen with a green suite
+(`results/zk60_1b_native_20261017/r5/frozen-tree/`, 2026-10-17T19:48:50Z,
+tree sha256 d67fae7e..., manifest `r5/manifest_frozen.json`; `r5-suite2`
+passed in full at 19:48 incl. the CS-6 test). (1) copy into a NEW gate copy,
+verify, build through the guard, capture L = 1, 2, 22 (dense and zero);
+(2) re-pin the gate to that tree and re-run the passes the trained T32 record
+needs; (3) pass T at L22 (CT, GQ, M9-3) if budget allows; (4) update §10a/b.
+CS-2 and CS-5: owed by the native lane, not ported here.
+
+- 21:06 UTC: `ops/zkp-mvp/trained-1b-gate-r5/` = rsync of the frozen tree
+  excluding target dirs: all 217 files equal the manifest's digests, none
+  missing, none unlisted (`r5/copy_verify_r5.json`; the manifest's
+  tree_sha256 formula is not one of three obvious ones, so the per-file
+  check is the check).
+- 21:07 UTC: the gate's test-scoped capture code (patch v2 of round 1:
+  run_capture.rs trained shape keys + allow-list + README sentence;
+  run_capture_tests.rs `capture_a_tinyllama_trained_run`) applied cleanly
+  (offset 8 lines; the R5 run_capture_tests.rs equals review-r2's byte for
+  byte before the patch); the bundle note now names the R5 copy. Every API
+  the test calls was checked in the R5 source first (TrainedExport::load /
+  run_constants / shape_for / load_layer / statement_of_records / load_seq,
+  Geometry::run_shape, RunStatement::new_bound (now with the CS-1/CS-4
+  check first), RunWitnessSource, prove_run, verify_run, capture_header,
+  binding). Patch `r5/trained-1b-gate-r5-vs-frozen-r5.v1.patch` (2 files,
+  sha256 804545ae...), sources `r5/trained-1b-gate-r5.sources.v1.sha256`
+  (217 files, sha256 5a48ad4c...).
+- 21:08:45 UTC: `r5/heavy_queue.sh` launched detached (marker
+  `r5/heavy_queue.done`, progress `r5/heavy_queue.progress`): guarded build
+  (class build 3 / 5 GiB) then six captures (class cpu): L = 2 layers 7-8
+  dense / zero, L = 1 layer 0 dense / zero, L = 22 dense / zero, into
+  `~/zk60-artifacts/tinyllama-trained-r5-capture-{dense,zero}-{l1,l2,l22}`.
+  It waits for the heavy lock (native 8B T128 live, then two GPU stack runs).
+- 21:09-21:15 UTC (while the heavy queue waits for the lock): every pinned
+  file of the R5 copy compared with round 1's capture tree. 32 of the 42
+  pinned files are byte-identical (all 26 shared files incl. G-2's three,
+  boundary.rs, plane_index.rs, wire.rs, run_sink.rs, endpoint_g.rs,
+  hash_domain.rs, pad.rs); nine differ: run_capture.rs (+9/-1, G-2's list),
+  run.rs (+347/-30, 15 hunks), protocol.rs (+115/-8, 12), argument.rs
+  (+5/-3, 1), layout.rs (+42/-0, 2), shape.rs (+289/-39, 19),
+  private_block.rs (+156/-12, 11), witness.rs (+126/-16, 3),
+  trained_statement.rs (+96/-20, 9). Every hunk READ: none moves an absorb,
+  a draw, a published byte, a slot polynomial, a row, a plane or a
+  coefficient a port transcribes (run.rs's six header absorbs, position_tag
+  and the per-stage absorbs lie outside every hunk; argument.rs's one hunk
+  is the write-only phase clock; protocol.rs's CS-3 refusal sits after the
+  histograms and before the first A draw). Readings written, in a NEW module
+  `gate-tinyllama/scripts/zk60_native_rg_tinyllama_r5_pins.py` merged after
+  round 1's at the same sites (runpins, terminals, gqa, mask), plus a G-2
+  check in `runpins.check_shared_pins` that only applies when a bundle pins
+  the three files (no earlier record gains a leaf). v4 kept byte-exact in
+  `gate-tinyllama/frozen_v4/` (for the failing-first probe). 4 new unit
+  tests (33 OK). NOT frozen yet: v5 freezes after the failing-first probe on
+  the first R5 bundle confirms which pins refuse.
+- 21:15 UTC: hand prediction `r5/prediction_r5_by_hand.json` written before
+  any R5 bundle exists; the gate queue `r5/light_queue.sh` written (not
+  launched).
+- 21:35 UTC **PRIORITY CHANGE (coordinator)**: the independent privacy
+  review is in (`results/zk60_privacy_review_trained_t32_20261017/
+  REVIEW.md`). P-1 (native lane): the frozen R5 tree's stack-prove breaks
+  H-1 and M-9 / D12b(1); a new freeze R5b will follow, so NO captures from
+  `r5/frozen-tree`. P-2 (this lane, now): pin mismatches must suspend
+  stages and fail `ok`, PASS must require zero unexplained false leaves,
+  pin the G-2 files, negative controls. Then P-9..P-12 and the draft items.
+- 21:35:44 UTC: the R5 heavy queue had NOT started anything (its build was
+  still waiting for the heavy lock; no capture, no binary). I cannot stop
+  its waiting guard (no kill), so I renamed the copy to
+  `ops/zkp-mvp/trained-1b-gate-r5-superseded/`: when the guard is admitted,
+  cargo finds no manifest and fails at once, and the queue exits (code 5)
+  before any capture. Labelled superseded; nothing from it will be gated.
+- 21:36-21:56 UTC **TOOLS v5 (review findings P-2, P-9, P-10, P-11, P-20,
+  P-21)**, v4 kept byte-exact in `gate-tinyllama/frozen_v4/`:
+  * P-2 pins ENFORCED. `runpins.check_run_layer_pins` now folds the shared
+    files in (a /5-run writer must pin all 23; a moved shared file a port
+    reads suspends its stages via the new `SHARED_AFFECTED` map; a moved
+    one no port reads fails `ok` and suspends nothing); finding G-2's three
+    prover files are REQUIRED from a writer whose run_capture.rs digest is
+    read as G-2-aware (`pins_g2`, the R5 writer) and refused if missing or
+    moved; a pre-G-2 writer (tree A) pinning none is reported, so no earlier
+    record changes; run-layer refusals now also suspend the arm stages
+    11-13 (`AFFECTED_ARM_STAGES`). The staged driver ENFORCES the
+    suspension map (`why_not_run`: a stage whose pin refused, or one of
+    whose inputs was not checked, is NOT RUN and leaves `not_checked`, ok
+    false; channels held whenever any stage is), and its `ok` requires
+    every stage's ok to be EXACTLY true and the pins' ok.
+  * Status v5: PASS needs every false leaf explained by (a) or (e) and no
+    non-bool leaf; (e) = CH-6 skipped by name inside a hash-rule family
+    whose ok is true; rule (a) only for the four control families;
+    ARMS-ONLY needs stages 1-3 (ok) and 11-13 present; non-bool `ok` /
+    `all_fire` / unnamed null `fires` flagged.
+  * P-11: P family and one-block C family need >= 1 applicable control;
+    M9-3 no longer swallows a pad-state exception (named, fails), is NAMED
+    when omitted (no plane index), and the round-9 family's ok is over the
+    controls that ran (>= 1); a declared/derived data_rows mismatch other
+    than the zero-sum rows is refused; the driver takes `--old` (CT-4) and
+    `--legacy` (CH-6) bundles, so both can fire.
+  * P-9 NEW `zk60_native_rg_exportcheck.py` (E1 constants vs the export's
+    profile.json, E2 the absorbed parameter line vs the shape, E3 an
+    independent statement.json of the same export: profile digest, a
+    contiguous run of its per-layer block digests = the stage-to-layer map,
+    the identity when the layers coincide, E4 recovered per-stage exp / SiLU
+    tables vs the export layer files, act[128] = 0, exp[0] = 2^f_e; controls
+    EX-1..EX-6); also driver stage 14 (`--export`, `--statement`).
+  * P-10 NEW `zk60_native_rg_schema.py`: closed key schema (the writer's 222
+    ALLOWED_KEYS, identical in tree A and R5), the ten forbidden words,
+    arrays.bin covered exactly by the references; controls SC-1..SC-4.
+  * P-20 TL-4 in `zk60_native_rg_tlcontrols.py` (`--only` selects families):
+    the first adjacent stage pair with different SC_TAB tables, stage k's
+    table entry (values + digest) replaced by stage j's -> exactly (k, 19)
+    must fail.
+  * P-21 the G-10 check also compares endpoint data rows, the opening's PCS
+    parameters, log_n / inv_rate and the (0, 0) scales, and names a missing
+    member; G10-5..G10-8 added (8 controls).
+  * NEW `zk60_native_rg_pincontrols.py` PC-0..PC-9 (in-memory pin
+    tamperings through the real staged driver).
+  * Tests: 47 (19 status/G-10 incl. a negative for every arm conjunct, 4
+    R5 pins, 8 pin enforcement). The R5 pins module of 21:15 is kept (its
+    digests may persist in R5b).
+  * Frozen 21:56: `gate-tinyllama.tools.frozen.v5.sha256` (52 files, sha256
+    a5acae25...), `gate-tinyllama-vs-original.v5.patch` (7d0906d6...),
+    `gate-tinyllama-v4-to-v5.{scripts,tests}.patch` (13fb0c53..., f936967f...).
+  * Scratch trials before freezing (not evidence): verdict check 21
+    records, ok and status unchanged; pin controls held sets exact; export
+    check ok on L1 / L2; schema ok; TL-4 on L2 3 of 3.
+  * (one slip: a scratch inertness run of 21:5x loaded the 125M L12 and L22
+    bundles unguarded, ~1.5 GiB for 45 s; the evidence runs are guarded)
+- 21:40 UTC: P-12 (port the stage-47 root-rebuild check) DELEGATED to a
+  sub-lane (write set `ops/zkp-mvp/trained-1b-gate-gr4/` = a copy of the
+  frozen R5 tree, evidence `results/zk60_gate_tinyllama_20261017/gr4/`;
+  test-only module, re-applicable to R5b as a patch; build and run through
+  the guard). Running.
+- 21:57:26 UTC: hand prediction `v5/prediction_v5_by_hand.json`, then
+  `v5/queue.sh` launched detached (marker `v5/queue.done`).
+- 21:57-22:14 UTC **v5 RECORDS** (tools v5 frozen, every job guarded light,
+  shared box, n=1; tree-A bundles, as no R5b bundle exists yet):
+  * `v5/v5-unit-tests.log`: 47 OK.
+  * `v5/verdicts-unchanged.json`: 21 staged records of this lane: every
+    recorded `ok` equals the v5 rule, every status unchanged, every pin
+    check ok under v5 (pass F stays PASS with unexplained 1 -> 0; the
+    everything / run-control records lose only the CH-6 leaf from
+    "unexplained" and stay NOT-OK).
+  * rung-K4 equivalence: the queue's run used the old `equivalence.py`,
+    which does not know the R5 argument.rs listing leaf, so it reported
+    two "only in the port" leaves (the 02df55eb definition listing; 0
+    figures differ) -> exit 1, kept as `v5/equivalence-k4-v5.json`. Re-run
+    22:13-22:14 with `v5/equivalence_v5.py` (that class added):
+    `v5/equivalence-k4-v5r.json` 5,261 leaves, 0 unexplained, exit 1 / 1.
+  * `v5/pincontrols/pincontrols-l1.json`: PC-0..PC-9 all as predicted
+    (PC-0, PC-6 PASS with nothing held; PC-1 9 stages held, PC-2 5, PC-3
+    5, PC-4 0, PC-5 0, PC-7 2, PC-8 3, PC-9 3; every held set exactly the
+    predicted one; ok false and NOT-OK for each tampering).
+  * G-10 v5 (`v5/g10-{l1,l2,l22}.json`): 8 of 8 each; v3 accepted 8 at
+    L = 1, 7 at L >= 2.
+  * Export cross-check (`v5/export-*.json`): ok on L1, L2 dense / zero,
+    L22 dense / zero; stage-to-layer maps [0], [7, 8], [0..21] from the
+    native stack's statement.json; identity compared at L22 and EQUAL to
+    the native CLI's 68ad19c8...f487 on both bundles; E4 tables equal per
+    layer (1, 2, 22 stages); EX-1..EX-4, EX-6 fire everywhere, EX-5 at L22.
+  * Schema (`v5/schema-six-bundles.json`): all six trained bundles: every
+    key on the 222-key allow-list (29,480 / 56,033 / 587,093 keys), no
+    forbidden word, arrays.bin covered exactly (589 / 1,177 / 12,937
+    references); SC-1..SC-4 fire on each. 68.6 s, 0.82 GiB.
+  * TL-4 at L22 (`v5/tl4-l22-dense.json`): 3 of 3, exactly (1, 19) each.
+    PREDICTION MISS (mine): I named the 7 | 8 pair; the control takes the
+    FIRST adjacent pair with different SC_TAB tables, which at L22 is 0 | 1.
+    252.8 s, 0.65 GiB. TL on L2 (`v5/tl-controls-l2-dense.json`): 18 of 18.
+  * `v5/tl-l2-dense-t-v5.json` (pass T stages on L2 with `--old`/`--legacy`
+    and stage 14): CT 9 of 9 (CT-4 FIRES), CH 7 of 7 (CH-6 FIRES), C 6/6,
+    M9-1/2 fire, M9-3 fires with its wording criterion false (G-4) -- the
+    ONLY false items left (4 leaves: M9-3's ok and its parents); stage 14
+    ok; status NOT-OK by G-4 alone. 199 s, 0.64 GiB.
+- 22:14 UTC: no job of this queue is running (`v5/queue.done`).
+- 22:15-22:20 UTC: coordinator note from review r4 (N-r4-d): GPU code,
+  layer.rs, wcache.rs, tables_v3.rs, zkp-core tables.rs are not pinned.
+  Decided from the source (draft §5a): gpu/mod.rs IS on the CPU route
+  (pcs.rs's `gpu::backend()`; the non-feature seam returns the CPU backend,
+  `enabled()` false) -> pin (writer-side ask for R5b); gpu/cuda.rs and
+  kernels.cu are not compiled without `gpu-cuda` -> off the CPU route
+  (P-7's rule makes it true; a GPU statement must pin them); layer.rs and
+  wcache.rs are used only by zk.rs's FFN layer provers (zk.rs:713, :2038,
+  :2833), none of which the private block calls -> off, reason recorded;
+  tables_v3.rs (`pub use zkp_core::tables::*`) and zkp-core tables.rs are
+  off the prover / verifier relation but on the trained DOOR's route (the
+  SiLU registry P-15's enforcement claim rests on) -> pin both, with
+  trained_block.rs, for the every-admitted-export form (writer-side ask);
+  the evidence itself does not depend on them (E4 checks act[128] per
+  stage). Not added to the frozen v5 pin tables (a bundle must carry a pin
+  before the gate can check it); readings follow when R5b bundles do.
+- 22:00-22:18 UTC: draft revised for round 4 (header and status line, §0,
+  §1 Path / Code / Evidence path / Coverage, §2 accepted + admissible, §3
+  step 2 GS-12 (P-15), step 4 (P-1, P-12, P-13 with CS-2 / CS-5 unnecessary
+  on code facts), step 5 (C-R1/C-R4/C-R5), NEW §3b (P-1..P-22 map), §4
+  (P-14, P-16, P-22), §5 rows C-R1, C-R4, C-R5, P-4, NEW §5a (N-r4-d), §6
+  (P-1, P-5, P-6 corrected, P-7, C-R4), §7 (G-1, G-2, G-11 updated; G-12,
+  G-13 new), §8, §9, §10a/b rewritten, §11). Left as placeholders until the
+  P-12 sub-lane reports: [GR4-PENDING] x2, [GR4-STATE].
+- 22:17 UTC: the P-12 sub-lane's build finished at 22:04 (exit 0, first
+  attempt, 235 s); its tests wait for the heavy lock (the native lane's
+  r5b-suite1 holds it).

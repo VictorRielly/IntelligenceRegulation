@@ -1,0 +1,159 @@
+log2|F_p^2| = 127.9999999993 ; D15 per opening (3/4)^256 = 2^-106.25
+
+==== TinyLlama T32 : 22 blocks, row width 2^12, inv_rate 4, Q 256 ====
+  layout check vs Rust counts: A 1729/1729  H 1798/1798  U8 5971968/5971968  -> OK
+  commitment                   times   n/msg     nn   rows  pads     Q delta      (a)       (b)     (d/2)
+  A (block witness)               22    4352  16384   1729   256   256 0.7344  -106.25   -103.69   -169.00
+  H (block LogUp helpers)         22    4352  16384   1798   256   256 0.7344  -106.25   -103.69   -169.00
+  M (block CFS masks)             22    1024   4096     50   256   256 0.7500  -106.25   -106.25   -173.59
+  B_k (internal boundary)         21    4352  16384     22   256   256 0.7344  -106.25   -103.69   -169.00
+  E_in (run input endpoint)        1    4352  16384     21   256   256 0.7344  -106.25   -103.69   -169.00
+  E_out (run output endpoint)      1    4352  16384     21   256   256 0.7344  -106.25   -103.69   -169.00
+  openings per run: 89 (= 4L + 1)
+  column term  (a) D15 convention, real count : 2^-99.77
+  column term  (b) real ZK distance           : 2^-97.55   (2.22 bits weaker than (a))
+  column term  token-I/O check, 6 per layer   : 2^-99.21
+  column term  delta/2 regime (not adopted)   : 2^-162.91
+  lookups per block: U8 5971968 + exp 32768 + act 262144 = 6266880
+  LogUp per block: derived (N+1536)/|F| 2^-105.42 ; R14 4N/|F| 2^-103.42 ; run: 2^-100.96 / 2^-98.96
+  sumchecks: 1442 units per block -> 2^-117.51 per block, 2^-113.05 per run
+  PCS field terms (prox (e+1)/|F| + lambda batching), whole run: 2^-109.77
+  WHOLE RUN  (a) D15 per-opening : 2^-98.31 with R14 LogUp (4N) ; 2^-99.25 with derived LogUp (N)
+  WHOLE RUN  (b) real distance   : 2^-97.09 with R14 LogUp (4N) ; 2^-97.42 with derived LogUp (N)
+  whole run weaker by 1.22 bits (4N) / 1.83 bits (N)
+  whole run, 6-per-layer convention (4N): 2^-98.08 ; delta/2 regime (4N): 2^-98.96
+  worst single round: D15 per opening 2^-106.25, real per opening (A/H/B/E) 2^-103.69, LogUp per block (N) 2^-105.42, LogUp per block (4N) 2^-103.42, largest sumcheck per block 2^-117.51
+  column checks (= pads) restoring 2^-106.25 per A/H/B/E opening at this width: 263 (2^-106.46); +4723320 B per run = +1.88% of the 250855088 B receipt
+
+==== TinyLlama T64 : 22 blocks, row width 2^13, inv_rate 4, Q 256 ====
+  layout check vs Rust counts: A 1817/1817  H 1926/1926  U8 12795904/12795904  -> OK
+  commitment                   times   n/msg     nn   rows  pads     Q delta      (a)       (b)     (d/2)
+  A (block witness)               22    8448  32768   1817   256   256 0.7422  -106.25   -104.97   -171.29
+  H (block LogUp helpers)         22    8448  32768   1926   256   256 0.7422  -106.25   -104.97   -171.29
+  M (block CFS masks)             22    1024   4096     50   256   256 0.7500  -106.25   -106.25   -173.59
+  B_k (internal boundary)         21    8448  32768     22   256   256 0.7422  -106.25   -104.97   -171.29
+  E_in (run input endpoint)        1    8448  32768     21   256   256 0.7422  -106.25   -104.97   -171.29
+  E_out (run output endpoint)      1    8448  32768     21   256   256 0.7422  -106.25   -104.97   -171.29
+  openings per run: 89 (= 4L + 1)
+  column term  (a) D15 convention, real count : 2^-99.77
+  column term  (b) real ZK distance           : 2^-98.72   (1.05 bits weaker than (a))
+  column term  token-I/O check, 6 per layer   : 2^-99.21
+  column term  delta/2 regime (not adopted)   : 2^-165.13
+  lookups per block: U8 12795904 + exp 131072 + act 524288 = 13451264
+  LogUp per block: derived (N+1536)/|F| 2^-104.32 ; R14 4N/|F| 2^-102.32 ; run: 2^-99.86 / 2^-97.86
+  sumchecks: 1515 units per block -> 2^-117.43 per block, 2^-112.98 per run
+  PCS field terms (prox (e+1)/|F| + lambda batching), whole run: 2^-108.85
+  WHOLE RUN  (a) D15 per-opening : 2^-97.52 with R14 LogUp (4N) ; 2^-98.81 with derived LogUp (N)
+  WHOLE RUN  (b) real distance   : 2^-97.23 with R14 LogUp (4N) ; 2^-98.18 with derived LogUp (N)
+  whole run weaker by 0.29 bits (4N) / 0.64 bits (N)
+  whole run, 6-per-layer convention (4N): 2^-97.38 ; delta/2 regime (4N): 2^-97.86
+  worst single round: D15 per opening 2^-106.25, real per opening (A/H/B/E) 2^-104.97, LogUp per block (N) 2^-104.32, LogUp per block (4N) 2^-102.32, largest sumcheck per block 2^-117.43
+  column checks (= pads) restoring 2^-106.25 per A/H/B/E opening at this width: 260 (2^-106.59); +2859680 B per run = +0.86% of the 333316880 B receipt
+
+==== TinyLlama T128 : 22 blocks, row width 2^14, inv_rate 4, Q 256 ====
+  layout check vs Rust counts: A 1993/1993  H 2182/2182  U8 28999680/28999680  -> OK
+  commitment                   times   n/msg     nn   rows  pads     Q delta      (a)       (b)     (d/2)
+  A (block witness)               22   16640  65536   1993   256   256 0.7461  -106.25   -105.61   -172.43
+  H (block LogUp helpers)         22   16640  65536   2182   256   256 0.7461  -106.25   -105.61   -172.43
+  M (block CFS masks)             22    1024   4096     50   256   256 0.7500  -106.25   -106.25   -173.59
+  B_k (internal boundary)         21   16640  65536     22   256   256 0.7461  -106.25   -105.61   -172.43
+  E_in (run input endpoint)        1   16640  65536     21   256   256 0.7461  -106.25   -105.61   -172.43
+  E_out (run output endpoint)      1   16640  65536     21   256   256 0.7461  -106.25   -105.61   -172.43
+  openings per run: 89 (= 4L + 1)
+  column term  (a) D15 convention, real count : 2^-99.77
+  column term  (b) real ZK distance           : 2^-99.27   (0.51 bits weaker than (a))
+  column term  token-I/O check, 6 per layer   : 2^-99.21
+  column term  delta/2 regime (not adopted)   : 2^-166.17
+  lookups per block: U8 28999680 + exp 524288 + act 1048576 = 30572544
+  LogUp per block: derived (N+1536)/|F| 2^-103.13 ; R14 4N/|F| 2^-101.13 ; run: 2^-98.67 / 2^-96.67
+  sumchecks: 1588 units per block -> 2^-117.37 per block, 2^-112.91 per run
+  PCS field terms (prox (e+1)/|F| + lambda batching), whole run: 2^-107.89
+  WHOLE RUN  (a) D15 per-opening : 2^-96.52 with R14 LogUp (4N) ; 2^-98.12 with derived LogUp (N)
+  WHOLE RUN  (b) real distance   : 2^-96.45 with R14 LogUp (4N) ; 2^-97.94 with derived LogUp (N)
+  whole run weaker by 0.06 bits (4N) / 0.18 bits (N)
+  whole run, 6-per-layer convention (4N): 2^-96.44 ; delta/2 regime (4N): 2^-96.67
+  worst single round: D15 per opening 2^-106.25, real per opening (A/H/B/E) 2^-105.61, LogUp per block (N) 2^-103.13, LogUp per block (4N) 2^-101.13, largest sumcheck per block 2^-117.37
+  column checks (= pads) restoring 2^-106.25 per A/H/B/E opening at this width: 258 (2^-106.43); +1586192 B per run = +0.32% of the 497665904 B receipt
+
+==== Llama-3-8B T32 : 32 blocks, row width 2^13, inv_rate 4, Q 256 ====
+  layout check vs Rust counts: A 1697/1697  H 1758/1758  U8 11714560/11714560  -> OK
+  commitment                   times   n/msg     nn   rows  pads     Q delta      (a)       (b)     (d/2)
+  A (block witness)               32    8448  32768   1697   256   256 0.7422  -106.25   -104.97   -171.29
+  H (block LogUp helpers)         32    8448  32768   1758   256   256 0.7422  -106.25   -104.97   -171.29
+  M (block CFS masks)             32    1024   4096     50   256   256 0.7500  -106.25   -106.25   -173.59
+  B_k (internal boundary)         31    8448  32768     22   256   256 0.7422  -106.25   -104.97   -171.29
+  E_in (run input endpoint)        1    8448  32768     21   256   256 0.7422  -106.25   -104.97   -171.29
+  E_out (run output endpoint)      1    8448  32768     21   256   256 0.7422  -106.25   -104.97   -171.29
+  openings per run: 129 (= 4L + 1)
+  column term  (a) D15 convention, real count : 2^-99.24
+  column term  (b) real ZK distance           : 2^-98.19   (1.05 bits weaker than (a))
+  column term  token-I/O check, 6 per layer   : 2^-98.66
+  column term  delta/2 regime (not adopted)   : 2^-164.59
+  lookups per block: U8 11714560 + exp 32768 + act 524288 = 12271616
+  LogUp per block: derived (N+1536)/|F| 2^-104.45 ; R14 4N/|F| 2^-102.45 ; run: 2^-99.45 / 2^-97.45
+  sumchecks: 1527 units per block -> 2^-117.42 per block, 2^-112.42 per run
+  PCS field terms (prox (e+1)/|F| + lambda batching), whole run: 2^-108.32
+  WHOLE RUN  (a) D15 per-opening : 2^-97.08 with R14 LogUp (4N) ; 2^-98.34 with derived LogUp (N)
+  WHOLE RUN  (b) real distance   : 2^-96.77 with R14 LogUp (4N) ; 2^-97.68 with derived LogUp (N)
+  whole run weaker by 0.31 bits (4N) / 0.66 bits (N)
+  whole run, 6-per-layer convention (4N): 2^-96.93 ; delta/2 regime (4N): 2^-97.45
+  worst single round: D15 per opening 2^-106.25, real per opening (A/H/B/E) 2^-104.97, LogUp per block (N) 2^-104.45, LogUp per block (4N) 2^-102.45, largest sumcheck per block 2^-117.42
+  column checks (= pads) restoring 2^-106.25 per A/H/B/E opening at this width: 260 (2^-106.59); +3863328 B per run = +0.83% of the 465815776 B receipt
+
+==== TinyLlama T512 (projection) : 22 blocks, row width 2^16, inv_rate 4, Q 256 ====
+  layout check vs Rust counts: A 3309/3309  H 3976/3976  U8 214564864/214564864  -> OK
+  commitment                   times   n/msg     nn   rows  pads     Q delta      (a)       (b)     (d/2)
+  A (block witness)               22   65792 262144   3309   256   256 0.7490  -106.25   -106.09   -173.30
+  H (block LogUp helpers)         22   65792 262144   3976   256   256 0.7490  -106.25   -106.09   -173.30
+  M (block CFS masks)             22    1024   4096     50   256   256 0.7500  -106.25   -106.25   -173.59
+  B_k (internal boundary)         21   65792 262144     22   256   256 0.7490  -106.25   -106.09   -173.30
+  E_in (run input endpoint)        1   65792 262144     21   256   256 0.7490  -106.25   -106.09   -173.30
+  E_out (run output endpoint)      1   65792 262144     21   256   256 0.7490  -106.25   -106.09   -173.30
+  openings per run: 89 (= 4L + 1)
+  column term  (a) D15 convention, real count : 2^-99.77
+  column term  (b) real ZK distance           : 2^-99.65   (0.12 bits weaker than (a))
+  column term  token-I/O check, 6 per layer   : 2^-99.21
+  column term  delta/2 regime (not adopted)   : 2^-166.89
+  lookups per block: U8 214564864 + exp 8388608 + act 4194304 = 227147776
+  LogUp per block: derived (N+1536)/|F| 2^-100.24 ; R14 4N/|F| 2^-98.24 ; run: 2^-95.78 / 2^-93.78
+  sumchecks: 1737 units per block -> 2^-117.24 per block, 2^-112.78 per run
+  PCS field terms (prox (e+1)/|F| + lambda batching), whole run: 2^-105.92
+  WHOLE RUN  (a) D15 per-opening : 2^-93.76 with R14 LogUp (4N) ; 2^-95.69 with derived LogUp (N)
+  WHOLE RUN  (b) real distance   : 2^-93.76 with R14 LogUp (4N) ; 2^-95.68 with derived LogUp (N)
+  whole run weaker by 0.00 bits (4N) / 0.01 bits (N)
+  whole run, 6-per-layer convention (4N): 2^-93.75 ; delta/2 regime (4N): 2^-93.78
+  worst single round: D15 per opening 2^-106.25, real per opening (A/H/B/E) 2^-106.09, LogUp per block (N) 2^-100.24, LogUp per block (4N) 2^-98.24, largest sumcheck per block 2^-117.24
+  column checks (= pads) restoring 2^-106.25 per A/H/B/E opening at this width: 257 (2^-106.50); +1344744 B per run
+
+==== Llama-3-8B T512 (projection) : 32 blocks, row width 2^16, inv_rate 4, Q 256 ====
+  layout (no Rust count to compare): A 4721  H 5584  U8 306315264
+  commitment                   times   n/msg     nn   rows  pads     Q delta      (a)       (b)     (d/2)
+  A (block witness)               32   65792 262144   4721   256   256 0.7490  -106.25   -106.09   -173.30
+  H (block LogUp helpers)         32   65792 262144   5584   256   256 0.7490  -106.25   -106.09   -173.30
+  M (block CFS masks)             32    1024   4096     50   256   256 0.7500  -106.25   -106.25   -173.59
+  B_k (internal boundary)         31   65792 262144     38   256   256 0.7490  -106.25   -106.09   -173.30
+  E_in (run input endpoint)        1   65792 262144     37   256   256 0.7490  -106.25   -106.09   -173.30
+  E_out (run output endpoint)      1   65792 262144     37   256   256 0.7490  -106.25   -106.09   -173.30
+  openings per run: 129 (= 4L + 1)
+  column term  (a) D15 convention, real count : 2^-99.24
+  column term  (b) real ZK distance           : 2^-99.12   (0.12 bits weaker than (a))
+  column term  token-I/O check, 6 per layer   : 2^-98.66
+  column term  delta/2 regime (not adopted)   : 2^-166.35
+  lookups per block: U8 306315264 + exp 8388608 + act 8388608 = 323092480
+  LogUp per block: derived (N+1536)/|F| 2^-99.73 ; R14 4N/|F| 2^-97.73 ; run: 2^-94.73 / 2^-92.73
+  sumchecks: 1810 units per block -> 2^-117.18 per block, 2^-112.18 per run
+  PCS field terms (prox (e+1)/|F| + lambda batching), whole run: 2^-105.39
+  WHOLE RUN  (a) D15 per-opening : 2^-92.72 with R14 LogUp (4N) ; 2^-94.67 with derived LogUp (N)
+  WHOLE RUN  (b) real distance   : 2^-92.72 with R14 LogUp (4N) ; 2^-94.66 with derived LogUp (N)
+  whole run weaker by 0.00 bits (4N) / 0.01 bits (N)
+  whole run, 6-per-layer convention (4N): 2^-92.71 ; delta/2 regime (4N): 2^-92.73
+  worst single round: D15 per opening 2^-106.25, real per opening (A/H/B/E) 2^-106.09, LogUp per block (N) 2^-99.73, LogUp per block (4N) 2^-97.73, largest sumcheck per block 2^-117.18
+  column checks (= pads) restoring 2^-106.25 per A/H/B/E opening at this width: 257 (2^-106.50); +2732968 B per run
+
+M product check (consistency half, any profile): (1534/4096 + 1/4)^256 = 2^-173.88
+A/H/B/E consistency half per group at 2^12: (1 - 2 delta/3)^256 = 2^-248.38
+
+==== 125M twelve-block run (reconciliation; D12a / MVP_STATUS quote 2^-97.5) ====
+  per opening at log_cols 14 / rate 4 (real ZK distance, as recompute.py §11 used): 2^-105.61 ; M 2^-106.25
+  recompute.py's assembly (12 x (4 openings + LogUp) + 11 boundaries): 2^-97.45
+  this lane's opening set (37 at 2^-105.61, 12 M, LogUp N): 2^-97.53 ; same at D15's 2^-106.25: 2^-97.60

@@ -1,0 +1,8 @@
+{
+  "observed_at_utc": "2026-10-17T18:31:30.105910+00:00",
+  "source": "/home/victor/IntelligenceRegulation/results/zk60_gpu_zerocheck_20261017/PROGRESS.md",
+  "snapshot": "experiments/fzc-device-traffic-20261017/owner-progress-updated.md",
+  "sha256": "eaa98c4f02ee288723dc175c8b133e31588402b251ae3e7fc2fa559b4d48f690",
+  "original": "native/results__zk60_gpu_zerocheck_20261017__PROGRESS.md",
+  "note": "Original snapshot preserved; kernel and Rust source pins did not drift at the repeat audit."
+}

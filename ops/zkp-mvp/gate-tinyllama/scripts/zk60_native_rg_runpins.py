@@ -961,6 +961,13 @@ from zk60_native_rg_tinyllama_pins import (  # noqa: E402
     merge_one_level as _tl_merge1)
 _tl_merge2(RUN_LAYER_PINS, _TL_RLP, "RUN_LAYER_PINS")
 _tl_merge1(READINGS, _TL_READINGS, "READINGS")
+# [TINYLLAMA PORT v5, round 4] the R5 tree's run-layer digests and readings
+# (`zk60_native_rg_tinyllama_r5_pins`); no entry above changes.
+from zk60_native_rg_tinyllama_r5_pins import (  # noqa: E402
+    READINGS as _R5_READINGS, RUN_LAYER_PINS as _R5_RLP,
+    SHARED_G2_PINS)
+_tl_merge2(RUN_LAYER_PINS, _R5_RLP, "RUN_LAYER_PINS")
+_tl_merge1(READINGS, _R5_READINGS, "READINGS")
 
 # --------------------------------------------------------------------------
 # 4.  WHICH STAGES A MOVED PIN SUSPENDS
@@ -1015,6 +1022,70 @@ AFFECTED_STAGES = {
     ),
 }
 
+# [TINYLLAMA PORT v5, round 4; independent review finding P-2] the staged
+# driver now SUSPENDS what a refused pin affects (it only recorded the map
+# before), so the map must also name rounds 7-8's arm stages, which the
+# monolithic gate's ALL_STAGES predates, and the SHARED files (which never
+# suspended anything).  A shared file no port depends on suspends no stage,
+# but a refusal of it still fails the pin check and so the record's `ok`.
+ARM_STAGES = ("stage11_full_preimage", "stage12_mask_and_cfs",
+              "stage13_joint_run_preimage")
+EVERY_STAGE = tuple(ALL_STAGES) + ARM_STAGES
+_BUT_INTEGRITY = tuple(s for s in EVERY_STAGE if s != "stage1_integrity")
+AFFECTED_ARM_STAGES = {
+    "src/private_block/run_capture.rs": ARM_STAGES,
+    "src/private_block/run.rs": ARM_STAGES,
+    # the arms construct the boundary's preimage and the joint couples it
+    "src/private_block/boundary.rs": ("stage11_full_preimage",
+                                      "stage13_joint_run_preimage"),
+}
+_MASK = ("stage12_mask_and_cfs", "stage13_joint_run_preimage", "stage7_channels")
+SHARED_AFFECTED = {
+    "src/zk.rs": (_MASK, "the mask row model the mask port transcribes"),
+    "../zkp-core/src/ntt.rs": (_MASK, "the coset-encoding convention of M"),
+    "../zkp-core/src/rng.rs": (_MASK, "the draw order of M's pads, rows and salts"),
+    "../zkp-core/src/sumcheck.rs": (
+        _BUT_INTEGRITY, "the round absorbs the replay re-derives every "
+        "challenge from, and `CfsMask`, which the mask port reads"),
+    "../zkp-core/src/field.rs": (_BUT_INTEGRITY, "every port's field"),
+    "../zkp-core/src/transcript.rs": (
+        EVERY_STAGE, "absorb / squeeze and the keyed form: the replay and the "
+        "hash rule stage 1 checks"),
+    "../zkp-core/src/pcs.rs": (
+        ("stage3_per_commitment", "stage4_the_boundary",
+         "stage5_zero_data_preimage", "stage6_negative_controls",
+         "stage7_channels", "stage9_hash_layer", "stage11_full_preimage",
+         "stage13_joint_run_preimage"),
+        "the commitment's coset powers, column hashing and salted leaves: the "
+        "per-commitment view, the preimages and the hash layer"),
+    "../zkp-core/src/merkle.rs": (
+        ("stage7_channels", "stage9_hash_layer", "stage11_full_preimage",
+         "stage12_mask_and_cfs", "stage13_joint_run_preimage"),
+        "the leaf salting and inner-node fold every authenticated column "
+        "goes through"),
+    # finding G-2's three prover-path files (no port transcribes them; the
+    # stages that RE-COMPUTE what they produce are suspended)
+    "../zkp-core/src/pcs/encode_buffer.rs": (
+        ("stage5_zero_data_preimage", "stage7_channels",
+         "stage11_full_preimage", "stage13_joint_run_preimage"),
+        "the row encoding the preimage constructions re-compute"),
+    "../zkp-core/src/sumcheck/rounds.rs": (
+        ("stage7_channels", "stage8_plane_index_and_terminals",
+         "stage10_bilinear_group_factor", "stage12_mask_and_cfs",
+         "stage13_joint_run_preimage"),
+        "the prover's round evaluator behind the published masked rounds"),
+    "../zkp-core/src/sumcheck/grouped.rs": (
+        ("stage7_channels", "stage8_plane_index_and_terminals",
+         "stage10_bilinear_group_factor", "stage12_mask_and_cfs",
+         "stage13_joint_run_preimage"),
+        "slot 17's grouped evaluator behind its published rounds"),
+}
+
+
+def _suspend(suspended: dict, stages, why: str) -> None:
+    for s in stages:
+        suspended.setdefault(s, []).append(why)
+
 
 # --------------------------------------------------------------------------
 # 5.  THE CHECK
@@ -1063,6 +1134,38 @@ def check_shared_pins(bundle) -> dict:
                    " -- no run-gate port depends on it")
             )
 
+    # [TINYLLAMA PORT v5, round 4; review finding P-2] a writer that pins the
+    # shared files pins ALL of them (every /5-run bundle on disk pins 23 of
+    # 23); a bundle that pins some and drops others is refused by name.
+    for f in sorted(set(SHARED_LAYER_PINS) - set(present)):
+        moved.append(f"{f}: the bundle pins the shared files but not this one "
+                     "(a writer that pins them pins all of them)")
+
+    # [TINYLLAMA PORT v5, round 4; finding G-2 / review P-2] the three
+    # prover-path zkp-core files.  A writer whose `run_capture.rs` digest this
+    # gate READ as one that pins them (`pins_g2` in RUN_LAYER_PINS) must pin
+    # all three at the digests read; a missing one is a refusal.  A bundle of
+    # an earlier writer (tree A, every bundle before R5) pins none and is
+    # reported, not refused, so no earlier record changes; a bundle that pins
+    # one at another digest is refused.
+    rc = pins.get("src/private_block/run_capture.rs")
+    rc_entry = RUN_LAYER_PINS.get("src/private_block/run_capture.rs", {}).get(rc) or {}
+    g2_aware = bool(rc_entry.get("pins_g2"))
+    g2 = [f for f in sorted(SHARED_G2_PINS) if f in pins]
+    g2_detail = []
+    for f in sorted(SHARED_G2_PINS):
+        want = SHARED_G2_PINS[f]
+        if f not in pins:
+            if g2_aware or g2:
+                moved.append(f"{f}: the writer pins the three G-2 files and "
+                             "this bundle declares no digest for this one")
+            continue
+        if pins[f] != want["sha256"]:
+            moved.append(f"{f}: the bundle pins {pins[f][:12]}, this gate read "
+                         f"{want['sha256'][:12]} -- {want['depended_on_by']}")
+        g2_detail.append({"file": f, "declared": pins[f],
+                          "read": pins[f] == want["sha256"], **want})
+
     def _entry(f):
         e = {"file": f, "declared": pins[f], **SHARED_LAYER_PINS[f]}
         # [ROUND 9i] only on a file at a second digest, so that a record of
@@ -1098,6 +1201,19 @@ def check_shared_pins(bundle) -> dict:
         # [ROUND 9i] present only when a second digest is in play, for the
         # same reason as `accepted_second_digest` above
         out["pins_at_an_accepted_second_digest"] = sorted(second)
+    if g2 or g2_aware:
+        # [TINYLLAMA PORT v5] present only when the bundle (or its writer)
+        # pins them, so no earlier record gains a leaf
+        out["g2_prover_path_files"] = g2_detail
+    if moved:
+        # [TINYLLAMA PORT v5; review P-2] what a refused shared pin affects,
+        # present only on a refusal (an honest record gains no leaf)
+        sus: dict = {}
+        for line in moved:
+            path = line.split(":", 1)[0]
+            stages, why = SHARED_AFFECTED.get(path, ((), "no run-gate port"))
+            _suspend(sus, stages, f"{path}: {why}")
+        out["stages_not_checked"] = {k: sorted(set(v)) for k, v in sus.items()}
     return out
 
 
@@ -1147,14 +1263,21 @@ def check_run_layer_pins(bundle) -> dict:
             "bytes": entry["bytes"],
             "reading": READINGS[(path, got)],
         })
-    ok = not moved and not missing
+    # [TINYLLAMA PORT v5; review finding P-2] the SHARED files' check is part
+    # of this verdict now: a refused shared pin fails `ok` and suspends what
+    # it affects, exactly as a refused run-layer pin does.  On a bundle whose
+    # every pin is at a read digest nothing changes (`ok` true, no suspension).
+    shared = check_shared_pins(bundle)
+    ok = not moved and not missing and shared.get("ok") is True
     suspended = {}
-    if not ok:
-        for line in moved + missing:
-            path = line.split(":", 1)[0]
-            stages, why = AFFECTED_STAGES[path]
-            for s in stages:
-                suspended.setdefault(s, []).append(f"{path}: {why}")
+    for line in moved + missing:
+        path = line.split(":", 1)[0]
+        stages, why = AFFECTED_STAGES[path]
+        for s in tuple(stages) + tuple(AFFECTED_ARM_STAGES.get(path, ())):
+            suspended.setdefault(s, []).append(f"{path}: {why}")
+    for s, whys in (shared.get("stages_not_checked") or {}).items():
+        for w in whys:
+            suspended.setdefault(s, []).append(f"shared {w}")
     return {
         "what": "the three RUN-LAYER files a bundle pins -- the capture "
                 "writer, the run's own geometry and transcript, and the "
@@ -1164,7 +1287,7 @@ def check_run_layer_pins(bundle) -> dict:
         "pinned_elsewhere": PINNED_ELSEWHERE,
         "on_the_run_layer_but_not_pinnable_from_a_bundle":
             NOT_PINNABLE_FROM_A_BUNDLE,
-        "shared_files": check_shared_pins(bundle),
+        "shared_files": shared,
         "per_file": detail,
         "pins_at_a_read_digest": accepted,
         "pins_that_moved": moved,

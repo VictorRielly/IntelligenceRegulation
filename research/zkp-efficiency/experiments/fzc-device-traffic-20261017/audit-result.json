@@ -51,10 +51,12 @@
     "split eq join inputs omitted": true,
     "original stride omitted": true
   },
-  "live_source_drift": [],
-  "wall_seconds": 0.17418753599997672,
-  "parent_peak_rss_kib": 16264,
-  "child_peak_rss_kib": 34912,
+  "live_source_drift": [
+    "/home/victor/IntelligenceRegulation/results/zk60_gpu_zerocheck_20261017/PROGRESS.md"
+  ],
+  "wall_seconds": 0.3681208250000054,
+  "parent_peak_rss_kib": 16608,
+  "child_peak_rss_kib": 34956,
   "compiler_argv": [
     "/usr/bin/g++",
     "-std=c++17",

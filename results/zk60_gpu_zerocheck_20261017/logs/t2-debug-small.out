@@ -1,1 +1,2 @@
 [zk60-guard 11:29:20] START t2-debug-small class=gpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=bf610ffb1d53
+[zk60-guard 11:31:44] END t2-debug-small exit=0 child_wall=145s peak_rss=0.89G min_avail=11.47G peak_vram=441MiB

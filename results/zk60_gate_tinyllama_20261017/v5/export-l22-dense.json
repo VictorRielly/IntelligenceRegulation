@@ -1,0 +1,357 @@
+{
+ "E1_constants": {
+  "f_e": {
+   "bundle": 9,
+   "equal": true,
+   "export": 9
+  },
+  "norm_ceps": {
+   "bundle": 91255,
+   "equal": true,
+   "export": 91255
+  },
+  "norm_cn_a": {
+   "bundle": 3999,
+   "equal": true,
+   "export": 3999
+  },
+  "norm_cn_m": {
+   "bundle": 3122,
+   "equal": true,
+   "export": 3122
+  },
+  "norm_tn": {
+   "bundle": 10,
+   "equal": true,
+   "export": 10
+  },
+  "sh_ao": {
+   "bundle": 3,
+   "equal": true,
+   "export": 3
+  },
+  "sh_g": {
+   "bundle": 8,
+   "equal": true,
+   "export": 8
+  },
+  "sh_h": {
+   "bundle": 14,
+   "equal": true,
+   "export": 14
+  },
+  "sh_o": {
+   "bundle": 9,
+   "equal": true,
+   "export": 9
+  },
+  "sh_qkv": {
+   "bundle": 8,
+   "equal": true,
+   "export": 8
+  },
+  "sh_s": {
+   "bundle": 6,
+   "equal": true,
+   "export": 6
+  },
+  "sh_z": {
+   "bundle": 5,
+   "equal": true,
+   "export": 5
+  }
+ },
+ "E2_parameter_line": {
+  "equal_to_the_shape": true,
+  "found": true,
+  "sh_g_h_z": [
+   8,
+   14,
+   5
+  ]
+ },
+ "E3_statement": {
+  "identity_compared": true,
+  "identity_equal": true,
+  "layer_of_stage": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20,
+   21
+  ],
+  "statement": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r2/stack-pg_rot1-ho00-gpu/run/statement/statement.json",
+  "statement_sha256": "5b7acd4da2736aec3b5fff349a27eeeccacb1aa1271d9a9d0f62c35c31d13bfd"
+ },
+ "E4_tables": {
+  "checked": true,
+  "from": "stage8_plane_index_and_terminals/terminal_identity",
+  "per_stage": [
+   {
+    "act_128_is_zero": true,
+    "act_equal": true,
+    "exp_0_is_2_to_f_e": true,
+    "exp_equal": true,
+    "layer": 0,
+    "stage": 0
+   },
+   {
+    "act_128_is_zero": true,
+    "act_equal": true,
+    "exp_0_is_2_to_f_e": true,
+    "exp_equal": true,
+    "layer": 1,
+    "stage": 1
+   },
+   {
+    "act_128_is_zero": true,
+    "act_equal": true,
+    "exp_0_is_2_to_f_e": true,
+    "exp_equal": true,
+    "layer": 2,
+    "stage": 2
+   },
+   {
+    "act_128_is_zero": true,
+    "act_equal": true,
+    "exp_0_is_2_to_f_e": true,
+    "exp_equal": true,
+    "layer": 3,
+    "stage": 3
+   },
+   {
+    "act_128_is_zero": true,
+    "act_equal": true,
+    "exp_0_is_2_to_f_e": true,
+    "exp_equal": true,
+    "layer": 4,
+    "stage": 4
+   },
+   {
+    "act_128_is_zero": true,
+    "act_equal": true,
+    "exp_0_is_2_to_f_e": true,
+    "exp_equal": true,
+    "layer": 5,
+    "stage": 5
+   },
+   {
+    "act_128_is_zero": true,
+    "act_equal": true,
+    "exp_0_is_2_to_f_e": true,
+    "exp_equal": true,
+    "layer": 6,
+    "stage": 6
+   },
+   {
+    "act_128_is_zero": true,
+    "act_equal": true,
+    "exp_0_is_2_to_f_e": true,
+    "exp_equal": true,
+    "layer": 7,
+    "stage": 7
+   },
+   {
+    "act_128_is_zero": true,
+    "act_equal": true,
+    "exp_0_is_2_to_f_e": true,
+    "exp_equal": true,
+    "layer": 8,
+    "stage": 8
+   },
+   {
+    "act_128_is_zero": true,
+    "act_equal": true,
+    "exp_0_is_2_to_f_e": true,
+    "exp_equal": true,
+    "layer": 9,
+    "stage": 9
+   },
+   {
+    "act_128_is_zero": true,
+    "act_equal": true,
+    "exp_0_is_2_to_f_e": true,
+    "exp_equal": true,
+    "layer": 10,
+    "stage": 10
+   },
+   {
+    "act_128_is_zero": true,
+    "act_equal": true,
+    "exp_0_is_2_to_f_e": true,
+    "exp_equal": true,
+    "layer": 11,
+    "stage": 11
+   },
+   {
+    "act_128_is_zero": true,
+    "act_equal": true,
+    "exp_0_is_2_to_f_e": true,
+    "exp_equal": true,
+    "layer": 12,
+    "stage": 12
+   },
+   {
+    "act_128_is_zero": true,
+    "act_equal": true,
+    "exp_0_is_2_to_f_e": true,
+    "exp_equal": true,
+    "layer": 13,
+    "stage": 13
+   },
+   {
+    "act_128_is_zero": true,
+    "act_equal": true,
+    "exp_0_is_2_to_f_e": true,
+    "exp_equal": true,
+    "layer": 14,
+    "stage": 14
+   },
+   {
+    "act_128_is_zero": true,
+    "act_equal": true,
+    "exp_0_is_2_to_f_e": true,
+    "exp_equal": true,
+    "layer": 15,
+    "stage": 15
+   },
+   {
+    "act_128_is_zero": true,
+    "act_equal": true,
+    "exp_0_is_2_to_f_e": true,
+    "exp_equal": true,
+    "layer": 16,
+    "stage": 16
+   },
+   {
+    "act_128_is_zero": true,
+    "act_equal": true,
+    "exp_0_is_2_to_f_e": true,
+    "exp_equal": true,
+    "layer": 17,
+    "stage": 17
+   },
+   {
+    "act_128_is_zero": true,
+    "act_equal": true,
+    "exp_0_is_2_to_f_e": true,
+    "exp_equal": true,
+    "layer": 18,
+    "stage": 18
+   },
+   {
+    "act_128_is_zero": true,
+    "act_equal": true,
+    "exp_0_is_2_to_f_e": true,
+    "exp_equal": true,
+    "layer": 19,
+    "stage": 19
+   },
+   {
+    "act_128_is_zero": true,
+    "act_equal": true,
+    "exp_0_is_2_to_f_e": true,
+    "exp_equal": true,
+    "layer": 20,
+    "stage": 20
+   },
+   {
+    "act_128_is_zero": true,
+    "act_equal": true,
+    "exp_0_is_2_to_f_e": true,
+    "exp_equal": true,
+    "layer": 21,
+    "stage": 21
+   }
+  ],
+  "stages": 22
+ },
+ "bundle": "tinyllama-trained-capture-dense-l22",
+ "controls": {
+  "all_fire": true,
+  "controls": [
+   {
+    "control": "EX-1",
+    "findings_naming_it": [
+     "E1: sh_qkv is 7 in the bundle and 8 in the export"
+    ],
+    "fires": true,
+    "ok_under_perturbation": false,
+    "what": "sh_qkv moved by one in run.json's shape"
+   },
+   {
+    "control": "EX-2",
+    "findings_naming_it": [
+     "E1: norm_ceps is 91256 in the bundle and 91255 in the export"
+    ],
+    "fires": true,
+    "ok_under_perturbation": false,
+    "what": "norm_ceps moved by one in run.json's shape"
+   },
+   {
+    "control": "EX-3",
+    "findings_naming_it": [
+     "E2: the absorbed parameter line says sh g/h/z = 9/14/5, the shape 8/14/5"
+    ],
+    "fires": true,
+    "ok_under_perturbation": false,
+    "what": "the parameter line's sh-g field moved by one"
+   },
+   {
+    "control": "EX-4",
+    "findings_naming_it": [
+     "E3: the bundle's block digests are not a contiguous run of the statement's per-layer block digests"
+    ],
+    "fires": true,
+    "ok_under_perturbation": false,
+    "what": "stage 0's block digest flipped (no longer a statement layer)"
+   },
+   {
+    "control": "EX-5",
+    "findings_naming_it": [
+     "E3: the absorbed calibration word is not the statement's trained_statement_identity"
+    ],
+    "fires": true,
+    "ok_under_perturbation": false,
+    "what": "the absorbed calibration word flipped"
+   },
+   {
+    "control": "EX-6",
+    "findings_naming_it": [
+     "E4: stage 0 (layer 0): act_equal is false"
+    ],
+    "fires": true,
+    "ok_under_perturbation": false,
+    "what": "stage 0's recovered SiLU table digest replaced"
+   }
+  ],
+  "honest_ok": true,
+  "ok": true
+ },
+ "export": "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_export_T32",
+ "export_profile_sha256": "b25ba5f5e1df5617d9d60b41998eca101dc1e41ae6e70bf2d67da344eb6bffa4",
+ "export_variant": "pg_rot1_export_T32",
+ "findings": [],
+ "ok": true,
+ "privacy_acceptance": false,
+ "privacy_property_established": false,
+ "tool_sha256": "67e7fad75016230880bc79aa75cff7f7e5c05f70375533eb4553e59f31af719c",
+ "what": "the bundle's trained calibration against the export it claims and an independent statement (finding P-9)"
+}

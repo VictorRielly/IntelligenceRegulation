@@ -1,0 +1,63 @@
+{
+  "status": "PASS",
+  "cycle": "0069",
+  "run_id": "20261017T222105Z-d6d7aa4d",
+  "seed": 2026101769,
+  "counts": {
+    "fixtures": 94,
+    "round_field_values": 1424,
+    "terminal_values": 282,
+    "brute_round_values": 480,
+    "mask_field_values": 1600,
+    "masked_chain_checks": 356
+  },
+  "negative_controls": {
+    "duplicate public position refuses": true,
+    "unsorted public support refuses": true,
+    "out of cube support refuses": true,
+    "nonpower cube refuses": true,
+    "wrong round count refuses": true,
+    "zero cube refuses": true,
+    "oversized cube refuses": true,
+    "zero Boolean products do not authorize skipping factor support": true,
+    "product MLE changes nonBoolean rounds": true,
+    "dropping selector terminal changes final product": true,
+    "dropping one factor terminal changes final product": true,
+    "unmasked singleton value still disclosed": true,
+    "same starting point cannot replace distinct per-column weights": true,
+    "wrong bit order changes rounds": true,
+    "dropping mask messages changes rounds": true,
+    "summing mask only over active shape changes initial claim": true,
+    "constant-half mask singularity not special-cased": true,
+    "numeric zero values preserve public visit schedule": true,
+    "MSB column first compaction saves no pairs for C5 N16": true,
+    "MSB row first skips structural padding for C5 N16": true,
+    "self consistent replacement changes original ordered value": true,
+    "terminal tamper rejected by product oracle": true
+  },
+  "wall_seconds": 2.3004362789997685,
+  "peak_rss_kib": 21724,
+  "compiler_peak_rss_kib": 133340,
+  "compiler_argv": [
+    "/home/victor/.rustup/toolchains/1.97.0-x86_64-unknown-linux-gnu/bin/rustc",
+    "--edition=2021",
+    "--crate-type=cdylib",
+    "-C",
+    "opt-level=1",
+    "-C",
+    "codegen-units=1",
+    "isolated.rs",
+    "-o",
+    "isolated.so"
+  ],
+  "threads": 1,
+  "cpu_affinity": [
+    0
+  ],
+  "nice": 19,
+  "estimated_memory_mib": 128,
+  "limits": "59s CPU/wall per command;512MiB AS;std-only single-codegen-unit Rust",
+  "fixture_sha256": "0f09085dfa7eaad2b6da4a0f9d5e9fc405120e50343e1cb2519c6065b29c8fe6",
+  "scope": "Synthetic three-factor MSB sumcheck round arithmetic and source-captured CFS polynomial; externally supplied challenges/coefficient fixtures. No Fiat-Shamir/RNG/PCS/GKR/native proof/privacy/speed reproduction.",
+  "completed_at_utc": "2026-10-17T22:24:37.647712+00:00"
+}

@@ -1,0 +1,29 @@
+suite start 18:47:51
+[zk60-guard 11:47:51] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 11:48:36] START r5-suite class=cpu need=4.5G cap=8G enforce=cgroup+watchdog waited=45s run=1190e8950fa2
+[zk60-guard 12:02:43] END r5-suite exit=101 child_wall=846s peak_rss=4.58G min_avail=6.66G
+suite exit 101 19:02:43
+[zk60-guard 12:08:07] START r5-stack-llama3_8b_pg_rot1_T32-cpu class=cpu need=3G cap=9G enforce=cgroup+watchdog waited=0s run=581d5d4125c2
+[zk60-guard 12:12:35] END r5-stack-llama3_8b_pg_rot1_T32-cpu exit=0 child_wall=268s peak_rss=2.04G min_avail=6.65G
+[zk60-guard 12:12:35] START r5-stack-verify-llama3_8b_pg_rot1_T32-cpu class=cpu need=2.5G cap=8G enforce=cgroup+watchdog waited=0s run=f51592192f03
+[zk60-guard 12:15:49] END r5-stack-verify-llama3_8b_pg_rot1_T32-cpu exit=0 child_wall=193s peak_rss=1.88G min_avail=7.16G
+stack-verify llama3_8b_pg_rot1_T32 cpu exit 0
+8B T32 done 19:15:49
+[zk60-guard 12:15:49] START r5-stack-pg_rot1_b4_T32_cal128-cpu class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=7a1af8662973
+[zk60-guard 12:17:16] END r5-stack-pg_rot1_b4_T32_cal128-cpu exit=0 child_wall=88s peak_rss=1.41G min_avail=8.00G
+[zk60-guard 12:17:16] START r5-stack-verify-pg_rot1_b4_T32_cal128-cpu class=cpu need=2.5G cap=5G enforce=cgroup+watchdog waited=0s run=36273f2c15c8
+[zk60-guard 12:18:01] END r5-stack-verify-pg_rot1_b4_T32_cal128-cpu exit=0 child_wall=44s peak_rss=1.07G min_avail=8.25G
+stack-verify pg_rot1_b4_T32_cal128 cpu exit 0
+TinyLlama T32 done 19:18:01
+[zk60-guard 12:18:01] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 12:19:01] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 12:20:01] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 12:21:01] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 12:22:01] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 12:23:01] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 12:23:02] START r5-stack-pg_rot1_b4_T128-cpu class=cpu need=5.5G cap=8G enforce=cgroup+watchdog waited=301s run=9a0ca624efd6
+[zk60-guard 12:26:12] END r5-stack-pg_rot1_b4_T128-cpu exit=0 child_wall=190s peak_rss=3.63G min_avail=7.42G
+[zk60-guard 12:26:12] START r5-stack-verify-pg_rot1_b4_T128-cpu class=cpu need=2.5G cap=5G enforce=cgroup+watchdog waited=0s run=0d914ccad5ea
+[zk60-guard 12:27:11] END r5-stack-verify-pg_rot1_b4_T128-cpu exit=0 child_wall=59s peak_rss=1.18G min_avail=9.86G
+stack-verify pg_rot1_b4_T128 cpu exit 0
+TinyLlama T128 done 19:27:11

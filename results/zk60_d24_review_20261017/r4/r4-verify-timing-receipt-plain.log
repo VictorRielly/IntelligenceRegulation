@@ -1,0 +1,13 @@
+{"event":"verified","blocks":2,"receipt_bytes":15012880,"load_seconds":0.007,"verify_seconds":0.119,"of_which_block_load_seconds":0.008,"vmhwm_mib":29,"statement_identity":"72098637f55f5b49d4729fec487c01090b39b9182173970cbd8b84fe55f496e5","scope":"ALL the listed trained blocks of the export's model (TinyLlama-1.1B-Chat or Llama-3-8B) as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"}
+{"event":"control-refused","control":"a statement with blocks 0 and 1 swapped","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"the honest statement with the verifier's block list 0 <-> 1 swapped","error":"trained statement: block 0's public digest is not the statement's layer 0 digest"}
+{"event":"control-refused","control":"a verifier statement with norm_cn_a + 1","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"a verifier statement with sh_z moved by one","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"a verifier statement with sh_qkv moved by one","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"a verifier statement with f_e moved by one","error":"trained export: the rung-TC geometry fixes f_e = 12, the export declares 13"}
+{"event":"control-refused","control":"a verifier statement with another export profile digest","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"a verifier statement and block list one block shorter","error":"private run wire: segment 0 is 7398936 B, the counted length is 7591416"}
+{"event":"control-refused","control":"segment 1 with one byte flipped","error":"A: pcs zk: Merkle path for column 3037 fails"}
+{"event":"control-refused","control":"segments 0 and 1 swapped","error":"private run wire: segment 0 is 7613944 B, the counted length is 7398936"}
+{"event":"control-refused","control":"the last segment truncated by one byte","error":"private run wire: segment 1 is 7613943 B, the counted length is 7613944"}
+{"event":"stack-controls","refused":11,"honest_still_verifies":true}

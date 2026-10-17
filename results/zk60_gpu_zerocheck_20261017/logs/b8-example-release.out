@@ -1,0 +1,2 @@
+[zk60-guard 12:57:56] START b8-example-release class=build need=3G cap=5G enforce=cgroup+watchdog waited=0s run=646157d5e09e
+[zk60-guard 12:59:15] END b8-example-release exit=0 child_wall=79s peak_rss=1.11G min_avail=6.27G

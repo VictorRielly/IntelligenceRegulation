@@ -1,0 +1,295 @@
+diff -ruN -x __pycache__ frozen_v4/tests/test_v4_status_g10.py tests/test_v4_status_g10.py
+--- frozen_v4/tests/test_v4_status_g10.py	2026-10-17 11:40:22.505495721 -0700
++++ tests/test_v4_status_g10.py	2026-10-17 14:53:37.695603618 -0700
+@@ -70,11 +70,112 @@
+         self.assertEqual(out["unexplained"], [])
+ 
+     def test_ok_true_is_pass_and_ok_is_never_changed(self):
+-        r = copy.deepcopy(self.rec)
+-        r["ok"] = True
+-        self.assertEqual(self.status(r), "PASS")
+         out = S.classify(self.rec)
+         self.assertIs(out["ok"], False)
++        # [v5] ok true with arms-only explanations is NOT a PASS
++        r = copy.deepcopy(self.rec)
++        r["ok"] = True
++        self.assertEqual(self.status(r), "NOT-OK")
++
++    def test_v5_pass_needs_every_false_leaf_explained_by_e(self):
++        clean = {"ok": True, "blocks": 2, "timings": [],
++                 "stage1_integrity": {"ok": True}}
++        self.assertEqual(self.status(clean), "PASS")
++        ch6 = copy.deepcopy(clean)
++        ch6["stage6_negative_controls"] = {"ok": True, "hash_rule_controls": {
++            "ok": True, "controls": [{"control": "CH-6", "fires": False,
++                                      "skipped": S.CH6_SKIP}]}}
++        out = S.classify(ch6)
++        self.assertEqual(out["status"], "PASS")
++        self.assertEqual(out["unexplained"], [])
++        # the same leaf when the family's ok is false is not explained
++        bad = copy.deepcopy(ch6)
++        bad["stage6_negative_controls"]["hash_rule_controls"]["ok"] = False
++        self.assertEqual(self.status(bad), "NOT-OK")
++        # a CH-6 that ran and did not fire is not a by-name skip
++        ran = copy.deepcopy(ch6)
++        del ran["stage6_negative_controls"]["hash_rule_controls"]["controls"][0]["skipped"]
++        self.assertEqual(self.status(ran), "NOT-OK")
++        # any other false leaf under ok true: NOT-OK
++        other = copy.deepcopy(clean)
++        other["stage9_hash_layer"] = {"ok": True, "x": {"fires": False}}
++        self.assertEqual(self.status(other), "NOT-OK")
++
++    def test_v5_a_non_bool_ok_is_not_ok(self):
++        clean = {"ok": True, "blocks": 2, "timings": [],
++                 "stage1_integrity": {"ok": None}}
++        out = S.classify(clean)
++        self.assertEqual(out["status"], "NOT-OK")
++        self.assertEqual(out["non_bool_leaves"], ["/stage1_integrity/ok"])
++        r = copy.deepcopy(self.rec)
++        r["stage12_mask_and_cfs"]["per_stage"][0]["ok"] = None
++        self.assertEqual(self.status(r), "NOT-OK")
++        # a NAMED not-applicable null `fires` is allowed
++        na = {"ok": True, "blocks": 1, "timings": [],
++              "stage6_negative_controls": {"ok": True, "run_controls": {
++                  "ok": True, "C1": {"not_applicable": "x", "fires": None}}}}
++        self.assertEqual(self.status(na), "PASS")
++
++    def test_v5_rule_a_only_for_the_control_families(self):
++        r = copy.deepcopy(self.rec)
++        r["stage4_the_boundary"]["controls"] = {"skipped": S.NOT_REQUESTED, "ok": False}
++        self.assertEqual(self.status(r), "NOT-OK")
++
++    def test_v5_arms_only_needs_stages_1_to_3_and_the_arms(self):
++        for k in ("stage1_integrity", "stage2_transcript_replay",
++                  "stage3_per_commitment", "stage11_full_preimage"):
++            r = copy.deepcopy(self.rec)
++            del r[k]
++            self.assertEqual(self.status(r), "NOT-OK", k)
++        r = copy.deepcopy(self.rec)
++        r["stage2_transcript_replay"]["ok"] = False
++        self.assertEqual(self.status(r), "NOT-OK")
++
++    def test_v5_every_mask_arm_conjunct_has_a_negative(self):
++        base = self.rec
++        self.assertTrue(S.mask_arm_closed(base["stage12_mask_and_cfs"], base["blocks"]))
++        cases = [("requested", False), ("stages_checked", 1), ("stages_that_refused", ["x"]),
++                 ("entries_recomputed", 0), ("entries_differing", 1),
++                 ("salted_leaves_authenticated", 0)]
++        for key, val in cases:
++            r = copy.deepcopy(base)
++            r["stage12_mask_and_cfs"][key] = val
++            self.assertFalse(S.mask_arm_closed(r["stage12_mask_and_cfs"], r["blocks"]), key)
++            self.assertEqual(self.status(r), "NOT-OK", key)
++        for mut in ("pins", "per_stage_len", "per_stage_ok"):
++            r = copy.deepcopy(base)
++            s12 = r["stage12_mask_and_cfs"]
++            if mut == "pins":
++                s12["source_pins"]["ok"] = False
++            elif mut == "per_stage_len":
++                s12["per_stage"] = s12["per_stage"][:-1]
++            else:
++                s12["per_stage"][-1]["ok"] = False
++            self.assertFalse(S.mask_arm_closed(s12, r["blocks"]), mut)
++
++    def test_v5_every_joint_conjunct_has_a_negative(self):
++        base = self.rec
++        s11, s12, s13 = (base["stage11_full_preimage"], base["stage12_mask_and_cfs"],
++                         base["stage13_joint_run_preimage"])
++        self.assertTrue(S.joint_closed(s13, s11, s12, base["blocks"]))
++        muts13 = [("requested", False), ("all_four_couplings_respected", False),
++                  ("entries_differing", 1), ("findings", [])]
++        for key, val in muts13:
++            r = copy.deepcopy(base); r["stage13_joint_run_preimage"][key] = val
++            self.assertEqual(self.status(r), "NOT-OK", key)
++        for key in ("pcs_entries_differing", "masking_entries_differing"):
++            r = copy.deepcopy(base); r["stage13_joint_run_preimage"]["parts"][key] = 1
++            self.assertEqual(self.status(r), "NOT-OK", key)
++        for key in ("pcs_entries_compared", "masking_entries_compared"):
++            r = copy.deepcopy(base); r["stage13_joint_run_preimage"]["parts"][key] = 0
++            self.assertEqual(self.status(r), "NOT-OK", key)
++        r = copy.deepcopy(base); r["stage13_joint_run_preimage"]["couplings"].pop("C2_shared_claim_values")
++        self.assertEqual(self.status(r), "NOT-OK", "three couplings")
++        muts11 = [("requested", False), ("ok", False), ("view_entries_compared", 0),
++                  ("not_exhibited", ["A@0"]), ("exhibited", [])]
++        for key, val in muts11:
++            r = copy.deepcopy(base); r["stage11_full_preimage"][key] = val
++            self.assertEqual(self.status(r), "NOT-OK", key)
+ 
+     def test_controls_requested_is_never_arms_only(self):
+         self.assertEqual(self.status(self.rec, controls_requested=True), "NOT-OK")
+@@ -166,11 +267,12 @@
+         b = self._honest_equal_to_v3(TL1D)
+         out = g10_controls(b, other=load_bundle(TL1Z), legacy=self.legacy)
+         self.assertTrue(out["ok"])
+-        self.assertEqual(out["applicable"], 4)
++        # [v5] G10-1..G10-4 and review P-21's G10-5..G10-8
++        self.assertEqual(out["applicable"], 8)
+         self.assertTrue(out["every_perturbation_undone"])
+         if self.legacy is not None:
+             # the failing-first state: v3 accepted every one at L = 1
+-            self.assertEqual(len(out["v3_accepted"]), 4)
++            self.assertEqual(len(out["v3_accepted"]), 8)
+         self.assertTrue(integrity(b)["ok"])
+ 
+     @unittest.skipUnless(os.path.isdir(TL2D) and os.path.isdir(TL2Z), "L = 2 bundles not on disk")
+@@ -193,3 +295,160 @@
+ 
+ if __name__ == "__main__":
+     unittest.main()
++
++
++class R5Pins(unittest.TestCase):
++    """[tools v5, round 4] the R5 readings: every digest carries a reading,
++    every one is the file's digest in the gate's R5 copy, the merge never
++    replaces a round-1 reading, and the three G-2 files are checked only
++    when a bundle pins them."""
++
++    R5 = "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-r5-superseded/hashline"
++
++    def test_every_r5_digest_carries_a_reading(self):
++        import zk60_native_rg_tinyllama_r5_pins as R
++        for path, digests in R.RUN_LAYER_PINS.items():
++            for d in digests:
++                self.assertIn((path, d), R.READINGS)
++                self.assertTrue(R.READINGS[(path, d)].startswith("[TINYLLAMA PORT v5"))
++        for table in (R.TERMINALS_ALSO_ACCEPTED, R.TERMINALS_PINNED_IF_PRESENT):
++            for path, digests in table.items():
++                for d, reading in digests.items():
++                    self.assertEqual(len(d), 64)
++                    self.assertIn("TINYLLAMA PORT v5", reading)
++        for d, (name, reading) in R.ARGUMENT_DEFINITIONS.items():
++            self.assertEqual(name, "repaired")
++            self.assertIn("TINYLLAMA PORT v5", reading)
++
++    @unittest.skipUnless(os.path.isdir(R5), "the gate's R5 copy is not on disk")
++    def test_every_r5_digest_is_the_r5_copys_file(self):
++        import hashlib
++        import zk60_native_rg_tinyllama_r5_pins as R
++
++        def sha(rel):
++            with open(os.path.join(self.R5, rel), "rb") as fh:
++                return hashlib.sha256(fh.read()).hexdigest()
++        for table in (R.RUN_LAYER_PINS, R.TERMINALS_ALSO_ACCEPTED,
++                      R.TERMINALS_PINNED_IF_PRESENT, R.MASK_LAYER_PINS):
++            for path, digests in table.items():
++                self.assertEqual(list(digests), [sha(path)], path)
++        for path, e in R.SHARED_G2_PINS.items():
++            self.assertEqual(e["sha256"], sha(path), path)
++        for d in R.ARGUMENT_DEFINITIONS:
++            self.assertEqual(d, sha("src/private_block/argument.rs"))
++        for path, (d, _why) in R.REPORT_ONLY_OWN_FILES.items():
++            self.assertEqual(d, sha(path), path)
++
++    def test_round_one_readings_survive_and_r5_is_merged(self):
++        import zk60_native_rg_gqa as GQ
++        import zk60_native_rg_mask as MK
++        import zk60_native_rg_runpins as RP
++        import zk60_native_rg_terminals as TM
++        import zk60_native_rg_tinyllama_pins as TP
++        import zk60_native_rg_tinyllama_r5_pins as R
++        for path, digests in TP.RUN_LAYER_PINS.items():
++            for d in digests:
++                self.assertIn(d, RP.RUN_LAYER_PINS[path])
++        for path, digests in R.RUN_LAYER_PINS.items():
++            for d in digests:
++                self.assertIn(d, RP.RUN_LAYER_PINS[path])
++        for d in list(TP.ARGUMENT_DEFINITIONS) + list(R.ARGUMENT_DEFINITIONS):
++            self.assertEqual(GQ.ARGUMENT_DEFINITIONS[d][0], "repaired")
++        for path, digests in R.TERMINALS_ALSO_ACCEPTED.items():
++            for d in digests:
++                self.assertIn(d, TM.ALSO_ACCEPTED[path])
++        for path, digests in R.MASK_LAYER_PINS.items():
++            for d in digests:
++                self.assertIn(d, MK.MASK_LAYER_PINS[path])
++        with self.assertRaises(ValueError):
++            R.merge_two_level({"f": {"a" * 64: 1}}, {"f": {"a" * 64: 2}}, "t")
++
++    @unittest.skipUnless(os.path.isdir(TL1D), "L = 1 bundle not on disk")
++    def test_a_pre_r5_bundle_gains_no_g2_leaf(self):
++        from zk60_native_rg_runpins import check_shared_pins
++        out = check_shared_pins(load_bundle(TL1D))
++        self.assertNotIn("g2_prover_path_files", out)
++
++
++@unittest.skipUnless(os.path.isdir(TL1D), "L = 1 bundle not on disk")
++class PinEnforcement(unittest.TestCase):
++    """[v5, review P-2] the pin verdict on synthetic manifests (no bundle is
++    loaded: the check reads only the manifest)"""
++
++    def setUp(self):
++        import types
++        import zk60_native_rg_runpins as RP
++        import zk60_native_rg_tinyllama_r5_pins as R
++        self.RP, self.R, self.types = RP, R, types
++        with open(os.path.join(TL1D, "manifest.json")) as fh:
++            self.man = json.load(fh)
++
++    def check(self, mutate=None):
++        man = copy.deepcopy(self.man)
++        if mutate:
++            mutate(man["source_pins"])
++        return self.RP.check_run_layer_pins(self.types.SimpleNamespace(manifest=man))
++
++    def _set(self, pins, f, d):
++        for p in pins:
++            if p["file"] == f:
++                p["sha256"] = d
++                return
++        pins.append({"file": f, "sha256": d})
++
++    def test_honest_tree_a_bundle(self):
++        out = self.check()
++        self.assertTrue(out["ok"])
++        self.assertEqual(out["stages_not_checked"], {})
++        self.assertNotIn("g2_prover_path_files", out["shared_files"])
++
++    def test_run_rs_moved_suspends_every_stage_and_the_arms(self):
++        out = self.check(lambda p: self._set(p, "src/private_block/run.rs", "0" * 64))
++        self.assertFalse(out["ok"])
++        for s in ("stage1_integrity", "stage2_transcript_replay",
++                  "stage11_full_preimage", "stage12_mask_and_cfs",
++                  "stage13_joint_run_preimage"):
++            self.assertIn(s, out["stages_not_checked"])
++
++    def test_a_shared_file_no_port_reads_fails_ok_without_suspending(self):
++        out = self.check(lambda p: self._set(p, "src/mle.rs", "0" * 64))
++        self.assertFalse(out["ok"])
++        self.assertEqual(out["stages_not_checked"], {})
++
++    def test_a_dropped_shared_pin_is_refused(self):
++        out = self.check(lambda p: p.__setitem__(slice(None), [x for x in p if x["file"] != "src/mle.rs"]))
++        self.assertFalse(out["ok"])
++
++    def test_a_shared_file_a_port_reads_suspends_its_stages(self):
++        out = self.check(lambda p: self._set(p, "../zkp-core/src/merkle.rs", "0" * 64))
++        self.assertFalse(out["ok"])
++        self.assertIn("stage9_hash_layer", out["stages_not_checked"])
++        self.assertNotIn("stage2_transcript_replay", out["stages_not_checked"])
++
++    def _r5(self, p):
++        R = self.R
++        self._set(p, "src/private_block/run.rs", next(iter(R.RUN_LAYER_PINS["src/private_block/run.rs"])))
++        self._set(p, "src/private_block/run_capture.rs", next(iter(R.RUN_LAYER_PINS["src/private_block/run_capture.rs"])))
++        for f, e in R.SHARED_G2_PINS.items():
++            self._set(p, f, e["sha256"])
++
++    def test_an_r5_writer_with_its_g2_pins_is_ok(self):
++        out = self.check(self._r5)
++        self.assertTrue(out["ok"], out["shared_files"].get("pins_that_moved"))
++        self.assertEqual(len(out["shared_files"]["g2_prover_path_files"]), 3)
++
++    def test_an_r5_writer_missing_a_g2_pin_is_refused(self):
++        def m(p):
++            self._r5(p)
++            p[:] = [x for x in p if x["file"] != "../zkp-core/src/pcs/encode_buffer.rs"]
++        out = self.check(m)
++        self.assertFalse(out["ok"])
++        self.assertIn("stage11_full_preimage", out["stages_not_checked"])
++
++    def test_a_g2_pin_at_another_digest_is_refused(self):
++        def m(p):
++            self._r5(p)
++            self._set(p, "../zkp-core/src/sumcheck/grouped.rs", "0" * 64)
++        out = self.check(m)
++        self.assertFalse(out["ok"])
++        self.assertIn("stage12_mask_and_cfs", out["stages_not_checked"])

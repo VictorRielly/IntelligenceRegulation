@@ -1,0 +1,139 @@
+{
+ "T1_A6_load_bearing": {
+  "j": 265,
+  "true_first_max": 278,
+  "r0": [
+   false,
+   "A6 the selected entry's difference is not zero"
+  ],
+  "accepted_without_A6": true
+ },
+ "T2_e_pad_zero_load_bearing": {
+  "output_id": 300,
+  "V": 300,
+  "r0": [
+   false,
+   "A1 pad-zero on padded vocabulary entries"
+  ],
+  "accepted_without_e_pad_zero": true
+ },
+ "T3_tok_not_selected_index": {
+  "r0": [
+   false,
+   "A3 tok is not the selected index"
+  ]
+ },
+ "T4_bos_clause_batching": {
+  "honest_unweighted": [
+   true,
+   "ok"
+  ],
+  "honest_fresh_coefficient": [
+   true,
+   "ok"
+  ],
+  "attack_unweighted": [
+   true,
+   "ok"
+  ],
+  "attack_fresh_coefficient": [
+   false,
+   "query relation at t=0"
+  ],
+  "attack": "tok_0 = BOS + 1 with h_q(0) = 0: position 0 leaves the LogUp, x row 0 is arbitrary",
+  "r0_check_stage_in_on_attack": [
+   false,
+   "BOS term: position 0 is not BOS"
+  ],
+  "llama3_bos_id": 128000,
+  "r0_bos_constant": 1
+ },
+ "T5_final_norm_forgeries": {
+  "y_off_by_one": [
+   false,
+   "remainder window"
+  ],
+  "D_off_by_one": [
+   false,
+   "isqrt limb windows"
+  ],
+  "D16_field_alias": [
+   false,
+   "isqrt limb windows"
+  ],
+  "y_outside_int8_in_window": [
+   false,
+   "norm output outside int8 (sym lookups)",
+   411
+  ]
+ },
+ "T6_position_selector_not_one_hot": {
+  "selector": [
+   false,
+   "selector booleanity"
+  ],
+  "selection_relation_alone": [
+   true,
+   "ok"
+  ],
+  "halves": [
+   false,
+   "selector booleanity"
+  ]
+ },
+ "T7_sealed_right_used_wrong": {
+  "honest_token": 278,
+  "attack_token": 168,
+  "r0_relations": {
+   "stage_in": [
+    true,
+    "ok"
+   ],
+   "selector": [
+    true,
+    "ok"
+   ],
+   "selection": [
+    true,
+    "ok"
+   ],
+   "final_norm": [
+    true,
+    "ok"
+   ],
+   "argmax": [
+    true,
+    "ok"
+   ]
+  },
+  "owner_input_check": [
+   true,
+   "ok"
+  ],
+  "caught_only_by": "the native IO-s slot (A_out's s vs input endpoint half 1); R0 has no IO-s relation"
+ },
+ "T8_consistent_relookup_honest_seal": {
+  "r0_stage_in": [
+   true,
+   "ok"
+  ],
+  "owner_input_check_on_honest_plane": [
+   true,
+   "ok"
+  ],
+  "caught_only_by": "the native IO-in slot (A_in's tok vs input endpoint half 0); R0 has no IO-in relation"
+ },
+ "T9_output_plane_other_id": {
+  "argmax_token": 278,
+  "sealed_id": 141,
+  "r0_argmax_on_honest_witness": [
+   true,
+   "ok"
+  ],
+  "owner_output_check_told_sealed_id": [
+   true,
+   "ok"
+  ],
+  "caught_only_by": "the native IO-out slot (A_out's tok vs output endpoint, u0 support); R0 has no IO-out relation"
+ }
+}

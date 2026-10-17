@@ -1,0 +1,18 @@
+{
+  "note": "Initial main observation transcribed from tool response; original first-run result file was replaced by the strengthened second run. No separate original binary/source pin is claimed.",
+  "first_main": {
+    "fixtures": 96,
+    "pushforward_values": 3744,
+    "controls": 17,
+    "wall_seconds": 0.6058809099995415,
+    "peak_rss_kib": 20404,
+    "compiler_peak_rss_kib": 123496,
+    "completed_at_utc": "2026-10-17T21:23:22.772423+00:00"
+  },
+  "final_main": {
+    "controls": 19,
+    "fixture_arithmetic_changed": false,
+    "changes": "Added repeated-coordinate collision controls; same seed and arithmetic fixtures."
+  },
+  "audit_history": "Initial4135check result retained under initial-before-symbolic-rank-audit; final4136 adds exact polynomial rank. Main not rerun after audit-only change."
+}

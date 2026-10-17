@@ -1,0 +1,12 @@
+{
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "python": "3.10.12",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)",
+  "device": "CPU only; no GPU calls",
+  "seed": 2026101766,
+  "estimated_python_mib": 96,
+  "estimated_compiler_mib": 192,
+  "threads": 1,
+  "limits": "59s CPU/wall and512MiB AS inside run/audit"
+}

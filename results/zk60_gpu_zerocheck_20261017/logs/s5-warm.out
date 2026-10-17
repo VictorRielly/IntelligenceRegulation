@@ -1,0 +1,7 @@
+[zk60-guard 16:00:49] START gzc-stack-s5-warm class=gpu need=4.5G cap=7G enforce=cgroup+watchdog waited=0s run=470ed1cfc5b7
+[zk60-guard 16:03:59] END gzc-stack-s5-warm exit=0 child_wall=190s peak_rss=1.58G min_avail=8.79G peak_vram=3105MiB
+stack s5-warm exit 0
+[zk60-guard 16:03:59] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 16:04:53] START gzc-verify-s5-warm class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=54s run=e65e526c77f6
+[zk60-guard 16:05:16] END gzc-verify-s5-warm exit=0 child_wall=24s peak_rss=1.46G min_avail=9.71G
+verify s5-warm exit 0

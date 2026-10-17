@@ -1,0 +1,11 @@
+profile hashline-zk-mr1/private-token-io-run-rung-tc-t32-public-row-dev/1
+L 2
+context 73de30efcbbf7ccdd924c3c4895b862e3012c938eb7f8b89d4bee83f365c8808
+input_root 146710da9c2e4c95789c12c8780fff6045165a9f3cac977bf49a3782a8abfd60
+output_root 3deaaa7530e0c3064aa969964aca5f530658880512e6e53826b6a97db0a10471
+segment_bytes [1224328, 7421464, 7421464, 2959224]
+total_bytes 19026480
+prove_seconds 3.621
+stage_seconds [0.134305372, 1.6573839289999999, 1.5787609790000001, 0.207259456]
+in_process_verify_seconds 0.594
+parameter_line T32/d384/f512/H12/KV4/dh32/log_cols10/inv_rate4/Q256/P1/sh-g8-u0-h13-z5/two-private-endpoints/one-proof-one-transcript/endpoint-log_n10-rate4-pad256-rows21/L2/boundaries-B_in-B_out-and-interior-log_n10-rate4-pad256-rows22-sites2/token-endpoints-log_n8-rate8-pad256-in-words256-in-rows6-out-words256-out-rows6-sites1/stages-log_n12-rate4-pad256/token-io R1: V=300 V_pad=512 d=384 d_pad=512 T=32 BOS=1 final-norm g0=127 cn=2048 tn=11 ceps=33554467 wrho=32 dmax=642145 head-multipliers=[1,2^12] keyed-window=45 byte-limbs=6 no-pin embedding=1adcfe9161a44012954f7defb8a423abaabf66e54b1e777194504f025d2f291c head=132a649b98f0182e79daece21975550c0544d3229a960dd6f2f5340b2734137e variant=public-row mode=next-token tier mvp-95-whole-run (D27): Q=256 stage-row 2^12 rate 1/4 token-endpoint-row 2^8 rate 1/8 lookup-field F_p^2/one-run-one-transcript

@@ -1,0 +1,74 @@
+[
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/protocol.rs",
+    "capture": "native/protocol.rs",
+    "bytes": 63656,
+    "sha256": "4612a955a1148ba821e3d8722684ccb1d73304bb34955dcd3be28cafdbdc8e7d"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/layout.rs",
+    "capture": "native/layout.rs",
+    "bytes": 64489,
+    "sha256": "fcf9dda4e507d2a347f786ddc537feff3ac57779abae88cea91ee48d4b34c855"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/shape.rs",
+    "capture": "native/shape.rs",
+    "bytes": 102462,
+    "sha256": "e6c7290b5c2d897ccaaa6284c813bbcfea563aaef7594c309b955a5588c1e073"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/argument.rs",
+    "capture": "native/argument.rs",
+    "bytes": 108798,
+    "sha256": "2475e3a222e32aa26969182b5ab7228756d633fa67bdde1f9520818ef7a2bb0e"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/field.rs",
+    "capture": "native/field.rs",
+    "bytes": 11065,
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/cuda.rs",
+    "capture": "native/cuda.rs",
+    "bytes": 228457,
+    "sha256": "336699e3f81f120816ab0402f79bc683d266212724868ee7b716ae094e16e6dd"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/fzc.rs",
+    "capture": "native/fzc.rs",
+    "bytes": 15173,
+    "sha256": "874fcd459834a31c2ebc2a32a2442d34cfc848721d14204de3bf0861e6a35181"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/fzc_kernels.cu",
+    "capture": "native/fzc_kernels.cu",
+    "bytes": 22780,
+    "sha256": "9241851d5498c6f6753019750463296585c9728d700da6ed5e40f996ac37b208"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_gpu_zerocheck_20261017/PROGRESS.md",
+    "capture": "native/owner-progress.md",
+    "bytes": 7510,
+    "sha256": "8e47dff356a5b51ee09a40863792c2480148e2421048b685a83f520235ed2177"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_gpu_zerocheck_20261017/DESIGN.md",
+    "capture": "native/owner-design.md",
+    "bytes": 13666,
+    "sha256": "8f082eb28cd3b71f0a724146eaec56599fdc5af211ed55a2dbbf166f9cf5379a"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_SPEED_PLAN_20261017.md",
+    "capture": "native/speed-plan.md",
+    "bytes": 29584,
+    "sha256": "f89f7b91649d171f2d2404f36d8cfa814f199442d83dd59dc21b355559809894"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/pcs.rs",
+    "capture": "native/pcs.rs",
+    "bytes": 6900,
+    "sha256": "8b14096b66f6597e3cdfe239a7359457dd17dfd475c2a5d0f4e112a41342127f"
+  }
+]

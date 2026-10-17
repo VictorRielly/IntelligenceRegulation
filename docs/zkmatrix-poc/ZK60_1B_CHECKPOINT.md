@@ -182,7 +182,26 @@ variation. No GPU latency or 50-token/s forecast follows from layout counts.
 
 ## Active isolated work
 
-**Updated 2026-10-17 (Claude).** The 2026-09-27 Sol lanes and the 2026-09-30
+**Updated 2026-10-17 18:35 UTC (Claude, after the 14:59 clean shutdown and
+18:21 reboot).** Common rules: `ops/zkp-mvp/LANE_RULES_20261017.md`. Lanes:
+
+- **GPU zero-check (speed plan task 2, go/no-go):** `ops/zkp-mvp/gpu-zerocheck/`
+  (copy of frozen review-r3), evidence `results/zk60_gpu_zerocheck_20261017/`.
+  Code written 14:00-14:45; first device run pending.
+- **Native (R5 suite, task 1 startup cleanup, task 3 8B T64/T128 ladder, then
+  an 8B T128 trained stack if green):** `ops/zkp-mvp/trained-1b/`, evidence
+  `results/zk60_1b_native_20261017/`.
+- **Independent review r3 (Round-4 8B profile changes) verdict:**
+  `results/zk60_d24_review_20261017/`.
+- **Privacy gate (L22 controls, finding G-10, statement draft):**
+  `ops/zkp-mvp/gate-tinyllama/`, `ops/zkp-mvp/trained-1b-gate/`,
+  `results/zk60_gate_tinyllama_20261017/`.
+- **Calibration 8B B6 (T64 export redo, layer-1 options):**
+  `results/zk60_8b_calibration_20261017/`.
+- **Token I/O design (paper only; D13's next milestone):**
+  `results/zk60_token_io_design_20261017/`.
+
+Earlier list, kept for the record (morning of 2026-10-17): The 2026-09-27 Sol lanes and the 2026-09-30
 B2/C2 lanes stopped when the box went down on 2026-09-29 18:38 PDT; nothing
 native ran between then and 2026-10-17. Current lanes:
 

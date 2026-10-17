@@ -1,0 +1,11 @@
+{
+ "digest_mismatch": [],
+ "listed": 217,
+ "manifest": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/manifest_frozen.json",
+ "missing": [],
+ "ok": true,
+ "root": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-r5",
+ "tree_sha256_declared": "d67fae7ef3d03bb6a30c89880ac41b6e4543b7f8b5df8040c8a29ba7404df952",
+ "tree_sha256_formula_reproduced": [],
+ "unlisted": []
+}

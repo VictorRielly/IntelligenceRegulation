@@ -23,8 +23,11 @@ def guard(path):
 
 runs = [("Llama-3-8B T32", "r4", "r4/stack-llama3_8b_pg_rot1_T32-ho00-cpu", 32, 32, "CPU"),
         ("Llama-3-8B T32", "r5", "r5/stack-llama3_8b_pg_rot1_T32-ho00-cpu", 32, 32, "CPU"),
+        ("Llama-3-8B T32", "r5-cli3", "r5/stack-llama3_8b_pg_rot1_T32-ho00-cpu-cli3", 32, 32, "CPU"),
         ("Llama-3-8B T32", "r4", "r4/stack-llama3_8b_pg_rot1_T32-ho00-gpu", 32, 32, "GPU"),
         ("Llama-3-8B T32", "r5", "r5/stack-llama3_8b_pg_rot1_T32-ho00-gpu", 32, 32, "GPU"),
+        ("TinyLlama T32", "r3", "r3/stack-pg_rot1_b4_T32_cal128-ho00-cpu", 32, 22, "CPU"),
+        ("TinyLlama T32", "r5", "r5/stack-pg_rot1_b4_T32_cal128-ho00-cpu", 32, 22, "CPU"),
         ("TinyLlama T128", "r3", "r3/stack-pg_rot1_b4_T128-ho00-cpu", 128, 22, "CPU"),
         ("TinyLlama T128", "r5", "r5/stack-pg_rot1_b4_T128-ho00-cpu", 128, 22, "CPU"),
         ("TinyLlama T128", "r3", "r3/stack-pg_rot1_b4_T128-ho00-gpu", 128, 22, "GPU"),
@@ -69,6 +72,6 @@ by = {}
 for r in rows:
     by.setdefault((r["run"], r["mode"]), []).append(r)
 for k, rs in by.items():
-    if len(rs) == 2:
-        a, b = rs
-        print(k, "identity equal:", a["identity"] == b["identity"], "| segment lengths equal:", a["segment_lengths"] == b["segment_lengths"], "| receipt bytes equal:", a["receipt_bytes"] == b["receipt_bytes"])
+    for b in rs[1:]:
+        a = rs[0]
+        print(k, a["round"], "vs", b["round"], "identity equal:", a["identity"] == b["identity"], "| segment lengths equal:", a["segment_lengths"] == b["segment_lengths"], "| receipt bytes equal:", a["receipt_bytes"] == b["receipt_bytes"])

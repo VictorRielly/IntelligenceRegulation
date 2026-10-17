@@ -1,0 +1,26 @@
+{
+ "classifier_sha256": "dde6cd68aae8c91d0348fa47ae861e035f47aa508107216e971fbdd58d2afbef",
+ "control_families_not_fired_in_this_pass": {},
+ "controls_requested": true,
+ "controls_requested_inferred_from_the_record": true,
+ "explained": {},
+ "false_leaves": [],
+ "ok": true,
+ "ok_is_unchanged": "this status never changes `ok`; ok = false stays ok = false",
+ "privacy_acceptance": false,
+ "privacy_property_established": false,
+ "record": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/v4/tl-l22r2-zero-m.json",
+ "record_bundle": "tinyllama-trained-capture-zero-l22r2",
+ "record_driver_sha256": "051044214c0e1b35e939d8c615acd1da291dd6461a617feec6a63844da939770",
+ "record_sha256": "0ae86f7cb46a7422e2dbc1670448ee901ec4f8e31e443ca29250ac065d3a3e9b",
+ "record_stages_run": [
+  "stage12_mask_and_cfs",
+  "stage1_integrity",
+  "stage2_transcript_replay"
+ ],
+ "stages_that_raised": [],
+ "status": "PASS",
+ "unexplained": [],
+ "what_ARMS_ONLY_means": "every figure of the arms this pass ran closed (recomputed here from the record), and the ONLY reason ok is false is that the pass was run without --controls",
+ "what_it_does_not_mean": "that those controls fired: they did not, in this pass.  An arm counts only where its controls fired on the same tools and shape in another record, which the ledger must cite"
+}

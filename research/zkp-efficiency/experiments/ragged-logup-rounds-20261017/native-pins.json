@@ -1,0 +1,62 @@
+[
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/field.rs",
+    "capture": "native/field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "bytes": 11065
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/sumcheck.rs",
+    "capture": "native/sumcheck.rs",
+    "sha256": "fc7374bbd5e5cc4ede62e8a21d325eb62acff9b9dcc786d12eae39efbdfdbb95",
+    "bytes": 22023
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/sumcheck/rounds.rs",
+    "capture": "native/rounds.rs",
+    "sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df",
+    "bytes": 7092
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/protocol.rs",
+    "capture": "native/protocol.rs",
+    "sha256": "4612a955a1148ba821e3d8722684ccb1d73304bb34955dcd3be28cafdbdc8e7d",
+    "bytes": 63656
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/argument.rs",
+    "capture": "native/argument.rs",
+    "sha256": "2475e3a222e32aa26969182b5ab7228756d633fa67bdde1f9520818ef7a2bb0e",
+    "bytes": 108798
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/shape.rs",
+    "capture": "native/shape.rs",
+    "sha256": "e6c7290b5c2d897ccaaa6284c813bbcfea563aaef7594c309b955a5588c1e073",
+    "bytes": 102462
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/layout.rs",
+    "capture": "native/layout.rs",
+    "sha256": "fcf9dda4e507d2a347f786ddc537feff3ac57779abae88cea91ee48d4b34c855",
+    "bytes": 64489
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_gpu_zerocheck_20261017/PROGRESS.md",
+    "capture": "native/owner-gpu-progress.md",
+    "sha256": "f0344eeb558435c51d9eb3b382f36233634ca9791f50f3a4237930f0654b77d3",
+    "bytes": 18797
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/PHASES_8B_T32_cli3.md",
+    "capture": "native/PHASES_8B_T32_cli3.md",
+    "sha256": "89bf16d4ad2323f9a56235fd20bfbdc71ef6ebf0c3f9e3ddf3b4914073d8aefd",
+    "bytes": 3357
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/PROGRESS.md",
+    "capture": "native/owner-native-progress.md",
+    "sha256": "9fa46fd53947ae5a37525a16c7663ce9687ba644e47c02b39ae01f927b7c97a2",
+    "bytes": 93588
+  }
+]

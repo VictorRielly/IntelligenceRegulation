@@ -1,0 +1,807 @@
+{
+ "labels": "[COUNTED]; counter = token_io_count.py v3 (read-only import)",
+ "per_row_12bit_D25_T4_amended": {
+  "labels": "[COUNTED]; counter = token_io_count.py v3 (read-only import)",
+  "model": {
+   "d": 384,
+   "d_pad": 512,
+   "V": 300,
+   "V_pad": 512,
+   "v": 9,
+   "L": 2,
+   "T": 32
+  },
+  "stage_in": {
+   "log_cols": 12,
+   "A_rows": 10,
+   "H_rows": 14,
+   "M_rows": 12,
+   "A_elems": 40960,
+   "H_elems": 57344,
+   "elems": 98304,
+   "a_sites": 3,
+   "h_sites": 3,
+   "slots": 4,
+   "inversions": 544,
+   "fold": 262144,
+   "largest_zc": 4096,
+   "endpoints": {
+    "input token endpoint": {
+     "plane": 256,
+     "sites": 1,
+     "rows": 6
+    }
+   },
+   "per_opening_log2": [
+    -103.69,
+    -103.69,
+    -106.25,
+    -106.25
+   ]
+  },
+  "stage_in_slots": [
+   [
+    "IO-in tok = endpoint (whole tok plane, public support factor)",
+    8,
+    1,
+    3,
+    2,
+    256,
+    2
+   ],
+   [
+    "query zero-check h_q (alpha - tok - beta x~(t, r_emb) - g) = supp_T (+pad)",
+    12,
+    1,
+    4,
+    3,
+    4096,
+    3
+   ],
+   [
+    "table zero-check h_tab (alpha - tau) = mult (+pad)",
+    12,
+    1,
+    4,
+    2,
+    4096,
+    2
+   ],
+   [
+    "ZS zero-sum row",
+    12,
+    1,
+    2,
+    1,
+    null,
+    1
+   ]
+  ],
+  "stage_in_planes": {
+   "A": [
+    [
+     "T",
+     4096
+    ],
+    [
+     "Voc",
+     512
+    ]
+   ],
+   "H": [
+    [
+     "T",
+     4096
+    ],
+    [
+     "Voc",
+     512
+    ],
+    [
+     "Tab",
+     256
+    ]
+   ]
+  },
+  "stage_out": {
+   "log_cols": 12,
+   "A_rows": 121,
+   "H_rows": 50,
+   "M_rows": 26,
+   "A_elems": 495616,
+   "H_elems": 204800,
+   "elems": 700416,
+   "a_sites": 47,
+   "h_sites": 12,
+   "slots": 11,
+   "u8": 77824,
+   "inversions": 256,
+   "fold": 262144,
+   "largest_zc": 4096,
+   "endpoints": {
+    "output token endpoint": {
+     "plane": 256,
+     "sites": 1,
+     "rows": 6
+    }
+   },
+   "per_opening_log2": [
+    -103.69,
+    -103.69,
+    -106.25,
+    -106.25
+   ]
+  },
+  "stage_out_slots": [
+   [
+    "IO-in x_row = B_out row T-1 (public row bits)",
+    12,
+    1,
+    2,
+    2,
+    4096,
+    2
+   ],
+   [
+    "SS row sums (private, hosted by TZC)",
+    12,
+    1,
+    4,
+    1,
+    null,
+    1
+   ],
+   [
+    "TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
+    0,
+    1,
+    3,
+    11,
+    1,
+    11
+   ],
+   [
+    "LZC limb lookups",
+    12,
+    1,
+    4,
+    2,
+    4096,
+    2
+   ],
+   [
+    "HEAD matmul sum_i y(r_t, i) W'(r_j, i) (private, hosted by VZC)",
+    9,
+    1,
+    2,
+    1,
+    null,
+    1
+   ],
+   [
+    "DZC norm quotient + x limbs + helpers (+pad)",
+    12,
+    1,
+    5,
+    19,
+    4096,
+    19
+   ],
+   [
+    "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
+    12,
+    1,
+    5,
+    12,
+    4096,
+    12
+   ],
+   [
+    "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
+    12,
+    1,
+    4,
+    8,
+    4096,
+    8
+   ],
+   [
+    "TAB table helper(s)",
+    12,
+    1,
+    3,
+    2,
+    4096,
+    2
+   ],
+   [
+    "ZS zero-sum row",
+    12,
+    1,
+    2,
+    1,
+    null,
+    1
+   ],
+   [
+    "IO-out output endpoint = u0 tok (whole plane)",
+    8,
+    1,
+    3,
+    2,
+    256,
+    2
+   ]
+  ],
+  "stage_out_planes": {
+   "A": [
+    [
+     "To",
+     1
+    ],
+    [
+     "To",
+     1
+    ],
+    [
+     "To",
+     1
+    ],
+    [
+     "To",
+     1
+    ],
+    [
+     "Lo",
+     16
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Vo",
+     512
+    ],
+    [
+     "Vo",
+     512
+    ],
+    [
+     "Vo",
+     512
+    ],
+    [
+     "Vo",
+     512
+    ],
+    [
+     "Vo",
+     512
+    ],
+    [
+     "Vo",
+     512
+    ],
+    [
+     "Vo",
+     512
+    ],
+    [
+     "Tab",
+     256
+    ]
+   ],
+   "H": [
+    [
+     "Lo",
+     16
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Vo",
+     512
+    ],
+    [
+     "Vo",
+     512
+    ],
+    [
+     "Vo",
+     512
+    ],
+    [
+     "Tab",
+     256
+    ],
+    [
+     "Tab",
+     256
+    ]
+   ]
+  },
+  "argmax": {
+   "window_bits": 45,
+   "limbs": 6,
+   "pin": 0,
+   "lookups_per_vocab_entry": 6,
+   "vocab_planes": 7
+  },
+  "window_keyed_bits": 45,
+  "logits_bound": 25368723456,
+  "best_width_log": {
+   "in": 12,
+   "out": 12
+  },
+  "token_endpoint_per_opening_log2": -106.25,
+  "stage_per_opening_log2": -103.69,
+  "block_per_opening_log2": -96.13
+ },
+ "per_tensor_counter_as_written": {
+  "labels": "[COUNTED]; counter = token_io_count.py v3 (read-only import)",
+  "model": {
+   "d": 384,
+   "d_pad": 512,
+   "V": 300,
+   "V_pad": 512,
+   "v": 9,
+   "L": 2,
+   "T": 32
+  },
+  "stage_in": {
+   "log_cols": 12,
+   "A_rows": 10,
+   "H_rows": 14,
+   "M_rows": 12,
+   "A_elems": 40960,
+   "H_elems": 57344,
+   "elems": 98304,
+   "a_sites": 3,
+   "h_sites": 3,
+   "slots": 4,
+   "inversions": 544,
+   "fold": 262144,
+   "largest_zc": 4096,
+   "endpoints": {
+    "input token endpoint": {
+     "plane": 256,
+     "sites": 1,
+     "rows": 6
+    }
+   },
+   "per_opening_log2": [
+    -103.69,
+    -103.69,
+    -106.25,
+    -106.25
+   ]
+  },
+  "stage_in_slots": [
+   [
+    "IO-in tok = endpoint (whole tok plane, public support factor)",
+    8,
+    1,
+    3,
+    2,
+    256,
+    2
+   ],
+   [
+    "query zero-check h_q (alpha - tok - beta x~(t, r_emb) - g) = supp_T (+pad)",
+    12,
+    1,
+    4,
+    3,
+    4096,
+    3
+   ],
+   [
+    "table zero-check h_tab (alpha - tau) = mult (+pad)",
+    12,
+    1,
+    4,
+    2,
+    4096,
+    2
+   ],
+   [
+    "ZS zero-sum row",
+    12,
+    1,
+    2,
+    1,
+    null,
+    1
+   ]
+  ],
+  "stage_in_planes": {
+   "A": [
+    [
+     "T",
+     4096
+    ],
+    [
+     "Voc",
+     512
+    ]
+   ],
+   "H": [
+    [
+     "T",
+     4096
+    ],
+    [
+     "Voc",
+     512
+    ],
+    [
+     "Tab",
+     256
+    ]
+   ]
+  },
+  "stage_out": {
+   "log_cols": 12,
+   "A_rows": 116,
+   "H_rows": 50,
+   "M_rows": 26,
+   "A_elems": 475136,
+   "H_elems": 204800,
+   "elems": 679936,
+   "a_sites": 45,
+   "h_sites": 12,
+   "slots": 11,
+   "u8": 73728,
+   "inversions": 256,
+   "fold": 262144,
+   "largest_zc": 4096,
+   "endpoints": {
+    "output token endpoint": {
+     "plane": 256,
+     "sites": 1,
+     "rows": 6
+    }
+   },
+   "per_opening_log2": [
+    -103.69,
+    -103.69,
+    -106.25,
+    -106.25
+   ]
+  },
+  "stage_out_slots": [
+   [
+    "IO-in x_row = B_out row T-1 (public row bits)",
+    12,
+    1,
+    2,
+    2,
+    4096,
+    2
+   ],
+   [
+    "SS row sums (private, hosted by TZC)",
+    12,
+    1,
+    4,
+    1,
+    null,
+    1
+   ],
+   [
+    "TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
+    0,
+    1,
+    3,
+    11,
+    1,
+    11
+   ],
+   [
+    "LZC limb lookups",
+    12,
+    1,
+    4,
+    2,
+    4096,
+    2
+   ],
+   [
+    "HEAD matmul sum_i y(r_t, i) W'(r_j, i) (private, hosted by VZC)",
+    9,
+    1,
+    2,
+    1,
+    null,
+    1
+   ],
+   [
+    "DZC norm quotient + x limbs + helpers (+pad)",
+    12,
+    1,
+    5,
+    19,
+    4096,
+    19
+   ],
+   [
+    "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
+    12,
+    1,
+    5,
+    11,
+    4096,
+    11
+   ],
+   [
+    "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
+    12,
+    1,
+    4,
+    7,
+    4096,
+    7
+   ],
+   [
+    "TAB table helper(s)",
+    12,
+    1,
+    3,
+    2,
+    4096,
+    2
+   ],
+   [
+    "ZS zero-sum row",
+    12,
+    1,
+    2,
+    1,
+    null,
+    1
+   ],
+   [
+    "IO-out output endpoint = u0 tok (whole plane)",
+    8,
+    1,
+    3,
+    2,
+    256,
+    2
+   ]
+  ],
+  "stage_out_planes": {
+   "A": [
+    [
+     "To",
+     1
+    ],
+    [
+     "To",
+     1
+    ],
+    [
+     "To",
+     1
+    ],
+    [
+     "To",
+     1
+    ],
+    [
+     "Lo",
+     16
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Vo",
+     512
+    ],
+    [
+     "Vo",
+     512
+    ],
+    [
+     "Vo",
+     512
+    ],
+    [
+     "Vo",
+     512
+    ],
+    [
+     "Vo",
+     512
+    ],
+    [
+     "Vo",
+     512
+    ],
+    [
+     "Tab",
+     256
+    ]
+   ],
+   "H": [
+    [
+     "Lo",
+     16
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Do",
+     512
+    ],
+    [
+     "Vo",
+     512
+    ],
+    [
+     "Vo",
+     512
+    ],
+    [
+     "Vo",
+     512
+    ],
+    [
+     "Tab",
+     256
+    ],
+    [
+     "Tab",
+     256
+    ]
+   ]
+  },
+  "argmax": {
+   "window_bits": 33,
+   "limbs": 5,
+   "pin": 0,
+   "lookups_per_vocab_entry": 5,
+   "vocab_planes": 6
+  },
+  "window_keyed_bits": 33,
+  "logits_bound": 6193536,
+  "best_width_log": {
+   "in": 12,
+   "out": 12
+  },
+  "token_endpoint_per_opening_log2": -106.25,
+  "stage_per_opening_log2": -103.69,
+  "block_per_opening_log2": -96.13
+ }
+}

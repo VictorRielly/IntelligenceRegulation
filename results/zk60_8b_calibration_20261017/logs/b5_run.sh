@@ -6,6 +6,15 @@ lab=$1; need=$2; cap=$3; shift 3
 # B6 (14:59Z): the whole-model 'none' baseline equals B5 T32's FineWeb domain (same words, same sequences);
 # run it on the first 2 layers only, for the layer-1 isolated baseline on the same FineWeb sequences.
 if [ "$lab" = b6_l1_none ]; then set -- "$@" --layers 2; fi
+# B6 (20:02Z): the B6-2 T=32 runs measure 3.01 GiB peak RSS (b5-b6_l1_s16); declare 3.5 / 4.5 (measured + margin)
+case "$lab" in b6_l1_*) need=3.5; cap=4.5 ;; esac
+# Coordinator hold #1 (19:30Z, privacy gate job) is satisfied (admitted 19:48:34Z) and expired (20:30Z).
+# Coordinator hold #2 (20:50Z): no new guarded job until r5-ladder8b-T128-*, gzc-stack-s0*, gzc-stack-s4* have
+# completed and none is live, or 22:00 UTC, whichever comes first (logs/b6_hold2.py).
+until python3 $D/logs/b6_hold2.py >> $D/logs/b6_hold2.log 2>&1; do
+  sleep 30
+done
+echo "[b5_run $(date -u +%H:%M:%SZ)] hold #2 released for b5-$lab (need $need / cap $cap)"
 python3 $G run --class light --need-gib $need --cap-gib $cap --label b5-$lab --wait-secs 21600 --max-secs 43200 \
   --log $D/logs/b5-$lab.log --done $D/logs/b5-$lab.done --result-json $D/logs/b5-$lab.guard.json \
   -- python3 $D/b5_8b.py "$@"

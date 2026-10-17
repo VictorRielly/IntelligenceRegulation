@@ -1,0 +1,7 @@
+{
+  "checkpoint_utc": "2026-10-17T18:31:57.820445+00:00",
+  "run_start_utc": "2026-10-17T18:21:05Z",
+  "deadline_utc": "2026-10-17T18:41:05Z",
+  "next_cycle_not_before_utc": "2026-10-17T19:21:05Z",
+  "owner_ledger_drift_only": true
+}

@@ -1,0 +1,1 @@
+{"event":"rejected","error":"private run: segment 0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r4-scratch/review_out/stack2/run-dir/segment-000.bin) is not a regular file (a symbolic link, FIFO, device or directory is refused before it is opened; review r3_6)"}

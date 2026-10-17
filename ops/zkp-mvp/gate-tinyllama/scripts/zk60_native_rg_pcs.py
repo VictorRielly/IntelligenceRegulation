@@ -247,6 +247,12 @@ class RunRoleView(RoleView):
                 "difference_is_the_zero_sum_rows": sorted(u_rows)
                 == sorted(range(len(data_rows), declared)),
             }
+            # [v5, review P-11] recorded only until v5; now a refusal unless
+            # the difference is exactly the zero-sum rows
+            if not self.facts["declared_data_rows_vs_row_roles"][
+                    "difference_is_the_zero_sum_rows"]:
+                self.fail("the declared data_rows differs from row_roles by "
+                          "rows other than the zero-sum rows")
         if role["prox_row"] != prox_rows[0] or prox_rows != [role["prox_row"],
                                                              role["prox_row"] + 1]:
             self.fail("the declared prox_row is not the pair row_roles marks 'prox'")

@@ -37,11 +37,12 @@ Main: 0.759414 s, 16,820 KiB parent RSS, 34,620 KiB compiler RSS.
 Audit: 148 independent schedule/source/pin assertions, 7,687 independent Fp2
 equality outputs across 0/1/2/9/10/11/12 bits, and three additional negative
 controls pass. It executes the captured Eq leaf/join functions with the same
-CPU substitutes, across the native 10-bit split threshold. Audit: 0.174188 s,
-16,264 KiB parent RSS, 34,912 KiB compiler RSS. Ten main mutation controls
+CPU substitutes, across the native 10-bit split threshold. Final audit: 0.368121 s,
+16,608 KiB parent RSS, 34,956 KiB compiler RSS. Ten main mutation controls
 distinguish dropped final folds, halved fusion counts, lean rereads, support,
 zero pad weights, plan counts, activation/limb mistakes and a changed output
-coordinate. No live source drift at this audit. Hash pins and commands remain
+coordinate. Kernel and Rust source pins matched. The owner progress ledger changed during
+the final audit; both versions are retained. Hash pins and commands remain
 beside the code; all inputs are synthetic.
 
 Let N = 2^n, K = 20 without support or 21 with support, and W be the number of
@@ -72,8 +73,8 @@ the note's fused total is the discrepancy. Its 1,344 N happens to approximate
 the rounds/folds alone at K = 21. No owner file was changed.
 
 The plan's 72 N × 17 = 1,224 N = 1,283,457,024 B is a different work model,
-about 1.51x below direct fusion plus the stated construction counter at this
-N. The intended future compact/base-field first round must be distinguished
+the direct total with the stated construction counter is about 1.51 times
+that normalization at this N. The intended future compact/base-field first round must be distinguished
 from this captured code: all tables here are widened to Fp2 before round 0.
 Keep the plan number as a named normalization if useful; it is not a measured
 DRAM numerator. Do not change an owner threshold or infer a 5090 verdict here.

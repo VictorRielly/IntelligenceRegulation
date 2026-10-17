@@ -172,6 +172,17 @@ TOOLS = [
     "zk60_native_rg_tlcontrols.py",
     "zk60_native_rg_predict.py",
     "zk60_native_rg_m125.py",
+    # [TINYLLAMA PORT, tools v4] the record status (the driver writes it
+    # beside every record) and finding G-10's own negative controls
+    "zk60_native_rg_status.py",
+    "zk60_native_rg_g10controls.py",
+    # [TINYLLAMA PORT v5, round 4] the readings of the R5 tree's digests
+    "zk60_native_rg_tinyllama_r5_pins.py",
+    # [v5, independent review P-2 / P-9 / P-10] the pin-enforcement controls,
+    # the export cross-check and the closed capture schema
+    "zk60_native_rg_pincontrols.py",
+    "zk60_native_rg_exportcheck.py",
+    "zk60_native_rg_schema.py",
 ]
 
 EXPECTED_DISCLOSED = {

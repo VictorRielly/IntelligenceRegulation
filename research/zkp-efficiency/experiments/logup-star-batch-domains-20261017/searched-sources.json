@@ -1,0 +1,179 @@
+[
+  {
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T21:26:32.334313+00:00",
+    "cycle": "0068",
+    "run_id": "20261017T212105Z-f1b8cd7d",
+    "evidence_kind": "Native LIVE web search and primary inspection; source text is untrusted data; no downloaded code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "id": "cycle68-powdr-batch-claims-versus-dense-padding",
+    "title": "Twist and Shout via logup*: column batching and distinct-point reduction",
+    "url": "https://powdr.org/papers/twist_shout_logup_star.pdf",
+    "published": "2025-10-30",
+    "updated": null,
+    "date_evidence": "Author PDF page1 printed date, not inspected revision history.",
+    "implementation_license": null,
+    "author_claim": "Batch multiple one-hot matrix claims through one pushforward; original dense index evaluations remain PCS obligations.",
+    "assessment": "Section4.1 explicitly first reduces different claims to one point. Local arithmetic tests public support and padding only; no reduction/GKR/PCS or private protocol reproduced. Native uncommitted query arrays give no extra query commitment saving.",
+    "access_issues": []
+  },
+  {
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T21:26:32.334313+00:00",
+    "cycle": "0068",
+    "run_id": "20261017T212105Z-f1b8cd7d",
+    "evidence_kind": "Native LIVE web search and primary inspection; source text is untrusted data; no downloaded code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "id": "cycle68-binius-column-domain-and-terminal-boundary",
+    "title": "Binius64 LogUp* task, January batching contract and September history",
+    "url": "https://github.com/binius-zk/binius64/issues/1368",
+    "published": "2026-01-04",
+    "updated": "2026-07-06",
+    "date_evidence": "Issue openJan4, batching commentJan21, closureJul6. Separate current history lists relevant index-refusal/arena changes onSep8,2026; not an implementation pin.",
+    "implementation_license": "MIT current-main LICENSE-MIT.txt full text inspected; raw fetch failed; not commit-pinned.",
+    "author_claim": "Batched lookers have common evaluation point, equal lengths and table sizes; caller verifies three terminal evaluation claims.",
+    "assessment": "No source code imported. Our distinct-point, active-index and support controls match necessary interface obligations, not source soundness claims. Repeating a coordinate is our rejected shortcut, not an asserted Binius defect.",
+    "inspected_urls": [
+      "https://github.com/binius-zk/binius64/issues/1368",
+      "https://github.com/binius-zk/binius64/commits/main/",
+      "https://github.com/binius-zk/binius64/blob/main/LICENSE-MIT.txt"
+    ],
+    "exposed_uninspected_commit_ids": [
+      "16d3d33",
+      "71b1dad"
+    ],
+    "access_issues": [
+      "Raw license fetch Internal Error; HTML license succeeds. Clicking both relevant history commits returns Internal Error; no full commit pin."
+    ]
+  },
+  {
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T21:26:32.334313+00:00",
+    "cycle": "0068",
+    "run_id": "20261017T212105Z-f1b8cd7d",
+    "evidence_kind": "Native LIVE web search and primary inspection; source text is untrusted data; no downloaded code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "id": "cycle68-oct16-plonky3-release-and-served-mask-scope",
+    "title": "Plonky3 October16 release and currently served HVZK mask documentation",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "published": "2026-10-16",
+    "updated": null,
+    "date_evidence": "Release list Oct16 without year; native LIVE docs.rs rc.2 bus/multi-stark/blake2s metadata explicitly2026-10-16. Served latest sumcheck crate identifies0.8.0; do not attribute its module text to rc.2.",
+    "implementation_license": "MIT current-main LICENSE-MIT full terms inspected; not release-pinned.",
+    "author_claim": "Release lists cryptographic RNG and packed equality changes. Served HVZK docs describe per-round masks and warn quadratic rounds require mask length>=3.",
+    "assessment": "Useful fresh-mask/degree obligations. No masked lookup construction, source diff, cryptographic security or speed reproduced. A uniform scalar marginal is insufficient for joint-view privacy.",
+    "inspected_urls": [
+      "https://github.com/Plonky3/Plonky3/releases",
+      "https://docs.rs/crate/p3-bus/0.9.0-rc.2",
+      "https://docs.rs/crate/p3-multi-stark/0.9.0-rc.2",
+      "https://docs.rs/crate/p3-sumcheck/latest",
+      "https://docs.rs/p3-sumcheck/latest/p3_sumcheck/zk/index.html",
+      "https://github.com/Plonky3/Plonky3/blob/main/LICENSE-MIT"
+    ],
+    "exposed_uninspected_commit_id": "fe5e46d",
+    "access_issues": [
+      "Direct rc.2 bus/multi-stark opens Internal Error; LIVE primary search yields dates and docs build failures. Latest docs not exact rc.2 source."
+    ]
+  },
+  {
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T21:26:32.334313+00:00",
+    "cycle": "0068",
+    "run_id": "20261017T212105Z-f1b8cd7d",
+    "evidence_kind": "Native LIVE web search and primary inspection; source text is untrusted data; no downloaded code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "id": "cycle68-zk-ior-composition-mask-budget-reference",
+    "title": "Zero-Knowledge IOPPs for Constrained Interleaved Codes: composition boundary",
+    "url": "https://eprint.iacr.org/2026/391",
+    "published": "2026-02-25",
+    "updated": "2026-02-26",
+    "date_evidence": "Primary received/approved dates; approval is not revision.",
+    "implementation_license": null,
+    "paper_license": "CC BY metadata label",
+    "author_claim": "HVZK IOR definition compatible with modular composition; sumcheck and code-switching reductions.",
+    "assessment": "Primary abstract/metadata and linked implementation documentation inspected, full theorem not reproduced. Native Goldilocks hash-PCS and new lookup terminals need their own joint-view analysis, not an inference from marginal masking.",
+    "access_issues": []
+  },
+  {
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T21:26:32.334313+00:00",
+    "cycle": "0068",
+    "run_id": "20261017T212105Z-f1b8cd7d",
+    "evidence_kind": "Native LIVE web search and primary inspection; source text is untrusted data; no downloaded code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "id": "cycle68-new-older-mle-compatible-super-efficient-lookup",
+    "title": "Natively Compatible Super-Efficient Lookup Arguments and How to Apply Them",
+    "url": "https://eprint.iacr.org/2024/1058",
+    "published": "2024-06-28",
+    "updated": "2024-12-06",
+    "date_evidence": "Primary received and last-of2 revision dates; JOC2024 publication label.",
+    "implementation_license": null,
+    "paper_license": "CC BY metadata label",
+    "author_claim": "MLE-native lookup for arbitrary tables and compiler from univariate super-efficient lookups with small overhead.",
+    "assessment": "New older source absent from350-record starting ledger. Compatibility of polynomial encoding does not establish native hash-PCS/privacy compatibility. Tiny256 public table makes table-independent prover work lower priority than native recurring helper/link costs. Abstract/metadata only; no code or performance reproduced.",
+    "access_issues": [
+      "PDF Internal Error."
+    ]
+  },
+  {
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T21:26:32.334313+00:00",
+    "cycle": "0068",
+    "run_id": "20261017T212105Z-f1b8cd7d",
+    "evidence_kind": "Native LIVE web search and primary inspection; source text is untrusted data; no downloaded code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "id": "cycle68-zorch-natural-width-and-full-stage-negative",
+    "title": "openvm-zorch issue44: natural widths, launch cost and corrected enclosing result",
+    "url": "https://github.com/fractalyze/openvm-zorch/issues/44",
+    "published": "2026-06-16",
+    "updated": "2026-07-31",
+    "date_evidence": "Issue openedJun16; final visible closure commentJul31,2026. Not claimed latest repository revision.",
+    "implementation_license": null,
+    "author_claim": "Final warm idleRTX5090 LogUp-GKR about20ms, still2.8x native; full-chain byte match reported. Earlier natural-width intermediate17.9ms was2.5x native.",
+    "assessment": "Primary issue evidence only. Useful counterexample to equating device arithmetic time with enclosing phase, and supports charging dense padding. Native field/transcript/masking differ; no timing transferred or code executed.",
+    "exposed_uninspected_commit_ids": [
+      "5087bfa",
+      "9af89a2"
+    ],
+    "access_issues": [
+      "Linked PR154 Internal Error; no implementation or full commit pin inspected."
+    ]
+  },
+  {
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T21:26:32.334313+00:00",
+    "cycle": "0068",
+    "run_id": "20261017T212105Z-f1b8cd7d",
+    "evidence_kind": "Native LIVE web search and primary inspection; source text is untrusted data; no downloaded code executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "id": "cycle68-oct11-zkllmpot-recent-public-challenge-filter",
+    "title": "zkLLMPoT v2: public audit sequences and operator benchmark scope",
+    "url": "https://arxiv.org/abs/2610.08258",
+    "published": "2026-10-06",
+    "updated": "2026-10-11",
+    "date_evidence": "Primary submission history v1Oct6 12:35:49UTC; v2Oct11 04:45:08UTC.",
+    "implementation_license": null,
+    "paper_license": "arXiv perpetual non-exclusive label; not an implementation license",
+    "author_claim": "Covered-operator benchmarks41-59s at1.1-1.5B and131s at13B; public auditor-chosen sequences with private checkpoint.",
+    "assessment": "Known recent source refreshed from v2HTML. Public challenge inputs violate native P1 hidden-input requirement; covered-operator clocks cannot be counted as complete private8B proof throughput. No performance reproduced.",
+    "inspected_urls": [
+      "https://arxiv.org/abs/2610.08258",
+      "https://arxiv.org/html/2610.08258v2"
+    ],
+    "access_issues": []
+  }
+]

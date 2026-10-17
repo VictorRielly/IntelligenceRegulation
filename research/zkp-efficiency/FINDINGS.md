@@ -4549,3 +4549,357 @@ negative;4NEW local audit of F-device logical-term bandwidth numerator versus
 actual table/buffer/DRAM traffic and arithmetic cost. No expected speed without
 measured subclocks/counters. Next local: source-captured buffer census, then
 lookup/softmax/composition rotation. Full dated report and limits retained.
+
+
+## Cycle 0065 — F-device source traffic, 2026-10-17
+
+Run `20261017T182105Z-44205280`. No proving improvement established. Captured active owner
+direct/lean CUDA functions executed only as serial CPU functions with ordinary
+modular arithmetic. Independent Python semantic reference passes96fixtures/
+384schedules,6288Fp2 round values,576recovered s(1),7968terminals,4128phase
+access assertions,384closedforms and10controls. Separate148-check audit and
+7687Eq outputs/3controls pass. Main0.759414s/audit0.368121s,oneCPUthread,nice19,
+seed2026101765,59s/512MiB limits;compiler peak<35MiB. No GPU/native proof.
+
+N=2^n,K=20/21: direct separate80K(N-1);direct fused64KN-48K. Lean either
+schedule(32M+48K)(N-1),M32 unpadded/33+W padded(nonzero public pad weights).
+Direct fusion eliminates20% table accesses,15.38% including counted504N build.
+Owner Rust direct counter agrees;captured DESIGN fused TOTAL1344N should be
+1848N asymptotically atK21. Lean stores then rereads stages;fusion eliminates
+no source table accesses there. Compiler/register/cache/launch effects can
+still affect time;no runtime ordering or DRAM regression is asserted. Eq
+build counters charge outputs,not input/temporary reads. All tables incl
+round0 are16B Fp2;compact/base first round remains future. The plan1224N is
+a different normalization,not measured hardware traffic or a50/s verdict.
+
+Unapplied handoff:`handoffs/20261017-fzc-device-traffic.md`;research code and
+note patch under`experiments/fzc-device-traffic-20261017/`. Kernel/Rust pins matched at audit; owner progress ledger changed and both
+versions are retained. Updated ledger records successor build and queued t2
+test, without an accepted device result at inspection. No production/source/instruction/reviewer edits or GPU job.
+Current owner testmarker143/ledger do not establish a successful device run
+or liveness. Six LIVE primary records appended(337total):new older hierarchical
+Roofline paper/NERSC workflow,modern NVIDIA replay/cache guide,August
+instruction-wall/Valk artifact,October16 Plonky3 release. Access/date/license/
+commit scope and failed fetches retained;no author speedup reproduced.
+
+Ranked:owner full device residency;owner immutable public model residency;
+new/tested variant-aware F measurement;next local helper producer/commit/Freader
+representation/lifetime audit. Prior lookup privacy and small-phase negative
+findings retained. Whole earlier1.1B T128GPU maskedF deletion ceiling1.113184x;
+no 8B F subclock. Owner T32 cold diagnostics remain CPU 384.542564 s /
+GPU 391.287091 s in the dated report with all clocks. No steady-state,
+isolatedserialization,fullstartup/latency or high-end target result. Accepted
+new target proofs/passes/positions0/0/0;50/s unchanged/unachieved. Larger
+workloads allowed with fresh masks;resident prefill/decode remain distinct.
+
+
+## Cycle 0066 — resident helper integer/field boundary, 2026-10-17
+
+Run `20261017T192105Z-c342a26b`. No proving speedup established. AGENDA/target and durable/project
+memory consulted; current sources and latest three results inspected, early
+STATE/startup snapshots retained. Five LIVE primary records appended (342 total).
+
+Source audit: the active F device builder already reads resident A/H; no per-F
+helper host reupload is removed here. Earlier producer still materializes
+wrapping-i64 lookup columns, makes U8 helpers on CPU, copies each Fp2 Vec into
+planar H and uses the tagged owned committer. Existing legacy device-H API
+needs tagged ownership and host-reader coherence before a block port.
+
+NEW tested hypothesis: generate U8 H from resident A, drop looked after the
+histogram. **A-only field affine evaluation fails.** Signed -2^63 and p-2^63
+have the same A residue but native wrapping scale-2 yields 0/-8589934590 and
+different H. Scale2 is a real Q/K rotation pin. Across 48 public catalogs,
+4176columns/106962fieldwords, field-only has5323differences. Helper-stage zero
+status reverses in both directions. This is malformed/internal full-i64
+compatibility evidence, not an admissible-input attack or accepted-proof forgery.
+
+Compiled research codec adds one PRIVATE bit for each relevant source word;
+only residues [p-2^63,2^63) have two i64 preimages (2^32-1 residues). Unsigned
+word reconstruction + wrapping affine evaluation exactly match native values.
+Identity denominators need no bit; bounded synthetic arithmetic also matches
+field evaluation. 67483identity and 35654bounded words pass.
+86,029initialcodec entries include allint16/randomi64/ambiguity boundaries;
+7,294,208codec visits include repeated FFI fixtures, not unique/proved positions.
+35Hfixtures/2436Fp2values, sentinel gaps and5refusal cases pass;12controls.
+Independent 5375-check audit +700full-extension inverse outputs and2bit-index
+controls pass. Main 4.336897 s / 29740 KiB, compiler 133848 KiB;
+audit 0.192148 s / 17664 KiB. OneCPU 0/CoreUltra 9 185H thread,nice 19,
+seed 2026101766,59s/512MiB limits;std-only Rust, no Cargo/native proof/GPU.
+Failed-buffer/Rayon/transcript/RNG/PCS/mask/receipt/privacy gates remain owed.
+First passing evidence and a strengthened midpoint-control revision retained.
+
+COUNTED illustrative TinyLlama T128: 221.25MiB looked (prior borrowing leaves
+53.75MiB),0.609375MiB source ambiguity bitmap,235.25MiB U8 H still required.
+No peak/traffic/time saving measured. Add packing/transfer/metadata/reconstruction,
+fallback and tagged device H/CPU coherence. Earlier1.1B T128 cold GPU process
+has8.844/161.857226s in allU8H: entire-parent deletion ceiling1.057799×;
+CPU6.911/175.258632 ->1.041052×. No actual 8B helper clock or5090 estimate.
+
+Unapplied handoff:`handoffs/20261017-resident-helper-integer-boundary.md`;
+prototype:`experiments/lookup-helper-staging-20261017/resident_codec.rs`.
+Rank:1owner whole prover GPU;2owner immutable public-model residency;3tested
+resident U8 compatibility/capacity (secondary);4NEW older Logup* virtual lookup
+architecture. Native looked columns are already uncommitted; do not deduct
+that nonexistent commitment again. Next local: small pushforward/private view
+and binding audit, preserving fractional-GKR D/C leakage and full-table
+refusal negatives. Added GKR/PCS/masks/composition cost and exact displacement
+must precede any proposed H-row saving. All older negatives remain.
+
+Owner functional8B T32 cold baseline carried, not rerun:32 linked blocks,
+one pass perCPU/RTX 4070 Laptop arm,16 threads. Process384.542564/391.287091s;
+diagnostic32/process .083216/.081781 positions/s includes in-process check.
+Witness18.629/18.109;inclusiveprove208.019/213.831 includes reload79.222/77.997;
+remaining110.168/117.725 includes sink/serialization. Partial load+seal startup
+21.595%/20.341%;full startup/steady slope/isolated serialization/latency/lag/drain
+unknown. Fresh check96.103/90.935 plusinitialload80.675/78.635s;receipt465815776B.
+D24 round 3 now explicitly accepts8B profile soundness (18:36UTC); shape privacy
+still open, laterR5/GPU changes not thereby accepted. Owner captured ledger
+has successful device-body fixtures and a failed seeded TEST header, then
+queued successor gates; no complete new device receipt or speed claim here.
+
+New target-compliant fullprivate8B proofs/passes/positions0/0/0. No resident
+repeats, longer prefill or decode ran. >=50/s on5090/high-end unchanged and
+unachieved; larger workloads allowed with fresh masks, and context attention
+can grow quadratically. Research/runtime/production boundaries held. Full
+clocks/ranks/sources/blockers:`progress/20261017T192105Z-c342a26b.md`.
+
+
+## Cycle 0067 — private LogUp* pushforward boundary, 2026-10-17
+
+Run `20261017T202105Z-363d38a1`. No proving improvement found. Current AGENDA,
+target, durable/project memory,342prior sources and latest3results read;
+startup bytes/hashes retained. Eight LIVE primary records appended(350total).
+
+Source-field std-only Rust pushforward:405fixtures,23166Fp2 bucket values,
+405virtual claims/405support checks,14controls pass. Table2/4/8/16/256,
+N1/2/4/8/16/64,empty/single/odd/full support,full-extension/base/Boolean
+challenges. Separate polynomial-convolution/count audit24014checks,17F17
+challenges and3binding controls pass. Main0.356768s/28256KiB,compiler122168KiB;
+finalaudit0.088526s/24432KiB. CPU0,CoreUltra9 185H,one thread,nice19,
+seed2026101767,59s/512MiB caps. No native crate/proof/GPU.
+
+New decisive negative: hiding Y's commitment alone does not hide a published
+virtual lookup evaluation. With one active query,v(r)=eq(0,r)*T[I0],so a
+known nonzero equality weight recovers the private table value.20Fp2 controls
+recover it exactly. Same-histogram orderings differ at16of17F17 challenges;
+r=1/2 is the expected exception. Self-consistent replacement arithmetic can
+pass without original ordered index binding. These are naive-port diagnostics,
+not attacks on native/upstream accepted proofs. A zero-sum Y mask usually
+changes the value; an orthogonal one preserves the leaking scalar. Fresh
+scalar masking is a marginal illustration only; reuse leaks differences.
+Whole-table unused zero-denominator refusal remains; native draw/refusal
+ordering not replayed. Prior D/C,zero-zero,padding and integer-wrap negatives
+stand. No privacy weakening or mask reuse is authorized.
+
+Actual8BT32 U8 data:83columns/11714560queries;H1514U8 base rows/99221504B;
+totalH1758rows/115212288B,also exp/act,table,zero-sum,reserved/proximity rows.
+Native looked arrays already uncommitted;additional query commitment saving0.
+One256Fp2 pushforward4096logicalB becomes131072B at current8192-row width,
+before masks. These are gross counts,not net saving,peak or DRAM traffic.
+New GKR/ordered A-affine links/terminalPCS/fresh masks/support/refusal/encoding/
+serialization/transfers are unmeasured costs. H/M schedules need new review.
+
+Latest owner R5cli3 CPU8BT32 onepass diagnostic171.578s;witness21.376,
+inclusiveprove156.143 inclreload15.993,remainder118.774 inclserialization/sink.
+Partial load+seal15.345s=8.943%;fullstartup,prefill,steady slope,isolated
+serialization/latency/lag/drain unknown. Freshcli3 verify not observed at
+20:31:20UTC;no token credit or liveness claim. Hcommit/open/U8/exp-act
+11.75/2.23/4.78/0.74s=19.5s;deleting all four for free caps ONLY their direct
+fixed-other-work effect at1.128224x. Not a full-architecture/5090 ceiling or
+accepted rate. R5oldercli2 CPU267.8s has freshverify45.777s;four controls had a
+weaker cache refusal,subsequently strengthened. Different contention/check
+placement precludes clean A/B inference. Public phase/counter pins retained.
+
+Carried R4 verified functional8B T32 onecoldpass/arm CPU384.542564s/
+RTX4070Laptop391.287091s,16threads. Diagnostic32/process0.083216/0.081781;
+witness18.629/18.109,inclusiveproof208.019/213.831 inclreload79.222/77.997;
+remaining110.168/117.725 inclserialization/sink. Partial startup21.595%/20.341%,
+fullstartup/steady/isolatedserialization absent. Freshcheck96.103/90.935 plus
+initialload80.675/78.635;receipt465815776B. D24r3 accepts8B soundness;shape
+privacy open,R5/newprofile gates separate. New targetproofs/passes/positions0/0/0.
+No resident repeat,long-context prefill or decode here;target rates and clocks
+unmeasured. Larger workloads allowed with fresh masks,denseattentionT²;
+>=50provedtokens/s on5090/high-end unchanged/unachieved.
+
+Owner deviceF ledger now records t10 equality/seeded gates and a1.1BT128stack
+with freshverify,not an8B/5090gain. Earlier VRAM limit violation and enclosing
+~5xbody slowdown remain recorded;255register kernels spill. No duplicate job.
+
+Rank:1owner complete device arithmetic/residency;2owner public residency after
+R5 reduces old80s loads to15–16s;3tested private LogUp* architecture,unmasked
+port rejected;4NEW83-column batching with explicit newterminal/mask-site budget;
+5newolderDUPLEX/Locq backend leads,lowcompatibility. CurrentPlonky3release and
+caller-obligations text read;must_use is not a guarantee terminals are checked.
+Exact commits/PDF fetch failures and main-only MIT license scope retained.
+
+Unapplied handoff:`handoffs/20261017-logup-star-private-view.md`;seam is
+private_block protocol lookup/Hcommit plus argument/shape/layout H/M/PCS sites.
+Next local:domain/column batching against83-column reference,odd padding and
+full newclaim/mask census. Next owner:complete cli3 fresh/control gates and
+fixed-context workload slopes. Full clocks/ranks/limits/sources in
+`progress/20261017T202105Z-363d38a1.md`. Reports saved,not delivery evidence.
+
+
+## Cycle 0068 — lookup batching domains, 2026-10-17
+
+Run `20261017T212105Z-f1b8cd7d`. No proving speedup found. Current mandate,
+durable/project memory, 350 sources and latest three results consulted; startup
+originals retained. Seven LIVE primary records appended, 357 total.
+Full report: progress/20261017T212105Z-f1b8cd7d.md.
+
+Source-captured native Fp2 Rust batching passes 96 fixtures, 3,744 bucket values,
+96 claims/support checks, 1,800 column visits and 19 controls. Independent
+polynomial-convolution/rank/F17 audit: 4,136 checks. Main 0.416722 s / 20,600 KiB;
+compiler 128,868 KiB; audit 0.059436 s / 16,284 KiB. One Core Ultra 9 185H CPU
+thread, CPU0, nice 19, seed 2026101768; each run capped at 59 s / 512 MiB.
+Public synthetic support/private scratch only; no GKR, PCS, native proof or GPU.
+
+New negative: sharing one scalar across seven column tensor coordinates gives
+83 weight polynomials rank seven, leaving 76 dimensions of fixed compensating
+errors undetected for every such scalar. Independent two-coordinate F17 grid
+detects the column 1/2 control at 272/289 points; diagonal never. This rejects
+our shortcut, not an upstream/native protocol. Distinct evaluation points need
+reduction; zero-lift factors can vanish. Raw batched singleton values still
+leak. Correlated-pad marginals can be uniform while leaking jointly. Reference
+unused-table-zero event retained; no native refusal/RNG replay. All earlier
+negatives stand, including full-i64 wrapping and original ordered A links.
+
+Counted 8B T32 per block: 83 columns / 11,714,560 queries. Dense cube padding:
+six domains 1.702098×, four equal-length groups 1.523077×, one global 5.728671×.
+Ragged public support can skip dummy visits but must prove the relation.
+Four-group pushforwards: 16,384 logical bytes / 524,288 bytes at old row width
+BEFORE masks. No net H/M/peak/traffic saving. U8 H: 1,514 rows / 99,221,504 bytes;
+all H: 1,758 rows / 115,212,288 bytes. Extra query commitment saving: zero.
+Four-group illustrative interface retains 83 ordered index links and eight
+initial/GKR-terminal scalar sites before further reductions. Round masks,
+native reserved rows and fresh-mask bytes remain unknown; no mask reuse.
+
+Owner R5 cli3 CPU 8B T32 now freshly verified: 11 refusals, honest still verifies.
+32 linked blocks, one cold pass, 16 threads, GPU off; shared box, n=1. App
+171.578 s / process 171.641294 s; diagnostic 0.186504 / 0.186435 positions/s.
+Witness 21.376 s inside inclusive prove 156.143 s, with reload 15.993 s;
+remainder 118.774 s includes proof/serialization/sink. Partial initial load +
+seal 15.345 s = 8.943%; full startup/steady/isolated serialization/latency/lag/
+drain unknown. Fresh initial load 13.165 s + check 26.491 s (reload 13.071,
+crypto remainder 13.420); whole verifier process 115.868762 s includes controls.
+Receipt 465,815,776 bytes. Shape privacy acceptance open; no target credit.
+Free deletion of all H commit/open/U8/exp-act phases, 19.5 s -> 1.128224× with
+other work fixed, before added costs; not a whole-architecture/GPU/5090 bound.
+D27's security-tier direction authorizes no lookup or mask weakening here.
+
+Rank: (1) owner whole-prover GPU, (2) owner public-model residency, (3) tested
+private batching, (4) NEW ragged-round oracle with independent points,
+(5) NEW older MLE-compatible lookup 2024/1058, abstract-only. Recent October 16
+Plonky3 release / October 11 zkLLMPoT refreshed. Dates, licenses and failed
+fetches retained; no author performance reproduced. MLE encoding compatibility
+does not establish native hash-PCS/privacy compatibility. Zorch's final author
+GPU phase remains 2.8× its native baseline despite small device arithmetic time.
+Unapplied handoff: handoffs/20261017-logup-batch-domains.md. Seam: protocol.rs
+lookup/H, argument.rs relations, shape.rs/layout.rs H/M/PCS. No production patch.
+Next: dense/ragged rounds over four groups with independent initial points and
+all terminal obligations. Owner GPU and complete resident-workload slopes retain
+priority. New target proofs/passes/positions: 0/0/0; no resident repeats, long
+prefill or decode. >=50/s unchanged, unachieved. Larger workloads allowed with
+fresh masks; dense context attention grows quadratically. Production/runtime/Git
+untouched. Saved reports do not establish delivery.
+
+
+## Cycle 0069 — public padding and native MSB bit placement, 2026-10-17
+
+Run `20261017T222105Z-d6d7aa4d`. No proving speedup found. Current AGENDA,
+throughput target, durable/project memory, 357 prior sources and latest three
+results consulted. Early STATE/startup originals and hashes retained. Eight
+LIVE primary records appended, 365 total; original source prefix preserved.
+Dated report: progress/20261017T222105Z-d6d7aa4d.md.
+
+Source-captured field/CFS plus research Rust public-support round evaluator:
+94 synthetic fixtures, 1,424 degree-three round values, 282 ordered final
+factors, 480 additional brute-force round values, 1,600 mask values and 356
+masked-chain checks; 23 controls. Independent polynomial-convolution, direct
+MLE, monomial-mask and support/point-provenance audit: 5,185 checks. Main
+2.038018 s includes compilation/oracles, 22,404 KiB; compiler 134,544 KiB;
+audit 0.552043 s / 17,724 KiB. Core Ultra 9 185H CPU0, one thread, nice19,
+seed2026101769; each experiment <60 s and <=512 MiB address space. No GPU,
+native proof, PCS, GKR, entropy/privacy proof or real private data. First
+weaker-control passing revision retained alongside strengthened evidence.
+
+NEW: native sumcheck uses MSB pairing. In minimally padded column-first
+rectangles, dummy columns mix into live nodes in round zero, saving ZERO pair
+visits. Row-first MSB preserves dummy columns through row rounds. Both layouts
+reproduce their own dense round sequence; matched values and permuted terminal
+coordinates preserve initial sum and all three final factors. This is not
+native transcript, schedule, layout or PCS equivalence. The cubic E~ S~ V~ is
+an explicit arithmetic probe, not a complete/minimal lookup arithmetization.
+
+Counted 8B T32 four groups: L N8192/C2/W2, D+Q N131072/C47/W64, Kv+S
+N32768/C25/W32, F N524288/C9/W16. Dense/column-first 17,842,172 pairs vs
+row-first 11,714,587: 6,127,585 fewer, 34.3433%, pair-count ratio1.523073.
+Sixty small rectangles check formulas N*W-1 and C*(N-1)+W-1. No large-shape
+execution, runtime, traffic or peak saving. Full public E array would sum to
+187,432,960 B; indices plus three factors sum to656,015,360 B (625.625 MiB)
+across four groups BEFORE BTreeMap scratch. These are aggregate payloads, not
+peak; sequential groups differ. Factorize public weights/support before
+capacity/performance promotion. Extra query commitment saving remains ZERO.
+
+NEW negative: zero Boolean products need not be zero off-cube: disjoint factor
+supports can yield X(1-X). Retain union of factor supports, not product support,
+and all final factors; S~ is not Boolean at random points. Preserve whole-cube
+CFS masks independently of compact base arithmetic. Raw singleton virtual
+values still disclose; coherent replacement needs original ordered A binding.
+Fixed public shape padding only; hidden prompt length/selectors/mask rows must
+not become public support. All earlier repeated-coordinate/rank, fractional
+GKR D/C, full-i64 wrapping, unused-table-zero, joint-mask and endpoint-history
+negative findings stand. No mask reuse/privacy weakening authorized.
+
+Carried verified functional R5 cli3 CPU 8B T32, 32 linked blocks, one cold pass,
+16 threads, GPU off, shared n=1: app171.578/process171.641294 s; diagnostic
+0.186504/0.186435 positions/s. Witness21.376 within inclusive prove156.143;
+reload15.993 within it; rest118.774 includes proof/serialization/sink. Partial
+initial load+seal15.345 s =8.943454%. Full startup/prefill, steady slope,
+isolated serialization, latency, lag and drain unknown. Fresh check26.491 s
+plus initial load13.165; check reload13.071/crypto13.420; verifier process
+115.868762 includes11 refused controls and honest recheck. Receipt465,815,776 B.
+Shape privacy acceptance open. Deleting the19.5 s H commit/open/U8/exp-act
+phase set for free yields1.128224x or0.210418 diagnostic positions/s, keeping
+other work fixed and before added costs. Not a whole-architecture/GPU bound.
+
+Owner R5b changes checked witness/parity/sealing before header, witness cache,
+statement promotion, verifier export separation and bounded readers. Targeted
+tests pass; suite queued at captured checkpoint. R5 reviewr4 accepts soundness
+but adds reader fixes delivered in R5b; no privacy acceptance. Old R5 clocks
+do not measure new lifecycle. Generic8B T64 GPU one-block4,417 MiB peak exceeded
+lane4GiB cap; default queuedT128 GPU prevented. Owner1.1B T128 s4 stack159 s,
+slot18 8.11/body6.25/freshcheck19 s; spin probe measures5–8x idle arithmetic
+ramp. Isolated alsoP4, refuting earlier isolation=boost explanation. Charge
+warm-up time; no duplicate owner build/GPU/proof here.
+
+Rank: (1) owner whole-prover GPU/residency with contiguous useful work,
+(2) owner public residency/full R5b startup slopes, (3) tested row-first lookup
+architecture with83 original links/masks/GKR/PCS obligations, (4) NEW implicit
+per-column equality/support to remove public E/index expansion, (5) NEW older
+FLI/Deep Thought accumulation and power-circuit wiring, low compatibility.
+Next local compares factorized independent points/selector terminals to this
+saved oracle with odd columns and every final factor. Reject any mismatch,
+private disclosure, changed refusal/support or added costs defeating savings.
+Whole-architecture end-to-end ceiling remains unknown. Owner complete GPU
+and independently verified resident-workload slopes retain priority.
+
+LIVE October10 SP1 release includes NTT order/zerocheck work; PR2990 diff
+inspected with explicit ordering/shift/input-preservation gates. Release full
+commit page read; NTT commit/terms fetch failures recorded. EPFL/author CMU
+variable-order/round-batching references refreshed; StateSync remains its own
+sparse baseline; new older sources are watchlist leads only. CFS arithmetic
+is not composition/privacy acceptance. Exact primary dates, URLs, license
+scope, exposed versus inspected hashes and failures retained; no foreign code
+executed or author benchmark reproduced. Rotation includes sumcheck/GKR,
+memory/batching now, fresh NTT/commitment lead next, prior lookup/softmax,
+quantization and composition queues retained. Unapplied handoff:
+handoffs/20261017-ragged-logup-rounds.md; native seam is SumcheckRounds/prove_rounds
+plus separate private_block lookup/H/argument/layout integration. No production
+patch or merge. Target proofs/passes/positions0/0/0; target steady/total clocks
+unmeasured. No resident repeats, longer prefill or decode; dense attention can
+grow quadratically and decode needs bound state. Larger workloads/fresh masks
+remain allowed. >=50/s complete private8B high-end-GPU target unchanged and
+unachieved. Production/runtime/Git/receipts/calibration/instructions/reviewer
+files untouched; no installs, external messages or escalation. Saved reports
+do not establish notification delivery.

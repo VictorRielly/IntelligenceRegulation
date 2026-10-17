@@ -1,0 +1,57 @@
+{
+ "calibration": "8B T128 TRAINED stack, CPU, 32 blocks (r5/stack-llama3_8b_pg_rot1_b6_T128-ho00-cpu)",
+ "coefficients_cpu": {
+  "f0": 0.08,
+  "conv": 5.820634256550569e-09,
+  "commit": 2.9031463262519547e-08,
+  "inv_u8": 1.099884322013013e-08,
+  "inv_pair": 4.9805641174316413e-08,
+  "open": 5.527997364842121e-09,
+  "ext": 3.5247802734375004e-07,
+  "zc": {
+   "D": 5.02732064988878e-08,
+   "F": 4.305909661685719e-08,
+   "S": 4.384063539050874e-08,
+   "Q": 4.918177922566731e-08,
+   "Kv": 1.0222655076246994e-07
+  },
+  "rest": {
+   "Dlin": 5.192703764203574e-07,
+   "Slin": 2.9864772944383246e-07,
+   "wfold": 6.610329519376534e-10,
+   "ncol": 9.298437414035e-06,
+   "siterows": 2.6745998478897515e-08,
+   "u8": 1.1950322649186236e-09,
+   "const": 0.04937125880281695
+  },
+  "rest_total_cal": 1.001531250000001
+ },
+ "load_per_layer_s": 0.488859375,
+ "validation": [
+  {
+   "point": "8B T64 one block (cpu)",
+   "measured": 4.273,
+   "stack_refit": 5.58583467253167
+  },
+  {
+   "point": "8B T32 stack, per block (cli3, light contention)",
+   "measured": 3.6526875,
+   "stack_refit": 3.3244343218842607
+  },
+  {
+   "point": "TinyLlama T32 stack (r3 ladder, proofs per block)",
+   "measured": 1.8272727272727274,
+   "stack_refit": 1.8682670749821395
+  },
+  {
+   "point": "TinyLlama T64 stack (r3 ladder, proofs per block)",
+   "measured": 2.9454545454545453,
+   "stack_refit": 3.4065627628849424
+  },
+  {
+   "point": "TinyLlama T128 stack (r3 ladder, proofs per block)",
+   "measured": 6.1909090909090905,
+   "stack_refit": 6.959881256213467
+  }
+ ]
+}

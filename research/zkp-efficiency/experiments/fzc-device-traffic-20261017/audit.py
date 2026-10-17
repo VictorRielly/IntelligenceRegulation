@@ -65,7 +65,17 @@ def main():
             assert tuple(arr[2*i:2*i+2])==want;eq_words+=2
         eq_cases.append({'bits':n,'source_read_write_bytes':b,'owner_counted_output_bytes':16*N,'parameter_h2d_bytes':16*n})
     # The inequality is about source accesses; it does not predict DRAM traffic.
-    negative={'eq input reads omitted':any(x['source_read_write_bytes']!=x['owner_counted_output_bytes'] for x in eq_cases),'split eq join inputs omitted':eq_cases[-1]['source_read_write_bytes']>48*(1<<12),'original stride omitted':any(p['len']!=r['N'] for r in result['rows'] for p in r['phases'])}
+    # Real wrong-stride control: after a fold the physical table stride remains N.
+    # Incorrectly shrinking that stride selects other table entries. No OOB access.
+    N,K,length=8,21,4
+    words=[rng.randrange(P) for _ in range(2*N*K)]
+    prm=[rng.randrange(P) for _ in range(84)]
+    buf=(U*len(words))(*words); sp=(U*84)(*prm); correct=(U*12)(); wrong=(U*12)(); cnt=(U*2)()
+    calc=lib.calc_round;calc.argtypes=[PTR,ctypes.c_int,ctypes.c_int,ctypes.c_int,ctypes.c_int,PTR,ctypes.c_int,ctypes.c_int,ctypes.c_int,U,U,PTR,PTR]
+    calc(buf,length,N,5,1,sp,1,1,0,0,0,correct,cnt)
+    calc(buf,length,length,5,1,sp,1,1,0,0,0,wrong,cnt)
+    split_mutant=16*(1<<12)+2*16*7*(1<<6)
+    negative={'eq input reads omitted':any(x['source_read_write_bytes']!=x['owner_counted_output_bytes'] for x in eq_cases),'split eq join inputs omitted':eq_cases[-1]['source_read_write_bytes']!=split_mutant,'original stride omitted':list(correct)!=list(wrong)}
     assert all(negative.values())
     r={'status':'PASS','independent_schedule_and_source_checks':checks,'eq_cases':eq_cases,'independent_eq_words':eq_words,'negative_controls':negative,'live_source_drift':drift,'wall_seconds':time.perf_counter()-t0,'parent_peak_rss_kib':resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,'child_peak_rss_kib':resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss,'compiler_argv':argv,'limits':'one CPU thread, 59s wall/CPU, 512 MiB address space; no native crate/GPU'}
     (HERE/'audit-result.json').write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r,indent=2))

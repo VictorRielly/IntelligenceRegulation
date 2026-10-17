@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "utc": "2026-10-17T20:35:13.158820+00:00",
+  "checks": [
+    "FINDINGS.md prior bytes preserved",
+    "sources.jsonl prior bytes preserved",
+    "350 parseable source records; eight unique new IDs",
+    "all 10 startup snapshots match initial hashes",
+    "all 10 native/public phase captures match recorded hashes",
+    "main, independent audit, controls, accounting and fixture hash pass",
+    "reports/state/handoff identity and relative links match",
+    "53 artifact/document hashes rechecked"
+  ],
+  "live_source_drift": [],
+  "scope": "Artifact/source-prefix/link checks only; no additional experiment, native proof or GPU job. Live owner drift, if any, is preserved as external activity, not a failed frozen test."
+}

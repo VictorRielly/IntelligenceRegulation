@@ -1,0 +1,22 @@
+Derived local log of final successful JSON result; raw stdout retained in API transcript.
+{
+  "status": "PASS",
+  "checks": 24014,
+  "pushforward_fp2_values": 23166,
+  "exhaustive_F17_permutation_challenges": 17,
+  "distinguishing_challenges": 16,
+  "degenerate_challenges": [
+    9
+  ],
+  "negative_controls": {
+    "substituted ordered witness passes unbound arithmetic but original binding rejects": true,
+    "mutated pushforward terminal detected": true,
+    "mutated table terminal detected": true
+  },
+  "source_drift": [],
+  "wall_seconds": 0.08852636400024494,
+  "peak_rss_kib": 24432,
+  "threads": 1,
+  "scope": "Independent polynomial-convolution re-evaluation and finite-field disclosure/binding diagnostics, not GKR/PCS soundness or native proof.",
+  "completed_at_utc": "2026-10-17T20:29:48.186440+00:00"
+}

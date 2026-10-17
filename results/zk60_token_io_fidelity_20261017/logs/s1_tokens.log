@@ -1,0 +1,75 @@
+[19:05:24Z] calibration set (108, 128)
+[19:05:25Z] held-out T128: (72, 128), export checks {'seq_ho00': {'heldout_index': 0, 'token_ids_equal': True}, 'seq_ho36': {'heldout_index': 36, 'token_ids_equal': True}}
+[19:05:25Z] held-out T64: (72, 64), export checks {'seq_ho00': {'heldout_index': 0, 'token_ids_equal': True}, 'seq_ho36': {'heldout_index': 36, 'token_ids_equal': True}}
+[19:05:25Z] held-out T32: (72, 32), export checks {'seq_ho00': {'heldout_index': 0, 'token_ids_equal': True}, 'seq_ho36': {'heldout_index': 36, 'token_ids_equal': True}}
+{
+ "tokenizer_selfcheck": true,
+ "sets": {
+  "calib_T128": {
+   "shape": [
+    108,
+    128
+   ]
+  },
+  "heldout_T128": {
+   "shape": [
+    72,
+    128
+   ],
+   "domains": {
+    "fineweb-edu": 36,
+    "licence-docstring": 36
+   },
+   "export_checks": {
+    "seq_ho00": {
+     "heldout_index": 0,
+     "token_ids_equal": true
+    },
+    "seq_ho36": {
+     "heldout_index": 36,
+     "token_ids_equal": true
+    }
+   }
+  },
+  "heldout_T64": {
+   "shape": [
+    72,
+    64
+   ],
+   "domains": {
+    "fineweb-edu": 36,
+    "licence-docstring": 36
+   },
+   "export_checks": {
+    "seq_ho00": {
+     "heldout_index": 0,
+     "token_ids_equal": true
+    },
+    "seq_ho36": {
+     "heldout_index": 36,
+     "token_ids_equal": true
+    }
+   }
+  },
+  "heldout_T32": {
+   "shape": [
+    72,
+    32
+   ],
+   "domains": {
+    "fineweb-edu": 36,
+    "licence-docstring": 36
+   },
+   "export_checks": {
+    "seq_ho00": {
+     "heldout_index": 0,
+     "token_ids_equal": true
+    },
+    "seq_ho36": {
+     "heldout_index": 36,
+     "token_ids_equal": true
+    }
+   }
+  }
+ }
+}

@@ -62,6 +62,7 @@ from zk60_native_rg_predict import predict  # noqa: E402
 from zk60_native_rg_preimage import preimages  # noqa: E402
 from zk60_native_rg_replay import RunReplay  # noqa: E402
 from zk60_native_rg_runpins import check_run_layer_pins  # noqa: E402
+from zk60_native_rg_runpins import not_checked  # noqa: E402
 
 # The gate functions this driver calls rather than re-implements.  A test
 # asserts each name here IS the gate module's object.
@@ -70,7 +71,34 @@ FROM_THE_GATE = ("stage3", "stage4", "stage8", "stage10", "stage11",
 
 ORDER = ("load", "replay", "hash", "terminals", "commitments", "boundary",
          "preimage", "fullpreimage", "mask", "joint", "runcontrols",
-         "channels")
+         "export", "channels")
+
+# [TINYLLAMA PORT v5, round 4; independent review finding P-2] what each
+# stage reads from an earlier one.  A stage whose source pin refused, OR one
+# of whose inputs was not checked, is NOT RUN and leaves `not_checked` (ok
+# false) by name -- before v5 the driver recorded the pins' suspension map and
+# ignored it.  `stage7_channels` summarises every stage, so it is suspended
+# whenever any stage of the pass is.
+STAGE_INPUTS = {
+    "stage1_integrity": (),
+    "stage2_transcript_replay": (),
+    "stage9_hash_layer": (),
+    "stage8_plane_index_and_terminals": ("stage2_transcript_replay",),
+    "stage10_bilinear_group_factor": ("stage2_transcript_replay",
+                                      "stage8_plane_index_and_terminals"),
+    "stage3_per_commitment": ("stage2_transcript_replay",),
+    "stage4_the_boundary": ("stage3_per_commitment",),
+    "stage5_zero_data_preimage": ("stage3_per_commitment",),
+    "stage11_full_preimage": ("stage3_per_commitment",),
+    "stage12_mask_and_cfs": ("stage2_transcript_replay",),
+    "stage13_joint_run_preimage": ("stage3_per_commitment",
+                                   "stage4_the_boundary",
+                                   "stage11_full_preimage",
+                                   "stage12_mask_and_cfs"),
+    "stage6_negative_controls": ("stage2_transcript_replay",
+                                 "stage3_per_commitment",
+                                 "stage4_the_boundary"),
+}
 
 
 def rss_mb() -> float:
@@ -79,7 +107,17 @@ def rss_mb() -> float:
 
 class Driver:
     def __init__(self, bundle_dir, evidence, name, other_dir=None,
-                 controls=False, only=(), cross_dir=None):
+                 controls=False, only=(), cross_dir=None, old_dir=None,
+                 legacy_dir=None):
+        # [v5, review P-11] CT-4 needs an OLD (pre-stage-15) bundle and CH-6 a
+        # LEGACY-rule bundle; the staged driver never passed either, so both
+        # were always skipped by name.  Both are optional inputs now.
+        self.old_dir = old_dir
+        self.legacy_dir = legacy_dir
+        # [v5, review P-9] the export and an independent statement.json
+        self.export_dir = None
+        self.statement_path = None
+        self.old = None
         self.only = tuple(only)
         self.cross_dir = cross_dir
         self.dir = bundle_dir
@@ -108,6 +146,8 @@ class Driver:
         self.shared = None
         self.index = None
         self.bundle = None
+        # [v5, P-2] the pins' map of stages not to run, filled at load
+        self.suspended = {}
 
     # ------------------------------------------------------------- driving
     def flush(self):
@@ -115,9 +155,42 @@ class Driver:
             json.dump(self.rec, fh, indent=1, sort_keys=True)
             fh.write("\n")
 
+    def why_not_run(self, key):
+        """[v5, P-2] the reasons `key` must not run, or None"""
+        reasons = list(self.suspended.get(key, ()))
+        for dep in STAGE_INPUTS.get(key, ()):
+            r = self.rec.get(dep)
+            if isinstance(r, dict) and r.get("checked") is False:
+                reasons.append(f"{dep} was not checked in this pass, and this "
+                               "stage reads it")
+        if key == "stage7_channels":
+            held = [k for k, v in self.rec.items() if k.startswith("stage")
+                    and isinstance(v, dict) and v.get("checked") is False]
+            reasons += [f"{k} was not checked; the channel table summarises "
+                        "every stage" for k in held]
+        return reasons or None
+
     def step(self, label, key, fn):
         before = rss_mb()
         t0 = time.time()
+        held = self.why_not_run(key) if key != "stage1_integrity" else None
+        if held:
+            # [v5, P-2] NOT RUN, by name; ok false
+            out, err = not_checked(key, held), None
+            if key == "stage8_plane_index_and_terminals":
+                self.rec["stage10_bilinear_group_factor"] = not_checked(
+                    "stage10_bilinear_group_factor", held)
+            self.rec["timings"].append({
+                "stage": label, "seconds": 0.0,
+                "peak_rss_mb_before": round(before),
+                "peak_rss_mb_after": round(rss_mb()), "raised": None,
+                "not_run": "a source pin refused or an input stage was not "
+                "checked (see the stage's not_checked_because)"})
+            self.rec[key] = out
+            self.flush()
+            print(f"[{label:14s}]      --- NOT RUN (pins / inputs not "
+                  "checked)", flush=True)
+            return out
         try:
             out = fn()
             err = None
@@ -148,6 +221,13 @@ class Driver:
         self.flush()
         ok = "ok" if (err is None and (out is None or out.get("ok") is not False)) \
             else ("RAISED" if err else "FAIL")
+        # [TINYLLAMA PORT, tools v4] a stage whose ONLY false conjunct is a
+        # control family this pass did not request is printed ARMS-ONLY, not
+        # FAIL; its `ok` stays false (zk60_native_rg_status, rule (b)/(c))
+        if ok == "FAIL":
+            from zk60_native_rg_status import explain
+            if explain(self.rec, f"/{key}/ok", self.controls):
+                ok = "ARMS-ONLY (arm closed; controls not requested; ok=false kept)"
         print(f"[{label:14s}] {dt:8.1f} s   peak RSS {after:7.0f} MB   {ok}"
               + (f"   {err}" if err else ""), flush=True)
         return out
@@ -189,6 +269,13 @@ class Driver:
         self.rec["hash_rule"] = {
             k: v for k, v in self.bundle.hash_rule_record.items() if k != "rule"
         }
+        # [v5, P-2] the pins' suspension map is ENFORCED from here on
+        pins = (self.rec.get("block_layer_source_pins") if block
+                else self.rec.get("run_layer_source_pins")) or {}
+        self.suspended = dict(pins.get("stages_not_checked") or {})
+        if "stage1_integrity" in self.suspended:
+            return not_checked("stage1_integrity",
+                               self.suspended["stage1_integrity"])
         return block_integrity(self.bundle) if block else integrity(self.bundle)
 
     def replay_stage(self):
@@ -201,10 +288,15 @@ class Driver:
         return check_hash_layer(self.bundle)
 
     def terminals(self):
-        out, self.index = G.stage8(self.bundle, self.replay, old=None,
+        if self.old_dir and self.old is None:
+            self.old = load_bundle(self.old_dir)
+        out, self.index = G.stage8(self.bundle, self.replay, old=self.old,
                                    do_controls=self.controls)
-        self.rec["stage10_bilinear_group_factor"] = G.stage10(
-            self.bundle, self.index, self.replay, do_controls=self.controls)
+        held10 = self.why_not_run("stage10_bilinear_group_factor")
+        self.rec["stage10_bilinear_group_factor"] = (
+            not_checked("stage10_bilinear_group_factor", held10) if held10 else
+            G.stage10(self.bundle, self.index, self.replay,
+                      do_controls=self.controls))
         return out
 
     def commitments(self):
@@ -305,12 +397,26 @@ class Driver:
         if self.cross_dir:
             cross = load_bundle(self.cross_dir)
         out["hash_rule_controls"] = hash_rule_controls(
-            self.bundle, legacy_bundle=None, cross_profile_bundle=cross)
+            self.bundle,
+            legacy_bundle=load_bundle(self.legacy_dir) if self.legacy_dir else None,
+            cross_profile_bundle=cross)
         out["round_9_controls"] = m125_controls(
             self.bundle, index=self.index, replay=self.replay)
         out["ok"] = all(v.get("ok") for v in out.values()
                         if isinstance(v, dict))
         return out
+
+    def export(self):
+        """[v5, review P-9] the trained calibration against the export it
+        claims and an independent statement (`zk60_native_rg_exportcheck`).
+        Without `--export` the stage is NOT a pass: it says it was not given
+        what it checks against."""
+        from zk60_native_rg_exportcheck import export_check
+        if not self.export_dir:
+            return {"ok": False, "checked": False,
+                    "not_checked_because": ["no --export was given to this pass"]}
+        return export_check(self.bundle, self.export_dir, self.statement_path,
+                            self.rec)
 
     def channels(self):
         """`G.channels` is a SUMMARY of the other stages, so a pass that did
@@ -359,6 +465,7 @@ class Driver:
         "mask": ("stage12_mask_and_cfs", "mask"),
         "joint": ("stage13_joint_run_preimage", "joint"),
         "runcontrols": ("stage6_negative_controls", "runcontrols"),
+        "export": ("stage14_export_crosscheck", "export"),
         "channels": ("stage7_channels", "channels"),
     }
 
@@ -368,8 +475,13 @@ class Driver:
             self.step(s, key, getattr(self, fn))
         done = [k for k in self.rec if k.startswith("stage")]
         self.rec["stages_run"] = sorted(done)
-        self.rec["ok"] = all(
-            self.rec[k].get("ok") is not False for k in done
+        # [v5, P-2 / P-11] `ok` needs every stage's ok to be EXACTLY true (a
+        # missing or null `ok` no longer passes) AND the source pins' verdict
+        pins = (self.rec.get("block_layer_source_pins")
+                or self.rec.get("run_layer_source_pins"))
+        self.rec["ok"] = bool(
+            all(self.rec[k].get("ok") is True for k in done)
+            and (pins is None or pins.get("ok") is True)
         )
         self.rec["peak_rss_mb"] = round(rss_mb())
         self.rec["total_seconds"] = round(
@@ -406,6 +518,15 @@ class Driver:
             "NOT a privacy acceptance and NOT a privacy property",
         ]
         self.flush()
+        # [TINYLLAMA PORT, tools v4] the record's STATUS beside its `ok`, in a
+        # side file so that no record gains a leaf: PASS / ARMS-ONLY / NOT-OK
+        # (`zk60_native_rg_status`); `ok` is never changed
+        from zk60_native_rg_status import status_record
+        self.status = status_record(self.path, controls_requested=self.controls)
+        self.status_path = os.path.join(self.evidence, f"{self.name}.status.json")
+        with open(self.status_path, "w") as fh:
+            json.dump(self.status, fh, indent=1, sort_keys=True)
+            fh.write("\n")
         return self.rec
 
 
@@ -419,6 +540,11 @@ def main(argv=None):
     ap.add_argument("--name", required=True)
     ap.add_argument("--stages", default=",".join(ORDER[:7]))
     ap.add_argument("--controls", action="store_true")
+    ap.add_argument("--old", help="[v5] an OLD (pre-stage-15) run bundle, for CT-4")
+    ap.add_argument("--legacy", help="[v5] a LEGACY-rule run bundle, for CH-6")
+    ap.add_argument("--export", help="[v5] the calibration export, for stage 14")
+    ap.add_argument("--statement", help="[v5] an independent statement.json of "
+                    "the same export, for stage 14")
     ap.add_argument("--only", default="",
                     help="for the fullpreimage arm: a comma-separated list "
                     "of commitment keys (A@0, H@1, B0, E-Input, ...)")
@@ -430,11 +556,19 @@ def main(argv=None):
     d = Driver(args.bundle, args.evidence, args.name, other_dir=args.other,
                controls=args.controls,
                only=[x.strip() for x in args.only.split(",") if x.strip()],
-               cross_dir=args.cross_profile)
+               cross_dir=args.cross_profile, old_dir=args.old,
+               legacy_dir=args.legacy)
+    d.export_dir, d.statement_path = args.export, args.statement
     rec = d.run(stages)
     print(f"record: {d.path}   total {rec['total_seconds']} s   "
           f"peak RSS {rec['peak_rss_mb']} MB   ok={rec['ok']}")
-    return 0 if rec["ok"] else 1
+    # [TINYLLAMA PORT, tools v4] exit 3 = ARMS-ONLY (ok false ONLY because the
+    # pass did not request controls), distinct from 1 = anything else
+    print(f"status: {d.status['status']}   unexplained false leaves "
+          f"{len(d.status['unexplained'])}   -> {d.status_path}")
+    if rec["ok"]:
+        return 0
+    return 3 if d.status["status"] == "ARMS-ONLY" else 1
 
 
 if __name__ == "__main__":

@@ -1,0 +1,62 @@
+[
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/field.rs",
+    "captured_sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "current_sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "unchanged": true
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/sumcheck.rs",
+    "captured_sha256": "fc7374bbd5e5cc4ede62e8a21d325eb62acff9b9dcc786d12eae39efbdfdbb95",
+    "current_sha256": "fc7374bbd5e5cc4ede62e8a21d325eb62acff9b9dcc786d12eae39efbdfdbb95",
+    "unchanged": true
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/sumcheck/rounds.rs",
+    "captured_sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df",
+    "current_sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df",
+    "unchanged": true
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/protocol.rs",
+    "captured_sha256": "4612a955a1148ba821e3d8722684ccb1d73304bb34955dcd3be28cafdbdc8e7d",
+    "current_sha256": "4612a955a1148ba821e3d8722684ccb1d73304bb34955dcd3be28cafdbdc8e7d",
+    "unchanged": true
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/argument.rs",
+    "captured_sha256": "2475e3a222e32aa26969182b5ab7228756d633fa67bdde1f9520818ef7a2bb0e",
+    "current_sha256": "2475e3a222e32aa26969182b5ab7228756d633fa67bdde1f9520818ef7a2bb0e",
+    "unchanged": true
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/shape.rs",
+    "captured_sha256": "e6c7290b5c2d897ccaaa6284c813bbcfea563aaef7594c309b955a5588c1e073",
+    "current_sha256": "e6c7290b5c2d897ccaaa6284c813bbcfea563aaef7594c309b955a5588c1e073",
+    "unchanged": true
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/layout.rs",
+    "captured_sha256": "fcf9dda4e507d2a347f786ddc537feff3ac57779abae88cea91ee48d4b34c855",
+    "current_sha256": "fcf9dda4e507d2a347f786ddc537feff3ac57779abae88cea91ee48d4b34c855",
+    "unchanged": true
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_gpu_zerocheck_20261017/PROGRESS.md",
+    "captured_sha256": "f0344eeb558435c51d9eb3b382f36233634ca9791f50f3a4237930f0654b77d3",
+    "current_sha256": "f0344eeb558435c51d9eb3b382f36233634ca9791f50f3a4237930f0654b77d3",
+    "unchanged": true
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/PHASES_8B_T32_cli3.md",
+    "captured_sha256": "89bf16d4ad2323f9a56235fd20bfbdc71ef6ebf0c3f9e3ddf3b4914073d8aefd",
+    "current_sha256": "89bf16d4ad2323f9a56235fd20bfbdc71ef6ebf0c3f9e3ddf3b4914073d8aefd",
+    "unchanged": true
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/PROGRESS.md",
+    "captured_sha256": "9fa46fd53947ae5a37525a16c7663ce9687ba644e47c02b39ae01f927b7c97a2",
+    "current_sha256": "263e07b8fb5cc91b8730c1d4baf6a7bfec1168503ae2cd6ccdbdf6762ec86534",
+    "unchanged": false
+  }
+]

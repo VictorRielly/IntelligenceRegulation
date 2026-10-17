@@ -1,0 +1,1016 @@
+{
+ "log2_F": 127.9999999993282,
+ "D15_per_opening": -106.24959981538402,
+ "profiles": [
+  {
+   "profile": "TinyLlama T32",
+   "blocks": 22,
+   "log_cols": 12,
+   "row_width": 4096,
+   "inv_rate": 4,
+   "Q": 256,
+   "rust_check": {
+    "a_rows": 1729,
+    "h_rows": 1798,
+    "u8": 5971968,
+    "rust": [
+     1729,
+     1798,
+     5971968
+    ],
+    "ok": true
+   },
+   "openings": [
+    {
+     "kind": "A (block witness)",
+     "times": 22,
+     "n": 4096,
+     "inv_rate": 4,
+     "msg": 4352,
+     "nn": 16384,
+     "pads": 256,
+     "checks": 256,
+     "rows": 1729,
+     "claims": 242,
+     "delta": 0.734375,
+     "b": -103.69367314079274,
+     "half": -168.99839926153606,
+     "field": -116.03025374851369
+    },
+    {
+     "kind": "H (block LogUp helpers)",
+     "times": 22,
+     "n": 4096,
+     "inv_rate": 4,
+     "msg": 4352,
+     "nn": 16384,
+     "pads": 256,
+     "checks": 256,
+     "rows": 1798,
+     "claims": 100,
+     "delta": 0.734375,
+     "b": -103.69367314079274,
+     "half": -168.99839926153606,
+     "field": -116.03025374851369
+    },
+    {
+     "kind": "M (block CFS masks)",
+     "times": 22,
+     "n": 512,
+     "inv_rate": 8,
+     "msg": 1024,
+     "nn": 4096,
+     "pads": 256,
+     "checks": 256,
+     "rows": 50,
+     "claims": 363,
+     "delta": 0.75,
+     "b": -106.24959981538402,
+     "half": -173.58640770883525,
+     "field": -117.99859180493539
+    },
+    {
+     "kind": "B_k (internal boundary)",
+     "times": 21,
+     "n": 4096,
+     "inv_rate": 4,
+     "msg": 4352,
+     "nn": 16384,
+     "pads": 256,
+     "checks": 256,
+     "rows": 22,
+     "claims": 6,
+     "delta": 0.734375,
+     "b": -103.69367314079274,
+     "half": -168.99839926153606,
+     "field": -116.03025374851369
+    },
+    {
+     "kind": "E_in (run input endpoint)",
+     "times": 1,
+     "n": 4096,
+     "inv_rate": 4,
+     "msg": 4352,
+     "nn": 16384,
+     "pads": 256,
+     "checks": 256,
+     "rows": 21,
+     "claims": 4,
+     "delta": 0.734375,
+     "b": -103.69367314079274,
+     "half": -168.99839926153606,
+     "field": -116.03025374851369
+    },
+    {
+     "kind": "E_out (run output endpoint)",
+     "times": 1,
+     "n": 4096,
+     "inv_rate": 4,
+     "msg": 4352,
+     "nn": 16384,
+     "pads": 256,
+     "checks": 256,
+     "rows": 21,
+     "claims": 4,
+     "delta": 0.734375,
+     "b": -103.69367314079274,
+     "half": -168.99839926153606,
+     "field": -116.03025374851369
+    }
+   ],
+   "openings_total": 89,
+   "column": {
+    "a": -99.77386638441762,
+    "b": -97.5491941501928,
+    "six_per_layer": -99.20520569602556,
+    "delta_half_regime": -162.9127465812907,
+    "weaker_bits": 2.224672234224812
+   },
+   "pcs_field": -109.77244515967462,
+   "sumcheck_units_per_block": 1442,
+   "sumcheck_block": -117.50614455008737,
+   "sumcheck_run": -113.04671293145007,
+   "lookups": {
+    "u8": 5971968,
+    "exp": 32768,
+    "act": 262144,
+    "total": 6266880
+   },
+   "logup": {
+    "derived_block": -105.42033050334894,
+    "r14_block": -103.42068406174818,
+    "derived_run": -100.96089888471164,
+    "r14_run": -98.96125244311088
+   },
+   "whole": {
+    "a_4N": -98.31052149151844,
+    "b_4N": -97.08870745118243,
+    "a_N": -99.24751316888239,
+    "b_N": -97.41932088392323,
+    "6L_4N": -98.07759853004298,
+    "half_4N": -98.96036678792724
+   },
+   "whole_weaker_bits": {
+    "R14_4N": 1.2218140403360138,
+    "derived_N": 1.828192284959158
+   },
+   "worst_single_round": {
+    "D15 per opening": -106.24959981538402,
+    "real per opening (A/H/B/E)": -103.69367314079274,
+    "LogUp per block (N)": -105.42033050334894,
+    "LogUp per block (4N)": -103.42068406174818,
+    "largest sumcheck per block": -117.50614455008737
+   },
+   "q_restore": {
+    "checks": 263,
+    "per_opening": -106.45750199497735,
+    "extra_run_bytes": 4723320,
+    "receipt_bytes": 250855088,
+    "extra_share": 0.01882887860739743
+   }
+  },
+  {
+   "profile": "TinyLlama T64",
+   "blocks": 22,
+   "log_cols": 13,
+   "row_width": 8192,
+   "inv_rate": 4,
+   "Q": 256,
+   "rust_check": {
+    "a_rows": 1817,
+    "h_rows": 1926,
+    "u8": 12795904,
+    "rust": [
+     1817,
+     1926,
+     12795904
+    ],
+    "ok": true
+   },
+   "openings": [
+    {
+     "kind": "A (block witness)",
+     "times": 22,
+     "n": 8192,
+     "inv_rate": 4,
+     "msg": 8448,
+     "nn": 32768,
+     "pads": 256,
+     "checks": 256,
+     "rows": 1817,
+     "claims": 242,
+     "delta": 0.7421875,
+     "b": -104.96942546444222,
+     "half": -171.28527920265805,
+     "field": -115.01504757159583
+    },
+    {
+     "kind": "H (block LogUp helpers)",
+     "times": 22,
+     "n": 8192,
+     "inv_rate": 4,
+     "msg": 8448,
+     "nn": 32768,
+     "pads": 256,
+     "checks": 256,
+     "rows": 1926,
+     "claims": 100,
+     "delta": 0.7421875,
+     "b": -104.96942546444222,
+     "half": -171.28527920265805,
+     "field": -115.01504757159583
+    },
+    {
+     "kind": "M (block CFS masks)",
+     "times": 22,
+     "n": 512,
+     "inv_rate": 8,
+     "msg": 1024,
+     "nn": 4096,
+     "pads": 256,
+     "checks": 256,
+     "rows": 50,
+     "claims": 380,
+     "delta": 0.75,
+     "b": -106.24959981538402,
+     "half": -173.58640770883525,
+     "field": -117.99859180493539
+    },
+    {
+     "kind": "B_k (internal boundary)",
+     "times": 21,
+     "n": 8192,
+     "inv_rate": 4,
+     "msg": 8448,
+     "nn": 32768,
+     "pads": 256,
+     "checks": 256,
+     "rows": 22,
+     "claims": 6,
+     "delta": 0.7421875,
+     "b": -104.96942546444222,
+     "half": -171.28527920265805,
+     "field": -115.01504757159583
+    },
+    {
+     "kind": "E_in (run input endpoint)",
+     "times": 1,
+     "n": 8192,
+     "inv_rate": 4,
+     "msg": 8448,
+     "nn": 32768,
+     "pads": 256,
+     "checks": 256,
+     "rows": 21,
+     "claims": 4,
+     "delta": 0.7421875,
+     "b": -104.96942546444222,
+     "half": -171.28527920265805,
+     "field": -115.01504757159583
+    },
+    {
+     "kind": "E_out (run output endpoint)",
+     "times": 1,
+     "n": 8192,
+     "inv_rate": 4,
+     "msg": 8448,
+     "nn": 32768,
+     "pads": 256,
+     "checks": 256,
+     "rows": 21,
+     "claims": 4,
+     "delta": 0.7421875,
+     "b": -104.96942546444222,
+     "half": -171.28527920265805,
+     "field": -115.01504757159583
+    }
+   ],
+   "openings_total": 89,
+   "column": {
+    "a": -99.77386638441762,
+    "b": -98.72038965793325,
+    "six_per_layer": -99.20520569602556,
+    "delta_half_regime": -165.12613655917707,
+    "weaker_bits": 1.0534767264843623
+   },
+   "pcs_field": -108.8499924586163,
+   "sumcheck_units_per_block": 1515,
+   "sumcheck_block": -117.43489792096788,
+   "sumcheck_run": -112.97546630233059,
+   "lookups": {
+    "u8": 12795904,
+    "exp": 131072,
+    "act": 524288,
+    "total": 13451264
+   },
+   "logup": {
+    "derived_block": -104.3185968555913,
+    "r14_block": -102.3187615875504,
+    "derived_run": -99.859165236954,
+    "r14_run": -97.8593299689131
+   },
+   "whole": {
+    "a_4N": -97.51930697686933,
+    "b_4N": -97.22606837683088,
+    "a_N": -98.81443142793454,
+    "b_N": -98.17928260532113,
+    "6L_4N": -97.3801669709342,
+    "half_4N": -97.85858052628895
+   },
+   "whole_weaker_bits": {
+    "R14_4N": 0.2932386000384497,
+    "derived_N": 0.6351488226134023
+   },
+   "worst_single_round": {
+    "D15 per opening": -106.24959981538402,
+    "real per opening (A/H/B/E)": -104.96942546444222,
+    "LogUp per block (N)": -104.3185968555913,
+    "LogUp per block (4N)": -102.3187615875504,
+    "largest sumcheck per block": -117.43489792096788
+   },
+   "q_restore": {
+    "checks": 260,
+    "per_opening": -106.58929318655922,
+    "extra_run_bytes": 2859680,
+    "receipt_bytes": 333316880,
+    "extra_share": 0.008579463482317487
+   }
+  },
+  {
+   "profile": "TinyLlama T128",
+   "blocks": 22,
+   "log_cols": 14,
+   "row_width": 16384,
+   "inv_rate": 4,
+   "Q": 256,
+   "rust_check": {
+    "a_rows": 1993,
+    "h_rows": 2182,
+    "u8": 28999680,
+    "rust": [
+     1993,
+     2182,
+     28999680
+    ],
+    "ok": true
+   },
+   "openings": [
+    {
+     "kind": "A (block witness)",
+     "times": 22,
+     "n": 16384,
+     "inv_rate": 4,
+     "msg": 16640,
+     "nn": 65536,
+     "pads": 256,
+     "checks": 256,
+     "rows": 1993,
+     "claims": 242,
+     "delta": 0.74609375,
+     "b": -105.60895797137245,
+     "half": -172.4340512966904,
+     "field": -114.00750416693572
+    },
+    {
+     "kind": "H (block LogUp helpers)",
+     "times": 22,
+     "n": 16384,
+     "inv_rate": 4,
+     "msg": 16640,
+     "nn": 65536,
+     "pads": 256,
+     "checks": 256,
+     "rows": 2182,
+     "claims": 100,
+     "delta": 0.74609375,
+     "b": -105.60895797137245,
+     "half": -172.4340512966904,
+     "field": -114.00750416693572
+    },
+    {
+     "kind": "M (block CFS masks)",
+     "times": 22,
+     "n": 512,
+     "inv_rate": 8,
+     "msg": 1024,
+     "nn": 4096,
+     "pads": 256,
+     "checks": 256,
+     "rows": 50,
+     "claims": 397,
+     "delta": 0.75,
+     "b": -106.24959981538402,
+     "half": -173.58640770883525,
+     "field": -117.99859180493539
+    },
+    {
+     "kind": "B_k (internal boundary)",
+     "times": 21,
+     "n": 16384,
+     "inv_rate": 4,
+     "msg": 16640,
+     "nn": 65536,
+     "pads": 256,
+     "checks": 256,
+     "rows": 22,
+     "claims": 6,
+     "delta": 0.74609375,
+     "b": -105.60895797137245,
+     "half": -172.4340512966904,
+     "field": -114.00750416693572
+    },
+    {
+     "kind": "E_in (run input endpoint)",
+     "times": 1,
+     "n": 16384,
+     "inv_rate": 4,
+     "msg": 16640,
+     "nn": 65536,
+     "pads": 256,
+     "checks": 256,
+     "rows": 21,
+     "claims": 4,
+     "delta": 0.74609375,
+     "b": -105.60895797137245,
+     "half": -172.4340512966904,
+     "field": -114.00750416693572
+    },
+    {
+     "kind": "E_out (run output endpoint)",
+     "times": 1,
+     "n": 16384,
+     "inv_rate": 4,
+     "msg": 16640,
+     "nn": 65536,
+     "pads": 256,
+     "checks": 256,
+     "rows": 21,
+     "claims": 4,
+     "delta": 0.74609375,
+     "b": -105.60895797137245,
+     "half": -172.4340512966904,
+     "field": -114.00750416693572
+    }
+   ],
+   "openings_total": 89,
+   "column": {
+    "a": -99.77386638441762,
+    "b": -99.26712508428918,
+    "six_per_layer": -99.20520569602556,
+    "delta_half_regime": -166.16918508452588,
+    "weaker_bits": 0.5067413001284393
+   },
+   "pcs_field": -107.89086439083957,
+   "sumcheck_units_per_block": 1588,
+   "sumcheck_block": -117.36700480218524,
+   "sumcheck_run": -112.90757318354794,
+   "lookups": {
+    "u8": 28999680,
+    "exp": 524288,
+    "act": 1048576,
+    "total": 30572544
+   },
+   "logup": {
+    "derived_block": -103.13419424762833,
+    "r14_block": -101.13426672847643,
+    "derived_run": -98.67476262899103,
+    "r14_run": -96.67483510983914
+   },
+   "whole": {
+    "a_4N": -96.51502404814161,
+    "b_4N": -96.4529510121839,
+    "a_N": -98.12038030079486,
+    "b_N": -97.93924974168283,
+    "6L_4N": -96.44398336500636,
+    "half_4N": -96.6742100355993
+   },
+   "whole_weaker_bits": {
+    "R14_4N": 0.06207303595770952,
+    "derived_N": 0.18113055911203446
+   },
+   "worst_single_round": {
+    "D15 per opening": -106.24959981538402,
+    "real per opening (A/H/B/E)": -105.60895797137245,
+    "LogUp per block (N)": -103.13419424762833,
+    "LogUp per block (4N)": -101.13426672847643,
+    "largest sumcheck per block": -117.36700480218524
+   },
+   "q_restore": {
+    "checks": 258,
+    "per_opening": -106.42898824580897,
+    "extra_run_bytes": 1586192,
+    "receipt_bytes": 497665904,
+    "extra_share": 0.0031872627544924197
+   }
+  },
+  {
+   "profile": "Llama-3-8B T32",
+   "blocks": 32,
+   "log_cols": 13,
+   "row_width": 8192,
+   "inv_rate": 4,
+   "Q": 256,
+   "rust_check": {
+    "a_rows": 1697,
+    "h_rows": 1758,
+    "u8": 11714560,
+    "rust": [
+     1697,
+     1758,
+     11714560
+    ],
+    "ok": true
+   },
+   "openings": [
+    {
+     "kind": "A (block witness)",
+     "times": 32,
+     "n": 8192,
+     "inv_rate": 4,
+     "msg": 8448,
+     "nn": 32768,
+     "pads": 256,
+     "checks": 256,
+     "rows": 1697,
+     "claims": 242,
+     "delta": 0.7421875,
+     "b": -104.96942546444222,
+     "half": -171.28527920265805,
+     "field": -115.01504757159583
+    },
+    {
+     "kind": "H (block LogUp helpers)",
+     "times": 32,
+     "n": 8192,
+     "inv_rate": 4,
+     "msg": 8448,
+     "nn": 32768,
+     "pads": 256,
+     "checks": 256,
+     "rows": 1758,
+     "claims": 100,
+     "delta": 0.7421875,
+     "b": -104.96942546444222,
+     "half": -171.28527920265805,
+     "field": -115.01504757159583
+    },
+    {
+     "kind": "M (block CFS masks)",
+     "times": 32,
+     "n": 512,
+     "inv_rate": 8,
+     "msg": 1024,
+     "nn": 4096,
+     "pads": 256,
+     "checks": 256,
+     "rows": 50,
+     "claims": 385,
+     "delta": 0.75,
+     "b": -106.24959981538402,
+     "half": -173.58640770883525,
+     "field": -117.99859180493539
+    },
+    {
+     "kind": "B_k (internal boundary)",
+     "times": 31,
+     "n": 8192,
+     "inv_rate": 4,
+     "msg": 8448,
+     "nn": 32768,
+     "pads": 256,
+     "checks": 256,
+     "rows": 22,
+     "claims": 6,
+     "delta": 0.7421875,
+     "b": -104.96942546444222,
+     "half": -171.28527920265805,
+     "field": -115.01504757159583
+    },
+    {
+     "kind": "E_in (run input endpoint)",
+     "times": 1,
+     "n": 8192,
+     "inv_rate": 4,
+     "msg": 8448,
+     "nn": 32768,
+     "pads": 256,
+     "checks": 256,
+     "rows": 21,
+     "claims": 4,
+     "delta": 0.7421875,
+     "b": -104.96942546444222,
+     "half": -171.28527920265805,
+     "field": -115.01504757159583
+    },
+    {
+     "kind": "E_out (run output endpoint)",
+     "times": 1,
+     "n": 8192,
+     "inv_rate": 4,
+     "msg": 8448,
+     "nn": 32768,
+     "pads": 256,
+     "checks": 256,
+     "rows": 21,
+     "claims": 4,
+     "delta": 0.7421875,
+     "b": -104.96942546444222,
+     "half": -171.28527920265805,
+     "field": -115.01504757159583
+    }
+   ],
+   "openings_total": 129,
+   "column": {
+    "a": -99.23837255996077,
+    "b": -98.1857610661426,
+    "six_per_layer": -98.66463731466285,
+    "delta_half_regime": -164.59189068252542,
+    "weaker_bits": 1.052611493818162
+   },
+   "pcs_field": -108.31544825918758,
+   "sumcheck_units_per_block": 1527,
+   "sumcheck_block": -117.42351565253135,
+   "sumcheck_run": -112.42351565253135,
+   "lookups": {
+    "u8": 11714560,
+    "exp": 32768,
+    "act": 524288,
+    "total": 12271616
+   },
+   "logup": {
+    "derived_block": -104.45099752451937,
+    "r14_block": -102.45117809086945,
+    "derived_run": -99.45099752451937,
+    "r14_run": -97.45117809086945
+   },
+   "whole": {
+    "a_4N": -97.08346877175127,
+    "b_4N": -96.77170089209538,
+    "a_N": -98.3392553085118,
+    "b_N": -97.68294620875275,
+    "6L_4N": -96.9333471564111,
+    "half_4N": -97.45035951029838
+   },
+   "whole_weaker_bits": {
+    "R14_4N": 0.31176787965588915,
+    "derived_N": 0.6563090997590422
+   },
+   "worst_single_round": {
+    "D15 per opening": -106.24959981538402,
+    "real per opening (A/H/B/E)": -104.96942546444222,
+    "LogUp per block (N)": -104.45099752451937,
+    "LogUp per block (4N)": -102.45117809086945,
+    "largest sumcheck per block": -117.42351565253135
+   },
+   "q_restore": {
+    "checks": 260,
+    "per_opening": -106.58929318655922,
+    "extra_run_bytes": 3863328,
+    "receipt_bytes": 465815776,
+    "extra_share": 0.0082936821787676
+   }
+  }
+ ],
+ "projections": [
+  {
+   "profile": "TinyLlama T512 (projection)",
+   "blocks": 22,
+   "log_cols": 16,
+   "row_width": 65536,
+   "inv_rate": 4,
+   "Q": 256,
+   "rust_check": {
+    "a_rows": 3309,
+    "h_rows": 3976,
+    "u8": 214564864,
+    "rust": [
+     3309,
+     3976,
+     214564864
+    ],
+    "ok": true
+   },
+   "openings": [
+    {
+     "kind": "A (block witness)",
+     "times": 22,
+     "n": 65536,
+     "inv_rate": 4,
+     "msg": 65792,
+     "nn": 262144,
+     "pads": 256,
+     "checks": 256,
+     "rows": 3309,
+     "claims": 246,
+     "delta": 0.7490234375,
+     "b": -106.08933514354068,
+     "half": -173.29798135253847,
+     "field": -112.00187238507164
+    },
+    {
+     "kind": "H (block LogUp helpers)",
+     "times": 22,
+     "n": 65536,
+     "inv_rate": 4,
+     "msg": 65792,
+     "nn": 262144,
+     "pads": 256,
+     "checks": 256,
+     "rows": 3976,
+     "claims": 102,
+     "delta": 0.7490234375,
+     "b": -106.08933514354068,
+     "half": -173.29798135253847,
+     "field": -112.00187238507164
+    },
+    {
+     "kind": "M (block CFS masks)",
+     "times": 22,
+     "n": 512,
+     "inv_rate": 8,
+     "msg": 1024,
+     "nn": 4096,
+     "pads": 256,
+     "checks": 256,
+     "rows": 50,
+     "claims": 431,
+     "delta": 0.75,
+     "b": -106.24959981538402,
+     "half": -173.58640770883525,
+     "field": -117.99859180493539
+    },
+    {
+     "kind": "B_k (internal boundary)",
+     "times": 21,
+     "n": 65536,
+     "inv_rate": 4,
+     "msg": 65792,
+     "nn": 262144,
+     "pads": 256,
+     "checks": 256,
+     "rows": 22,
+     "claims": 6,
+     "delta": 0.7490234375,
+     "b": -106.08933514354068,
+     "half": -173.29798135253847,
+     "field": -112.00187238507164
+    },
+    {
+     "kind": "E_in (run input endpoint)",
+     "times": 1,
+     "n": 65536,
+     "inv_rate": 4,
+     "msg": 65792,
+     "nn": 262144,
+     "pads": 256,
+     "checks": 256,
+     "rows": 21,
+     "claims": 4,
+     "delta": 0.7490234375,
+     "b": -106.08933514354068,
+     "half": -173.29798135253847,
+     "field": -112.00187238507164
+    },
+    {
+     "kind": "E_out (run output endpoint)",
+     "times": 1,
+     "n": 65536,
+     "inv_rate": 4,
+     "msg": 65792,
+     "nn": 262144,
+     "pads": 256,
+     "checks": 256,
+     "rows": 21,
+     "claims": 4,
+     "delta": 0.7490234375,
+     "b": -106.08933514354068,
+     "half": -173.29798135253847,
+     "field": -112.00187238507164
+    }
+   ],
+   "openings_total": 89,
+   "column": {
+    "a": -99.77386638441762,
+    "b": -99.65159239883752,
+    "six_per_layer": -99.20520569602556,
+    "delta_half_regime": -166.88836158775058,
+    "weaker_bits": 0.12227398558009384
+   },
+   "pcs_field": -105.92274125958609,
+   "sumcheck_units_per_block": 1737,
+   "sumcheck_block": -117.2376179606178,
+   "sumcheck_run": -112.7781863419805,
+   "lookups": {
+    "u8": 214564864,
+    "exp": 8388608,
+    "act": 4194304,
+    "total": 227147776
+   },
+   "logup": {
+    "derived_block": -100.24093430452731,
+    "r14_block": -98.24094406016803,
+    "derived_run": -95.78150268589002,
+    "r14_run": -93.78151244153074
+   },
+   "whole": {
+    "a_4N": -93.75870957332805,
+    "b_4N": -93.7567379284751,
+    "a_N": -95.69237769052341,
+    "b_N": -95.68485998048519,
+    "6L_4N": -93.74797231902863,
+    "half_4N": -93.78119034473674
+   },
+   "whole_weaker_bits": {
+    "R14_4N": 0.0019716448529436548,
+    "derived_N": 0.007517710038229097
+   },
+   "worst_single_round": {
+    "D15 per opening": -106.24959981538402,
+    "real per opening (A/H/B/E)": -106.08933514354068,
+    "LogUp per block (N)": -100.24093430452731,
+    "LogUp per block (4N)": -98.24094406016803,
+    "largest sumcheck per block": -117.2376179606178
+   },
+   "q_restore": {
+    "checks": 257,
+    "per_opening": -106.50311826649782,
+    "extra_run_bytes": 1344744,
+    "receipt_bytes": null,
+    "extra_share": null
+   }
+  },
+  {
+   "profile": "Llama-3-8B T512 (projection)",
+   "blocks": 32,
+   "log_cols": 16,
+   "row_width": 65536,
+   "inv_rate": 4,
+   "Q": 256,
+   "rust_check": {
+    "a_rows": 4721,
+    "h_rows": 5584,
+    "u8": 306315264,
+    "rust": null,
+    "ok": null
+   },
+   "openings": [
+    {
+     "kind": "A (block witness)",
+     "times": 32,
+     "n": 65536,
+     "inv_rate": 4,
+     "msg": 65792,
+     "nn": 262144,
+     "pads": 256,
+     "checks": 256,
+     "rows": 4721,
+     "claims": 246,
+     "delta": 0.7490234375,
+     "b": -106.08933514354068,
+     "half": -173.29798135253847,
+     "field": -112.00187238507164
+    },
+    {
+     "kind": "H (block LogUp helpers)",
+     "times": 32,
+     "n": 65536,
+     "inv_rate": 4,
+     "msg": 65792,
+     "nn": 262144,
+     "pads": 256,
+     "checks": 256,
+     "rows": 5584,
+     "claims": 102,
+     "delta": 0.7490234375,
+     "b": -106.08933514354068,
+     "half": -173.29798135253847,
+     "field": -112.00187238507164
+    },
+    {
+     "kind": "M (block CFS masks)",
+     "times": 32,
+     "n": 512,
+     "inv_rate": 8,
+     "msg": 1024,
+     "nn": 4096,
+     "pads": 256,
+     "checks": 256,
+     "rows": 50,
+     "claims": 450,
+     "delta": 0.75,
+     "b": -106.24959981538402,
+     "half": -173.58640770883525,
+     "field": -117.99859180493539
+    },
+    {
+     "kind": "B_k (internal boundary)",
+     "times": 31,
+     "n": 65536,
+     "inv_rate": 4,
+     "msg": 65792,
+     "nn": 262144,
+     "pads": 256,
+     "checks": 256,
+     "rows": 38,
+     "claims": 6,
+     "delta": 0.7490234375,
+     "b": -106.08933514354068,
+     "half": -173.29798135253847,
+     "field": -112.00187238507164
+    },
+    {
+     "kind": "E_in (run input endpoint)",
+     "times": 1,
+     "n": 65536,
+     "inv_rate": 4,
+     "msg": 65792,
+     "nn": 262144,
+     "pads": 256,
+     "checks": 256,
+     "rows": 37,
+     "claims": 4,
+     "delta": 0.7490234375,
+     "b": -106.08933514354068,
+     "half": -173.29798135253847,
+     "field": -112.00187238507164
+    },
+    {
+     "kind": "E_out (run output endpoint)",
+     "times": 1,
+     "n": 65536,
+     "inv_rate": 4,
+     "msg": 65792,
+     "nn": 262144,
+     "pads": 256,
+     "checks": 256,
+     "rows": 37,
+     "claims": 4,
+     "delta": 0.7490234375,
+     "b": -106.08933514354068,
+     "half": -173.29798135253847,
+     "field": -112.00187238507164
+    }
+   ],
+   "openings_total": 129,
+   "column": {
+    "a": -99.23837255996077,
+    "b": -99.1162342231571,
+    "six_per_layer": -98.66463731466285,
+    "delta_half_regime": -166.3531061619654,
+    "weaker_bits": 0.12213833680367259
+   },
+   "pcs_field": -105.38872006742632,
+   "sumcheck_units_per_block": 1810,
+   "sumcheck_block": -117.17822601735763,
+   "sumcheck_run": -112.17822601735763,
+   "lookups": {
+    "u8": 306315264,
+    "exp": 8388608,
+    "act": 8388608,
+    "total": 323092480
+   },
+   "logup": {
+    "derived_block": -99.73262120942506,
+    "r14_block": -97.73262806806292,
+    "derived_run": -94.73262120942506,
+    "r14_run": -92.73262806806292
+   },
+   "whole": {
+    "a_4N": -92.716615386634,
+    "b_4N": -92.71522891143209,
+    "a_N": -94.66961029784343,
+    "b_N": -94.66424957025944,
+    "6L_4N": -92.70896771474978,
+    "half_4N": -92.73240254781645
+   },
+   "whole_weaker_bits": {
+    "R14_4N": 0.0013864752019117077,
+    "derived_N": 0.005360727583990865
+   },
+   "worst_single_round": {
+    "D15 per opening": -106.24959981538402,
+    "real per opening (A/H/B/E)": -106.08933514354068,
+    "LogUp per block (N)": -99.73262120942506,
+    "LogUp per block (4N)": -97.73262806806292,
+    "largest sumcheck per block": -117.17822601735763
+   },
+   "q_restore": {
+    "checks": 257,
+    "per_opening": -106.50311826649782,
+    "extra_run_bytes": 2732968,
+    "receipt_bytes": null,
+    "extra_share": null
+   }
+  }
+ ],
+ "125M_reconciliation": {
+  "per_opening_real": -105.60895797137245,
+  "per_opening_M": -106.24959981538402,
+  "logup_block": -101.37041569913434,
+  "recompute_py": -97.45150192388476,
+  "this_lane_real": -97.52564500300211,
+  "this_lane_D15_convention": -97.5980017117694
+ },
+ "M_product_check_log2": -173.87505948630093,
+ "consistency_2_12_log2": -248.3846800911227
+}

@@ -1,0 +1,56 @@
+[
+  {
+    "argv": [
+      "python3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/ragged-logup-rounds-20261017/run.py"
+    ],
+    "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/ragged-logup-rounds-20261017",
+    "exit_code": 0,
+    "elapsed_s": 2.1195255980001093,
+    "started_at_utc": "2026-10-17T22:27:40.492850+00:00",
+    "log": "run.log",
+    "threads": 1,
+    "cpu_affinity": [
+      0
+    ],
+    "niceness_inherited_and_increased_by_child": true,
+    "memory_cap_mib": 512,
+    "wall_cap_s": 58
+  },
+  {
+    "argv": [
+      "python3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/ragged-logup-rounds-20261017/audit.py"
+    ],
+    "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/ragged-logup-rounds-20261017",
+    "exit_code": 0,
+    "elapsed_s": 0.6094095749995176,
+    "started_at_utc": "2026-10-17T22:27:58.858278+00:00",
+    "log": "audit.log",
+    "threads": 1,
+    "cpu_affinity": [
+      0
+    ],
+    "niceness_inherited_and_increased_by_child": true,
+    "memory_cap_mib": 512,
+    "wall_cap_s": 58
+  },
+  {
+    "argv": [
+      "python3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/ragged-logup-rounds-20261017/account.py"
+    ],
+    "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/ragged-logup-rounds-20261017",
+    "exit_code": 0,
+    "elapsed_s": 0.05084000199894945,
+    "started_at_utc": "2026-10-17T22:28:49.393838+00:00",
+    "log": "account.log",
+    "threads": 1,
+    "cpu_affinity": [
+      0
+    ],
+    "niceness_inherited_and_increased_by_child": true,
+    "memory_cap_mib": 512,
+    "wall_cap_s": 58
+  }
+]

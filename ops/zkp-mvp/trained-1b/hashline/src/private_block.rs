@@ -159,6 +159,11 @@ mod r4_tests;
 // S38-F1(a), ported (finding G-1 of the privacy-gate lane; test only)
 #[cfg(test)]
 mod cs_port_tests;
+// speed plan task 3 (2026-10-17 evening): the Llama-3-8B T64 / T128
+// profiles' counted layouts, their T-dependent no-wrap clauses and (heavy)
+// the generic dense block at each (test only)
+#[cfg(test)]
+mod ladder8b_tests;
 // STAGE 19 (test-only): DENSE public weights and a numerically non-trivial
 // witness at the shaped geometries, where the diagonal fixture leaves every
 // hidden unit above `d` with no input and no output weight.

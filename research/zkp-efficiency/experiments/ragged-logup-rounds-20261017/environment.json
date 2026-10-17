@@ -1,0 +1,11 @@
+{
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "device": "CPU only",
+  "threads": 1,
+  "seed": 2026101769,
+  "cpu_affinity": [
+    0
+  ]
+}

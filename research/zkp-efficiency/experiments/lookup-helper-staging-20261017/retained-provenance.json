@@ -1,0 +1,22 @@
+[
+  {
+    "capture": "retained/owner-accounting.json",
+    "sha256": "bd0093570d81da8cd33f880119a493e5ce5da86e58473eb0b8107ffcf0deefe1",
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/fzc-public-constants-20261017/owner-accounting.json"
+  },
+  {
+    "capture": "retained/r4-cpu-phases.json",
+    "sha256": "0c1a9bc346a0a93a41b46dd3240882650eee71f917293490fc69b6808dab37ce",
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-borrow-catalog-20261017/retained/r4-cpu-phases.json"
+  },
+  {
+    "capture": "retained/r4-gpu-phases.json",
+    "sha256": "0ee4ed327a3cd5c2572f2771a2b8728e9f0fa1a611527d8eff62df7593a58127",
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-borrow-catalog-20261017/retained/r4-gpu-phases.json"
+  },
+  {
+    "capture": "retained/public-calibration.json",
+    "sha256": "921e5e3ccad2f6975b7893ae83bc04ca57aa2ac85bf8b0199a688e295c22ba25",
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-borrow-catalog-20261017/public-calibration.json"
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-borrow-catalog-20261017/run.py",
+  "sha256": "bf071a0404feb3123004975b3e0c4516ae68365fdfa60009315ba672210dfb9c",
+  "functions": [
+    "reference_catalog",
+    "scalar",
+    "source_catalog",
+    "split_args"
+  ]
+}

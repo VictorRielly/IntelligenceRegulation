@@ -1,0 +1,123 @@
+{
+  "status": "PASS",
+  "scope": "COUNTED 8B T32, 32 linked blocks, per-block payload; source-derived geometry matches owner public counters. No native execution.",
+  "model": "Llama3-8B",
+  "context": 32,
+  "rows": [
+    {
+      "domain": "L",
+      "positions": 8192,
+      "lookup_columns": 2,
+      "U8_queries": 16384,
+      "reciprocal_helper_planes": 1,
+      "old_U8_H_base_rows": 2,
+      "old_U8_H_payload_bytes": 131072,
+      "separate_small_table_pushforwards": 2,
+      "one_256_Fp2_pushforward_payload_bytes": 4096,
+      "notes": "Per-column pushforwards are an illustrative UNBATCHED design, not required or minimum. Shared points/batching need a construction."
+    },
+    {
+      "domain": "D",
+      "positions": 131072,
+      "lookup_columns": 34,
+      "U8_queries": 4456448,
+      "reciprocal_helper_planes": 17,
+      "old_U8_H_base_rows": 544,
+      "old_U8_H_payload_bytes": 35651584,
+      "separate_small_table_pushforwards": 34,
+      "one_256_Fp2_pushforward_payload_bytes": 4096,
+      "notes": "Per-column pushforwards are an illustrative UNBATCHED design, not required or minimum. Shared points/batching need a construction."
+    },
+    {
+      "domain": "Q",
+      "positions": 131072,
+      "lookup_columns": 13,
+      "U8_queries": 1703936,
+      "reciprocal_helper_planes": 7,
+      "old_U8_H_base_rows": 224,
+      "old_U8_H_payload_bytes": 14680064,
+      "separate_small_table_pushforwards": 13,
+      "one_256_Fp2_pushforward_payload_bytes": 4096,
+      "notes": "Per-column pushforwards are an illustrative UNBATCHED design, not required or minimum. Shared points/batching need a construction."
+    },
+    {
+      "domain": "Kv",
+      "positions": 32768,
+      "lookup_columns": 12,
+      "U8_queries": 393216,
+      "reciprocal_helper_planes": 6,
+      "old_U8_H_base_rows": 48,
+      "old_U8_H_payload_bytes": 3145728,
+      "separate_small_table_pushforwards": 12,
+      "one_256_Fp2_pushforward_payload_bytes": 4096,
+      "notes": "Per-column pushforwards are an illustrative UNBATCHED design, not required or minimum. Shared points/batching need a construction."
+    },
+    {
+      "domain": "S",
+      "positions": 32768,
+      "lookup_columns": 13,
+      "U8_queries": 425984,
+      "reciprocal_helper_planes": 7,
+      "old_U8_H_base_rows": 56,
+      "old_U8_H_payload_bytes": 3670016,
+      "separate_small_table_pushforwards": 13,
+      "one_256_Fp2_pushforward_payload_bytes": 4096,
+      "notes": "Per-column pushforwards are an illustrative UNBATCHED design, not required or minimum. Shared points/batching need a construction."
+    },
+    {
+      "domain": "F",
+      "positions": 524288,
+      "lookup_columns": 9,
+      "U8_queries": 4718592,
+      "reciprocal_helper_planes": 5,
+      "old_U8_H_base_rows": 640,
+      "old_U8_H_payload_bytes": 41943040,
+      "separate_small_table_pushforwards": 9,
+      "one_256_Fp2_pushforward_payload_bytes": 4096,
+      "notes": "Per-column pushforwards are an illustrative UNBATCHED design, not required or minimum. Shared points/batching need a construction."
+    }
+  ],
+  "H": {
+    "total_base_rows": 1758,
+    "total_payload_bytes": 115212288,
+    "U8_reciprocal_data_rows": 1514,
+    "U8_reciprocal_payload_bytes": 99221504,
+    "exp_act_payload_bytes": 8912896,
+    "three_table_payload_bytes": 393216,
+    "zero_sum_pair_payload_bytes": 131072,
+    "other_reserved_and_proximity_payload_bytes": 6553600
+  },
+  "query_value_commitment_already_absent": true,
+  "additional_saved_query_commitment_bytes": 0,
+  "illustrative_new_costs": {
+    "unbatched_U8_pushforwards": 83,
+    "all_payload_bytes": 339968,
+    "one_pushforward_if_lifted_to_current_row_width_bytes": 131072,
+    "note": "256-entry pushforward is 4096 bytes logically; forcing its two base-field limbs into the existing row width is131072 bytes BEFORE masks. New batching/layout may differ. No net commitment saving asserted."
+  },
+  "additional_obligations": [
+    "ordered original A/affine-index binding including wrapping semantics",
+    "support and odd-column padding",
+    "all public-table denominator refusals in original schedule",
+    "fresh masked GKR messages and hiding pushforward/terminal claims",
+    "PCS claims for original index, table and pushforward",
+    "new commitment absorb order, M schedule, soundness union and joint-view review",
+    "encode/hash/open/serialization, device scratch and transfer cost"
+  ],
+  "phase_diagnostic": {
+    "H_commit_s": 11.75,
+    "H_open_s": 2.23,
+    "U8_helpers_s": 4.78,
+    "exp_act_helpers_s": 0.74,
+    "table_zero_check_s": 0.81,
+    "total_reported_wall_s": 171.578,
+    "free_deletion_four_entire_parent_phases_s": 19.5,
+    "idealized_ceiling_ratio": 1.1282236746932495,
+    "idealized_ceiling_positions_per_s": 0.21041833795815304,
+    "note": "Latest R5 CPU phase diagnostic at capture; fresh cli3 verification not yet observed. Rounded phase sums. This bounds ONLY direct removal of these four measured enclosing phases with ALL else fixed. Does not bound an architecture that also changes other costs. No GPU/5090 or steady-state factor."
+  },
+  "wall_seconds": 0.0019071020005867467,
+  "peak_rss_kib": 15520,
+  "threads": 1,
+  "completed_at_utc": "2026-10-17T20:28:01.480478+00:00"
+}

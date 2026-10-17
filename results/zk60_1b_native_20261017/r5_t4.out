@@ -1,0 +1,23 @@
+/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/cli4/manifest.json: 218 files, tree beb54f9d864f7f6a630ad9abd4d181c5e6f425cba600363c8a5048b1dcbe6447
+[zk60-guard 14:13:12] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 14:14:12] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 14:15:12] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 14:16:12] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 14:17:12] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 14:18:12] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 14:19:12] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 14:20:12] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 14:21:12] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 14:22:12] waiting for /tmp/zk-heavy.lock (541s)
+[zk60-guard 14:23:13] waiting for /tmp/zk-heavy.lock (601s)
+[zk60-guard 14:24:13] waiting for /tmp/zk-heavy.lock (661s)
+[zk60-guard 14:25:13] waiting for /tmp/zk-heavy.lock (721s)
+[zk60-guard 14:26:13] waiting for /tmp/zk-heavy.lock (781s)
+[zk60-guard 14:26:50] START r5-cli4-build class=build need=2.5G cap=5G enforce=cgroup+watchdog waited=818s run=26dff296946f
+[zk60-guard 14:27:53] END r5-cli4-build exit=0 child_wall=64s peak_rss=1.05G min_avail=11.26G
+budget pre-check passed 21:27:53: OK to start now
+[zk60-guard 14:27:53] START r5-t4-stack-8b-T128 class=cpu need=7.5G cap=10.5G enforce=cgroup+watchdog waited=0s run=f8e6e802e8ea
+[zk60-guard 14:36:01] END r5-t4-stack-8b-T128 exit=0 child_wall=487s peak_rss=6.48G min_avail=4.71G
+[zk60-guard 14:36:01] START r5-t4-verify-8b-T128 class=cpu need=3G cap=8G enforce=cgroup+watchdog waited=0s run=208078f948c8
+[zk60-guard 14:39:00] END r5-t4-verify-8b-T128 exit=0 child_wall=180s peak_rss=2.22G min_avail=8.81G
+t4 stack-verify exit 0

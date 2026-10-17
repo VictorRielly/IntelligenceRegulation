@@ -199,6 +199,11 @@ ARGUMENT_DEFINITIONS = {
 from zk60_native_rg_tinyllama_pins import (  # noqa: E402
     ARGUMENT_DEFINITIONS as _TL_ARG, merge_one_level as _tl_merge1)
 _tl_merge1(ARGUMENT_DEFINITIONS, _TL_ARG, "ARGUMENT_DEFINITIONS")
+# [TINYLLAMA PORT v5, round 4] the R5 tree's argument.rs, READ
+# (`zk60_native_rg_tinyllama_r5_pins`): the same repaired definition.
+from zk60_native_rg_tinyllama_r5_pins import (  # noqa: E402
+    ARGUMENT_DEFINITIONS as _R5_ARG)
+_tl_merge1(ARGUMENT_DEFINITIONS, _R5_ARG, "ARGUMENT_DEFINITIONS")
 
 
 def clog2(v: int) -> int:

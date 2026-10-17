@@ -974,3 +974,426 @@ Read-only source: `/home/victor/wt-zk60-block125m` (its stage 40-44 tests and
   commitments; every row carries bytes and GB/s (A/H commitments
   8 * rows * n * inv_rate, openings 8 * rows * n, inverses 16 per word,
   sumcheck slots 16 * table terms).
+
+### Round 5 resumed (evening session, after the 18:21 UTC reboot)
+
+- 18:28 UTC: resumed from this ledger + `ops/zkp-mvp/LANE_RULES_20261017.md`.
+  Nothing of mine running; `r5-suite-a` never started (exit 70, refused at
+  the 14:59:48 UTC shutdown). 20 sources were edited after `r5-compile`
+  (13:43 UTC), so that compile does not cover the R5 tree.
+- `r5/round5-vs-review-r3.patch` (2,440 lines, 22 files): every source change
+  of round 5 against the frozen `ops/zkp-mvp/trained-1b-review-r3/` copy
+  (= the round-4 tree incl. the s25 census fix; checked file for file against
+  `r4/manifest_cli_sources.json`).
+- 18:30 UTC: queued `r5_build.sh r5b` (detached; guarded build jobs: CPU CLI,
+  release test binaries `--no-run`, GPU-feature CLI; source manifest
+  `r5/manifest_r5b.json`, tree a0b503d7...). Another lane's
+  `b1-testbin-debug` held the heavy lock at queue time.
+- 18:33 UTC: queued `r5_chain.sh` (detached): waits for the builds, then the
+  full guarded release suite (`r5-suite`), then the task-1 acceptance runs
+  (`r5_stack.sh`: Llama-3-8B T32 ho00 CPU, TinyLlama T32 and T128 ho00 CPU,
+  HL_PB_TIMING=1, no in-process verify, fresh-process verify with
+  `--controls`). The 8B prove cap is 9 GiB (R4's sat at its 6 GiB cap: the
+  kernel cap counts page cache).
+- 18:38-18:39 UTC: `r5b-cli-build` exit 0 (58 s) — compiled BEFORE the r3_6
+  fix below, so it is superseded.
+- 18:40-18:41 UTC **review r3 finding r3_6 (verifier DoS, coordinator
+  relay) FIXED**: `run::read_segment_bounded` (run.rs) computes the
+  verifier's own counted length `wire::segment_len(stage_layout(k),
+  seg_geom(k))` first, refuses it above `wire_ceiling`, refuses anything
+  `symlink_metadata` does not call a regular file and any length != counted,
+  BEFORE opening; opens with `O_NOFOLLOW | O_NONBLOCK` (x86-64 Linux; no libc
+  dependency, so the flags are the arch's constants), re-checks the opened
+  file (`fstat`: regular, length), reads through `take(want + 1)` and
+  re-checks the length. `verify_run_from_dir_with` and the CLI's
+  `stack_controls` (via the honest run statement) read only through it.
+  Tests: `run_tests::review_r3_6_a_symlink_fifo_or_overlong_segment_file_is_refused_before_it_is_read`
+  (/dev/zero symlink, FIFO, counted + 1 B, 512 MiB sparse; each refused by
+  name from metadata; honest run verifies before and after) and four CLI
+  cases added to `trained_stack_tests::the_stack_cli_proves_three_chained_layers...`
+  (stack-verify refuses a /dev/zero segment, a FIFO, one byte too long, a
+  FIFO with `--controls`; the restored run verifies). The queued suite
+  compiles the fixed tree; `r5_stack.sh` rebuilds both CLIs once from it
+  (`r5_build_cli2.sh`, marker `r5_cli2.done`) before the first acceptance run.
+- 18:48-19:02 UTC `r5-suite` (guarded, 846 s, peak RSS 4.58 GiB): lib **542
+  passed / 1 failed / 29 ignored**; cargo stopped before the integration
+  targets. The one failure, `cs_port_tests::cs6_the_run_prover_and_verifiers_refuse_blocks_that_are_not_the_statements`,
+  was the TEST's own error: its final honest control re-ran
+  `prepare_endpoints` (fresh randomness, other endpoint roots) but proved
+  under the first statement, so the honest run failed with "expected
+  endpoint root mismatch". Fixed 19:03 UTC (test only): the control builds
+  its statement from the fresh owners' policy, proves, verifies, and the
+  verifier still refuses the other block under it (CS-6 by name). Every CS-6
+  refusal assertion before it had passed.
+- 19:03 UTC queued `r5_suite2.sh r5-suite2` (detached, `--no-fail-fast`).
+- 19:07-19:08 UTC `r5_build_cli2.sh`: CPU CLI rebuilt (29 s), GPU CLI already
+  current (built 18:46-18:47 from the fixed tree); both binaries carry the
+  r3_6 refusal texts. `r5/zk60_trained_block.release.bin` sha256 c066a382...,
+  `.gpu.release.bin` 2bd95f1b... (`r5/binaries.sha256`). Called "cli2" below.
+- 19:08-19:12 UTC **Llama-3-8B T32 ho00 stack, R5 cli2, CPU** (guard child
+  wall 267.8 s, peak RSS 2.04 GiB, cgroup 4.84 GiB of the 9 GiB cap)
+  [MEASURED, SHARED BOX, n=1 — three calibration-lane `light` Python jobs
+  were live and using about 4.3 cores, plus another lane's build]:
+  statement identity **259dad7c...** (unchanged), receipt 465,815,776 B,
+  **all 32 segment lengths equal R4's** `segments.json`; parity bit-exact at
+  all 32 layers; in-process verify OFF. Digest pass **25.5 s** (R4 83.0;
+  target <= 20), proving-pass block loads **24.2 s** (R4 79.2; target <= 30),
+  witness 30.5 s (0.95 s/block; R4 0.58, contention), proofs only 187.3 s
+  (5.85 s/block; R4 3.44 — contention: slot 14 at 88.9 ns per element-term
+  against the model's 63.8), **total 267.8 s** (R4 384.5; target <= 180, NOT
+  met on this shared run). Byte counters: A 13,901,824 words, H 14,401,536,
+  lookups 11,714,560 per block = the counted layout.
+- 19:12-19:15 UTC fresh-process verify of that run with `--controls` (193 s
+  wall, R4 456 s): verified (45.8 s, of which block loads 23.8 s); **11
+  run-level controls refused**, honest still verifies. FINDING (mine, R5-1
+  port): four of them (norm_cn_a + 1, sh_z, sh_qkv, f_e) were refused by the
+  streaming `BlockCache::fit_the_shape` ("the block cache was built for the
+  shape ...", whole-shape equality) instead of by the run binding R4 reached
+  ("this segment belongs to another run"): a WEAKER control. Fixed
+  19:15-19:18 UTC in `trained_block.rs`: `fit_the_shape` compares the block
+  statement's geometry (profile, axes, padded axes; calibration constants are
+  not in a block's words, `f_e` is CS-4's per-block re-check), and
+  `stack_controls` now FAILS a calibration control whose buildable verifier
+  is refused by anything but the wire's statement binding (`private run
+  wire:` — the run tag, or the counted length when the layout moves; R3's
+  TinyLlama T128 f_e control was the latter). Needs a CLI rebuild ("cli3")
+  and a re-run of the 8B verify.
+- 19:15-19:18 UTC TinyLlama T32 ho00 stack, cli2, CPU [shared box, n=1]:
+  identity **9b71dfb0...** (unchanged), receipt 250,855,088 B, fresh verify
+  accepted, 11 controls refused (same four by the cache guard).
+- Source manifest after these edits: `r5/manifest_r5_1918.json` (tree
+  d67fae7e...).
+- 19:23-19:27 UTC TinyLlama T128 ho00 stack, cli2, CPU, HL_PB_TIMING=1
+  [shared box, n=1]: identity 53a5667d... (unchanged), receipt 497,665,904 B,
+  all 22 segment lengths equal R3's; wall 189.6 s, proofs 168.6 s (R3 136.2;
+  contention), digest pass 2.0 s (R3 9.7), witness 16.7 s; fresh verify
+  accepted, 11 controls refused (four by the cache guard, as above).
+  **Byte counters = counted totals** (`r5_bytes_check.py`, every one of the
+  22 tables): A 1993 rows = **32,653,312 words** (the plan's number), H 2182
+  rows = 35,749,888, U8 lookups 28,999,680, exp + act pairs 1,572,864;
+  A / H commit bytes 8 x words x rate 4, openings 8 x words, inverses 16 B
+  per word (`r5/bytes_check_tinyllama_T128.txt`; the same check passes on
+  the 8B T32 run, `r5/bytes_check_8b_T32.txt`). The slot rows print
+  element-terms as `2^(main + ext) x tables` (the sumcheck cube times its
+  table count), which is NOT the speed plan's `size x terms` convention
+  (e.g. slot 18 at TinyLlama T128: 44,040,192 printed vs 1,048,576 x 17 =
+  17,825,792); both are recorded.
+- `r5_table.py` -> `r5/table.json`: identity, receipt bytes and every segment
+  length equal the previous round's run of the same stack for 8B T32,
+  TinyLlama T32 and TinyLlama T128.
+- 19:28 UTC launched `r5_freeze_and_remeasure.sh` (detached): waits for
+  `r5-suite2`; only if it is green AND it started after the 19:18 edit AND
+  the working tree still equals `manifest_r5_1918.json`: copies the tree to
+  `r5/frozen-tree/` (manifest `r5/manifest_frozen.json`, `r5/FROZEN.txt`),
+  rebuilds both CLIs ("cli3", cli2's kept in `r5/cli2/`), re-runs the 8B T32
+  CPU stack with fresh verify + 11 controls (`r5/stack-...-ho00-cpu-cli3/`),
+  and re-verifies the TinyLlama T32 run with cli3 controls.
+- 19:31-19:48 UTC **`r5-suite2` GREEN** (guarded, 1,028 s, peak RSS 4.90
+  GiB; started 19:31:35, after the last edit; `--no-fail-fast`): **29
+  targets, 688 passed, 0 failed, 29 ignored** (lib 543 / 0 / 29; every
+  integration target and doc-test ok). Includes the frozen toy pins (toy
+  schedule digest, parameter line, 2,816,472-byte receipt), the archived
+  receipts and slot-IR digests, all `cs_port_tests` (CS-1/3/4/6/7/8/9,
+  S38-F1(a); cs6 passes), the r3_6 regression tests, the s24/s25/s33
+  registry and census tests (`r5-suite2.log`).
+
+**R5 tree frozen for review at 2026-10-17T19:48:50Z, sha256 manifest `results/zk60_1b_native_20261017/r5/manifest_frozen.json`** (tree d67fae7ef3d03bb6a30c89880ac41b6e4543b7f8b5df8040c8a29ba7404df952; source copy `r5/frozen-tree/`, equal to the working copy at the freeze; `r5/FROZEN.txt`; every source change against `ops/zkp-mvp/trained-1b-review-r3/` in `r5/round5-vs-review-r3.patch`, 2,695 lines, 23 files).
+- 19:48-20:10 UTC (`r5_freeze_and_remeasure.sh`): freeze done; "cli3" built
+  from the frozen tree (source manifest before and after = d67fae7e...):
+  `r5/zk60_trained_block.release.bin` sha256 67652c92..., `.gpu.release.bin`
+  fdce3c8a... (copies in `r5/cli3/`; cli2's in `r5/cli2/`); both carry the
+  r3_6 texts and the CONTROL-WEAK guard.
+- 20:10-20:13 UTC **Llama-3-8B T32 ho00 stack, cli3 (the frozen R5 tree),
+  CPU** (`r5/stack-llama3_8b_pg_rot1_T32-ho00-cpu-cli3/`) [MEASURED, shared
+  box n=1: one other lane's `light` job (tl-v4-l22-dense-f) live throughout,
+  fid-s7 for the first 40 s; quieter than the 19:08 run]: identity
+  **259dad7c...**, receipt 465,815,776 B, **all 32 segment lengths equal
+  R4's**, parity bit-exact at 32 layers, in-process verify off. **Digest pass
+  15.3 s** (R4 83.0; target <= 20: MET), **proving-pass block loads 16.0 s**
+  (R4 79.2; target <= 30: MET), witness 21.4 s (0.67 s/block), proofs only
+  118.8 s (3.71 s/block; R4 3.44), **total wall 171.6 s** (guard child wall
+  172 s; R4 384.5; target <= 180: MET), peak RSS 2.04 GiB. Byte counters =
+  counted totals (32 tables). Phase table with ns per unit and GB/s:
+  `r5/PHASES_8B_T32_cli3.md`.
+- 20:11 UTC (after cli3 was built, so the frozen tree and its binaries are
+  untouched): applied the task-3 source (scratch patch script
+  `apply_8b_profiles.py`, every pattern matched once): Llama-3-8B T64 / T128
+  block profiles `hashline-zk-mr1/private-block-llama-3-8b-t{64,128}-trained/1`
+  and run profiles `...private-run-llama-3-8b-t{64,128}-trained-statement/1`
+  (D17: one per shape; same door, classes, RoPE 500000, pinned checkpoint;
+  row widths 2^13 / 2^14 = the smallest counted receipts, 37 endpoint rows),
+  `Shape::llama3_8b_trained(T, ...)`, test-only `Shape::llama3_8b_at`,
+  `Geometry::Llama3_8B(T)` in the export reader (an 8B export with T 32 / 64
+  / 128 maps to its profile; T32's scope text unchanged), registries
+  (CS-7 / CS-9 / `TRAINED_CALIBRATION_PROFILES` / pinned source / census
+  lists), and `ladder8b_tests.rs`. **PENDING INDEPENDENT REVIEW of the T64
+  and T128 profiles.**
+- 20:14-20:21 UTC `t3-lib` (guarded release lib suite on that tree, 407 s,
+  peak 4.88 GiB): **545 passed / 0 failed / 31 ignored**, including the s25
+  hash-length census and s24 / s33 registry tests over the two new profile
+  pairs (no new equal-length pair), `the_llama3_8b_t64_and_t128_counted_layouts`
+  (Rust counted A / H rows and receipts = the speed plan's replica: T64 2^13
+  A 3229 / H 3534 / 21,697,512 B; T128 2^14 A 3405 / H 3790 / 29,300,856 B)
+  and `the_t_dependent_nowrap_clauses_hold_at_the_8b_t64_and_t128_shapes`
+  (c2 / c3 / pv / host-PV below p/2 at every f_e in 9..=16 at T64 and T128;
+  the class-wide `nowrap_check.py` already covers every T with wrho_s <= 24).
+- 20:21-20:26 UTC **task 3, generic dense Llama-3-8B block at T64, CPU**
+  (`r5/ladder8b-T64-cpu/`, guarded release test
+  `ladder8b_tests::native_ladder8b_generic_block_proves_verifies_and_every_control_refuses`,
+  HL_PB_TIMING=1, 16 threads) [MEASURED, shared box n=1: tl-v4 `light` job
+  live]: bands attn 6 / gate 8 / down 2 (TinyLlama's attn 8 refuses at the
+  score, as at T32); generic witness (heads and all 8 KV groups differ, upper
+  hidden half 98.2% live, max|y_a| 43, |y_m| 46, |s8| 103, equal to the
+  independent shape-driven kernel); witness 1.51 s; prove (one-block bound
+  run, statement + endpoints + block) 5.07 s, of which the block's
+  PB-TIMING wall 4.27 s; verify from bytes 1.17 s; segment 21,697,592 B
+  (counted receipt 21,697,512 + the run frame); peak RSS 3.85 GiB (guard
+  3.90). Every control refused: 11 verifier coefficient / shift controls (tn-1
+  by the counted length, the rest "this segment belongs to another run"),
+  truncation and 3 mutations, R2-4, and 4 inconsistent witnesses rejected by
+  the VERIFIER (slot 14 x3, slot 2; CS-3 did not pre-empt them). FRESH-process
+  verify 1.24 s, peak 931 MiB, verifier controls refused there too.
+- 20:26 UTC the T128 CPU ladder job (need 7 / cap 10) took the heavy lock and
+  then waited for ADMISSION (budget: two other lanes' `light` jobs, 6 + 4
+  GiB) — the guard holds its locks while it waits for admission, so it blocks
+  every heavy job until the 6 GiB `light` job ends. My SIGTERM to that queued
+  guard (its documented graceful path) was refused by the session classifier;
+  it is left to start by itself. Lesson for my later big jobs: pre-check
+  `zk60_resource_guard.py check --class cpu --need-gib N` for the budget
+  before queueing on the lock.
+- 21:03-21:10 UTC **task 3, generic dense Llama-3-8B block at T128, CPU**
+  (`r5/ladder8b-T128-cpu/`) [MEASURED, n=1; the ONLY guarded job live — a
+  quiet box]: bands attn 6 / gate 8 / down 2; generic witness (max|s8| 112,
+  upper half 98.2% live, equal to the independent kernel); witness 2.38 s;
+  prove 8.92 s, of which the block's PB-TIMING wall 8.15 s; verify from bytes
+  1.37 s; segment 29,300,936 B (counted 29,300,856 + frame); peak RSS 7.07
+  GiB (guard 7.14); every control refused (as at T64: 11 verifier controls by
+  the wire binding, truncation, 3 mutations, R2-4, 4 inconsistent witnesses
+  by the verifier at slots 14 / 2); FRESH-process verify 1.45 s, peak 939
+  MiB, verifier controls refused. Phase table: `r5/ladder8b-T128-cpu/prove.log`
+  (first PB-TIMING table) and `r5/ladder8b.json` (`r5_ladder_table.py`).
+- Against the plan's written predictions (CPU, per block): T64 block 4.27 s
+  vs 5.47 (-22%), T128 8.15 s vs 10.60 (-23%); T128 groups: commit 2.84 vs
+  2.72 (+5%), zero-checks 3.34 vs 5.05 (-34%; D 1.25 / F 1.12 / S 0.40 /
+  Q 0.35 / Kv 0.22 vs 2.15 / 1.43 / 0.53 / 0.57 / 0.37), inverses 0.55 vs
+  0.67 (-17%), openings 0.48 vs 0.69 (-30%), conversion 0.21 vs 0.34 (-40%),
+  rest 0.73 vs 1.14 (-35%); witness 2.38 vs 2.51 (-5%); receipt 29.30 MB vs
+  29.3 (exact); peak 7.1 GiB vs 6.3 (+13%, the test process also holds the
+  kernel-parity buffers). T-SCALING: T64 -> T128 block wall x1.91 measured vs
+  x1.94 modelled; the softmax slot grows x1.74 (model x2.42): S-domain cost
+  grows SLOWER than counted, not faster (the plan's section-7 worry).
+  More than 15% off in several groups, so a refit (below) is owed.
+- Refit, first pass (`r5/refit/`: copies of the plan's `cost_model.py`,
+  `projection.py`, `layout.py`, originals' sha256 in `originals.sha256`;
+  `refit.py` re-derives every coefficient with the plan's own formulas from
+  the quiet 8B T128 block): it fits 8B T64 to -3.1% but UNDER-predicts the
+  stacks (8B T32 cli3 stack per block 3.65 s measured vs 2.51 refit, -31%;
+  TinyLlama r3 stacks -13..-20%), which the plan's TinyLlama-stack fit
+  matched within 9%. Reading: a quiet one-block run is 20-30% cheaper per
+  block than a block inside a stack on this shared box (contention during the
+  stack runs, and cache / allocation effects of the streaming stack); the
+  T-scaling agrees. The projection refit is therefore re-calibrated on a
+  STACK at 8B T128 (task 4) before the section-5 numbers are re-run.
+- 21:13-21:15 UTC fresh-process verify of the cli3 8B T32 run with
+  `--controls` (116 s wall; R4 456 s): verified in 26.5 s, of which block
+  loads 13.1 s (cryptography 13.4 s; R4 13.3); **11 run-level controls
+  refused, honest still verifies**; the four calibration controls are refused
+  by the wire binding again ("this segment belongs to another run", as in R4).
+  21:15-21:16 UTC TinyLlama T32 run re-verified with cli3 `--controls`: 11
+  refused, the same four by the binding; honest verifies (6.0 s).
+- **TASK 1 / SPEED-PLAN TASK 1 ACCEPTANCE: MET** (frozen R5 tree, cli3, laptop
+  CPU, shared box n=1): 8B T32 identity 259dad7c... unchanged; all 32 segment
+  lengths = R4; fresh verify accepts and 11 controls refuse; TinyLlama T32
+  identity 9b71dfb0... unchanged; byte counters = counted totals (A
+  32,653,312 words at TinyLlama T128); digest pass 15.3 s (<= 20), proving-
+  pass loads 16.0 s (<= 30), total 8B T32 wall 171.6 s (<= 180).
+- 21:13 UTC launched `r5_t4_stack.sh 7.5 10.5 ho00` (detached; task 4): cli4
+  build from the working copy (manifest `r5/cli4/manifest.json`, tree
+  beb54f9d...), a budget pre-check OUTSIDE the lock, then one guarded cpu
+  stack-prove of `llama3_8b_pg_rot1_b6_T128` (32 blocks, HL_PB_TIMING=1) and a
+  fresh-process verify with the 11 controls.
+- 21:27-21:36 UTC **task 4 (stretch): THE FIRST PRIVATE 32-BLOCK
+  Llama-3-8B STACK AT T=128, ONE BOUND RUN, CPU** — "PENDING INDEPENDENT
+  REVIEW OF THE T128 PROFILE", and run with "cli4" = the R5 frozen tree + the
+  T64/T128 profiles (`r5/cli4/`, binary sha256 in `r5/cli4/binary.sha256`),
+  i.e. BEFORE the R5b CLI changes below; it had already started when the
+  privacy-review relay (P-1, "do this before task 4") arrived at ~21:29, and
+  a queued/running guard cannot be stopped from this session (kill refused).
+  Export `results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_b6_T128`
+  (calibration lane: VERIFIED 18:37 UTC; tn 9, Cn_a 2092 / Cn_m 1424, Ceps
+  78617, shifts qkv 8 / s 6 / ao 3 / g 8 / h 14 / z 4, f_e 9, RoPE 500000,
+  per-layer e_s and SiLU member) [MEASURED, shared box n=1: a calibration
+  `light` job live]: parity BIT-EXACT at all 32 layers (524,288 words each);
+  statement identity 6aba46fbd12d14b053a0ec4afb29ba7b7dbad5ef4fe327213474a737b6e3fe24;
+  receipt **922,711,264 B** (32 segments, 28.55-29.57 MB); guard wall **487.3
+  s**, peak RSS 6.48 GiB (cgroup 8.6 of the 10.5 cap); digest pass 15.1 s,
+  witness 97.3 s (3.04 s/block), block loads 12.3 s, proofs only 362.1 s
+  (11.3 s/block); 0.263 positions/s total, 0.353 proofs only.
+  21:36-21:39 UTC FRESH-process verify with `--controls` (180 s wall): verified
+  (38.7 s, of which loads 15.3 s: cryptography 23.4 s); **11 run-level
+  controls refused** (f_e by the counted length — the T128 layout moves),
+  honest still verifies. Evidence `r5/stack-llama3_8b_pg_rot1_b6_T128-ho00-cpu/`.
+- ~21:29 UTC coordinator relay: the independent privacy review
+  (`results/zk60_privacy_review_trained_t32_20261017/REVIEW.md`) found P-1
+  BLOCKING in the frozen R5 `stack-prove` (endpoints sealed from the export's
+  words, so builder / parity refusals happen mid-run after segments exist —
+  ruling H-1; and `statement/` written without a verification — M-9 /
+  D12b(1)), plus P-3 (free `--label`, C-R1/C-R4/C-R5), P-5 (hidden input
+  inside the verifier's export), P-6 (counts / positions in refusals), P-7
+  (backend not in the artifact). To be fixed and frozen as R5b together with
+  review round r4's findings (pending). Work in progress in scratch copies
+  (applied to the working copy only after the queued GPU test build has
+  compiled, so the task-3 GPU arm runs the task-3 tree).
+- Refit, second pass (`r5/refit/refit.py`, `refit_stack.json`): calibrated on
+  the 32-block TRAINED 8B T128 stack (task 4; per-block block wall 11.20 s,
+  light contention): the PLAN's model is within -5.3% of that stack in total
+  (10.60 vs 11.20 s) and within 15% in every group but the commitment
+  (commit 2.72 vs 3.42 s, -21%; zero-checks 5.05 vs 5.10, -1%; inverses -5%;
+  openings +5%; conversion +6%; rest +13%). The stack refit fits the 8B T32
+  stack to -9% and the TinyLlama r3 stacks to +2 / +16 / +12%, but
+  over-predicts the quiet 8B T64 one-block by 31%. So: block cost inside a
+  stack on this shared laptop is ~37% above a quiet one-block run (8.15 s),
+  the commitment being the most contention-sensitive phase; the T-scaling
+  (T64 -> T128 x1.91 one-block) agrees with the model everywhere.
+- Projection re-run with both refits (`r5/refit/projection_output_{stack,onebl}.txt`,
+  copies of the plan's scripts, `G0` and the per-layer load made overridable;
+  load per layer per pass = R5's measured 0.49 s instead of 2.5 s): the
+  roofline columns are unchanged (counted bytes); section-5 anchored central
+  at T512: S0 today's code 0.62 (plan) -> 0.59 (stack refit) / 0.80
+  (one-block refit); S3 whole prover on the GPU 6.89 -> 6.61 / 8.56; S5 with
+  triangle + zkAttn 9.36 -> 9.38 / 11.83 positions/s. 8B laptop CPU cold pass
+  at T128: 470 s modelled (stack refit, R5 loads) vs 487 s measured (task 4).
+  The plan's verdict stands: 50 positions/s needs the roofline regime.
+- 21:44-21:48 UTC `t3-gpu-testbuild` (191 s): it compiled the working copy
+  AFTER the R5b edits were applied (21:42), so the GPU test binary
+  (`r5/ladder8b-testbin/lib-test.gpu`, sha256 in `binaries.sha256`) carries the
+  R5b CLI code; the ladder test exercises only the library prover, which R5b
+  does not touch.
+- 21:48-21:52 UTC **task 3, generic 8B block at T64, GPU arm** (`r5/ladder8b-T64-gpu/`,
+  `HL_GPU=1 HL_GPU_REQUIRED=1`, "gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU",
+  0 declines, controls skipped by design): witness 1.57 s, prove 7.66 s, verify
+  from bytes 1.63 s, segment 21,697,592 B (= the CPU arm's), peak RSS 2.38 GiB,
+  **peak VRAM 4,417 MiB — OVER the lane's 4 GiB limit** (coordinator flag,
+  21:53). Reading: at T64 both encoded matrices (A 3229 x 32768 x 8 B = 846
+  MB, H 926 MB) stay under `HL_GPU_CHUNK_BYTES` (1 GiB) and so ride the
+  RESIDENT path, plus their data rows and the context. At T128 the default
+  would chunk (1.78 / 1.99 GB encodings), but the T128 GPU arm is NOT run as
+  queued: at 21:53 I made `lib-test.gpu` non-executable so the chain's queued
+  `r5_ladder.sh 128 gpu` fails at exec without touching the GPU (a queued
+  guard cannot be stopped from this session). Next: re-run T64 with the
+  chunked path forced (`HL_ZK_CHUNK=force`, same proof bytes per cuda.rs),
+  read its peak, and run T128 forced only if that peak projects <= 4 GiB.
+
+### R5b (privacy review P-1, P-3, P-5, P-6, P-7; review r4 pending)
+
+Applied to the working copy at 21:42 UTC (developed in scratch copies, the
+pre-edit tree is `r5/manifest_before_r5b.json`, tree beb54f9d...): files
+`trained_block.rs`, `trained_block_tests.rs`, `trained_stack_tests.rs`,
+`examples/zk60_trained_block.rs` (usage text only).
+
+- **P-1 (a), ruling H-1 — refusal before the header.** `stack-prove` now runs
+  ONE digest-and-sealing pass before anything of the run exists
+  (`seal_and_record`): per layer, the full checked load and digest (the
+  next layer's load beside the current witness build, two blocks resident),
+  the witness BUILT by the witness builder from the previous block's output
+  (its refusals), and parity against the export's `x_out` at EVERY layer;
+  block 0's input plane must equal the export's `x_in`. Only then are the
+  endpoints (the builder's own first-input / last-output planes) committed,
+  the run statement bound and the run directory created. The witnesses are
+  kept for the proving pass up to `--witness-cache-gib` (default 4); any
+  not kept is rebuilt from its sealed input and refused, loudly, unless its
+  output is the sealed one (`StackSource::witness_of`). The R3-1 speed gain
+  is kept (one witness build per block when the budget holds them).
+- **P-1 (b), M-9 / D12b(1) — a statement only after a verification.** With
+  `--verify-in-process` the statement goes to `<out>/statement/` after the
+  in-process verify; WITHOUT it (the default) the prover's statement goes
+  BESIDE the run, `<out>.unverified-statement/` (+ `UNVERIFIED.txt`), and
+  `stack-verify` promotes it to `<out>/statement/` only after its
+  fresh-process verification (and `--controls`, if asked) passed, after
+  checking that statement.json carries its own identity / context / policy
+  and that segments.json names every verified segment by length and SHA-256
+  (one rename). A failed run's removal is now checked (`fail_run`: a failed
+  removal is reported in the refusal and on stderr).
+- **P-3 / C-R4, C-R1:** `--label` admits only the deployment constant
+  (`zk60-trained-stack`, `zk60-trained-block`), refused by name otherwise, on
+  the provers and the verifiers; the two context hashes refuse a 40-byte
+  input (C-R1; two unkeyed call sites kept, as the s25 census records).
+  C-R5 holds by code (no tagged commitment on an unkeyed device path).
+- **P-5:** `--seq-dir DIR` (a prover-private directory outside the export) as
+  the alternative to `--seq ID`; BOTH verifiers refuse an export directory
+  holding any `seq_*` entry ("hand the verifier a copy of the public files").
+  Real-export verifier copies (plain copies, no hard links to another lane's
+  inodes) for the re-runs: `r5b/verifier-exports/` (8.8 GB, disposable;
+  not evidence).
+- **P-6 / K-2:** parity refusals carry no count, position or value (the
+  stack names the layer only); sequence-file refusals print no digest or size.
+- **P-7:** `statement.json` (block and stack) records `backend`
+  (`gpu::label()`), `gpu_declines`, and (stack) `prover_verified_in_process`.
+- Tests: `trained_stack_tests` (free label refused before anything exists;
+  default run writes only the unverified statement; a verifier refuses the
+  seq-holding export; a wrong pin, a shorter range and a tampered
+  segments.json do not promote; `--controls` verification promotes; the
+  promoted run re-verifies; `--verify-in-process` + `--seq-dir`; an
+  inadmissible chain (layer-1 parity) refused with NO run directory and no
+  statement; the lie control leaves no statement anywhere; the r3_6 cases),
+  `trained_block_tests` (parity text, verifier copy, label, both / one of
+  --seq and --seq-dir, backend in statement.json).
+- 21:52-21:57 UTC `r5b-check1` (guarded release lib build + the touched
+  tests: trained_block_tests, trained_stack_tests, review_e, s25_tests,
+  cs_port_tests, review_r3_6, trained_calib_tests): **36 passed, 0 failed, 4
+  ignored (heavy)**. The full suite and the R5b freeze wait for review r4's
+  findings (coordinator).
+- 21:58-22:00 UTC **review round r4** (`results/zk60_d24_review_20261017/R4_VERDICT.md`,
+  read 21:58): R5 ACCEPTED on soundness; r3_3 and r3_6 CLOSED; N-r4-b (the
+  geometry-only `fit_the_shape`) accepted. Folded into R5b:
+  - **r4_A (verifier DoS, new in R5):** `load_array_checked` now checks the
+    manifest's dtype and shape against the code's expected alternatives
+    BEFORE any read, bounds the manifest size by `MAX_ARRAY_BYTES`, and reads
+    with the EXACT length (refused from metadata otherwise), on the digest,
+    reload, RoPE and sequence paths. Test
+    `trained_block_tests::review_r4_a_an_oversized_or_misdeclared_array_is_refused_before_it_is_read`
+    (255 MiB sparse arrays refused by name, layer named, < 5 s; reload path
+    too; a misdeclared wk shape refused before the read).
+  - **r4_B (pre-existing race):** `run::read_regular_file_bounded` (the
+    segment reader's discipline: lstat type / length before the open,
+    `O_NOFOLLOW | O_NONBLOCK`, fstat re-check, `take(max + 1)`, length
+    re-check) now backs `trained_block::read_bounded` (every export /
+    artifact file) and `mvp_driver`'s `read_bounded` and its artifact segment
+    scan. Test `run_tests::review_r4_b_the_bounded_file_reader_refuses_before_opening_or_reading`.
+  - **N-r4-e:** array-load refusals name the layer.
+  - N-r4-a (statement without verification) is P-1 (b) above.
+- 22:00 UTC queued `r5b-suite1` (full release suite, `--no-fail-fast`;
+  source manifest `r5/manifest_r5b-suite1.json`, tree 0a07d19a...).
+- 22:12-22:29 UTC **`r5b-suite1` GREEN** (guarded full release suite,
+  `--no-fail-fast`, 1,066 s, peak RSS 4.95 GiB; started after the last edit
+  of 22:00; source tree 0a07d19a... = `r5/manifest_r5b-suite1.json`): **29
+  targets, 692 passed, 0 failed, 31 ignored** (lib 547 / 0 / 31). Includes
+  the frozen toy pins and archived receipts, the CS ports, the r3_6 / r4_A /
+  r4_B regressions, the P-1 / P-3 / P-5 / P-6 / P-7 CLI tests, the
+  s24 / s25 / s33 registry and census tests over the two new 8B profiles, and
+  the ladder8b counted-layout and no-wrap tests.
+
+**R5b tree frozen for review at 2026-10-17T22:30:00Z, sha256 manifest `results/zk60_1b_native_20261017/r5b/manifest_frozen.json`** (tree 0a07d19aa821f20c2d80b9a27168ab84b94ae14dbd8331596085a488c1f2950c; source copy `r5b/frozen-tree/`, equal to the working copy; `r5b/FROZEN.txt`; every change against the R5 freeze in `r5b/r5b-vs-r5.patch`, 2,000 lines, 12 files: the R5b privacy / r4 fixes AND the task-3 8B T64 / T128 profiles + `ladder8b_tests`, which are PENDING INDEPENDENT REVIEW).
+- 22:51-22:53 UTC R5b CLIs built from the frozen tree (source manifest after
+  the builds = 0a07d19a...): `r5b/zk60_trained_block.release.bin` sha256
+  1a341478..., `.gpu.release.bin` 1c5ca1d1... (`r5b/binaries.sha256`); both
+  carry the R5b refusal texts.
+- 22:52-22:58 UTC **Llama-3-8B T32 ho00 stack on R5b, CPU**
+  (`r5b/stack-llama3_8b_pg_rot1_T32-ho00-cpu/`) [MEASURED, shared box n=1: a
+  calibration `light` job live]: the sealing pass (load + digest + witness +
+  parity, BEFORE the header) 37.2 s, all 32 witnesses kept (3.03 GB of the 4
+  GiB budget); identity **259dad7c...**, receipt 465,815,776 B, **all 32
+  segment lengths = R4's**; proving pass 154.4 s (block reloads 19.1 s, no
+  witness rebuilt, proofs 135.3 s); **total wall 192.0 s** (R5 cli3: 171.6 s
+  — the difference is in the proofs, 135 vs 119 s, with the light job live;
+  the sealing pass costs what the R5 digest pass + witness pass cost, 37.2 vs
+  36.7 s); peak RSS 4.73 GiB (the kept witnesses; R5 2.04). The prover wrote
+  only `run.unverified-statement/`. Fresh-process verify from the verifier's
+  copy of the export (no seq_*; 142 s wall): verified (32.2 s, loads 17.0 s),
+  **11 run-level controls refused**, honest still verifies, and the statement
+  was PROMOTED to `run/statement/` (the unverified directory is gone).
+- 22:58-23:00 UTC TinyLlama T32 ho00 stack on R5b, CPU
+  (`r5b/stack-pg_rot1_b4_T32_cal128-ho00-cpu/`) [shared box n=1]: identity
+  **9b71dfb0...** (unchanged), receipt 250,855,088 B, sealing pass 6.8 s, 22
+  witnesses kept, total wall 65.7 s, peak RSS 2.18 GiB; fresh verify from the
+  verifier's copy: verified, 11 controls refused, statement promoted.

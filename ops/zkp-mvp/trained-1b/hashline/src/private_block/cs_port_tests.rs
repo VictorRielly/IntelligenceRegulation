@@ -196,15 +196,25 @@ fn cs6_the_run_prover_and_verifiers_refuse_blocks_that_are_not_the_statements() 
     let nowhere = std::env::temp_dir().join(format!("cs6-no-such-dir-{}", std::process::id()));
     let e = run::verify_run_from_dir(&st, &[y], &nowhere).err().unwrap();
     assert!(e.contains("ruling CS-6"), "{e}: the streaming verifier read the directory first");
-    // the control: the statement's own block
-    let (_, owners) = prepare_endpoints(IoSpec::new_shaped(&g, ctx(), 0, 0).unwrap(), &plane(&g, &w, A_X), &plane(&g, &w, A_X2)).unwrap();
+    // the control: the statement's own block. The endpoint owners of the
+    // first `prepare_endpoints` were consumed by the refused run above, and
+    // fresh owners commit under fresh randomness (other roots), so the
+    // control's statement is built from THEIR expected policy (R5 suite
+    // 19:02 UTC: reusing `st` gave "expected endpoint root mismatch" — the
+    // test's own error, not the prover's)
+    let (expected2, owners) = prepare_endpoints(IoSpec::new_shaped(&g, ctx(), 0, 0).unwrap(), &plane(&g, &w, A_X), &plane(&g, &w, A_X2)).unwrap();
+    let st2 = RunStatement::new(RunShape::rung_g(1).unwrap(), ctx(), expected2, &[x.clone()], &[(0, 0)]).unwrap();
     let mut segs = Vec::new();
-    run::prove_run(&st, &[x.clone()], &mut Counting { w: Some(w), asked: 0 }, owners, &mut |_, b| {
+    run::prove_run(&st2, &[x.clone()], &mut Counting { w: Some(w), asked: 0 }, owners, &mut |_, b| {
         segs.push(b);
         Ok(())
     })
     .expect("the statement's own block proves");
-    run::verify_run(&st, &[x], &segs).expect("and verifies");
+    run::verify_run(&st2, &[x.clone()], &segs).expect("and verifies");
+    // and the verifiers still refuse Y under the statement over X with the
+    // honest segments in hand
+    assert!(run::verify_run(&st2, &[BlockPublic::new(super::dense_tests::dense_case(&g).0, super::dense_tests::dense_case(&g).1)], &segs).err().unwrap().contains("ruling CS-6"));
+    let _ = expected;
 }
 
 // ------------------------------------------------------------------ CS-7

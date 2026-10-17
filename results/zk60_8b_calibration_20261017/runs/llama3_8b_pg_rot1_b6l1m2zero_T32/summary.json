@@ -1,0 +1,1086 @@
+{
+ "args": {
+  "T": 32,
+  "calib_T": null,
+  "calib_per": 3,
+  "check_against": "/home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_T32",
+  "chunk": 8,
+  "export": false,
+  "export_name": null,
+  "export_seqs": 2,
+  "fw_calib": 27,
+  "fw_heldout": 36,
+  "heldout_per": 0,
+  "iso_seqs": 12,
+  "l1_mode": "m2zero",
+  "layers": null,
+  "link_from": null,
+  "profile_from": "/home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/runs/llama3_8b_pg_rot1_T32/prepass.json",
+  "rotate": 1,
+  "site_seqs": 3,
+  "synthetic": false,
+  "tag": "b6l1m2zero",
+  "tokenizer": "/home/victor/IntelligenceRegulation/local-models/zk60-llama3-8b/tokenizer.json",
+  "variant": "pg"
+ },
+ "by_domain": {
+  "fineweb-edu": {
+   "head_accepted": null,
+   "head_all_diagnostic": {
+    "kl_float_to_int_mean": 0.548647746683167,
+    "positions": 1116,
+    "ppl_float": 18.850542434299516,
+    "ppl_int": 29.868595852208056,
+    "sequences": 36,
+    "top1_agreement": 0.6854838709677419
+   },
+   "refused": 36,
+   "sequences": 36
+  }
+ },
+ "calib_sequences": [
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "45c8639fa9176e0f",
+   "source": "/usr/share/common-licenses/GPL-3"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 2475,
+   "sha256": "3f44a1972ff7fea7",
+   "source": "/usr/share/common-licenses/GPL-3"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 4950,
+   "sha256": "70ef60ada7548015",
+   "source": "/usr/share/common-licenses/GPL-3"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "68bd40505af50fa9",
+   "source": "/usr/share/common-licenses/GFDL-1.3"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1626,
+   "sha256": "0d38587efc6a48a5",
+   "source": "/usr/share/common-licenses/GFDL-1.3"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 3252,
+   "sha256": "5946f888b861727f",
+   "source": "/usr/share/common-licenses/GFDL-1.3"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "3de6867e48eed29c",
+   "source": "/usr/share/common-licenses/MPL-2.0"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1129,
+   "sha256": "b2cdaa8029a780b5",
+   "source": "/usr/share/common-licenses/MPL-2.0"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 2258,
+   "sha256": "029e0e84aad8dd09",
+   "source": "/usr/share/common-licenses/MPL-2.0"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "178594b5ee22a6ef",
+   "source": "python3.10 stdlib docstrings: argparse"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 524,
+   "sha256": "d020c27316083935",
+   "source": "python3.10 stdlib docstrings: argparse"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1048,
+   "sha256": "cafbe6bc0f014b1e",
+   "source": "python3.10 stdlib docstrings: argparse"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "0edcff8dec83a097",
+   "source": "python3.10 stdlib docstrings: collections/__init__"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 461,
+   "sha256": "3d1f027fc9881952",
+   "source": "python3.10 stdlib docstrings: collections/__init__"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 922,
+   "sha256": "96aa6fc40b064388",
+   "source": "python3.10 stdlib docstrings: collections/__init__"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "ae56a050d71096c2",
+   "source": "python3.10 stdlib docstrings: textwrap"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 463,
+   "sha256": "36f13f38cf961b2f",
+   "source": "python3.10 stdlib docstrings: textwrap"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 926,
+   "sha256": "5718103984454ea0",
+   "source": "python3.10 stdlib docstrings: textwrap"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "b197f5bf353206c2",
+   "source": "python3.10 stdlib docstrings: logging/__init__"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1169,
+   "sha256": "c307a13bca7cd9dc",
+   "source": "python3.10 stdlib docstrings: logging/__init__"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 2338,
+   "sha256": "4751717c7b51c734",
+   "source": "python3.10 stdlib docstrings: logging/__init__"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "e5536ec4da41b344",
+   "source": "python3.10 stdlib docstrings: subprocess"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 687,
+   "sha256": "4cb672bf01f9f41a",
+   "source": "python3.10 stdlib docstrings: subprocess"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1374,
+   "sha256": "518a03966ec6e798",
+   "source": "python3.10 stdlib docstrings: subprocess"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "0b4227282ab59969",
+   "source": "python3.10 stdlib docstrings: typing"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1725,
+   "sha256": "3ca63f23b8cf191b",
+   "source": "python3.10 stdlib docstrings: typing"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 3450,
+   "sha256": "14aeb8ad2eff7cfc",
+   "source": "python3.10 stdlib docstrings: typing"
+  },
+  {
+   "doc_id": "<urn:uuid:0d8a309d-25c5-405d-a08a-c11239f0d717>",
+   "domain": "fineweb-edu",
+   "row": 0,
+   "row_group": 0,
+   "sha256": "cf1383aa620ef2ea",
+   "source": "fineweb-edu",
+   "url": "http://austenauthors.net/the-independent-jane"
+  },
+  {
+   "doc_id": "<urn:uuid:316c7af5-14e1-4d0b-9576-753e17ef2cc5>",
+   "domain": "fineweb-edu",
+   "row": 1,
+   "row_group": 0,
+   "sha256": "aac7a456d02651dd",
+   "source": "fineweb-edu",
+   "url": "http://query.nytimes.com/gst/fullpage.html?res=9404E7DA1339F934A25751C0A96E9C8B63&scp=2&sq=taking%20play%20seriously&st=cse"
+  },
+  {
+   "doc_id": "<urn:uuid:a3e140cd-7f25-48c9-a2f0-a7d0b1954e0d>",
+   "domain": "fineweb-edu",
+   "row": 2,
+   "row_group": 0,
+   "sha256": "38d0dac07841b271",
+   "source": "fineweb-edu",
+   "url": "http://www.childline.org.uk/Explore/SexRelationships/Pages/HIVAIDS.aspx"
+  },
+  {
+   "doc_id": "<urn:uuid:c337bcd8-6aa1-4f2d-8c48-b916442ebbee>",
+   "domain": "fineweb-edu",
+   "row": 3,
+   "row_group": 0,
+   "sha256": "f28e493073ff92fb",
+   "source": "fineweb-edu",
+   "url": "http://www.ctt.org/resource_centre/getting_started/learning/understanding_licenses"
+  },
+  {
+   "doc_id": "<urn:uuid:c0b175bb-65fb-420e-a881-a80b91d00ecd>",
+   "domain": "fineweb-edu",
+   "row": 4,
+   "row_group": 0,
+   "sha256": "70b98094a33f56e2",
+   "source": "fineweb-edu",
+   "url": "http://www.environment.ucla.edu/water/news/article.asp?parentid=6178"
+  },
+  {
+   "doc_id": "<urn:uuid:373cc951-d17e-4d57-b0f5-122effe3a054>",
+   "domain": "fineweb-edu",
+   "row": 5,
+   "row_group": 0,
+   "sha256": "1fec4e95fb2c948a",
+   "source": "fineweb-edu",
+   "url": "http://bayweekly.com/old-site/year99/issue7_40/kids7_40.html"
+  },
+  {
+   "doc_id": "<urn:uuid:78cbe1bd-1849-4138-b59a-5521e93122a3>",
+   "domain": "fineweb-edu",
+   "row": 6,
+   "row_group": 0,
+   "sha256": "c8af223a2a57beb2",
+   "source": "fineweb-edu",
+   "url": "http://phys.org/news4969.html"
+  },
+  {
+   "doc_id": "<urn:uuid:a63f6870-f496-4355-adfd-f3296c1577e5>",
+   "domain": "fineweb-edu",
+   "row": 7,
+   "row_group": 0,
+   "sha256": "fb4aac017189c767",
+   "source": "fineweb-edu",
+   "url": "http://www.bbc.co.uk/news/world-latin-america-12292661"
+  },
+  {
+   "doc_id": "<urn:uuid:0428aaca-1b84-4407-9b6f-93b230a692b3>",
+   "domain": "fineweb-edu",
+   "row": 8,
+   "row_group": 0,
+   "sha256": "b4570f529978fc5e",
+   "source": "fineweb-edu",
+   "url": "http://www.mc.vanderbilt.edu/lens/article/?id=110&pg=999"
+  },
+  {
+   "doc_id": "<urn:uuid:6665d40b-fee1-4353-8a03-3268af4a76bb>",
+   "domain": "fineweb-edu",
+   "row": 9,
+   "row_group": 0,
+   "sha256": "1a5a2558692a8505",
+   "source": "fineweb-edu",
+   "url": "http://apod.nasa.gov/apod/ap120623.html"
+  },
+  {
+   "doc_id": "<urn:uuid:d55ba202-34fa-4fe6-b6ae-698c282eb244>",
+   "domain": "fineweb-edu",
+   "row": 10,
+   "row_group": 0,
+   "sha256": "ceed62fdac6712d2",
+   "source": "fineweb-edu",
+   "url": "http://www.readwritethink.org/about/community-stories/using-think-alouds-inside-36.html"
+  },
+  {
+   "doc_id": "<urn:uuid:be22c535-4fcb-4d7e-9507-2ace71b51909>",
+   "domain": "fineweb-edu",
+   "row": 11,
+   "row_group": 0,
+   "sha256": "6d0a14cca29e34a6",
+   "source": "fineweb-edu",
+   "url": "http://www.royalty.nu/Europe/England/Stuart/JamesII.html"
+  },
+  {
+   "doc_id": "<urn:uuid:3cd46b83-2936-49a0-9b1f-a7fc2baa9e50>",
+   "domain": "fineweb-edu",
+   "row": 12,
+   "row_group": 0,
+   "sha256": "4a1f7029e4f9cf4e",
+   "source": "fineweb-edu",
+   "url": "http://www.rwjf.org/en/about-rwjf/program-areas/childhood-obesity/strategy/policy-priority-pricing-strategies.html?t=topics%3A499&t=topics%3A260&t=topics%3A1813"
+  },
+  {
+   "doc_id": "<urn:uuid:672e69ee-fd10-42dc-8e01-f4fde95914a0>",
+   "domain": "fineweb-edu",
+   "row": 13,
+   "row_group": 0,
+   "sha256": "dab44cdfa5aaabde",
+   "source": "fineweb-edu",
+   "url": "http://chnm.gmu.edu/wwh/modules/lesson5/lesson5.php?menu=1&c=strategies&s=0"
+  },
+  {
+   "doc_id": "<urn:uuid:c63d3de8-6d63-4687-b45d-41b137a97594>",
+   "domain": "fineweb-edu",
+   "row": 14,
+   "row_group": 0,
+   "sha256": "ba74860700ec31b5",
+   "source": "fineweb-edu",
+   "url": "http://www.jhsph.edu/news/news-releases/2012/lee-autism-prevalence.html"
+  },
+  {
+   "doc_id": "<urn:uuid:c183066d-32a9-42eb-91b6-191fdb0980c2>",
+   "domain": "fineweb-edu",
+   "row": 15,
+   "row_group": 0,
+   "sha256": "da69c3876add689a",
+   "source": "fineweb-edu",
+   "url": "http://judithlarnerlowry.blogspot.com/2009/02/simplifying-california-native.html"
+  },
+  {
+   "doc_id": "<urn:uuid:c2dcc337-4538-4bf9-8838-d2005b03e76d>",
+   "domain": "fineweb-edu",
+   "row": 16,
+   "row_group": 0,
+   "sha256": "be2e26f7db98eb69",
+   "source": "fineweb-edu",
+   "url": "http://www.mommytracked.com/node/4457/print"
+  },
+  {
+   "doc_id": "<urn:uuid:cc2f6ff5-32a8-4803-8794-bd3c0c07dc53>",
+   "domain": "fineweb-edu",
+   "row": 17,
+   "row_group": 0,
+   "sha256": "2197a08e0b22a13a",
+   "source": "fineweb-edu",
+   "url": "http://www.newegg.com/Product/CategoryIntelligenceArticle.aspx?articleId=94"
+  },
+  {
+   "doc_id": "<urn:uuid:c9bd6a3e-3426-45f4-8eec-ef2af2ae747f>",
+   "domain": "fineweb-edu",
+   "row": 18,
+   "row_group": 0,
+   "sha256": "b2fdecdfcde7c2da",
+   "source": "fineweb-edu",
+   "url": "http://virtual.cvut.cz/kifb/hindi/concepts/exactly_located.html"
+  },
+  {
+   "doc_id": "<urn:uuid:566c0f69-f932-4d46-abcd-00f058076cf6>",
+   "domain": "fineweb-edu",
+   "row": 19,
+   "row_group": 0,
+   "sha256": "060e2e2ef8677976",
+   "source": "fineweb-edu",
+   "url": "http://www.artofiaido.com/etiquette"
+  },
+  {
+   "doc_id": "<urn:uuid:8026eb8e-2045-4425-bfb5-1eb355f7472a>",
+   "domain": "fineweb-edu",
+   "row": 20,
+   "row_group": 0,
+   "sha256": "289b9fce00d50845",
+   "source": "fineweb-edu",
+   "url": "http://www.crosswordpuzzlehelp.net/old/dictionary.php?q=Spanish%20nectarine"
+  },
+  {
+   "doc_id": "<urn:uuid:4fafe4c1-2dd0-49fd-8b1b-41d1829f7cdf>",
+   "domain": "fineweb-edu",
+   "row": 21,
+   "row_group": 0,
+   "sha256": "fc75646949c2fbd5",
+   "source": "fineweb-edu",
+   "url": "http://www.funderstanding.com/category/child-development/brain-child-development/"
+  },
+  {
+   "doc_id": "<urn:uuid:5bf543a8-f7b4-40fe-ba47-2b49b4e5396f>",
+   "domain": "fineweb-edu",
+   "row": 22,
+   "row_group": 0,
+   "sha256": "27d0dbe8501ac8e6",
+   "source": "fineweb-edu",
+   "url": "http://www.indiasurgerytour.com/india-eye-surgery/india-surgery-ptosis-correction.html"
+  },
+  {
+   "doc_id": "<urn:uuid:f8131c7f-1b2a-41bd-9eaa-951dad06e313>",
+   "domain": "fineweb-edu",
+   "row": 23,
+   "row_group": 0,
+   "sha256": "4c06c2572988a53d",
+   "source": "fineweb-edu",
+   "url": "http://physical-therapy.advanceweb.com/Article/One-Legged-Single-Limb-Stance-Test.aspx"
+  },
+  {
+   "doc_id": "<urn:uuid:9dafa879-7f20-47af-9000-4507980185f0>",
+   "domain": "fineweb-edu",
+   "row": 24,
+   "row_group": 0,
+   "sha256": "75199823877e9e44",
+   "source": "fineweb-edu",
+   "url": "http://portsmouthhospital.com/your-health/?/19601/Next"
+  },
+  {
+   "doc_id": "<urn:uuid:c9d71a03-1a5c-4380-b591-b22abec06ba2>",
+   "domain": "fineweb-edu",
+   "row": 25,
+   "row_group": 0,
+   "sha256": "8e80ab9e8b683b50",
+   "source": "fineweb-edu",
+   "url": "http://www.edcc.edu/engr/default.php?showflash=1"
+  },
+  {
+   "doc_id": "<urn:uuid:6cd796d0-6c60-4c49-88fe-b887ea27aa1d>",
+   "domain": "fineweb-edu",
+   "row": 26,
+   "row_group": 0,
+   "sha256": "8e7bd579c0dde53a",
+   "source": "fineweb-edu",
+   "url": "http://www.flintsciencefair.org/students.php"
+  }
+ ],
+ "calibration": {
+  "T_cal": 32,
+  "sequences": 54
+ },
+ "check_against": {
+  "export": "/home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_T32",
+  "layers_with_different_words": {}
+ },
+ "checkpoint_identity": {
+  "config_sha256": "2430cee764b6530ff8673cf9ba8561e1d5a33152d503cd0de909ff5718261441",
+  "schema": "zk60-llama-layer-inventory/1",
+  "shard_sha256": {
+   "model-00001-of-00004.safetensors": "f2c144103072514542e327fa8080bd375cb300f2d453fba9ca3aea81d0d4cf33",
+   "model-00002-of-00004.safetensors": "d9eee5f23d94405d90b7e9ff88b9443fee42f8528a658f54214c2aba7530d80c",
+   "model-00003-of-00004.safetensors": "4b8fbc5e113f69768dd8de84661ea20af8a32b734a9976144b4236c447b40ccc",
+   "model-00004-of-00004.safetensors": "5dc34e6bdf2da9e35f0d93b5c333c870f3677dc43dc3a91ea3a8ad28a1fe1acb"
+  },
+  "tensor_count": 291
+ },
+ "head_accepted": null,
+ "head_all_diagnostic": {
+  "kl_float_to_int_mean": 0.548647746683167,
+  "positions": 1116,
+  "ppl_float": 18.850542434299516,
+  "ppl_int": 29.868595852208056,
+  "sequences": 36,
+  "top1_agreement": 0.6854838709677419
+ },
+ "heldout_first_refusal": [
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 1,
+   "site": "FFN gate"
+  }
+ ],
+ "heldout_refused": 36,
+ "heldout_sequences": [
+  {
+   "doc_id": "<urn:uuid:9fef0930-8fc0-4e9d-8954-f3740b7e4e53>",
+   "domain": "fineweb-edu",
+   "row": 0,
+   "row_group": 1,
+   "sha256": "c2727533fd409fdd",
+   "source": "fineweb-edu",
+   "url": "http://truestarhealth.com/Notes/2828008.html"
+  },
+  {
+   "doc_id": "<urn:uuid:173273e4-382f-474a-b8ea-b1937062a3bb>",
+   "domain": "fineweb-edu",
+   "row": 1,
+   "row_group": 1,
+   "sha256": "1066b6f37214d3ee",
+   "source": "fineweb-edu",
+   "url": "http://www.abc.net.au/science/articles/2011/12/08/3385661.htm?site=science&topic=latest&listaction=unsubscribe"
+  },
+  {
+   "doc_id": "<urn:uuid:a3486fd2-46ef-4111-a3d9-9b592c351b8e>",
+   "domain": "fineweb-edu",
+   "row": 2,
+   "row_group": 1,
+   "sha256": "ec71763d0468ae29",
+   "source": "fineweb-edu",
+   "url": "http://www.devshed.com/c/a/BrainDump/SQL-Functioning-in-the-Real-World/1/"
+  },
+  {
+   "doc_id": "<urn:uuid:77afc505-9f76-48c5-bf38-4b198f81ca90>",
+   "domain": "fineweb-edu",
+   "row": 3,
+   "row_group": 1,
+   "sha256": "c8fda50fbc9c7244",
+   "source": "fineweb-edu",
+   "url": "http://www.lpi.usra.edu/publications/slidesets/geology/sgeo/slide_16.html"
+  },
+  {
+   "doc_id": "<urn:uuid:ea266eaf-7e12-4233-b523-15c37d3e800b>",
+   "domain": "fineweb-edu",
+   "row": 4,
+   "row_group": 1,
+   "sha256": "09a5894b691436ed",
+   "source": "fineweb-edu",
+   "url": "http://www.oxfamamerica.org/articles/feeding-a-nation"
+  },
+  {
+   "doc_id": "<urn:uuid:3fb482ac-1425-4f4f-86d5-2eff0e862e7f>",
+   "domain": "fineweb-edu",
+   "row": 5,
+   "row_group": 1,
+   "sha256": "fd963245ef225612",
+   "source": "fineweb-edu",
+   "url": "http://www.sciencedaily.com/releases/2002/05/020516080752.htm"
+  },
+  {
+   "doc_id": "<urn:uuid:7b7e47d8-9a0d-4eae-b06e-41682ffea156>",
+   "domain": "fineweb-edu",
+   "row": 6,
+   "row_group": 1,
+   "sha256": "8d439ffe8fcb2279",
+   "source": "fineweb-edu",
+   "url": "http://www.slj.com/tag/african-american/"
+  },
+  {
+   "doc_id": "<urn:uuid:a9f0e20e-8f58-4951-b1e7-478068b1acad>",
+   "domain": "fineweb-edu",
+   "row": 7,
+   "row_group": 1,
+   "sha256": "a3d513861ac5ba91",
+   "source": "fineweb-edu",
+   "url": "http://www.kungahuset.se/royalcourt/wedding/hagapalace.4.1a6f639212652d9b15a800015219.html"
+  },
+  {
+   "doc_id": "<urn:uuid:a3ea86cc-8e01-4e3e-8653-92ffa414420b>",
+   "domain": "fineweb-edu",
+   "row": 8,
+   "row_group": 1,
+   "sha256": "e6a981ce293bd0b5",
+   "source": "fineweb-edu",
+   "url": "http://my.firedoglake.com/inoljt/tag/juche/"
+  },
+  {
+   "doc_id": "<urn:uuid:f000983f-9125-4195-8dab-4b4bea4ea403>",
+   "domain": "fineweb-edu",
+   "row": 9,
+   "row_group": 1,
+   "sha256": "5209b94ded11bc80",
+   "source": "fineweb-edu",
+   "url": "http://wikipedia.qwika.com/de2en/Mendelsche_Gesetze"
+  },
+  {
+   "doc_id": "<urn:uuid:eb9e356a-04a6-49a0-ad31-df2cd1664d0d>",
+   "domain": "fineweb-edu",
+   "row": 10,
+   "row_group": 1,
+   "sha256": "05a31e1b101c2b3a",
+   "source": "fineweb-edu",
+   "url": "http://www.nobelprize.org/nobel_prizes/chemistry/laureates/1945/virtanen.html"
+  },
+  {
+   "doc_id": "<urn:uuid:f8b99a72-9e56-4a9e-8292-4c07aac57f23>",
+   "domain": "fineweb-edu",
+   "row": 11,
+   "row_group": 1,
+   "sha256": "e0ff34ebd2fcc1b1",
+   "source": "fineweb-edu",
+   "url": "http://www.reocities.com/Athens/Agora/5685/three.html"
+  },
+  {
+   "doc_id": "<urn:uuid:32de1e19-d1ae-468c-94c6-7ddaebc6d172>",
+   "domain": "fineweb-edu",
+   "row": 12,
+   "row_group": 1,
+   "sha256": "35f84022285e0ee8",
+   "source": "fineweb-edu",
+   "url": "http://www.webmd.com/mental-health/alcohol-abuse/default.htm?src=rsf_full-1840_pub_none_xlnk"
+  },
+  {
+   "doc_id": "<urn:uuid:dec3d600-f093-4b24-86d7-cee44d9a59ee>",
+   "domain": "fineweb-edu",
+   "row": 13,
+   "row_group": 1,
+   "sha256": "e3375f00d7740253",
+   "source": "fineweb-edu",
+   "url": "http://www.consumerfreedom.com/2008/06/3655-childhood-veganism-a-problem-not-a-solution/"
+  },
+  {
+   "doc_id": "<urn:uuid:a7fd1f4c-a983-4328-832f-bbed3a80ced4>",
+   "domain": "fineweb-edu",
+   "row": 14,
+   "row_group": 1,
+   "sha256": "ec36c8514d520488",
+   "source": "fineweb-edu",
+   "url": "http://www.cs.mcgill.ca/~fkaeli/probrem/about.html"
+  },
+  {
+   "doc_id": "<urn:uuid:dae711ed-6fe6-41d2-bc4b-be4fe0791df3>",
+   "domain": "fineweb-edu",
+   "row": 15,
+   "row_group": 1,
+   "sha256": "8d20769da79dcf9a",
+   "source": "fineweb-edu",
+   "url": "http://www.freep.com/article/20130103/OPINION05/130103039/-1/7daysarchives/Guest-commentary-Disarm-filibuster-"
+  },
+  {
+   "doc_id": "<urn:uuid:a769da76-59bc-4b23-8d08-269bdf81bd21>",
+   "domain": "fineweb-edu",
+   "row": 16,
+   "row_group": 1,
+   "sha256": "6a0263de66995834",
+   "source": "fineweb-edu",
+   "url": "http://www.nutribase.com/fwchartm.html"
+  },
+  {
+   "doc_id": "<urn:uuid:7769300f-d8f0-4fc0-84ea-7a2b9b9d3035>",
+   "domain": "fineweb-edu",
+   "row": 17,
+   "row_group": 1,
+   "sha256": "3a130f933afecabc",
+   "source": "fineweb-edu",
+   "url": "http://www.theschoolrun.com/theschoolrun-homepage?qt-worksheet_and_activity_finder=0"
+  },
+  {
+   "doc_id": "<urn:uuid:72358377-646b-4cd3-a2c1-c47616f8a346>",
+   "domain": "fineweb-edu",
+   "row": 18,
+   "row_group": 1,
+   "sha256": "fb86cf082303ed21",
+   "source": "fineweb-edu",
+   "url": "http://deltafarmpress.com/management/30th-milan-no-till-field-day-july-22"
+  },
+  {
+   "doc_id": "<urn:uuid:99f54c3f-ffdc-4ca2-858b-3013dd0354da>",
+   "domain": "fineweb-edu",
+   "row": 19,
+   "row_group": 1,
+   "sha256": "d1f870fa173736b2",
+   "source": "fineweb-edu",
+   "url": "http://www.marconews.com/news/2010/may/27/money-smarts-absorbing-energy-smarts/"
+  },
+  {
+   "doc_id": "<urn:uuid:f58368fe-4f93-409c-b795-4cfb6345ae48>",
+   "domain": "fineweb-edu",
+   "row": 20,
+   "row_group": 1,
+   "sha256": "5b065ada82351d8e",
+   "source": "fineweb-edu",
+   "url": "http://www.nps.gov/history/nr/twhp/wwwlps/lessons/113corinth/113visual5.htm"
+  },
+  {
+   "doc_id": "<urn:uuid:c339e705-48c2-47be-ae5a-bf00d6e80176>",
+   "domain": "fineweb-edu",
+   "row": 21,
+   "row_group": 1,
+   "sha256": "d82a122b72d43d8f",
+   "source": "fineweb-edu",
+   "url": "http://www.zamg.ac.at/docu/Manual/SatManu/CMs/ULL/backgr.htm"
+  },
+  {
+   "doc_id": "<urn:uuid:cf86d721-9945-4fe3-a3be-ada18f364fa7>",
+   "domain": "fineweb-edu",
+   "row": 22,
+   "row_group": 1,
+   "sha256": "a2630e5899e3ece0",
+   "source": "fineweb-edu",
+   "url": "http://askaboutireland.ie/learning-zone/primary-students/looking-at-places/clare/aspects-of-clare/find-out-more/"
+  },
+  {
+   "doc_id": "<urn:uuid:45e0ca9a-c163-49af-9632-4b10f61aef50>",
+   "domain": "fineweb-edu",
+   "row": 23,
+   "row_group": 1,
+   "sha256": "b68cb474cc15f718",
+   "source": "fineweb-edu",
+   "url": "http://diy.lomography.com/projects/industrial-art"
+  },
+  {
+   "doc_id": "<urn:uuid:93feaf50-9706-42f8-8ab8-075443762752>",
+   "domain": "fineweb-edu",
+   "row": 24,
+   "row_group": 1,
+   "sha256": "e0d95d157cb4fe8c",
+   "source": "fineweb-edu",
+   "url": "http://eponline.com/articles/2012/12/18/examining-the-sustainability-journey-of-walmart.aspx"
+  },
+  {
+   "doc_id": "<urn:uuid:eb581ff7-868a-4b9c-8f84-733a2e3eff76>",
+   "domain": "fineweb-edu",
+   "row": 25,
+   "row_group": 1,
+   "sha256": "2c8a1fab10087874",
+   "source": "fineweb-edu",
+   "url": "http://patients.aan.com/resources/neurologynow/index.cfm?event=home.showArticle&id=ovid.com%3A%2Fbib%2Fovftdb%2F01222928-200602010-00012"
+  },
+  {
+   "doc_id": "<urn:uuid:10e68a06-806e-4d02-a069-a49776a0ea9f>",
+   "domain": "fineweb-edu",
+   "row": 26,
+   "row_group": 1,
+   "sha256": "77dc89e663c24c18",
+   "source": "fineweb-edu",
+   "url": "http://www.dealchicken.com/appleton-wi/trivia"
+  },
+  {
+   "doc_id": "<urn:uuid:4ff3da47-078a-4ee4-b882-f23110960487>",
+   "domain": "fineweb-edu",
+   "row": 27,
+   "row_group": 1,
+   "sha256": "3585dc5dfa191c5e",
+   "source": "fineweb-edu",
+   "url": "http://www.monticello.org/getting-word/stories/racial-prejudice"
+  },
+  {
+   "doc_id": "<urn:uuid:c71c1a01-b722-41d4-aac2-009fd7362c0e>",
+   "domain": "fineweb-edu",
+   "row": 28,
+   "row_group": 1,
+   "sha256": "b50f358715c9d32e",
+   "source": "fineweb-edu",
+   "url": "http://www.nap.edu/openbook.php?record_id=12184&page=212"
+  },
+  {
+   "doc_id": "<urn:uuid:6d2fc9ae-f36c-4779-8f8c-44613e252d5a>",
+   "domain": "fineweb-edu",
+   "row": 29,
+   "row_group": 1,
+   "sha256": "149fb50cebba98f2",
+   "source": "fineweb-edu",
+   "url": "http://www.thetakeaway.org/2011/may/11/man-vs-nature-along-mississippi-delta/"
+  },
+  {
+   "doc_id": "<urn:uuid:3114b571-b362-4893-8499-bad693d23367>",
+   "domain": "fineweb-edu",
+   "row": 30,
+   "row_group": 1,
+   "sha256": "f14a34e5c985fa8e",
+   "source": "fineweb-edu",
+   "url": "http://wikitravel.org/en/South_Florida"
+  },
+  {
+   "doc_id": "<urn:uuid:9cceece3-5a0f-46b8-bb16-f18d460378b6>",
+   "domain": "fineweb-edu",
+   "row": 31,
+   "row_group": 1,
+   "sha256": "c2ed531b9cdeb600",
+   "source": "fineweb-edu",
+   "url": "http://www.aaamath.com/B/g68_tix1.htm"
+  },
+  {
+   "doc_id": "<urn:uuid:8b6521bd-9813-403c-95f6-88d37bce7acb>",
+   "domain": "fineweb-edu",
+   "row": 32,
+   "row_group": 1,
+   "sha256": "9785ddb86af91ebd",
+   "source": "fineweb-edu",
+   "url": "http://www.forbes.com/sites/nathanlewis/2011/10/13/flat-tax-vs-fair-tax-vs-herman-cains-9-9-9-plan/"
+  },
+  {
+   "doc_id": "<urn:uuid:d75f1701-4d0b-4ddc-a468-f8ddfc6a165e>",
+   "domain": "fineweb-edu",
+   "row": 33,
+   "row_group": 1,
+   "sha256": "d471baafbec41bb4",
+   "source": "fineweb-edu",
+   "url": "http://archpedi.jamanetwork.com/article.aspx?articleid=189208"
+  },
+  {
+   "doc_id": "<urn:uuid:f45b504b-6d0e-4920-abee-5ddce87aed4d>",
+   "domain": "fineweb-edu",
+   "row": 34,
+   "row_group": 1,
+   "sha256": "cad458773e026015",
+   "source": "fineweb-edu",
+   "url": "http://ecmweb.com/bonding-amp-grounding/guidelines-grounding-and-bonding-telecom-systems"
+  },
+  {
+   "doc_id": "<urn:uuid:e5e05c02-34bb-4ef1-9472-197eea5d1ad7>",
+   "domain": "fineweb-edu",
+   "row": 35,
+   "row_group": 1,
+   "sha256": "254a279cbca7829d",
+   "source": "fineweb-edu",
+   "url": "http://www.sciencedaily.com/releases/2008/10/081009185032.htm"
+  }
+ ],
+ "l1_mode": "m2zero",
+ "model": {
+  "licence": "Meta Llama 3 Community License: LICENSE (sha256 475211637354ce4c...) and USE_POLICY.md (sha256 003513f595a20b7d...) from the pinned revision, copied into each export with NOTICE",
+  "name": "Llama-3-8B (Meta Llama 3)",
+  "repo": "NousResearch/Meta-Llama-3-8B",
+  "revision": "315b20096dc791d381d514deb5f8bd9c8d6d3061",
+  "shards_sha256": {
+   "model-00001-of-00004.safetensors": "f2c144103072514542e327fa8080bd375cb300f2d453fba9ca3aea81d0d4cf33",
+   "model-00002-of-00004.safetensors": "d9eee5f23d94405d90b7e9ff88b9443fee42f8528a658f54214c2aba7530d80c",
+   "model-00003-of-00004.safetensors": "4b8fbc5e113f69768dd8de84661ea20af8a32b734a9976144b4236c447b40ccc",
+   "model-00004-of-00004.safetensors": "5dc34e6bdf2da9e35f0d93b5c333c870f3677dc43dc3a91ea3a8ad28a1fe1acb"
+  }
+ },
+ "profile": {
+  "cn_a": 2266,
+  "cn_m": 1557,
+  "e_s": null,
+  "s_in": [
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673
+  ],
+  "s_out": [
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673,
+   0.0007218075296274673
+  ],
+  "shifts": {
+   "ao": 3,
+   "g": 8,
+   "h": 14,
+   "o": 9,
+   "qkv": 8,
+   "rope": 7,
+   "s": 6,
+   "u": 0,
+   "z": 5
+  },
+  "silu": null
+ },
+ "profile_from": "/home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/runs/llama3_8b_pg_rot1_T32/prepass.json",
+ "seconds": 2183.7918870449066,
+ "tokenizer": {
+  "bos": 128000,
+  "kind": "tokenizers BPE tokenizer.json",
+  "path": "/home/victor/IntelligenceRegulation/local-models/zk60-llama3-8b/tokenizer.json",
+  "sha256": "e134af98b985517b4f068e3755ae90d4e9cd2d45d328325dc503f1c6b2d06cc7"
+ },
+ "tool_sha256": {
+  "b3_ladder.py": "13675c3b7797bd65b1954b2cee922381333c0ecc323dd3b1be9e8be8e8b16f0b",
+  "b3calib.py": "f000ba5140f628587b83f207a3b08ac562da85ef1e2582de7a06a9db0267313f",
+  "b5_8b.py": "1dcd0932b77ae7ba207b1599b973c26eab23b3ef90802c53a6f97eaf7b578d8f",
+  "corpus.py": "273e4ef41f8b18fb14b0e3568f9825ba6c0d4c09e08ebfad323c6c77543ba7f6",
+  "corpus4.py": "1b3b08ca070391d76e8b8b91f3a5a7247d567553052085e9dd0f139f7f51da0c",
+  "tlcalib.py": "cb587ac669af50d78e36556bd0f18d9317318de666a072b2fd21a02c89c2466a"
+ },
+ "variant": "llama3_8b_pg_rot1_b6l1m2zero_T32",
+ "variant_options": {
+  "cn_max": 1048576,
+  "f_e": 9,
+  "f_p": 9,
+  "margin": 0.5,
+  "margin_ch": 3.0,
+  "margin_pow2": 0.25,
+  "name": "pg",
+  "norm_cn": "profile",
+  "o16": false,
+  "residual": "global",
+  "rotate": 1,
+  "s16": false,
+  "shapes": [
+   "range",
+   "smooth",
+   "gamma"
+  ],
+  "shifts": "profile",
+  "tables": "layer",
+  "tn": 9
+ }
+}

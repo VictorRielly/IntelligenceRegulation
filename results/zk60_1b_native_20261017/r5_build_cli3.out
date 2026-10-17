@@ -1,0 +1,31 @@
+/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/manifest_cli3.json: 217 files, tree d67fae7ef3d03bb6a30c89880ac41b6e4543b7f8b5df8040c8a29ba7404df952
+[zk60-guard 12:48:50] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 12:49:50] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 12:50:50] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 12:51:50] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 12:52:50] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 12:53:50] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 12:54:50] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 12:55:50] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 12:56:51] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 12:57:51] waiting for /tmp/zk-heavy.lock (541s)
+[zk60-guard 12:58:51] waiting for /tmp/zk-heavy.lock (601s)
+[zk60-guard 12:59:51] waiting for /tmp/zk-heavy.lock (661s)
+[zk60-guard 13:00:51] waiting for /tmp/zk-heavy.lock (721s)
+[zk60-guard 13:01:51] waiting for /tmp/zk-heavy.lock (781s)
+[zk60-guard 13:02:51] waiting for /tmp/zk-heavy.lock (841s)
+[zk60-guard 13:03:51] waiting for /tmp/zk-heavy.lock (901s)
+[zk60-guard 13:04:51] waiting for /tmp/zk-heavy.lock (961s)
+[zk60-guard 13:05:51] waiting for /tmp/zk-heavy.lock (1021s)
+[zk60-guard 13:06:51] waiting for /tmp/zk-heavy.lock (1081s)
+[zk60-guard 13:07:51] waiting for /tmp/zk-heavy.lock (1141s)
+[zk60-guard 13:08:51] waiting for /tmp/zk-heavy.lock (1201s)
+[zk60-guard 13:09:13] START r5-cli3-build class=build need=2.5G cap=5G enforce=cgroup+watchdog waited=1223s run=2607953ec6ae
+[zk60-guard 13:09:28] END r5-cli3-build exit=0 child_wall=15s peak_rss=0.38G min_avail=10.83G
+cli3-build exit 0
+[zk60-guard 13:09:28] START r5-cli3-gpu-build class=build need=3G cap=5G enforce=cgroup+watchdog waited=0s run=5e27b5c043a5
+[zk60-guard 13:10:46] END r5-cli3-gpu-build exit=0 child_wall=77s peak_rss=1.09G min_avail=10.47G
+cli3-gpu-build exit 0
+67652c92042190c612d8b3363da33cf1dd513fc0a1bd4f58f02ccc6eec4eb219  /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/zk60_trained_block.release.bin
+fdce3c8a891927f67cab840cf4373d1adfbdad5f6b8e0caafea8b0fe5e34756e  /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/zk60_trained_block.gpu.release.bin
+/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/manifest_cli3_after.json: 217 files, tree d67fae7ef3d03bb6a30c89880ac41b6e4543b7f8b5df8040c8a29ba7404df952

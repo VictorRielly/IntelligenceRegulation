@@ -1,0 +1,162 @@
+{
+  "rows": [
+    {
+      "model": "TinyLlama1.1B",
+      "context": 32,
+      "looked_payload_bytes": 47775744,
+      "prior_borrowed_remaining_bytes": 11468800,
+      "H_u8_payload_bytes": 50659328,
+      "all_lookup_source_plane_words": 4579328,
+      "affine_source_plane_words": 1048576,
+      "packed_ambiguity_sidecar_bytes": 131072,
+      "scope": "allocation-free illustrative payload counts using earlier TinyLlama public shifts; 8B shifts hypothetical. Not peak, traffic, speed, fit or profile admission. Sidecar is private, per-proof, never serialized."
+    },
+    {
+      "model": "TinyLlama1.1B",
+      "context": 64,
+      "looked_payload_bytes": 102367232,
+      "prior_borrowed_remaining_bytes": 26083328,
+      "H_u8_payload_bytes": 108658688,
+      "all_lookup_source_plane_words": 9682944,
+      "affine_source_plane_words": 2424832,
+      "packed_ambiguity_sidecar_bytes": 303104,
+      "scope": "allocation-free illustrative payload counts using earlier TinyLlama public shifts; 8B shifts hypothetical. Not peak, traffic, speed, fit or profile admission. Sidecar is private, per-proof, never serialized."
+    },
+    {
+      "model": "TinyLlama1.1B",
+      "context": 128,
+      "looked_payload_bytes": 231997440,
+      "prior_borrowed_remaining_bytes": 56360960,
+      "H_u8_payload_bytes": 246677504,
+      "all_lookup_source_plane_words": 21463040,
+      "affine_source_plane_words": 5111808,
+      "packed_ambiguity_sidecar_bytes": 638976,
+      "scope": "allocation-free illustrative payload counts using earlier TinyLlama public shifts; 8B shifts hypothetical. Not peak, traffic, speed, fit or profile admission. Sidecar is private, per-proof, never serialized."
+    },
+    {
+      "model": "TinyLlama1.1B",
+      "context": 256,
+      "looked_payload_bytes": 606601216,
+      "prior_borrowed_remaining_bytes": 179830784,
+      "H_u8_payload_bytes": 644349952,
+      "all_lookup_source_plane_words": 55508992,
+      "affine_source_plane_words": 17563648,
+      "packed_ambiguity_sidecar_bytes": 2195456,
+      "scope": "allocation-free illustrative payload counts using earlier TinyLlama public shifts; 8B shifts hypothetical. Not peak, traffic, speed, fit or profile admission. Sidecar is private, per-proof, never serialized."
+    },
+    {
+      "model": "TinyLlama1.1B",
+      "context": 512,
+      "looked_payload_bytes": 1716518912,
+      "prior_borrowed_remaining_bytes": 560988160,
+      "H_u8_payload_bytes": 1825570816,
+      "all_lookup_source_plane_words": 152961024,
+      "affine_source_plane_words": 56098816,
+      "packed_ambiguity_sidecar_bytes": 7012352,
+      "scope": "allocation-free illustrative payload counts using earlier TinyLlama public shifts; 8B shifts hypothetical. Not peak, traffic, speed, fit or profile admission. Sidecar is private, per-proof, never serialized."
+    },
+    {
+      "model": "TinyLlama1.1B",
+      "context": 1024,
+      "looked_payload_bytes": 5446303744,
+      "prior_borrowed_remaining_bytes": 1927282688,
+      "H_u8_payload_bytes": 5798625280,
+      "all_lookup_source_plane_words": 473694208,
+      "affine_source_plane_words": 196083712,
+      "packed_ambiguity_sidecar_bytes": 24510464,
+      "scope": "allocation-free illustrative payload counts using earlier TinyLlama public shifts; 8B shifts hypothetical. Not peak, traffic, speed, fit or profile admission. Sidecar is private, per-proof, never serialized."
+    },
+    {
+      "model": "Llama3-8B",
+      "context": 32,
+      "looked_payload_bytes": 93716480,
+      "prior_borrowed_remaining_bytes": 22282240,
+      "H_u8_payload_bytes": 99221504,
+      "all_lookup_source_plane_words": 8994816,
+      "affine_source_plane_words": 1998848,
+      "packed_ambiguity_sidecar_bytes": 249856,
+      "scope": "allocation-free illustrative payload counts using earlier TinyLlama public shifts; 8B shifts hypothetical. Not peak, traffic, speed, fit or profile admission. Sidecar is private, per-proof, never serialized."
+    },
+    {
+      "model": "Llama3-8B",
+      "context": 64,
+      "looked_payload_bytes": 194248704,
+      "prior_borrowed_remaining_bytes": 47710208,
+      "H_u8_payload_bytes": 205783040,
+      "all_lookup_source_plane_words": 18513920,
+      "affine_source_plane_words": 4325376,
+      "packed_ambiguity_sidecar_bytes": 540672,
+      "scope": "allocation-free illustrative payload counts using earlier TinyLlama public shifts; 8B shifts hypothetical. Not peak, traffic, speed, fit or profile admission. Sidecar is private, per-proof, never serialized."
+    },
+    {
+      "model": "Llama3-8B",
+      "context": 128,
+      "looked_payload_bytes": 415760384,
+      "prior_borrowed_remaining_bytes": 99614720,
+      "H_u8_payload_bytes": 440926208,
+      "all_lookup_source_plane_words": 39124992,
+      "affine_source_plane_words": 8912896,
+      "packed_ambiguity_sidecar_bytes": 1114112,
+      "scope": "allocation-free illustrative payload counts using earlier TinyLlama public shifts; 8B shifts hypothetical. Not peak, traffic, speed, fit or profile admission. Sidecar is private, per-proof, never serialized."
+    },
+    {
+      "model": "Llama3-8B",
+      "context": 256,
+      "looked_payload_bytes": 974127104,
+      "prior_borrowed_remaining_bytes": 266338304,
+      "H_u8_payload_bytes": 1032847360,
+      "all_lookup_source_plane_words": 90832896,
+      "affine_source_plane_words": 25165824,
+      "packed_ambiguity_sidecar_bytes": 3145728,
+      "scope": "allocation-free illustrative payload counts using earlier TinyLlama public shifts; 8B shifts hypothetical. Not peak, traffic, speed, fit or profile admission. Sidecar is private, per-proof, never serialized."
+    },
+    {
+      "model": "Llama3-8B",
+      "context": 512,
+      "looked_payload_bytes": 2451570688,
+      "prior_borrowed_remaining_bytes": 734003200,
+      "H_u8_payload_bytes": 2602565632,
+      "all_lookup_source_plane_words": 223608832,
+      "affine_source_plane_words": 71303168,
+      "packed_ambiguity_sidecar_bytes": 8912896,
+      "scope": "allocation-free illustrative payload counts using earlier TinyLlama public shifts; 8B shifts hypothetical. Not peak, traffic, speed, fit or profile admission. Sidecar is private, per-proof, never serialized."
+    },
+    {
+      "model": "Llama3-8B",
+      "context": 1024,
+      "looked_payload_bytes": 6916407296,
+      "prior_borrowed_remaining_bytes": 2273312768,
+      "H_u8_payload_bytes": 7352614912,
+      "all_lookup_source_plane_words": 614989824,
+      "affine_source_plane_words": 226492416,
+      "packed_ambiguity_sidecar_bytes": 28311552,
+      "scope": "allocation-free illustrative payload counts using earlier TinyLlama public shifts; 8B shifts hypothetical. Not peak, traffic, speed, fit or profile admission. Sidecar is private, per-proof, never serialized."
+    }
+  ],
+  "ceilings": [
+    {
+      "arm": "cpu",
+      "elapsed_s": 175.258632,
+      "whole_U8_H_parent_s": 6.9110000000000005,
+      "ideal_whole_parent_deletion_speedup": 1.0410519584855225,
+      "note": "22 trained 1.1B blocks, T128, one cold process per arm, shared 16-thread laptop; GPU RTX4070Laptop; reused prior owner clocks, no fresh verifier inspected for these phase samples. Candidate retains arithmetic/work; no native speed estimate."
+    },
+    {
+      "arm": "gpu",
+      "elapsed_s": 161.857226,
+      "whole_U8_H_parent_s": 8.844000000000001,
+      "ideal_whole_parent_deletion_speedup": 1.0577989251726514,
+      "note": "22 trained 1.1B blocks, T128, one cold process per arm, shared 16-thread laptop; GPU RTX4070Laptop; reused prior owner clocks, no fresh verifier inspected for these phase samples. Candidate retains arithmetic/work; no native speed estimate."
+    }
+  ],
+  "eliminated_here": "No production work or transfers eliminated by research experiment.",
+  "candidate_costs": [
+    "private ambiguity bitmap creation/packing/transfer/lifetime",
+    "wrapping u64 reconstruction and integer affine arithmetic",
+    "byte-cache/general-inverse fallback and whole-table refusal checks",
+    "device error/reduction and fallback handling",
+    "tagged device-owned H commitment API or D2H/H2D transfers",
+    "all currently CPU H readers and openings still need consistent host data"
+  ],
+  "limits": "Only U8 producer assessed, not exp/activation helper migration or a full H implementation. Existing F device path already reads resident A/H; its scratch expansion is not a host-H upload."
+}

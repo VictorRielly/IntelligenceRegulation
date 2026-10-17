@@ -1239,6 +1239,94 @@ fn a_missing_truncated_swapped_duplicated_or_foreign_segment_file_is_rejected() 
     run::verify_run_from_dir(&st, &blocks, tmp.path()).expect("the restored three-block run verifies by streaming");
 }
 
+/// **REVIEW r3 FINDING r3_6 (verifier DoS, not soundness; native round 5).**
+/// A segment file is read only through the bounded reader: a symbolic link
+/// to `/dev/zero`, a FIFO, a regular file one byte longer than the counted
+/// length and a 512 MiB sparse file are each refused BY NAME from metadata,
+/// before any byte of it is read. (An `open` of the FIFO would block for
+/// ever and a read of `/dev/zero` would run into the memory cap: this test
+/// returning is the evidence that neither was opened.) The honest run
+/// verifies before and after.
+#[test]
+fn review_r3_6_a_symlink_fifo_or_overlong_segment_file_is_refused_before_it_is_read() {
+    let sh = Shape::rung_g();
+    let l = 2usize;
+    let tmp = TempRunDir::new("r3-6");
+    let mut c = Chain::honest(&sh, l, false);
+    let blocks = blocks_of(&sh, l);
+    let (st, owners) = statement_of(&c, l, &blocks);
+    let (_disk, mem, _stats) = prove_to_dir_and_memory(&st, &blocks, &mut c, owners, tmp.path()).expect("the honest two-block run proves to a directory");
+    run::verify_run_from_dir(&st, &blocks, tmp.path()).expect("the honest two-block run verifies by streaming");
+    let path = tmp.path().join(run_sink::segment_file_name(0));
+    let want = mem.segments()[0].len();
+    let restore = || {
+        let _ = std::fs::remove_file(&path);
+        std::fs::write(&path, &mem.segments()[0]).expect("the test restores segment 0");
+    };
+    let refused = |what: &str| {
+        let e = run::verify_run_from_dir(&st, &blocks, tmp.path()).err().unwrap_or_else(|| panic!("{what} was ACCEPTED"));
+        eprintln!("review r3_6, {what}: refused: {e}");
+        e
+    };
+    // (a) a symbolic link to /dev/zero
+    std::fs::remove_file(&path).expect("the test removes segment 0");
+    std::os::unix::fs::symlink("/dev/zero", &path).expect("the test links segment 0 to /dev/zero");
+    assert!(refused("a symbolic link to /dev/zero").contains("not a regular file"));
+    assert!(run::read_segment_bounded(&st, 0, &path).unwrap_err().contains("not a regular file"), "the bounded reader alone");
+    restore();
+    // (b) a FIFO
+    std::fs::remove_file(&path).expect("the test removes segment 0");
+    let made = std::process::Command::new("mkfifo").arg(&path).status().map(|s| s.success()).unwrap_or(false);
+    assert!(made, "the test could not make a FIFO with mkfifo");
+    assert!(refused("a FIFO").contains("not a regular file"));
+    restore();
+    // (c) a regular file ONE BYTE longer than the counted length
+    std::fs::OpenOptions::new().write(true).open(&path).and_then(|f| f.set_len(want as u64 + 1)).expect("the test extends segment 0 by one byte");
+    let e = refused("a segment file one byte too long");
+    assert!(e.contains("counted length") && e.contains("before it is read"), "{e}");
+    // (d) a 512 MiB SPARSE regular file (uses no disk blocks)
+    std::fs::OpenOptions::new().write(true).open(&path).and_then(|f| f.set_len(512 << 20)).expect("the test makes segment 0 a sparse 512 MiB file");
+    let e = refused("a 512 MiB sparse segment file");
+    assert!(e.contains("536870912 B") && e.contains("before it is read"), "{e}");
+    restore();
+    // and the honest run verifies again: every refusal above was its mutation
+    run::verify_run_from_dir(&st, &blocks, tmp.path()).expect("the restored two-block run verifies by streaming");
+}
+
+/// **REVIEW r4 FINDING r4_B (verifier DoS; native R5b).** The bounded reader
+/// of a regular file (export profile, manifests, arrays, sequence files, an
+/// artifact's policy): a FIFO, a symbolic link to `/dev/zero` (or to an
+/// honest file) and a directory are refused by name before they are opened,
+/// a file above the bound or (exact) of another length from metadata before
+/// it is read; an honest file reads back. (An open of the FIFO would block
+/// for ever: this test returning is the evidence it was not opened.)
+#[test]
+fn review_r4_b_the_bounded_file_reader_refuses_before_opening_or_reading() {
+    let tmp = TempRunDir::new("r4-b");
+    let honest = tmp.path().join("honest.bin");
+    std::fs::write(&honest, vec![7u8; 4096]).unwrap();
+    assert_eq!(run::read_regular_file_bounded(&honest, 4096, true).unwrap(), vec![7u8; 4096]);
+    assert_eq!(run::read_regular_file_bounded(&honest, 8192, false).unwrap().len(), 4096);
+    let e = run::read_regular_file_bounded(&honest, 4095, false).unwrap_err();
+    assert!(e.contains("exceeds the bound") && e.contains("before it is read"), "{e}");
+    let e = run::read_regular_file_bounded(&honest, 4097, true).unwrap_err();
+    assert!(e.contains("expected length is 4097") && e.contains("before it is read"), "{e}");
+    let zero = tmp.path().join("zero.bin");
+    std::os::unix::fs::symlink("/dev/zero", &zero).unwrap();
+    assert!(run::read_regular_file_bounded(&zero, 1 << 30, false).unwrap_err().contains("not a regular file"));
+    let link = tmp.path().join("link.bin");
+    std::os::unix::fs::symlink(&honest, &link).unwrap();
+    assert!(run::read_regular_file_bounded(&link, 4096, false).unwrap_err().contains("not a regular file"));
+    let fifo = tmp.path().join("fifo.bin");
+    assert!(std::process::Command::new("mkfifo").arg(&fifo).status().map(|s| s.success()).unwrap_or(false), "mkfifo");
+    assert!(run::read_regular_file_bounded(&fifo, 4096, false).unwrap_err().contains("not a regular file"));
+    assert!(run::read_regular_file_bounded(tmp.path(), 4096, false).unwrap_err().contains("not a regular file"));
+    let sparse = tmp.path().join("sparse.bin");
+    std::fs::File::create(&sparse).and_then(|f| f.set_len(512 << 20)).unwrap();
+    let e = run::read_regular_file_bounded(&sparse, 4096, false).unwrap_err();
+    assert!(e.contains("536870912 bytes exceeds the bound 4096"), "{e}");
+}
+
 /// A run never writes into a directory that does not exist or already holds
 /// something: a half-run's segments must not be mistakable for this run's.
 #[test]

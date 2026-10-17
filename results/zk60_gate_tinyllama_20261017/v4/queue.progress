@@ -1,0 +1,10 @@
+18:44:53 v4-equivalence-k4 exit 0
+18:44:54 v4-g10-l1 exit 0
+18:44:56 v4-g10-l2 exit 0
+18:44:59 v4-g10-k4 exit 0
+18:45:14 v4-g10-l22 exit 0
+18:46:00 v4-integrity-inert exit 0
+18:46:35 v4-l1-dense-runcontrols exit 1
+18:50:38 v4-l22-zero-m exit 0
+18:50:39 GATE: every v4 check ok, pass F queued
+21:03:12 v4-l22-dense-f exit 0

@@ -1,0 +1,144 @@
+{
+ "scope": "arithmetic only, no T=512 run; [MODEL] unless [COUNTED]",
+ "measured_inputs": {
+  "T32_full": {
+   "cal_tok": 1728,
+   "ho_tok": 2304,
+   "pass1_s": 865,
+   "prepass_s": 2483,
+   "pass2_layer_s": 54.0,
+   "wall_s": 5626,
+   "peak_rss_gib": 3.45
+  },
+  "T128_full": {
+   "cal_tok": 3840,
+   "ho_tok": 3840,
+   "pass1_s": 907,
+   "prepass_s": 2244,
+   "pass2_layer_s": 52.8,
+   "wall_s": 5278,
+   "peak_rss_gib": 3.63
+  },
+  "T128_b6_export": {
+   "ho_tok": 1920,
+   "pass2_layer_s": 51.0,
+   "head_s": 213,
+   "wall_s": 1874,
+   "peak_rss_gib": 3.32
+  }
+ },
+ "flop_per_token_layer_counted": 436207616,
+ "cases": {
+  "laptop_chunk2_site1 (fits a light job, need ~6 / cap ~7)": {
+   "T": 512,
+   "calibration_seqs": 30,
+   "heldout_seqs": 15,
+   "chunk": 2,
+   "site_seqs": 1,
+   "peak_rss_gib_range": [
+    5.2,
+    5.5
+   ],
+   "score_copy_mib": 128,
+   "site_trace_mib": 768,
+   "activations_mib": 720,
+   "calib_input_mib": 240,
+   "pass1_min": [
+    19,
+    24
+   ],
+   "prepass_min": [
+    37,
+    41
+   ],
+   "pass2_min": [
+    35,
+    48
+   ],
+   "head_min": 14,
+   "full_calibration_h": [
+    1.8,
+    2.1
+   ],
+   "export_only_profile_reuse_h": [
+    0.8,
+    1.0
+   ],
+   "chain_spill_gib": 1.9
+  },
+  "laptop_chunk8_site3 (B5 defaults: does NOT fit the shared budget)": {
+   "T": 512,
+   "calibration_seqs": 30,
+   "heldout_seqs": 15,
+   "chunk": 8,
+   "site_seqs": 3,
+   "peak_rss_gib_range": [
+    8.2,
+    9.2
+   ],
+   "score_copy_mib": 512,
+   "site_trace_mib": 2304,
+   "activations_mib": 720,
+   "calib_input_mib": 240,
+   "pass1_min": [
+    19,
+    24
+   ],
+   "prepass_min": [
+    37,
+    41
+   ],
+   "pass2_min": [
+    36,
+    50
+   ],
+   "head_min": 14,
+   "full_calibration_h": [
+    1.8,
+    2.2
+   ],
+   "export_only_profile_reuse_h": [
+    0.8,
+    1.1
+   ],
+   "chain_spill_gib": 1.9
+  },
+  "mac_chunk8_site3_heldout72 (256 GB: memory no constraint)": {
+   "T": 512,
+   "calibration_seqs": 30,
+   "heldout_seqs": 72,
+   "chunk": 8,
+   "site_seqs": 3,
+   "peak_rss_gib_range": [
+    10.9,
+    11.9
+   ],
+   "score_copy_mib": 512,
+   "site_trace_mib": 2304,
+   "activations_mib": 3456,
+   "calib_input_mib": 240,
+   "pass1_min": [
+    19,
+    24
+   ],
+   "prepass_min": [
+    37,
+    41
+   ],
+   "pass2_min": [
+    66,
+    131
+   ],
+   "head_min": 68,
+   "full_calibration_h": [
+    3.2,
+    4.4
+   ],
+   "export_only_profile_reuse_h": [
+    2.2,
+    3.3
+   ],
+   "chain_spill_gib": 9.3
+  }
+ }
+}

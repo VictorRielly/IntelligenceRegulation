@@ -1,0 +1,162 @@
+{
+  "status": "PASS",
+  "scope": "COUNTED geometry, not execution at 8B shape; no private data read or copied.",
+  "context": 32,
+  "passes_this_experiment": 0,
+  "device": "one Core Ultra 9 185H CPU thread; no GPU",
+  "columns": 83,
+  "U8_queries": 11714560,
+  "plans": [
+    {
+      "plan": "per_column",
+      "pushforwards": 83,
+      "logical_pushforward_bytes": 339968,
+      "row_lifted_pushforward_bytes_before_masks": 10878976,
+      "dense_cube_positions": 11714560,
+      "dense_cube_over_original_queries": 1.0,
+      "query_entries_if_public_support_skipped": 11714560,
+      "illustrative_claim_inventory": {
+        "pushforward_initial_evaluation_sites": 83,
+        "pushforward_GKR_terminal_sites": 83,
+        "original_ordered_index_evaluations_before_additional_reductions": 83,
+        "public_table_evaluation_sites": 83,
+        "private_scalar_sites_before_round_messages": 249
+      },
+      "mask_inventory": {
+        "pushforward_commitment_hiding_families": 83,
+        "pushforward_initial_and_terminal_joint_view_obligations": 166,
+        "original_index_link_obligations": 83,
+        "GKR_round_masks": "unknown; no GKR implemented",
+        "original_A_claim_site_reserved_rows": "unknown; native schedule must be redesigned",
+        "fresh_mask_bytes": "unknown",
+        "net_removable_H_or_M_rows": "unknown"
+      },
+      "caveat": "Illustrative Powdr opening interface inventory, not a mandatory/minimal native schedule, exact mask count, net saving, GKR time or peak memory. Each original index needs a checked affine/wrapping A link. Distinct prior points require an additional reduction."
+    },
+    {
+      "plan": "six_domains",
+      "pushforwards": 6,
+      "logical_pushforward_bytes": 24576,
+      "row_lifted_pushforward_bytes_before_masks": 786432,
+      "dense_cube_positions": 19939328,
+      "dense_cube_over_original_queries": 1.7020979020979021,
+      "query_entries_if_public_support_skipped": 11714560,
+      "illustrative_claim_inventory": {
+        "pushforward_initial_evaluation_sites": 6,
+        "pushforward_GKR_terminal_sites": 6,
+        "original_ordered_index_evaluations_before_additional_reductions": 83,
+        "public_table_evaluation_sites": 6,
+        "private_scalar_sites_before_round_messages": 95
+      },
+      "mask_inventory": {
+        "pushforward_commitment_hiding_families": 6,
+        "pushforward_initial_and_terminal_joint_view_obligations": 12,
+        "original_index_link_obligations": 83,
+        "GKR_round_masks": "unknown; no GKR implemented",
+        "original_A_claim_site_reserved_rows": "unknown; native schedule must be redesigned",
+        "fresh_mask_bytes": "unknown",
+        "net_removable_H_or_M_rows": "unknown"
+      },
+      "caveat": "Illustrative Powdr opening interface inventory, not a mandatory/minimal native schedule, exact mask count, net saving, GKR time or peak memory. Each original index needs a checked affine/wrapping A link. Distinct prior points require an additional reduction."
+    },
+    {
+      "plan": "four_equal_length_groups",
+      "pushforwards": 4,
+      "logical_pushforward_bytes": 16384,
+      "row_lifted_pushforward_bytes_before_masks": 524288,
+      "dense_cube_positions": 17842176,
+      "dense_cube_over_original_queries": 1.523076923076923,
+      "query_entries_if_public_support_skipped": 11714560,
+      "illustrative_claim_inventory": {
+        "pushforward_initial_evaluation_sites": 4,
+        "pushforward_GKR_terminal_sites": 4,
+        "original_ordered_index_evaluations_before_additional_reductions": 83,
+        "public_table_evaluation_sites": 4,
+        "private_scalar_sites_before_round_messages": 91
+      },
+      "mask_inventory": {
+        "pushforward_commitment_hiding_families": 4,
+        "pushforward_initial_and_terminal_joint_view_obligations": 8,
+        "original_index_link_obligations": 83,
+        "GKR_round_masks": "unknown; no GKR implemented",
+        "original_A_claim_site_reserved_rows": "unknown; native schedule must be redesigned",
+        "fresh_mask_bytes": "unknown",
+        "net_removable_H_or_M_rows": "unknown"
+      },
+      "caveat": "Illustrative Powdr opening interface inventory, not a mandatory/minimal native schedule, exact mask count, net saving, GKR time or peak memory. Each original index needs a checked affine/wrapping A link. Distinct prior points require an additional reduction."
+    },
+    {
+      "plan": "one_global_cube",
+      "pushforwards": 1,
+      "logical_pushforward_bytes": 4096,
+      "row_lifted_pushforward_bytes_before_masks": 131072,
+      "dense_cube_positions": 67108864,
+      "dense_cube_over_original_queries": 5.728671328671329,
+      "query_entries_if_public_support_skipped": 11714560,
+      "illustrative_claim_inventory": {
+        "pushforward_initial_evaluation_sites": 1,
+        "pushforward_GKR_terminal_sites": 1,
+        "original_ordered_index_evaluations_before_additional_reductions": 83,
+        "public_table_evaluation_sites": 1,
+        "private_scalar_sites_before_round_messages": 85
+      },
+      "mask_inventory": {
+        "pushforward_commitment_hiding_families": 1,
+        "pushforward_initial_and_terminal_joint_view_obligations": 2,
+        "original_index_link_obligations": 83,
+        "GKR_round_masks": "unknown; no GKR implemented",
+        "original_A_claim_site_reserved_rows": "unknown; native schedule must be redesigned",
+        "fresh_mask_bytes": "unknown",
+        "net_removable_H_or_M_rows": "unknown"
+      },
+      "caveat": "Illustrative Powdr opening interface inventory, not a mandatory/minimal native schedule, exact mask count, net saving, GKR time or peak memory. Each original index needs a checked affine/wrapping A link. Distinct prior points require an additional reduction."
+    }
+  ],
+  "baseline_H": {
+    "total_base_rows": 1758,
+    "total_payload_bytes": 115212288,
+    "U8_reciprocal_data_rows": 1514,
+    "U8_reciprocal_payload_bytes": 99221504,
+    "exp_act_payload_bytes": 8912896,
+    "three_table_payload_bytes": 393216,
+    "zero_sum_pair_payload_bytes": 131072,
+    "other_reserved_and_proximity_payload_bytes": 6553600
+  },
+  "additional_query_commitment_saved_bytes": 0,
+  "owner_clocks": {
+    "owner_scope": "Carried n=1 shared-box cold 8B T32, 32 linked blocks, one pass; CPU sixteen threads, GPU off. Functional fresh verification observed; privacy acceptance still open.",
+    "app_total_s": 171.578,
+    "guard_process_total_s": 171.64129447937012,
+    "diagnostic_positions_per_app_s": 0.18650409726188671,
+    "diagnostic_positions_per_process_s": 0.1864353219722783,
+    "witness_s": 21.376,
+    "inclusive_prove_run_s": 156.143,
+    "recurring_block_reload_inside_prove_s": 15.993,
+    "remaining_proof_serialization_sink_s": 118.774,
+    "partial_initial_load_and_seal_s": 15.345,
+    "partial_startup_fraction": 0.08943454289011411,
+    "full_startup_s": null,
+    "steady_state_positions_per_s": null,
+    "isolated_serialization_s": null,
+    "fresh_verify_load_s": 13.165,
+    "fresh_verify_inclusive_s": 26.491,
+    "fresh_verify_reload_inside_s": 13.071,
+    "fresh_verify_crypto_remainder_s": 13.42,
+    "fresh_verify_process_including_controls_s": 115.86876153945923,
+    "receipt_bytes": 465815776,
+    "refused_controls": 11,
+    "proof_latency_s": null,
+    "proof_lag_s": null,
+    "pipeline_drain_s": null,
+    "conditional_H_phase_deletion_s": 19.5,
+    "conditional_fixed_other_work_ceiling_ratio": 1.1282236746932495,
+    "conditional_diagnostic_ceiling_positions_per_s": 0.21041833795815304,
+    "no_new_proofs_or_positions": true
+  },
+  "new_target_compliant_proofs": 0,
+  "new_target_compliant_positions": 0,
+  "wall_seconds": 0.0008480790002067806,
+  "peak_rss_kib": 11396,
+  "threads": 1,
+  "completed_at_utc": "2026-10-17T21:25:06.414118+00:00"
+}

@@ -139,30 +139,113 @@ fn the_stack_cli_proves_three_chained_layers_as_one_bound_run_and_every_control_
     let vdir = write_stack_export(&dir, "stack-v1", 3);
     let s = |v: &[&str]| -> Vec<String> { v.iter().map(|x| x.to_string()).collect() };
     let vd = vdir.display().to_string();
+    // R5b (P-5): the verifier's copy of the export holds no seq_* entry
+    let vc = super::trained_block_tests::verifier_copy(&vdir);
+    let vcd = vc.display().to_string();
     let out = dir.join("run");
     let od = out.display().to_string();
-    assert_eq!(trained_stack_prove_command(&s(&["--export", &vd, "--seq", "s0", "--out", &od])), 0, "stack-prove failed");
-    let stmt = std::fs::read_to_string(out.join("statement").join("statement.json")).unwrap();
+    let unverified = dir.join("run.unverified-statement");
+    // R5b (P-3 / C-R4): a free --label is refused before anything exists
+    assert_eq!(trained_stack_prove_command(&s(&["--export", &vd, "--seq", "s0", "--out", &od, "--label", "per-request-label"])), 1, "a free --label was accepted");
+    assert!(!out.exists() && !unverified.exists(), "the refused prover wrote something");
+    // the default (no in-process verify): the prover's statement is written
+    // BESIDE the run, unverified (P-1 / M-9)
+    assert_eq!(trained_stack_prove_command(&s(&["--export", &vd, "--seq", "s0", "--out", &od, "--witness-cache-gib", "0"])), 0, "stack-prove failed");
+    assert!(!out.join("statement").exists(), "an unverified run carries a statement/ directory");
+    assert!(unverified.join("UNVERIFIED.txt").exists(), "no unverified statement beside the run");
+    let stmt = std::fs::read_to_string(unverified.join("statement.json")).unwrap();
     assert!(stmt.contains("\"blocks\": 3"), "{stmt}");
     assert!(stmt.contains("\"export_variant\": \"stack-v1\""), "{stmt}");
-    for k in ["\"exp_e_s\": 0", "\"exp_e_s\": 1", "\"silu_member\": [-4, -12]", "\"sh_qkv\": 8"] {
+    for k in ["\"exp_e_s\": 0", "\"exp_e_s\": 1", "\"silu_member\": [-4, -12]", "\"sh_qkv\": 8", "\"backend\": \"gpu: off", "\"prover_verified_in_process\": false"] {
         assert!(stmt.contains(k), "statement.json does not carry {k}");
     }
     let id = stmt.split("\"trained_statement_identity\": \"").nth(1).unwrap().split('"').next().unwrap().to_string();
-    assert_eq!(trained_stack_verify_command(&s(&["--export", &vd, "--artifact", &od, "--expect-statement", &id, "--controls"])), 0, "stack-verify (with controls) failed");
+    // R5b (P-5): a verifier refuses the export that holds seq_s0
+    assert_eq!(trained_stack_verify_command(&s(&["--export", &vd, "--artifact", &od, "--expect-statement", &id])), 1, "a verifier accepted an export holding seq_s0");
+    assert!(!out.join("statement").exists(), "a refused verification promoted the statement");
+    // a wrong pin and a shorter layer range refuse, and promote nothing
     let wrong = hex(&sha256(b"another statement"));
-    assert_eq!(trained_stack_verify_command(&s(&["--export", &vd, "--artifact", &od, "--expect-statement", &wrong])), 1, "a wrong statement pin was accepted");
-    // a verifier over a shorter layer range: another statement, another L
-    assert_eq!(trained_stack_verify_command(&s(&["--export", &vd, "--artifact", &od, "--expect-statement", &id, "--layers", "0..2"])), 1, "a two-layer verifier accepted the three-layer run");
+    assert_eq!(trained_stack_verify_command(&s(&["--export", &vcd, "--artifact", &od, "--expect-statement", &wrong])), 1, "a wrong statement pin was accepted");
+    assert_eq!(trained_stack_verify_command(&s(&["--export", &vcd, "--artifact", &od, "--expect-statement", &id, "--layers", "0..2"])), 1, "a two-layer verifier accepted the three-layer run");
+    assert!(unverified.exists() && !out.join("statement").exists(), "a refused verification promoted the statement");
+    // a tampered unverified segments.json: the run verifies, the promotion
+    // is refused (the statement stays unverified)
+    let sj = std::fs::read_to_string(unverified.join("segments.json")).unwrap();
+    std::fs::write(unverified.join("segments.json"), sj.replacen("\"bytes\":", "\"bytes\":1", 1)).unwrap();
+    assert_eq!(trained_stack_verify_command(&s(&["--export", &vcd, "--artifact", &od, "--expect-statement", &id])), 1, "a tampered segments.json was promoted");
+    assert!(unverified.exists() && !out.join("statement").exists());
+    std::fs::write(unverified.join("segments.json"), &sj).unwrap();
+    // the fresh-process verification (with every control) PROMOTES it
+    assert_eq!(trained_stack_verify_command(&s(&["--export", &vcd, "--artifact", &od, "--expect-statement", &id, "--controls"])), 0, "stack-verify (with controls) failed");
+    assert!(out.join("statement").join("statement.json").exists() && !unverified.exists(), "the verified statement was not promoted");
+    assert!(!out.join("statement").join("UNVERIFIED.txt").exists());
+    // and the promoted run verifies again from its own statement/
+    assert_eq!(trained_stack_verify_command(&s(&["--export", &vcd, "--artifact", &od, "--expect-statement", &id])), 0, "the promoted run no longer verifies");
+    // a free --label at the verifier
+    assert_eq!(trained_stack_verify_command(&s(&["--export", &vcd, "--artifact", &od, "--expect-statement", &id, "--label", "per-request-label"])), 1, "a verifier accepted a free --label");
     // a foreign file in the run directory
     std::fs::write(out.join("notes.txt"), b"x").unwrap();
-    assert_eq!(trained_stack_verify_command(&s(&["--export", &vd, "--artifact", &od, "--expect-statement", &id])), 1, "a run directory with a foreign file was accepted");
+    assert_eq!(trained_stack_verify_command(&s(&["--export", &vcd, "--artifact", &od, "--expect-statement", &id])), 1, "a run directory with a foreign file was accepted");
     std::fs::remove_file(out.join("notes.txt")).unwrap();
+    // REVIEW r3_6 (verifier DoS): a segment that is a symbolic link to
+    // /dev/zero, a FIFO, or one byte too long is refused by the CLI verifier
+    // and by its --controls reader without being read (a read of either of
+    // the first two would never return), and the honest run verifies again
+    {
+        let seg0 = out.join(super::run_sink::segment_file_name(0));
+        let honest = std::fs::read(&seg0).unwrap();
+        let restore = || {
+            let _ = std::fs::remove_file(&seg0);
+            std::fs::write(&seg0, &honest).unwrap();
+        };
+        std::fs::remove_file(&seg0).unwrap();
+        std::os::unix::fs::symlink("/dev/zero", &seg0).unwrap();
+        assert_eq!(trained_stack_verify_command(&s(&["--export", &vcd, "--artifact", &od, "--expect-statement", &id])), 1, "a /dev/zero segment was accepted");
+        restore();
+        std::fs::remove_file(&seg0).unwrap();
+        assert!(std::process::Command::new("mkfifo").arg(&seg0).status().map(|x| x.success()).unwrap_or(false), "mkfifo");
+        assert_eq!(trained_stack_verify_command(&s(&["--export", &vcd, "--artifact", &od, "--expect-statement", &id])), 1, "a FIFO segment was accepted");
+        restore();
+        std::fs::OpenOptions::new().write(true).open(&seg0).and_then(|f| f.set_len(honest.len() as u64 + 1)).unwrap();
+        assert_eq!(trained_stack_verify_command(&s(&["--export", &vcd, "--artifact", &od, "--expect-statement", &id])), 1, "a segment one byte too long was accepted");
+        restore();
+        // the --controls reader is the same bounded reader: the verify fails
+        // first, and the controls never read the FIFO
+        std::fs::remove_file(&seg0).unwrap();
+        assert!(std::process::Command::new("mkfifo").arg(&seg0).status().map(|x| x.success()).unwrap_or(false), "mkfifo");
+        assert_eq!(trained_stack_verify_command(&s(&["--export", &vcd, "--artifact", &od, "--expect-statement", &id, "--controls"])), 1, "a FIFO segment was accepted with --controls");
+        restore();
+        assert_eq!(trained_stack_verify_command(&s(&["--export", &vcd, "--artifact", &od, "--expect-statement", &id])), 0, "the restored honest run no longer verifies");
+    }
     // an existing output directory is never overwritten
     assert_eq!(trained_stack_prove_command(&s(&["--export", &vd, "--seq", "s0", "--out", &od])), 1, "an existing run directory was overwritten");
+    // --verify-in-process writes statement/ itself, nothing beside the run;
+    // the hidden input from a prover-private --seq-dir outside the export
+    // proves the same statement
+    let pseq = super::trained_block_tests::private_seq_copy(&vdir);
+    let o2 = dir.join("run-in-process");
+    assert_eq!(trained_stack_prove_command(&s(&["--export", &vcd, "--seq-dir", &pseq.display().to_string(), "--out", &o2.display().to_string(), "--verify-in-process"])), 0, "stack-prove --verify-in-process failed");
+    assert!(o2.join("statement").join("statement.json").exists() && !dir.join("run-in-process.unverified-statement").exists());
+    let s2 = std::fs::read_to_string(o2.join("statement").join("statement.json")).unwrap();
+    assert!(s2.contains(&format!("\"trained_statement_identity\": \"{id}\"")) && s2.contains("\"prover_verified_in_process\": true"), "{s2}");
+    // R5b (P-1, ruling H-1): an inadmissible chain — layer 1's parity fails —
+    // is refused by the sealing pass BEFORE the run header: no run directory,
+    // no statement, and the refusal carries no count or position (P-6)
+    let bad = super::trained_block_tests::private_seq_copy(&vdir).with_file_name("stack-v1-private-seq-bad");
+    std::fs::create_dir_all(&bad).unwrap();
+    for e in std::fs::read_dir(&pseq).unwrap() {
+        let e = e.unwrap();
+        std::fs::copy(e.path(), bad.join(e.file_name())).unwrap();
+    }
+    let mut xo = std::fs::read(bad.join("x_out_L01.bin")).unwrap();
+    xo[10] ^= 1;
+    std::fs::write(bad.join("x_out_L01.bin"), &xo).unwrap();
+    let o3 = dir.join("run-bad");
+    assert_eq!(trained_stack_prove_command(&s(&["--export", &vcd, "--seq-dir", &bad.display().to_string(), "--out", &o3.display().to_string()])), 1, "a chain whose layer-1 parity fails was proved");
+    assert!(!o3.exists() && !dir.join("run-bad.unverified-statement").exists(), "a refused chain left a run directory or a statement");
     // the prover-side lie: exit 0 means the run FAILED to verify, as it must
     let lie = dir.join("run-lie");
     assert_eq!(trained_stack_prove_command(&s(&["--export", &vd, "--seq", "s0", "--out", &lie.display().to_string(), "--lie-at-boundary", "1"])), 0, "the boundary lie control misbehaved");
-    assert!(!lie.join("statement").exists(), "a run that failed to verify retained a statement");
+    assert!(!lie.join("statement").exists() && !dir.join("run-lie.unverified-statement").exists(), "a run that failed to verify retained a statement");
     let _ = std::fs::remove_dir_all(&dir);
 }

@@ -1,0 +1,50 @@
+[19:07:13Z]   float T128 N108 L00 (18.6s)
+[19:09:40Z]   float T128 N108 L07 (17.3s)
+[19:12:00Z]   float T128 N108 L14 (21.6s)
+[19:14:11Z]   float T128 N108 L21 (16.5s)
+[19:14:13Z] calibration final-norm stats: {'sequences': 108, 'T': 128, 'xhat_rot_absmax': 5.45366899731632, 'xhat_rot_pos_max_quantiles': {0.5: 3.5446830038753507, 0.9: 3.9925684878872594, 0.99: 4.487234957054621, 0.999: 4.965879093728139, 1.0: 5.45366899731632}, 'xhat_unrot_absmax': 37.53253739030483, 'final_residual_absmax': 82.96282958984375}
+[19:14:24Z]   float T128 N72 L00 (9.9s)
+[19:15:42Z]   float T128 N72 L07 (10.0s)
+[19:17:08Z]   float T128 N72 L14 (11.3s)
+[19:18:24Z]   float T128 N72 L21 (8.2s)
+[19:18:24Z] held-out T128 float final residual saved (72, 128, 2048)
+[19:18:28Z]   float T32 N72 L00 (3.2s)
+[19:18:53Z]   float T32 N72 L07 (4.3s)
+[19:19:20Z]   float T32 N72 L14 (3.7s)
+/home/victor/IntelligenceRegulation/results/zk60_token_io_fidelity_20261017/tools/tlcalib.py:184: RuntimeWarning: overflow encountered in exp
+  act = gt / (1.0 + np.exp(-gt))
+[19:19:43Z]   float T32 N72 L21 (3.8s)
+[19:19:43Z] held-out T32 float final residual saved (72, 32, 2048)
+{
+ "calib": {
+  "sequences": 108,
+  "T": 128,
+  "xhat_rot_absmax": 5.45366899731632,
+  "xhat_rot_pos_max_quantiles": {
+   "0.5": 3.5446830038753507,
+   "0.9": 3.9925684878872594,
+   "0.99": 4.487234957054621,
+   "0.999": 4.965879093728139,
+   "1.0": 5.45366899731632
+  },
+  "xhat_unrot_absmax": 37.53253739030483,
+  "final_residual_absmax": 82.96282958984375
+ },
+ "heldout_T128": {
+  "shape": [
+   72,
+   128,
+   2048
+  ],
+  "final_residual_absmax": 89.32719421386719
+ },
+ "heldout_T32": {
+  "shape": [
+   72,
+   32,
+   2048
+  ],
+  "final_residual_absmax": 52.762149810791016
+ },
+ "seconds": 775.1554327011108
+}

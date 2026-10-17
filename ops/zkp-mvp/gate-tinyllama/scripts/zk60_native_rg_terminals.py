@@ -563,6 +563,13 @@ from zk60_native_rg_tinyllama_pins import (  # noqa: E402
     merge_two_level as _tl_merge2)
 _tl_merge2(ALSO_ACCEPTED, _TL_AA, "ALSO_ACCEPTED")
 _tl_merge2(PINNED_IF_PRESENT, _TL_PIP, "PINNED_IF_PRESENT")
+# [TINYLLAMA PORT v5, round 4] the R5 tree's layout.rs, protocol.rs and
+# shape.rs digests, each READ (`zk60_native_rg_tinyllama_r5_pins`).
+from zk60_native_rg_tinyllama_r5_pins import (  # noqa: E402
+    TERMINALS_ALSO_ACCEPTED as _R5_AA,
+    TERMINALS_PINNED_IF_PRESENT as _R5_PIP)
+_tl_merge2(ALSO_ACCEPTED, _R5_AA, "ALSO_ACCEPTED")
+_tl_merge2(PINNED_IF_PRESENT, _R5_PIP, "PINNED_IF_PRESENT")
 
 # **ROUND 4 (2026-09-20), finding S19-F1.**  `argument.rs` is the file that
 # decides what a slot's polynomial IS, and its stage-20 digest carries a

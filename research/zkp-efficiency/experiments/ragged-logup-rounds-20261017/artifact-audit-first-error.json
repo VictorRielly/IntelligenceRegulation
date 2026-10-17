@@ -1,0 +1,9 @@
+{
+  "status": "FAILED_ASSERTION_RETAINED",
+  "stage": "Initial artifact provenance audit",
+  "command": "inline Python artifact audit, 2026-10-17",
+  "error": "AssertionError at raw field-prefix equality",
+  "reason": "Prior captured field module changes inner doc comments //! to ordinary //; wrapper and test removal were already accounted for, this comment transformation was not.",
+  "resolution": "Exact field-body equality after only the documented //! -> // transformation. Final audit below verifies it.",
+  "arithmetic_tests_affected": false
+}

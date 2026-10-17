@@ -68,9 +68,47 @@ fn rung_tc() -> Shape {
     Shape::rung_tc(&rung_tc_calibration()).expect("the trained-calibration rung")
 }
 
-/// the trained shapes the plan names: rung-TC, TinyLlama T32 / T128, 8B T32
+/// the trained shapes the plan names: rung-TC, TinyLlama T32 / T128, 8B T32.
+/// `GZC_SHAPES` (comma list of `rung-tc`, `tl32`, `tl128`, `8b32`) selects a
+/// subset, so each LARGE shape can run in its own guarded GPU command (the
+/// laptop's 4 GiB VRAM rule; 2026-10-17 lane finding: four shapes in one
+/// process pooled 7.1 GiB).
 fn trained_shapes() -> Vec<Shape> {
-    vec![rung_tc(), tinyllama_at(32), tinyllama_at(128), generic_8b()]
+    let want: Option<Vec<String>> = std::env::var("GZC_SHAPES").ok().map(|v| v.split(',').map(|x| x.trim().to_string()).collect());
+    let pick = |name: &str| want.as_ref().map(|w| w.iter().any(|x| x == name)).unwrap_or(true);
+    let mut out = Vec::new();
+    if pick("rung-tc") {
+        out.push(rung_tc());
+    }
+    if pick("tl32") {
+        out.push(tinyllama_at(32));
+    }
+    if pick("tl128") {
+        out.push(tinyllama_at(128));
+    }
+    if pick("8b32") {
+        out.push(generic_8b());
+    }
+    assert!(!out.is_empty(), "GZC_SHAPES selects no shape");
+    out
+}
+
+/// Free every pooled device buffer (the pool matches by EXACT length, so a
+/// previous shape's buffers are dead weight for the next one) and print the
+/// device memory in use just before the drain. Value-neutral (pooled buffers
+/// hold no live data). Device tests call it after every shape / cube size.
+fn drain_device_pool(what: &str) {
+    #[cfg(feature = "gpu-cuda")]
+    {
+        let before = crate::gpu::dev_mem_info();
+        let n = crate::gpu::dev_pool_drain();
+        let after = crate::gpu::dev_mem_info();
+        if let (Some((f0, t, h)), Some((f1, _, _))) = (before, after) {
+            eprintln!("GZC VRAM after {what}: {} MiB in use with {h} pooled buffers; drained {n}; {} MiB in use after the drain", (t - f0) >> 20, (t - f1) >> 20);
+        }
+    }
+    #[cfg(not(feature = "gpu-cuda"))]
+    let _ = what;
 }
 
 /// R4-2's band search (`r4_tests::bands_8b`), for any trained shape
@@ -405,10 +443,12 @@ fn gzc_device_real_slot18_equals_the_cpu_body_at_the_trained_shapes() {
     require_device();
     for (i, sh) in trained_shapes().iter().enumerate() {
         real_slot_case(sh, false, true, 300 + i as u64);
+        drain_device_pool(&format!("{} dense random", sh.name));
         real_slot_case(sh, true, true, 400 + i as u64);
         if i == 0 {
             real_slot_case(sh, true, false, 500);
         }
+        drain_device_pool(&format!("{} honest witness", sh.name));
     }
 }
 
@@ -421,7 +461,19 @@ fn seeded_receipt(sh: &Shape, blk: &BlockPublic, planes: &[Vec<i64>], expected: 
     let lay = Layout::for_shape(sh).unwrap();
     let ntt = NttTables::new(protocol::ntt_log_at(sh));
     let mut rng = ZkRng::new(0x6A5C_5EED, b"gzc-seeded-proof-byte-gate");
-    let mut tr = protocol::transcript(blk, expected, &lay);
+    // Every shape here is a TRAINED-calibration shape, whose single-block
+    // header `protocol::transcript` refuses by design (R2-4 / F-2: it would
+    // absorb the synthetic calibration literal). A trained block is proved
+    // inside a run, whose header starts from the profile's keyed
+    // `tagged_transcript` (`run.rs::transcript`); the gate does the same with
+    // the block's public words and its own label. Both arms start from this
+    // ONE state, which is all a byte-identity gate needs; it is not a
+    // verifiable receipt and is never decoded or verified.
+    let mut tr = protocol::tagged_transcript(sh, sh.profile.as_bytes());
+    tr.absorb(b"gzc-seeded-gate", b"one block, prove_core, device slot 18 off/on");
+    tr.absorb(b"expected-IO", &expected.to_bytes());
+    tr.absorb(b"public-statement", &blk.digest());
+    tr.absorb(b"schedule", &lay.schedule_digest());
     let mut ph = timing::Phases::start();
     let mut phases: Vec<(&'static str, f64)> = Vec::new();
     let mut tick = std::time::Instant::now();
@@ -460,12 +512,14 @@ fn gzc_device_seeded_receipts_are_byte_identical() {
         let (expected, endpoints) = prepare_endpoints(spec, &plane(ids.at(A_X)), &plane(ids.at(A_X2))).expect("the endpoints");
         let ends = protocol::check_endpoints(&sh, &expected, endpoints).expect("the endpoint owners");
         let (cpu, cpu_s) = seeded_receipt(&sh, &blk, &w.planes, &expected, &ends, false);
+        drain_device_pool(&format!("{} prove_core, slot 18 on the CPU", sh.name));
         let (dev, dev_s) = seeded_receipt(&sh, &blk, &w.planes, &expected, &ends, true);
+        drain_device_pool(&format!("{} prove_core, slot 18 on the device", sh.name));
         assert_eq!(cpu.len(), dev.len(), "{}: receipt lengths", sh.name);
         assert!(cpu == dev, "{}: the seeded receipts differ (first byte {:?})", sh.name, cpu.iter().zip(dev.iter()).position(|(a, b)| a != b));
         let digest = |b: &[u8]| super::trained_block::hex(blake3::hash(b).as_bytes());
         eprintln!(
-            "GZC seeded proof-byte gate {}: {} B, blake3 {} both ways; prove_core CPU slot 18 {cpu_s:.2} s, device slot 18 {dev_s:.2} s",
+            "GZC seeded proof-byte gate {}: {} B, blake3 {} both ways; prove_core wall with slot 18 on the CPU {cpu_s:.2} s, with slot 18 on the device {dev_s:.2} s (the device arm's first body per process includes the NVRTC compile)",
             sh.name,
             cpu.len(),
             &digest(&cpu)[..16]
@@ -544,32 +598,62 @@ fn gzc_device_bench_cube_ladder() {
             cpu_out = Some(crate::zk::masked_prove_rounds(&mut ev, &mask, c, &mut tr));
             cpu_s = t0.elapsed().as_secs_f64();
         }
-        let mut best = f64::INFINITY;
-        for rep in 0..reps {
-            if let Ok(v) = std::env::var("GZC_BENCH_LEAN") {
-                std::env::set_var("HL_GZC_LEAN", &v);
+        // the variants, each in this ONE process (one GPU pass): v2 fused
+        // (default), v1 separate fold/round, lean fused, lean unfused
+        let variants: Vec<String> = std::env::var("GZC_BENCH_VARIANTS").ok().map(|v| v.split(',').map(|x| x.trim().to_string()).collect()).unwrap_or_else(|| ["v2", "v1", "lean", "lean-unfused"].iter().map(|s| s.to_string()).collect());
+        for var in &variants {
+            let (fused, lean) = match var.as_str() {
+                "v2" => ("1", "0"),
+                "v1" => ("0", "0"),
+                "lean" => ("1", "1"),
+                "lean-unfused" => ("0", "1"),
+                other => panic!("GZC_BENCH_VARIANTS: unknown variant {other}"),
+            };
+            std::env::set_var("HL_GZC_FUSED", fused);
+            std::env::set_var("HL_GZC_LEAN", lean);
+            let mut best = f64::INFINITY;
+            for rep in 0..reps {
+                let mut tr = Transcript::clone_state(&tr0);
+                let t0 = std::time::Instant::now();
+                let dev = fzc::prove(&desc, &srcs, n, degree, None, &mask, c, &mut tr).unwrap_or_else(|e| panic!("n {n} {var}: the device declined: {e}"));
+                let s = t0.elapsed().as_secs_f64();
+                best = best.min(s);
+                if let Some(cpu) = &cpu_out {
+                    assert_eq!(&dev, cpu, "n {n} {var} rep {rep}: the device body differs from the CPU body");
+                }
             }
-            let mut tr = Transcript::clone_state(&tr0);
-            let t0 = std::time::Instant::now();
-            let dev = fzc::prove(&desc, &srcs, n, degree, None, &mask, c, &mut tr).unwrap_or_else(|e| panic!("n {n}: the device declined: {e}"));
-            let s = t0.elapsed().as_secs_f64();
-            best = best.min(s);
-            if let Some(cpu) = &cpu_out {
-                assert_eq!(&dev, cpu, "n {n} rep {rep}: the device body differs from the CPU body");
+            // one more body with the synchronised per-kernel clock (its own
+            // PB-GZC line, and the per-round lines under GZC_BENCH_ROUNDS=1);
+            // kept out of the best-of timing above
+            if std::env::var("GZC_BENCH_PROFILE").map(|v| v == "1").unwrap_or(false) {
+                std::env::set_var("HL_GZC_PROFILE", "1");
+                if std::env::var("GZC_BENCH_ROUNDS").map(|v| v == "1").unwrap_or(false) {
+                    std::env::set_var("HL_GZC_ROUNDS", "1");
+                }
+                let mut tr = Transcript::clone_state(&tr0);
+                let dev = fzc::prove(&desc, &srcs, n, degree, None, &mask, c, &mut tr).unwrap_or_else(|e| panic!("n {n} {var}: the device declined (profiled): {e}"));
+                std::env::remove_var("HL_GZC_PROFILE");
+                std::env::remove_var("HL_GZC_ROUNDS");
+                if let Some(cpu) = &cpu_out {
+                    assert_eq!(&dev, cpu, "n {n} {var} profiled: the device body differs from the CPU body");
+                }
             }
+            let plan_bytes = 72.0 * (1u64 << n) as f64 * 17.0;
+            eprintln!(
+                "GZC ladder n {n} {var} (2^{n} = {} entries, k {k}, D {degree}): CPU body {cpu_s:.3} s ({} threads), device body best of {reps} {:.2} ms incl. H2D of the host tables ({} MB); plan figure 72 B x 2^n x 17 = {:.3} GB -> {:.1} GB/s = {:.1}% of 256 GB/s; speed-up {:.1}x",
+                1u64 << n,
+                rayon::current_num_threads(),
+                best * 1e3,
+                (k << n) * 16 >> 20,
+                plan_bytes / 1e9,
+                plan_bytes / best / 1e9,
+                100.0 * plan_bytes / best / 256e9,
+                cpu_s / best
+            );
         }
-        let plan_bytes = 72.0 * (1u64 << n) as f64 * 17.0;
-        eprintln!(
-            "GZC ladder n {n} (2^{n} = {} entries, k {k}, D {degree}): CPU body {cpu_s:.3} s ({} threads), device body best of {reps} {:.2} ms incl. H2D of the host tables ({} MB); plan figure 72 B x 2^n x 17 = {:.3} GB -> {:.1} GB/s = {:.1}% of 256 GB/s; speed-up {:.1}x",
-            1u64 << n,
-            rayon::current_num_threads(),
-            best * 1e3,
-            (k << n) * 16 >> 20,
-            plan_bytes / 1e9,
-            plan_bytes / best / 1e9,
-            100.0 * plan_bytes / best / 256e9,
-            cpu_s / best
-        );
+        std::env::remove_var("HL_GZC_FUSED");
+        std::env::remove_var("HL_GZC_LEAN");
+        drain_device_pool(&format!("ladder n {n}"));
     }
     #[cfg(feature = "gpu-cuda")]
     {

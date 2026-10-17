@@ -1,0 +1,79 @@
+[REFIT 'onebl': CPU coefficients from refit.json:coefficients_cpu; GPU commit plan 5.06 ns, G0 plan 0.305 s; load per layer per pass 0.488859375 s]
+== 8B layouts (receipt-optimal row width), counted ==
+T32    2^13 elems 0.028G receipt/blk 14.9 MB stack 0.48 GB | host CPU 1.9 GiB, host GPU-commit 1.6 GiB, VRAM commit-only 0.4 GiB, VRAM full-GPU 1.6 GiB (slot tables 0.2) | verify/blk 0.41 s
+T128   2^14 elems 0.118G receipt/blk 29.3 MB stack 0.94 GB | host CPU 6.3 GiB, host GPU-commit 4.9 GiB, VRAM commit-only 1.1 GiB, VRAM full-GPU 2.8 GiB (slot tables 0.6) | verify/blk 0.77 s
+T256   2^15 elems 0.273G receipt/blk 45.0 MB stack 1.44 GB | host CPU 14.0 GiB, host GPU-commit 10.7 GiB, VRAM commit-only 2.2 GiB, VRAM full-GPU 4.5 GiB (slot tables 1.2) | verify/blk 1.93 s
+T512   2^15 elems 0.663G receipt/blk 69.6 MB stack 2.23 GB | host CPU 33.2 GiB, host GPU-commit 25.2 GiB, VRAM commit-only 5.1 GiB, VRAM full-GPU 9.6 GiB (slot tables 3.4) | verify/blk 6.57 s
+T1024  2^16 elems 1.847G receipt/blk 112.6 MB stack 3.60 GB | host CPU 91.6 GiB, host GPU-commit 69.3 GiB, VRAM commit-only 14.0 GiB, VRAM full-GPU 28.5 GiB (slot tables 13.5) | verify/blk 25.12 s
+T2048  2^17 elems 5.774G receipt/blk 198.6 MB stack 6.36 GB | host CPU 285.5 GiB, host GPU-commit 215.6 GiB, VRAM commit-only 43.2 GiB, VRAM full-GPU 98.3 GiB (slot tables 54.0) | verify/blk 99.31 s
+T4096  2^18 elems 19.869G receipt/blk 370.6 MB stack 11.86 GB | host CPU 981.2 GiB, host GPU-commit 740.7 GiB, VRAM commit-only 148.2 GiB, VRAM full-GPU 365.3 GiB (slot tables 216.0) | verify/blk 396.06 s
+
+== laptop-CPU phase model per block (s) ==
+T32    total 2.51 | commit 0.68 zcD 0.42 zcF 0.36 zcS 0.13 zcQ 0.16 zcKv 0.13 inv 0.12 open 0.12 conv 0.05 rest 0.33 (wfold 0.12) | witness 0.58
+T128   total 8.15 | commit 2.84 zcD 1.24 zcF 1.12 zcS 0.40 zcQ 0.35 zcKv 0.22 inv 0.55 open 0.48 conv 0.21 rest 0.73 (wfold 0.12) | witness 2.51
+T256   total 17.94 | commit 6.57 zcD 2.40 zcF 2.16 zcS 1.37 zcQ 0.63 zcKv 0.36 inv 1.31 open 1.11 conv 0.48 rest 1.56 (wfold 0.12) | witness 5.53
+T512   total 41.34 | commit 15.99 zcD 4.32 zcF 4.12 zcS 4.69 zcQ 1.07 zcKv 0.53 inv 3.31 open 2.70 conv 1.12 rest 3.50 (wfold 0.12) | witness 13.09
+T1024  total 113.15 | commit 44.52 zcD 8.56 zcF 8.15 zcS 18.14 zcQ 2.05 zcKv 0.99 inv 9.45 open 7.50 conv 3.06 rest 10.73 (wfold 0.12) | witness 34.30
+T2048  total 349.82 | commit 139.19 zcD 17.04 zcF 16.23 zcS 71.61 zcQ 4.02 zcKv 1.90 inv 30.17 open 23.46 conv 9.37 rest 36.85 (wfold 0.12) | witness 101.01
+T4096  total 1195.43 | commit 479.01 zcD 34.00 zcF 32.37 zcS 284.74 zcQ 7.96 zcKv 3.71 inv 105.43 open 80.73 conv 31.75 rest 135.73 (wfold 0.12) | witness 331.71
+
+== today's code, single cold pass, prove-side rate (positions/s): proofs+witness+loads (no in-process verify) ==
+T32    laptop_cpu 0.246 (fits, 130 s) | laptop_gpu 0.261 (fits, 123 s) | mac 0.455/0.530/0.652 (fits, central 60 s) | 5090 0.409/0.491/0.560 (fits, central 65 s)
+T128   laptop_cpu 0.343 (fits, 373 s) | laptop_gpu 0.412 (fits, 311 s) | mac 0.668/0.813/1.081 (fits, central 157 s) | 5090 0.648/0.827/0.995 (fits, central 155 s)
+T256   laptop_cpu 0.327 (NO FIT, 783 s) | laptop_gpu 0.409 (fits, 626 s) | mac 0.646/0.797/1.087 (fits, central 321 s) | 5090 0.644/0.839/1.031 (fits, central 305 s)
+T512   laptop_cpu 0.289 (NO FIT, 1773 s) | laptop_gpu 0.371 (NO FIT, 1379 s) | mac 0.574/0.713/0.987 (fits, central 718 s) | 5090 0.587/0.773/0.960 (fits, central 662 s)
+T1024  laptop_cpu 0.216 (NO FIT, 4749 s) | laptop_gpu 0.282 (NO FIT, 3634 s) | mac 0.430/0.537/0.748 (fits, central 1908 s) | 5090 0.446/0.591/0.739 (fits, central 1732 s)
+T2048  laptop_cpu 0.142 (NO FIT, 14458 s) | laptop_gpu 0.187 (NO FIT, 10949 s) | mac 0.283/0.354/0.494 (NO FIT, central 5792 s) | 5090 0.296/0.394/0.494 (NO FIT, central 5199 s)
+T4096  laptop_cpu 0.084 (NO FIT, 48900 s) | laptop_gpu 0.111 (NO FIT, 36801 s) | mac 0.167/0.209/0.293 (NO FIT, central 19568 s) | 5090 0.177/0.235/0.295 (NO FIT, central 17440 s)
+
+== the lever ladder on one 5090, steady state with a resident model (no loads), positions/s low/central/high ==
+S0 today's code (GPU commits only; host CPU for the rest; CPU witness)
+   T256   0.68 / 0.90 / 1.13   (elems 0.273G, VRAM commit-only 2.2 GiB, full-GPU 4.5 GiB)
+   T512   0.60 / 0.80 / 1.00   (elems 0.663G, VRAM commit-only 5.1 GiB, full-GPU 9.6 GiB)
+   T1024  0.45 / 0.60 / 0.75   (elems 1.847G, VRAM commit-only 14.0 GiB, full-GPU 28.5 GiB)
+S1 + witness on the GPU
+   T256   0.98 / 1.31 / 1.63   (elems 0.273G, VRAM commit-only 2.2 GiB, full-GPU 4.5 GiB)
+   T512   0.89 / 1.18 / 1.48   (elems 0.663G, VRAM commit-only 5.1 GiB, full-GPU 9.6 GiB)
+   T1024  0.66 / 0.88 / 1.11   (elems 1.847G, VRAM commit-only 14.0 GiB, full-GPU 28.5 GiB)
+S2 + the five zero-check sumchecks on the GPU
+   T256   1.90 / 2.72 / 3.56   (elems 0.273G, VRAM commit-only 2.2 GiB, full-GPU 4.5 GiB)
+   T512   1.66 / 2.37 / 3.11   (elems 0.663G, VRAM commit-only 5.1 GiB, full-GPU 9.6 GiB)
+   T1024  1.19 / 1.69 / 2.22   (elems 1.847G, VRAM commit-only 14.0 GiB, full-GPU 28.5 GiB)
+S3 + inverses, openings, conversion, rest on the GPU (whole prover resident)
+   T256   4.75 / 8.91 / 14.70   (elems 0.273G, VRAM commit-only 2.2 GiB, full-GPU 4.5 GiB)
+   T512   4.41 / 8.56 / 15.03   (elems 0.663G, VRAM commit-only 5.1 GiB, full-GPU 9.6 GiB)
+   T1024  3.35 / 6.63 / 12.07   (elems 1.847G, VRAM commit-only 14.0 GiB, full-GPU 28.5 GiB)
+S4 + causal-triangle score domain [profile + soundness review]
+   T256   5.24 / 9.77 / 15.95   (elems 0.240G, VRAM commit-only 2.0 GiB, full-GPU 4.3 GiB)
+   T512   5.33 / 10.31 / 17.90   (elems 0.533G, VRAM commit-only 4.2 GiB, full-GPU 7.7 GiB)
+   T1024  4.54 / 8.98 / 16.26   (elems 1.327G, VRAM commit-only 10.1 GiB, full-GPU 17.9 GiB)
+S5 + zkAttn-style softmax normalization [RULING]
+   T256   5.93 / 10.92 / 17.53   (elems 0.211G, VRAM commit-only 1.8 GiB, full-GPU 4.1 GiB)
+   T512   6.10 / 11.83 / 20.44   (elems 0.440G, VRAM commit-only 3.5 GiB, full-GPU 7.0 GiB)
+   T1024  5.76 / 11.51 / 20.92   (elems 0.955G, VRAM commit-only 7.3 GiB, full-GPU 13.4 GiB)
+
+S5 central T512 per block: total 1.353 s, of which commit 0.598 s, ported 0.725 s, witness 0.030 s
+today layout T512: committed 0.663G elems/block; commit-only ceiling positions/s at board factor (4.0, 5.0, 7.0): ['19.1', '23.8', '33.3']
+S5 layout T512: committed 0.440G elems/block; commit-only ceiling positions/s at board factor (4.0, 5.0, 7.0): ['28.7', '35.9', '50.3']
+
+== roofline whole-GPU prover on one 5090, positions/s at achieved-bandwidth fraction 0.25 / 0.40 / 0.60 ==
+today layout           T256   42.0 / 62.3 / 85.1 | at 0.40: commit 0.065 zc 0.020 inv 0.010 open 0.006 wit 0.001 seq 0.025 total 0.128 s/block
+today layout           T512   37.1 / 57.3 / 82.3 | at 0.40: commit 0.157 zc 0.050 inv 0.024 open 0.015 wit 0.003 seq 0.025 total 0.279 s/block
+today layout           T1024  27.6 / 43.5 / 64.2 | at 0.40: commit 0.438 zc 0.140 inv 0.068 open 0.041 wit 0.009 seq 0.025 total 0.735 s/block
++ causal triangle      T256   46.9 / 69.0 / 93.5 | at 0.40: commit 0.057 zc 0.017 inv 0.008 open 0.005 wit 0.001 seq 0.025 total 0.116 s/block
++ causal triangle      T512   45.6 / 69.9 / 99.5 | at 0.40: commit 0.126 zc 0.040 inv 0.019 open 0.012 wit 0.003 seq 0.025 total 0.229 s/block
++ causal triangle      T1024  38.2 / 60.0 / 87.9 | at 0.40: commit 0.315 zc 0.100 inv 0.048 open 0.030 wit 0.007 seq 0.025 total 0.533 s/block
++ triangle + zkAttn    T256   52.1 / 76.0 / 101.9 | at 0.40: commit 0.050 zc 0.016 inv 0.007 open 0.005 wit 0.001 seq 0.025 total 0.105 s/block
++ triangle + zkAttn    T512   54.4 / 82.9 / 116.8 | at 0.40: commit 0.104 zc 0.033 inv 0.015 open 0.010 wit 0.002 seq 0.025 total 0.193 s/block
++ triangle + zkAttn    T1024  52.4 / 81.8 / 119.0 | at 0.40: commit 0.227 zc 0.073 inv 0.033 open 0.021 wit 0.005 seq 0.025 total 0.391 s/block
+
+== total-workload rate: positions needed so that N / (startup + N / r) >= 50 ==
+steady 60/s startup 160 s -> N >= 48000 positions (93.8 passes of 512)
+steady 60/s startup 40 s -> N >= 12000 positions (23.4 passes of 512)
+steady 60/s startup 10 s -> N >= 3000 positions (5.9 passes of 512)
+steady 75/s startup 160 s -> N >= 24000 positions (46.9 passes of 512)
+steady 75/s startup 40 s -> N >= 6000 positions (11.7 passes of 512)
+steady 75/s startup 10 s -> N >= 1500 positions (2.9 passes of 512)
+steady 100/s startup 160 s -> N >= 16000 positions (31.2 passes of 512)
+steady 100/s startup 40 s -> N >= 4000 positions (7.8 passes of 512)
+steady 100/s startup 10 s -> N >= 1000 positions (2.0 passes of 512)

@@ -1,0 +1,27 @@
+{
+ "written_utc": "2026-10-17T21:15Z, before any R5 bundle exists and before any gate stage has read one",
+ "what_this_is": "the privacy-gate lane's hand prediction for the bundles captured from the native lane's frozen R5 tree (round 4). Not a privacy statement.",
+ "basis": "every changed pinned file was READ (zk60_native_rg_tinyllama_r5_pins.py): no hunk moves an absorb, a draw, a published byte, a slot polynomial, a row, a plane or a transcribed coefficient. So every figure the gate computes from the public structure is predicted EQUAL to the round-1 / round-3 figure for the same layers and input; only the sampled-column class (fresh randomness) and the bytes that carry pins differ.",
+ "failing_first_probe_with_frozen_v4_tools": {
+  "refused_run_layer_pins": ["src/private_block/run.rs 05302591", "src/private_block/run_capture.rs 9c5f844b"],
+  "refused_or_unaccepted_elsewhere": ["layout.rs ee871fff", "protocol.rs 7cf6e486", "shape.rs 38d32443 (terminals)", "argument.rs 02df55eb (no definition; gqa / mask)", "layout.rs / shape.rs at the mask layer"],
+  "g2_files": "pinned by the bundle (26 shared pins) but IGNORED by v4 (not in SHARED_LAYER_PINS): no refusal, no reading -- the gap v5's SHARED_G2_PINS closes",
+  "replay": "re-derives every challenge with the v4 tools (the transcript is unchanged)"
+ },
+ "capture": {
+  "source_pins_per_bundle": 42,
+  "manifest_files": {"L1": 4, "L2": 5, "L22": 25},
+  "parity_dense": "bit-exact at every layer (65,536 / 131,072 / 1,441,792 words)",
+  "statement_identity_L22": "68ad19c8... (the same export, layers and calibration as round 1)",
+  "cost": "L1 ~25 s / 0.8 GiB, L2 ~50 s / 1.0 GiB, L22 ~550-600 s / 2.3 GiB"
+ },
+ "gate_v5": {
+  "pins": "all ok on every R5 bundle",
+  "L1": "positions 127, challenges 4,511, final counter 4,831, 4 roots, 5 openings, terminals 23 of 23, A 0, H 2, E 0, M 0, whole run 104 x 3,587, joint 2 = 2",
+  "L2": "positions 251, challenges 9,002, 7 roots, terminals 46 of 46, A 0, H 2, B0 0 (6/6), E 0, M 0, whole run 206 x 7,154, joint 4 = 4; full preimage ~2.25 M entries 0 differing; mask 32,310 / 0; joint 0 differing; TL 15 of 15",
+  "L22": "positions 2,731, challenges 98,822, final counter 104,518, 44 tags, 67 roots, 89 openings / 22,784 columns / 162,197,504 B, terminals 506 of 506, whole run 2,246 x 78,494, joint 44 = 44; full preimage ~24.6 M / 0 (67 of 67); mask 355,410 / 0; joint 0 differing",
+  "controls": "as with the pre-port bundles: every family fires; by-name skips CT-4, CH-6; M9-3's wording criterion false (G-4)",
+  "G10": "4 of 4 at L = 1, 2, 22",
+  "pass_T_L22": "CT 8 of 9 (CT-4 by name), GQ 13 of 13, M9-1/2/3 fire with M9-3's criterion false; record NOT-OK by those by-name items; ~30 min, ~5.5 GiB"
+ }
+}

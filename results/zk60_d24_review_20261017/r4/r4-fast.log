@@ -1,0 +1,199 @@
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+    --> src/private_block/run.rs:1020:13
+     |
+1020 |         let mut tr = st.transcript()?;
+     |             ----^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:865:4
+    |
+865 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `slot` is never used
+   --> src/private_block/timing.rs:258:19
+    |
+215 | impl Phases {
+    | ----------- method in this implementation
+...
+258 |     pub(crate) fn slot(&mut self, s: usize, size: u64, unit: &'static str) {
+    |                   ^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:485:5
+    |
+478 | struct Rec {
+    |        --- field in this struct
+...
+485 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:587:15
+    |
+587 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 16 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.03s
+     Running unittests src/lib.rs (/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r4-scratch/hashline/target/release/deps/hashline-29f6f5201fd1ac48)
+
+running 9 tests
+test private_block::review_r4_tests::r4_1_r3_3_cs6_refuses_blocks_b_under_a_statement_over_a_on_both_sides ... REVIEW-R4-1 (1) honest prover, blocks B under A: refused: private run: ruling CS-6 — block 1 handed to the run is not the block the run statement names (its public digest begins 8e1a14e41e58414f, the statement's 8f9f4bf354ce70ed); refused before anything is absorbed
+REVIEW-R4-1 (2) cheating prover: B under A proved, 2 segments, 15012880 B
+REVIEW-R4-1 (2a) verify_run, verifier handed B: refused: private run: ruling CS-6 — block 1 handed to the run is not the block the run statement names (its public digest begins 8e1a14e41e58414f, the statement's 8f9f4bf354ce70ed); refused before anything is absorbed
+REVIEW-R4-1 (2b) verify_run, verifier handed A: rejected: M: mask: the product polynomial's sum != the combined functional
+REVIEW-R4-1 (3) honest A chain under the statement over A: verifies
+ok
+test private_block::review_r4_tests::r4_2_the_parallel_off_support_prescan_equals_the_sequential_loop ... REVIEW-R4-2 development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) [Q,D] 128 x 128: 7168 off-support entries; pre-scan == sequential on every case
+REVIEW-R4-2 development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) [Kv,D] 32 x 128: 1024 off-support entries; pre-scan == sequential on every case
+REVIEW-R4-2 development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) [D,Q] 128 x 128: 7168 off-support entries; pre-scan == sequential on every case
+REVIEW-R4-2 development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) [1,D] 1 x 128: 32 off-support entries; pre-scan == sequential on every case
+REVIEW-R4-2 development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) [D,F] 128 x 256: 14336 off-support entries; pre-scan == sequential on every case
+REVIEW-R4-2 development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) [F,D] 256 x 128: 14336 off-support entries; pre-scan == sequential on every case
+REVIEW-R4-2 development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) [Q,D] 128 x 128: 7168 off-support entries; pre-scan == sequential on every case
+REVIEW-R4-2 development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) [Kv,D] 32 x 128: 1024 off-support entries; pre-scan == sequential on every case
+REVIEW-R4-2 development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) [D,Q] 128 x 128: 7168 off-support entries; pre-scan == sequential on every case
+REVIEW-R4-2 development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) [1,D] 1 x 128: 32 off-support entries; pre-scan == sequential on every case
+REVIEW-R4-2 development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) [D,F] 128 x 256: 8192 off-support entries; pre-scan == sequential on every case
+REVIEW-R4-2 development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) [F,D] 256 x 128: 8192 off-support entries; pre-scan == sequential on every case
+REVIEW-R4-2 development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) [Q,D] 128 x 128: 7168 off-support entries; pre-scan == sequential on every case
+REVIEW-R4-2 development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) [Kv,D] 32 x 128: 1024 off-support entries; pre-scan == sequential on every case
+REVIEW-R4-2 development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) [D,Q] 128 x 128: 7168 off-support entries; pre-scan == sequential on every case
+REVIEW-R4-2 development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) [1,D] 1 x 128: 32 off-support entries; pre-scan == sequential on every case
+REVIEW-R4-2 development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) [D,F] 128 x 256: 14336 off-support entries; pre-scan == sequential on every case
+REVIEW-R4-2 development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) [F,D] 256 x 128: 14336 off-support entries; pre-scan == sequential on every case
+REVIEW-R4-2 development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) [Q,D] 512 x 512: 114688 off-support entries; pre-scan == sequential on every case
+REVIEW-R4-2 development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) [Kv,D] 128 x 512: 16384 off-support entries; pre-scan == sequential on every case
+REVIEW-R4-2 development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) [D,Q] 512 x 512: 114688 off-support entries; pre-scan == sequential on every case
+REVIEW-R4-2 development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) [1,D] 1 x 512: 128 off-support entries; pre-scan == sequential on every case
+REVIEW-R4-2 development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) [D,F] 512 x 512: 65536 off-support entries; pre-scan == sequential on every case
+REVIEW-R4-2 development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) [F,D] 512 x 512: 65536 off-support entries; pre-scan == sequential on every case
+REVIEW-R4-2 total: 9672 cases (9648 violating), every verdict and first error equal
+ok
+test private_block::review_r4_tests::r4_3_cs8_every_shape_field_write_and_check_constructed ... REVIEW-R4-3 development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) (trained false): field writes check_constructed ADMITS: []
+REVIEW-R4-3 development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) (trained true): field writes check_constructed ADMITS: ["norm_cn_a (layout builds)", "norm_cn_m (layout builds)", "norm_ceps (layout builds)", "sh_ao (layout builds)", "sh_s (layout builds)", "sh_o (layout builds)", "sh_h (layout builds)", "sh_z (layout builds)"]
+REVIEW-R4-3 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads) (trained false): field writes check_constructed ADMITS: []
+ok
+test private_block::review_r4_tests::r4_5_read_segment_bounded_under_a_concurrent_swap ... REVIEW-R4-5 counted length of segment 0 at rung-G: 4235064 B
+REVIEW-R4-5 105316 reads during 1804824 swaps in 12.0 s: Ok(good) 5842, Ok(other, same length) 17648; refused by lstat type 29067, by lstat length 49456, by O_NOFOLLOW open 3279, by fstat after open 24, by read length 0; unknown []; slowest call 0.0056 s; VmHWM 189 MiB
+ok
+test private_block::trained_block::review_r4_inner::r4_4a_a_file_changed_after_the_digest_pass_is_refused_by_the_sha_free_reload ... REVIEW-R4-4a [array rewritten only (the reload no longer checks its SHA-256)]: statement c0dbddae1fc0cb61; block 0 reload Ok(()); block 1 reload: refused: trained stack: layer 1's reloaded public statement is not the one the run statement binds
+REVIEW-R4-4a [array rewritten only, a feed-forward matrix]: statement c0dbddae1fc0cb61; block 0 reload Ok(()); block 1 reload: refused: trained stack: layer 1's reloaded public statement is not the one the run statement binds
+REVIEW-R4-4a [array + manifest rewritten, profile carries manifest digests]: statement c0dbddae1fc0cb61; block 0 reload Ok(()); block 1 reload: refused: /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r4-scratch/review_tmp/r4i-toctou-130912/c2/toctou/layer_01/manifest.json: SHA-256 e1f91b1c4073aeb01abd34
+REVIEW-R4-4a [array + manifest rewritten, profile carries NO manifest digests]: statement 2c6ed8dc1d99509c; block 0 reload Ok(()); block 1 reload: refused: trained stack: layer 1's reloaded public statement is not the one the run statement binds
+REVIEW-R4-4a [gamma_m rewritten only]: statement c0dbddae1fc0cb61; block 0 reload Ok(()); block 1 reload: refused: trained stack: layer 1's reloaded public statement is not the one the run statement binds
+ok
+test private_block::trained_block::review_r4_inner::r4_4b_the_parallel_digest_pass_equals_the_sequential_one_and_keeps_the_first_error ... REVIEW-R4-4b 4 layers: parallel digest pass == sequential loads == reloads; statement 3225e2abb9268999
+REVIEW-R4-4b first error [layers 0 and 1]: array `wk`: SHA-256 mismatch: the manifest says bb39d6990f89e0c42ec9352965c56a2fa9ba3382366def9707e32f15b311f654, the file is eb8fd7b96dd02715c7a477db514872eda9c228fd18fa0bd88e73e5dd62ca7e12
+REVIEW-R4-4b first error [layers 1 and 3]: array `wv`: SHA-256 mismatch: the manifest says b9d255eb72716bf7a8397aae5f795c2e6e774f798363d9068897ebee9c16795c, the file is 242314fe881e9b87e99012a10b78f7abb0ce7076fc4f728bb99ffaf775a80c64
+REVIEW-R4-4b first error [layer 3]: array `act`: SHA-256 mismatch: the manifest says 695e55ca9d58a7e89e973e5eff2bf7ff13d604d6ab1fbf7f9efc4b0d8a61446f, the file is 2c12e0e18ecb1d6cc0d568472ca62baca77f2b65657b7883f381c4904317c90c
+ok
+test private_block::trained_block::review_r4_inner::r4_4c_cs6_the_streaming_cache_refuses_a_digest_list_that_is_not_the_statements ... REVIEW-R4-4c verifier [the cache's digest list swapped]: private run: ruling CS-6 — block 0 handed to the run is not the block the run statement names (its public digest begins 4e20875b957c3d63, the statement's 731a722a776216a1); refused before anything is 
+REVIEW-R4-4c prover [the cache's digest list swapped]: private run: ruling CS-6 — block 0 handed to the run is not the block the run statement names (its public digest begins 4e20875b957c3d63, the statement's 731a72; asked 0, sunk 0, block loads 0
+REVIEW-R4-4c verifier [a consistent cache over the layers swapped]: private run: ruling CS-6 — block 0 handed to the run is not the block the run statement names (its public digest begins 4e20875b957c3d63, the statement's 731a722a776216a1); refused before anything is 
+REVIEW-R4-4c prover [a consistent cache over the layers swapped]: private run: ruling CS-6 — block 0 handed to the run is not the block the run statement names (its public digest begins 4e20875b957c3d63, the statement's 731a72; asked 0, sunk 0, block loads 0
+REVIEW-R4-4c [the statement's list, layers swapped] reload: trained stack: layer 1's reloaded public statement is not the one the run statement binds
+REVIEW-R4-4c [one block fewer in the cache]: private run: ruling CS-6 — the run statement names 2 blocks and 1 public statements were handed
+ok
+test private_block::trained_block::review_r4_inner::r4_4d_the_parallel_pad_matrix_equals_the_sequential_one ... REVIEW-R4-4d development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads): d 384 -> 512, f 512 -> 512, 288 of 384 Q indices moved by the head map; parallel == sequential (6 matrices)
+REVIEW-R4-4d development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): d 96 -> 128, f 192 -> 256, 48 of 96 Q indices moved by the head map; parallel == sequential (6 matrices)
+REVIEW-R4-4d development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads): d 96 -> 128, f 192 -> 256, 72 of 96 Q indices moved by the head map; parallel == sequential (6 matrices)
+REVIEW-R4-4d development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads): d 96 -> 128, f 256 -> 256, 72 of 96 Q indices moved by the head map; parallel == sequential (6 matrices)
+ok
+test private_block::trained_block::review_r4_inner::r4_4e_the_export_reader_under_a_concurrent_swap ... REVIEW-R4-4e read_bounded(max 4096) 6362 calls in 10.0 s: Ok(within bound) 2067; Ok(OVER the bound) 340 (largest 67108864 B); Ok(short, a FIFO read to EOF) 171; refused symlink 1131, type 1379, length 1274; reader parked in a FIFO and rescued 171 times; other []
+ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 572 filtered out; finished in 29.19s
+

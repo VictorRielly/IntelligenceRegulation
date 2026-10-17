@@ -1,0 +1,8 @@
+[zk60-guard 13:15:45] START r4-prove-timing class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=e58bfde752bf
+[zk60-guard 13:15:46] END r4-prove-timing exit=0 child_wall=1s peak_rss=0.03G min_avail=11.75G
+[zk60-guard 13:15:47] START r4-prove-plain class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=35ddf0537b8a
+[zk60-guard 13:15:48] END r4-prove-plain exit=0 child_wall=1s peak_rss=0.03G min_avail=11.69G
+[zk60-guard 13:15:48] START r4-verify-timing-receipt-plain class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=16d2d1546994
+[zk60-guard 13:15:48] END r4-verify-timing-receipt-plain exit=0 child_wall=0s peak_rss=0.00G min_avail=11.72G
+[zk60-guard 13:15:48] START r4-verify-plain-receipt-timing class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=85db85692de7
+[zk60-guard 13:15:48] END r4-verify-plain-receipt-timing exit=0 child_wall=0s peak_rss=0.00G min_avail=11.72G

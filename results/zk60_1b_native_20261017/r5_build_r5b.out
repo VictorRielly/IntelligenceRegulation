@@ -1,0 +1,20 @@
+/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/manifest_r5b.json: 217 files, tree a0b503d742c71557a9c8248b0a0893b9a14b31a136a7969b973c432cbe850e60
+[zk60-guard 11:30:29] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 11:31:29] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 11:32:29] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 11:33:29] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 11:34:30] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 11:35:30] waiting for /tmp/zk-heavy.lock (301s)
+[zk60-guard 11:36:30] waiting for /tmp/zk-heavy.lock (361s)
+[zk60-guard 11:37:30] waiting for /tmp/zk-heavy.lock (421s)
+[zk60-guard 11:38:08] START r5b-cli-build class=build need=2.5G cap=5G enforce=cgroup+watchdog waited=459s run=5e23c02c70eb
+[zk60-guard 11:39:06] END r5b-cli-build exit=0 child_wall=58s peak_rss=1.05G min_avail=11.07G
+cli-build exit 0
+[zk60-guard 11:39:07] START r5b-test-build class=build need=3G cap=6G enforce=cgroup+watchdog waited=0s run=d28d674945be
+[zk60-guard 11:46:18] END r5b-test-build exit=0 child_wall=431s peak_rss=2.88G min_avail=8.54G
+test-build exit 0
+[zk60-guard 11:46:18] START r5b-gpu-build class=build need=3G cap=5G enforce=cgroup+watchdog waited=0s run=d9fc7ecbd9cb
+[zk60-guard 11:47:40] END r5b-gpu-build exit=0 child_wall=82s peak_rss=1.07G min_avail=10.05G
+gpu-build exit 0
+88fad6ea7ef5835abb119fd822af0ea5a0b791d9fbff2d30fc9d5924dfc42de2  /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/zk60_trained_block.release.bin
+2bd95f1bcbf4d9de001db5c905a7969ae4d7f049adaa94ebab649fe325548030  /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/zk60_trained_block.gpu.release.bin

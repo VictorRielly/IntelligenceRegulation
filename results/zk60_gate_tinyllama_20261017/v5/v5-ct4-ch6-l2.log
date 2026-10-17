@@ -1,0 +1,11 @@
+[load          ]      0.7 s   peak RSS     128 MB   ok
+[replay        ]      0.5 s   peak RSS     128 MB   ok
+[terminals     ]    131.6 s   peak RSS     296 MB   ok
+[commitments   ]     35.4 s   peak RSS     296 MB   ok
+[boundary      ]      5.1 s   peak RSS     305 MB   ok
+[preimage      ]      0.3 s   peak RSS     305 MB   ok
+[runcontrols   ]     25.3 s   peak RSS     649 MB   FAIL
+[export        ]      0.0 s   peak RSS     649 MB   ok
+[channels      ]      0.0 s   peak RSS     649 MB   ok
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/v5/tl-l2-dense-t-v5.json   total 198.9 s   peak RSS 649 MB   ok=False
+status: NOT-OK   unexplained false leaves 4   -> /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/v5/tl-l2-dense-t-v5.status.json

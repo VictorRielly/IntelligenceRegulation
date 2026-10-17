@@ -1,0 +1,287 @@
+[
+  {
+    "path": "experiments/fzc-device-traffic-20261017/README.md",
+    "bytes": 5815,
+    "sha256": "749c1429a7cb094b1d81c5bc401fa4dbf4a416f791848242ff3a446144a25229"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/audit-result.json",
+    "bytes": 1756,
+    "sha256": "78088135c3a6f37daf086105d5cd2d15bd8e6934736e38f245aeebdbec28b368"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/audit.py",
+    "bytes": 5620,
+    "sha256": "d08c03aade230538203370c92ccb0da30d9427477f632936fad5e7523eeb4cc1"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/checkpoint-time.json",
+    "bytes": 234,
+    "sha256": "2e2de433594a544a38e55aae2cc6d59caf2775d3dcc6917be0fa305bb4bd7150"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/commands.json",
+    "bytes": 1037,
+    "sha256": "f56958f3e493b14c9c682c68e992413ff9af30e06d623e4e0a0e74b660099886"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/compile.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/eq-compile.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/eq.so",
+    "bytes": 84496,
+    "sha256": "e7983bc17dc96565ca6b64a2885657f7e1cd0a6b9b40de7ef4a9023a0632aeb5"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/eq_builders.cu",
+    "bytes": 779,
+    "sha256": "a0130f8946af1d679e8153ff495135fd02c916272ef024bd990ad6b17278719a"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/eq_shim.cpp",
+    "bytes": 628,
+    "sha256": "c17361b7b6d528d1e9a063137a12d27aa281e29f25a6d5eaefab997253bc2b47"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/final_audit.py",
+    "bytes": 4088,
+    "sha256": "273a2196ef75a0f95e1c1d3dc62361c1dee307dbd982918f04220a179960e537"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/fold.cu",
+    "bytes": 432,
+    "sha256": "300e06224bf1aa289521b403499c639c7effb03671bd66b58295ca848361bcde"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/fzc-grouped-equality-20261017-prior-result.json",
+    "bytes": 28042,
+    "sha256": "bb3e9454974fc9c97c806df4dd5713992ada86179f59e5681b15b2be9292cedf"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/fzc-public-constants-20261017-prior-result.json",
+    "bytes": 2918,
+    "sha256": "166dbf6795c7157fddf916763cafc916d6364098daafe173803cc4b4073e4c6e"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/hardware.json",
+    "bytes": 440,
+    "sha256": "011df4393a72fac791d1f5574dc55fb92ac9a89e8206bcd8978727673037f4cc"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/instrumented.cu",
+    "bytes": 22799,
+    "sha256": "999734479b1f03c25253d43760504b2b30cf8626e1441080794fd6158aaaf9ac"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/isolated.so",
+    "bytes": 84344,
+    "sha256": "c8fb2faa01d11f402936ddd9dc7e76c869890738132fad49ca85237a7e8ced7a"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/lookup-borrow-catalog-20261017-prior-result.json",
+    "bytes": 16242,
+    "sha256": "4f808ae6cf4206c5c3cf5234c05953d52486d562b3b9283db3612cde3774ba47"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/measurement-note.patch",
+    "bytes": 1976,
+    "sha256": "09b46bec740d413378ebd42d6217334a59de49f268f1ed86e309f3da3cb87af4"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/native/CLAUDE.md",
+    "bytes": 14089,
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/native/docs__zkmatrix-poc__MVP_STATUS.md",
+    "bytes": 65029,
+    "sha256": "13287d20d2a1a3fbe2becc70c9eb0029b383402c7c3be3928c5c8e0976931bb2"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/native/docs__zkmatrix-poc__ZK60_CODEX_FABLE_COORDINATION.md",
+    "bytes": 64889,
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/native/docs__zkmatrix-poc__ZK60_DECISIONS.md",
+    "bytes": 64466,
+    "sha256": "b2e40604148ea8d336098fa3e6a0fc69d4d4598187cb2ef04617c3e8d0baccb5"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/native/docs__zkmatrix-poc__ZK60_SPEED_PLAN_20261017.md",
+    "bytes": 29584,
+    "sha256": "f89f7b91649d171f2d2404f36d8cfa814f199442d83dd59dc21b355559809894"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/native/docs__zkmatrix-poc__ZK60_THROUGHPUT_TARGET.md",
+    "bytes": 4941,
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/native/ops__zkp-mvp__gpu-zerocheck__hashline__src__gpu__cuda.rs",
+    "bytes": 227360,
+    "sha256": "1840cf85575e0a9c1b7f9f76292d0f2208f9b14fb0b317f42a3265b5149434ca"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/native/ops__zkp-mvp__gpu-zerocheck__hashline__src__gpu__fzc.rs",
+    "bytes": 15173,
+    "sha256": "874fcd459834a31c2ebc2a32a2442d34cfc848721d14204de3bf0861e6a35181"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/native/ops__zkp-mvp__gpu-zerocheck__hashline__src__gpu__fzc_kernels.cu",
+    "bytes": 22780,
+    "sha256": "9241851d5498c6f6753019750463296585c9728d700da6ed5e40f996ac37b208"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/native/ops__zkp-mvp__gpu-zerocheck__hashline__src__gpu__kernels.cu",
+    "bytes": 79413,
+    "sha256": "4b27e23f2a880a7d67597d7cd2de59799b1c0068a52b2ce9abdbfa8108b0dc2a"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/native/ops__zkp-mvp__gpu-zerocheck__hashline__src__private_block__argument.rs",
+    "bytes": 108798,
+    "sha256": "2475e3a222e32aa26969182b5ab7228756d633fa67bdde1f9520818ef7a2bb0e"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/native/ops__zkp-mvp__gpu-zerocheck__hashline__src__private_block__layout.rs",
+    "bytes": 64489,
+    "sha256": "fcf9dda4e507d2a347f786ddc537feff3ac57779abae88cea91ee48d4b34c855"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/native/ops__zkp-mvp__gpu-zerocheck__hashline__src__private_block__shape.rs",
+    "bytes": 102462,
+    "sha256": "e6c7290b5c2d897ccaaa6284c813bbcfea563aaef7594c309b955a5588c1e073"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/native/results__zk60_gpu_zerocheck_20261017__DESIGN.md",
+    "bytes": 13666,
+    "sha256": "8f082eb28cd3b71f0a724146eaec56599fdc5af211ed55a2dbbf166f9cf5379a"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/native/results__zk60_gpu_zerocheck_20261017__PROGRESS.md",
+    "bytes": 3861,
+    "sha256": "4534a2e288dc888f298597b5dc277bfd8ea137eaa96a4447f616c57eb2d328b7"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/native/results__zk60_gpu_zerocheck_20261017__logs__t1-debug-small.done",
+    "bytes": 4,
+    "sha256": "9d9b18720961e9b4689fd763b85e7b6f36160ccd3a8a1c9ddc5103bb0f66c396"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/native/results__zk60_gpu_zerocheck_20261017__logs__t1-debug-small.log",
+    "bytes": 761,
+    "sha256": "a5aa55fa7861e25901e99f43e18778fade72d3d3898d4c2792943c044f0cbbe5"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/native-pins.json",
+    "bytes": 6256,
+    "sha256": "7582b89c739292a7d6ee517b37e52e70146ab1efc0284d770b4d26937256a533"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/owner-progress-drift.json",
+    "bytes": 501,
+    "sha256": "5328e7452a512363ae73091dd30eed48379e7191abcc21cedb7de2cb1a151588"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/owner-progress-updated.md",
+    "bytes": 4578,
+    "sha256": "eaa98c4f02ee288723dc175c8b133e31588402b251ae3e7fc2fa559b4d48f690"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/prior-owner-accounting.json",
+    "bytes": 3003,
+    "sha256": "bd0093570d81da8cd33f880119a493e5ce5da86e58473eb0b8107ffcf0deefe1"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/reference.py",
+    "bytes": 1963,
+    "sha256": "00860356f87ebe3b55e6dc82a6b2cc4215616c16124ab70995caf1e2b9866427"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/result.json",
+    "bytes": 60062,
+    "sha256": "bf08fa19ccb7d281c8e8d67c0c30c6d67e346d123bd1eda9334d416895a809cb"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/run.py",
+    "bytes": 10454,
+    "sha256": "abc1d899a4149888bf5e5048a0c59d54c3ddd91d16ae22d54be620f8179aa23b"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/shim.cpp",
+    "bytes": 2815,
+    "sha256": "9f707328e69a3dd740597d3e95e6f411f83de16926ce4d06e19b050e6bcdb87e"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/source-records.json",
+    "bytes": 9012,
+    "sha256": "087a331229d1e7e14eebf8122648c5a074c59f962aa4034a4974474c41cda46d"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/startup/AGENDA.md",
+    "bytes": 5603,
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/startup/FINDINGS.md",
+    "bytes": 479525,
+    "sha256": "d51fe588b1693f27412318262d4b4ff53307b9aa1ee934d142b836ef84010970"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/startup/PROGRESS.md",
+    "bytes": 2323,
+    "sha256": "0e9ac1444c006bb4cde4e7ba459fd09d8fdbd1b5f5fbbe3c733552e3cbe268e9"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/startup/STATE.md",
+    "bytes": 5303,
+    "sha256": "6b67997f8c2fdb617c3337b1e8fed362e88f850b1bf42385493f8801884b4ae4"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/startup/sources.jsonl",
+    "bytes": 416983,
+    "sha256": "0341f1eca4a7e6e3a516a972acffd53fc774bc1d1b190561f3cf06afb51037be"
+  },
+  {
+    "path": "experiments/fzc-device-traffic-20261017/web-search-log.json",
+    "bytes": 923,
+    "sha256": "52881a95132d4bf0e12f9b70bfa2c51418094c425d74b96c2b6721ea374d14f9"
+  },
+  {
+    "path": "STATE.md",
+    "bytes": 5221,
+    "sha256": "1646679e4a6456441d92316dcf19bb3b31f2c330bcc93d0a71a0aad47783a2a5"
+  },
+  {
+    "path": "PROGRESS.md",
+    "bytes": 1887,
+    "sha256": "b2427eeb1bd358b59c4fdee1ca0b2cc6cfce23d058dea428397b9116ead634c9"
+  },
+  {
+    "path": "progress/20261017T182105Z-44205280.md",
+    "bytes": 11456,
+    "sha256": "05f5c9ce548c25fc0c566aecd538847cf7c5d77a337c97ec55cde474bade9a13"
+  },
+  {
+    "path": "handoffs/20261017-fzc-device-traffic.md",
+    "bytes": 4052,
+    "sha256": "3f0a92927e9eeb8a175c1929ca16424a9a66545921b2a5a238163d9a33fb3d88"
+  },
+  {
+    "path": "FINDINGS.md",
+    "bytes": 482355,
+    "sha256": "587773e81f9e05398b8ae008745fd2170786dfe74473c45a9646c92871cb8074"
+  },
+  {
+    "path": "sources.jsonl",
+    "bytes": 425344,
+    "sha256": "5a9529b25399af32b03c2aeb93e55404812f9e1312492abf2af78d828332eede"
+  }
+]

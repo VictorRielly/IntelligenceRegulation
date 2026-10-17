@@ -1,0 +1,312 @@
+{
+  "recovery": [
+    {
+      "k": 0,
+      "index": 0,
+      "claim": [
+        1,
+        2
+      ],
+      "recovered": [
+        1,
+        2
+      ]
+    },
+    {
+      "k": 0,
+      "index": 1,
+      "claim": [
+        2,
+        5
+      ],
+      "recovered": [
+        2,
+        5
+      ]
+    },
+    {
+      "k": 0,
+      "index": 5,
+      "claim": [
+        6,
+        17
+      ],
+      "recovered": [
+        6,
+        17
+      ]
+    },
+    {
+      "k": 0,
+      "index": 7,
+      "claim": [
+        8,
+        23
+      ],
+      "recovered": [
+        8,
+        23
+      ]
+    },
+    {
+      "k": 1,
+      "index": 0,
+      "claim": [
+        18446744069414584269,
+        18446744069414584298
+      ],
+      "recovered": [
+        1,
+        2
+      ]
+    },
+    {
+      "k": 1,
+      "index": 1,
+      "claim": [
+        18446744069414584196,
+        18446744069414584265
+      ],
+      "recovered": [
+        2,
+        5
+      ]
+    },
+    {
+      "k": 1,
+      "index": 5,
+      "claim": [
+        18446744069414583904,
+        18446744069414584133
+      ],
+      "recovered": [
+        6,
+        17
+      ]
+    },
+    {
+      "k": 1,
+      "index": 7,
+      "claim": [
+        18446744069414583758,
+        18446744069414584067
+      ],
+      "recovered": [
+        8,
+        23
+      ]
+    },
+    {
+      "k": 2,
+      "index": 0,
+      "claim": [
+        1216,
+        461
+      ],
+      "recovered": [
+        1,
+        2
+      ]
+    },
+    {
+      "k": 2,
+      "index": 1,
+      "claim": [
+        2943,
+        1116
+      ],
+      "recovered": [
+        2,
+        5
+      ]
+    },
+    {
+      "k": 2,
+      "index": 5,
+      "claim": [
+        9851,
+        3736
+      ],
+      "recovered": [
+        6,
+        17
+      ]
+    },
+    {
+      "k": 2,
+      "index": 7,
+      "claim": [
+        13305,
+        5046
+      ],
+      "recovered": [
+        8,
+        23
+      ]
+    },
+    {
+      "k": 3,
+      "index": 0,
+      "claim": [
+        18446744069414553594,
+        18446744069414572709
+      ],
+      "recovered": [
+        1,
+        2
+      ]
+    },
+    {
+      "k": 3,
+      "index": 1,
+      "claim": [
+        18446744069414509945,
+        18446744069414556214
+      ],
+      "recovered": [
+        2,
+        5
+      ]
+    },
+    {
+      "k": 3,
+      "index": 5,
+      "claim": [
+        18446744069414335349,
+        18446744069414490234
+      ],
+      "recovered": [
+        6,
+        17
+      ]
+    },
+    {
+      "k": 3,
+      "index": 7,
+      "claim": [
+        18446744069414248051,
+        18446744069414457244
+      ],
+      "recovered": [
+        8,
+        23
+      ]
+    },
+    {
+      "k": 6,
+      "index": 0,
+      "claim": [
+        1043415352,
+        394374071
+      ],
+      "recovered": [
+        1,
+        2
+      ]
+    },
+    {
+      "k": 6,
+      "index": 1,
+      "claim": [
+        2525615757,
+        954593388
+      ],
+      "recovered": [
+        2,
+        5
+      ]
+    },
+    {
+      "k": 6,
+      "index": 5,
+      "claim": [
+        8454417377,
+        3195470656
+      ],
+      "recovered": [
+        6,
+        17
+      ]
+    },
+    {
+      "k": 6,
+      "index": 7,
+      "claim": [
+        11418818187,
+        4315909290
+      ],
+      "recovered": [
+        8,
+        23
+      ]
+    }
+  ],
+  "permutation": {
+    "r": [
+      [
+        3,
+        5
+      ]
+    ],
+    "left": [
+      [
+        0,
+        0
+      ],
+      [
+        18446744069414584319,
+        18446744069414584316
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        3,
+        5
+      ],
+      [
+        7,
+        10
+      ]
+    ],
+    "right": [
+      [
+        0,
+        0
+      ],
+      [
+        3,
+        5
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        18446744069414584319,
+        18446744069414584316
+      ],
+      [
+        18446744069414584318,
+        18446744069414584311
+      ]
+    ]
+  },
+  "controls": {
+    "active invalid index refuses": true,
+    "inconsistent cube size refuses": true,
+    "active length overflow refuses": true,
+    "missing support changes virtual value": true,
+    "unmasked virtual evaluation reveals singleton despite hidden commitment": true,
+    "histogram equality does not bind ordered original witness": true,
+    "degenerate half challenge correctly loses permutation distinction": true,
+    "zero sum pushforward mask changes virtual evaluation": true,
+    "value preserving mask preserves leaking scalar": true,
+    "unused table zero cannot be omitted": true,
+    "tampered table terminal changes arithmetic": true,
+    "tampered pushforward terminal changes arithmetic": true,
+    "fresh scalar mask marginal is uniform in finite field toy": true,
+    "reusing scalar mask exposes differences": true
+  }
+}

@@ -1,0 +1,139 @@
+[
+  {
+    "access_date": "2026-10-17",
+    "access_issues": [
+      "PDF open returned Internal Error; assessment limited to primary abstract/metadata."
+    ],
+    "access_timezone": "UTC",
+    "assessment": "New older architecture lead. Native looked columns are already uncommitted temporaries; no such commitment saving may be deducted again. Replacing reciprocal H helpers requires new bindings, GKR, hiding and composition, not this local producer rewrite.",
+    "author_claim": "An indexed LogUp reduction avoiding extra query-length committed arrays.",
+    "cycle": "0066",
+    "date_evidence": "Primary metadata: received May24, approved May26 2025; no later revision displayed.",
+    "evidence_kind": "Native LIVE web search and primary inspection; no downloaded code executed; embedded instructions ignored",
+    "id": "cycle66-new-older-logup-star-actual-commitment-boundary",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "inspected_urls": [
+      "https://eprint.iacr.org/2025/946",
+      "https://eprint.iacr.org/2025/946.pdf"
+    ],
+    "paper_license": "CC BY per primary metadata; implementation not inspected.",
+    "published": "2025-05-26",
+    "recorded_at_utc": "2026-10-17T19:33:01.143816+00:00",
+    "reproduced_performance": false,
+    "run_id": "20261017T192105Z-c342a26b",
+    "title": "Logup*: small-table indexed lookup and already-uncommitted native query boundary",
+    "updated": null,
+    "url": "https://eprint.iacr.org/2025/946"
+  },
+  {
+    "access_date": "2026-10-17",
+    "access_issues": [],
+    "access_timezone": "UTC",
+    "assessment": "New older design inspected, not implemented. Its opening protocol still commits the pushforward and verifies GKR terminal PCS claims. No masked/private native adaptation or performance is established; retain earlier unmasked fractional-tree leakage negatives.",
+    "author_claim": "Adapts one-hot memory checking to hash commitments with batched small pushforwards.",
+    "cycle": "0066",
+    "date_evidence": "Date printed on page1 of author PDF; no revision history inspected.",
+    "evidence_kind": "Native LIVE web search and primary inspection; no downloaded code executed; embedded instructions ignored",
+    "id": "cycle66-new-older-powdr-logup-star-hash-pcs",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "inspected_urls": [
+      "https://powdr.org/papers/twist_shout_logup_star.pdf"
+    ],
+    "published": "2025-10-30",
+    "recorded_at_utc": "2026-10-17T19:33:01.143816+00:00",
+    "reproduced_performance": false,
+    "run_id": "20261017T192105Z-c342a26b",
+    "title": "Twist and Shout via logup*: hash PCS, pushforward commitment and terminal binding",
+    "updated": null,
+    "url": "https://powdr.org/papers/twist_shout_logup_star.pdf"
+  },
+  {
+    "access_date": "2026-10-17",
+    "access_issues": [
+      "Wrong generic raw LICENSE path returned Internal Error; actual MIT file subsequently inspected.",
+      "Commit API and attempted logup source path returned Internal Error; no full commit pin inferred."
+    ],
+    "access_timezone": "UTC",
+    "assessment": "No releases listed on accessed release page. README describes binary-field CPU-oriented word circuits, not a drop-in Goldilocks private block. No implementation source or full commit was verified.",
+    "author_claim": "Task defines indexed lookup reduction; caller verifies three reduced evaluation claims.",
+    "cycle": "0066",
+    "date_evidence": "Issue opened Jan4 2026 and closed completed Jul6 2026. Closure is not a dated release or inspected implementation commit.",
+    "evidence_kind": "Native LIVE web search and primary inspection; no downloaded code executed; embedded instructions ignored",
+    "id": "cycle66-binius-logup-star-scope-license-no-release",
+    "implementation_license": "MIT full LICENSE-MIT.txt terms inspected; README also declares Apache-2.0 OR MIT; Apache file not opened.",
+    "inspected_commit_id": null,
+    "inspected_urls": [
+      "https://github.com/binius-zk/binius64/issues/1368",
+      "https://github.com/binius-zk/binius64",
+      "https://github.com/binius-zk/binius64/releases",
+      "https://github.com/binius-zk/binius64/blob/main/LICENSE-MIT.txt",
+      "https://github.com/binius-zk/binius64/blob/main/Cargo.toml",
+      "https://api.github.com/repos/binius-zk/binius64/commits/main",
+      "https://github.com/binius-zk/binius64/tree/main/crates/prover/src/protocols/logup"
+    ],
+    "published": "2026-01-04",
+    "recorded_at_utc": "2026-10-17T19:33:01.143816+00:00",
+    "reproduced_performance": false,
+    "run_id": "20261017T192105Z-c342a26b",
+    "title": "Binius64 LogUp* task: reduction outputs remain caller-owned claims",
+    "updated": "2026-07-06",
+    "url": "https://github.com/binius-zk/binius64/issues/1368"
+  },
+  {
+    "access_date": "2026-10-17",
+    "access_issues": [
+      "Exact sumcheck tag, exact rc.2 crate and commit-detail opens returned Internal Error.",
+      "Companion rc.2 date confirmed by LIVE primary search results, not a direct source-file inspection."
+    ],
+    "access_timezone": "UTC",
+    "assessment": "Retains all fresh-mask and terminal-binding obligations. docs.rs latest currently serves0.8.0 and lists rc.1; exact rc.2 fetch failed, so do not describe latest docs as rc.2 implementation evidence.",
+    "author_claim": "Release lists fusion, crypto-RNG mask sampling and caller-soundness enforcement.",
+    "cycle": "0066",
+    "date_evidence": "Release list sumcheck rc.2: Oct16 10:17 without year; LIVE primary docs.rs search for p3-bus/multi-stark rc.2 explicitly gives2026-10-16. Exact sumcheck date retains this qualification.",
+    "evidence_kind": "Native LIVE web search and primary inspection; no downloaded code executed; embedded instructions ignored",
+    "exposed_uninspected_commit_id": "fe5e46d",
+    "id": "cycle66-oct16-plonky3-release-docs-scope",
+    "implementation_license": "Not re-inspected for this tag/cycle; prior main license inspection is not a tag pin.",
+    "inspected_commit_id": null,
+    "inspected_urls": [
+      "https://github.com/Plonky3/Plonky3/releases",
+      "https://github.com/Plonky3/Plonky3/releases/tag/p3-sumcheck-v0.9.0-rc.2",
+      "https://docs.rs/crate/p3-sumcheck/0.9.0-rc.2",
+      "https://docs.rs/crate/p3-sumcheck/latest",
+      "https://docs.rs/crate/p3-bus/0.9.0-rc.2",
+      "https://docs.rs/crate/p3-multi-stark/0.9.0-rc.2"
+    ],
+    "published": "2026-10-16",
+    "recorded_at_utc": "2026-10-17T19:33:01.143816+00:00",
+    "reproduced_performance": false,
+    "run_id": "20261017T192105Z-c342a26b",
+    "title": "October16 Plonky3 rc.2 refresh: current release versus served docs",
+    "updated": null,
+    "url": "https://github.com/Plonky3/Plonky3/releases"
+  },
+  {
+    "access_date": "2026-10-17",
+    "access_issues": [],
+    "access_timezone": "UTC",
+    "assessment": "Metadata/abstract refresh only, author evidence not reproduced. Native fixed exact relation and per-query helper traffic remain; no quantization change or table reduction is authorized by this experiment.",
+    "author_claim": "Studies precision/utility and reports non-proportional end-to-end savings from smaller bit widths/tables.",
+    "cycle": "0066",
+    "date_evidence": "Primary arXiv v1 submission2026-09-29 00:54:35UTC; only v1 displayed.",
+    "evidence_kind": "Native LIVE web search and primary inspection; no downloaded code executed; embedded instructions ignored",
+    "id": "cycle66-september-quantization-query-count-refresh",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "inspected_urls": [
+      "https://arxiv.org/abs/2609.36437"
+    ],
+    "published": "2026-09-29",
+    "recorded_at_utc": "2026-10-17T19:33:01.143816+00:00",
+    "reproduced_performance": false,
+    "run_id": "20261017T192105Z-c342a26b",
+    "title": "Bits Under ZK-LLM: table/precision savings require whole-prover accounting",
+    "updated": null,
+    "url": "https://arxiv.org/abs/2609.36437"
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "status": "complete",
+  "cycle": "0067",
+  "run_id": "20261017T202105Z-363d38a1",
+  "utc": "2026-10-17T20:35:13.158820+00:00",
+  "deadline_utc": "2026-10-17T20:41:05Z",
+  "next_cycle_not_before_utc": "2026-10-17T21:21:05Z",
+  "new_complete_target_proofs": 0,
+  "new_positions": 0,
+  "no_background_jobs": true,
+  "artifact_validation": "PASS"
+}

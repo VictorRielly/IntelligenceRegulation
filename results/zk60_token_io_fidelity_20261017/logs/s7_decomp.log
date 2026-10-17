@@ -1,0 +1,139 @@
+[20:09:28Z]   T128 0-512 of 9216
+[20:09:33Z]   T128 512-1024 of 9216
+[20:09:38Z]   T128 1024-1536 of 9216
+[20:09:43Z]   T128 1536-2048 of 9216
+[20:09:49Z]   T128 2048-2560 of 9216
+[20:09:54Z]   T128 2560-3072 of 9216
+[20:09:59Z]   T128 3072-3584 of 9216
+[20:10:04Z]   T128 3584-4096 of 9216
+[20:10:09Z]   T128 4096-4608 of 9216
+[20:10:14Z]   T128 4608-5120 of 9216
+[20:10:19Z]   T128 5120-5632 of 9216
+[20:10:24Z]   T128 5632-6144 of 9216
+[20:10:29Z]   T128 6144-6656 of 9216
+[20:10:34Z]   T128 6656-7168 of 9216
+[20:10:39Z]   T128 7168-7680 of 9216
+[20:10:44Z]   T128 7680-8192 of 9216
+[20:10:50Z]   T128 8192-8704 of 9216
+[20:10:56Z]   T128 8704-9216 of 9216
+[20:10:56Z] T128: {'A_exact_y_pt_W': {'agree': 9100, 'n': 9216, 'rate': 0.9874131944444444}, 'B_exact_y_pr_W': {'agree': 9176, 'n': 9216, 'rate': 0.9956597222222222}, 'C_int8_y_float_W': {'agree': 9125, 'n': 9216, 'rate': 0.9901258680555556}, 'D_int16_y_pt_W': {'agree': 9102, 'n': 9216, 'rate': 0.9876302083333334}, 'E_int16_y_pr_W': {'agree': 9176, 'n': 9216, 'rate': 0.9956597222222222}, 'F_int16_y_pr_m12': {'agree': 9179, 'n': 9216, 'rate': 0.9959852430555556}, 'G_int16_y_pr_m8': {'agree': 9070, 'n': 9216, 'rate': 0.9841579861111112}, 'D_int16_logit_absmax': 8454262, 'D_int16_logit_absmax_bits': 23.011247391918065, 'D_int16_tie_positions': 0, 'keyed_delta_bits_measured': {'D': 39, 'F': 51, 'G': 47}, 'keyed_delta_bits_worst_case': {'D': 49, 'F': 61, 'G': 57, 'int8_y_pt': 41, 'int8_y_pr_m12': 53, 'int8_y_pr_m8': 49}, 'D_int16_keyed_window_bits_worst_case': 49}
+[20:11:01Z]   T32 0-512 of 2304
+[20:11:07Z]   T32 512-1024 of 2304
+[20:11:14Z]   T32 1024-1536 of 2304
+[20:11:20Z]   T32 1536-2048 of 2304
+[20:11:23Z]   T32 2048-2304 of 2304
+[20:11:23Z] T32: {'A_exact_y_pt_W': {'agree': 2277, 'n': 2304, 'rate': 0.98828125}, 'B_exact_y_pr_W': {'agree': 2292, 'n': 2304, 'rate': 0.9947916666666666}, 'C_int8_y_float_W': {'agree': 2273, 'n': 2304, 'rate': 0.9865451388888888}, 'D_int16_y_pt_W': {'agree': 2277, 'n': 2304, 'rate': 0.98828125}, 'E_int16_y_pr_W': {'agree': 2293, 'n': 2304, 'rate': 0.9952256944444444}, 'F_int16_y_pr_m12': {'agree': 2292, 'n': 2304, 'rate': 0.9947916666666666}, 'G_int16_y_pr_m8': {'agree': 2273, 'n': 2304, 'rate': 0.9865451388888888}, 'D_int16_logit_absmax': 7240456, 'D_int16_logit_absmax_bits': 22.787649129646756, 'D_int16_tie_positions': 0, 'keyed_delta_bits_measured': {'D': 39, 'F': 51, 'G': 47}, 'keyed_delta_bits_worst_case': {'D': 49, 'F': 61, 'G': 57, 'int8_y_pt': 41, 'int8_y_pr_m12': 53, 'int8_y_pr_m8': 49}, 'D_int16_keyed_window_bits_worst_case': 49}
+{
+ "cn": 5664,
+ "variants": {
+  "T128": {
+   "A_exact_y_pt_W": {
+    "agree": 9100,
+    "n": 9216,
+    "rate": 0.9874131944444444
+   },
+   "B_exact_y_pr_W": {
+    "agree": 9176,
+    "n": 9216,
+    "rate": 0.9956597222222222
+   },
+   "C_int8_y_float_W": {
+    "agree": 9125,
+    "n": 9216,
+    "rate": 0.9901258680555556
+   },
+   "D_int16_y_pt_W": {
+    "agree": 9102,
+    "n": 9216,
+    "rate": 0.9876302083333334
+   },
+   "E_int16_y_pr_W": {
+    "agree": 9176,
+    "n": 9216,
+    "rate": 0.9956597222222222
+   },
+   "F_int16_y_pr_m12": {
+    "agree": 9179,
+    "n": 9216,
+    "rate": 0.9959852430555556
+   },
+   "G_int16_y_pr_m8": {
+    "agree": 9070,
+    "n": 9216,
+    "rate": 0.9841579861111112
+   },
+   "D_int16_logit_absmax": 8454262,
+   "D_int16_logit_absmax_bits": 23.011247391918065,
+   "D_int16_tie_positions": 0,
+   "keyed_delta_bits_measured": {
+    "D": 39,
+    "F": 51,
+    "G": 47
+   },
+   "keyed_delta_bits_worst_case": {
+    "D": 49,
+    "F": 61,
+    "G": 57,
+    "int8_y_pt": 41,
+    "int8_y_pr_m12": 53,
+    "int8_y_pr_m8": 49
+   },
+   "D_int16_keyed_window_bits_worst_case": 49
+  },
+  "T32": {
+   "A_exact_y_pt_W": {
+    "agree": 2277,
+    "n": 2304,
+    "rate": 0.98828125
+   },
+   "B_exact_y_pr_W": {
+    "agree": 2292,
+    "n": 2304,
+    "rate": 0.9947916666666666
+   },
+   "C_int8_y_float_W": {
+    "agree": 2273,
+    "n": 2304,
+    "rate": 0.9865451388888888
+   },
+   "D_int16_y_pt_W": {
+    "agree": 2277,
+    "n": 2304,
+    "rate": 0.98828125
+   },
+   "E_int16_y_pr_W": {
+    "agree": 2293,
+    "n": 2304,
+    "rate": 0.9952256944444444
+   },
+   "F_int16_y_pr_m12": {
+    "agree": 2292,
+    "n": 2304,
+    "rate": 0.9947916666666666
+   },
+   "G_int16_y_pr_m8": {
+    "agree": 2273,
+    "n": 2304,
+    "rate": 0.9865451388888888
+   },
+   "D_int16_logit_absmax": 7240456,
+   "D_int16_logit_absmax_bits": 22.787649129646756,
+   "D_int16_tie_positions": 0,
+   "keyed_delta_bits_measured": {
+    "D": 39,
+    "F": 51,
+    "G": 47
+   },
+   "keyed_delta_bits_worst_case": {
+    "D": 49,
+    "F": 61,
+    "G": 57,
+    "int8_y_pt": 41,
+    "int8_y_pr_m12": 53,
+    "int8_y_pr_m8": 49
+   },
+   "D_int16_keyed_window_bits_worst_case": 49
+  }
+ },
+ "seconds": 129.7958264350891
+}

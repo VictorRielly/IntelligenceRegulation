@@ -1,0 +1,11 @@
+{
+  "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency",
+  "commands": [
+    "python3 experiments/logup-star-private-pushforward-20261017/prepare.py",
+    "python3 experiments/logup-star-private-pushforward-20261017/run.py",
+    "python3 experiments/logup-star-private-pushforward-20261017/audit.py",
+    "python3 experiments/logup-star-private-pushforward-20261017/account.py",
+    "python3 experiments/logup-star-private-pushforward-20261017/audit.py"
+  ],
+  "notes": "Commands completed with exit0 in API tool outputs. run/audit enforce affinity,nice,wall/CPU/AS limits;prepare and account only local source/metadata read. No native/Cargo/GPU or foreign script. Initial audit preceded accounting; final audit adds owner-count/source reconciliation."
+}

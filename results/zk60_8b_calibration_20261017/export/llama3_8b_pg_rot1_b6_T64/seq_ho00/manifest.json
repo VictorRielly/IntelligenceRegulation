@@ -1,0 +1,790 @@
+{
+ "T": 64,
+ "accepted_at_every_layer": true,
+ "arrays": {
+  "x_in_L00": {
+   "dtype": "int16",
+   "file": "x_in_L00.bin",
+   "sha256": "bdf8c25b1372c781f89a9755a3d9eaf22b36fd27beb35377c2ed343bbe8f773d",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L01": {
+   "dtype": "int16",
+   "file": "x_in_L01.bin",
+   "sha256": "ec40068058fadde7185383e27a8a415bc3390d434516fcc134d47437fe83fe0d",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L02": {
+   "dtype": "int16",
+   "file": "x_in_L02.bin",
+   "sha256": "c82d8b556491429480fbbd2afa9564a5e2d0e1535b240a33d13514f2047935ef",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L03": {
+   "dtype": "int16",
+   "file": "x_in_L03.bin",
+   "sha256": "7ef053cb480e217fa0c9a3dc69af454f926d7d7563509069f2307b32c7544d2a",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L04": {
+   "dtype": "int16",
+   "file": "x_in_L04.bin",
+   "sha256": "3e0da3a3705825865072fb2928e02850c1f58823d27dd4c8e712b802faa50195",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L05": {
+   "dtype": "int16",
+   "file": "x_in_L05.bin",
+   "sha256": "b7a56324a79b8d7e363b52ce8d63045d3d2296acb58d3bb24090a4f0e52b5804",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L06": {
+   "dtype": "int16",
+   "file": "x_in_L06.bin",
+   "sha256": "26dd9df773d1d4c3668d219026a496de16683cbc6d70659d9b605fcc422d72c8",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L07": {
+   "dtype": "int16",
+   "file": "x_in_L07.bin",
+   "sha256": "a1aba34314c0c34a4f4cc3bed67fc94a9ffcf2b9f996c0920586b2918d5b3a3a",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L08": {
+   "dtype": "int16",
+   "file": "x_in_L08.bin",
+   "sha256": "97821757a648080d6048c33781ca25c2c6b1437fbccb8a4cabe42f333ffa0284",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L09": {
+   "dtype": "int16",
+   "file": "x_in_L09.bin",
+   "sha256": "ee0736b9756fdf4e4008cecc82c96df9e2ddf26ad263681fcae805aef35d1a6c",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L10": {
+   "dtype": "int16",
+   "file": "x_in_L10.bin",
+   "sha256": "29e1f32d9c6600eff8bf6e9fd3bb42c63ef5214011e1d2b31d63fa96d532722c",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L11": {
+   "dtype": "int16",
+   "file": "x_in_L11.bin",
+   "sha256": "d33ec89ddb51bdb619f9beb672a176e7af8cb2c729ffd5907e86df130f9da044",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L12": {
+   "dtype": "int16",
+   "file": "x_in_L12.bin",
+   "sha256": "e08670b0fb9a65d52808438e728a13b09c2077b93084ff5dbb9ef553441df670",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L13": {
+   "dtype": "int16",
+   "file": "x_in_L13.bin",
+   "sha256": "303b56b689185a234e12378e6a97d6d5576e08cd47b82efe446bf1bd7a7a71d2",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L14": {
+   "dtype": "int16",
+   "file": "x_in_L14.bin",
+   "sha256": "8c8f94eb714224e7d5d0d90653f71fc9117c8ac9a61336fe423312a6ef14f5a7",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L15": {
+   "dtype": "int16",
+   "file": "x_in_L15.bin",
+   "sha256": "608f6cf3c11b6a31ae4ab3b5caf084a9f70012911b37255ad427ae0e08882669",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L16": {
+   "dtype": "int16",
+   "file": "x_in_L16.bin",
+   "sha256": "44ec4f7777af2c04a57f4a492f31c908d9cb351e2afef1b4fd8292f85754a51f",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L17": {
+   "dtype": "int16",
+   "file": "x_in_L17.bin",
+   "sha256": "b7cdb024ec5f5ca9b06e69a4409df29cfdefbf7fbf7bb0fe4ba97e74e2a059e9",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L18": {
+   "dtype": "int16",
+   "file": "x_in_L18.bin",
+   "sha256": "4f1fd8a722458941d83f5efffbfe5e6fc5a4684aea528df4f761ae1ead25a59e",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L19": {
+   "dtype": "int16",
+   "file": "x_in_L19.bin",
+   "sha256": "dc3b6ab834c0734b516bd23ad075afeb15d5cca77446e2926a011bd3f5c598a5",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L20": {
+   "dtype": "int16",
+   "file": "x_in_L20.bin",
+   "sha256": "cd7fca68744b6e10c77806ea5a4432dbe33b32c1017ff2aa04fa3a46e9365549",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L21": {
+   "dtype": "int16",
+   "file": "x_in_L21.bin",
+   "sha256": "f97c4ed0757373a8de8b644faa23fe03806210e6d4ad7414459cc214f274e0a9",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L22": {
+   "dtype": "int16",
+   "file": "x_in_L22.bin",
+   "sha256": "896ad8c68a0a2298b9e721b6db97050b50edceb0395d2d53848ccf15fc38f251",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L23": {
+   "dtype": "int16",
+   "file": "x_in_L23.bin",
+   "sha256": "ee709f7522e2cbd947fbcb4facb32ede6ab49f69a074ce54bf5b42fcac2e269d",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L24": {
+   "dtype": "int16",
+   "file": "x_in_L24.bin",
+   "sha256": "65da2253fc40e0f93785e02ba7188d0524f0262762e99b1105d4d03966cf16d6",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L25": {
+   "dtype": "int16",
+   "file": "x_in_L25.bin",
+   "sha256": "52b66b04c1eac6476ffe19d286ada079697b847dd630b874063e8c0aeb56be92",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L26": {
+   "dtype": "int16",
+   "file": "x_in_L26.bin",
+   "sha256": "849d557576775dc39fbc57e8b80bd4e71a4871f22afce0413fc5ecf912f070ad",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L27": {
+   "dtype": "int16",
+   "file": "x_in_L27.bin",
+   "sha256": "cf9199be0dde0d69dcaf09b872d26db2af12c1d63d63e18962db92d8b4322132",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L28": {
+   "dtype": "int16",
+   "file": "x_in_L28.bin",
+   "sha256": "72dcacf6f6c053d64e88ee1157e909ee1395164ce8aa40ae09679f8f7ab5b59a",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L29": {
+   "dtype": "int16",
+   "file": "x_in_L29.bin",
+   "sha256": "31834d35afa3df68960690a395078f10f19297ae19d5bea3156010fd4d777c00",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L30": {
+   "dtype": "int16",
+   "file": "x_in_L30.bin",
+   "sha256": "e5a801a0aaa698e4fcd1e884b82067974c8686cdcdcc69f204eca379d13f5bf6",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_in_L31": {
+   "dtype": "int16",
+   "file": "x_in_L31.bin",
+   "sha256": "4b48fc97ac7c66217da4f1a0018dc4a28902eb3ca58eff202086b4537d103e41",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L00": {
+   "dtype": "int16",
+   "file": "x_out_L00.bin",
+   "sha256": "ec40068058fadde7185383e27a8a415bc3390d434516fcc134d47437fe83fe0d",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L01": {
+   "dtype": "int16",
+   "file": "x_out_L01.bin",
+   "sha256": "c82d8b556491429480fbbd2afa9564a5e2d0e1535b240a33d13514f2047935ef",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L02": {
+   "dtype": "int16",
+   "file": "x_out_L02.bin",
+   "sha256": "7ef053cb480e217fa0c9a3dc69af454f926d7d7563509069f2307b32c7544d2a",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L03": {
+   "dtype": "int16",
+   "file": "x_out_L03.bin",
+   "sha256": "3e0da3a3705825865072fb2928e02850c1f58823d27dd4c8e712b802faa50195",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L04": {
+   "dtype": "int16",
+   "file": "x_out_L04.bin",
+   "sha256": "b7a56324a79b8d7e363b52ce8d63045d3d2296acb58d3bb24090a4f0e52b5804",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L05": {
+   "dtype": "int16",
+   "file": "x_out_L05.bin",
+   "sha256": "26dd9df773d1d4c3668d219026a496de16683cbc6d70659d9b605fcc422d72c8",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L06": {
+   "dtype": "int16",
+   "file": "x_out_L06.bin",
+   "sha256": "a1aba34314c0c34a4f4cc3bed67fc94a9ffcf2b9f996c0920586b2918d5b3a3a",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L07": {
+   "dtype": "int16",
+   "file": "x_out_L07.bin",
+   "sha256": "97821757a648080d6048c33781ca25c2c6b1437fbccb8a4cabe42f333ffa0284",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L08": {
+   "dtype": "int16",
+   "file": "x_out_L08.bin",
+   "sha256": "ee0736b9756fdf4e4008cecc82c96df9e2ddf26ad263681fcae805aef35d1a6c",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L09": {
+   "dtype": "int16",
+   "file": "x_out_L09.bin",
+   "sha256": "29e1f32d9c6600eff8bf6e9fd3bb42c63ef5214011e1d2b31d63fa96d532722c",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L10": {
+   "dtype": "int16",
+   "file": "x_out_L10.bin",
+   "sha256": "d33ec89ddb51bdb619f9beb672a176e7af8cb2c729ffd5907e86df130f9da044",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L11": {
+   "dtype": "int16",
+   "file": "x_out_L11.bin",
+   "sha256": "e08670b0fb9a65d52808438e728a13b09c2077b93084ff5dbb9ef553441df670",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L12": {
+   "dtype": "int16",
+   "file": "x_out_L12.bin",
+   "sha256": "303b56b689185a234e12378e6a97d6d5576e08cd47b82efe446bf1bd7a7a71d2",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L13": {
+   "dtype": "int16",
+   "file": "x_out_L13.bin",
+   "sha256": "8c8f94eb714224e7d5d0d90653f71fc9117c8ac9a61336fe423312a6ef14f5a7",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L14": {
+   "dtype": "int16",
+   "file": "x_out_L14.bin",
+   "sha256": "608f6cf3c11b6a31ae4ab3b5caf084a9f70012911b37255ad427ae0e08882669",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L15": {
+   "dtype": "int16",
+   "file": "x_out_L15.bin",
+   "sha256": "44ec4f7777af2c04a57f4a492f31c908d9cb351e2afef1b4fd8292f85754a51f",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L16": {
+   "dtype": "int16",
+   "file": "x_out_L16.bin",
+   "sha256": "b7cdb024ec5f5ca9b06e69a4409df29cfdefbf7fbf7bb0fe4ba97e74e2a059e9",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L17": {
+   "dtype": "int16",
+   "file": "x_out_L17.bin",
+   "sha256": "4f1fd8a722458941d83f5efffbfe5e6fc5a4684aea528df4f761ae1ead25a59e",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L18": {
+   "dtype": "int16",
+   "file": "x_out_L18.bin",
+   "sha256": "dc3b6ab834c0734b516bd23ad075afeb15d5cca77446e2926a011bd3f5c598a5",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L19": {
+   "dtype": "int16",
+   "file": "x_out_L19.bin",
+   "sha256": "cd7fca68744b6e10c77806ea5a4432dbe33b32c1017ff2aa04fa3a46e9365549",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L20": {
+   "dtype": "int16",
+   "file": "x_out_L20.bin",
+   "sha256": "f97c4ed0757373a8de8b644faa23fe03806210e6d4ad7414459cc214f274e0a9",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L21": {
+   "dtype": "int16",
+   "file": "x_out_L21.bin",
+   "sha256": "896ad8c68a0a2298b9e721b6db97050b50edceb0395d2d53848ccf15fc38f251",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L22": {
+   "dtype": "int16",
+   "file": "x_out_L22.bin",
+   "sha256": "ee709f7522e2cbd947fbcb4facb32ede6ab49f69a074ce54bf5b42fcac2e269d",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L23": {
+   "dtype": "int16",
+   "file": "x_out_L23.bin",
+   "sha256": "65da2253fc40e0f93785e02ba7188d0524f0262762e99b1105d4d03966cf16d6",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L24": {
+   "dtype": "int16",
+   "file": "x_out_L24.bin",
+   "sha256": "52b66b04c1eac6476ffe19d286ada079697b847dd630b874063e8c0aeb56be92",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L25": {
+   "dtype": "int16",
+   "file": "x_out_L25.bin",
+   "sha256": "849d557576775dc39fbc57e8b80bd4e71a4871f22afce0413fc5ecf912f070ad",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L26": {
+   "dtype": "int16",
+   "file": "x_out_L26.bin",
+   "sha256": "cf9199be0dde0d69dcaf09b872d26db2af12c1d63d63e18962db92d8b4322132",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L27": {
+   "dtype": "int16",
+   "file": "x_out_L27.bin",
+   "sha256": "72dcacf6f6c053d64e88ee1157e909ee1395164ce8aa40ae09679f8f7ab5b59a",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L28": {
+   "dtype": "int16",
+   "file": "x_out_L28.bin",
+   "sha256": "31834d35afa3df68960690a395078f10f19297ae19d5bea3156010fd4d777c00",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L29": {
+   "dtype": "int16",
+   "file": "x_out_L29.bin",
+   "sha256": "e5a801a0aaa698e4fcd1e884b82067974c8686cdcdcc69f204eca379d13f5bf6",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L30": {
+   "dtype": "int16",
+   "file": "x_out_L30.bin",
+   "sha256": "4b48fc97ac7c66217da4f1a0018dc4a28902eb3ca58eff202086b4537d103e41",
+   "shape": [
+    64,
+    4096
+   ]
+  },
+  "x_out_L31": {
+   "dtype": "int16",
+   "file": "x_out_L31.bin",
+   "sha256": "ece34691d87f236264b4f6a7265c11f5d6326b9de8a621d3865fbb60d8f7b704",
+   "shape": [
+    64,
+    4096
+   ]
+  }
+ },
+ "basis": "rotated residual x' = x R^T (randomized Hadamard n = 4096, seed 1)",
+ "heldout_index": 0,
+ "id": "ho00",
+ "kind": "sequence",
+ "residual_scales_in_out": [
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  [
+   0.0007218075732845454,
+   0.0007218075732845454
+  ]
+ ],
+ "schema": "zk60-trained-profile-export/1",
+ "selection": "the first held-out sequence accepted at every layer in each held-out domain (no fidelity-based choice)",
+ "source": {
+  "domain": "licence-docstring",
+  "offset": 0,
+  "sha256": "9481871394d1e013",
+  "source": "/usr/share/common-licenses/Apache-2.0"
+ },
+ "token_ids": [
+  128000,
+  198,
+  792,
+  9091,
+  1914,
+  198,
+  6096,
+  6207,
+  220,
+  17,
+  13,
+  15,
+  11,
+  6186,
+  220,
+  1049,
+  19,
+  198,
+  667,
+  1795,
+  1129,
+  2185,
+  5206,
+  2726,
+  7116,
+  8851,
+  256,
+  100028,
+  3651,
+  11596,
+  4716,
+  9645,
+  11,
+  3680,
+  9295,
+  48646,
+  11,
+  3651,
+  98941,
+  1294,
+  271,
+  256,
+  220,
+  16,
+  13,
+  47613,
+  382,
+  415,
+  330,
+  10028,
+  1,
+  4985,
+  3152,
+  279,
+  3878,
+  323,
+  4787,
+  369,
+  1005,
+  11,
+  39656,
+  345,
+  415,
+  323
+ ]
+}

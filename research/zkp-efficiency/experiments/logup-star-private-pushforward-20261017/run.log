@@ -1,0 +1,53 @@
+Derived local log of the successfully returned JSON result; raw stdout is retained in the API tool transcript.
+{
+  "status": "PASS",
+  "cycle": "0067",
+  "run_id": "20261017T202105Z-363d38a1",
+  "seed": 2026101767,
+  "counts": {
+    "fixtures": 405,
+    "pushforward_fp2_values": 23166,
+    "virtual_claims": 405,
+    "support_checks": 405
+  },
+  "negative_controls": {
+    "active invalid index refuses": true,
+    "inconsistent cube size refuses": true,
+    "active length overflow refuses": true,
+    "missing support changes virtual value": true,
+    "unmasked virtual evaluation reveals singleton despite hidden commitment": true,
+    "histogram equality does not bind ordered original witness": true,
+    "degenerate half challenge correctly loses permutation distinction": true,
+    "zero sum pushforward mask changes virtual evaluation": true,
+    "value preserving mask preserves leaking scalar": true,
+    "unused table zero cannot be omitted": true,
+    "tampered table terminal changes arithmetic": true,
+    "tampered pushforward terminal changes arithmetic": true,
+    "fresh scalar mask marginal is uniform in finite field toy": true,
+    "reusing scalar mask exposes differences": true
+  },
+  "wall_seconds": 0.3567675029999009,
+  "peak_rss_kib": 28256,
+  "child_peak_rss_kib": 122168,
+  "compiler_argv": [
+    "/home/victor/.rustup/toolchains/1.97.0-x86_64-unknown-linux-gnu/bin/rustc",
+    "--edition=2021",
+    "--crate-type=cdylib",
+    "-C",
+    "opt-level=1",
+    "-C",
+    "codegen-units=1",
+    "isolated.rs",
+    "-o",
+    "isolated.so"
+  ],
+  "cpu_affinity": [
+    0
+  ],
+  "threads": 1,
+  "nice": 19,
+  "limits": "59s CPU/wall,512MiB address space; estimated<96MiB Python/<192MiB rustc",
+  "fixture_sha256": "4ca06bfa68e704a2902473c97d2e455a6e340d138f74ba901f872f639f0b9ba3",
+  "scope": "Local Rust pushforward uses captured native Goldilocks Fp2; independent Python one-hot/product/fold oracle. No GKR, PCS, native receipt, GPU, masking proof or performance result.",
+  "completed_at_utc": "2026-10-17T20:24:11.122131+00:00"
+}

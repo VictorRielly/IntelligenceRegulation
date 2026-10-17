@@ -1,0 +1,21 @@
+{
+  "source_path": "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T128/profile.json",
+  "source_sha256": "b418a1dd9c23d758efc03ef5b8cb8dfb1b73b893dab7114c5b93233a30062601",
+  "T": 128,
+  "f_e": 9,
+  "norm_tn": 10,
+  "shifts": {
+    "sh_ao": 3,
+    "sh_g": 8,
+    "sh_h": 14,
+    "sh_o": 9,
+    "sh_qkv": 8,
+    "sh_s": 6,
+    "sh_z": 4
+  },
+  "per_layer_constants_differ": [
+    "exp_e_s",
+    "silu_member"
+  ],
+  "scope": "public profile scalar whitelist only; no private payload copied; per-layer metadata not yet reconciled"
+}

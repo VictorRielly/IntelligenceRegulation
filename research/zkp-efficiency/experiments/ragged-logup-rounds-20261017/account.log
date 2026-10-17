@@ -1,0 +1,51 @@
+{
+  "groups": [
+    {
+      "domains": "L",
+      "rows": 8192,
+      "columns": 2,
+      "padded_columns": 2,
+      "queries": 16384,
+      "dense_pairs": 16383,
+      "column_first_pairs": 16383,
+      "row_first_pairs": 16383
+    },
+    {
+      "domains": "D+Q",
+      "rows": 131072,
+      "columns": 47,
+      "padded_columns": 64,
+      "queries": 6160384,
+      "dense_pairs": 8388607,
+      "column_first_pairs": 8388607,
+      "row_first_pairs": 6160400
+    },
+    {
+      "domains": "Kv+S",
+      "rows": 32768,
+      "columns": 25,
+      "padded_columns": 32,
+      "queries": 819200,
+      "dense_pairs": 1048575,
+      "column_first_pairs": 1048575,
+      "row_first_pairs": 819206
+    },
+    {
+      "domains": "F",
+      "rows": 524288,
+      "columns": 9,
+      "padded_columns": 16,
+      "queries": 4718592,
+      "dense_pairs": 8388607,
+      "column_first_pairs": 8388607,
+      "row_first_pairs": 4718598
+    }
+  ],
+  "dense_pairs": 17842172,
+  "row_first_pairs": 11714587,
+  "pairs_avoided": 6127585,
+  "fraction_pairs_avoided": 0.3434326829715575,
+  "conditional_pair_count_ratio": 1.52307307120601,
+  "row_first_factor_payload_bytes": 562298880,
+  "naive_index_plus_three_factor_payload_bytes": 656015360
+}

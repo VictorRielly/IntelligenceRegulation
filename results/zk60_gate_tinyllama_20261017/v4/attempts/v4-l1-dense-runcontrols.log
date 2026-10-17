@@ -1,0 +1,9 @@
+[load          ]      0.3 s   peak RSS      90 MB   ok
+[replay        ]      0.2 s   peak RSS      90 MB   ok
+[terminals     ]      2.2 s   peak RSS     146 MB   ok
+[commitments   ]     18.5 s   peak RSS     146 MB   ok
+[boundary      ]      0.3 s   peak RSS     146 MB   ok
+[runcontrols   ]     12.6 s   peak RSS     408 MB   FAIL
+[channels      ]      0.0 s   peak RSS     408 MB   RAISED   KeyError: 'stage5_zero_data_preimage'
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/v4/tl-l1-dense-runcontrols-v4.json   total 34.1 s   peak RSS 408 MB   ok=False
+status: NOT-OK   unexplained false leaves 5   -> /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/v4/tl-l1-dense-runcontrols-v4.status.json

@@ -1,0 +1,14 @@
+{
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "device": "CPU only; no GPU calls",
+  "threads": 1,
+  "cpu_affinity": [
+    0
+  ],
+  "seed": 2026101768,
+  "nice": 19,
+  "estimated_main_mib": 96,
+  "estimated_compiler_mib": 192
+}

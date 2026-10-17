@@ -1,0 +1,8 @@
+[zk60-guard 16:05:09] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 16:05:17] START r5-ladder8b-T64-gpu-chunked class=gpu need=3G cap=6G enforce=cgroup+watchdog waited=7s run=0c4eb11ea4a0
+[zk60-guard 16:09:43] END r5-ladder8b-T64-gpu-chunked exit=0 child_wall=267s peak_rss=2.37G min_avail=8.85G peak_vram=737MiB
+[zk60-guard 16:09:43] START r5-ladder8b-verify-T64-gpu-chunked class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=0ed0b58eaa25
+[zk60-guard 16:10:03] END r5-ladder8b-verify-T64-gpu-chunked exit=0 child_wall=20s peak_rss=1.17G min_avail=10.32G
+ladder8b T64 gpu verify exit 0
+T64 chunked peak VRAM 737 MiB
+[zk60-guard 16:10:03] START r5-ladder8b-T128-gpu-chunked class=gpu need=5G cap=8G enforce=cgroup+watchdog waited=0s run=8cae3b639d53

@@ -1,5 +1,67 @@
 # Where the MVP stands, in plain words
 
+**2026-10-17 21:10 UTC — evening checkpoint: 8B stack 2.2x faster end to end,
+security accounting corrected, five rulings recorded, next-token proof
+designed and being built.**
+- **Speed (startup cleanup, speed plan task 1 MET):** the private 32-block
+  Llama-3-8B stack at T32 now takes **171.6 s total** (was 384.5 s this
+  morning; target <= 180 s): weight digest pass 15.3 s (was 83.0), block
+  reloads 16.0 s (was 79.2), witness 21.4 s, block proofs 118.8 s, in-process
+  verify off (the fresh-process verify remains the check). Same statement
+  identity 259dad7c…, same 465,815,776-byte receipt, parity bit-exact
+  [MEASURED, shared box, n=1; `results/zk60_1b_native_20261017/r5/`]. That is
+  0.19 proved positions/s at T32; the speed target (50/s on a 5090 at T512)
+  still needs the whole prover on the GPU (speed plan).
+- **GPU go/no-go (task 2), interim:** slot 18's zero-check runs on the laptop
+  GPU with byte-identical rounds and seeded proof bytes at four shapes, 0
+  silent fallbacks; a 22-block TinyLlama T128 stack with it proves and
+  verifies fresh. Open: inside the stack the slot runs ~5x slower than in
+  isolation; the bandwidth verdict waits for that diagnosis.
+- **Reviews:** the independent review accepted the Llama-3-8B profile changes
+  on soundness (round 3); its verifier-DoS finding (unbounded segment reads)
+  is fixed in the frozen round-5 tree, which is under review now (round 4).
+- **Security accounting (register D15, two notes):** the "106 bits per
+  opening" ignored padding, and the lookup bound is now the checked
+  (N + 2303)/|F|. Trained stacks are **about 97.4–98.2 bits whole-run**; an
+  8B run at 512 tokens about 94.7 (about 99.7 as forger work per attempt).
+  **Victor's D27:** about 95 bits whole-run is the MVP target at the named
+  workload, 100 next, 128 for the product, with selectable tiers later for
+  critical applications; throughput is not traded for bits at the MVP.
+- **Rulings recorded today:** D23 and D19b accepted; D25 (next-token proof:
+  one hidden token per run, hidden and sealed prompt length, lowest-id ties,
+  per-row integer head matching the float head wherever its top-2 margin is
+  >= 0.3 logits, private owner hand-off, BOS forced); D26 (security owner:
+  the two-site input endpoint); D27 (soundness target).
+- **Next-token proof:** design v3 passed two adversarial checks (three holes
+  found and fixed before any code), paper reference 20 tests green; integer
+  head fidelity measured on TinyLlama (98.9% overall, 100% wherever the float
+  head is not a near-tie); the first native rung (tiny vocabulary, 2 blocks)
+  is being built. Cost at 8B T32: about +3% proving time [MODEL].
+- **Privacy gate (TinyLlama T32, 22 blocks):** the dense 22-block pass PASSES
+  with every control family firing; the all-zero pass reconstructs every
+  published value with 0 differing (25 million in the joint check); finding
+  G-10 repaired. Owed before any acceptance: re-capture from the frozen
+  round-5 tree (running), an independent re-read and adversarial review of
+  the draft (running), and the remaining items of the draft's §10b. **No
+  privacy acceptance at the trained shape yet.**
+
+**2026-10-17 18:35 UTC — clean shutdown at 14:59, resumed at 18:21; no new
+result yet.** The laptop shut down cleanly at 14:59:58 UTC (every guarded job
+got SIGTERM; not a freeze) and booted again at 18:21. Correction to the 14:00
+block below: the GPU go/no-go experiment had code written but **never ran on
+the GPU** — its first device test was killed after 6 s by the shutdown. Also
+cut off: the native round-5 test suite (never started), the 8B T64 calibration
+export, and the review's last checks. The privacy gate's 22-block all-zero
+pass finished before the shutdown: 0 differing values in the masking layer
+(355,410 checked) and in the joint run (25,005,697); its FAIL flag appears to
+come from controls that were not requested in that pass (being confirmed).
+Everything uncommitted was pushed as snapshot 6 of
+`snapshot/20261017-uncommitted`. Six lanes restarted behind the resource guard
+(`ops/zkp-mvp/LANE_RULES_20261017.md`): GPU zero-check go/no-go, native R5
+suite + startup cleanup + 8B T64/T128 phase ladder, review verdict on the 8B
+profile, privacy gate controls and G-10, 8B calibration B6, and a paper design
+for proving embedding, head and token choice (D13's next milestone).
+
 **2026-10-17 14:00 UTC — how far from 50 proved tokens/s, measured-model
 answer.** The costed speed plan ([ZK60_SPEED_PLAN_20261017.md](ZK60_SPEED_PLAN_20261017.md))
 fits a per-phase cost model to today's TinyLlama ladder and predicts the

@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "files": 64,
+  "all_native_snapshot_hashes_match": true,
+  "fixture_hash_matches": true,
+  "source_prefix_preserved": true,
+  "findings_prefix_preserved": true,
+  "native_field_capture_exact_after_documented_comment_conversion": true,
+  "completed_commands": 3,
+  "independent_arithmetic_checks": 5185,
+  "source_drift_files": 1,
+  "initial_provenance_audit_failure_retained": true,
+  "scope": "Artifact integrity and local arithmetic only; not cryptographic verification.",
+  "completed_at_utc": "2026-10-17T22:34:19.099014+00:00"
+}

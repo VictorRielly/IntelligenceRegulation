@@ -9,6 +9,35 @@ The arithmetic is in `results/zk60_speed_plan_20261017/`:
 
 Every Python run was one thread and took under 1 s.
 
+## Task results (dated)
+
+- **2026-10-17 23:08 UTC — task 2 (GPU F-slot zero-check) DONE: 11.7% of the
+  4070 Laptop's 256 GB/s** (lean variant, table build included, isolated and
+  in-stack warm agree) [MEASURED]; byte-identical rounds and seeded proof
+  bytes at rung-TC, TinyLlama T32/T128 and 8B T32; 0 declines; a 22-block
+  TinyLlama T128 stack with slot 18 on the device verifies fresh. **Decision
+  rule: 10–25% band — kernel-design work before porting more slots.** Cause:
+  every round kernel uses 255 registers and spills (8 of 48 warps per SM;
+  latency-bound; the folds alone run at 57–67%). Next round K1–K4 (term-group
+  split kernel, resident support table, fused reduction, tail kernel),
+  estimated 33–42% [MODEL]. The laptop's in-stack 2.7% is its clock ramp after
+  idle, which a GPU-resident prover avoids. Report:
+  `results/zk60_gpu_zerocheck_20261017/REPORT.md`.
+- **2026-10-17 — task 1 (run hygiene) DONE:** 8B T32 stack 171.6 s total
+  (targets met: digest 15.3 s, loads 16.0 s, total <= 180 s); identity and
+  segment lengths unchanged (`results/zk60_1b_native_20261017/r5/`).
+- **2026-10-17 — task 3 (8B T64/T128 phase ladder) DONE:** per block the model
+  over-predicted by 22–23% on a quiet box (T128 8.15 s vs 10.60 s predicted;
+  zero-checks −34%, commit +5%); T64 → T128 block wall x1.91 measured vs x1.94
+  modelled; the softmax slot grows x1.74 vs x2.42 modelled — **the score
+  domain grows slower than counted**, not faster (§7's worry). A refit
+  calibrated on a full 8B T128 stack is owed before §5 is re-run
+  (`results/zk60_1b_native_20261017/r5/refit/`). A first private 32-block
+  Llama-3-8B stack at T128 proved in 487 s and verified fresh (T128 profile
+  pending independent review).
+- **Soundness target (D27):** about 95 bits whole-run at the 8B T512 workload
+  is the MVP target; throughput is not traded for bits.
+
 ## In plain words (10 lines)
 
 1. **Today.** The private 8B stack proves 32 positions in 384.5 s on the laptop, which is 0.083 positions/s. The block proofs alone take 110 s (0.29/s).

@@ -1,0 +1,32 @@
+[zk60-guard 14:57:27] START tl-v5-unit-tests class=light need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=bc5e0b3c1dcf
+[zk60-guard 14:57:35] END tl-v5-unit-tests exit=0 child_wall=8s peak_rss=0.47G min_avail=9.99G
+[zk60-guard 14:57:35] START tl-v5-verdicts class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=913b9a82e405
+[zk60-guard 14:57:35] END tl-v5-verdicts exit=0 child_wall=1s peak_rss=0.00G min_avail=11.05G
+[zk60-guard 14:57:36] START tl-v5-equivalence-k4 class=light need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=83fe3ea44cc2
+[zk60-guard 14:58:46] END tl-v5-equivalence-k4 exit=1 child_wall=70s peak_rss=0.28G min_avail=10.10G
+[zk60-guard 14:58:46] START tl-v5-pincontrols-l1 class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=ac3dc45c6e96
+[zk60-guard 15:01:35] END tl-v5-pincontrols-l1 exit=0 child_wall=169s peak_rss=0.15G min_avail=10.05G
+[zk60-guard 15:01:35] START tl-v5-g10-l1 class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=c61751566651
+[zk60-guard 15:01:37] END tl-v5-g10-l1 exit=0 child_wall=2s peak_rss=0.13G min_avail=10.72G
+[zk60-guard 15:01:37] START tl-v5-g10-l2 class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=056605ca609c
+[zk60-guard 15:01:40] END tl-v5-g10-l2 exit=0 child_wall=3s peak_rss=0.19G min_avail=10.69G
+[zk60-guard 15:01:40] START tl-v5-g10-l22 class=light need=3G cap=4G enforce=cgroup+watchdog waited=0s run=cff3cd222f7d
+[zk60-guard 15:02:02] END tl-v5-g10-l22 exit=0 child_wall=23s peak_rss=1.38G min_avail=9.85G
+[zk60-guard 15:02:03] START tl-v5-export-l1 class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=937cc0588a68
+[zk60-guard 15:02:03] END tl-v5-export-l1 exit=0 child_wall=1s peak_rss=0.04G min_avail=10.75G
+[zk60-guard 15:02:03] START tl-v5-export-l2-dense class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=54d0ae859f11
+[zk60-guard 15:02:04] END tl-v5-export-l2-dense exit=0 child_wall=1s peak_rss=0.08G min_avail=10.74G
+[zk60-guard 15:02:04] START tl-v5-export-l2-zero class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=f165b325b245
+[zk60-guard 15:02:05] END tl-v5-export-l2-zero exit=0 child_wall=1s peak_rss=0.08G min_avail=10.67G
+[zk60-guard 15:02:05] START tl-v5-export-l22-dense class=light need=2G cap=3G enforce=cgroup+watchdog waited=0s run=9f802c45d777
+[zk60-guard 15:02:12] END tl-v5-export-l22-dense exit=0 child_wall=7s peak_rss=0.57G min_avail=10.43G
+[zk60-guard 15:02:12] START tl-v5-export-l22-zero class=light need=2G cap=3G enforce=cgroup+watchdog waited=0s run=8cde01adb923
+[zk60-guard 15:02:19] END tl-v5-export-l22-zero exit=0 child_wall=7s peak_rss=0.58G min_avail=10.37G
+[zk60-guard 15:02:19] START tl-v5-schema class=light need=1.5G cap=2.5G enforce=cgroup+watchdog waited=0s run=a6e911bc87f4
+[zk60-guard 15:03:28] END tl-v5-schema exit=0 child_wall=69s peak_rss=0.82G min_avail=9.62G
+[zk60-guard 15:03:28] START tl-v5-tl4-l22 class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=76b2e777b06e
+[zk60-guard 15:07:41] END tl-v5-tl4-l22 exit=0 child_wall=253s peak_rss=0.65G min_avail=8.28G
+[zk60-guard 15:07:41] START tl-v5-tl-l2 class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=d1fe0e49e94a
+[zk60-guard 15:09:09] END tl-v5-tl-l2 exit=0 child_wall=88s peak_rss=0.17G min_avail=7.75G
+[zk60-guard 15:09:09] START tl-v5-ct4-ch6-l2 class=light need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=6060ef95a9ef
+[zk60-guard 15:12:29] END tl-v5-ct4-ch6-l2 exit=1 child_wall=199s peak_rss=0.64G min_avail=8.40G

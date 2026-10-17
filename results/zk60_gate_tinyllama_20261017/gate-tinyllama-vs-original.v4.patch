@@ -1,0 +1,1981 @@
+diff -ruN -x __pycache__ original/SHA256SUMS scripts/SHA256SUMS
+--- original/SHA256SUMS	2026-10-17 03:18:51.543769033 -0700
++++ scripts/SHA256SUMS	1969-12-31 16:00:00.000000000 -0800
+@@ -1,41 +0,0 @@
+-11f598d1472eac3cdffd69555452ae112c9c9841e8cd74bed97e2165f2e6e904  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_jv_capture.py
+-2338e6a7966793c0c5ee69d4e4c2bbed08ca739ee583985799b1c0023b0ea2cb  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_jv_cfs.py
+-ecd5ad199d31b55f88e0728368d7df1ae313c022d1b723b49a34ee9c9140b2bf  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_jv_field.py
+-544bfcc6412a861993091fb4c7b54345ac1612a20069acf991ac37549d52b907  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_jv_joint.py
+-cdaeebe7df60de0eba22136186c36df20bba9a66e7dfd32fe33043594acda89a  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_jv_pcs.py
+-7f69839b5e72344447ee516564e0472a329dd5bae996f7f995eb4ff8b01b3d70  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_jv_replay.py
+-1b08589ae22b842f09fc6e600d4710c6cd760cd278908ee5ffa778a73ca2d9e6  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_manifest_pins.py
+-fae15b4927b76f47a380050a66acdce245746db779b03b7f96d66061920334f1  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_mask_commit.py
+-4ee924228f3248f965dc8dce5c5f88fac0131b11ee4ede5ec72b2c3dac7d8302  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_pg_cfs.py
+-9d37dd078bbbcf50d82a08db4b44d9556798ddd7371240e9cb457712f5d91c50  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_pg_pcs.py
+-040891a757fc6efb991a57a02d4c713a31059ff0dcbe70b754df2ce4b31a7f98  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_privacy_gate.py
+-3689bbb3c6e4f55bb14260282124ef4bd73250107825c9cfba6dedd41de2c6ec  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_profile_pins.py
+-d108254992ac763337492d40b218667c92cfc9527bc915d1c2c5297a9418d9a7  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_rg_ahcontrols.py
+-7113266cf720f16da95bf0ca46af272f9dc641ee59d025d46292fbd9b545eef2  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_rg_ahpreimage.py
+-0f0d167d4c4e0089b8c3687c73433b55a8ad9ccc2e6bdcfb7e252cbcf05aa63f  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_rg_arrays.py
+-89fdfd8519563f6da928b90f00d2130759b3b5d728ecb8641f34cd4ba60b689b  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_rg_block.py
+-663a517748eb9438939b1dda622bd5264a33b472cc1358b09687f6f15d04f3fd  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_rg_bundle.py
+-591944dd6a43c91ee8bc2c1c57f1688c2402d416db8462304d5275249de160ad  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_rg_controls.py
+-caf3e1fd17aff4a04deca5f6ff5c35841c3031daa7458e04bc0b8b4f9cd3d070  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_rg_exclusivity.py
+-785f8a695912c9580c41da65d5f28883b47637147dcd9a5470bc191c582bfe85  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_rg_gcontrols.py
+-f64903a9415f1c422d259d4718a438269310a4bb7764dcca48c1581d8fab11c2  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_rg_gqa.py
+-c9ceb75dbad369f0142e13714fc06f3fc60ff304b83419039a6acb80e479e572  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_rg_hashlayer.py
+-1dd46effc79ec22ec7471ba67e1fbfbc19bff7c3d5078051b868571af49b2233  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_rg_hashrule.py
+-0ca766b561707eeca44f424a2fef628cd7a22da4fd4e756dad92cfaae5d3f048  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_rg_hcontrols.py
+-d8007a395094fde7d0a02eee163e0edc2cf91e610e2c23f2a01ad64186a02e1a  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_rg_joint.py
+-dc24f0b174748d9f198dfad0414d39f04d4c7454874f33941025dcc554658162  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_rg_m125.py
+-0f48d18a48ad9cad29ca7e8cad096512cc8349bbd4484f81b8cba9329d144305  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_rg_m125controls.py
+-871ca65bd13ddc770f28358e7f531160137a53d796b1292987fff19957f0d52c  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_rg_m125table.py
+-3d655b20990c6faedb9dd4a66bbb6b9c1f12613ca06a64830e3d7a3426fc5c19  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_rg_mask.py
+-a555fca540b5f12e43906ff5d9d52a8184d522646c8c61b6acaf579589af96cd  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_rg_mcontrols.py
+-9a22097d89358c63faa0adeb07c8a263292d6d3fa7acb9ef53cfeb37652bf19c  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_rg_mjoint.py
+-a29d28475759e898a2510d939efc11f15815510889c05dd598ab9d13e02c9e30  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_rg_pcs.py
+-990173caf4026852fddb7a21d635594af5493ddae50d41a052e7ed347e922944  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_rg_planes.py
+-e5940f92e9c6d6b5c5e8816f0c6db101051c17fb562fd8c481f857f50a5e0ea1  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_rg_predict.py
+-48bdd7c48a8c85f0ac1839704e1eaf78cc1f3a523436e208b563ff2917a804f6  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_rg_preimage.py
+-6852cd94ab0fcaa7780ce5f92ad3d9ebdb20614d43787e629015eeb97e141360  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_rg_replay.py
+-335daa8a6b4688c663e3ccb8393ff2c7687993a478c43aba2b7c75925007184c  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_rg_runpins.py
+-3804d60760366a429af82d5a2a8106f253cda4a53bd22d6b5cc1185b8ae94ad4  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_rg_tcontrols.py
+-f813b3b3b5343269bc1dba05c3fcb036c4a538a1f8dfcabe2be4ac1720b5951d  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_rg_terminals.py
+-0a4f1e6a8d0491fcf46b5b84937aeb0dc1f4d003164e784b0ec71331b0762609  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_rg_witcmp.py
+-a9fd2112ab72cd62dcde734f2dc286a597b266ecc66f57a9292d40e86c6ef5ae  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/original/zk60_native_run_gate.py
+diff -ruN -x __pycache__ original/zk60_native_rg_bundle.py scripts/zk60_native_rg_bundle.py
+--- original/zk60_native_rg_bundle.py	2026-09-23 17:48:55.433215839 -0700
++++ scripts/zk60_native_rg_bundle.py	2026-10-17 11:36:45.497548190 -0700
+@@ -637,6 +637,67 @@
+                 f"in stage {k+1}"
+             )
+ 
++    # [TINYLLAMA PORT, tools v4, finding G-10] the two EXTERNAL endpoints.
++    # Until v4 the run pass compared every INTERNAL boundary's committed root
++    # with the root opened one stage later, but never compared the
++    # external-endpoint openings with run.json's `external_endpoints` -- the
++    # comparison the standalone-block reader makes (`block_integrity`: the
++    # policy's roots, and each opened root, against the declared roots).  So
++    # control C5 at L = 1 (the only stage swapped for the other run's) was
++    # refused by the replay alone.  Every retained bundle carries equal roots,
++    # equal row counts and the policy's own roots / scales / context (checked
++    # on all 30 run bundles on disk before this edit), so on an honest bundle
++    # these lines add no finding and no record leaf.
++    ee = bundle.run.get("external_endpoints")
++    if not isinstance(ee, dict):
++        f.append("run.json: no external_endpoints table (finding G-10)")
++    else:
++        last = bundle.blocks - 1
++        if list(ee.get("opened_at_stage") or []) != [0, last]:
++            f.append(
++                f"run.json: external_endpoints opened_at_stage "
++                f"{ee.get('opened_at_stage')} is not [0, {last}] (finding G-10)"
++            )
++        for role_name, root_key, idx in (("Input", "input_root", 0),
++                                         ("Output", "output_root", last)):
++            st = bundle.stages[idx] if 0 <= idx < len(bundle.stages) else None
++            r = st.role_or_none(role_name) if st is not None else None
++            if r is None or r["commitment_kind"] != "external-endpoint":
++                f.append(
++                    f"stage {idx}: no external-endpoint {role_name} opening, "
++                    f"run.json opens it there (finding G-10)"
++                )
++                continue
++            if bytes(r["commitment"]["root"]) != bytes(ee[root_key]):
++                f.append(
++                    f"{st.name} {role_name}: the opened external-endpoint root is "
++                    f"not run.json's external_endpoints {root_key} (finding G-10)"
++                )
++            if r["commitment"]["rows"] != ee["rows"]:
++                f.append(
++                    f"{st.name} {role_name}: endpoint rows "
++                    f"{r['commitment']['rows']} != external_endpoints rows "
++                    f"{ee['rows']} (finding G-10)"
++                )
++        # the policy the run header absorbs names the same roots and scales
++        from zk60_native_rg_block import parse_policy  # (block imports this module)
++        pol = parse_policy(bytes(bundle.run["expected_policy"]))
++        if pol is None:
++            f.append("run.json: expected_policy is not a 112-byte HBLKEXP1 frame "
++                     "(finding G-10)")
++        else:
++            if (pol["input_root"], pol["output_root"]) != (
++                    list(ee["input_root"]), list(ee["output_root"])):
++                f.append("run.json: the policy's roots are not external_endpoints' "
++                         "roots (finding G-10)")
++            if (pol["input_scale"], pol["output_scale"]) != (
++                    ee["input_scale"], ee["output_scale"]):
++                f.append("run.json: the policy's scales are not external_endpoints' "
++                         "scales (finding G-10)")
++            if pol["context"] != list(bundle.run["context"]):
++                f.append("run.json: the policy's context is not run.json's context "
++                         "(finding G-10)")
++
+     # opened exactly once: no two openings of the whole run share a root
+     roots = {}
+     for st in bundle.stages:
+diff -ruN -x __pycache__ original/zk60_native_rg_controls.py scripts/zk60_native_rg_controls.py
+--- original/zk60_native_rg_controls.py	2026-09-21 10:00:05.329447938 -0700
++++ scripts/zk60_native_rg_controls.py	2026-10-17 05:55:24.910861157 -0700
+@@ -77,8 +77,80 @@
+     return out
+ 
+ 
++def _one_block_controls(bundle, other_bundle, views, replay):
++    """[TINYLLAMA PORT, tools v3, finding G-5] A ONE-BLOCK run (the only form
++    a trained block proves in) has no internal boundary, so C1-C4, which
++    perturb a boundary, do not apply -- they are reported NOT APPLICABLE by
++    name, never as a pass.  C5 swaps stage 0 (the only stage) with the other
++    bundle's stage 0 and C6 tightens H@0's pad budget, exactly as at L >= 2.
++    Only reached when the bundle has no boundary, so no record of a run with
++    a boundary moves."""
++    out = {}
++    na = ("not applicable: a one-block run has no internal boundary, and "
++          "this control perturbs one")
++    for name in ("C1_two_claims_share_one_reserved_pair",
++                 "C2_a_single_proximity_row",
++                 "C3_a_blinding_row_shared_with_an_adjacent_activation_commitment",
++                 "C4_a_claim_whose_source_stage_is_wrong"):
++        out[name] = {"not_applicable": na, "fires": None}
++    victim = 0
++    saved_stage = bundle.stages[victim]
++    bundle.stages[victim] = Stage(
++        other_bundle.stages[victim].path, victim, bundle.blocks,
++        schema=other_bundle.schema, store=other_bundle.store,
++        refusals=[],
++    )
++    try:
++        swapped_replay = RunReplay(bundle).run().summary()
++        swapped_int = integrity(bundle)
++    finally:
++        bundle.stages[victim] = saved_stage
++    out["C5_a_stage_file_swapped_between_the_two_bundles"] = {
++        "what": f"stage {victim} of {bundle.name} replaced by stage {victim} of "
++        f"{other_bundle.name} (same schema, same shape, another run)",
++        "honest": {
++            "replay_ok": replay.summary()["ok"],
++            "challenges_checked": replay.summary()["challenges_checked"],
++        },
++        "perturbed": {
++            "replay_ok": swapped_replay["ok"],
++            "first_failure": (swapped_replay["failures"] or ["<none>"])[0],
++            "failures": len(swapped_replay["failures"]),
++            "integrity_ok": swapped_int["ok"],
++            "integrity_first_finding": (swapped_int["findings"] or ["<none>"])[0],
++        },
++        "fires": (not swapped_replay["ok"]) and (not swapped_int["ok"]),
++    }
++    k = 0
++    hview = views[f"H@{k}"]
++    d = hview.facts["distinct_columns"]
++    role = bundle.stages[k].role("H")
++    tight = RunRoleView(
++        bundle.stages[k], role, replay.stages[k]["role_prox_rhos"][f"H@{k}"],
++        bundle.shape, q_pad=d - 1, name=f"H@{k}",
++    )
++    tf = tight.run(replay.stages[k]["role_lambdas"][f"H@{k}"])
++    out["C6_one_pad_fewer_than_the_distinct_opened_columns"] = {
++        "what": f"H@{k}'s pad budget set to {d - 1} against {d} distinct opened columns",
++        "honest": {"H-pad": hview.facts["reduction_hypotheses"]["H-pad"],
++                   "distinct_columns": d, "pad_count": hview.facts["pad_count"]},
++        "perturbed": {"H-pad": tf["reduction_hypotheses"]["H-pad"],
++                      "findings": tf["findings"][:2]},
++        "fires": not tf["reduction_hypotheses"]["H-pad"],
++    }
++    applicable = [n for n in out if out[n]["fires"] is not None]
++    out["controls"] = list(out)
++    out["applicable"] = applicable
++    out["not_applicable"] = [n for n in out["controls"] if n not in applicable]
++    out["all_fire"] = all(out[n]["fires"] for n in applicable)
++    out["ok"] = out["all_fire"]
++    return out
++
++
+ def controls(bundle, other_bundle, views, replay, shared):
+     """Every control, with the honest figure beside the perturbed one."""
++    if not bundle.boundaries:      # [TINYLLAMA PORT, v3, G-5]
++        return _one_block_controls(bundle, other_bundle, views, replay)
+     out = {}
+     k = 0  # the first internal boundary; both are identical in geometry
+     bview = views[f"B{k}"]
+diff -ruN -x __pycache__ original/zk60_native_rg_g10controls.py scripts/zk60_native_rg_g10controls.py
+--- original/zk60_native_rg_g10controls.py	1969-12-31 16:00:00.000000000 -0800
++++ scripts/zk60_native_rg_g10controls.py	2026-10-17 11:37:57.269531085 -0700
+@@ -0,0 +1,228 @@
++#!/usr/bin/env python3
++"""[TINYLLAMA PORT, tools v4, finding G-10] The negative controls of the run
++integrity pass's EXTERNAL-ENDPOINT check.
++
++    python3 zk60_native_rg_g10controls.py --bundle <run bundle> \
++        [--other <a second run bundle of the same profile>] \
++        [--legacy <scripts dir of the v3 tools>] --evidence <dir> --name <name>
++
++G-10 (found 2026-10-17 by control C5 on a one-block trained run): the run
++integrity pass compared every internal boundary's committed root with the root
++opened one stage later, and never compared the two external-endpoint openings
++with `run.json["external_endpoints"]`; the standalone-block reader does.  Tools
++v4 add that comparison (`zk60_native_rg_bundle.integrity`).  A check that
++cannot fire is not a check, so each control below perturbs ONE thing in memory
++and requires the v4 pass to refuse it WITH a finding that names G-10:
++
++  G10-1  stage 0's Input (external-endpoint) opening root, one byte flipped;
++  G10-2  the last stage's Output opening root, one byte flipped;
++  G10-3  run.json's declared `external_endpoints.input_root`, one byte flipped
++         (the declared side, not the opened side);
++  G10-4  (with --other) stage 0 replaced by the OTHER run's stage 0 -- control
++         C5's swap, on the stage that carries the Input endpoint.  At L = 1
++         this is exactly the case G-10 was found in.
++
++Every control is also run through the v3 integrity pass (`--legacy`, loaded
++from the frozen copy under another module name, every module it imports being
++byte-identical in v3 and v4) to show the failing-first state: where v3 accepts
++the perturbation, the record says so.  Nothing on disk is written except the
++record; every perturbation is undone (and checked undone) before the next.
++
++NOTHING HERE IS A PRIVACY STATEMENT.
++"""
++
++from __future__ import annotations
++
++import argparse
++import copy
++import hashlib
++import importlib.util
++import json
++import os
++import sys
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++if HERE not in sys.path:
++    sys.path.insert(0, HERE)
++
++from zk60_native_rg_block import load_bundle  # noqa: E402
++from zk60_native_rg_bundle import Stage, integrity  # noqa: E402
++
++MARK = "(finding G-10)"
++
++
++def _legacy_integrity(legacy_dir):
++    """`integrity` of the v3 bundle module, loaded under another name.  Its
++    imports (`zk60_native_rg_arrays`, `zk60_native_rg_hashrule`) resolve to
++    the modules already loaded, which v4 did not change (checked by digest)."""
++    if not legacy_dir:
++        return None, None
++    for name in ("zk60_native_rg_arrays.py", "zk60_native_rg_hashrule.py"):
++        with open(os.path.join(legacy_dir, name), "rb") as a, \
++                open(os.path.join(HERE, name), "rb") as b:
++            if a.read() != b.read():
++                raise SystemExit(f"{name} differs between {legacy_dir} and {HERE}: "
++                                 "the legacy integrity cannot share it")
++    path = os.path.join(legacy_dir, "zk60_native_rg_bundle.py")
++    spec = importlib.util.spec_from_file_location("legacy_zk60_native_rg_bundle", path)
++    mod = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(mod)
++    with open(path, "rb") as fh:
++        digest = hashlib.sha256(fh.read()).hexdigest()
++    return mod.integrity, digest
++
++
++def _flip(root):
++    out = list(root)
++    out[0] ^= 0x01
++    return out
++
++
++def _verdicts(bundle, legacy):
++    new = integrity(bundle)
++    g10 = [x for x in new["findings"] if MARK in x]
++    out = {
++        "v4_integrity_ok": new["ok"],
++        "v4_findings_naming_G10": g10,
++        "v4_findings_total": len(new["findings"]),
++        "v4_first_finding": (new["findings"] or ["<none>"])[0],
++    }
++    if legacy is not None:
++        old = legacy(bundle)
++        out["v3_integrity_ok"] = old["ok"]
++        out["v3_first_finding"] = (old["findings"] or ["<none>"])[0]
++    return out
++
++
++def _snapshot(bundle):
++    """the fields any control touches, to check they are restored"""
++    return json.dumps({
++        "in": list(bundle.stages[0].role("Input")["commitment"]["root"]),
++        "out": list(bundle.stages[-1].role("Output")["commitment"]["root"]),
++        "ee": bundle.run["external_endpoints"],
++        "stage0": bundle.stages[0].sha256,
++    }, sort_keys=True)
++
++
++def g10_controls(bundle, other=None, legacy=None) -> dict:
++    before = _snapshot(bundle)
++    out = {"bundle": bundle.name, "blocks": bundle.blocks}
++    honest = _verdicts(bundle, legacy)
++    out["honest"] = honest
++    honest_ok = honest["v4_integrity_ok"] and not honest["v4_findings_naming_G10"]
++
++    def fires(v):
++        return (not v["v4_integrity_ok"]) and bool(v["v4_findings_naming_G10"])
++
++    controls = []
++    # G10-1 / G10-2: the OPENED side
++    for name, idx, role_name, key in (
++            ("G10-1_stage0_input_opening_root_flipped", 0, "Input", "input_root"),
++            ("G10-2_last_stage_output_opening_root_flipped", bundle.blocks - 1,
++             "Output", "output_root")):
++        r = bundle.stages[idx].role(role_name)
++        saved = r["commitment"]["root"]
++        r["commitment"]["root"] = _flip(saved)
++        try:
++            v = _verdicts(bundle, legacy)
++        finally:
++            r["commitment"]["root"] = saved
++        controls.append({
++            "control": name,
++            "what": f"{bundle.stages[idx].name} {role_name}: the opened root's first "
++            f"byte flipped; run.json's {key} untouched",
++            "perturbed": v,
++            "fires": fires(v),
++        })
++    # G10-3: the DECLARED side
++    ee = bundle.run["external_endpoints"]
++    saved_root = copy.deepcopy(ee["input_root"])
++    ee["input_root"] = _flip(saved_root)
++    try:
++        v = _verdicts(bundle, legacy)
++    finally:
++        ee["input_root"] = saved_root      # in place: the same dict object
++    controls.append({
++        "control": "G10-3_declared_input_root_flipped",
++        "what": "run.json's external_endpoints.input_root: first byte flipped; "
++        "the stage's opening and the policy bytes untouched",
++        "perturbed": v,
++        "fires": fires(v),
++    })
++    # G10-4: control C5's swap, on the stage that carries the Input endpoint
++    if other is not None:
++        saved_stage = bundle.stages[0]
++        bundle.stages[0] = Stage(other.stages[0].path, 0, bundle.blocks,
++                                 schema=other.schema, store=other.store,
++                                 refusals=[])
++        try:
++            v = _verdicts(bundle, legacy)
++        finally:
++            bundle.stages[0] = saved_stage
++        controls.append({
++            "control": "G10-4_stage0_swapped_for_the_other_runs_stage0",
++            "what": f"stage 0 of {bundle.name} replaced by stage 0 of {other.name} "
++            "(control C5's swap, on the stage that opens the Input endpoint)",
++            "perturbed": v,
++            "fires": fires(v),
++        })
++    else:
++        controls.append({"control": "G10-4_stage0_swapped_for_the_other_runs_stage0",
++                         "skipped": "no --other bundle", "fires": None})
++    restored = _snapshot(bundle) == before
++    applicable = [c for c in controls if c["fires"] is not None]
++    out.update({
++        "controls": controls,
++        "honest_accepted_without_a_G10_finding": honest_ok,
++        "all_fire": all(c["fires"] for c in applicable),
++        "applicable": len(applicable),
++        "v3_accepted": [c["control"] for c in applicable
++                        if c["perturbed"].get("v3_integrity_ok") is True],
++        "every_perturbation_undone": restored,
++        "nothing_written": "every perturbation is in memory; no captured byte "
++        "is touched",
++    })
++    out["ok"] = bool(honest_ok and out["all_fire"] and restored and applicable)
++    return out
++
++
++def main(argv=None):
++    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
++    ap.add_argument("--bundle", required=True)
++    ap.add_argument("--other")
++    ap.add_argument("--legacy", help="scripts directory of the v3 tools")
++    ap.add_argument("--evidence", required=True)
++    ap.add_argument("--name", required=True)
++    a = ap.parse_args(argv)
++    bundle = load_bundle(a.bundle)
++    if getattr(bundle, "standalone", False):
++        raise SystemExit("a standalone block bundle: its reader already compares "
++                         "the endpoint roots (block_integrity); G-10 is about runs")
++    other = load_bundle(a.other) if a.other else None
++    legacy, legacy_sha = _legacy_integrity(a.legacy)
++    rec = {
++        "what": "negative controls of the run integrity pass's external-endpoint "
++        "check (finding G-10, tools v4)",
++        "privacy_property_established": False,
++        "privacy_acceptance": False,
++        "tool_sha256": {
++            n: hashlib.sha256(open(os.path.join(HERE, n), "rb").read()).hexdigest()
++            for n in ("zk60_native_rg_g10controls.py", "zk60_native_rg_bundle.py")
++        },
++        "legacy_integrity_sha256": legacy_sha,
++        "other_bundle": other.name if other is not None else None,
++        **g10_controls(bundle, other=other, legacy=legacy),
++    }
++    os.makedirs(a.evidence, exist_ok=True)
++    path = os.path.join(a.evidence, f"{a.name}.json")
++    with open(path, "w") as fh:
++        json.dump(rec, fh, indent=1, sort_keys=True)
++        fh.write("\n")
++    print(f"record: {path}   ok={rec['ok']}   fire "
++          f"{sum(1 for c in rec['controls'] if c['fires'])} of {rec['applicable']}"
++          f"   v3 accepted {rec['v3_accepted']}")
++    return 0 if rec["ok"] else 1
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff -ruN -x __pycache__ original/zk60_native_rg_gqa.py scripts/zk60_native_rg_gqa.py
+--- original/zk60_native_rg_gqa.py	2026-09-23 04:10:06.773856242 -0700
++++ scripts/zk60_native_rg_gqa.py	2026-10-17 03:39:23.485412514 -0700
+@@ -194,6 +194,13 @@
+ }
+ 
+ 
++# [TINYLLAMA PORT 2026-10-17] the trained bundles' argument.rs, READ: the
++# repaired definition (`zk60_native_rg_tinyllama_pins`).
++from zk60_native_rg_tinyllama_pins import (  # noqa: E402
++    ARGUMENT_DEFINITIONS as _TL_ARG, merge_one_level as _tl_merge1)
++_tl_merge1(ARGUMENT_DEFINITIONS, _TL_ARG, "ARGUMENT_DEFINITIONS")
++
++
+ def clog2(v: int) -> int:
+     """`shape.rs::clog2` (shape.rs:68)."""
+     if v <= 0:
+diff -ruN -x __pycache__ original/zk60_native_rg_m125.py scripts/zk60_native_rg_m125.py
+--- original/zk60_native_rg_m125.py	2026-09-23 17:52:38.291098285 -0700
++++ scripts/zk60_native_rg_m125.py	2026-10-17 11:39:25.753509052 -0700
+@@ -90,7 +90,9 @@
+         os.makedirs(evidence, exist_ok=True)
+         self.path = os.path.join(evidence, f"{name}.json")
+         self.rec = {
+-            "gate": "zk60-native-run-gate, staged at the 125M shape",
++            # [TINYLLAMA PORT] the shape is named from the bundle at load;
++            # this placeholder never survives a run that loads one
++            "gate": "zk60-native-run-gate, staged (shape named at load)",
+             "round": 9,
+             "privacy_property_established": False,
+             "privacy_acceptance": False,
+@@ -146,6 +148,13 @@
+         self.flush()
+         ok = "ok" if (err is None and (out is None or out.get("ok") is not False)) \
+             else ("RAISED" if err else "FAIL")
++        # [TINYLLAMA PORT, tools v4] a stage whose ONLY false conjunct is a
++        # control family this pass did not request is printed ARMS-ONLY, not
++        # FAIL; its `ok` stays false (zk60_native_rg_status, rule (b)/(c))
++        if ok == "FAIL":
++            from zk60_native_rg_status import explain
++            if explain(self.rec, f"/{key}/ok", self.controls):
++                ok = "ARMS-ONLY (arm closed; controls not requested; ok=false kept)"
+         print(f"[{label:14s}] {dt:8.1f} s   peak RSS {after:7.0f} MB   {ok}"
+               + (f"   {err}" if err else ""), flush=True)
+         return out
+@@ -158,6 +167,20 @@
+         self.rec["bundle_dir"] = self.bundle.dir
+         self.rec["schema"] = self.bundle.schema
+         self.rec["blocks"] = self.bundle.blocks
++        # [TINYLLAMA PORT 2026-10-17] the record names the shape it read
++        # instead of the literal "125M" the 125M round wrote; a bundle
++        # whose shape declares a trained calibration also records it
++        shape_name = self.bundle.run["shape"]["name"]
++        self.rec["gate"] = f"zk60-native-run-gate, staged at the shape {shape_name!r}"
++        self.rec["shape_name"] = shape_name
++        self.rec["what_this_is"] = (
++            "the linear channels of ONE captured private run at the shape "
++            f"{shape_name!r}, at that run's real challenges, stage by stage "
++            "with each stage's wall clock and the process's peak resident set")
++        if self.bundle.run["shape"].get("trained_calibration") is True:
++            from zk60_native_rg_terminals import Calibration
++            self.rec["trained_calibration"] = Calibration(
++                self.bundle.run["shape"]).record()
+         self.rec["prediction"] = predict(self.bundle)
+         if block:
+             self.rec["standalone_block"] = True
+@@ -361,11 +384,14 @@
+         block = getattr(self.bundle, "standalone", False)
+         # [ROUND 9m] the run sentence said "two-block" as a literal; a
+         # twelve-block run gets its own (a two-block record keeps its bytes)
+-        two = ("linear channels of ONE captured two-block run at the 125M "
+-               "shape, at that run's real challenges.  Two runs are not a "
++        # [TINYLLAMA PORT] the shape's own name, not the literal "125M"
++        at = (" at the 125M shape" if "125M" in self.rec.get("shape_name", "125M")
++              else f" at the shape {self.rec.get('shape_name')!r}")
++        two = (f"linear channels of ONE captured two-block run{at}, at that "
++               "run's real challenges.  Two runs are not a "
+                "distribution and two blocks are not twelve")
+         many = (f"linear channels of ONE captured {self.bundle.blocks}-block "
+-                "run at the 125M shape, at that run's real challenges.  One "
++                f"run{at}, at that run's real challenges.  One "
+                 "run is not a distribution, and a dense and an all-zero run "
+                 "are two witnesses, not the space of witnesses")
+         self.rec["what_it_does_not_show"] = [
+@@ -387,6 +413,15 @@
+             "NOT a privacy acceptance and NOT a privacy property",
+         ]
+         self.flush()
++        # [TINYLLAMA PORT, tools v4] the record's STATUS beside its `ok`, in a
++        # side file so that no record gains a leaf: PASS / ARMS-ONLY / NOT-OK
++        # (`zk60_native_rg_status`); `ok` is never changed
++        from zk60_native_rg_status import status_record
++        self.status = status_record(self.path, controls_requested=self.controls)
++        self.status_path = os.path.join(self.evidence, f"{self.name}.status.json")
++        with open(self.status_path, "w") as fh:
++            json.dump(self.status, fh, indent=1, sort_keys=True)
++            fh.write("\n")
+         return self.rec
+ 
+ 
+@@ -415,7 +450,13 @@
+     rec = d.run(stages)
+     print(f"record: {d.path}   total {rec['total_seconds']} s   "
+           f"peak RSS {rec['peak_rss_mb']} MB   ok={rec['ok']}")
+-    return 0 if rec["ok"] else 1
++    # [TINYLLAMA PORT, tools v4] exit 3 = ARMS-ONLY (ok false ONLY because the
++    # pass did not request controls), distinct from 1 = anything else
++    print(f"status: {d.status['status']}   unexplained false leaves "
++          f"{len(d.status['unexplained'])}   -> {d.status_path}")
++    if rec["ok"]:
++        return 0
++    return 3 if d.status["status"] == "ARMS-ONLY" else 1
+ 
+ 
+ if __name__ == "__main__":
+diff -ruN -x __pycache__ original/zk60_native_rg_mask.py scripts/zk60_native_rg_mask.py
+--- original/zk60_native_rg_mask.py	2026-09-23 04:10:58.502580287 -0700
++++ scripts/zk60_native_rg_mask.py	2026-10-17 03:39:23.485651999 -0700
+@@ -540,6 +540,12 @@
+     },
+ }
+ 
++# [TINYLLAMA PORT 2026-10-17] the trained bundles' argument.rs, layout.rs
++# and shape.rs digests, each READ (`zk60_native_rg_tinyllama_pins`).
++from zk60_native_rg_tinyllama_pins import (  # noqa: E402
++    MASK_LAYER_PINS as _TL_MLP, merge_two_level as _tl_merge2)
++_tl_merge2(MASK_LAYER_PINS, _TL_MLP, "MASK_LAYER_PINS")
++
+ # Files the mask port transcribes that NO bundle pins, so that nothing in
+ # this module can check them.  The digests were read at the capture commits
+ # on 2026-09-21 with `git show <commit>:<path>` in the read-only Rust lane,
+diff -ruN -x __pycache__ original/zk60_native_rg_predict.py scripts/zk60_native_rg_predict.py
+--- original/zk60_native_rg_predict.py	2026-09-23 03:58:36.413664604 -0700
++++ scripts/zk60_native_rg_predict.py	2026-10-17 04:31:16.147015300 -0700
+@@ -225,8 +225,20 @@
+       reserved IO-tab row.
+     """
+     sh = bundle.shape.raw
+-    d_max = _isqrt(1 + sh["width"] * 32767 ** 2)
+-    wrho = 12 + d_max.bit_length()
++    # [TINYLLAMA PORT 2026-10-17] decision D24's window.  A TRAINED-
++    # calibration shape derives `D_max = isqrt(Ceps + width * 32768^2)` --
++    # int16 INCLUDES -32768 (contract review of 2026-09-30) and Ceps is the
++    # profile's -- and `wrho = tn + 1 + bit_length(D_max)`
++    # (`NormCalibration::derive_at_width`).  A frozen shape keeps the frozen
++    # rule `isqrt(1 + width * 32767^2)` and `12 + bit_length` byte for byte,
++    # so no prediction validated at a development shape moves.
++    trained = sh.get("trained_calibration") is True
++    if trained:
++        d_max = _isqrt(sh["norm_ceps"] + sh["width"] * 32768 ** 2)
++        wrho = sh["norm_tn"] + 1 + d_max.bit_length()
++    else:
++        d_max = _isqrt(1 + sh["width"] * 32767 ** 2)
++        wrho = 12 + d_max.bit_length()
+     c6 = wrho % 8 == 0
+     logs = domain_logs(bundle)
+     helps = helper_counts(bundle)
+@@ -238,12 +250,24 @@
+     return {
+         "correction_c6": {
+             "d_max": d_max,
++            # [TINYLLAMA PORT] which rule derived it, and the shape's own
++            # `d_max` beside it (present only on a trained bundle, so a
++            # frozen record gains no leaf)
++            **({"window_rule": "D24 trained: isqrt(Ceps + width * 32768^2), "
++                "tn + 1 + bit_length(D_max)",
++                "d_max_declared": sh.get("d_max"),
++                "d_max_equal": d_max == sh.get("d_max"),
++                "norm_tn": sh["norm_tn"], "norm_ceps": sh["norm_ceps"]}
++               if trained else {}),
+             "norm_wrho_derived": wrho,
+             "norm_wrho_declared": sh.get("norm_wrho"),
+             "norm_wrho_equal": wrho == sh.get("norm_wrho"),
+             "norm_top_is_full_byte": c6,
+-            "why": "the window is 12 + bit_length(D_max) and C-6 applies "
+-            "exactly when that is a multiple of 8, which needs width > 256",
++            "why": ("the window is tn + 1 + bit_length(D_max) (D24) and C-6 "
++                    "applies exactly when that is a multiple of 8"
++                    if trained else
++                    "the window is 12 + bit_length(D_max) and C-6 applies "
++                    "exactly when that is a multiple of 8, which needs width > 256"),
+             "lookups_dropped": 4 if c6 else 0,
+             "d_helper_planes_predicted":
+                 D_HELPERS_C6_ON if c6 else D_HELPERS_C6_OFF,
+@@ -439,7 +463,14 @@
+     standalone = getattr(bundle, "standalone", False)
+     if bundle.boundaries:
+         ident_rows = bundle.boundary(0)["data_rows"]
+-    elif standalone:
++    # [TINYLLAMA PORT, tools v2, 2026-10-17] a ONE-BLOCK RUN (the only form
++    # a trained block proves in: R2-4 refuses a single-block receipt at a
++    # trained profile) has no boundary either; its identified rows are the
++    # two external endpoints' data planes, exactly as a standalone block's.
++    # The fallback below (the FIRST role's, which is A's) was never right for
++    # it -- named as expected-wrong in `l1/prediction_tinyllama_l1_by_hand`
++    # before any L = 1 bundle existed.  A run with a boundary is unaffected.
++    elif standalone or bundle.blocks == 1:
+         ident_rows = next(r["data_rows_declared"] for r in geo["roles"]
+                           if r["kind"] == "external-endpoint")
+     else:
+diff -ruN -x __pycache__ original/zk60_native_rg_runpins.py scripts/zk60_native_rg_runpins.py
+--- original/zk60_native_rg_runpins.py	2026-09-23 17:48:06.441682266 -0700
++++ scripts/zk60_native_rg_runpins.py	2026-10-17 03:39:23.484608625 -0700
+@@ -412,6 +412,12 @@
+     },
+ }
+ 
++# [TINYLLAMA PORT 2026-10-17] the trained bundles' shared files at second
++# digests, each READ -- the readings are in `zk60_native_rg_tinyllama_pins`.
++from zk60_native_rg_tinyllama_pins import (  # noqa: E402
++    SHARED_ALSO_READ as _TL_SHARED, merge_two_level as _tl_merge2)
++_tl_merge2(SHARED_ALSO_READ, _TL_SHARED, "SHARED_ALSO_READ")
++
+ # The seven `private_block` files stage 27 added to the bundle's OWN pins,
+ # with what this gate reads from each.  Four of them are exactly the four
+ # `NOT_PINNABLE_FROM_A_BUNDLE` names above; the other three were pinned by
+@@ -948,6 +954,14 @@
+         "only those",
+ }
+ 
++# [TINYLLAMA PORT 2026-10-17] the trained bundles' run-layer digests and
++# their readings (`zk60_native_rg_tinyllama_pins`); no entry above changes.
++from zk60_native_rg_tinyllama_pins import (  # noqa: E402
++    READINGS as _TL_READINGS, RUN_LAYER_PINS as _TL_RLP,
++    merge_one_level as _tl_merge1)
++_tl_merge2(RUN_LAYER_PINS, _TL_RLP, "RUN_LAYER_PINS")
++_tl_merge1(READINGS, _TL_READINGS, "READINGS")
++
+ # --------------------------------------------------------------------------
+ # 4.  WHICH STAGES A MOVED PIN SUSPENDS
+ # --------------------------------------------------------------------------
+diff -ruN -x __pycache__ original/zk60_native_rg_status.py scripts/zk60_native_rg_status.py
+--- original/zk60_native_rg_status.py	1969-12-31 16:00:00.000000000 -0800
++++ scripts/zk60_native_rg_status.py	2026-10-17 11:39:06.461512951 -0700
+@@ -0,0 +1,274 @@
++#!/usr/bin/env python3
++"""[TINYLLAMA PORT, tools v4, 2026-10-17] A staged record's STATUS, beside
++its `ok`.
++
++    python3 zk60_native_rg_status.py --record <record.json> [--out <file>]
++
++WHY.  `zk60_native_rg_m125.py` computes `ok` as "no stage reports
++ok = false".  A pass run WITHOUT `--controls` therefore exits 1 whenever one
++of its stages conjoins its controls even when they were not asked for -- and
++`zk60_native_run_gate.stage12` does (`ok = arm and controls.ok`, with
++`controls = {"skipped": "controls not requested", "ok": False}`), and the
++joint stage (`zk60_native_rg_mjoint`) conjoins stage 12's `ok`.  The driver
++prints "FAIL" for both.  The 22-block all-zero arms pass of 2026-10-17
++(`tl-l22r2-zero-arms.json`) is exactly that state: every figure of both arms
++closed, the record says ok = false.  "FAIL" is the wrong word for it, and a
++reader cannot tell it from a figure that failed without reading the code.
++
++WHAT THIS DOES.  It does not touch `ok`, which stays the gate's only pass
++verdict and is copied unchanged.  It adds a STATUS computed from the record's
++own fields:
++
++  PASS       `ok` is true.
++  ARMS-ONLY  `ok` is false; `--controls` was NOT given for the pass (no
++             control family of stages 8, 10, 11, 12 ran, at least one says
++             "controls not requested"); no stage raised; and EVERY false
++             `ok` / `all_fire` / `fires` leaf of the record is one of
++               (a) a `controls` entry reading exactly
++                   {"skipped": "controls not requested", "ok": false};
++               (b) stage 12's own `ok`, where the masking arm is CLOSED --
++                   recomputed here: its pins accepted, every stage checked and
++                   ok, none refused, entries recomputed > 0, 0 differing,
++                   salted leaves > 0;
++               (c) stage 13's own `ok`, where the joint assignment is CLOSED --
++                   recomputed: four couplings, each respected; 0 differing in
++                   both parts and in total; stage 11 requested, unrestricted,
++                   ok, 0 differing, every requested commitment exhibited; stage
++                   12 closed by (b); its only finding the masking-side one that
++                   stage 12's `ok` produces;
++               (d) the record's top-level `ok`.
++  NOT-OK     anything else.  The false leaves are listed; nothing is claimed
++             about them (a by-name skip such as CT-4 or CH-6 lands here too:
++             this module explains exactly one state and no other).
++
++WHAT ARMS-ONLY DOES NOT SAY.  That the controls of those arms fired.  They did
++not fire IN THIS PASS; the status lists every control family that did not, and
++an arm counts only where its controls fired on the same tools and shape in
++another record, which the lane's ledger has to cite.
++
++NOTHING HERE IS A PRIVACY STATEMENT.
++"""
++
++from __future__ import annotations
++
++import argparse
++import hashlib
++import json
++import os
++
++NOT_REQUESTED = "controls not requested"
++MASK_SIDE_FINDING = ("round 8's arm is off or did not close, so there is "
++                     "nothing to join on the masking side")
++CONTROL_FAMILIES = {
++    "stage8_plane_index_and_terminals": "CT-1..CT-9 (terminal identity)",
++    "stage10_bilinear_group_factor": "GQ (bilinear group factor)",
++    "stage11_full_preimage": "P-1..P-6 (full preimage arm)",
++    "stage12_mask_and_cfs": "M1..M6 (masking / CFS arm)",
++}
++FALSE_KEYS = ("ok", "all_fire", "fires")
++
++
++def false_leaves(o, path=""):
++    """every `ok` / `all_fire` / `fires` that is exactly False"""
++    out = []
++    if isinstance(o, dict):
++        for k, v in o.items():
++            p = f"{path}/{k}"
++            if k in FALSE_KEYS and v is False:
++                out.append(p)
++            out += false_leaves(v, p)
++    elif isinstance(o, list):
++        for i, v in enumerate(o):
++            out += false_leaves(v, f"{path}[{i}]")
++    return out
++
++
++def _skipped_not_requested(c):
++    return isinstance(c, dict) and c == {"skipped": NOT_REQUESTED, "ok": False}
++
++
++def mask_arm_closed(s12, blocks):
++    """(b): stage 12's arm figures, recomputed from its own fields"""
++    if not isinstance(s12, dict):
++        return False
++    per = s12.get("per_stage") or []
++    rec = s12.get("entries_recomputed")
++    return bool(
++        s12.get("requested") is True
++        and (s12.get("source_pins") or {}).get("ok") is True
++        and s12.get("stages_checked") == blocks
++        and len(per) == blocks
++        and all(isinstance(st, dict) and st.get("ok") is True for st in per)
++        and s12.get("stages_that_refused") == []
++        and isinstance(rec, int) and rec > 0
++        and s12.get("entries_differing") == 0
++        and (s12.get("salted_leaves_authenticated") or 0) > 0
++    )
++
++
++def joint_closed(s13, s11, s12, blocks):
++    """(c): stage 13's figures, recomputed from its own fields and the arms'"""
++    if not all(isinstance(x, dict) for x in (s13, s11, s12)):
++        return False
++    parts = s13.get("parts") or {}
++    couplings = s13.get("couplings") or {}
++    return bool(
++        s13.get("requested") is True
++        and len(couplings) == 4
++        and all(isinstance(c, dict) and c.get("respected") is True
++                for c in couplings.values())
++        and s13.get("all_four_couplings_respected") is True
++        and s13.get("entries_differing") == 0
++        and parts.get("pcs_entries_differing") == 0
++        and parts.get("masking_entries_differing") == 0
++        and (parts.get("pcs_entries_compared") or 0) > 0
++        and (parts.get("masking_entries_compared") or 0) > 0
++        and s11.get("requested") is True
++        and s11.get("ok") is True
++        and s11.get("arm_restricted_to") is None
++        and s11.get("view_entries_differing") == 0
++        and (s11.get("view_entries_compared") or 0) > 0
++        and s11.get("not_exhibited") == []
++        and sorted(s11.get("exhibited") or []) == sorted(s11.get("commitments") or [])
++        and len(s11.get("exhibited") or []) > 0
++        and mask_arm_closed(s12, blocks)
++        and s13.get("findings") == [MASK_SIDE_FINDING]
++    )
++
++
++def explain(record, path, controls_requested):
++    """the reason a false leaf is the arms-only state, or None"""
++    if controls_requested:
++        return None
++    blocks = record.get("blocks")
++    if path == "/ok":
++        return "(d) the record's top-level ok"
++    parts = path.strip("/").split("/")
++    if len(parts) == 3 and parts[1] == "controls" and parts[2] == "ok":
++        if _skipped_not_requested(record.get(parts[0], {}).get("controls")):
++            return "(a) controls not requested in this pass"
++        return None
++    if path == "/stage12_mask_and_cfs/ok":
++        s12 = record.get("stage12_mask_and_cfs")
++        if (mask_arm_closed(s12, blocks)
++                and _skipped_not_requested(s12.get("controls"))):
++            return ("(b) the masking arm closed; ok = arm AND controls.ok, and the "
++                    "controls were not requested")
++        return None
++    if path == "/stage13_joint_run_preimage/ok":
++        s12 = record.get("stage12_mask_and_cfs")
++        if (joint_closed(record.get("stage13_joint_run_preimage"),
++                         record.get("stage11_full_preimage"), s12, blocks)
++                and isinstance(s12, dict)
++                and _skipped_not_requested(s12.get("controls"))):
++            return ("(c) the joint assignment closed; its ok conjoins stage 12's ok, "
++                    "which is false only for (b)")
++        return None
++    return None
++
++
++def infer_controls_requested(record):
++    """True if any control family of stages 8/10/11/12 RAN; False if none ran
++    and at least one says it was not requested; None if neither is known"""
++    ran, not_req = False, False
++    for key in CONTROL_FAMILIES:
++        c = (record.get(key) or {}).get("controls") if isinstance(record.get(key), dict) else None
++        if c is None:
++            continue
++        if _skipped_not_requested(c):
++            not_req = True
++        elif not (isinstance(c, dict) and "skipped" in c):
++            # a family that ran carries its controls; every skip names itself
++            # ("controls not requested", "stage 8 was not run in this pass",
++            # "the arm was restricted to [...]", a refusal of the pins)
++            ran = True
++    if ran:
++        return True
++    if not_req:
++        return False
++    return None
++
++
++def classify(record, controls_requested=None) -> dict:
++    """The status of one staged record.  `controls_requested` is the driver's
++    own flag when it is known; otherwise it is inferred from the record."""
++    inferred = infer_controls_requested(record)
++    if controls_requested is None:
++        controls_requested = inferred
++    raised = [t.get("stage") for t in record.get("timings", []) if t.get("raised")]
++    raised += [k for k, v in record.items()
++               if isinstance(v, dict) and "the_stage_raised" in v]
++    leaves = false_leaves(record)
++    explained = {p: explain(record, p, controls_requested) for p in leaves}
++    unexplained = [p for p, why in explained.items() if why is None]
++    not_fired = {k: CONTROL_FAMILIES[k] for k in CONTROL_FAMILIES
++                 if isinstance(record.get(k), dict)
++                 and _skipped_not_requested(record[k].get("controls"))}
++    if record.get("ok") is True:
++        status = "PASS"
++    elif (controls_requested is False and inferred is not True and not raised
++          and leaves and not unexplained):
++        status = "ARMS-ONLY"
++    else:
++        status = "NOT-OK"
++    return {
++        "status": status,
++        "ok": record.get("ok"),
++        "ok_is_unchanged": "this status never changes `ok`; ok = false stays "
++        "ok = false",
++        "controls_requested": controls_requested,
++        "controls_requested_inferred_from_the_record": inferred,
++        "stages_that_raised": raised,
++        "false_leaves": leaves,
++        "explained": {p: w for p, w in explained.items() if w is not None},
++        "unexplained": unexplained,
++        "control_families_not_fired_in_this_pass": not_fired,
++        "what_ARMS_ONLY_means": "every figure of the arms this pass ran closed "
++        "(recomputed here from the record), and the ONLY reason ok is false is "
++        "that the pass was run without --controls",
++        "what_it_does_not_mean": "that those controls fired: they did not, in "
++        "this pass.  An arm counts only where its controls fired on the same "
++        "tools and shape in another record, which the ledger must cite",
++        "privacy_property_established": False,
++        "privacy_acceptance": False,
++    }
++
++
++def status_record(record_path, controls_requested=None) -> dict:
++    with open(record_path, "rb") as fh:
++        raw = fh.read()
++    rec = json.loads(raw)
++    here = os.path.dirname(os.path.abspath(__file__))
++    with open(os.path.join(here, "zk60_native_rg_status.py"), "rb") as fh:
++        me = hashlib.sha256(fh.read()).hexdigest()
++    out = {
++        "record": os.path.abspath(record_path),
++        "record_sha256": hashlib.sha256(raw).hexdigest(),
++        "record_bundle": rec.get("bundle"),
++        "record_stages_run": rec.get("stages_run"),
++        "record_driver_sha256": (rec.get("tool_sha256") or {}).get(
++            "zk60_native_rg_m125.py"),
++        "classifier_sha256": me,
++    }
++    out.update(classify(rec, controls_requested))
++    return out
++
++
++def main(argv=None):
++    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
++    ap.add_argument("--record", required=True)
++    ap.add_argument("--out")
++    a = ap.parse_args(argv)
++    out = status_record(a.record)
++    path = a.out or (a.record[:-5] if a.record.endswith(".json") else a.record) \
++        + ".status.json"
++    with open(path, "w") as fh:
++        json.dump(out, fh, indent=1, sort_keys=True)
++        fh.write("\n")
++    print(f"{out['status']}  ok={out['ok']}  false leaves {len(out['false_leaves'])}"
++          f"  unexplained {len(out['unexplained'])}  -> {path}")
++    return {"PASS": 0, "ARMS-ONLY": 3}.get(out["status"], 1)
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff -ruN -x __pycache__ original/zk60_native_rg_tcontrols.py scripts/zk60_native_rg_tcontrols.py
+--- original/zk60_native_rg_tcontrols.py	2026-09-23 04:12:05.481328964 -0700
++++ scripts/zk60_native_rg_tcontrols.py	2026-10-17 03:47:45.121222378 -0700
+@@ -294,17 +294,29 @@
+ 
+     # ---------------------------------- CT-5: a flipped public-table entry
+     geom = PadGeometry(bundle.run["shape"], index.domain_log)
+-    cube = 1 << bundle.stages[0].doc["arguments"][17]["main"]
+-    real = geom.supp("S", cube)
++    # [TINYLLAMA PORT 2026-10-17] CT-5 flipped an entry of supp(Dom::S),
++    # which exists only where Dom::S PADS -- every shape before TinyLlama.
++    # At the trained TinyLlama shape S, D, Q, Kv, Ht and T are exact and
++    # only F, L and Tab pad, so `supp("S")` is None.  The control's meaning
++    # is "a rebuilt public support table, one entry flipped, is caught by the
++    # capture's own digest"; it now takes the FIRST padded domain of this
++    # list, in its host slot, so at every earlier shape it is still Dom::S in
++    # slot 17 and no earlier record moves.
++    for dom5, slot5 in (("S", 17), ("F", 18), ("D", 14), ("Q", 15),
++                        ("Kv", 16), ("L", 3), ("T", 2), ("Tab", 19)):
++        cube = 1 << bundle.stages[0].doc["arguments"][slot5]["main"]
++        real = geom.supp(dom5, cube)
++        if real is not None:
++            break
+     flipped = list(real)
+     at = next(i2 for i2, x in enumerate(flipped) if x == 1)
+     flipped[at] = 0
+-    captured = next(t["sha256"] for t in bundle.stages[0].doc["arguments"][17]["tables"]
++    captured = next(t["sha256"] for t in bundle.stages[0].doc["arguments"][slot5]["tables"]
+                     if t["kind"] == "public" and t["sha256"] == table_digest(real))
+     out["controls"].append({
+         "control": "CT-5",
+-        "what": f"one entry (index {at}) of the rebuilt supp(Dom::S) table flipped "
+-                "from 1 to 0",
++        "what": f"one entry (index {at}) of the rebuilt supp(Dom::{dom5}) table "
++                f"(slot {slot5:02d}) flipped from 1 to 0",
+         "mechanism": "the SHA-256 the capture carries for that public table",
+         "the_honest_table_matches_the_capture": table_digest(real) == captured,
+         "the_flipped_table_does_not": table_digest(flipped) != captured,
+diff -ruN -x __pycache__ original/zk60_native_rg_terminals.py scripts/zk60_native_rg_terminals.py
+--- original/zk60_native_rg_terminals.py	2026-09-23 04:10:37.622914711 -0700
++++ scripts/zk60_native_rg_terminals.py	2026-10-17 03:59:43.103514743 -0700
+@@ -554,6 +554,16 @@
+     },
+ }
+ 
++# [TINYLLAMA PORT 2026-10-17] the trained bundles' layout.rs, protocol.rs,
++# plane_index.rs, shape.rs and pad.rs digests, each READ
++# (`zk60_native_rg_tinyllama_pins`); no entry above changes.
++from zk60_native_rg_tinyllama_pins import (  # noqa: E402
++    TERMINALS_ALSO_ACCEPTED as _TL_AA,
++    TERMINALS_PINNED_IF_PRESENT as _TL_PIP,
++    merge_two_level as _tl_merge2)
++_tl_merge2(ALSO_ACCEPTED, _TL_AA, "ALSO_ACCEPTED")
++_tl_merge2(PINNED_IF_PRESENT, _TL_PIP, "PINNED_IF_PRESENT")
++
+ # **ROUND 4 (2026-09-20), finding S19-F1.**  `argument.rs` is the file that
+ # decides what a slot's polynomial IS, and its stage-20 digest carries a
+ # DIFFERENT definition of slots 08 and 09 from every earlier one.  It is
+@@ -651,6 +661,70 @@
+ 
+ POW256 = [(pow(256, j, P), 0) for j in range(4)]
+ 
++# ------------------------------------------------ [TINYLLAMA PORT 2026-10-17]
++# THE CALIBRATION, PER BUNDLE.  The constants above are the FROZEN
++# calibration every registered profile proves with (`shape.rs`:
++# `NormCalibration::FROZEN`).  A TRAINED-calibration profile (decision D24
++# and round 2 of the native lane) carries its own `tn`, two norm multipliers
++# `Cn_a` / `Cn_m`, `Ceps` and seven windowed requantization shifts as SHAPE
++# fields; the relations read them from the shape (`argument.rs` SC_TZC,
++# SC_DZC, SC_FZC, SC_QZC / SC_KVZC, SC_SZC; `layout.rs::lookups_at`'s top-limb
++# coefficients), each the frozen literal at a frozen shape.  The trained
++# capture writes them into `run.json["shape"]` beside `trained_calibration:
++# true`; this class reads them from there and falls back to the frozen values
++# ONLY when the bundle declares no trained calibration -- a bundle that names
++# some trained keys and not the flag, or the flag and not every key, is a
++# refusal, never a silent mixture.  At a frozen bundle every coefficient below
++# equals the literal this port used before, so no frozen figure can move.
++FROZEN_CALIBRATION = {
++    "norm_tn": NORM_TN, "norm_cn_a": NORM_CN, "norm_cn_m": NORM_CN,
++    "norm_ceps": NORM_CEPS, "sh_ao": SH_AO, "sh_qkv": SH_QKV, "sh_s": SH_S,
++    "sh_o": SH_O, "sh_g": SH_G, "sh_h": SH_H_PROD, "sh_z": SH_Z,
++}
++TRAINED_KEYS = tuple(FROZEN_CALIBRATION)
++
++
++class Calibration:
++    """`Shape::norm_calibration()` read from a bundle's shape."""
++
++    def __init__(self, shape_raw: dict):
++        flag = shape_raw.get("trained_calibration")
++        present = [kk for kk in TRAINED_KEYS if kk in shape_raw]
++        if flag is True:
++            missing = [kk for kk in TRAINED_KEYS if kk not in shape_raw]
++            if missing:
++                raise ValueError("run.json shape declares a trained calibration "
++                                 f"but not {missing}")
++            self.values = {kk: int(shape_raw[kk]) for kk in TRAINED_KEYS}
++            self.trained = True
++        elif flag is None and not present:
++            self.values = dict(FROZEN_CALIBRATION)
++            self.trained = False
++        else:
++            raise ValueError("run.json shape: trained calibration keys "
++                             f"{present} without trained_calibration: true "
++                             f"(flag {flag!r})")
++        for kk, v in self.values.items():
++            setattr(self, kk, v)
++
++    @staticmethod
++    def half(sh: int) -> int:
++        """`witness::half` (witness.rs:93): 0 at sh = 0, else 2^(sh-1)."""
++        return 0 if sh == 0 else 1 << (sh - 1)
++
++    @staticmethod
++    def one(sh: int) -> int:
++        """`lookups_at`'s one-limb top pin `2^(8 - sh)` (layout.rs)."""
++        return 1 << (8 - sh)
++
++    @staticmethod
++    def two(sh: int) -> int:
++        """`lookups_at`'s two-limb top pin `2^(16 - sh)` (layout.rs)."""
++        return 1 << (16 - sh)
++
++    def record(self) -> dict:
++        return {"trained": self.trained, **self.values}
++
+ 
+ def k(v: int):
+     """`Fp2::from_i64` (zkp-core/src/field.rs:148)."""
+@@ -682,6 +756,8 @@
+     def __init__(self, shape_raw: dict, domain_log: dict):
+         self.s = shape_raw
+         self.domain_log = dict(domain_log)
++        # [TINYLLAMA PORT] the bundle's calibration (frozen when undeclared)
++        self.cal = Calibration(shape_raw)
+ 
+     def log(self, dom: str) -> int:
+         return self.domain_log[dom]
+@@ -885,6 +961,11 @@
+     """
+     ln, ls, lp = counts["ln"], counts["ls"], counts["lp"]
+     norm_wrho, wrho_s = shape_raw["norm_wrho"], shape_raw["wrho_s"]
++    # [TINYLLAMA PORT] the windowed top-limb pins are the SHAPE's
++    # (layout.rs `one(sh) = 2^(8-sh)`, `two(sh) = 2^(16-sh)`); the frozen
++    # shifts give the historical literals 2, 4, 2, 4, 2, 128, 4
++    cal = Calibration(shape_raw)
++    one, two = Calibration.one, Calibration.two
+     norm_top = norm_wrho != 8 * ln           # `Shape::norm_top_is_full_byte`
+     norm_scale = 1 << (8 * ln - norm_wrho)
+     sigma_scale = 1 << (8 * ls - wrho_s)
+@@ -902,7 +983,7 @@
+         if norm_top:
+             v += [_scaled(f"A_NS{ln - 1}", norm_scale)]
+         v += [_byte("A_AL0"), _byte("A_AL1"), _byte("A_RAL"),
+-              _scaled("A_RAL", 2), _byte("A_X1L0"), _byte("A_X1L1")]
++              _scaled("A_RAL", one(cal.sh_ao)), _byte("A_X1L0"), _byte("A_X1L1")]
+         v += _sym("A_YM")
+         v += [_byte(f"A_MR{j}") for j in range(ln)]
+         if norm_top:
+@@ -911,29 +992,30 @@
+         if norm_top:
+             v += [_scaled(f"A_MS{ln - 1}", norm_scale)]
+         v += [_byte("A_X2L0"), _byte("A_X2L1")]
+-        v += [_byte("A_ZL0"), _byte("A_ZL1"), _byte("A_RDL"), _scaled("A_RDL", 4)]
++        v += [_byte("A_ZL0"), _byte("A_ZL1"), _byte("A_RDL"),
++              _scaled("A_RDL", one(cal.sh_z))]
+     elif dom == "F":
+-        v += [_byte("A_RGL"), _scaled("A_RGL", 2)]
++        v += [_byte("A_RGL"), _scaled("A_RGL", one(cal.sh_g))]
+         v += [_byte("A_UL0"), _byte("A_UL1")]
+         v += [_byte("A_HL0"), _byte("A_HL1")]
+-        v += [_byte("A_RH0"), _byte("A_RH1"), _scaled("A_RH1", 4)]
++        v += [_byte("A_RH0"), _byte("A_RH1"), _scaled("A_RH1", two(cal.sh_h))]
+     elif dom == "Q":
+         v += _sym("A_Q8")
+-        v += [_byte("A_RQL"), _scaled("A_RQL", 2)]
++        v += [_byte("A_RQL"), _scaled("A_RQL", one(cal.sh_qkv))]
+         v += _sym("A_QR8")
+         v += [_byte("A_RQRL"), _scaled("A_RQRL", 2)]
+         v += _sym("A_O8")
+-        v += [_byte("A_RO0"), _byte("A_RO1"), _scaled("A_RO1", 128)]
++        v += [_byte("A_RO0"), _byte("A_RO1"), _scaled("A_RO1", two(cal.sh_o))]
+     elif dom == "Kv":
+         v += _sym("A_K8")
+-        v += [_byte("A_RKL"), _scaled("A_RKL", 2)]
++        v += [_byte("A_RKL"), _scaled("A_RKL", one(cal.sh_qkv))]
+         v += _sym("A_V8")
+-        v += [_byte("A_RVL"), _scaled("A_RVL", 2)]
++        v += [_byte("A_RVL"), _scaled("A_RVL", one(cal.sh_qkv))]
+         v += _sym("A_KR8")
+         v += [_byte("A_RKRL"), _scaled("A_RKRL", 2)]
+     elif dom == "S":
+         v += _sym("A_S8")
+-        v += [_byte("A_RSL"), _scaled("A_RSL", 4)]
++        v += [_byte("A_RSL"), _scaled("A_RSL", one(cal.sh_s))]
+         v += [_byte(f"A_PL{j}") for j in range(lp)]
+         v += [_scaled(f"A_PL{lp - 1}", p_scale)]
+         v += [_byte(f"A_SR{j}") for j in range(ls)]
+@@ -1280,7 +1362,7 @@
+         pz.mu = mu[6]
+         pz.add(gi, cx.zero_planes("T"), zeta)
+     g = gate_at(gi, v)
+-    ceps = k(NORM_CEPS)
++    ceps = k(cx.g.cal.norm_ceps)              # [TINYLLAMA PORT] the shape's
+     return add(add(mul(v[i_tau], add(zc, pz.eval(v))),
+                    mul(mul(mul(nu[0], v[i_rt]), g), sub(add(dsq, a1), ceps))),
+                mul(mul(mul(nu[1], v[i_rt2]), g), sub(add(dsqm, a1m), ceps)))
+@@ -1403,7 +1485,9 @@
+     for m, c in zip(mu, [c0, c1, c2, c3, c4]):
+         zc = add(zc, mul(mul(m, g), c))
+     host_rs = add(sm, cx.lam_z)
+-    host_s = sub(add(mul(k(1 << SH_S), s8), v[cx.t("A_RSL")]), k(1 << (SH_S - 1)))
++    cal = cx.g.cal                            # [TINYLLAMA PORT] the shape's
++    host_s = sub(add(mul(k(1 << cal.sh_s), s8), v[cx.t("A_RSL")]),
++                 k(Calibration.half(cal.sh_s)))
+     return add(add(mul(v[cx.eq(0)], zc),
+                    mul(mul(mul(nu[0], v[cx.eq(1)]), gate_at(ght, v)), host_rs)),
+                mul(mul(mul(nu[1], v[cx.eq(2)]), g), host_s))
+@@ -1432,8 +1516,9 @@
+ 
+     g8, a16 = v[cx.t("A_G8")], v[cx.t("A_A16")]
+     u16, h16 = v[cx.t("A_U16")], v[cx.t("A_H16")]
+-    f0 = add(sub(sub(mul(a16, u16), mul(k(1 << SH_H_PROD), h16)),
+-                 l2("A_RH0", "A_RH1")), k(1 << (SH_H_PROD - 1)))
++    cal = cx.g.cal                            # [TINYLLAMA PORT] the shape's
++    f0 = add(sub(sub(mul(a16, u16), mul(k(1 << cal.sh_h), h16)),
++                 l2("A_RH0", "A_RH1")), k(Calibration.half(cal.sh_h)))
+     f1 = sub(add(u16, k(32768)), l2("A_UL0", "A_UL1"))
+     f2 = sub(add(h16, k(32768)), l2("A_HL0", "A_HL1"))
+     # the activation PAIR lookup's helper relation: the LogUp arm, never gated
+@@ -1445,7 +1530,8 @@
+                  mul(mu[3], f_act)), pz.eval(v))
+     for m, c in zip(mu, [f0, f1, f2]):
+         zc = add(zc, mul(mul(m, g), c))
+-    host_g = sub(add(mul(k(1 << SH_G), g8), v[cx.t("A_RGL")]), k(1 << (SH_G - 1)))
++    host_g = sub(add(mul(k(1 << cal.sh_g), g8), v[cx.t("A_RGL")]),
++                 k(Calibration.half(cal.sh_g)))
+     host_u = u16                       # SH_U = 0: no coefficient (T2 A.4)
+     return add(add(mul(v[cx.eq(0)], zc),
+                    mul(mul(mul(nu[0], v[cx.eq(1)]), g), host_g)),
+@@ -1570,7 +1656,12 @@
+     ns = limbs(v, [cx.t(f"A_NS{j}") for j in range(ln)])
+     mr = limbs(v, [cx.t(f"A_MR{j}") for j in range(ln)])
+     ms = limbs(v, [cx.t(f"A_MS{j}") for j in range(ln)])
+-    k_num, k_dv, k_den = k(2 * NORM_CN), k(1 << NORM_TN), k(1 << (NORM_TN + 1))
++    # [TINYLLAMA PORT] tn, the two norms' SEPARATE multipliers and the AO / Z
++    # shifts are the shape's (argument.rs SC_DZC: b_num = 2 cn_a for norm_a,
++    # b_num_m = 2 cn_m for norm_m's clause c6)
++    cal = cx.g.cal
++    k_num, k_num_m = k(2 * cal.norm_cn_a), k(2 * cal.norm_cn_m)
++    k_dv, k_den = k(1 << cal.norm_tn), k(1 << (cal.norm_tn + 1))
+     c0 = sub(sub(add(mul(mul(k_num, v[ig]), x), mul(k_dv, d)),
+                  mul(mul(k_den, y), d)), nr)
+     c1 = sub(add(add(ns, nr), ONE), mul(k_den, d))
+@@ -1578,7 +1669,7 @@
+     c3 = sub(add(ao, k(32768)), l2("A_AL0", "A_AL1"))
+     c4 = sub(add(x1, k(32768)), l2("A_X1L0", "A_X1L1"))
+     c5 = sub(sub(x1, x), ao)
+-    c6 = sub(sub(add(mul(mul(k_num, v[igm]), x1), mul(k_dv, dm)),
++    c6 = sub(sub(add(mul(mul(k_num_m, v[igm]), x1), mul(k_dv, dm)),
+                  mul(mul(k_den, nmm), dm)), mr)
+     c7 = sub(add(add(ms, mr), ONE), mul(k_den, dm))
+     c8 = sub(add(x2, k(32768)), l2("A_X2L0", "A_X2L1"))
+@@ -1593,8 +1684,10 @@
+     zc = add(helper_sum(v, lks, cx.t("H_D0"), cx.alpha, mu[11:]), pz.eval(v))
+     for m, c in zip(mu, [c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10]):
+         zc = add(zc, mul(mul(m, g), c))
+-    host_wo = sub(add(mul(k(1 << SH_AO), ao), at("A_RAL")), k(1 << (SH_AO - 1)))
+-    host_dmm = sub(add(mul(k(1 << SH_Z), z16), at("A_RDL")), k(1 << (SH_Z - 1)))
++    host_wo = sub(add(mul(k(1 << cal.sh_ao), ao), at("A_RAL")),
++                  k(Calibration.half(cal.sh_ao)))
++    host_dmm = sub(add(mul(k(1 << cal.sh_z), z16), at("A_RDL")),
++                   k(Calibration.half(cal.sh_z)))
+     return add(add(mul(v[cx.eq(0)], zc),
+                    mul(mul(mul(nu[0], v[cx.eq(1)]), g), host_wo)),
+                mul(mul(mul(nu[1], v[cx.eq(2)]), g), host_dmm))
+@@ -1644,14 +1737,17 @@
+     zc = add(add(mul(mul(mu[0], g), rope),
+                  helper_sum(v, lks, cx.t(f"{hp}0"), cx.alpha, mu[1:])),
+              pz.eval(v))
+-    half = k(1 << (SH_QKV - 1))
++    # [TINYLLAMA PORT] the Q/K/V and PV-output shifts are the shape's
++    cal = cx.g.cal
++    kq, half = k(1 << cal.sh_qkv), k(Calibration.half(cal.sh_qkv))
+     if q:
+-        host1 = sub(add(mul(k(1 << SH_QKV), at("A_Q8")), at("A_RQL")), half)
+-        host2 = sub(add(add(mul(k(1 << SH_O), at("A_O8")), at("A_RO0")),
+-                        mul(at("A_RO1"), POW256[1])), k(1 << (SH_O - 1)))
++        host1 = sub(add(mul(kq, at("A_Q8")), at("A_RQL")), half)
++        host2 = sub(add(add(mul(k(1 << cal.sh_o), at("A_O8")), at("A_RO0")),
++                        mul(at("A_RO1"), POW256[1])),
++                    k(Calibration.half(cal.sh_o)))
+     else:
+-        host1 = sub(add(mul(k(1 << SH_QKV), at("A_K8")), at("A_RKL")), half)
+-        host2 = sub(add(mul(k(1 << SH_QKV), at("A_V8")), at("A_RVL")), half)
++        host1 = sub(add(mul(kq, at("A_K8")), at("A_RKL")), half)
++        host2 = sub(add(mul(kq, at("A_V8")), at("A_RVL")), half)
+     return add(add(mul(v[cx.eq(0)], zc),
+                    mul(mul(mul(nu[0], v[cx.eq(1)]), g), host1)),
+                mul(mul(mul(nu[1], v[cx.eq(2)]), g), host2))
+@@ -1883,6 +1979,8 @@
+         self.index = index
+         self.shape_raw = bundle.run["shape"]
+         self.geom = PadGeometry(self.shape_raw, index.domain_log)
++        # [TINYLLAMA PORT] the slot closures read `cx.g.cal`
++        self.cal = self.geom.cal
+         self.alpha = self.beta = None
+         self.g_u8 = self.g_exp = self.g_act = None
+         self.public_tables: dict[tuple, str] = {}
+@@ -2177,12 +2275,14 @@
+             ]
+         binv = f2_inv(self.beta)
+         big = []
++        recovered = []
+         for i in range(U8_LEN):
+             t = mul(sub(sub(vals[i], k(i)), g), binv)
+             if t[1] != 0:
+                 out.append(f"{label}: entry {i} does not recover a base-field value")
+                 break
+             signed = t[0] if t[0] < P // 2 else t[0] - P
++            recovered.append(signed)
+             if abs(signed) >= 1 << 32:
+                 big.append(i)
+         if big:
+@@ -2190,7 +2290,25 @@
+                 f"{label}: {len(big)} recovered entries are not small integers "
+                 f"(first {big[0]})"
+             )
+-        self.structure_detail.setdefault(label, []).append({"recovered_entries": U8_LEN})
++        detail = {"recovered_entries": U8_LEN}
++        # [TINYLLAMA PORT 2026-10-17] at a TRAINED profile each block carries
++        # its OWN exp / SiLU table (per-layer table keys), so the record names
++        # which table each stage carried -- the SHA-256 of the recovered
++        # int64 entries -- and the two entries a pad relies on: exp[0] =
++        # 2^f_e and act[128] = 0 (the condition ruling S38-F1(a) refused
++        # otherwise, absent from the trained tree, finding G-1).  Recorded
++        # only when the bundle declares a trained calibration, so no frozen
++        # record gains a leaf.
++        if self.cal.trained and len(recovered) == U8_LEN:
++            raw = b"".join(int(v).to_bytes(8, "little", signed=True)
++                           for v in recovered)
++            detail["recovered_sha256"] = hashlib.sha256(raw).hexdigest()
++            if label == "act_values":
++                detail["act_128"] = recovered[128]
++                detail["act_128_is_zero"] = recovered[128] == 0
++            else:
++                detail["exp_0"] = recovered[0]
++        self.structure_detail.setdefault(label, []).append(detail)
+         return out
+ 
+     # --------------------------------------------------------- the vals list
+diff -ruN -x __pycache__ original/zk60_native_rg_tinyllama_pins.py scripts/zk60_native_rg_tinyllama_pins.py
+--- original/zk60_native_rg_tinyllama_pins.py	1969-12-31 16:00:00.000000000 -0800
++++ scripts/zk60_native_rg_tinyllama_pins.py	2026-10-17 03:39:23.465925415 -0700
+@@ -0,0 +1,438 @@
++#!/usr/bin/env python3
++"""[TINYLLAMA PORT, 2026-10-17] The READINGS behind every new source pin the
++trained TinyLlama T32 bundles carry, in ONE place.
++
++WHY ONE MODULE.  The gate keeps its pins in six tables across five modules
++(`zk60_native_rg_runpins.RUN_LAYER_PINS` / `READINGS` / `SHARED_ALSO_READ`,
++`zk60_native_rg_terminals.ALSO_ACCEPTED` / `PINNED_IF_PRESENT`,
++`zk60_native_rg_gqa.ARGUMENT_DEFINITIONS`, `zk60_native_rg_mask.
++MASK_LAYER_PINS`).  Each of those tables now MERGES the matching dict below
++at its own definition site (one marked line each), so every TinyLlama digest
++the gate accepts is accepted for exactly the reason written here, and an
++auditor reads the whole port's pin discipline in one file.  No existing
++digest or reading is changed or removed; a digest outside these tables is
++still refused by name.
++
++HOW EACH FILE WAS READ.  The trained bundles are written from
++`ops/zkp-mvp/trained-1b-gate/` (no git: an UNCOMMITTED copy of the frozen,
++reviewed `trained-1b-review-r2` plus this lane's test-only capture code;
++sources manifest `results/zk60_gate_tinyllama_20261017/trained-1b-gate.
++sources.sha256`).  That tree descends from the integrator's
++`ops/zkp-mvp/candidate/`, whose files are, for every pinned file but four,
++byte-identical to a digest this gate already READ (rung-K8 / 125M L=2 era):
++`run.rs` f39aec79, `run_capture.rs` d09f3853, `protocol.rs` ac412237,
++`layout.rs` 14758039, `shape.rs` dbf4e2bc, `plane_index.rs` 9de8320a,
++`pad.rs` f8b1f6c2, `witness.rs` b9b66c02, `wire.rs` 99e69b5c.  So each
++reading below is the plain `diff -u` of the candidate file (a READ digest)
++against the trained file, classified hunk by hunk, with the counts measured
++by `diff -u | grep -c`; `argument.rs`, `zk.rs`, `src/pcs.rs` and the three
++zkp-core files are read against the `17830dc` digests of round 9m (the
++working files of `/home/victor/wt-zk60-block125m`, digest-checked).  The
++`commits` field cannot name a commit: it names the uncommitted tree.
++
++WHAT A READING DOES NOT SAY.  That the Rust is right.  Every computed stage
++(the replay, the hash layer, the terminal identity, the ranks, the
++preimages) is still a computation on the bundle's bytes; a pin says which
++Rust the gate's TRANSCRIPTIONS were compared with.
++
++NOTHING HERE IS A PRIVACY STATEMENT.
++"""
++
++from __future__ import annotations
++
++TREE = ("uncommitted:ops/zkp-mvp/trained-1b-gate "
++        "(sources manifest sha256 1a52c5c8; trained-1b-review-r2 + the "
++        "privacy-gate lane's test-only capture code)",)
++TINYLLAMA_BUNDLES = ("tinyllama-trained-capture-dense-l2",
++                     "tinyllama-trained-capture-zero-l2",
++                     "tinyllama-trained-capture-dense-l1",
++                     "tinyllama-trained-capture-zero-l1")
++
++# Lineage finding G-1, recorded where the pins are: the trained tree does not
++# carry the 125M lane's stages 36-45.  None of the missing items moves an
++# absorb, a draw or a published byte (the replay re-derives every challenge of
++# both trained bundles with the UNEDITED tools -- `probe_before_port/`), but
++# each is a hardening the security owner accepted for the run layer.
++LINEAGE_G1 = (
++    "the trained tree (candidate + lane C + native lane) descends from a "
++    "point BEFORE the 125M lane's stages 36-45, so it does not carry: "
++    "rulings CS-1 / CS-4 (block and endpoint statements re-checked against "
++    "the shape at every proving and verifying entry), CS-3 (the prover's "
++    "named refusal of a lookup miss before the A commitment), CS-6 (the run "
++    "prover and verifier refuse blocks other than the ones the statement "
++    "names), CS-7 (the run-profile registry), CS-8 (sealed RunShape / "
++    "RunStatement fields, `check_constructed`, `check_is_for_shape`), CS-9, "
++    "S38-F1(a) (`act[128] == 0` at a shape whose Dom::F pads), the stage-36 "
++    "draw observer and the stage-45 standalone-block capture writer.  All "
++    "are refusals or test hooks; none moves an absorb, a draw or a byte of an "
++    "honest receipt")
++
++# --------------------------------------------------------------------------
++# zk60_native_rg_runpins.RUN_LAYER_PINS and READINGS
++# --------------------------------------------------------------------------
++RUN_LAYER_PINS = {
++    "src/private_block/run.rs": {
++        "296aeaafd3bd8a026c93f04f66d5a0dd4c200c81fa31f94e71a86d8d8eebdbe5": {
++            "blob": "aaf33b791ef254e015c7161cd5264080987d2f33",
++            "commits": TREE,
++            "bundles": TINYLLAMA_BUNDLES,
++            "bytes": 51941,
++        },
++    },
++    "src/private_block/run_capture.rs": {
++        "c69e577621c4c2412a2819b4e0f2ae3c0a7613fb1db69c094d3f3e129cc876c9": {
++            "blob": "996d7ea40a611bc22855ecc33db9eddc036913d8",
++            "commits": TREE,
++            "bundles": TINYLLAMA_BUNDLES,
++            "bytes": 88811,
++        },
++    },
++}
++
++READINGS = {
++    ("src/private_block/run.rs",
++     "296aeaafd3bd8a026c93f04f66d5a0dd4c200c81fa31f94e71a86d8d8eebdbe5"):
++        "[TINYLLAMA PORT 2026-10-17] read against `f39aec79` (READ in round "
++        "9c/9i; the candidate's own bytes): `diff -u` is **+80 / -7, four "
++        "hunks**.  (1) three profile constants: the cfg(test) "
++        "`RUN_PROFILE_TINYLLAMA_T32_DEV`, `RUN_PROFILE_TINYLLAMA_T32_TRAINED` "
++        "= `hashline-zk-mr1/private-run-tinyllama-1.1b-t32-trained-statement/1` "
++        "and `RUN_PROFILE_RUNG_TC`; (2) three `RunShape` constructors calling "
++        "the UNCHANGED `RunShape::new`; (3) `RunStatement::new` refuses a "
++        "trained-calibration shape or profile, and its body moves into "
++        "`new_with_calibration(.., calibration, approved)`; (4) the NEW "
++        "`new_bound`, which checks a `TrainedModelStatement` against the "
++        "run's own block digests, profile, geometry and scales and passes "
++        "`model.identity()` as the run header's `\"calibration\"` word and the "
++        "model's scale pair as the approved one.  **What the ports transcribe "
++        "is untouched**: `RunStatement::transcript`'s six header absorbs in "
++        "order (`run-shape`, `expected-IO`, `public-statement`, `parameters`, "
++        "`calibration`, `schedule`) -- only the VALUE of the calibration word "
++        "differs at a trained profile, and the replay reads that value from "
++        "`run.json[\"calibration\"]` and reproduces `run_binding`; "
++        "`prove_run` / `RunVerifier::step`'s per-stage absorbs, "
++        "`position_tag`, `BOUNDARY_SITES`, `in_site` / `out_site` and the "
++        "opening order are outside every hunk.  Lineage finding G-1: this "
++        "file is NOT the 125M lane's `f5f4d571` -- rulings CS-1/4/6/7/8 "
++        "(refusals and sealed fields) are absent; the replay of both trained "
++        "bundles with the UNEDITED tools re-derived every challenge "
++        "(`probe_before_port/`)",
++    ("src/private_block/run_capture.rs",
++     "c69e577621c4c2412a2819b4e0f2ae3c0a7613fb1db69c094d3f3e129cc876c9"):
++        "[TINYLLAMA PORT 2026-10-17] read against `d09f3853` (READ in rounds "
++        "9-9m; the candidate's own bytes): `diff -u` is **+67 / -7, five "
++        "hunks**, two authors.  NATIVE LANE: `OWN_SOURCE_FILES` 15 -> 16 "
++        "(`src/private_block/trained_statement.rs`, appended LAST, so no "
++        "index a reader takes into `source_pins` moves) and "
++        "`NOT_ON_THE_RUNS_PATH` 1 -> 3 (`trained_block.rs`, `mvp_driver.rs`, "
++        "each with its reason).  PRIVACY GATE LANE (additive, cfg(test) like "
++        "the whole module): `write_run` appends to `shape` -- ONLY when "
++        "`sh.trained_calibration` -- `trained_calibration`, `norm_tn`, "
++        "`norm_cn_a`, `norm_cn_m`, `norm_ceps`, `sh_ao`, `sh_qkv`, `sh_s`, "
++        "`sh_o`, `sh_g`, `sh_h`, `sh_z`, `d_max` (the empty string at every "
++        "other shape, so no bundle of a frozen profile moves a byte); those "
++        "13 keys join `ALLOWED_KEYS`; and `write_bundle`'s README sentence "
++        "about synthetic weights is replaced, for the two trained run "
++        "profiles only, by one about the export's trained words.  **Nothing "
++        "the loader already read moved**: `SCHEMA` / `SCHEMA_V5`, the three "
++        "kinds, `coverage`, `TRANSCRIPT_LABELS` (19), every existing run- and "
++        "stage-file field and its order, the array store, the manifest and "
++        "the `source_pins` order",
++}
++
++# --------------------------------------------------------------------------
++# zk60_native_rg_runpins.SHARED_ALSO_READ (shared files at a second digest)
++# --------------------------------------------------------------------------
++SHARED_ALSO_READ = {
++    "src/zk.rs": {
++        "66d1128675bea3b473abd4f2fe70d470b1abc19a7fe5a579a227616d76280e32":
++            "[TINYLLAMA PORT 2026-10-17] read against `d4280962` (the bytes "
++            "round 8 read): `diff -u` is **+404 / -20, 18 hunks, the first at "
++            "line 1058**.  Every function the mask port transcribes -- "
++            "`MASK_LOG_MSG` / `MASK_LOG_DOM` / `MASK_Q` (:373-375), "
++            "`encode_coeffs_coset` (:424), `mask_commit` (:430), "
++            "`mask_commit_tagged` (:481), `combined_weights` (:521), "
++            "`weight_polys` (:541), `poly_mul_512` (:550), `mask_open` "
++            "(:563), `mask_verify` (:603), `mask_verify_tagged` (:648) -- "
++            "lies before the first hunk and is byte-identical.  The hunks: "
++            "GPU-decline messages routed through `gpu::declined`; the "
++            "additive `masked_prove_rounds` (a prover entry over a round "
++            "EVALUATOR that publishes only the existing `CfsMasker`'s rounds; "
++            "`masked_prove` is kept as the oracle) and its test module; and "
++            "the v3 FEED-FORWARD prover's host staging pool, int8 block fold "
++            "and `mr1` probe, which the private block never calls",
++    },
++    "src/pcs.rs": {
++        "8b14096b66f6597e3cdfe239a7359457dd17dfd475c2a5d0f4e112a41342127f":
++            "[TINYLLAMA PORT 2026-10-17] read against `f1693267`: **+50 / -9, "
++            "two hunks** -- `commit_planes` (a gpu-cuda-feature W-plane "
++            "commit for the v3 FFN, `None` without the feature) and a "
++            "rewritten doc comment on `commit_zk_owned_tagged`, whose body is "
++            "unchanged.  No run-gate port depends on this adapter",
++    },
++    "../zkp-core/src/pcs.rs": {
++        "5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495":
++            "[TINYLLAMA PORT 2026-10-17] read against `6b8d1bfa`: **+41 / -23, "
++            "six hunks**.  Production: (i) a TAGGED commitment now offers its "
++            "columns to `Backend::try_commit_zk_keyed` (a new hook whose "
++            "DEFAULT declines; the CPU backend these bundles were made with "
++            "does not override it, so the CPU body runs as before); (ii) the "
++            "CPU body's encoding moves to `encode_buffer::encode_rows` -- a "
++            "NEW, UNPINNED file, read here: per row it inverse-NTTs the "
++            "message, writes `(coeff_i - pad_i) * pow_i` for i < Q, the pad "
++            "row `pad_i - pad_{n+i}` (n+i < Q) else `pad_i` times `pow_{n+i}`, "
++            "zeros, then forward-NTTs -- term for term `encode_row_zk`'s "
++            "arithmetic, with the same pads and salts drawn in the same order "
++            "before any branch.  `coset_powers`, `hash_column` / `salt_leaf` "
++            "and their keyed forms and `verify_zk_tagged`'s path-length rule "
++            "(what `zk60_native_rg_pcs` and `zk60_native_rg_hashlayer` "
++            "transcribe) are outside every hunk.  The rest is a test rename "
++            "and a new test.  The hash layer and the blinding reproduction "
++            "re-check the encoding by COMPUTATION on every opened column",
++    },
++    "../zkp-core/src/pcs/backend.rs": {
++        "ff2cb5c1806b34653f8a44ad82f54201fb5d9f6ba2602afe5efeae4d104e0103":
++            "[TINYLLAMA PORT 2026-10-17] read against `1734c03c`: **+8 / -0, "
++            "one hunk** -- the default `try_commit_zk_keyed` that declines.  "
++            "No run-gate port depends on it",
++    },
++    "../zkp-core/src/sumcheck.rs": {
++        "fc7374bbd5e5cc4ede62e8a21d325eb62acff9b9dcc786d12eae39efbdfdbb95":
++            "[TINYLLAMA PORT 2026-10-17] read against `56dbb8c7`: **+5 / -0, "
++            "one hunk** -- `mod rounds; mod grouped;` and their re-exports "
++            "(`prove_rounds`, `ClosureRounds`, `SumcheckRounds`, "
++            "`EqualityGroup`, `GroupedEqRounds`), two NEW, UNPINNED "
++            "prover-side round evaluators.  `CfsMask::len / sum_weights / "
++            "eval_weights / round` (the mask port) and the round absorbs "
++            "(the replay) are byte-identical; the replay re-derives every "
++            "challenge from the published rounds",
++    },
++}
++
++# --------------------------------------------------------------------------
++# zk60_native_rg_terminals.ALSO_ACCEPTED / PINNED_IF_PRESENT
++# --------------------------------------------------------------------------
++TERMINALS_ALSO_ACCEPTED = {
++    "src/private_block/layout.rs": {
++        "bfd3677b849118d8bc114e3bc6aa88ee9d8ef318224cce524060ff6adf698197":
++            "[TINYLLAMA PORT 2026-10-17] read against `14758039` (READ in round "
++            "9): **+56 / -15, five hunks**, and TWO of them change what this "
++            "port transcribes, at a trained profile only.  (1)+(2) "
++            "`lookups_at`: the top-limb pin of every windowed requantization "
++            "remainder is the SHAPE's `one(sh) = 2^(8 - sh)` or `two(sh) = "
++            "2^(16 - sh)` -- RAL `2^(8-sh_ao)`, RDL `one(sh_z)`, RGL "
++            "`one(sh_g)`, RH1 `two(sh_h)`, RQL / RKL / RVL `one(sh_qkv)`, RO1 "
++            "`two(sh_o)`, RSL `one(sh_s)` -- the historical literals 2, 4, 2, "
++            "4, 2, 128, 4 at the frozen shifts, and the RoPE remainders RQRL / "
++            "RKRL keep their literal 2.  THIS PORT NOW READS THE SAME "
++            "COEFFICIENTS from `run.json[\"shape\"]` (`Calibration` in "
++            "`zk60_native_rg_terminals`), frozen values when the bundle "
++            "declares no trained calibration, so no frozen bundle's figure "
++            "moves.  (3) `Layout::for_shape` refuses a non-frozen calibration "
++            "without the trained door and re-runs `check_trained_class` "
++            "(refusals).  (4) the schedule's calibration and feed-forward "
++            "lines print the trained constants at a trained profile (the "
++            "frozen format byte for byte otherwise) -- a public word the "
++            "replay reads from `run.json`.  `N_SLOTS`, `N_FUNCTIONALS`, "
++            "`M_ROWS`, every plane order and row count, `domain_log_at` and "
++            "the `(beta, gamma, alpha)` draw are outside every hunk.  "
++            "(Ruling CS-8's `check_is_for_shape`, in the 125M lane's "
++            "`64c37a49`, is absent -- lineage finding G-1.)",
++    },
++    "src/private_block/protocol.rs": {
++        "efb3dff181e79d010f7d7b2fbee1e4d2e761f7008f6f8aef1bd1a9281182c75f":
++            "[TINYLLAMA PORT 2026-10-17] read against `ac412237` (READ in "
++            "round 9b): **+26 / -2, four hunks**: `single_block_profile_"
++            "allowed` and its two call sites (a REFUSAL of single-block "
++            "receipts at a trained profile, R2-4); an `assert!` of it in "
++            "`transcript()` before anything is absorbed; and `parameter_line` "
++            "printing `sh.sh_g / sh.sh_h / sh.sh_z` where it printed the "
++            "frozen literals (identical at a frozen shape; a public word the "
++            "replay reads from `run.json[\"parameter_line\"]`).  "
++            "`transcript()`'s absorbs, `check_opening_challenges`, the slot "
++            "loop, the `(beta, gamma, alpha)` draw and every row count are "
++            "outside every hunk.  (The 125M lane's `974892cc` adds CS-1/3/4/8 "
++            "refusals and stage-45 hooks on top of `ac412237`; none is here "
++            "-- lineage finding G-1.)",
++    },
++    "src/private_block/plane_index.rs": {
++        "13a7dd6ff1f9178dd640e3d38309a5581a39cf13c9c61238c41ceba83420afbf":
++            "[TINYLLAMA PORT 2026-10-17] read against `9de8320a` (the port's "
++            "own `PORTED_FROM`): **+6 / -0, one hunk** -- `a_plane_names(sh)`, "
++            "a NEW read-only helper over the unchanged `a_segments` / `expand` "
++            "(the D16 item-5 audit names planes with it).  `build`, `render`, "
++            "`locate` and every segment table are byte-identical",
++    },
++}
++
++TERMINALS_PINNED_IF_PRESENT = {
++    "src/private_block/shape.rs": {
++        "a53e2fe2bbfaf8452d1e02d661b1c2e2ba1ff55495cc3e194e4bcdc99c53e45d":
++            "[TINYLLAMA PORT 2026-10-17] read against `dbf4e2bc` (READ in "
++            "round 9c; the candidate's bytes): **+500 / -0 -- ADDITIONS ONLY, "
++            "four hunks**: the trained profile strings and their declared "
++            "classes (tn 1..=16, Cn <= 2^20, Ceps <= 2^40, width <= 4096, "
++            "sh_ao <= 8, one-limb shifts 1..=8, two-limb shifts 9..=16, f_e "
++            "9..=16, wrho_s <= 24, exp e_s -8..=8, RoPE base 10000); "
++            "`NormCalibration` (`FROZEN`, `derive_at_width` with D_max = "
++            "isqrt(Ceps + width * 32768^2) and wrho = tn + 1 + bits(D_max), "
++            "D24); eleven new `Shape` fields set to the frozen values in "
++            "`Shape::new`; and the TinyLlama / rung-TC constructors with "
++            "`with_trained_calibration` / `check_trained_class`, which REPLACE "
++            "`norm_wrho` and `d_max` by the derived values.  `true_size`, "
++            "`pads`, `head_slot`, `clog2`, `Shape::slots`, `a_groups`, "
++            "`h_groups`, `norm_top_is_full_byte`, `h_plane_doms` and ruling "
++            "C-4 are after the last hunk and byte-identical; every dimension "
++            "is re-derived here from `run.json[\"shape\"]` and compared with "
++            "the shape's own `slots` array.  (The 125M lane's `5acecd8e` "
++            "refusals CS-2/5/8/9 are absent -- lineage finding G-1.)",
++    },
++    "src/private_block/pad.rs": {
++        "4f0c11c50503dd8cb4fb38d2b5be5e4f08ec310ee916b83a357f0283ede9eb42":
++            "[TINYLLAMA PORT 2026-10-17] read against `f8b1f6c2` (READ in "
++            "round 9b): **+3 / -1, one hunk, inside `#[cfg(test)] fn "
++            "every_checkable_relation_holds`** (the norm epsilon is the "
++            "shape's).  Not one production line moved: `BitForm::of`, "
++            "`closed_form_indicator`, `support_indicator`, `indicator_table`, "
++            "`zero_rule_a_planes`, `pad_zero_host` and the exempt-plane rule "
++            "are byte-identical",
++    },
++}
++
++# --------------------------------------------------------------------------
++# zk60_native_rg_gqa.ARGUMENT_DEFINITIONS
++# --------------------------------------------------------------------------
++ARGUMENT_DEFINITIONS = {
++    "9b26bda8105c1c73d5847a9c02f9ecc07fa7845f8f5769cc3e34ea3d724d160f": (
++        "repaired",
++        "[TINYLLAMA PORT 2026-10-17] read against `2cee0a22` (READ in round "
++        "9j) in two steps.  `2cee0a22 -> candidate b3b02383` is **+65 / -15, "
++        "nine hunks**: the stage-45 test hooks removed (3 hunks); `SlotDef` "
++        "gains a private `groups` field (`None` everywhere but slot 17); "
++        "`run_slot` proves through `masked_prove_rounds` over a "
++        "`ClosureRounds` (or, for slot 17, a `GroupedEqRounds`) evaluator, "
++        "with a cfg(test) oracle asserting byte-equality with `masked_prove` "
++        "on bounded fixtures; and SC_SZC's closure becomes `sum_g v[g] * "
++        "bracket(g, v)` with bracket 0 = the old `zc`, 1 = `nu0 * ght * (sum "
++        "+ lam)`, 2 = `nu1 * gs * host_s` -- the old closure's three terms "
++        "exactly (`g` there IS `gs.at(v)`), so the verifier's polynomial is "
++        "the same function.  `candidate -> trained` is **+40 / -16, 14 "
++        "hunks, all constants**: SC_TZC's `k(NORM_CEPS)` -> `k(sh.norm_ceps)`; "
++        "SC_DZC's `2 Cn` split into `2 cn_a` (norm_a) and `2 cn_m` (norm_m, "
++        "clause c6), `2^tn` / `2^(tn+1)` and `2^sh_ao` / `2^sh_z` with "
++        "`half(sh) = 2^(sh-1)` (0 at sh = 0); SC_FZC's `2^sh_h` / "
++        "`2^sh_g`; SC_QZC / SC_KVZC's `2^sh_qkv` / `2^sh_o`; SC_SZC's "
++        "`2^sh_s` -- each the frozen literal at a frozen shape.  THIS PORT "
++        "NOW TRANSCRIBES THE SAME CONSTANTS from the bundle's shape "
++        "(`Calibration` in `zk60_native_rg_terminals`).  The two bilinear "
++        "slots' arms, every other slot's closure, the push order of every "
++        "private table, `pad_on`, the `mu` / `nu` / `zeta` draws, `lg`, "
++        "`B::supp` / `B::group_eq`, `run_slot`'s M-functional block, "
++        "`sum_weights`, `acc.fs.extend(hosts)` and the `N_FUNCTIONALS` guard "
++        "are byte-identical -- stage 20's repaired definition",
++    ),
++}
++
++# --------------------------------------------------------------------------
++# zk60_native_rg_mask.MASK_LAYER_PINS
++# --------------------------------------------------------------------------
++MASK_LAYER_PINS = {
++    "src/private_block/argument.rs": {
++        "9b26bda8105c1c73d5847a9c02f9ecc07fa7845f8f5769cc3e34ea3d724d160f": {
++            "commits": TREE,
++            "bundles": TINYLLAMA_BUNDLES,
++            "reading": "[TINYLLAMA PORT 2026-10-17] the block this port reads "
++            "-- `run_slot`'s M-functional block, `fn sum_weights(sh, slot)`, "
++            "`acc.fs.extend(hosts)` and the guard `acc.fs.len() != "
++            "N_FUNCTIONALS` -- is outside every hunk of both steps "
++            "(`2cee0a22 -> candidate -> trained`; see "
++            "`ARGUMENT_DEFINITIONS` in this module), so the DECLARED "
++            "functional order is the one round 8 read.  `run_slot` now proves "
++            "through `masked_prove_rounds`, which publishes the same "
++            "`CfsMasker`'s masked rounds",
++        },
++    },
++    "src/private_block/layout.rs": {
++        "bfd3677b849118d8bc114e3bc6aa88ee9d8ef318224cce524060ff6adf698197": {
++            "commits": TREE,
++            "bundles": TINYLLAMA_BUNDLES,
++            "reading": "[TINYLLAMA PORT 2026-10-17] `N_SLOTS = 23`, "
++            "`N_FUNCTIONALS = 34`, `M_ROWS = 2 * N_SLOTS + 4` and their two "
++            "assertions are outside all five hunks (the trained top-limb "
++            "coefficients, the trained door's refusals and the trained "
++            "calibration line), so M has fifty rows and thirty-four "
++            "functionals at the trained shape too",
++        },
++    },
++    "src/private_block/shape.rs": {
++        "a53e2fe2bbfaf8452d1e02d661b1c2e2ba1ff55495cc3e194e4bcdc99c53e45d": {
++            "commits": TREE,
++            "bundles": TINYLLAMA_BUNDLES,
++            "reading": "[TINYLLAMA PORT 2026-10-17] ADDITIONS ONLY against "
++            "`dbf4e2bc`; `Shape::slots` (every `(n_s, d_s)` this port turns "
++            "into `L_s`) and ruling C-4's refusal are byte-identical.  The "
++            "prediction derives the largest `L_s` and the C-4 headroom at the "
++            "trained shape before the run",
++        },
++    },
++}
++
++# --------------------------------------------------------------------------
++# REPORT-ONLY own files (no port transcribes them; recorded so the record
++# names every digest the trained bundles carry)
++# --------------------------------------------------------------------------
++REPORT_ONLY_OWN_FILES = {
++    "src/private_block/trained_statement.rs": (
++        "ace961453a63467b2e377c0ecbdc48da29283324f93459bf9e201d141a703968",
++        "NEW pin (native lane): the trained-model statement whose "
++        "`identity()` a bound run absorbs as its `calibration` word.  No port "
++        "transcribes it: the replay takes the word's VALUE from "
++        "`run.json[\"calibration\"]` and reproduces `run_binding` from it, "
++        "which is the machine check that the value the bundle declares is "
++        "the one absorbed.  That the identity binds the export, the layer "
++        "records and the calibration is the D24 review's statement, not this "
++        "gate's"),
++    "src/private_block.rs": (
++        "8c1d056b72c49e0d43572ccf3e472642a44c9bcc51c543b0773c4cea44bceb7c",
++        "the module root.  Against the candidate's `9540a7e6` (+47 / -0, five "
++        "hunks): the trained modules, the CLI re-exports, cfg(test) test "
++        "modules, `ExpectedIo::from_bytes_at` and two "
++        "`single_block_profile_allowed` refusals.  The CS-1/CS-4/CS-8 "
++        "statement checks of the 125M lane's `2764a7ec` are absent (G-1).  "
++        "Nothing is transcribed"),
++    "src/private_block/witness.rs": (
++        "73a06441e7d8d1720da3e6ad0421fdca8a481235de26fe746f7bbb4e28f6a3f5",
++        "against `b9b66c02` (+25 / -15, eleven hunks): `rms_norm` takes "
++        "`tn`, `Ceps` and the per-site `Cn` from the shape, every "
++        "`quantize` takes the shape's shift, and a cfg(test) forgery hook "
++        "(review D24).  A capture carries no witness; read by no port"),
++    "src/private_block/wire.rs": (
++        "c8c13033f341ed40bd524091cfe870be3cb54433de566a6d9f4078c15cac374f",
++        "against `99e69b5c` (+21 / -3, four hunks): a 256 MiB transport "
++        "ceiling for trained profiles (`wire_ceiling`).  No port decodes a "
++        "segment"),
++}
++
++
++def merge_two_level(into: dict, add: dict, table: str) -> dict:
++    """Merge `{path: {digest: entry}}` into a gate table WITHOUT changing an
++    existing entry: a digest already present is a refusal (a reading is
++    never silently replaced)."""
++    for path, digests in add.items():
++        slot = into.setdefault(path, {})
++        for d, entry in digests.items():
++            if d in slot:
++                raise ValueError(f"{table}: {path} {d[:12]} is already read; "
++                                 "the TinyLlama port does not replace a reading")
++            slot[d] = entry
++    return into
++
++
++def merge_one_level(into: dict, add: dict, table: str) -> dict:
++    """Merge `{key: value}` without replacing an existing key."""
++    for key, value in add.items():
++        if key in into:
++            raise ValueError(f"{table}: {key!r} is already present; the "
++                             "TinyLlama port does not replace a reading")
++        into[key] = value
++    return into
+diff -ruN -x __pycache__ original/zk60_native_rg_tlcontrols.py scripts/zk60_native_rg_tlcontrols.py
+--- original/zk60_native_rg_tlcontrols.py	1969-12-31 16:00:00.000000000 -0800
++++ scripts/zk60_native_rg_tlcontrols.py	2026-10-17 03:45:30.775788001 -0700
+@@ -0,0 +1,196 @@
++#!/usr/bin/env python3
++"""[TINYLLAMA PORT, 2026-10-17] Controls on the port's OWN adaptation: the
++per-bundle calibration the terminal identity now reads from
++`run.json["shape"]`.
++
++    python3 zk60_native_rg_tlcontrols.py --bundle <trained bundle> \
++        --evidence <dir> --name tl-controls
++
++A port that READS constants from the bundle could be vacuous -- an identity
++that holds whatever the constants are says nothing about them.  These
++controls show it is not, on the real trained bytes and at the run's real
++challenges:
++
++* **TL-1** the FROZEN calibration on a trained bundle (the trained keys
++  removed from a copy of the shape): exactly the slots whose relations read
++  a constant that DIFFERS between the frozen and the trained calibration must
++  fail -- predicted from the two calibrations alone, never read off the
++  result -- and every other slot must still hold.
++* **TL-2** each of the eleven trained constants moved by one step inside its
++  declared class: exactly the slots that read THAT constant fail.
++* **TL-3** a shape that names trained keys without `trained_calibration:
++  true`, one with the flag but a key missing, and one with the flag false
++  and keys present are each REFUSED by `Calibration` (no silent mixture of a
++  frozen and a trained reading).
++
++Nothing is written to the bundle: each perturbation is a shallow copy of the
++loaded bundle with a modified `run["shape"]`.  NOTHING HERE IS A PRIVACY
++STATEMENT.
++"""
++
++from __future__ import annotations
++
++import argparse
++import copy
++import json
++import os
++import sys
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++if HERE not in sys.path:
++    sys.path.insert(0, HERE)
++
++from zk60_native_rg_block import load_bundle  # noqa: E402
++from zk60_native_rg_planes import plane_index_of  # noqa: E402
++from zk60_native_rg_replay import RunReplay  # noqa: E402
++from zk60_native_rg_terminals import (  # noqa: E402
++    FROZEN_CALIBRATION,
++    TRAINED_KEYS,
++    Calibration,
++    check_terminals,
++)
++
++# Which slot's relation (or lookup list) reads which calibration constant,
++# from `argument.rs` / `layout.rs` at the trained digests (the readings in
++# `zk60_native_rg_tinyllama_pins`).  The lookups of a domain enter its host
++# zero-check's helper sum, so a top-limb coefficient is that slot's too.
++READS = {
++    "norm_ceps": {2},            # SC_TZC: dsq + a1 - Ceps (both norms)
++    "norm_tn": {14},             # SC_DZC: 2^tn, 2^(tn+1)
++    "norm_cn_a": {14},           # SC_DZC c0
++    "norm_cn_m": {14},           # SC_DZC c6
++    "sh_ao": {14},               # SC_DZC host_wo; Dom::D lookup RAL 2^(8-sh_ao)
++    "sh_z": {14},                # SC_DZC host_dmm; Dom::D lookup RDL
++    "sh_qkv": {15, 16},          # SC_QZC host1, SC_KVZC host1/2; RQL, RKL, RVL
++    "sh_o": {15},                # SC_QZC host2; Dom::Q lookup RO1 2^(16-sh_o)
++    "sh_s": {17},                # SC_SZC host_s; Dom::S lookup RSL
++    "sh_g": {18},                # SC_FZC host_g; Dom::F lookup RGL
++    "sh_h": {18},                # SC_FZC f0; Dom::F lookup RH1 2^(16-sh_h)
++}
++# a step inside each constant's declared class (`shape.rs`)
++WINDOWS = {
++    "norm_tn": (1, 16), "norm_cn_a": (1, 1 << 20), "norm_cn_m": (1, 1 << 20),
++    "norm_ceps": (1, 1 << 40), "sh_ao": (0, 8), "sh_qkv": (1, 8),
++    "sh_s": (1, 8), "sh_o": (9, 16), "sh_g": (1, 8), "sh_h": (9, 16),
++    "sh_z": (1, 8),
++}
++
++
++def _step(name: str, v: int) -> int:
++    lo, hi = WINDOWS[name]
++    return v + 1 if v + 1 <= hi else v - 1
++
++
++def _with_shape(bundle, shape):
++    b = copy.copy(bundle)
++    b.run = dict(bundle.run)
++    b.run["shape"] = shape
++    return b
++
++
++def _failing_slots(rec) -> set:
++    bad = set()
++    for row in rec["per_stage"]:
++        bad |= set(row["checked"]) - set(row["equal"])
++        bad |= {e["slot"] for e in row["not_checked"]}
++    return bad
++
++
++def tl_controls(bundle, index=None, replay=None) -> dict:
++    shape = bundle.run["shape"]
++    cal = Calibration(shape)
++    if not cal.trained:
++        return {"skipped": "not a trained-calibration bundle", "ok": False}
++    if index is None:
++        index, why = plane_index_of(bundle)
++        if index is None:
++            return {"skipped": f"no plane index: {why}", "ok": False}
++    if replay is None:
++        replay = RunReplay(bundle).run()
++    out = {"what": __doc__.strip().splitlines()[0], "controls": [], "ok": True}
++
++    honest = check_terminals(bundle, index, replay=replay)
++    out["honest"] = {"ok": honest["ok"], "slot_checks_equal":
++                     honest["slot_checks_equal"],
++                     "slot_checks_expected": honest["slot_checks_expected"]}
++    if not honest["ok"]:
++        out["ok"] = False
++        out["why"] = "the honest identity does not hold; no control is meaningful"
++        return out
++
++    # TL-1: the frozen calibration
++    frozen_shape = {k: v for k, v in shape.items()
++                    if k not in TRAINED_KEYS + ("trained_calibration", "d_max")}
++    differs = [k for k in TRAINED_KEYS if FROZEN_CALIBRATION[k] != cal.values[k]]
++    want = set().union(*(READS[k] for k in differs)) if differs else set()
++    rec = check_terminals(_with_shape(bundle, frozen_shape), index, replay=replay)
++    got = _failing_slots(rec)
++    c = {"control": "TL-1", "perturbation": "the frozen calibration "
++         "(trained keys removed)", "constants_that_differ": differs,
++         "predicted_failing_slots": sorted(want), "failing_slots": sorted(got),
++         "fires": not rec["ok"], "exactly_as_predicted": got == want}
++    c["ok"] = c["fires"] and c["exactly_as_predicted"]
++    out["controls"].append(c)
++
++    # TL-2: each constant moved by one step inside its class
++    for name in TRAINED_KEYS:
++        moved = dict(shape)
++        moved[name] = _step(name, int(shape[name]))
++        rec = check_terminals(_with_shape(bundle, moved), index, replay=replay)
++        got = _failing_slots(rec)
++        c = {"control": f"TL-2/{name}", "perturbation":
++             f"{name} {shape[name]} -> {moved[name]}",
++             "predicted_failing_slots": sorted(READS[name]),
++             "failing_slots": sorted(got), "fires": not rec["ok"],
++             "exactly_as_predicted": got == READS[name]}
++        c["ok"] = c["fires"] and c["exactly_as_predicted"]
++        out["controls"].append(c)
++
++    # TL-3: the loader's refusals
++    bad_shapes = {
++        "TL-3/keys-without-flag": {k: v for k, v in shape.items()
++                                   if k != "trained_calibration"},
++        "TL-3/flag-without-a-key": {k: v for k, v in shape.items()
++                                    if k != "norm_ceps"},
++        "TL-3/flag-false-with-keys": {**shape, "trained_calibration": False},
++    }
++    for name, sh in bad_shapes.items():
++        try:
++            Calibration(sh)
++            refused, why = False, None
++        except ValueError as exc:
++            refused, why = True, str(exc)
++        out["controls"].append({"control": name, "refused": refused,
++                                "why": why, "ok": refused})
++    out["fired"] = sum(1 for c in out["controls"] if c["ok"])
++    out["of"] = len(out["controls"])
++    out["ok"] = all(c["ok"] for c in out["controls"])
++    out["privacy_property_established"] = False
++    return out
++
++
++def main(argv=None):
++    ap = argparse.ArgumentParser(description=__doc__)
++    ap.add_argument("--bundle", required=True)
++    ap.add_argument("--evidence", required=True)
++    ap.add_argument("--name", default="tl-controls")
++    a = ap.parse_args(argv)
++    b = load_bundle(a.bundle)
++    rec = tl_controls(b)
++    rec["bundle"] = b.name
++    os.makedirs(a.evidence, exist_ok=True)
++    path = os.path.join(a.evidence, a.name + ".json")
++    with open(path, "w") as fh:
++        json.dump(rec, fh, indent=1, sort_keys=True)
++        fh.write("\n")
++    for c in rec["controls"]:
++        print(f"{c['control']:28s} ok={c['ok']}  "
++              + (f"failing={c.get('failing_slots')} predicted="
++                 f"{c.get('predicted_failing_slots')}" if 'failing_slots' in c
++                 else f"refused={c.get('refused')}"))
++    print(f"record: {path}  {rec.get('fired')} of {rec.get('of')} fire  ok={rec['ok']}")
++    return 0 if rec["ok"] else 1
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff -ruN -x __pycache__ original/zk60_native_run_gate.py scripts/zk60_native_run_gate.py
+--- original/zk60_native_run_gate.py	2026-09-23 13:25:56.591855877 -0700
++++ scripts/zk60_native_run_gate.py	2026-10-17 11:39:35.309505721 -0700
+@@ -166,6 +166,16 @@
+     "zk60_native_pg_pcs.py",
+     "zk60_native_pg_cfs.py",
+     "zk60_native_mask_commit.py",
++    # [TINYLLAMA PORT 2026-10-17] the port's readings, its prediction, its
++    # staged driver and its own controls are tools of every record too
++    "zk60_native_rg_tinyllama_pins.py",
++    "zk60_native_rg_tlcontrols.py",
++    "zk60_native_rg_predict.py",
++    "zk60_native_rg_m125.py",
++    # [TINYLLAMA PORT, tools v4] the record status (the driver writes it
++    # beside every record) and finding G-10's own negative controls
++    "zk60_native_rg_status.py",
++    "zk60_native_rg_g10controls.py",
+ ]
+ 
+ EXPECTED_DISCLOSED = {
+@@ -1251,9 +1261,23 @@
+             "status": "open",
+             "assumption": None,
+             "preimage_exhibited": None,
+-            "reason": "history item H9: a retained capture is a published opening.  "
+-            "This bundle is of a deliberately public synthetic fixture and its writer "
+-            "is behind #[cfg(test)]",
++            # [TINYLLAMA PORT, tools v3, finding G-3] a TRAINED bundle's
++            # hidden input is not a synthetic fixture: it is held-out
++            # calibration data (or the all-zero plane).  Frozen-profile
++            # records keep their sentence byte for byte.
++            "reason": ("history item H9: a retained capture is a published "
++                       "opening.  This bundle's hidden input is REAL held-out "
++                       "calibration data of the trained export (or the all-zero "
++                       "plane), which the export itself stores in the repository "
++                       "(seq_*/x_in_L*.bin), so retaining it publishes nothing "
++                       "new; a capture of a NON-public input would be a published "
++                       "opening of a real input and falls under D21.  The writer "
++                       "is behind #[cfg(test)]"
++                       if bundle.run["shape"].get("trained_calibration") is True
++                       else
++                       "history item H9: a retained capture is a published opening.  "
++                       "This bundle is of a deliberately public synthetic fixture and its writer "
++                       "is behind #[cfg(test)]"),
+         },
+         {
+             "channel": "timing, memory, power",

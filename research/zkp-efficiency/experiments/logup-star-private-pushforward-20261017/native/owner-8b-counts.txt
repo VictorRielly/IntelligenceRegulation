@@ -1,0 +1,31 @@
+counted (llama3_8b T32 2^13): A 1697 rows = 13,901,824 words; H 1758 rows = 14,401,536 words; u8 lookups 11,714,560; exp+act pairs 557,056
+32 prove tables checked
+  slot 00 01 SS row sums norm_a (private): 524,288 element-terms, 8,388,608 B per block (16 B per Fp2 element-term)
+  slot 01 01m SS row sums norm_m (private): 524,288 element-terms, 8,388,608 B per block (16 B per Fp2 element-term)
+  slot 02 02 norm squares zero-check (hosts 01, 01m): 1,600 element-terms, 25,600 B per block (16 B per Fp2 element-term)
+  slot 03 08 limb zero-check: 81,920 element-terms, 1,310,720 B per block (16 B per Fp2 element-term)
+  slot 04 07 masked row sums + selector (private): 262,144 element-terms, 4,194,304 B per block (16 B per Fp2 element-term)
+  slot 05 09Q matmul (private): 16,384 element-terms, 262,144 B per block (16 B per Fp2 element-term)
+  slot 06 09K matmul (private): 16,384 element-terms, 262,144 B per block (16 B per Fp2 element-term)
+  slot 07 09V matmul (private): 16,384 element-terms, 262,144 B per block (16 B per Fp2 element-term)
+  slot 08 10 score matmul (private, bilinear): 12,288 element-terms, 196,608 B per block (16 B per Fp2 element-term)
+  slot 09 11 PV matmul (private, bilinear): 3,072 element-terms, 49,152 B per block (16 B per Fp2 element-term)
+  slot 10 12 Wo matmul (private): 16,384 element-terms, 262,144 B per block (16 B per Fp2 element-term)
+  slot 11 13G gate matmul (private): 16,384 element-terms, 262,144 B per block (16 B per Fp2 element-term)
+  slot 12 13U up matmul (private): 16,384 element-terms, 262,144 B per block (16 B per Fp2 element-term)
+  slot 13 13D down matmul (private): 65,536 element-terms, 1,048,576 B per block (16 B per Fp2 element-term)
+  slot 14 03 D zero-check (hosts 12, 13D): 15,466,496 element-terms, 247,463,936 B per block (16 B per Fp2 element-term)
+  slot 15 04 Q zero-check (hosts 09Q, 11): 5,242,880 element-terms, 83,886,080 B per block (16 B per Fp2 element-term)
+  slot 16 05 KV zero-check (hosts 09K, 09V): 1,179,648 element-terms, 18,874,368 B per block (16 B per Fp2 element-term)
+  slot 17 06 softmax zero-check (hosts 07, 10): 1,638,400 element-terms, 26,214,400 B per block (16 B per Fp2 element-term)
+  slot 18 14 F zero-check (hosts 13G, 13U): 22,020,096 element-terms, 352,321,536 B per block (16 B per Fp2 element-term)
+  slot 19 TAB table helper zero-check: 180,224 element-terms, 2,883,584 B per block (16 B per Fp2 element-term)
+  slot 20 ZS zero-sum row: 32,768 element-terms, 524,288 B per block (16 B per Fp2 element-term)
+  slot 21 IO-in endpoint equality: 786,432 element-terms, 12,582,912 B per block (16 B per Fp2 element-term)
+  slot 22 IO-out endpoint equality: 786,432 element-terms, 12,582,912 B per block (16 B per Fp2 element-term)
+    slot 14 (D): printed 15,466,496 = 2^(main+ext) x tables; layout size(D) x terms = 131,072 x 54 = 7,077,888
+    slot 15 (Q): printed 5,242,880 = 2^(main+ext) x tables; layout size(D) x terms = 131,072 x 15 = 1,966,080
+    slot 16 (Kv): printed 1,179,648 = 2^(main+ext) x tables; layout size(D) x terms = 32,768 x 13 = 425,984
+    slot 17 (S): printed 1,638,400 = 2^(main+ext) x tables; layout size(D) x terms = 32,768 x 21 = 688,128
+    slot 18 (F): printed 22,020,096 = 2^(main+ext) x tables; layout size(D) x terms = 524,288 x 17 = 8,912,896
+OK: every table's A / H / lookup / pair / opening counters equal the counted totals

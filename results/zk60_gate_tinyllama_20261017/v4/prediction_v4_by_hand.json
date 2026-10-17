@@ -1,0 +1,43 @@
+{
+ "written_utc": "2026-10-17T18:43Z, before any v4 queue step ran",
+ "tools": "v4 (gate-tinyllama.tools.frozen.v4.sha256, sha256 3478adf4...)",
+ "what_this_is": "the privacy-gate lane's hand prediction of every v4 record, written before the queue v4/queue.sh was launched. Not a privacy statement.",
+ "already_seen": "the scratch trial of zk60_native_rg_g10controls on the L = 1 trained bundles (4 of 4 fire, v3 accepted all 4) and the unit tests (29 OK, incl. v4 == v3 integrity on the L = 1, L = 2 and rung-K4 bundles) ran before this was written; the L = 1 G-10 figures below are therefore not blind",
+ "v4-equivalence-k4": {
+  "leaves_compared": 5261,
+  "unexplained": 0,
+  "exit_codes": {"original": 1, "ported": 1},
+  "explained": "the same four leaves as v3's record (two argument.rs digest listings, one whole-run seconds, CT-5's description)"
+ },
+ "v4-g10-l1": {"fire": "4 of 4", "v3_accepted": ["G10-1", "G10-2", "G10-3", "G10-4"]},
+ "v4-g10-l2": {"fire": "4 of 4", "v3_accepted": ["G10-1", "G10-2", "G10-3"], "v3_refused": ["G10-4 (the boundary-0 root check)"]},
+ "v4-g10-l22": {"fire": "4 of 4", "v3_accepted": ["G10-1", "G10-2", "G10-3"], "v3_refused": ["G10-4"]},
+ "v4-g10-k4": {"fire": "4 of 4", "v3_accepted": ["G10-1", "G10-2", "G10-3"], "v3_refused": ["G10-4"]},
+ "v4-integrity-inert": {"bundles": 30, "records_identical": "30 of 30", "g10_findings": 0},
+ "v4-l1-dense-runcontrols": {
+  "C5": "fires: replay 4,770 failures (as v3), integrity now refuses, first finding the G-10 Input-root line",
+  "run_controls": "C1..C4 NOT APPLICABLE by name, C5 and C6 fire: all_fire true",
+  "false_leaves": ["/ok", "stage8 controls (not requested)", "stage10 controls (not requested)", "CH-6 fires (skipped by name)", "stage6 ok", "round_9 controls[2] ok (M9-3 wording criterion, G-4)", "round_9 ok"],
+  "status": "NOT-OK (by-name skip and G-4 are not the arms-only state)",
+  "exit": 1
+ },
+ "v4-l22-zero-m": {
+  "stage12": "355,410 entries / 0 differing, 5,632 salted leaves, M1..M6 all fire",
+  "status": "PASS", "exit": 0,
+  "cost": "~210 s, ~0.9 GiB"
+ },
+ "v4-l22-dense-f": {
+  "load": "integrity ok, 0 findings (G-10 lines included), 67 distinct roots none twice, 25 manifest files",
+  "replay": "2,731 positions, 98,822 challenges, final counter 104,518, 44 tags, binding reproduced",
+  "hash": "89 openings, 22,784 of 22,784 columns, 162,197,504 B",
+  "commitments_boundary_preimage": "as tl-l22-dense-a.json: 22 A 0, 22 H 2, 21 B 0 (6/6), 2 E 0, 22 M 0; whole run 2,246 x 78,494, joint 44 = 44",
+  "fullpreimage": "67 of 67 commitments exhibited, view entries ~24.6 M (within 0.5% of the zero record's 24,650,287; the opened-column class differs between witnesses), 0 differing, 17,152 salted leaves; P-1..P-6 all fire",
+  "mask": "355,410 / 0, 5,632 leaves, M1..M6 fire",
+  "joint": "entries = PCS + 355,410, 0 differing, four couplings respected, 704 data-row pairs, 22,784 salted leaves, ok TRUE",
+  "runcontrols": "C1..C6 6 of 6; CH 6 of 7 (CH-6 skipped by name; CH-3 FIRES here, it was vacuous only on a 125M bundle); M9-1, M9-2 fire; no M9-3 (no terminal stage in the pass)",
+  "channels": "10 constructed / 3 derived / 5 argued / 10 open (the 125M L = 12 pass F's table: no terminal stage in the pass)",
+  "false_leaves": ["/ok", "stage6 hash_rule_controls controls[5] fires (CH-6)", "stage6 hash_rule_controls ok", "stage6 ok"],
+  "status": "NOT-OK (CH-6 by name)", "exit": 1,
+  "cost": "4,000-4,600 s single-threaded, peak 5.4-5.7 GiB"
+ }
+}

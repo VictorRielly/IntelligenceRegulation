@@ -1,0 +1,24 @@
+[20:04:21Z] queue start
+[20:14:34Z] r4-cli-build exit 0
+[20:14:34Z] cli copied: bc627953143cc8a7
+[20:14:36Z] r4-stack2-verify exit 0
+[20:14:36Z] r4-stack2-dos exit 1
+[20:14:36Z] r4-stack2-sparse exit 1
+[20:14:36Z] r4-stack2-fifo exit 1
+[20:14:37Z] r4-stack2-short exit 1
+[20:14:37Z] r4-stack2-long1 exit 1
+[20:14:37Z] r4-stack2-dir exit 1
+[20:14:37Z] r4-stack2-devnull exit 1
+[20:14:37Z] r4-stack2-symlink-honest exit 1
+[20:14:38Z] r4-stack2-fifo1 exit 1
+[20:14:38Z] r4-stack2-fifo1-ctl exit 1
+[20:14:39Z] r4-stack2-hardlink exit 0
+[20:14:39Z] r4-exp-arr-zero exit 1
+[20:14:39Z] r4-exp-arr-fifo exit 1
+[20:14:39Z] r4-exp-arr-big exit 1
+[20:26:41Z] r4-exp-fat exit 75
+[20:26:42Z] r4-exp-fat-r4cli exit 1
+[21:23:08Z] r4-test-build exit 0
+[21:23:38Z] r4-fast exit 0
+[22:12:02Z] r4-suite exit 0
+[22:12:02Z] queue end

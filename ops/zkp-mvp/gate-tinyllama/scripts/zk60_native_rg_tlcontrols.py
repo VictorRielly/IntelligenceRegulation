@@ -96,7 +96,66 @@ def _failing_slots(rec) -> set:
     return bad
 
 
-def tl_controls(bundle, index=None, replay=None) -> dict:
+def _failing_pairs(rec) -> set:
+    """(stage, slot) of every slot that stopped matching"""
+    bad = set()
+    for k, row in enumerate(rec["per_stage"]):
+        bad |= {(k, s) for s in set(row["checked"]) - set(row["equal"])}
+        bad |= {(k, e["slot"]) for e in row["not_checked"]}
+    return bad
+
+
+TAB_SLOT = 19   # SC_TAB: the slot whose arguments carry the captured lookup rows
+
+
+def tl4_table_swaps(bundle, index, replay) -> list:
+    """[v5, review P-20] **TL-4: one layer reads ANOTHER layer's table.**  For
+    the first adjacent stage pair (j, k = j + 1) whose captured lookup tables
+    differ (pg_rot1: layers 7 | 8, where both the exp key and the SiLU member
+    change), stage k's carried table entry (values AND its digest, so the
+    capture's own digest check passes) is replaced by stage j's, one table at
+    a time.  Predicted: stage k's SC_TAB slot, and no slot of any other stage,
+    stops matching.  The entry is restored before the next run."""
+    def caps(st):
+        return {i: t for i, t in enumerate(st.doc["arguments"][TAB_SLOT]["tables"])
+                if "values" in t}
+    pair = None
+    for j in range(bundle.blocks - 1):
+        a, b = caps(bundle.stages[j]), caps(bundle.stages[j + 1])
+        diff = [i for i in a if i in b and a[i].get("sha256") != b[i].get("sha256")]
+        if diff:
+            pair = (j, j + 1, diff)
+            break
+    if pair is None:
+        return [{"control": "TL-4", "skipped": "no adjacent stage pair carries "
+                 "different lookup tables (a one-block run, or equal tables)",
+                 "ok": True, "fires": None}]
+    j, k, diff = pair
+    out = []
+    for i in diff:
+        tabs = bundle.stages[k].doc["arguments"][TAB_SLOT]["tables"]
+        saved = tabs[i]
+        tabs[i] = bundle.stages[j].doc["arguments"][TAB_SLOT]["tables"][i]
+        try:
+            rec = check_terminals(bundle, index, replay=replay)
+        finally:
+            tabs[i] = saved
+        got = _failing_pairs(rec)
+        want = {(k, TAB_SLOT)}
+        c = {"control": f"TL-4/table-{i}", "perturbation": f"stage {k}'s SC_TAB "
+             f"table {i} replaced by stage {j}'s (values and digest)",
+             "predicted_failing": sorted(list(x) for x in want),
+             "failing": sorted(list(x) for x in got), "fires": not rec["ok"],
+             "exactly_as_predicted": got == want}
+        c["ok"] = c["fires"] and c["exactly_as_predicted"]
+        out.append(c)
+    return out
+
+
+def tl_controls(bundle, index=None, replay=None, only=None) -> dict:
+    """`only`: a set of families to run ({"TL-1", "TL-2", "TL-3", "TL-4"}); all
+    by default"""
+    fam = set(only) if only else {"TL-1", "TL-2", "TL-3", "TL-4"}
     shape = bundle.run["shape"]
     cal = Calibration(shape)
     if not cal.trained:
@@ -119,52 +178,61 @@ def tl_controls(bundle, index=None, replay=None) -> dict:
         return out
 
     # TL-1: the frozen calibration
-    frozen_shape = {k: v for k, v in shape.items()
-                    if k not in TRAINED_KEYS + ("trained_calibration", "d_max")}
-    differs = [k for k in TRAINED_KEYS if FROZEN_CALIBRATION[k] != cal.values[k]]
-    want = set().union(*(READS[k] for k in differs)) if differs else set()
-    rec = check_terminals(_with_shape(bundle, frozen_shape), index, replay=replay)
-    got = _failing_slots(rec)
-    c = {"control": "TL-1", "perturbation": "the frozen calibration "
-         "(trained keys removed)", "constants_that_differ": differs,
-         "predicted_failing_slots": sorted(want), "failing_slots": sorted(got),
-         "fires": not rec["ok"], "exactly_as_predicted": got == want}
-    c["ok"] = c["fires"] and c["exactly_as_predicted"]
-    out["controls"].append(c)
-
-    # TL-2: each constant moved by one step inside its class
-    for name in TRAINED_KEYS:
-        moved = dict(shape)
-        moved[name] = _step(name, int(shape[name]))
-        rec = check_terminals(_with_shape(bundle, moved), index, replay=replay)
+    if "TL-1" in fam:
+        frozen_shape = {k: v for k, v in shape.items()
+                        if k not in TRAINED_KEYS + ("trained_calibration", "d_max")}
+        differs = [k for k in TRAINED_KEYS if FROZEN_CALIBRATION[k] != cal.values[k]]
+        want = set().union(*(READS[k] for k in differs)) if differs else set()
+        rec = check_terminals(_with_shape(bundle, frozen_shape), index, replay=replay)
         got = _failing_slots(rec)
-        c = {"control": f"TL-2/{name}", "perturbation":
-             f"{name} {shape[name]} -> {moved[name]}",
-             "predicted_failing_slots": sorted(READS[name]),
-             "failing_slots": sorted(got), "fires": not rec["ok"],
-             "exactly_as_predicted": got == READS[name]}
+        c = {"control": "TL-1", "perturbation": "the frozen calibration "
+             "(trained keys removed)", "constants_that_differ": differs,
+             "predicted_failing_slots": sorted(want), "failing_slots": sorted(got),
+             "fires": not rec["ok"], "exactly_as_predicted": got == want}
         c["ok"] = c["fires"] and c["exactly_as_predicted"]
         out["controls"].append(c)
 
+    # TL-2: each constant moved by one step inside its class
+    if "TL-2" in fam:
+        for name in TRAINED_KEYS:
+            moved = dict(shape)
+            moved[name] = _step(name, int(shape[name]))
+            rec = check_terminals(_with_shape(bundle, moved), index, replay=replay)
+            got = _failing_slots(rec)
+            c = {"control": f"TL-2/{name}", "perturbation":
+                 f"{name} {shape[name]} -> {moved[name]}",
+                 "predicted_failing_slots": sorted(READS[name]),
+                 "failing_slots": sorted(got), "fires": not rec["ok"],
+                 "exactly_as_predicted": got == READS[name]}
+            c["ok"] = c["fires"] and c["exactly_as_predicted"]
+            out["controls"].append(c)
+
     # TL-3: the loader's refusals
-    bad_shapes = {
-        "TL-3/keys-without-flag": {k: v for k, v in shape.items()
-                                   if k != "trained_calibration"},
-        "TL-3/flag-without-a-key": {k: v for k, v in shape.items()
-                                    if k != "norm_ceps"},
-        "TL-3/flag-false-with-keys": {**shape, "trained_calibration": False},
-    }
-    for name, sh in bad_shapes.items():
-        try:
-            Calibration(sh)
-            refused, why = False, None
-        except ValueError as exc:
-            refused, why = True, str(exc)
-        out["controls"].append({"control": name, "refused": refused,
-                                "why": why, "ok": refused})
-    out["fired"] = sum(1 for c in out["controls"] if c["ok"])
-    out["of"] = len(out["controls"])
-    out["ok"] = all(c["ok"] for c in out["controls"])
+    if "TL-3" in fam:
+        bad_shapes = {
+            "TL-3/keys-without-flag": {k: v for k, v in shape.items()
+                                       if k != "trained_calibration"},
+            "TL-3/flag-without-a-key": {k: v for k, v in shape.items()
+                                        if k != "norm_ceps"},
+            "TL-3/flag-false-with-keys": {**shape, "trained_calibration": False},
+        }
+        for name, sh in bad_shapes.items():
+            try:
+                Calibration(sh)
+                refused, why = False, None
+            except ValueError as exc:
+                refused, why = True, str(exc)
+            out["controls"].append({"control": name, "refused": refused,
+                                    "why": why, "ok": refused})
+    # TL-4 (v5, review P-20): one layer reads another layer's table
+    if "TL-4" in fam:
+        out["controls"] += tl4_table_swaps(bundle, index, replay)
+    live = [c for c in out["controls"] if not c.get("skipped")]
+    out["fired"] = sum(1 for c in live if c["ok"])
+    out["of"] = len(live)
+    out["skipped_by_name"] = [c["control"] for c in out["controls"] if c.get("skipped")]
+    # [v5] over the controls that ran, never over none
+    out["ok"] = bool(live) and all(c["ok"] for c in live)
     out["privacy_property_established"] = False
     return out
 
@@ -174,9 +242,13 @@ def main(argv=None):
     ap.add_argument("--bundle", required=True)
     ap.add_argument("--evidence", required=True)
     ap.add_argument("--name", default="tl-controls")
+    ap.add_argument("--only", default="", help="[v5] comma list of families "
+                    "(TL-1,TL-2,TL-3,TL-4); all by default")
     a = ap.parse_args(argv)
     b = load_bundle(a.bundle)
-    rec = tl_controls(b)
+    only = {x.strip() for x in a.only.split(",") if x.strip()} or None
+    rec = tl_controls(b, only=only)
+    rec["families_run"] = sorted(only) if only else ["TL-1", "TL-2", "TL-3", "TL-4"]
     rec["bundle"] = b.name
     os.makedirs(a.evidence, exist_ok=True)
     path = os.path.join(a.evidence, a.name + ".json")
@@ -187,7 +259,8 @@ def main(argv=None):
         print(f"{c['control']:28s} ok={c['ok']}  "
               + (f"failing={c.get('failing_slots')} predicted="
                  f"{c.get('predicted_failing_slots')}" if 'failing_slots' in c
-                 else f"refused={c.get('refused')}"))
+                 else f"failing={c.get('failing')} predicted={c.get('predicted_failing')}"
+                 if 'failing' in c else f"refused={c.get('refused')} {c.get('skipped') or ''}"))
     print(f"record: {path}  {rec.get('fired')} of {rec.get('of')} fire  ok={rec['ok']}")
     return 0 if rec["ok"] else 1
 

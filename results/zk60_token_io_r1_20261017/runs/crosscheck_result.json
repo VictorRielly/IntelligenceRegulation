@@ -1,0 +1,28 @@
+{
+ "ok": true,
+ "fixtures": {
+  "generic": {
+   "r0_next_token": 116,
+   "decommitted_next_token": 116,
+   "agree": true,
+   "top2_margin": 9781470,
+   "D": 69036,
+   "max_abs_y": 11,
+   "max_abs_logit": 90197100,
+   "bos_ok": true,
+   "multipliers_distinct": 288
+  },
+  "r0-model": {
+   "r0_next_token": 24,
+   "decommitted_next_token": 24,
+   "agree": true,
+   "top2_margin": 16516,
+   "D": 13998,
+   "max_abs_y": 12,
+   "max_abs_logit": 124545,
+   "bos_ok": true,
+   "multipliers_distinct": 1
+  }
+ },
+ "reference": "R0 token_io_ref.py (final_norm, head_logits x m_j, first_argmax)"
+}

@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "checks": 5375,
+  "independent_extension_values": 700,
+  "negative_controls": {
+    "rotated sidecar word index is detected": true,
+    "single private ambiguity bit mutation is detected": true
+  },
+  "live_drift": [],
+  "wall_seconds": 0.1623965059998227,
+  "peak_rss_kib": 17704,
+  "threads": 1,
+  "scope": "Independent interval/preimage proof, actual FFI sidecar mutations, full-extension exponent oracle, source/payload/parent-clock audit. No native receipt, GPU, privacy or speed acceptance."
+}

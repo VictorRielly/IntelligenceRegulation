@@ -1,0 +1,14 @@
+{"event":"verified","blocks":22,"receipt_bytes":250855088,"load_seconds":2.377,"verify_seconds":6.903,"of_which_block_load_seconds":2.230,"vmhwm_mib":747,"statement_identity":"9b71dfb0a2b4608d4a60d3bc4310a59573b6fcdf4a638f53a246c17b2cf24868","scope":"ALL the listed trained blocks of the export's model (TinyLlama-1.1B-Chat or Llama-3-8B) as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"}
+{"event":"control-refused","control":"a statement with blocks 10 and 11 swapped","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"the honest statement with the verifier's block list 10 <-> 11 swapped","error":"trained statement: block 10's public digest is not the statement's layer 10 digest"}
+{"event":"control-refused","control":"a verifier statement with norm_cn_a + 1","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"a verifier statement with sh_z moved by one","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"a verifier statement with sh_qkv moved by one","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"a verifier statement with f_e moved by one","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"a verifier statement with another export profile digest","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"a verifier statement and block list one block shorter","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"segment 11 with one byte flipped","error":"A: pcs zk: Merkle path for column 10546 fails"}
+{"event":"control-refused","control":"segments 10 and 11 swapped","error":"private run wire: segment 10 is not the 22-segment run's segment 10"}
+{"event":"control-refused","control":"the last segment truncated by one byte","error":"private run wire: segment 21 is 11698967 B, the counted length is 11698968"}
+{"event":"stack-controls","refused":11,"honest_still_verifies":true}
+{"event":"statement-promoted","from":"/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5b/stack-pg_rot1_b4_T32_cal128-ho00-cpu/run.unverified-statement","to":"/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5b/stack-pg_rot1_b4_T32_cal128-ho00-cpu/run/statement","after":"a fresh-process verification of the run directory"}

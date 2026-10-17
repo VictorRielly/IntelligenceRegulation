@@ -1,0 +1,19 @@
+
+running 1 test
+test private_block::ladder8b_tests::native_ladder8b_verify_the_saved_segment_in_a_fresh_process ... LADDER8B fresh-process verify at T64: 1.735 s, 21697592 B, peak RSS 931 MiB
+NATIVE control at hashline-zk-mr1/private-block-llama-3-8b-t64-trained/1: verifier with tn - 1 refuses: private run wire: segment 0 is 21697592 B, the counted length is 21967960
+NATIVE control at hashline-zk-mr1/private-block-llama-3-8b-t64-trained/1: verifier with cn_a + 1 refuses: private run wire: this segment belongs to another run
+NATIVE control at hashline-zk-mr1/private-block-llama-3-8b-t64-trained/1: verifier with cn_m + 1 refuses: private run wire: this segment belongs to another run
+NATIVE control at hashline-zk-mr1/private-block-llama-3-8b-t64-trained/1: verifier with ceps + 1 refuses: private run wire: this segment belongs to another run
+NATIVE control at hashline-zk-mr1/private-block-llama-3-8b-t64-trained/1: verifier with sh_ao moved by one refuses: private run wire: this segment belongs to another run
+NATIVE control at hashline-zk-mr1/private-block-llama-3-8b-t64-trained/1: verifier with sh_qkv moved by one refuses: private run wire: this segment belongs to another run
+NATIVE control at hashline-zk-mr1/private-block-llama-3-8b-t64-trained/1: verifier with sh_s moved by one refuses: private run wire: this segment belongs to another run
+NATIVE control at hashline-zk-mr1/private-block-llama-3-8b-t64-trained/1: verifier with sh_o moved by one refuses: private run wire: this segment belongs to another run
+NATIVE control at hashline-zk-mr1/private-block-llama-3-8b-t64-trained/1: verifier with sh_g moved by one refuses: private run wire: this segment belongs to another run
+NATIVE control at hashline-zk-mr1/private-block-llama-3-8b-t64-trained/1: verifier with sh_h moved by one refuses: private run wire: this segment belongs to another run
+NATIVE control at hashline-zk-mr1/private-block-llama-3-8b-t64-trained/1: verifier with sh_z moved by one refuses: private run wire: this segment belongs to another run
+LADDER8B fresh-process controls: every coefficient / shift / receipt control refused at T64
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 575 filtered out; finished in 21.99s
+

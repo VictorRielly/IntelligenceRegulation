@@ -1,0 +1,48 @@
+/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5b/manifest_frozen_working.json: 218 files, tree 0a07d19aa821f20c2d80b9a27168ab84b94ae14dbd8331596085a488c1f2950c
+/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5b/manifest_frozen.json: 218 files, tree 0a07d19aa821f20c2d80b9a27168ab84b94ae14dbd8331596085a488c1f2950c
+R5b frozen 2026-10-17T22:30:00Z tree 0a07d19aa821f20c2d80b9a27168ab84b94ae14dbd8331596085a488c1f2950c
+[zk60-guard 15:30:00] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 15:31:00] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 15:32:00] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 15:33:00] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 15:34:00] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 15:35:00] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 15:36:01] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 15:37:01] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 15:38:01] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 15:39:01] waiting for /tmp/zk-heavy.lock (541s)
+[zk60-guard 15:40:01] waiting for /tmp/zk-heavy.lock (601s)
+[zk60-guard 15:41:01] waiting for /tmp/zk-heavy.lock (661s)
+[zk60-guard 15:42:01] waiting for /tmp/zk-heavy.lock (721s)
+[zk60-guard 15:43:01] waiting for /tmp/zk-heavy.lock (781s)
+[zk60-guard 15:44:01] waiting for /tmp/zk-heavy.lock (841s)
+[zk60-guard 15:45:01] waiting for /tmp/zk-heavy.lock (901s)
+[zk60-guard 15:46:01] waiting for /tmp/zk-heavy.lock (961s)
+[zk60-guard 15:47:01] waiting for /tmp/zk-heavy.lock (1021s)
+[zk60-guard 15:48:01] waiting for /tmp/zk-heavy.lock (1081s)
+[zk60-guard 15:49:01] waiting for /tmp/zk-heavy.lock (1141s)
+[zk60-guard 15:50:01] waiting for /tmp/zk-heavy.lock (1201s)
+[zk60-guard 15:51:02] waiting for /tmp/zk-heavy.lock (1261s)
+[zk60-guard 15:51:13] START r5b-cli-build class=build need=2.5G cap=5G enforce=cgroup+watchdog waited=1272s run=3b19e27f4caf
+[zk60-guard 15:51:28] END r5b-cli-build exit=0 child_wall=15s peak_rss=0.39G min_avail=10.78G
+[zk60-guard 15:51:28] START r5b-gpu-cli-build class=build need=3G cap=5G enforce=cgroup+watchdog waited=0s run=523965099946
+[zk60-guard 15:52:46] END r5b-gpu-cli-build exit=0 child_wall=78s peak_rss=1.12G min_avail=10.86G
+/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5b/manifest_cli_after.json: 218 files, tree 0a07d19aa821f20c2d80b9a27168ab84b94ae14dbd8331596085a488c1f2950c
+R5b CLIs built 22:52:47
+[zk60-guard 15:52:47] START r5b-stack-llama3_8b_pg_rot1_T32 class=cpu need=6G cap=9G enforce=cgroup+watchdog waited=0s run=412a0208d96d
+[zk60-guard 15:55:59] END r5b-stack-llama3_8b_pg_rot1_T32 exit=0 child_wall=192s peak_rss=4.73G min_avail=6.32G
+[zk60-guard 15:55:59] START r5b-stack-verify-llama3_8b_pg_rot1_T32 class=cpu need=2.5G cap=8G enforce=cgroup+watchdog waited=0s run=3a912e988bb5
+[zk60-guard 15:58:20] END r5b-stack-verify-llama3_8b_pg_rot1_T32 exit=0 child_wall=142s peak_rss=1.97G min_avail=9.59G
+stack-verify llama3_8b_pg_rot1_T32 exit 0
+8B T32 done 22:58:20
+[zk60-guard 15:58:21] START r5b-stack-pg_rot1_b4_T32_cal128 class=cpu need=4G cap=7G enforce=cgroup+watchdog waited=0s run=726c7216f60e
+[zk60-guard 15:59:26] END r5b-stack-pg_rot1_b4_T32_cal128 exit=0 child_wall=66s peak_rss=2.18G min_avail=8.94G
+[zk60-guard 15:59:26] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 16:00:26] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 16:01:27] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 16:02:27] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 16:03:27] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 16:03:59] START r5b-stack-verify-pg_rot1_b4_T32_cal128 class=cpu need=2.5G cap=5G enforce=cgroup+watchdog waited=272s run=33fae25405e6
+[zk60-guard 16:04:30] END r5b-stack-verify-pg_rot1_b4_T32_cal128 exit=0 child_wall=31s peak_rss=0.92G min_avail=10.82G
+stack-verify pg_rot1_b4_T32_cal128 exit 0
+TinyLlama T32 done 23:04:30

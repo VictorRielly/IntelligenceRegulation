@@ -150,7 +150,7 @@ impl ModelSource {
     pub(crate) fn pinned_for_profile(profile: &str) -> Option<ModelSource> {
         if super::shape::TINYLLAMA_TRAINED_PROFILES.contains(&profile) {
             Some(ModelSource::tinyllama_chat_v1_0())
-        } else if profile == super::shape::LLAMA3_8B_T32_TRAINED_PROFILE {
+        } else if super::shape::LLAMA3_8B_TRAINED_PROFILES.contains(&profile) {
             Some(ModelSource::llama3_8b())
         } else {
             None

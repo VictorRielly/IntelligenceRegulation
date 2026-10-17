@@ -1,0 +1,4 @@
+[zk60-guard 13:27:31] START r4-exp-fat40 class=light need=1G cap=1.5G enforce=cgroup+watchdog waited=0s run=5636eb237519
+[zk60-guard 13:27:31] END r4-exp-fat40 exit=1 child_wall=0s peak_rss=0.00G min_avail=10.75G
+[zk60-guard 13:27:31] START r4-exp-fat40-r4cli class=light need=1G cap=1.5G enforce=cgroup+watchdog waited=0s run=6398c12303a4
+[zk60-guard 13:27:31] END r4-exp-fat40-r4cli exit=1 child_wall=0s peak_rss=0.00G min_avail=10.51G

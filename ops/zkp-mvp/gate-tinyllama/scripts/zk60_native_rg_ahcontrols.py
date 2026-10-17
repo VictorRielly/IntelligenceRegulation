@@ -392,5 +392,6 @@ def ah_controls(bundle, views, a_name="A@0", h_name="H@0"):
         "controls_applicable": len(applicable),
         "controls_that_fire": sum(1 for c in ctl if c.get("fires")),
         "not_applicable": [c["control"] for c in ctl if not c.get("applicable", True)],
-        "ok": all(c.get("fires") for c in applicable),
+        # [v5, review P-11] a family with no applicable control is not a pass
+        "ok": bool(applicable) and all(c.get("fires") for c in applicable),
     }

@@ -1,0 +1,1 @@
+First passing run retained. One weak midpoint-control assertion was replaced by executing the actual wrong P/2 lift. No arithmetic mismatch was suppressed. The final run adds call/initial-entry counts.

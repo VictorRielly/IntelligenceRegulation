@@ -1,0 +1,133 @@
+[19:11:37Z] T128 run done (48s), refused [None, None, None, None]
+[19:12:05Z] T64 prefix run done (76s), refused [None, None, None, None]
+[19:12:26Z] T32 prefix run done (97s), refused [None, None, None, None]
+[19:13:10Z] T128 changed-suffix run done (141s), refused [None, None, None, None]
+{
+ "sequences_heldout_T128_index": [
+  0,
+  1,
+  36,
+  37
+ ],
+ "suffix_donors": [
+  2,
+  3,
+  38,
+  39
+ ],
+ "cut": 64,
+ "refusals": {
+  "T128": [
+   null,
+   null,
+   null,
+   null
+  ],
+  "T64": [
+   null,
+   null,
+   null,
+   null
+  ],
+  "T32": [
+   null,
+   null,
+   null,
+   null
+  ],
+  "T128_changed_suffix": [
+   null,
+   null,
+   null,
+   null
+  ]
+ },
+ "a_prefix_T64_vs_T128": {
+  "layers": 22,
+  "words_differing_per_layer": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "identical": true
+ },
+ "a_prefix_T32_vs_T128": {
+  "layers": 22,
+  "words_differing_per_layer": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "identical": true
+ },
+ "b_suffix_tokens_changed": 253,
+ "b_changed_suffix_prefix_positions": {
+  "layers": 22,
+  "words_differing_per_layer": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "identical": true
+ },
+ "b_changed_suffix_positions_ge_cut_words_differing_L21": 524155,
+ "ok": true,
+ "seconds": 141.03987908363342
+}

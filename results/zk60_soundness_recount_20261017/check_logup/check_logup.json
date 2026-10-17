@@ -1,0 +1,387 @@
+{
+ "log2_F": 127.9999999993282,
+ "profiles": [
+  {
+   "name": "TinyLlama-1.1B T32 (22 blocks, row 2^12)",
+   "blocks": 22,
+   "u8": 5971968,
+   "exp": 32768,
+   "act": 262144,
+   "N": 6266880,
+   "pair_positions": 2805760,
+   "single_positions": 655360,
+   "per_position": {
+    "L": 2,
+    "D": 34,
+    "Q": 13,
+    "Kv": 12,
+    "S": 13,
+    "F": 9
+   },
+   "sizes_log": {
+    "L": 12,
+    "D": 16,
+    "Q": 16,
+    "Kv": 13,
+    "S": 15,
+    "F": 18,
+    "Tab": 12
+   },
+   "wrho_s": 14,
+   "limbs_sigma_s": 2,
+   "equal_pair_strategy_PP": 524288,
+   "block_bits": {
+    "derived": 105.42015398676108,
+    "N_only": 105.42068406174818,
+    "naive": 104.42041899990961,
+    "r14": 103.42068406174818,
+    "zerocheck": 117.77479256238469,
+    "strategy_lower": 108.9999999993282
+   },
+   "run_bits": {
+    "derived": 100.96072236812378,
+    "N_only": 100.96125244311088,
+    "naive": 99.96098738127232,
+    "r14": 98.96125244311088,
+    "zerocheck": 113.3153609437474,
+    "strategy_lower": 108.9999999993282
+   },
+   "r14_minus_derived_bits": 1.9994699250128924,
+   "pair_share_of_N": 0.4477124183006536,
+   "p_over_N": 2943529167530.6665
+  },
+  {
+   "name": "TinyLlama-1.1B T64 (22 blocks, row 2^13)",
+   "blocks": 22,
+   "u8": 12795904,
+   "exp": 131072,
+   "act": 524288,
+   "N": 13451264,
+   "pair_positions": 6004736,
+   "single_positions": 1441792,
+   "per_position": {
+    "L": 2,
+    "D": 34,
+    "Q": 13,
+    "Kv": 12,
+    "S": 13,
+    "F": 9
+   },
+   "sizes_log": {
+    "L": 13,
+    "D": 17,
+    "Q": 17,
+    "Kv": 14,
+    "S": 17,
+    "F": 19,
+    "Tab": 13
+   },
+   "wrho_s": 15,
+   "limbs_sigma_s": 2,
+   "equal_pair_strategy_PP": 1048576,
+   "block_bits": {
+    "derived": 104.31851460389996,
+    "N_only": 104.3187615875504,
+    "naive": 103.31863809043985,
+    "r14": 102.3187615875504,
+    "zerocheck": 117.71459778046595,
+    "strategy_lower": 107.9999999993282
+   },
+   "run_bits": {
+    "derived": 99.85908298526266,
+    "N_only": 99.8593299689131,
+    "naive": 98.85920647180255,
+    "r14": 97.8593299689131,
+    "zerocheck": 113.25516616182865,
+    "strategy_lower": 107.9999999993282
+   },
+   "r14_minus_derived_bits": 1.9997530163495725,
+   "pair_share_of_N": 0.4464068209500609,
+   "p_over_N": 1371376256492.6675
+  },
+  {
+   "name": "TinyLlama-1.1B T128 (22 blocks, row 2^14)",
+   "blocks": 22,
+   "u8": 28999680,
+   "exp": 524288,
+   "act": 1048576,
+   "N": 30572544,
+   "pair_positions": 13582336,
+   "single_positions": 3407872,
+   "per_position": {
+    "L": 2,
+    "D": 34,
+    "Q": 13,
+    "Kv": 12,
+    "S": 13,
+    "F": 9
+   },
+   "sizes_log": {
+    "L": 14,
+    "D": 18,
+    "Q": 18,
+    "Kv": 15,
+    "S": 19,
+    "F": 20,
+    "Tab": 14
+   },
+   "wrho_s": 16,
+   "limbs_sigma_s": 2,
+   "equal_pair_strategy_PP": 2097152,
+   "block_bits": {
+    "derived": 103.13415805575545,
+    "N_only": 103.13426672847643,
+    "naive": 102.1342123910927,
+    "r14": 101.13426672847643,
+    "zerocheck": 117.65681428388032,
+    "strategy_lower": 106.9999999993282
+   },
+   "run_bits": {
+    "derived": 98.67472643711815,
+    "N_only": 98.67483510983914,
+    "naive": 97.6747807724554,
+    "r14": 96.67483510983914,
+    "zerocheck": 113.19738266524301,
+    "strategy_lower": 106.9999999993282
+   },
+   "r14_minus_derived_bits": 1.999891327279009,
+   "pair_share_of_N": 0.4442658092175777,
+   "p_over_N": 603376155723.7299
+  },
+  {
+   "name": "Llama-3-8B T32 (32 blocks, row 2^13)",
+   "blocks": 32,
+   "u8": 11714560,
+   "exp": 32768,
+   "act": 524288,
+   "N": 12271616,
+   "pair_positions": 5513216,
+   "single_positions": 1245184,
+   "per_position": {
+    "L": 2,
+    "D": 34,
+    "Q": 13,
+    "Kv": 12,
+    "S": 13,
+    "F": 9
+   },
+   "sizes_log": {
+    "L": 13,
+    "D": 17,
+    "Q": 17,
+    "Kv": 15,
+    "S": 15,
+    "F": 19,
+    "Tab": 13
+   },
+   "wrho_s": 14,
+   "limbs_sigma_s": 2,
+   "equal_pair_strategy_PP": 1048576,
+   "block_bits": {
+    "derived": 104.45090736735995,
+    "N_only": 104.45117809086945,
+    "naive": 103.4510427227645,
+    "r14": 102.45117809086945,
+    "zerocheck": 117.72155054110772,
+    "strategy_lower": 107.9999999993282
+   },
+   "run_bits": {
+    "derived": 99.45090736735995,
+    "N_only": 99.45117809086945,
+    "naive": 98.4510427227645,
+    "r14": 97.45117809086945,
+    "zerocheck": 112.72155054110772,
+    "strategy_lower": 107.9999999993282
+   },
+   "r14_minus_derived_bits": 1.9997292764904984,
+   "pair_share_of_N": 0.4492656875834446,
+   "p_over_N": 1503204147637.49
+  },
+  {
+   "name": "Llama-3-8B T512 (32 blocks, row 2^15; speed plan layout, unregistered)",
+   "blocks": 32,
+   "u8": 306249728,
+   "exp": 8388608,
+   "act": 8388608,
+   "N": 323026944,
+   "pair_positions": 143687680,
+   "single_positions": 35651584,
+   "per_position": {
+    "L": 2,
+    "D": 34,
+    "Q": 13,
+    "Kv": 12,
+    "S": 15,
+    "F": 9
+   },
+   "sizes_log": {
+    "L": 15,
+    "D": 21,
+    "Q": 21,
+    "Kv": 19,
+    "S": 23,
+    "F": 23,
+    "Tab": 15
+   },
+   "wrho_s": 18,
+   "limbs_sigma_s": 3,
+   "equal_pair_strategy_PP": 33554432,
+   "block_bits": {
+    "derived": 99.73291044809133,
+    "N_only": 99.73292073365697,
+    "naive": 98.73291559086498,
+    "r14": 97.73292073365697,
+    "zerocheck": 117.5323944492452,
+    "strategy_lower": 102.9999999993282
+   },
+   "run_bits": {
+    "derived": 94.73291044809133,
+    "N_only": 94.73292073365697,
+    "naive": 93.73291559086498,
+    "r14": 92.73292073365697,
+    "zerocheck": 112.5323944492452,
+    "strategy_lower": 102.9999999993282
+   },
+   "r14_minus_derived_bits": 1.9999897144343635,
+   "pair_share_of_N": 0.4448163927774396,
+   "p_over_N": 57105899096.189896
+  },
+  {
+   "name": "Llama-3-8B T512 (32 blocks, row 2^16; recount projection, unregistered)",
+   "blocks": 32,
+   "u8": 306315264,
+   "exp": 8388608,
+   "act": 8388608,
+   "N": 323092480,
+   "pair_positions": 143720448,
+   "single_positions": 35651584,
+   "per_position": {
+    "L": 2,
+    "D": 34,
+    "Q": 13,
+    "Kv": 12,
+    "S": 15,
+    "F": 9
+   },
+   "sizes_log": {
+    "L": 16,
+    "D": 21,
+    "Q": 21,
+    "Kv": 19,
+    "S": 23,
+    "F": 23,
+    "Tab": 16
+   },
+   "wrho_s": 18,
+   "limbs_sigma_s": 3,
+   "equal_pair_strategy_PP": 33554432,
+   "block_bits": {
+    "derived": 99.7326177845836,
+    "N_only": 99.73262806806292,
+    "naive": 98.7326229263141,
+    "r14": 97.73262806806292,
+    "zerocheck": 117.51719204260152,
+    "strategy_lower": 102.9999999993282
+   },
+   "run_bits": {
+    "derived": 94.7326177845836,
+    "N_only": 94.73262806806292,
+    "naive": 93.7326229263141,
+    "r14": 92.73262806806292,
+    "zerocheck": 112.51719204260152,
+    "strategy_lower": 102.9999999993282
+   },
+   "r14_minus_derived_bits": 1.9999897165206768,
+   "pair_share_of_N": 0.44482758620689655,
+   "p_over_N": 57094315749.51724
+  }
+ ],
+ "rust_crosscheck": [
+  {
+   "family": "TinyLlama",
+   "tokens": 32,
+   "lc": 12,
+   "rust": 5971968,
+   "here": 5971968,
+   "ok": true
+  },
+  {
+   "family": "TinyLlama",
+   "tokens": 64,
+   "lc": 13,
+   "rust": 12795904,
+   "here": 12795904,
+   "ok": true
+  },
+  {
+   "family": "TinyLlama",
+   "tokens": 128,
+   "lc": 14,
+   "rust": 28999680,
+   "here": 28999680,
+   "ok": true
+  },
+  {
+   "family": "TinyLlama",
+   "tokens": 512,
+   "lc": 16,
+   "rust": 214564864,
+   "here": 214564864,
+   "ok": true
+  },
+  {
+   "family": "Llama-3-8B",
+   "tokens": 32,
+   "lc": 13,
+   "rust": 11714560,
+   "here": 11714560,
+   "ok": true
+  }
+ ],
+ "against_recount": [
+  {
+   "name": "TinyLlama-1.1B T32",
+   "N_recount": 6266880,
+   "N_here": 6266880,
+   "r14_run_recount": 98.96,
+   "r14_run_here": 98.961,
+   "derived_run_recount": 100.96,
+   "derived_run_here": 100.961,
+   "ok": true
+  },
+  {
+   "name": "TinyLlama-1.1B T64",
+   "N_recount": 13451264,
+   "N_here": 13451264,
+   "r14_run_recount": 97.86,
+   "r14_run_here": 97.859,
+   "derived_run_recount": 99.86,
+   "derived_run_here": 99.859,
+   "ok": true
+  },
+  {
+   "name": "TinyLlama-1.1B T128",
+   "N_recount": 30572544,
+   "N_here": 30572544,
+   "r14_run_recount": 96.67,
+   "r14_run_here": 96.675,
+   "derived_run_recount": 98.67,
+   "derived_run_here": 98.675,
+   "ok": true
+  },
+  {
+   "name": "Llama-3-8B T32",
+   "N_recount": 12271616,
+   "N_here": 12271616,
+   "r14_run_recount": 97.45,
+   "r14_run_here": 97.451,
+   "derived_run_recount": 99.45,
+   "derived_run_here": 99.451,
+   "ok": true
+  },
+  {
+   "name": "Llama-3-8B T512 (2^15)",
+   "ok": true
+  }
+ ]
+}

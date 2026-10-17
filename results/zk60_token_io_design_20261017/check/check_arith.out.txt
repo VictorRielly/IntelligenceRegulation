@@ -1,0 +1,278 @@
+{
+ "A_no_wrap": {
+  "TinyLlama-1.1B": {
+   "V_pad": 32768,
+   "v": 15,
+   "w127": {
+    "B": 33032192,
+    "B_log2": 24.97736937354433,
+    "keyed_rhs_max": 2164797766911,
+    "keyed_rhs_log2": 40.977369394869555,
+    "keyed_bits_needed": 41,
+    "pinless_margin_ok": true,
+    "step_rhs_max": 66064385,
+    "step_bits": 26
+   },
+   "w128": {
+    "B": 33292288,
+    "B_log2": 24.988684686772167,
+    "keyed_rhs_max": 2181843418367,
+    "keyed_rhs_log2": 40.98868470793079,
+    "keyed_bits_needed": 41,
+    "pinless_margin_ok": true,
+    "step_rhs_max": 66584577,
+    "step_bits": 26
+   },
+   "final_norm": {
+    "tn": 10,
+    "D_max_class_edge": 1816186,
+    "D_bits": 21,
+    "window_bits": 32,
+    "clause_log2": {
+     "num 2*g0*Cn*|x|": 42.99,
+     "D * 2^tn": 30.79,
+     "2^(tn+1) * D * |y|": 38.78,
+     "nr, ns (window)": 32.0,
+     "Dsq + a1 (= S)": 41.58
+    },
+    "all_below_p_half": true
+   }
+  },
+  "Llama-3-8B": {
+   "V_pad": 131072,
+   "v": 17,
+   "w127": {
+    "B": 66064384,
+    "B_log2": 25.97736937354433,
+    "keyed_rhs_max": 17318382007551,
+    "keyed_rhs_log2": 43.97736938422852,
+    "keyed_bits_needed": 44,
+    "pinless_margin_ok": true,
+    "step_rhs_max": 132128769,
+    "step_bits": 27
+   },
+   "w128": {
+    "B": 66584576,
+    "B_log2": 25.988684686772167,
+    "keyed_rhs_max": 17454747219199,
+    "keyed_rhs_log2": 43.98868469737288,
+    "keyed_bits_needed": 44,
+    "pinless_margin_ok": true,
+    "step_rhs_max": 133169153,
+    "step_bits": 27
+   },
+   "final_norm": {
+    "tn": 9,
+    "D_max_class_edge": 2344687,
+    "D_bits": 22,
+    "window_bits": 32,
+    "clause_log2": {
+     "num 2*g0*Cn*|x|": 42.99,
+     "D * 2^tn": 30.16,
+     "2^(tn+1) * D * |y|": 38.15,
+     "nr, ns (window)": 32.0,
+     "Dsq + a1 (= S)": 42.32
+    },
+    "all_below_p_half": true
+   }
+  }
+ },
+ "B_keyed_argmax": {
+  "TinyLlama-1.1B": {
+   "v": 15,
+   "trials": 600,
+   "mismatches": 0,
+   "window_bits": 41
+  },
+  "Llama-3-8B": {
+   "v": 17,
+   "trials": 600,
+   "mismatches": 0,
+   "window_bits": 44
+  }
+ },
+ "C_elements": {
+  "8B T32 stage IN (b) @2^11 (design)": {
+   "lc": 11,
+   "A_rows": 73,
+   "H_rows": 140,
+   "elems": 436224
+  },
+  "8B T32 stage IN (b) @2^12 (soundness floor)": {
+   "lc": 12,
+   "A_rows": 41,
+   "H_rows": 76,
+   "elems": 479232
+  },
+  "Tiny T32 stage IN (b) @2^10 (design)": {
+   "lc": 10,
+   "A_rows": 41,
+   "H_rows": 76,
+   "elems": 119808
+  },
+  "Tiny T32 stage IN (b) @2^12 (soundness floor)": {
+   "lc": 12,
+   "A_rows": 17,
+   "H_rows": 28,
+   "elems": 184320
+  },
+  "8B mode(i) OUT public row @2^12 (design)": {
+   "lc": 12,
+   "window_bits": 44,
+   "limbs": 6,
+   "pin": 1,
+   "A_rows": 338,
+   "H_rows": 302,
+   "a_sites": 47,
+   "h_sites": 13,
+   "elems": 2621440,
+   "byte_lookups": 970752
+  },
+  "8B mode(i) OUT public row @2^12, no pin": {
+   "lc": 12,
+   "window_bits": 44,
+   "limbs": 6,
+   "pin": 0,
+   "A_rows": 338,
+   "H_rows": 236,
+   "a_sites": 47,
+   "h_sites": 12,
+   "elems": 2351104,
+   "byte_lookups": 839680
+  },
+  "8B mode(i) OUT hidden selector T32 @2^12": {
+   "lc": 12,
+   "window_bits": 44,
+   "limbs": 6,
+   "pin": 1,
+   "A_rows": 341,
+   "H_rows": 302,
+   "a_sites": 48,
+   "h_sites": 13,
+   "elems": 2633728,
+   "byte_lookups": 970752
+  },
+  "Tiny mode(i) OUT public row @2^11 (design)": {
+   "lc": 11,
+   "window_bits": 41,
+   "limbs": 6,
+   "pin": 1,
+   "A_rows": 226,
+   "H_rows": 174,
+   "a_sites": 47,
+   "h_sites": 13,
+   "elems": 819200,
+   "byte_lookups": 256000
+  },
+  "Tiny mode(i) OUT public row @2^12 (soundness floor)": {
+   "lc": 12,
+   "window_bits": 41,
+   "limbs": 6,
+   "pin": 1,
+   "A_rows": 170,
+   "H_rows": 110,
+   "a_sites": 47,
+   "h_sites": 13,
+   "elems": 1146880,
+   "byte_lookups": 282624
+  },
+  "8B T512 mode(ii) OUT U8 keyed @2^16 (design)": {
+   "lc": 16,
+   "window_bits": 44,
+   "limbs": 6,
+   "pin": 1,
+   "A_rows": 7656,
+   "H_rows": 8610,
+   "a_sites": 48,
+   "h_sites": 13,
+   "elems": 1066008576,
+   "byte_lookups": 494993408
+  },
+  "8B T512 mode(ii) OUT U8 keyed @2^16, no pin": {
+   "lc": 16,
+   "window_bits": 44,
+   "limbs": 6,
+   "pin": 0,
+   "A_rows": 7656,
+   "H_rows": 6560,
+   "a_sites": 48,
+   "h_sites": 12,
+   "elems": 931659776,
+   "byte_lookups": 427884544
+  },
+  "8B T512 mode(ii) OUT U16 keyed @2^16 (design)": {
+   "lc": 16,
+   "window_bits": 44,
+   "limbs": 3,
+   "pin": 1,
+   "A_rows": 4573,
+   "H_rows": 4514,
+   "a_sites": 42,
+   "h_sites": 12,
+   "elems": 595525632,
+   "byte_lookups": 293666816
+  },
+  "8B T512 mode(ii) OUT U16 keyed @2^16, no pin": {
+   "lc": 16,
+   "window_bits": 44,
+   "limbs": 3,
+   "pin": 0,
+   "A_rows": 4573,
+   "H_rows": 4514,
+   "a_sites": 42,
+   "h_sites": 12,
+   "elems": 595525632,
+   "byte_lookups": 226557952
+  },
+  "8B T32 total mode(i) (design)": {
+   "elems": 3057664
+  },
+  "8B T32 total mode(i) (repaired: IN @2^12, no pin)": {
+   "elems": 2830336
+  }
+ },
+ "D_proximity": {
+  "per_opening_log2": {
+   "log_n 8 rate 1/4": -67.34,
+   "log_n 9 rate 1/4": -86.28,
+   "log_n 10 rate 1/4": -96.13,
+   "log_n 11 rate 1/4": -101.16,
+   "log_n 12 rate 1/4": -103.69,
+   "log_n 13 rate 1/4": -104.97,
+   "log_n 14 rate 1/4": -105.61,
+   "log_n 15 rate 1/4": -105.93,
+   "log_n 16 rate 1/4": -106.09,
+   "log_n 8 rate 1/8 (frozen seam / toy endpoint)": -106.25,
+   "log_n 9 rate 1/8": -116.65,
+   "D15 convention (3/4)^256 (pads ignored)": -106.25
+  },
+  "8B T32, design geometry (IN 2^11, OUT 2^12, token endpoints 2^8 rate 1/4)": {
+   "stack_alone_log2": -98.66,
+   "with_token_io_log2": -66.34
+  },
+  "8B T32, design's own accounting (every new opening at (3/4)^256)": {
+   "stack_alone_log2": -98.66,
+   "with_token_io_log2": -98.61
+  },
+  "8B T32, token endpoints at rate 1/8 but design stage widths (IN 2^11, OUT 2^12)": {
+   "stack_alone_log2": -98.66,
+   "with_token_io_log2": -98.14
+  },
+  "Tiny T32, token endpoints at rate 1/8 but design stage widths (IN 2^10, OUT 2^11)": {
+   "stack_alone_log2": -99.21,
+   "with_token_io_log2": -95.0
+  },
+  "8B T32, repaired (IN and OUT 2^12, token endpoints 2^8 rate 1/8)": {
+   "stack_alone_log2": -98.66,
+   "with_token_io_log2": -98.47
+  },
+  "Tiny T32, design geometry (IN 2^10, OUT 2^11, token endpoints 2^8 rate 1/4)": {
+   "stack_alone_log2": -99.21,
+   "with_token_io_log2": -66.34
+  },
+  "Tiny T32, repaired (IN and OUT 2^12, token endpoints 2^8 rate 1/8)": {
+   "stack_alone_log2": -99.21,
+   "with_token_io_log2": -98.93
+  }
+ }
+}

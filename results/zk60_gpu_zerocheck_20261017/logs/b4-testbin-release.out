@@ -1,0 +1,11 @@
+[zk60-guard 12:09:51] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 12:10:51] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 12:11:51] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 12:12:51] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 12:13:51] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 12:14:51] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 12:15:52] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 12:16:52] waiting for /tmp/zk-heavy.lock (421s)
+[zk60-guard 12:17:52] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 12:18:01] START b4-testbin-release class=build need=3G cap=5G enforce=cgroup+watchdog waited=490s run=d85f1299e2b5
+[zk60-guard 12:21:44] END b4-testbin-release exit=0 child_wall=223s peak_rss=1.64G min_avail=8.39G

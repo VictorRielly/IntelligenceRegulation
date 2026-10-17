@@ -1,0 +1,42 @@
+{
+  "accessed_at_utc": "2026-10-17T19:33:01.143816+00:00",
+  "blockers": [
+    {
+      "id": "cycle66-new-older-logup-star-actual-commitment-boundary",
+      "issues": [
+        "PDF open returned Internal Error; assessment limited to primary abstract/metadata."
+      ]
+    },
+    {
+      "id": "cycle66-binius-logup-star-scope-license-no-release",
+      "issues": [
+        "Wrong generic raw LICENSE path returned Internal Error; actual MIT file subsequently inspected.",
+        "Commit API and attempted logup source path returned Internal Error; no full commit pin inferred."
+      ]
+    },
+    {
+      "id": "cycle66-oct16-plonky3-release-docs-scope",
+      "issues": [
+        "Exact sumcheck tag, exact rc.2 crate and commit-detail opens returned Internal Error.",
+        "Companion rc.2 date confirmed by LIVE primary search results, not a direct source-file inspection."
+      ]
+    }
+  ],
+  "foreign_code_execution": false,
+  "queries": [
+    "LogUp lookup argument batch inversion memory efficient prover streaming 2026 github",
+    "zero knowledge lookup helper batch inversion streaming Montgomery trick 2025 2026",
+    "site.github.com binius64 \"logup\" October 2026",
+    "site.arxiv.org lookup small tables zero knowledge October 2026 logup",
+    "\"p3-sumcheck-v0.9.0-rc.2\" \"2026-10-16\" site:github.com/Plonky3",
+    "\"p3-sumcheck\" \"0.9.0-rc.2\" \"2026-10-16\" site:docs.rs"
+  ],
+  "selected_primary_records": [
+    "cycle66-new-older-logup-star-actual-commitment-boundary",
+    "cycle66-new-older-powdr-logup-star-hash-pcs",
+    "cycle66-binius-logup-star-scope-license-no-release",
+    "cycle66-oct16-plonky3-release-docs-scope",
+    "cycle66-september-quantization-query-count-refresh"
+  ],
+  "tool": "native LIVE web.run search/open/click/find"
+}

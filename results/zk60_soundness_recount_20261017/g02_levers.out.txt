@@ -1,0 +1,47 @@
+Llama-3-8B T512, row width 2^15, inv_rate 4, Q 256 (speed plan's receipt-optimal layout)
+  per opening A/H/B/E 2^-105.93, M 2^-106.25; lookups per block 323026944; max CFS mask length 122 (M_Q ceiling 390)
+  committed elements per block 0.6633 G (A 9185 rows, H 11056 rows; H share 54.6%); receipt per pass 2.226 GB
+  laptop-CPU law 51.98 s/block; 5090 roofline 37.1 / 57.3 pos/s at 25% / 40%; anchored central 6.89 pos/s
+  lookups by domain: {'L': 65536, 'D': 71303168, 'Q': 27262976, 'Kv': 6291456, 'S': 125829120, 'F': 75497472} exp pairs 8388608 act pairs 8388608
+  worst single round (per-round / work-factor reading): column 2^-105.93, M 2^-106.25, one block's LogUp 2^-99.73 (derived) / 2^-97.73 (R14)
+
+== single levers (each alone against B0) ==
+lever                                                                   R14  derived |    column LogUp-der  sumcheck   PCS-fld |  d_elem   d_rcpt    d_cpu  roof40
+B0  today's design                                                    92.71    94.66 |     98.99     94.73    112.19    106.38 |   +0.0%    +0.0%    +0.0%    57.3
+L1  partial LogUp repetition on S, F                                  94.30    96.14 |     98.99     96.36    112.17    106.38 |  +38.2%   +22.7%   +27.9%    42.7
+L2  partial LogUp repetition on S, F, D                               95.83    97.41 |     98.99     98.00    112.16    106.38 |  +49.1%   +29.3%   +38.2%    39.7
+L3  full LogUp repetition (two independent alpha/beta/gamma in Fp2)    98.98    98.98 |     98.99    194.47    112.15    106.38 |  +54.6%   +32.5%   +43.4%    38.4
+L4  LogUp challenges and helpers in Fp4                               98.98    98.98 |     98.99    222.73    112.19    106.38 |  +54.6%   +32.5%   +43.3%    38.4
+O1  Q = 262 (checks = pads), MQ 262                                   92.73    94.72 |    101.47     94.73    112.19    106.38 |   +0.0%    +1.4%    +0.0%    57.3
+O2  rate 1/8 at Q 256                                                 92.73    94.72 |    101.25     94.73    112.19    105.17 |   +0.0%    +0.0%   +29.4%    36.7
+O3  two proximity vectors per opening                                 92.71    94.66 |     98.99     94.73    112.19    113.35 |   +0.0%    +3.1%    +0.2%    57.3
+A1  every challenge in Fp4                                            98.99    98.99 |     98.99    222.73    240.19    234.38 |  +55.8%   +72.2%   +71.5%    35.2
+
+== target bundles (derived LogUp bound; R14 figure shown alongside) ==
+bundle                                                                  R14  derived |    column LogUp-der  sumcheck   PCS-fld |  d_elem   d_rcpt    d_cpu  roof40
+~96: derived bound + LogUp repetition on S+F                          94.30    96.14 |     98.99     96.36    112.17    106.38 |  +38.2%   +22.7%   +27.9%    42.7
+                                                                   roof25 27.4 pos/s (B0 37.1); anchored central 5.47 (B0 6.89); receipt/pass 2.732 GB; M_Q ceiling 390; bandwidth for 50/s 47.4% (B0 34.5%)
+~97: derived bound + LogUp repetition on S+F+D                        95.83    97.41 |     98.99     98.00    112.16    106.38 |  +49.1%   +29.3%   +38.2%    39.7
+                                                                   roof25 25.4 pos/s (B0 37.1); anchored central 5.09 (B0 6.89); receipt/pass 2.877 GB; M_Q ceiling 390; bandwidth for 50/s 51.2% (B0 34.5%)
+~96 (R14 convention): full LogUp repetition                           98.98    98.98 |     98.99    194.47    112.15    106.38 |  +54.6%   +32.5%   +43.4%    38.4
+                                                                   roof25 24.5 pos/s (B0 37.1); anchored central 4.91 (B0 6.89); receipt/pass 2.950 GB; M_Q ceiling 390; bandwidth for 50/s 53.1% (B0 34.5%)
+~100: full LogUp repetition + Q = MQ = 259                           100.21   100.21 |    100.23    194.47    112.15    106.38 |  +54.6%   +33.7%   +43.4%    38.4
+                                                                   roof25 24.5 pos/s (B0 37.1); anchored central 4.91 (B0 6.89); receipt/pass 2.975 GB; M_Q ceiling 390; bandwidth for 50/s 53.1% (B0 34.5%)
+~100 alt: LogUp in Fp4 + Q = MQ = 259                                100.21   100.21 |    100.23    222.73    112.19    106.38 |  +54.6%   +33.6%   +43.3%    38.4
+                                                                   roof25 24.5 pos/s (B0 37.1); anchored central 4.91 (B0 6.89); receipt/pass 2.975 GB; M_Q ceiling 390; bandwidth for 50/s 53.1% (B0 34.5%)
+~110: full LogUp repetition + two proximity vectors + Q = MQ = 285   110.24   110.24 |    110.97    194.47    112.15    113.18 |  +54.6%   +46.3%   +43.8%    38.4
+                                                                   roof25 24.5 pos/s (B0 37.1); anchored central 4.90 (B0 6.89); receipt/pass 3.255 GB; M_Q ceiling 390; bandwidth for 50/s 53.1% (B0 34.5%)
+~128: every challenge in Fp4 + Q = MQ = 327                          128.30   128.30 |    128.30    222.73    240.19    234.38 |  +55.8%   +98.6%   +71.5%    35.2
+                                                                   roof25 22.5 pos/s (B0 37.1); anchored central 4.17 (B0 6.89); receipt/pass 4.421 GB; M_Q ceiling 390; bandwidth for 50/s 58.2% (B0 34.5%)
+
+== opening term: three ways to gain the same bits ==
+  Q 256 -> 273 (checks = pads): column term +7.02 bits; receipt +4.08%; roofline unchanged (57.3 pos/s)
+  D14 cross-layer batching (A, H, B, E each one batched test; M one): column term 2^-103.67 (+4.67 bits); needs every block's encoded matrix until the end (679 GB at 32 B per element) or a second encode pass
+  rate 1/8 at Q 256: column term +2.26 bits; commit volume x2: roofline 36.7 pos/s at 40% (B0 57.3)
+  (110 via rate 1/8 instead of Q: Q = 279; roofline 24.2 pos/s)
+
+== sketch: D1 LogUp-GKR, fraction tree in Fp2 / Fp4 (roofline at 40%) ==
+  Fp2 fraction tree, K = 2: committed 0.301 G (-54.6%), roofline 75.2 pos/s, bandwidth for 50/s 25.5%, LogUp term 2^-94.73 (derived)
+  Fp2 fraction tree, K = 4: committed 0.301 G (-54.6%), roofline 56.3 pos/s, bandwidth for 50/s 35.1%, LogUp term 2^-94.73 (derived)
+  Fp4 fraction tree, K = 2 (x2): committed 0.301 G (-54.6%), roofline 56.3 pos/s, bandwidth for 50/s 35.1%, LogUp term 2^-222.73 (derived)
+  Fp4 fraction tree, K = 4 (x2): committed 0.301 G (-54.6%), roofline 37.5 pos/s, bandwidth for 50/s 54.5%, LogUp term 2^-222.73 (derived)

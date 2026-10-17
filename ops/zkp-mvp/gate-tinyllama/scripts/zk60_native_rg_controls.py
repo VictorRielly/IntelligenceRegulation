@@ -143,7 +143,8 @@ def _one_block_controls(bundle, other_bundle, views, replay):
     out["applicable"] = applicable
     out["not_applicable"] = [n for n in out["controls"] if n not in applicable]
     out["all_fire"] = all(out[n]["fires"] for n in applicable)
-    out["ok"] = out["all_fire"]
+    # [v5, review P-11] a family with no applicable control is not a pass
+    out["ok"] = bool(applicable) and out["all_fire"]
     return out
 
 

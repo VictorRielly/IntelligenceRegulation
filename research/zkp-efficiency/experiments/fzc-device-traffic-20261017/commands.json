@@ -21,5 +21,14 @@
     "owner_existing_marker": "native/results__zk60_gpu_zerocheck_20261017__logs__t1-debug-small.done",
     "owner_marker_content": "143",
     "note": "Retained owner marker is not evidence of researcher execution or current job/supervisor liveness."
+  },
+  {
+    "argv": [
+      "python3",
+      "experiments/fzc-device-traffic-20261017/final_audit.py"
+    ],
+    "exit_code": 0,
+    "result": "final-audit.json",
+    "note": "62 consistency checks; rerun after final report edits to refresh artifact hashes."
   }
 ]

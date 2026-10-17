@@ -1,0 +1,5 @@
+[load          ]      6.2 s   peak RSS     860 MB   ok
+[replay        ]      3.8 s   peak RSS     860 MB   ok
+[mask          ]    233.1 s   peak RSS     946 MB   ok
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/v4/tl-l22r2-zero-m.json   total 243.1 s   peak RSS 946 MB   ok=True
+status: PASS   unexplained false leaves 0   -> /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/v4/tl-l22r2-zero-m.status.json

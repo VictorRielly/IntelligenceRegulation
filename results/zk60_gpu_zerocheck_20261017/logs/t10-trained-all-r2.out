@@ -1,0 +1,12 @@
+[zk60-guard 12:53:28] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 12:54:28] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 12:55:28] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 12:56:28] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 12:57:28] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 12:58:29] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 12:59:29] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 13:00:29] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 13:01:29] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 13:02:18] admission waiting: budget: 8+4.5 GiB > 11.9 GiB with live [tl-v4-l22-dense-f(light,6G), fid-s7-decomp(light,2G)]
+[zk60-guard 13:02:53] START t10-trained-all-r2 class=gpu need=4.5G cap=7G enforce=cgroup+watchdog waited=565s run=b9dab63594a3
+[zk60-guard 13:09:13] END t10-trained-all-r2 exit=0 child_wall=380s peak_rss=2.16G min_avail=9.93G peak_vram=3125MiB

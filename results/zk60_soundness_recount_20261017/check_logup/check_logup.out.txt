@@ -1,0 +1,65 @@
+== cross-check of the U8 lookup count against the Rust counts ==
+  TinyLlama  T32   row 2^12: Rust     5971968  here     5971968  OK
+  TinyLlama  T64   row 2^13: Rust    12795904  here    12795904  OK
+  TinyLlama  T128  row 2^14: Rust    28999680  here    28999680  OK
+  TinyLlama  T512  row 2^16: Rust   214564864  here   214564864  OK
+  Llama-3-8B T32   row 2^13: Rust    11714560  here    11714560  OK
+
+== per profile: N, pair positions, and the LogUp bounds (bits = -log2 of the error) ==
+
+  TinyLlama-1.1B T32 (22 blocks, row 2^12)
+    N = U8 5971968 + exp 32768 + act 262144 = 6266880   (wrho_s 14, 2 sigma_s limbs; domain logs {'L': 12, 'D': 16, 'Q': 16, 'Kv': 13, 'S': 15, 'F': 18, 'Tab': 12})
+    paired-helper positions 2805760 (0.448 N), single-helper positions 655360; p/N = 2.94e+12
+    per block : derived (N+2303) 2^-105.42 | N alone 2^-105.42 | naive (2N+2303) 2^-104.42 | R14 4N 2^-103.42 | helper zero-checks 2^-117.77
+    per run   : derived 2^-100.96 | N alone 2^-100.96 | naive 2^-99.96 | R14 2^-98.96 | helper zero-checks 2^-113.32   (x 22 blocks)
+    R14 is looser than the derived bound by 1.999 bits
+    explicit equal-pair strategy: |PP| = 524288 (0.084 N) -> success >= 2^-109.00 per block, 2^-109.00 per run (lower bound; derived bound is 3.58 bits above it)
+
+  TinyLlama-1.1B T64 (22 blocks, row 2^13)
+    N = U8 12795904 + exp 131072 + act 524288 = 13451264   (wrho_s 15, 2 sigma_s limbs; domain logs {'L': 13, 'D': 17, 'Q': 17, 'Kv': 14, 'S': 17, 'F': 19, 'Tab': 13})
+    paired-helper positions 6004736 (0.446 N), single-helper positions 1441792; p/N = 1.37e+12
+    per block : derived (N+2303) 2^-104.32 | N alone 2^-104.32 | naive (2N+2303) 2^-103.32 | R14 4N 2^-102.32 | helper zero-checks 2^-117.71
+    per run   : derived 2^-99.86 | N alone 2^-99.86 | naive 2^-98.86 | R14 2^-97.86 | helper zero-checks 2^-113.26   (x 22 blocks)
+    R14 is looser than the derived bound by 2.000 bits
+    explicit equal-pair strategy: |PP| = 1048576 (0.078 N) -> success >= 2^-108.00 per block, 2^-108.00 per run (lower bound; derived bound is 3.68 bits above it)
+
+  TinyLlama-1.1B T128 (22 blocks, row 2^14)
+    N = U8 28999680 + exp 524288 + act 1048576 = 30572544   (wrho_s 16, 2 sigma_s limbs; domain logs {'L': 14, 'D': 18, 'Q': 18, 'Kv': 15, 'S': 19, 'F': 20, 'Tab': 14})
+    paired-helper positions 13582336 (0.444 N), single-helper positions 3407872; p/N = 6.03e+11
+    per block : derived (N+2303) 2^-103.13 | N alone 2^-103.13 | naive (2N+2303) 2^-102.13 | R14 4N 2^-101.13 | helper zero-checks 2^-117.66
+    per run   : derived 2^-98.67 | N alone 2^-98.67 | naive 2^-97.67 | R14 2^-96.67 | helper zero-checks 2^-113.20   (x 22 blocks)
+    R14 is looser than the derived bound by 2.000 bits
+    explicit equal-pair strategy: |PP| = 2097152 (0.069 N) -> success >= 2^-107.00 per block, 2^-107.00 per run (lower bound; derived bound is 3.87 bits above it)
+
+  Llama-3-8B T32 (32 blocks, row 2^13)
+    N = U8 11714560 + exp 32768 + act 524288 = 12271616   (wrho_s 14, 2 sigma_s limbs; domain logs {'L': 13, 'D': 17, 'Q': 17, 'Kv': 15, 'S': 15, 'F': 19, 'Tab': 13})
+    paired-helper positions 5513216 (0.449 N), single-helper positions 1245184; p/N = 1.5e+12
+    per block : derived (N+2303) 2^-104.45 | N alone 2^-104.45 | naive (2N+2303) 2^-103.45 | R14 4N 2^-102.45 | helper zero-checks 2^-117.72
+    per run   : derived 2^-99.45 | N alone 2^-99.45 | naive 2^-98.45 | R14 2^-97.45 | helper zero-checks 2^-112.72   (x 32 blocks)
+    R14 is looser than the derived bound by 2.000 bits
+    explicit equal-pair strategy: |PP| = 1048576 (0.085 N) -> success >= 2^-108.00 per block, 2^-108.00 per run (lower bound; derived bound is 3.55 bits above it)
+
+  Llama-3-8B T512 (32 blocks, row 2^15; speed plan layout, unregistered)
+    N = U8 306249728 + exp 8388608 + act 8388608 = 323026944   (wrho_s 18, 3 sigma_s limbs; domain logs {'L': 15, 'D': 21, 'Q': 21, 'Kv': 19, 'S': 23, 'F': 23, 'Tab': 15})
+    paired-helper positions 143687680 (0.445 N), single-helper positions 35651584; p/N = 5.71e+10
+    per block : derived (N+2303) 2^-99.73 | N alone 2^-99.73 | naive (2N+2303) 2^-98.73 | R14 4N 2^-97.73 | helper zero-checks 2^-117.53
+    per run   : derived 2^-94.73 | N alone 2^-94.73 | naive 2^-93.73 | R14 2^-92.73 | helper zero-checks 2^-112.53   (x 32 blocks)
+    R14 is looser than the derived bound by 2.000 bits
+    explicit equal-pair strategy: |PP| = 33554432 (0.104 N) -> success >= 2^-103.00 per block, 2^-103.00 per run (lower bound; derived bound is 3.27 bits above it)
+
+  Llama-3-8B T512 (32 blocks, row 2^16; recount projection, unregistered)
+    N = U8 306315264 + exp 8388608 + act 8388608 = 323092480   (wrho_s 18, 3 sigma_s limbs; domain logs {'L': 16, 'D': 21, 'Q': 21, 'Kv': 19, 'S': 23, 'F': 23, 'Tab': 16})
+    paired-helper positions 143720448 (0.445 N), single-helper positions 35651584; p/N = 5.71e+10
+    per block : derived (N+2303) 2^-99.73 | N alone 2^-99.73 | naive (2N+2303) 2^-98.73 | R14 4N 2^-97.73 | helper zero-checks 2^-117.52
+    per run   : derived 2^-94.73 | N alone 2^-94.73 | naive 2^-93.73 | R14 2^-92.73 | helper zero-checks 2^-112.52   (x 32 blocks)
+    R14 is looser than the derived bound by 2.000 bits
+    explicit equal-pair strategy: |PP| = 33554432 (0.104 N) -> success >= 2^-103.00 per block, 2^-103.00 per run (lower bound; derived bound is 3.27 bits above it)
+
+== against the recount lane's figures ==
+  TinyLlama-1.1B T32   N 6266880 vs 6266880; run R14 2^-98.96 vs 2^-98.96; run derived 2^-100.96 vs 2^-100.96  OK
+  TinyLlama-1.1B T64   N 13451264 vs 13451264; run R14 2^-97.86 vs 2^-97.86; run derived 2^-99.86 vs 2^-99.86  OK
+  TinyLlama-1.1B T128  N 30572544 vs 30572544; run R14 2^-96.67 vs 2^-96.67; run derived 2^-98.67 vs 2^-98.67  OK
+  Llama-3-8B T32       N 12271616 vs 12271616; run R14 2^-97.45 vs 2^-97.45; run derived 2^-99.45 vs 2^-99.45  OK
+  8B T512 (2^15) N 323026944 vs memo 323026944; block derived 2^-99.73 vs 2^-99.73; run derived 2^-94.73 vs 2^-94.73; run R14 2^-92.73 vs 2^-92.73  OK
+
+wrote /home/victor/IntelligenceRegulation/results/zk60_soundness_recount_20261017/check_logup/check_logup.json

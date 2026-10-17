@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "checks": 4135,
+  "fixtures": 96,
+  "pushforward_values": 3744,
+  "diagonal_column_weight_polynomials": 7,
+  "undetectable_fixed_error_subspace_dimension": 76,
+  "independent_F17_grid_detects": 272,
+  "independent_F17_grid_total": 289,
+  "source_drift": [],
+  "negative_controls": {
+    "mutated_pushforward_detected": true,
+    "same_scalar_all_column_bits_loses_fixed_errors": true
+  },
+  "wall_seconds": 0.08267277799859585,
+  "peak_rss_kib": 16180,
+  "threads": 1,
+  "scope": "Coefficient convolution, symbolic column-weight collision and exhaustive F17 diagnostic only; no native/upstream protocol attack or cryptographic soundness/privacy proof.",
+  "completed_at_utc": "2026-10-17T21:25:06.308224+00:00"
+}

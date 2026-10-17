@@ -506,21 +506,18 @@ fn scan_artifact(dir: &Path, l: usize) -> Result<Vec<(String, u64, String)>, Str
         if md.len() > super::wire::MAX_WIRE_BYTES_ANY as u64 {
             return Err(format!("artifact: segment {k} is larger than the {}-byte wire bound", super::wire::MAX_WIRE_BYTES_ANY));
         }
-        let bytes = std::fs::read(p).map_err(|e| format!("artifact: segment {k}: {e}"))?;
+        // NATIVE R5b (review r4 finding r4_B): read through the bounded reader
+        let bytes = run::read_regular_file_bounded(p, super::wire::MAX_WIRE_BYTES_ANY as u64, false).map_err(|e| format!("artifact: segment {k}: {e}"))?;
         out.push((run_sink::segment_file_name(k), bytes.len() as u64, run_sink::digest_hex(&bytes)));
     }
     Ok(out)
 }
 
 fn read_bounded(path: &Path, max: u64) -> Result<Vec<u8>, String> {
-    let md = std::fs::symlink_metadata(path).map_err(|e| format!("{}: {e}", path.display()))?;
-    if !md.file_type().is_file() {
-        return Err(format!("{}: not a regular file", path.display()));
-    }
-    if md.len() > max {
-        return Err(format!("{}: larger than the {max}-byte bound", path.display()));
-    }
-    std::fs::read(path).map_err(|e| format!("{}: {e}", path.display()))
+    // NATIVE R5b (review r4 finding r4_B): the run module's bounded reader
+    // (no link followed, no FIFO blocked on, the opened file re-checked, the
+    // read capped) instead of a check followed by an unbounded read
+    run::read_regular_file_bounded(path, max, false)
 }
 
 // ---------------------------------------------------------------- json lines

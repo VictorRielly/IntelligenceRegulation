@@ -545,6 +545,11 @@ MASK_LAYER_PINS = {
 from zk60_native_rg_tinyllama_pins import (  # noqa: E402
     MASK_LAYER_PINS as _TL_MLP, merge_two_level as _tl_merge2)
 _tl_merge2(MASK_LAYER_PINS, _TL_MLP, "MASK_LAYER_PINS")
+# [TINYLLAMA PORT v5, round 4] the R5 tree's digests of the same three files
+# (`zk60_native_rg_tinyllama_r5_pins`).
+from zk60_native_rg_tinyllama_r5_pins import (  # noqa: E402
+    MASK_LAYER_PINS as _R5_MLP)
+_tl_merge2(MASK_LAYER_PINS, _R5_MLP, "MASK_LAYER_PINS")
 
 # Files the mask port transcribes that NO bundle pins, so that nothing in
 # this module can check them.  The digests were read at the capture commits

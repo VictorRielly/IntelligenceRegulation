@@ -1,0 +1,2695 @@
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/argument.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/argument.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/argument.rs	2026-10-17 01:13:56.549642658 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/argument.rs	2026-10-17 07:13:26.690109475 -0700
+@@ -1947,11 +1947,13 @@
+         #[cfg(test)]
+         super::run_capture::start_slot(side, tr);
+         let def = define(slot, ctx, &mut pts, tr)?;
++        // ROUND 5: the slot's counted ELEMENT-TERMS, its sumcheck cube
++        // `2^(main + extension rounds)` times its table count — a function of
++        // the shape and the declared schedule, nothing private
++        let n_tabs = def.tabs.len() as u64;
+         run_slot(side, &mut acc, def, tr)?;
+-        // the slot's own sumcheck cube, `2^(main + extension rounds)`: a
+-        // function of the shape and the declared schedule, nothing private
+         let (main, ext, _) = sh.slots()[slot];
+-        ph.slot(slot, 1u64 << (main + ext), "cube");
++        ph.slot_work(slot, (1u64 << (main + ext)) * n_tabs);
+     }
+     let hosts = std::mem::take(&mut acc.host_fs);
+     acc.fs.extend(hosts);
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/cs_port_tests.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/cs_port_tests.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/cs_port_tests.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/cs_port_tests.rs	2026-10-17 12:03:10.241148063 -0700
+@@ -0,0 +1,361 @@
++//! **NATIVE LANE, ROUND 5 (R5-1): the 125M lane's later rulings, ported**
++//! (finding G-1 of the privacy-gate lane): CS-1, CS-3, CS-4, CS-6, CS-7,
++//! CS-8, CS-9 and S38-F1(a), as built at the 125M lane's stages 39–44
++//! (`docs/zkmatrix-poc/ZK60_SHAPED_REFUSAL_CENSUS.md` §9–§13 on branch
++//! `zk60-private-block-125m`). TEST CODE ONLY.
++//!
++//! The lane's named tests (`s40_tests` … `s44_tests`) lean on fixtures this
++//! tree does not carry (rung-K8, the stage-36 draw observers, the census
++//! module); each test here is the same claim on this tree's fixtures: the
++//! refusal fires BY NAME at each place the ruling puts it, and the honest
++//! control still proves and verifies. Public synthetic data only.
++
++use super::layout::*;
++use super::run::{self, RunShape, RunStatement, RunWitnessSource};
++use super::shape::{NormCalibration, Shape, TOY_PROFILE};
++use super::witness::{self, Witness};
++use super::*;
++
++fn ctx() -> Digest {
++    *blake3::hash(b"cs port").as_bytes()
++}
++
++fn plane(sh: &Shape, w: &Witness, p: usize) -> Vec<i16> {
++    let ids = Ids::new(sh).unwrap();
++    w.planes[ids.at(p)].iter().map(|v| *v as i16).collect()
++}
++
++/// a block and its honest witness at `sh`, on the tame recipe
++fn tame(sh: &Shape) -> (BlockPublic, Witness) {
++    let (public, ff, input) = super::grow_tests::tame_case(sh);
++    let w = witness::build_shaped(sh, &public, &ff, &input).expect("the tame witness");
++    (BlockPublic::new(public, ff), w)
++}
++
++// ------------------------------------------------------------- CS-1 / S38-F1(a)
++
++/// **CS-1 + S38-F1(a).** A feed-forward half built at one shape and proved
++/// inside a block of another is refused by CS-1's name at the builder, the
++/// prover's entry, the verifier's entry and the run statement; at a shape
++/// whose `Dom::F` pads, an activation table with `act[128] != 0` is refused
++/// by S38-F1(a)'s name (where `Dom::F` does not pad it is admitted).
++#[test]
++fn cs1_and_s38_f1a_the_feed_forward_statement_is_checked_against_the_shape_it_is_proved_at() {
++    // S38-F1(a)
++    let rung = Shape::rung();
++    assert!(rung.pads(Dom::F), "the fixture shape must pad its feed-forward domain");
++    let (_, ff, _) = super::grow_tests::tame_case(&rung);
++    let mut act = ff.act.to_vec();
++    assert_eq!(act[128], 0, "the frozen SiLU member has act[128] = 0");
++    act[128] = 1;
++    let e = FeedForwardPublic::new_shaped(&rung, &ff.gamma_m, &ff.wg_t, &ff.wu_t, &ff.wd_t, &act).err().expect("act[128] = 1 admitted where F pads");
++    assert!(e.contains("S38-F1(a)"), "{e}");
++    let toy = Shape::toy();
++    assert!(!toy.pads(Dom::F));
++    let (_, tff, _) = super::grow_tests::tame_case(&toy);
++    let mut tact = tff.act.to_vec();
++    tact[128] = 1;
++    FeedForwardPublic::new_shaped(&toy, &tff.gamma_m, &tff.wg_t, &tff.wu_t, &tff.wd_t, &tact).expect("admitted where F does not pad");
++    // CS-1: rung-P2's feed-forward half inside a rung-K4 block
++    let (k4, p2) = (Shape::rung_k4(), Shape::rung_p2());
++    let (att, _, input) = super::grow_tests::tame_case(&k4);
++    let (_, ff_p2, _) = super::dense_tests::dense_case(&p2);
++    let blk = BlockPublic::new(att.clone(), ff_p2.clone());
++    let e = blk.check_for_shape(&k4).err().expect("a rung-P2 feed-forward half fits rung-K4");
++    assert!(e.contains("ruling CS-1"), "{e}");
++    let e = witness::build_shaped(&k4, &att, &ff_p2, &input).err().expect("the builder admitted the cross-shape half");
++    assert!(e.contains("ruling CS-1"), "{e}");
++    // the prover's entry, on an honest k4 witness handed with the foreign block
++    let (honest, w) = tame(&k4);
++    let (expected, owners) = prepare_endpoints(IoSpec::new_shaped(&k4, ctx(), 0, 0).unwrap(), &plane(&k4, &w, A_X), &plane(&k4, &w, A_X2)).unwrap();
++    let e = super::protocol::prove_inner_at(&k4, &blk, w, &expected, owners).err().expect("the prover admitted the cross-shape half");
++    assert!(e.contains("ruling CS-1"), "{e}");
++    let e = verify_bytes_at(&k4, &blk, &expected, &[0u8; 64]).err().unwrap();
++    assert!(e.contains("ruling CS-1"), "{e}");
++    let e = RunStatement::new(RunShape::rung_k4(1).unwrap(), ctx(), expected.clone(), &[blk], &[(0, 0)]).err().unwrap();
++    assert!(e.contains("private run: block 0") && e.contains("ruling CS-1"), "{e}");
++    honest.check_for_shape(&k4).expect("the control fits");
++}
++
++// ------------------------------------------------------------------ CS-3
++
++/// **CS-3.** A witness that looks up a value off its table is refused by the
++/// honest prover, by name and by table FAMILY (never a count); the cheating
++/// prover (the test-only switch) still reaches the verifier, which rejects.
++#[test]
++fn cs3_a_lookup_miss_is_refused_by_the_honest_prover_and_rejected_by_the_verifier() {
++    let toy = Shape::toy();
++    let (public, input) = AttentionPublic::synthetic_fixture();
++    let ff = FeedForwardPublic::synthetic_fixture();
++    let blk = BlockPublic::new(public.clone(), ff.clone());
++    let ids = Ids::new(&toy).unwrap();
++    for (name, p, family) in [("a byte limb at 300", A_XL0, "the byte table"), ("an exp word off its row", A_E, "the exp table"), ("an activation word off its row", A_A16, "the activation table")] {
++        let mk = || {
++            let mut w = witness::build(&public, &ff, &input).unwrap();
++            let idx = ids.at(p);
++            w.planes[idx][0] = if p == A_XL0 { 300 } else { w.planes[idx][0] + 1 };
++            w
++        };
++        let w = mk();
++        let (expected, owners) = prepare_endpoints(IoSpec::new(ctx(), 0, 0).unwrap(), &plane(&toy, &w, A_X), &plane(&toy, &w, A_X2)).unwrap();
++        let e = super::protocol::prove_inner_at(&toy, &blk, w, &expected, owners).err().unwrap_or_else(|| panic!("{name}: the honest prover proved a lookup miss"));
++        let w = mk();
++        assert!(e.contains("ruling CS-3") && e.contains(family), "{name}: {e}");
++        // the cheating prover reaches the verifier, which rejects
++        let _cheat = super::protocol::CheatingProver::on();
++        let (expected, owners) = prepare_endpoints(IoSpec::new(ctx(), 0, 0).unwrap(), &plane(&toy, &w, A_X), &plane(&toy, &w, A_X2)).unwrap();
++        match super::protocol::prove_inner_at(&toy, &blk, w, &expected, owners) {
++            Ok((r, _)) => {
++                let bytes = r.to_bytes_at(&toy, &blk, &expected).unwrap();
++                assert!(verify_bytes_at(&toy, &blk, &expected, &bytes).is_err(), "{name}: the verifier ACCEPTED the cheating prover's lookup miss");
++            }
++            Err(e) => assert!(!e.contains("ruling CS-3"), "{name}: the cheating prover ran CS-3: {e}"),
++        }
++    }
++}
++
++// ------------------------------------------------------------------ CS-4
++
++/// **CS-4.** An attention half or an endpoint policy made for another shape
++/// is refused by CS-4's name wherever it meets the shape it is proved at.
++#[test]
++fn cs4_an_attention_half_or_a_policy_from_another_shape_is_refused() {
++    let (g, k4) = (Shape::rung_g(), Shape::rung_k4());
++    let (att_g, _, _) = super::dense_tests::dense_case(&g);
++    let (_, ff_k4, input) = super::grow_tests::tame_case(&k4);
++    let blk = BlockPublic::new(att_g.clone(), ff_k4.clone());
++    let e = blk.check_for_shape(&k4).err().expect("a rung-G attention half fits rung-K4");
++    assert!(e.contains("ruling CS-4"), "{e}");
++    let e = witness::build_shaped(&k4, &att_g, &ff_k4, &input).err().expect("the builder admitted it");
++    assert!(e.contains("ruling CS-4"), "{e}");
++    // the policy: rung-G's spec at rung-K4
++    let spec_g = IoSpec::new_shaped(&g, ctx(), 0, 0).unwrap();
++    let e = spec_g.check_for_shape(&k4).err().expect("rung-G's policy fits rung-K4");
++    assert!(e.contains("ruling CS-4") && e.contains("endpoint policy"), "{e}");
++    let (honest, w) = tame(&k4);
++    let (expected_g, owners) = prepare_endpoints(spec_g, &plane(&k4, &w, A_X), &plane(&k4, &w, A_X2)).unwrap();
++    let e = super::protocol::prove_inner_at(&k4, &honest, w, &expected_g, owners).err().expect("the prover admitted another shape's policy");
++    assert!(e.contains("ruling CS-4"), "{e}");
++    let e = RunStatement::new(RunShape::rung_k4(1).unwrap(), ctx(), expected_g, &[honest], &[(0, 0)]).err().unwrap();
++    assert!(e.contains("ruling CS-4"), "{e}");
++}
++
++// ------------------------------------------------------------------ CS-6
++
++/// a one-block run's witness source that counts what it is asked for
++struct Counting {
++    w: Option<Witness>,
++    asked: usize,
++}
++
++impl RunWitnessSource for Counting {
++    fn witness(&mut self, _k: usize) -> Result<Witness, String> {
++        self.asked += 1;
++        self.w.take().ok_or_else(|| "consumed".to_string())
++    }
++    fn boundary_plane(&mut self, _k: usize) -> Result<Vec<i16>, String> {
++        self.asked += 1;
++        Err("a one-block run has no boundary".into())
++    }
++}
++
++/// **CS-6.** A run is about the blocks its statement NAMES: the run prover,
++/// the in-memory verifier and the streaming verifier refuse, by name and
++/// before anything is absorbed (0 witnesses asked, 0 segments sunk, no file
++/// read), a block other than the statement's, and the wrong COUNT both ways;
++/// the statement's own block proves and verifies.
++#[test]
++fn cs6_the_run_prover_and_verifiers_refuse_blocks_that_are_not_the_statements() {
++    let g = Shape::rung_g();
++    let (x, w) = tame(&g);
++    let (pd, fd, _) = super::dense_tests::dense_case(&g);
++    let y = BlockPublic::new(pd, fd);
++    assert_ne!(x.digest(), y.digest());
++    let spec = IoSpec::new_shaped(&g, ctx(), 0, 0).unwrap();
++    let (expected, owners) = prepare_endpoints(spec, &plane(&g, &w, A_X), &plane(&g, &w, A_X2)).unwrap();
++    let st = RunStatement::new(RunShape::rung_g(1).unwrap(), ctx(), expected.clone(), &[x.clone()], &[(0, 0)]).unwrap();
++    // the prover handed Y under a statement over X
++    let mut src = Counting { w: None, asked: 0 };
++    let mut sunk = 0usize;
++    let e = run::prove_run(&st, &[y.clone()], &mut src, owners, &mut |_, _| {
++        sunk += 1;
++        Ok(())
++    })
++    .err()
++    .expect("the run prover proved a block the statement does not name");
++    assert!(e.contains("ruling CS-6") && e.contains("block 0"), "{e}");
++    assert_eq!((src.asked, sunk), (0, 0), "something was asked or sunk before the refusal");
++    // the count, both ways
++    let (_, owners) = prepare_endpoints(IoSpec::new_shaped(&g, ctx(), 0, 0).unwrap(), &plane(&g, &w, A_X), &plane(&g, &w, A_X2)).unwrap();
++    let e = run::prove_run(&st, &[x.clone(), x.clone()], &mut Counting { w: None, asked: 0 }, owners, &mut |_, _| Ok(())).err().unwrap();
++    assert!(e.contains("ruling CS-6") && e.contains("2 public statements"), "{e}");
++    assert!(run::verify_run(&st, &[], &[]).err().unwrap().contains("ruling CS-6"));
++    // the verifiers handed Y: refused before a byte of the receipt is looked at
++    let e = run::verify_run(&st, &[y.clone()], &[vec![0u8; 64]]).err().unwrap();
++    assert!(e.contains("ruling CS-6"), "{e}");
++    let nowhere = std::env::temp_dir().join(format!("cs6-no-such-dir-{}", std::process::id()));
++    let e = run::verify_run_from_dir(&st, &[y], &nowhere).err().unwrap();
++    assert!(e.contains("ruling CS-6"), "{e}: the streaming verifier read the directory first");
++    // the control: the statement's own block. The endpoint owners of the
++    // first `prepare_endpoints` were consumed by the refused run above, and
++    // fresh owners commit under fresh randomness (other roots), so the
++    // control's statement is built from THEIR expected policy (R5 suite
++    // 19:02 UTC: reusing `st` gave "expected endpoint root mismatch" — the
++    // test's own error, not the prover's)
++    let (expected2, owners) = prepare_endpoints(IoSpec::new_shaped(&g, ctx(), 0, 0).unwrap(), &plane(&g, &w, A_X), &plane(&g, &w, A_X2)).unwrap();
++    let st2 = RunStatement::new(RunShape::rung_g(1).unwrap(), ctx(), expected2, &[x.clone()], &[(0, 0)]).unwrap();
++    let mut segs = Vec::new();
++    run::prove_run(&st2, &[x.clone()], &mut Counting { w: Some(w), asked: 0 }, owners, &mut |_, b| {
++        segs.push(b);
++        Ok(())
++    })
++    .expect("the statement's own block proves");
++    run::verify_run(&st2, &[x.clone()], &segs).expect("and verifies");
++    // and the verifiers still refuse Y under the statement over X with the
++    // honest segments in hand
++    assert!(run::verify_run(&st2, &[BlockPublic::new(super::dense_tests::dense_case(&g).0, super::dense_tests::dense_case(&g).1)], &segs).err().unwrap().contains("ruling CS-6"));
++    let _ = expected;
++}
++
++// ------------------------------------------------------------------ CS-7
++
++/// **CS-7.** A run profile names exactly one block shape: every registered
++/// pair constructs, every cross pair and an unregistered profile are refused
++/// by name (the trained profiles: their geometry at the shape's own
++/// calibration, through the door).
++#[test]
++fn cs7_a_run_profile_names_exactly_one_block_shape() {
++    use super::run::*;
++    let frozen = [
++        (RUN_PROFILE_RUNG_G, Shape::rung_g()),
++        (RUN_PROFILE_RUNG_K4, Shape::rung_k4()),
++        (RUN_PROFILE_RUNG_P2, Shape::rung_p2()),
++        (RUN_PROFILE_RUNG_C6, Shape::rung_c6()),
++        (RUN_PROFILE_RUNG_W14, Shape::rung_w14()),
++        (RUN_PROFILE_RUNG_E32, Shape::rung_e32()),
++        (RUN_PROFILE_M125, Shape::m125()),
++    ];
++    let mut others: Vec<Shape> = frozen.iter().map(|(_, s)| s.clone()).collect();
++    others.push(Shape::toy());
++    others.push(Shape::rung());
++    let mut refused = 0usize;
++    for (p, sh) in &frozen {
++        for l in [1usize, 3] {
++            RunShape::new(sh.clone(), l, *p).unwrap_or_else(|e| panic!("{p} over its own shape: {e}"));
++        }
++        for o in &others {
++            if o == sh {
++                continue;
++            }
++            let e = RunShape::new(o.clone(), 1, *p).err().unwrap_or_else(|| panic!("{p} admitted {}", o.name));
++            assert!(e.contains("ruling CS-7"), "{e}");
++            refused += 1;
++        }
++    }
++    assert_eq!(refused, 7 * 8);
++    let e = RunShape::new(Shape::rung_g(), 1, "hashline-zk-mr1/private-run-not-registered/1").err().unwrap();
++    assert!(e.contains("ruling CS-7") && e.contains("not a run profile this build registers"), "{e}");
++    // the trained profiles
++    let tc = Shape::rung_tc(&super::trained_calib_tests::rung_tc_calibration()).unwrap();
++    RunShape::new(tc.clone(), 1, RUN_PROFILE_RUNG_TC).expect("the trained rung's own pair");
++    assert!(RunShape::new(Shape::rung_c6(), 1, RUN_PROFILE_RUNG_TC).err().unwrap().contains("ruling CS-7"));
++    assert!(RunShape::new(tc, 1, RUN_PROFILE_RUNG_C6).err().unwrap().contains("ruling CS-7"));
++    let (t32, t64) = (super::trained_calib_tests::tinyllama_at(32), super::trained_calib_tests::tinyllama_at(64));
++    RunShape::new(t32.clone(), 22, RUN_PROFILE_TINYLLAMA_T32_TRAINED).expect("T32's own pair");
++    assert!(RunShape::new(t64, 1, RUN_PROFILE_TINYLLAMA_T32_TRAINED).err().unwrap().contains("ruling CS-7"));
++    let mut edited = t32;
++    edited.d_max += 1;
++    assert!(RunShape::new(edited, 1, RUN_PROFILE_TINYLLAMA_T32_TRAINED).err().unwrap().contains("ruling CS-7"));
++}
++
++// ------------------------------------------------------------------ CS-8
++
++/// **CS-8.** A shape, a layout or an endpoint policy whose fields were
++/// WRITTEN after its constructor is refused by name at the entries.
++#[test]
++fn cs8_written_fields_are_refused_at_the_entries() {
++    let g = Shape::rung_g();
++    g.check_constructed().expect("a constructed shape");
++    let mut w30 = g.clone();
++    w30.norm_wrho = 30;
++    assert!(w30.check_constructed().err().unwrap().contains("ruling CS-8"));
++    let mut q128 = g.clone();
++    q128.opened_cols = 128;
++    assert!(q128.check_constructed().err().unwrap().contains("ruling CS-8"));
++    let (blk, w) = tame(&g);
++    let (expected, owners) = prepare_endpoints(IoSpec::new_shaped(&g, ctx(), 0, 0).unwrap(), &plane(&g, &w, A_X), &plane(&g, &w, A_X2)).unwrap();
++    assert!(super::protocol::prove_inner_at(&w30, &blk, w, &expected, owners).err().unwrap().contains("ruling CS-8"));
++    assert!(verify_bytes_at(&w30, &blk, &expected, &[0u8; 64]).err().unwrap().contains("ruling CS-8"));
++    // a trained shape: a field the door derives, written
++    let mut tc = Shape::rung_tc(&super::trained_calib_tests::rung_tc_calibration()).unwrap();
++    tc.check_constructed().expect("the door's shape");
++    tc.d_max += 1;
++    assert!(tc.check_constructed().err().unwrap().contains("ruling CS-8"));
++    let mut tq = Shape::rung_tc(&super::trained_calib_tests::rung_tc_calibration()).unwrap();
++    tq.sh_qkv = 9;
++    assert!(tq.check_constructed().err().unwrap().contains("ruling CS-8"));
++    // the layout
++    let lay = Layout::for_shape(&g).unwrap();
++    lay.check_is_for_shape(&g).expect("its own layout");
++    let mut swapped = Layout::for_shape(&g).unwrap();
++    swapped.a_off.swap(0, 1);
++    assert!(swapped.check_is_for_shape(&g).err().unwrap().contains("ruling CS-8"));
++    assert!(Layout::for_shape(&Shape::toy()).unwrap().check_is_for_shape(&g).err().unwrap().contains("ruling CS-8"));
++    // the policy's pinned scales
++    let mut spec = IoSpec::new_shaped(&g, ctx(), 0, 0).unwrap();
++    spec.input_scale = 3;
++    assert!(spec.check_for_shape(&g).err().unwrap().contains("ruling CS-8"));
++    assert!(spec.validate().err().unwrap().contains("ruling CS-8"));
++}
++
++// ------------------------------------------------------------------ CS-9
++
++/// **CS-9.** A block profile string names exactly one shape: a registered
++/// string with another geometry is refused by `Shape::new`; every registered
++/// shape (the trained ones included) is one `Shape::new` builds; a value
++/// whose profile was written is refused at the entries; an unregistered
++/// string is refused outside test builds.
++#[test]
++fn cs9_a_block_profile_string_names_exactly_one_shape() {
++    let g = Shape::rung_g();
++    let e = Shape::new(g.name, TOY_PROFILE, g.tokens, g.width, g.hidden, g.q_heads, g.head_dim, g.kv_heads, g.log_cols, g.inv_rate, g.f_e, g.endpoint_rows, Some(g.endpoint_log_n), Some(g.endpoint_inv_rate), Some(g.norm_wrho), Some(g.wrho_s)).err().expect("the toy's string at rung-G's geometry");
++    assert!(e.contains("ruling CS-9"), "{e}");
++    let cal = super::trained_calib_tests::t3_calibration();
++    let registered = [
++        Shape::toy(),
++        Shape::rung(),
++        Shape::rung_g(),
++        Shape::rung_k4(),
++        Shape::rung_p2(),
++        Shape::rung_c6(),
++        Shape::rung_w14(),
++        Shape::rung_e32(),
++        Shape::m125(),
++        Shape::rung_tc(&super::trained_calib_tests::rung_tc_calibration()).unwrap(),
++        Shape::tinyllama_trained(32, &cal, 9).unwrap(),
++        Shape::tinyllama_trained(64, &cal, 12).unwrap(),
++        Shape::tinyllama_trained(128, &cal, 16).unwrap(),
++        super::trained_calib_tests::llama3_8b(),
++    ];
++    for sh in &registered {
++        sh.check_constructed().unwrap_or_else(|e| panic!("{}: {e}", sh.name));
++        // the registry check itself compares a shape BEFORE the trained door
++        // (`Shape::new`); a door-built shape is checked through
++        // `check_constructed`, which rebuilds it through `Shape::new`
++        if !sh.trained_calibration {
++            sh.check_block_profile_as_a_release_build().unwrap_or_else(|e| panic!("{}: {e}", sh.name));
++        }
++    }
++    let mut written = Shape::rung_g();
++    written.profile = TOY_PROFILE;
++    let e = written.check_constructed().err().unwrap();
++    assert!(e.contains("ruling CS-8") && e.contains("ruling CS-9"), "{e}");
++    let probe = Shape::new("probe", "unregistered-probe/1", 32, 16, 16, 2, 8, 1, 8, 8, 9, 7, None, None, None, None).expect("a test build admits an unregistered probe");
++    let e = probe.check_block_profile_as_a_release_build().err().unwrap();
++    assert!(e.contains("ruling CS-9") && e.contains("not a block profile this build registers"), "{e}");
++    // a trained profile string over another geometry
++    let t64 = Shape::tinyllama_trained(64, &cal, 9).unwrap();
++    let e = Shape::new(t64.name, super::shape::TINYLLAMA_T32_TRAINED_PROFILE, t64.tokens, t64.width, t64.hidden, t64.q_heads, t64.head_dim, t64.kv_heads, t64.log_cols, t64.inv_rate, t64.f_e, t64.endpoint_rows, None, None, None, None).err().unwrap();
++    assert!(e.contains("ruling CS-9"), "{e}");
++    let _ = NormCalibration::FROZEN;
++}
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/hash_tag_tests.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/hash_tag_tests.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/hash_tag_tests.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/hash_tag_tests.rs	2026-10-17 07:31:37.791079580 -0700
+@@ -131,12 +131,22 @@
+ /// `zkp-core`.
+ #[test]
+ fn a_rung_g_proof_is_refused_under_the_other_hash_rule_in_both_directions() {
++    // STAGE 41 (ruling CS-4, ported in native round 5): an endpoint policy's
++    // spec carries the hash tag it was made under, and every verifier entry
++    // now refuses a spec whose tag is not its own shape's BY NAME, before
++    // anything is hashed. So that this test still reaches the hashing layer it
++    // exists to exercise, each verifier is handed the policy of ITS OWN rule
++    // over the same two roots (the absorbed policy bytes are identical: the
++    // tag is not in them), and the refusal is asserted not to be CS-4's.
++    let own_policy = |e: &ExpectedIo| ExpectedIo::from_roots(IoSpec::new_shaped(&Shape::rung_g(), ctx(), 0, 0).expect("the rung-G endpoint spec"), e.input_root(), e.output_root());
+     // (1) proved TAGGED, verified under the LEGACY rule
+     let (sh, blk, expected, receipt) = rung_g_proof();
+     verify_inner_at(&sh, &blk, &expected, &receipt).expect("the tagged rung-G proof verifies under its own tag");
+     let e1 = {
+         let _g = ForcedLegacy::on();
+-        verify_inner_at(&sh, &blk, &expected, &receipt).expect_err("a TAGGED rung-G proof verified under the LEGACY rule")
++        let legacy_policy = own_policy(&expected);
++        assert_eq!(legacy_policy.to_bytes(), expected.to_bytes(), "the policy bytes carry the hash rule");
++        verify_inner_at(&sh, &blk, &legacy_policy, &receipt).expect_err("a TAGGED rung-G proof verified under the LEGACY rule")
+     };
+     // (2) proved under the LEGACY rule, verified TAGGED
+     let (sh2, blk2, expected2, receipt2) = {
+@@ -145,9 +155,17 @@
+         verify_inner_at(&made.0, &made.1, &made.2, &made.3).expect("the legacy-rule rung-G proof verifies under the legacy rule");
+         made
+     };
+-    let e2 = verify_inner_at(&sh2, &blk2, &expected2, &receipt2).expect_err("a LEGACY-rule rung-G proof verified under the TAG");
++    let e2 = verify_inner_at(&sh2, &blk2, &own_policy(&expected2), &receipt2).expect_err("a LEGACY-rule rung-G proof verified under the TAG");
+     eprintln!("STAGE 17 cross-rule refusals at rung-G:\n  tagged proof, legacy verifier: {e1}\n  legacy proof, tagged verifier: {e2}");
+     assert!(!e1.is_empty() && !e2.is_empty());
++    assert!(!e1.contains("ruling CS-4") && !e2.contains("ruling CS-4"), "the cross-rule refusal stopped at the policy check, not the hashing layer");
++    // and the policy of the OTHER rule is refused by ruling CS-4's name,
++    // before anything is hashed
++    let e3 = {
++        let _g = ForcedLegacy::on();
++        verify_inner_at(&sh, &blk, &expected, &receipt).expect_err("a TAGGED policy verified under the LEGACY rule")
++    };
++    assert!(e3.starts_with("private block: ruling CS-4 — the endpoint policy does not fit the shape it is proved at: its hash tag"), "the tagged policy under the legacy rule: {e3}");
+     // and the toy, which is never tagged, is untouched by either direction
+     assert!(Shape::toy().hash_tag().is_legacy(), "the toy must never be tagged");
+ }
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/layout.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/layout.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/layout.rs	2026-10-17 03:20:15.170881010 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/layout.rs	2026-10-17 06:37:47.114131670 -0700
+@@ -1061,6 +1061,40 @@
+         lay
+     }
+ 
++    /// **RULING CS-8 (ported from the 125M lane's stage 43): is this the
++    /// layout [`Layout::for_shape`] derives for `sh`?** The ten row fields
++    /// are `pub`; `protocol::prove_core` and `protocol::verify_core` take a
++    /// layout from their CALLER. Refused, by name: a layout built for another
++    /// shape, and a layout whose row fields are not the ones
++    /// `Layout::for_shape(sh)` derives. Absorbs nothing, draws nothing.
++    pub(crate) fn check_is_for_shape(&self, sh: &super::shape::Shape) -> Result<(), String> {
++        const CS8_LAYOUT: &str = "private block: ruling CS-8 — the layout is not the one Layout::for_shape derives for the shape it is proved at";
++        if self.sh != *sh {
++            return Err(format!("{CS8_LAYOUT}: it was built for the shape {:?} ({}), the shape handed is {:?} ({})", self.sh.name, self.sh.profile, sh.name, sh.profile));
++        }
++        let fresh = Layout::for_shape(sh)?;
++        let differ: Vec<&str> = [
++            ("a_off", fresh.a_off != self.a_off),
++            ("a_data_rows", fresh.a_data_rows != self.a_data_rows),
++            ("a_mask_base", fresh.a_mask_base != self.a_mask_base),
++            ("a_prox", fresh.a_prox != self.a_prox),
++            ("a_rows", fresh.a_rows != self.a_rows),
++            ("h_off", fresh.h_off != self.h_off),
++            ("h_data_rows", fresh.h_data_rows != self.h_data_rows),
++            ("h_mask_base", fresh.h_mask_base != self.h_mask_base),
++            ("h_prox", fresh.h_prox != self.h_prox),
++            ("h_rows", fresh.h_rows != self.h_rows),
++        ]
++        .iter()
++        .filter(|(_, d)| *d)
++        .map(|(n, _)| *n)
++        .collect();
++        if !differ.is_empty() {
++            return Err(format!("{CS8_LAYOUT}: its {} differ from what Layout::for_shape derives", differ.join(", ")));
++        }
++        Ok(())
++    }
++
+     /// **STEP B: the same row geometry at ANY shape.** The toy is one
+     /// instance of it ([`Layout::new`], which adds the frozen assertions),
+     /// and a new shape is a NEW profile beside it (D17) — nothing here edits
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/mvp_driver.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/mvp_driver.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/mvp_driver.rs	2026-09-29 17:15:15.795468662 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/mvp_driver.rs	2026-10-17 07:09:21.567280969 -0700
+@@ -366,12 +366,12 @@
+ fn render_policy(p: &Policy) -> Result<String, String> {
+     let sh = p.kind.shape();
+     let rs = p.kind.run_shape(p.blocks)?;
+-    let ctx = context_of(&p.label, rs.profile, p.recipe.name(), p.blocks);
++    let ctx = context_of(&p.label, rs.profile(), p.recipe.name(), p.blocks);
+     let values: [String; 20] = [
+         SCOPE.to_string(),
+         p.kind.name().to_string(),
+         sh.profile.to_string(),
+-        rs.profile.to_string(),
++        rs.profile().to_string(),
+         p.blocks.to_string(),
+         sh.tokens.to_string(),
+         sh.width.to_string(),
+@@ -463,7 +463,7 @@
+     }
+     let sh = p.kind.shape();
+     let rs = p.kind.run_shape(p.blocks)?;
+-    let ctx = context_of(&p.label, rs.profile, p.recipe.name(), p.blocks);
++    let ctx = context_of(&p.label, rs.profile(), p.recipe.name(), p.blocks);
+     let spec = IoSpec::new_shaped(&sh, ctx, super::ENDPOINT_SCALES.0, super::ENDPOINT_SCALES.1)?;
+     let expected = ExpectedIo::from_roots(spec, p.in_root, p.out_root);
+     let st = RunStatement::new(rs, ctx, expected, &blocks, &vec![super::ENDPOINT_SCALES; p.blocks])?;
+@@ -890,7 +890,7 @@
+     let blocks = build_model(a.kind, a.recipe, l).map_err(|e| ("model_setup", e))?;
+     let model_root = model_root_of(&blocks);
+     let rs = a.kind.run_shape(l).map_err(|e| ("model_setup", e))?;
+-    let run_profile = rs.profile;
++    let run_profile = rs.profile();
+     let ctx = context_of(&a.label, run_profile, a.recipe.name(), l);
+     phase(at, "model_setup", t.elapsed().as_secs_f64());
+ 
+@@ -1117,7 +1117,7 @@
+     let policy_sha = run_sink::digest_hex(&bytes);
+     let p = parse_policy(&bytes)?;
+     let rs = p.kind.run_shape(p.blocks)?;
+-    pin_check(f, &p, &policy_sha, rs.profile)?;
++    pin_check(f, &p, &policy_sha, rs.profile())?;
+     phases.push(("policy_load", t.elapsed().as_secs_f64()));
+ 
+     let t = Instant::now();
+@@ -1144,7 +1144,7 @@
+         kind: p.kind,
+         blocks: p.blocks,
+         recipe: p.recipe,
+-        run_profile: rs.profile,
++        run_profile: rs.profile(),
+         block_profile: p.kind.shape().profile,
+         receipt_bytes: segs.iter().map(|s| s.1).sum(),
+         phases,
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/norm_alias.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/norm_alias.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/norm_alias.rs	2026-10-17 01:46:17.585956582 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/norm_alias.rs	2026-10-17 07:31:18.536518007 -0700
+@@ -97,7 +97,11 @@
+     edit(&blk, &mut w);
+     let output = w.output().unwrap_or(honest);
+     let (expected, owners) = prepare_endpoints(spec(), &input, &output).unwrap();
+-    // the prover pre-checks no relation: a false witness still yields a receipt
++    // a CHEATING prover pre-checks no relation: a false witness still yields a
++    // receipt (since stage 40, ruling CS-3 — ported in native round 5 — the
++    // honest prover refuses a lookup miss by name; the switch turns that off,
++    // as a cheater would)
++    let _cheating = super::protocol::CheatingProver::on();
+     let (receipt, _) = prove_inner(&blk, w, &expected, owners)?;
+     verify_inner(&blk, &expected, &receipt).map(|_| ())
+ }
+@@ -576,7 +580,11 @@
+     let _ = ids;
+     // ROUND 2 (R2-4): a trained-calibration block proves only inside a run
+     // bound to its statement, so the alias is proved and verified that way
++    // NATIVE ROUND 5 (ruling CS-3): proved as a CHEATING prover would, with
++    // the honest prover's lookup-miss refusal off, so the verifier has to speak
++    let cheating = super::protocol::CheatingProver::on();
+     let b = super::trained_calib_tests::prove_one_bound(sh, blk, w)?;
++    drop(cheating);
+     super::trained_calib_tests::verify_one_bound(sh, blk, &b.expected.to_bytes(), &b.seg)
+ }
+ 
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/protocol.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/protocol.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/protocol.rs	2026-10-17 03:20:15.171714462 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/protocol.rs	2026-10-17 07:13:26.689336102 -0700
+@@ -414,6 +414,77 @@
+ /// outside the table counts into entry 0, exactly as before: only the LogUp
+ /// identity can catch it.) `lookup_words` is the PUBLIC word count of the
+ /// shape, which is what chooses the branch — never a witness value.
++/// **RULING CS-3** (ported from the 125M lane, stage 40). How many looked
++/// words are outside the byte table — the words [`byte_histogram_at`] files
++/// in entry 0. A count of public-length columns, parallel above the same
++/// public threshold as the histogram.
++fn u8_misses_of(looked: &[(Dom, Vec<Vec<i64>>)], lookup_words: u64) -> usize {
++    let miss = |c: &Vec<i64>| c.iter().filter(|v| !(0..U8_LEN as i64).contains(*v)).count();
++    if lookup_words >= HISTOGRAM_PAR_MIN {
++        use rayon::prelude::*;
++        let cols: Vec<&Vec<i64>> = looked.iter().flat_map(|(_, cols)| cols.iter()).collect();
++        return cols.par_iter().map(|c| miss(c)).sum();
++    }
++    looked.iter().flat_map(|(_, cols)| cols.iter()).map(miss).sum()
++}
++
++/// **RULING CS-3's name.**
++pub(super) const LOOKUP_MISS_REFUSAL: &str = "private block: ruling CS-3 — the witness looks up a value that is not a row of its table";
++
++/// **RULING CS-3: the ONE refusal of a lookup miss** (text per errata K-1
++/// and K-2: what precedes the refusal, and the CLASS of the miss only, never
++/// a count). A CHEATING prover does not run this check, and the soundness
++/// tests play one: under `#[cfg(test)]` a thread-local switch
++/// ([`CheatingProver`]) makes it return `Ok`. A release build has no switch.
++fn refuse_lookup_misses(u8: usize, exp: usize, act: usize) -> Result<(), String> {
++    #[cfg(test)]
++    if CHEATING_PROVER.with(|c| c.get()) {
++        return Ok(());
++    }
++    if u8 + exp + act == 0 {
++        return Ok(());
++    }
++    let families: Vec<&str> = [(u8, "the byte table"), (exp, "the exp table"), (act, "the activation table")].iter().filter(|(n, _)| *n > 0).map(|(_, f)| *f).collect();
++    Err(format!(
++        "{LOOKUP_MISS_REFUSAL}; the table family that missed: {} (the class of the miss only, never a count — ruling K-2). It is refused before this block's A mask rows are drawn, its A commitment is made or any challenge of it is drawn. What precedes the refusal: in a single block, the transcript header's absorbs; inside a run, the run header, every earlier stage, this stage's header absorbs and, below the last block, the boundary B_k to the next block, drawn from the run's stream, committed and absorbed (ruling M-9).",
++        families.join(", ")
++    ))
++}
++
++// **RULING CS-3's test-only switch: the soundness tests' CHEATING PROVER.**
++#[cfg(test)]
++thread_local! {
++    static CHEATING_PROVER: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
++}
++
++/// While alive, this thread's prover skips ruling CS-3's refusal, and the run
++/// prover ruling CS-6's comparison of the blocks it is handed with the ones
++/// its statement names (test only).
++#[cfg(test)]
++pub(crate) struct CheatingProver {
++    was: bool,
++}
++
++/// Whether a [`CheatingProver`] guard lives on this thread (test only).
++#[cfg(test)]
++pub(crate) fn cheating_prover_is_on() -> bool {
++    CHEATING_PROVER.with(|c| c.get())
++}
++
++#[cfg(test)]
++impl CheatingProver {
++    pub(crate) fn on() -> CheatingProver {
++        CheatingProver { was: CHEATING_PROVER.with(|c| c.replace(true)) }
++    }
++}
++
++#[cfg(test)]
++impl Drop for CheatingProver {
++    fn drop(&mut self) {
++        CHEATING_PROVER.with(|c| c.set(self.was));
++    }
++}
++
+ pub(super) fn byte_histogram_at(looked: &[(Dom, Vec<Vec<i64>>)], lookup_words: u64, par_min: u64) -> Vec<u64> {
+     let bin = |v: &i64| -> usize {
+         if (0..U8_LEN as i64).contains(v) {
+@@ -696,8 +767,16 @@
+     let mut tick = Instant::now();
+     let mut ph = timing::Phases::start();
+     let mut phases: Vec<(&'static str, f64)> = Vec::new();
++    // RULING CS-8: the shape is one `Shape::new` builds, before anything is
++    // derived from it
++    sh.check_constructed()?;
+     fits_the_ntt_tables(sh)?;
+     let lay = Layout::for_shape(sh)?;
++    // RULINGS CS-1 and CS-4: the block statement and the endpoint policy,
++    // before the endpoint owners are opened, the randomness is seeded or the
++    // transcript header is absorbed
++    blk.check_for_shape(sh)?;
++    expected.spec.check_for_shape(sh)?;
+     let [ein, eout] = check_endpoints(sh, expected, endpoints)?;
+     // ONE OS stream per attempt; entropy failure aborts before anything public exists.
+     //
+@@ -809,6 +888,14 @@
+     tick: &mut std::time::Instant,
+ ) -> Result<CoreProof, String> {
+     let (public, ff) = (blk.attention(), blk.feed_forward());
++    // RULING CS-8, in the body every proving path shares: the shape is one
++    // `Shape::new` builds and the layout the CALLER hands is the one
++    // `Layout::for_shape` derives for it — nothing drawn, absorbed or
++    // committed for this block yet
++    sh.check_constructed()?;
++    lay.check_is_for_shape(sh)?;
++    // RULINGS CS-1 and CS-4, in the body every proving path shares
++    blk.check_for_shape(sh)?;
+     let (ids, hids, n) = (lay.ids(), lay.hids(), lay.n());
+     // every plane but the three derived histograms
+     let committed: Vec<usize> = lay.a_planes().into_iter().filter(|p| !ids.is_multiplicity(*p)).collect();
+@@ -825,7 +912,7 @@
+             a_data[lay.a_off[*p] + i] = Fp::from_i64(*v);
+         }
+     }
+-    ph.mark(Half::Commit, "A: allocate + witness planes -> committed rows", (lay.a_rows * n) as u64, "words");
++    ph.mark_bytes(Half::Commit, "A: allocate + witness planes -> committed rows", (lay.a_rows * n) as u64, "words", 8 * (lay.a_rows * n) as u64);
+     // The three histograms are indexed by a TABLE ENTRY, so they are `U8_LEN`
+     // long and their in-class guards test `[0, U8_LEN)` — never the row width
+     // `N` (trap T-1). The two guards that index `public.exp` (256 words) and
+@@ -839,16 +926,26 @@
+     ph.mark(Half::Commit, "A: lookup values + the byte histogram", lookup_words, "words");
+     let deltas = exp_deltas(&lay, &wit);
+     let mut m_exp = vec![0u64; U8_LEN];
++    let mut exp_missed = 0usize;
+     for (x, d) in deltas.iter().enumerate() {
+         let hit = (0..U8_LEN as i64).contains(d) && public.exp[*d as usize] == wit.planes[ids.at(A_E)][x];
++        exp_missed += usize::from(!hit);
+         m_exp[if hit { *d as usize } else { 0 }] += 1;
+     }
+     let act_idx = act_indices(&lay, &wit);
+     let mut m_act = vec![0u64; U8_LEN];
++    let mut act_missed = 0usize;
+     for (x, i) in act_idx.iter().enumerate() {
+         let hit = (0..U8_LEN as i64).contains(i) && i64::from(ff.act[*i as usize]) == wit.planes[ids.at(A_A16)][x];
++        act_missed += usize::from(!hit);
+         m_act[if hit { *i as usize } else { 0 }] += 1;
+     }
++    // RULING CS-3 (ported from the 125M lane's stage 40, text per errata
++    // K-1 / K-2 of its stage 44): the three bucket-0 paths above are ONE
++    // named refusal HERE — after the three histograms, from values this
++    // function already holds, and BEFORE the first draw of the `A` mask rows,
++    // the `A` commitment and any absorb or challenge of this block's body.
++    refuse_lookup_misses(u8_misses_of(&looked, lookup_words), exp_missed, act_missed)?;
+     for i in 0..U8_LEN {
+         a_data[lay.a_off[ids.at(A_MU8)] + i] = Fp::new(m_u8[i]);
+         a_data[lay.a_off[ids.at(A_MEXP)] + i] = Fp::new(m_exp[i]);
+@@ -887,7 +984,9 @@
+     // STAGE 11: row encoding and column hashing are NOT separable here. Both
+     // live inside `pcs::commit_zk_owned`, which is `hashline/src/pcs.rs` — a
+     // file this lane does not edit — so the enclosing call is one phase.
+-    ph.mark(Half::Commit, "A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call)", lay.a_rows as u64, "rows");
++    // ROUND 5: counted in committed WORDS (rows x row width), and the bytes
++    // of the encoded matrix the Merkle tree hashes (x the code rate)
++    ph.mark_bytes(Half::Commit, "A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call)", (lay.a_rows * n) as u64, "words", 8 * (lay.a_rows * n * sh.inv_rate) as u64);
+     lap(phases, tick, "witness planes + commit A");
+ 
+     // ---- M: all twenty-three CFS masks, committed before any challenge ----
+@@ -928,12 +1027,12 @@
+             write_h(&mut h_data, lay.h_off[first + k], &col);
+         }
+     }
+-    ph.mark(Half::Commit, "H: LogUp helper inverses (six lookup domains)", lookup_words, "words");
++    ph.mark_bytes(Half::Commit, "H: LogUp helper inverses (six lookup domains)", lookup_words, "words", 16 * lookup_words);
+     let exp_den = deltas.iter().zip(wit.planes[ids.at(A_E)].iter()).map(|(d, e)| alpha.sub(Fp2::from_i64(*d).add(beta.mul(Fp2::from_i64(*e))).add(g_exp))).collect();
+     write_h(&mut h_data, lay.h_off[hids.sexp()], &inverses(exp_den)?);
+     let act_den = act_idx.iter().zip(wit.planes[ids.at(A_A16)].iter()).map(|(i, a)| alpha.sub(Fp2::from_i64(*i).add(beta.mul(Fp2::from_i64(*a))).add(g_act))).collect();
+     write_h(&mut h_data, lay.h_off[hids.fact()], &inverses(act_den)?);
+-    ph.mark(Half::Commit, "H: exp + activation helper inverses", (sh.size(Dom::S) + sh.size(Dom::F)) as u64, "words");
++    ph.mark_bytes(Half::Commit, "H: exp + activation helper inverses", (sh.size(Dom::S) + sh.size(Dom::F)) as u64, "words", 16 * (sh.size(Dom::S) + sh.size(Dom::F)) as u64);
+     // ---- STEP S2 (C-11): the prover's four transient buffers die HERE ----
+     // The two lines above are the LAST reads of the witness planes and of
+     // `looked`; the memo's earlier proposal to drop them at the histogram loop
+@@ -1003,7 +1102,7 @@
+     h.prox_mask_row = Some(lay.h_prox);
+     let h_root = h.commitment().root;
+     absorb_root(tr, b"H", &h_root, lay.h_rows, sh.log_cols);
+-    ph.mark(Half::Commit, "H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call)", lay.h_rows as u64, "rows");
++    ph.mark_bytes(Half::Commit, "H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call)", (lay.h_rows * n) as u64, "words", 8 * (lay.h_rows * n * sh.inv_rate) as u64);
+     lap(phases, tick, "LogUp helpers + commit H");
+ 
+     // ---- the twenty-three slots ----
+@@ -1026,11 +1125,14 @@
+     check_opening(&ac, sh.log_cols, lay.a_rows, &lay.a_site_rows(), None, lay.a_prox, sh.a_groups(), tr)?;
+     let a_open = pcs::open_zk(&a, &ac, tr);
+     drop(a);
+-    ph.mark(Half::Open, "open A (schedule audit + pcs::open_zk)", ac.len() as u64, "claims");
++    // ROUND 5: counted as the committed words the opening combines
++    ph.mark_bytes(Half::Open, "open A (schedule audit + pcs::open_zk)", (lay.a_rows * lay.n()) as u64, "words", 8 * (lay.a_rows * lay.n()) as u64);
++    let _ = ac.len();
+     check_opening(&hc, sh.log_cols, lay.h_rows, &lay.h_site_rows(), Some(lay.h_u_rows()), lay.h_prox, sh.h_groups(), tr)?;
+     let h_open = pcs::open_zk(&h, &hc, tr);
+     drop(h);
+-    ph.mark(Half::Open, "open H (schedule audit + pcs::open_zk)", hc.len() as u64, "claims");
++    ph.mark_bytes(Half::Open, "open H (schedule audit + pcs::open_zk)", (lay.h_rows * lay.n()) as u64, "words", 8 * (lay.h_rows * lay.n()) as u64);
++    let _ = hc.len();
+     Ok(CoreProof {
+         a_root,
+         h_root,
+@@ -1071,6 +1173,12 @@
+ /// pending boundary claim into stage `k + 1` without trusting a segment.
+ pub(crate) fn verify_core(sh: &Shape, lay: &Layout, blk: &BlockPublic, v: CoreView, ntt: &NttTables, tr: &mut Transcript, ph: &mut timing::Phases) -> Result<([Vec<ZClaim>; 2], Vec<String>), String> {
+     let (public, ff) = (blk.attention(), blk.feed_forward());
++    // RULING CS-8, in the body every verifying path shares: the shape and
++    // the layout the CALLER hands, before anything is absorbed or squeezed
++    sh.check_constructed()?;
++    lay.check_is_for_shape(sh)?;
++    // RULINGS CS-1 and CS-4, in the body every verifying path shares
++    blk.check_for_shape(sh)?;
+     let params = pcs_params_at(sh);
+     let zko = ZkOpts::standard(&params);
+     // STAGE 17 (ruling T-7): the tag is the VERIFIER's, from the shape its
+@@ -1192,8 +1300,14 @@
+     #[cfg(test)]
+     super::capture::begin();
+     let mut ph = timing::Phases::start();
++    // RULING CS-8: the shape the caller trusts is one `Shape::new` builds
++    sh.check_constructed()?;
+     fits_the_ntt_tables(sh)?;
+     let lay = Layout::for_shape(sh)?;
++    // RULINGS CS-1 and CS-4: the block statement and the endpoint policy,
++    // before the receipt is looked at or the header absorbed
++    blk.check_for_shape(sh)?;
++    expected.spec.check_for_shape(sh)?;
+     // **STAGE 16, ruling T-4**, before the frame shape check so that the
+     // refusal a caller sees names the commitment and the two path lengths
+     // rather than being the generic "opening shape". The five commitments of
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/review_d24_tests.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/review_d24_tests.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/review_d24_tests.rs	2026-10-17 03:38:14.483903045 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/review_d24_tests.rs	2026-10-17 07:10:51.852299704 -0700
+@@ -175,9 +175,11 @@
+     let expected = ExpectedIo::from_roots(IoSpec::new_shaped(&sh, ctx, 0, 0).unwrap(), [1; 32], [2; 32]);
+     let e = super::run::RunStatement::new(super::run::RunShape::rung_tc(sh.clone(), 1).unwrap(), ctx, expected.clone(), &[blk.clone()], &[(0, 0)]).err().expect("an unbound run at the trained rung CONSTRUCTED");
+     assert!(e.contains("new_bound"), "{e}");
+-    // and under any run profile string at all: the shape's flag decides
+-    let e = super::run::RunStatement::new(super::run::RunShape::new(sh, 1, super::run::RUN_PROFILE_RUNG_C6).unwrap(), ctx, expected, &[blk], &[(0, 0)]).err().expect("a trained shape under a frozen run profile string CONSTRUCTED");
+-    assert!(e.contains("new_bound"), "{e}");
++    // and under another run profile string: since round 5 ruling CS-7
++    // refuses the pairing itself (rung-C6's run profile names rung-C6)
++    let e = super::run::RunShape::new(sh, 1, super::run::RUN_PROFILE_RUNG_C6).err().expect("a trained shape under a frozen run profile string CONSTRUCTED");
++    assert!(e.contains("ruling CS-7"), "{e}");
++    let _ = (expected, blk);
+     eprintln!("REVIEW-B (fixed): {e}");
+ }
+ 
+@@ -344,7 +346,8 @@
+     let fw = fw.expect("the forged witness builds at the edited shape");
+     assert_eq!(n, 1, "the wrapping forgery was not applied at f_e 50");
+     let e = prove_one_bound(&sh, &blk, fw).err().expect("a bound run PROVED at a shape edited to f_e 50");
+-    assert!(e.contains("f_e 50") && e.contains("F-1"), "{e}");
++    // (since round 5 ruling CS-7 refuses the edited shape's run shape first)
++    assert!((e.contains("f_e 50") && e.contains("F-1")) || e.contains("ruling CS-7"), "{e}");
+     let ex = ExpectedIo::from_roots(IoSpec::new_shaped(&honest, *blake3::hash(b"r").as_bytes(), 0, 0).unwrap(), [1; 32], [2; 32]);
+     let e2 = verify_one_bound(&sh, &blk, &ex.to_bytes(), &[0u8; 64]).err().expect("a verifier at a shape edited to f_e 50 got past its statement");
+     eprintln!("REVIEW-E (fixed) the wrapping forgery at an edited f_e-50 shape: prover refused: {}; verifier refused: {}", e.chars().take(120).collect::<String>(), e2.chars().take(120).collect::<String>());
+@@ -467,13 +470,24 @@
+ #[test]
+ fn review_r2_1_a_non_door_shape_under_a_trained_profile_string_is_refused() {
+     use super::shape::TRAINED_CALIB_RUNG_PROFILE;
+-    let sh = Shape::new("re-review r2_1: non-door shape under the trained rung string", TRAINED_CALIB_RUNG_PROFILE, 32, 384, 512, 12, 32, 4, 10, 4, 50, 21, None, None, None, None).expect("Shape::new constructs");
++    // ROUND 5: ruling CS-9 refuses the reviewer's construction itself (the
++    // trained rung's profile string names one geometry, at f_e 12)
++    let e = Shape::new("re-review r2_1: non-door shape under the trained rung string", TRAINED_CALIB_RUNG_PROFILE, 32, 384, 512, 12, 32, 4, 10, 4, 50, 21, None, None, None, None).expect_err("Shape::new CONSTRUCTED a non-door shape under a trained profile string");
++    assert!(e.contains("ruling CS-9"), "{e}");
++    // the same value reached by a FIELD WRITE (rung-C6, rung-TC's frozen
++    // twin, with the trained rung's profile string and f_e 50 written)
++    let mut sh = Shape::rung_c6();
++    sh.profile = TRAINED_CALIB_RUNG_PROFILE;
++    sh.f_e = 50;
++    sh.wrho_s = 55;
+     assert!(!sh.trained_calibration && sh.norm_calibration() == NormCalibration::FROZEN && sh.f_e == 50);
++    assert!(sh.check_constructed().unwrap_err().contains("ruling CS-8"), "CS-8 / CS-9 at the entries");
+     let e = Layout::for_shape(&sh).err().expect("Layout::for_shape ACCEPTED a non-door shape under a trained profile string");
+     eprintln!("REVIEW-R2-1 (fixed) Layout::for_shape: {e}");
+     assert!(super::protocol::single_block_profile_allowed(&sh).is_err(), "the single-block path admitted a trained profile string");
+     // the same string at an admissible f_e is still refused: the STRING decides
+-    let sh12 = Shape::new("re-review r2_1 at f_e 12", TRAINED_CALIB_RUNG_PROFILE, 32, 384, 512, 12, 32, 4, 10, 4, 12, 21, None, None, None, None).unwrap();
++    let mut sh12 = Shape::rung_c6();
++    sh12.profile = TRAINED_CALIB_RUNG_PROFILE;
+     assert!(Layout::for_shape(&sh12).err().expect("the non-door string at f_e 12 was accepted").contains("did not come through the trained door"));
+     // the forgery itself: the forged witness builds, the single-block prover
+     // and verifier refuse before any transcript
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/review_tests.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/review_tests.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/review_tests.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/review_tests.rs	2026-10-17 07:31:37.790662061 -0700
+@@ -81,6 +81,14 @@
+ }
+ 
+ pub(super) fn outcome(sh: &Shape, blk: &BlockPublic, w: Witness) -> Outcome {
++    // STAGE 40 (ported, native round 5), ruling CS-3: the honest prover now
++    // refuses a lookup miss by name before its `A` commitment. This harness
++    // stands in for a CHEATING prover, which does not run that check, so it
++    // proves with the check off (the `#[cfg(test)]` switch) and the verifier
++    // still has to speak. Ruling CS-1 (the statement against the shape) is
++    // NOT switched off: that is a property of the public statement, which
++    // the verifier checks too.
++    let _cheating = super::protocol::CheatingProver::on();
+     match prove_rung(sh, blk, w) {
+         Err(e) => Outcome::ProverRefused(e),
+         Ok((expected, bytes)) => match verify_bytes_at(sh, blk, &expected, &bytes) {
+@@ -651,7 +659,14 @@
+     };
+     let err = head_layout(5, 1).expect_err("a shape whose Dom::Kv is P-3 lifted must be refused at construction");
+     assert_eq!(err, "private block shape: the bilinear attention slots cannot serve a shape whose Kv domain is lifted by P-3 (natural log 9, lifted to the row width 10)");
+-    let other = head_layout(8, 2).expect("well formed");
++    // STAGE 44 (ported, native round 5), ruling CS-9: `Shape::new` now
++    // refuses the rung's profile string at any shape but the rung's own, by
++    // name — this probe among them — so the same value is reached by a
++    // test-side field write of the rung (a value no constructor returns), and
++    // the verifier must still refuse the rung's receipt under it
++    let refused = head_layout(8, 2).expect_err("ruling CS-9 refuses the rung's profile string at another head layout");
++    assert!(refused.starts_with("private block shape: ruling CS-9 — "), "the rung's profile string at an 8-head / 2-KV layout was not refused by CS-9's name: {refused}");
++    let other = Shape { name: "the rung's padded geometry with a different head layout", q_heads: 8, kv_heads: 2, ..sh.clone() };
+     assert_eq!((other.t_pad, other.d_pad, other.h_pad, other.f_pad), (sh.t_pad, sh.d_pad, sh.h_pad, sh.f_pad), "the two shapes must share every padded size");
+     let r = verify_bytes_at(&other, &blk, &expected, &bytes);
+     eprintln!("SHAPE: the rung frame under an 8-head / 2-KV verifier of the same padded sizes: {r:?}");
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/run.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/run.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/run.rs	2026-10-17 05:15:39.715875697 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/run.rs	2026-10-17 11:39:48.885503220 -0700
+@@ -94,20 +94,76 @@
+ /// One run's geometry: the per-block shape, how many blocks, and the run's own
+ /// profile id. A run is a NEW profile under D17 — its own transcript, its own
+ /// digests — so no byte of any single-block profile moves.
++///
++/// **RULING CS-8 (ported from the 125M lane's stage 43): the three fields
++/// are PRIVATE**; [`RunShape::new`] (ruling CS-7) is the only way in, and
++/// [`RunShape::sh`], [`RunShape::l`], [`RunShape::profile`] read them.
+ #[derive(Clone, Debug)]
+ pub(crate) struct RunShape {
+-    pub sh: Shape,
+-    pub l: usize,
+-    pub profile: &'static str,
++    sh: Shape,
++    l: usize,
++    profile: &'static str,
++}
++
++/// **RULING CS-7 (ported from the 125M lane's stage 42): THE RUN PROFILE
++/// REGISTRY** — the one block shape each registered run profile names. The
++/// frozen profiles name one shape VALUE; NATIVE LANE: a trained-calibration
++/// run profile names its geometry under ANY admitted calibration, so its
++/// registered shape is rebuilt through the trained door at the handed
++/// shape's own calibration and `f_e` (and must then be equal, every field).
++/// `None` for a run profile this build does not register.
++fn registered_block_shape(profile: &str, sh: &Shape) -> Option<Result<Shape, String>> {
++    let cal = sh.norm_calibration();
++    Some(match profile {
++        RUN_PROFILE_RUNG_G => Ok(Shape::rung_g()),
++        RUN_PROFILE_RUNG_K4 => Ok(Shape::rung_k4()),
++        RUN_PROFILE_RUNG_P2 => Ok(Shape::rung_p2()),
++        RUN_PROFILE_RUNG_C6 => Ok(Shape::rung_c6()),
++        RUN_PROFILE_RUNG_W14 => Ok(Shape::rung_w14()),
++        RUN_PROFILE_RUNG_E32 => Ok(Shape::rung_e32()),
++        RUN_PROFILE_M125 => Ok(Shape::m125()),
++        RUN_PROFILE_RUNG_TC => Shape::rung_tc(&cal),
++        RUN_PROFILE_TINYLLAMA_T32_TRAINED => Shape::tinyllama_trained(32, &cal, sh.f_e),
++        RUN_PROFILE_TINYLLAMA_T64_TRAINED => Shape::tinyllama_trained(64, &cal, sh.f_e),
++        RUN_PROFILE_TINYLLAMA_T128_TRAINED => Shape::tinyllama_trained(128, &cal, sh.f_e),
++        RUN_PROFILE_LLAMA3_8B_T32_TRAINED => Shape::llama3_8b_t32_trained(&cal, sh.f_e),
++        #[cfg(test)]
++        RUN_PROFILE_TINYLLAMA_T32_DEV => Ok(Shape::tinyllama_t32_dev()),
++        _ => return None,
++    })
+ }
+ 
+ impl RunShape {
++    /// **RULING CS-7 (finding S41-N1 of the 125M lane).** A run profile names
++    /// exactly one block shape: it is admitted only over the shape it is
++    /// registered for, compared field by field, and a profile this build does
++    /// not register is refused. `L = 0` keeps its own refusal, first.
+     pub(crate) fn new(sh: Shape, l: usize, profile: &'static str) -> Result<RunShape, String> {
+         if l == 0 {
+             return Err("private run: a run has at least one block".into());
+         }
++        match registered_block_shape(profile, &sh) {
++            None => return Err(format!("private run: ruling CS-7 — {profile:?} is not a run profile this build registers, so it names no block shape ({:?} was given)", sh.name)),
++            Some(Err(e)) => return Err(format!("private run: ruling CS-7 — the run profile {profile:?} names a block shape the given {:?} ({}) is not: {e}", sh.name, sh.profile)),
++            Some(Ok(reg)) if reg != sh => {
++                return Err(format!("private run: ruling CS-7 — the run profile {profile:?} is registered for the block shape {:?} ({}), not for {:?} ({})", reg.name, reg.profile, sh.name, sh.profile));
++            }
++            Some(Ok(_)) => {}
++        }
+         Ok(RunShape { sh, l, profile })
+     }
++    /// the per-block shape (ruling CS-8: read-only outside this module)
++    pub(crate) fn sh(&self) -> &Shape {
++        &self.sh
++    }
++    /// how many blocks (ruling CS-8: read-only outside this module)
++    pub(crate) fn l(&self) -> usize {
++        self.l
++    }
++    /// the run's own profile id (ruling CS-8: read-only outside this module)
++    pub(crate) fn profile(&self) -> &'static str {
++        self.profile
++    }
+     pub(crate) fn rung_g(l: usize) -> Result<RunShape, String> {
+         RunShape::new(Shape::rung_g(), l, RUN_PROFILE_RUNG_G)
+     }
+@@ -191,7 +247,8 @@
+ /// and the calibration identity. The `L - 1` boundary ROOTS are deliberately
+ /// NOT here — an internal boundary is a hidden intermediate, not an endpoint.
+ pub(crate) struct RunStatement {
+-    pub rs: RunShape,
++    /// RULING CS-8: private; [`RunStatement::rs`] reads it
++    rs: RunShape,
+     expected: ExpectedIo,
+     block_digests: Vec<Digest>,
+     context: Digest,
+@@ -203,6 +260,10 @@
+ }
+ 
+ impl RunStatement {
++    /// the run's geometry (ruling CS-8: read-only outside this module)
++    pub(crate) fn rs(&self) -> &RunShape {
++        &self.rs
++    }
+     /// `block_scales[k]` is block `k`'s declared `(input, output)` scale pair.
+     /// A run in which block `k + 1` declares a different input scale than
+     /// block `k`'s output scale DOES NOT CONSTRUCT: the two are collapsed into
+@@ -217,6 +278,14 @@
+         if rs.sh.trained_calibration || [RUN_PROFILE_TINYLLAMA_T32_TRAINED, RUN_PROFILE_TINYLLAMA_T64_TRAINED, RUN_PROFILE_TINYLLAMA_T128_TRAINED, RUN_PROFILE_LLAMA3_8B_T32_TRAINED, RUN_PROFILE_RUNG_TC].contains(&rs.profile) {
+             return Err(format!("private run: {} is a trained-calibration run; it needs its trained-model statement (RunStatement::new_bound)", rs.profile));
+         }
++        if blocks.len() != rs.l || block_scales.len() != rs.l {
++            return Err(format!("private run: the statement is for {} blocks, {} public statements and {} scale pairs were given", rs.l, blocks.len(), block_scales.len()));
++        }
++        // RULINGS CS-1 and CS-4: every block's statement (both halves) and
++        // the endpoint policy against the run's shape, before any digest of
++        // either is taken
++        blocks_fit_the_shape(blocks, &rs.sh)?;
++        policy_fits_the_shape(&expected, &rs.sh)?;
+         let digests: Vec<Digest> = blocks.iter().map(|b| b.digest()).collect();
+         Self::new_with_calibration(rs, context, expected, digests, blocks.len(), block_scales, super::calibration_identity(), super::ENDPOINT_SCALES)
+     }
+@@ -230,6 +299,10 @@
+     /// this is the only constructor; at the toy, the rungs and 125M it is
+     /// never called, so none of their bytes moves.
+     pub(crate) fn new_bound(rs: RunShape, context: Digest, expected: ExpectedIo, blocks: &[BlockPublic], block_scales: &[(i32, i32)], model: &super::trained_statement::TrainedModelStatement) -> Result<RunStatement, String> {
++        // RULINGS CS-1 and CS-4 on the blocks handed, before they are digested
++        if blocks.len() == rs.l {
++            blocks_fit_the_shape(blocks, &rs.sh)?;
++        }
+         let digests: Vec<Digest> = blocks.iter().map(|b| b.digest()).collect();
+         Self::new_bound_from_digests(rs, context, expected, digests, block_scales, model)
+     }
+@@ -246,6 +319,8 @@
+         if digests.len() != rs.l {
+             return Err(format!("private run: the statement is for {} blocks, {} block digests and {} scale pairs were given", rs.l, digests.len(), block_scales.len()));
+         }
++        // RULING CS-4: the endpoint policy against the run's shape
++        policy_fits_the_shape(&expected, &rs.sh)?;
+         model.check_against(&rs.sh, rs.profile, &digests, block_scales)?;
+         let approved = model.calibration.block_scales;
+         let n = digests.len();
+@@ -640,6 +715,18 @@
+ /// otherwise unchanged: block k is the same `&BlockPublic` they always read.
+ pub(crate) trait BlockSource {
+     fn block(&mut self, k: usize) -> Result<BlockRef<'_>, String>;
++    /// how many blocks the source holds
++    fn count(&self) -> usize;
++    /// **RULINGS CS-1 and CS-4** before anything is absorbed: a resident
++    /// slice re-checks every block against the run's shape here; a streaming
++    /// source builds each block through the constructor's own check at the
++    /// shape when it loads it, and `prove_core` / `verify_core` re-run the
++    /// check on it before its stage commits or absorbs anything of it.
++    fn fit_the_shape(&mut self, sh: &Shape) -> Result<(), String>;
++    /// **RULING CS-6** before anything is absorbed: the blocks are the ones
++    /// the statement names. A resident slice compares every block's digest;
++    /// a streaming source compares the digest list it enforces on every load.
++    fn are_the_statements(&mut self, st: &RunStatement) -> Result<(), String>;
+ }
+ 
+ /// one block, borrowed from a slice or shared out of a streaming cache
+@@ -665,13 +752,85 @@
+     fn block(&mut self, k: usize) -> Result<BlockRef<'_>, String> {
+         self.0.get(k).map(BlockRef::Borrowed).ok_or_else(|| format!("private run: no public statement for block {k}"))
+     }
++    fn count(&self) -> usize {
++        self.0.len()
++    }
++    fn fit_the_shape(&mut self, sh: &Shape) -> Result<(), String> {
++        blocks_fit_the_shape(self.0, sh)
++    }
++    fn are_the_statements(&mut self, st: &RunStatement) -> Result<(), String> {
++        blocks_are_the_statements(st, self.0)
++    }
+ }
+ 
+-pub(crate) fn prove_run(st: &RunStatement, blocks: &[BlockPublic], src: &mut dyn RunWitnessSource, externals: Endpoints, sink: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>) -> Result<RunStats, String> {
++/// **RULINGS CS-1 and CS-4** at the run layer (ported from the 125M lane):
++/// every block's statement re-checked against the run's shape, refused by
++/// name with the block index.
++fn blocks_fit_the_shape(blocks: &[BlockPublic], sh: &Shape) -> Result<(), String> {
++    for (k, b) in blocks.iter().enumerate() {
++        b.check_for_shape(sh).map_err(|e| format!("private run: block {k}: {e}"))?;
++    }
++    Ok(())
++}
++
++/// **RULING CS-4** at the run layer: the run's external endpoint policy
++/// re-checked against the run's shape.
++fn policy_fits_the_shape(expected: &ExpectedIo, sh: &Shape) -> Result<(), String> {
++    expected.spec.check_for_shape(sh).map_err(|e| format!("private run: {e}"))
++}
++
++/// the first eight bytes of a digest, as lower-case hex, for a refusal text
++pub(crate) fn hex8(d: &Digest) -> String {
++    d[..8].iter().map(|b| format!("{b:02x}")).collect()
++}
++
++/// **RULING CS-6, the count** (ported from the 125M lane's stage 42).
++/// Exactly `L` blocks handed, and a statement holding exactly `L` digests.
++fn as_many_blocks_as_the_statement(st: &RunStatement, handed: usize) -> Result<(), String> {
+     let l = st.rs.l;
+-    if blocks.len() != l {
+-        return Err(format!("private run: {} public statements for {l} blocks", blocks.len()));
++    if handed != l {
++        return Err(format!("private run: ruling CS-6 — the run statement names {l} blocks and {handed} public statements were handed"));
++    }
++    if st.block_digests.len() != l {
++        return Err(format!("private run: ruling CS-6 — the run statement holds {} block digests and its run shape is for {l} blocks", st.block_digests.len()));
++    }
++    Ok(())
++}
++
++/// **RULING CS-6 (finding S41-N2 of the 125M lane, statement binding): a
++/// run is about the blocks its statement NAMES.** The run absorbs the
++/// statement's `block_digests[k]` while every slot of stage `k` is proved and
++/// checked against the block the caller HANDS in; so the run prover and the
++/// run verifier refuse, by name and before anything is absorbed, unless block
++/// `k`'s public digest is the statement's `block_digests[k]`.
++fn blocks_are_the_statements(st: &RunStatement, blocks: &[BlockPublic]) -> Result<(), String> {
++    as_many_blocks_as_the_statement(st, blocks.len())?;
++    for (k, (b, want)) in blocks.iter().zip(&st.block_digests).enumerate() {
++        digest_is_the_statements(k, &b.digest(), want)?;
+     }
++    Ok(())
++}
++
++/// block `k`'s digest against the statement's, by CS-6's name
++pub(crate) fn digest_is_the_statements(k: usize, got: &Digest, want: &Digest) -> Result<(), String> {
++    if got != want {
++        return Err(format!(
++            "private run: ruling CS-6 — block {k} handed to the run is not the block the run statement names (its public digest begins {}, the statement's {}); refused before anything is absorbed",
++            hex8(got),
++            hex8(want)
++        ));
++    }
++    Ok(())
++}
++
++/// the statement's block digests (a streaming source compares its own list)
++impl RunStatement {
++    pub(crate) fn block_digests(&self) -> &[Digest] {
++        &self.block_digests
++    }
++}
++
++pub(crate) fn prove_run(st: &RunStatement, blocks: &[BlockPublic], src: &mut dyn RunWitnessSource, externals: Endpoints, sink: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>) -> Result<RunStats, String> {
+     prove_run_with(st, &mut SliceBlocks(blocks), src, externals, sink)
+ }
+ 
+@@ -679,7 +838,24 @@
+ pub(crate) fn prove_run_with(st: &RunStatement, blocks: &mut dyn BlockSource, src: &mut dyn RunWitnessSource, externals: Endpoints, sink: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>) -> Result<RunStats, String> {
+     use std::time::Instant;
+     let (sh, l) = (&st.rs.sh, st.rs.l);
++    as_many_blocks_as_the_statement(st, blocks.count())?;
+     protocol::fits_the_ntt_tables(sh)?;
++    // RULINGS CS-1 and CS-4: the blocks and the endpoint policy, before the
++    // endpoint owners are opened, the run's randomness is seeded or its
++    // header is absorbed
++    blocks.fit_the_shape(sh)?;
++    policy_fits_the_shape(&st.expected, sh)?;
++    // RULING CS-6: the blocks handed are the ones the statement names, at
++    // the same point. A CHEATING prover runs none of the honest prover's own
++    // checks, and the soundness tests play one (ruling CS-3's `#[cfg(test)]`
++    // switch); the verifier's check never consults it.
++    #[cfg(test)]
++    let cheating = protocol::cheating_prover_is_on();
++    #[cfg(not(test))]
++    let cheating = false;
++    if !cheating {
++        blocks.are_the_statements(st)?;
++    }
+     st.expected.spec.validate()?;
+     let [ein, eout] = protocol::check_endpoints(sh, &st.expected, externals)?;
+     let mut ein = Some(ein);
+@@ -719,10 +895,14 @@
+         let cur = if k + 1 < l {
+             let spec = st.boundary_spec(k)?;
+             let plane = src.boundary_plane(k)?;
++            // ROUND 5: the source's work (block load, witness build) is its
++            // own phase, not the first phase of the block's body
++            ph.mark(timing::Half::Run, "run: block load + witness (the source)", 1, "block");
+             if plane.len() != spec.len() {
+                 return Err(format!("private run: boundary {k}'s plane is {} words, the padded plane is {}", plane.len(), spec.len()));
+             }
+             let p = boundary::prepare(&spec, &words(&plane), &ntt, &mut rng, &tag)?;
++            ph.mark_bytes(timing::Half::Run, "run: boundary B_k commitment", spec.len() as u64, "words", 8 * spec.len() as u64);
+             protocol::absorb_root(&mut tr, b"B", &p.root(), spec.commitment_rows(), spec.log_n());
+             Some((spec, p))
+         } else {
+@@ -731,6 +911,7 @@
+         // steps 3-8: the measured block, unchanged
+         let lay = st.stage_layout(k)?;
+         let wit = src.witness(k)?;
++        ph.mark(timing::Half::Run, "run: witness hand-over (the last block builds it here)", 1, "block");
+         let core = {
+             let in_data: &[Fp] = match &prev {
+                 Some((_, p)) => p.data(),
+@@ -822,7 +1003,16 @@
+     /// statement's — never a frame's.
+     fn start(st: &'a RunStatement, blocks: &'a mut dyn BlockSource) -> Result<RunVerifier<'a>, String> {
+         let sh = &st.rs.sh;
++        as_many_blocks_as_the_statement(st, blocks.count())?;
+         protocol::fits_the_ntt_tables(sh)?;
++        // RULINGS CS-1 and CS-4: the blocks and the endpoint policy, before
++        // the run header is absorbed
++        blocks.fit_the_shape(sh)?;
++        policy_fits_the_shape(&st.expected, sh)?;
++        // RULING CS-6: every block is the one the statement names, before the
++        // header that absorbs the statement's digests exists. Never consults
++        // the cheating-prover switch.
++        blocks.are_the_statements(st)?;
+         st.expected.spec.validate()?;
+         let ntt = NttTables::new(st.rs.ntt_log());
+         let e_params = protocol::endpoint_pcs_params(sh);
+@@ -1015,16 +1205,15 @@
+ /// [`verify_run_from_dir`], which is the same verifier fed one segment at a
+ /// time.
+ pub(crate) fn verify_run(st: &RunStatement, blocks: &[BlockPublic], segments: &[Vec<u8>]) -> Result<(), String> {
+-    let l = st.rs.l;
+-    if blocks.len() != l {
+-        return Err(format!("private run: {} public statements for {l} blocks", blocks.len()));
+-    }
++    // RULING CS-6: the count, by name, before the segment count
++    as_many_blocks_as_the_statement(st, blocks.len())?;
+     verify_run_with(st, &mut SliceBlocks(blocks), segments)
+ }
+ 
+ /// [`verify_run`] with the blocks from a [`BlockSource`] (ROUND 4)
+ pub(crate) fn verify_run_with(st: &RunStatement, blocks: &mut dyn BlockSource, segments: &[Vec<u8>]) -> Result<(), String> {
+     let l = st.rs.l;
++    as_many_blocks_as_the_statement(st, blocks.count())?;
+     if segments.len() != l {
+         return Err(format!("private run: {} segments were offered, this run has {l}", segments.len()));
+     }
+@@ -1047,10 +1236,8 @@
+ /// ordinary verifier, so a swapped, duplicated, truncated, foreign or altered
+ /// FILE is caught exactly as the same bytes in memory would be.
+ pub(crate) fn verify_run_from_dir(st: &RunStatement, blocks: &[BlockPublic], dir: &std::path::Path) -> Result<(), String> {
+-    let l = st.rs.l;
+-    if blocks.len() != l {
+-        return Err(format!("private run: {} public statements for {l} blocks", blocks.len()));
+-    }
++    // RULING CS-6: the count, by name, before the directory is listed
++    as_many_blocks_as_the_statement(st, blocks.len())?;
+     verify_run_from_dir_with(st, &mut SliceBlocks(blocks), dir)
+ }
+ 
+@@ -1058,13 +1245,77 @@
+ /// ONE segment and ONE block resident
+ pub(crate) fn verify_run_from_dir_with(st: &RunStatement, blocks: &mut dyn BlockSource, dir: &std::path::Path) -> Result<(), String> {
+     let l = st.rs.l;
+-    let paths = run_sink::segment_paths(dir, l)?;
++    // RULING CS-6: the count and the digests (in `start`) before the
++    // directory is listed or any segment file is read
+     let mut v = RunVerifier::start(st, blocks)?;
++    let paths = run_sink::segment_paths(dir, l)?;
+     for (k, p) in paths.iter().enumerate() {
+         // ONE segment's bytes are resident: read here, dropped at the end of
+-        // this iteration, before the next file is opened
+-        let bytes = std::fs::read(p).map_err(|e| format!("private run: segment {k} ({}) cannot be read: {e}", p.display()))?;
++        // this iteration, before the next file is opened. REVIEW r3_6: read
++        // through the bounded reader (the verifier's own counted length,
++        // checked from metadata before the file is opened)
++        let bytes = read_segment_bounded(st, k, p)?;
+         v.step(k, &bytes)?;
+     }
+     v.finish()
+ }
++
++/// `O_NOFOLLOW | O_NONBLOCK` on x86-64 Linux (the open flags differ by
++/// architecture and this crate takes no `libc` dependency): a path swapped
++/// to a symbolic link after the `lstat` fails to open, and one swapped to a
++/// FIFO does not block the open. Elsewhere the `fstat` re-check below holds.
++#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
++const SEGMENT_OPEN_FLAGS: i32 = 0o400000 | 0o4000;
++
++/// **REVIEW r3 FINDING r3_6 (verifier DoS, not soundness; fixed in native
++/// round 5): THE BOUNDED SEGMENT READER.** The stack verifier read each
++/// segment file with an unbounded `std::fs::read` and compared its length
++/// with the counted length only in `wire::decode_segment`, after the whole
++/// file was resident: a symbolic link to `/dev/zero` ran into the memory
++/// cap, a 512 MiB sparse file was read whole, a FIFO hung forever. Now, in
++/// this order and before ONE byte of the segment is read:
++///
++/// 1. the verifier's OWN counted length `want` of segment `k` (from its run
++///    statement, never from a prover-written file), refused above the wire
++///    ceiling;
++/// 2. `symlink_metadata`: anything that is not a regular file (a symbolic
++///    link, FIFO, device, directory) is refused by name, unopened;
++/// 3. the metadata length must be exactly `want`;
++/// 4. the open does not follow a link nor block on a FIFO (x86-64 Linux),
++///    the OPENED file is re-checked (`fstat`: regular, length `want`), and
++///    the read is capped at `want + 1` bytes, so a file that grows or is
++///    swapped after the check is still refused (`decode_segment` re-checks
++///    the length too).
++pub(crate) fn read_segment_bounded(st: &RunStatement, k: usize, p: &std::path::Path) -> Result<Vec<u8>, String> {
++    use std::io::Read;
++    let want = wire::segment_len(&st.stage_layout(k)?, st.seg_geom(k)?);
++    let ceiling = wire::wire_ceiling(&st.rs.sh);
++    if want > ceiling {
++        return Err(format!("private run wire: segment {k}'s counted length {want} B exceeds the wire ceiling {ceiling} B"));
++    }
++    let meta = std::fs::symlink_metadata(p).map_err(|e| format!("private run: segment {k} ({}) cannot be read: {e}", p.display()))?;
++    if !meta.file_type().is_file() {
++        return Err(format!("private run: segment {k} ({}) is not a regular file (a symbolic link, FIFO, device or directory is refused before it is opened; review r3_6)", p.display()));
++    }
++    if meta.len() != want as u64 {
++        return Err(format!("private run wire: segment {k} is {} B, the counted length is {want}; refused before it is read (review r3_6)", meta.len()));
++    }
++    let mut opts = std::fs::OpenOptions::new();
++    opts.read(true);
++    #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
++    {
++        use std::os::unix::fs::OpenOptionsExt;
++        opts.custom_flags(SEGMENT_OPEN_FLAGS);
++    }
++    let f = opts.open(p).map_err(|e| format!("private run: segment {k} ({}) cannot be opened as a regular file: {e}", p.display()))?;
++    let fm = f.metadata().map_err(|e| format!("private run: segment {k} ({}): {e}", p.display()))?;
++    if !fm.file_type().is_file() || fm.len() != want as u64 {
++        return Err(format!("private run wire: segment {k} ({}) changed after its check (now {} B, regular file {}); the counted length is {want}", p.display(), fm.len(), fm.file_type().is_file()));
++    }
++    let mut bytes = Vec::with_capacity(want);
++    f.take(want as u64 + 1).read_to_end(&mut bytes).map_err(|e| format!("private run: segment {k} ({}) cannot be read: {e}", p.display()))?;
++    if bytes.len() != want {
++        return Err(format!("private run wire: segment {k} read {} B, the counted length is {want}", bytes.len()));
++    }
++    Ok(bytes)
++}
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/run_capture.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/run_capture.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/run_capture.rs	2026-10-16 19:23:15.178570824 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/run_capture.rs	2026-10-17 07:09:51.001419156 -0700
+@@ -165,7 +165,7 @@
+ /// is a list of `(file, sha256)` objects; adding entries renames nothing,
+ /// reorders nothing a loader reads by name and removes nothing. Bundles
+ /// already committed keep the shorter list their own manifests pin.
+-pub(super) const SHARED_SOURCE_FILES: [&str; 23] = [
++pub(super) const SHARED_SOURCE_FILES: [&str; 26] = [
+     // hashline's own shared modules on the run's path
+     "src/zk.rs",
+     "src/tables_attn.rs",
+@@ -193,6 +193,14 @@
+     "../zkp-core/src/rng.rs",
+     "../zkp-core/src/sumcheck.rs",
+     "../zkp-core/src/transcript.rs",
++    // NATIVE LANE, round 5 (the privacy-gate lane's finding G-2): three
++    // `zkp-core` submodules on the prover's path that no capture pinned —
++    // the commitment's encode buffer (`pcs.rs: mod encode_buffer`) and the
++    // sumcheck's round and grouped bodies (`sumcheck.rs: mod rounds; mod
++    // grouped`). Pure addition, as stage 27's list was.
++    "../zkp-core/src/pcs/encode_buffer.rs",
++    "../zkp-core/src/sumcheck/rounds.rs",
++    "../zkp-core/src/sumcheck/grouped.rs",
+ ];
+ 
+ pub(super) const OWN_SOURCE_FILES: [&str; 16] = [
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/run_statement_file.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/run_statement_file.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/run_statement_file.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/run_statement_file.rs	2026-10-17 07:17:09.107996589 -0700
+@@ -253,8 +253,8 @@
+ fn render(st: &RunStatement, blocks: &[BlockPublic], dir: &Path, recipe: &WeightsRecipe) -> Result<Vec<u8>, String> {
+     let h = st.capture_header()?;
+     let binding = st.binding()?;
+-    let sh = &st.rs.sh;
+-    let l = st.rs.l;
++    let sh = st.rs().sh();
++    let l = st.rs().l();
+     if blocks.len() != l {
+         return Err(format!("run statement: {} public statements for {l} blocks", blocks.len()));
+     }
+@@ -510,13 +510,19 @@
+         return Err("run statement: this file claims to carry weight values; it may not".into());
+     }
+     let blocks = blocks_of_recipe(w.get("recipe")?.str()?, &sh, l)?;
++    // RULING CS-6 (ported from the 125M lane's stage 42), the reader's half:
++    // the file's statement names its blocks by the digests it declares, and
++    // the blocks a verifier is handed are the recipe's, so the two are
++    // compared here — before the statement is built from the recipe's blocks
++    // and before anything is absorbed. The comparison was already here; it
++    // now carries the ruling's name.
+     let declared = j.get("block_digests")?.arr()?;
+     if declared.len() != l {
+-        return Err(format!("run statement: {} block digests for {l} blocks", declared.len()));
++        return Err(format!("run statement: ruling CS-6 — the file's statement names {} block digests for {l} blocks", declared.len()));
+     }
+     for (k, d) in declared.iter().enumerate() {
+         if d.hex32()? != blocks[k].digest() {
+-            return Err(format!("run statement: the recipe's block {k} is not the block digest the file declares"));
++            return Err(format!("run statement: ruling CS-6 — block {k} regenerated from the named weights recipe is not the block the file's statement names (block digest {k} differs); refused before the statement is built"));
+         }
+     }
+ 
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/run_tests.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/run_tests.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/run_tests.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/run_tests.rs	2026-10-17 11:40:29.801494542 -0700
+@@ -940,6 +940,10 @@
+         c.tamper = Some((1, plane, 0, delta));
+         let blocks = blocks_of(&sh, 2);
+         let (st, owners) = statement_of(&c, 2, &blocks);
++        // STAGE 40 (ported, native round 5), ruling CS-3: the honest prover
++        // refuses a lookup miss by name; a cheating prover does not, so this
++        // helper proves with the check off and the verifier has to speak
++        let _cheating = super::protocol::CheatingProver::on();
+         match prove_to_vec(&st, &blocks, &mut c, owners) {
+             Err(e) => panic!("{name} in block 2: the PROVER refused, so this case says nothing about the verifier: {e}"),
+             Ok((segs, _)) => {
+@@ -1120,7 +1124,7 @@
+ /// byte: the prover takes its randomness from the OS (`ZkRng::from_os`) and
+ /// this lane adds no seeded path.
+ fn prove_to_dir_and_memory(st: &RunStatement, blocks: &[BlockPublic], src: &mut dyn RunWitnessSource, owners: Endpoints, dir: &Path) -> Result<(DirSink, MemorySink, RunStats), String> {
+-    let mut disk = DirSink::create(dir, st.rs.l)?;
++    let mut disk = DirSink::create(dir, st.rs().l())?;
+     let mut mem = MemorySink::default();
+     let stats = run::prove_run(st, blocks, src, owners, &mut |k, bytes| {
+         mem.accept(k, bytes.clone())?;
+@@ -1235,6 +1239,60 @@
+     run::verify_run_from_dir(&st, &blocks, tmp.path()).expect("the restored three-block run verifies by streaming");
+ }
+ 
++/// **REVIEW r3 FINDING r3_6 (verifier DoS, not soundness; native round 5).**
++/// A segment file is read only through the bounded reader: a symbolic link
++/// to `/dev/zero`, a FIFO, a regular file one byte longer than the counted
++/// length and a 512 MiB sparse file are each refused BY NAME from metadata,
++/// before any byte of it is read. (An `open` of the FIFO would block for
++/// ever and a read of `/dev/zero` would run into the memory cap: this test
++/// returning is the evidence that neither was opened.) The honest run
++/// verifies before and after.
++#[test]
++fn review_r3_6_a_symlink_fifo_or_overlong_segment_file_is_refused_before_it_is_read() {
++    let sh = Shape::rung_g();
++    let l = 2usize;
++    let tmp = TempRunDir::new("r3-6");
++    let mut c = Chain::honest(&sh, l, false);
++    let blocks = blocks_of(&sh, l);
++    let (st, owners) = statement_of(&c, l, &blocks);
++    let (_disk, mem, _stats) = prove_to_dir_and_memory(&st, &blocks, &mut c, owners, tmp.path()).expect("the honest two-block run proves to a directory");
++    run::verify_run_from_dir(&st, &blocks, tmp.path()).expect("the honest two-block run verifies by streaming");
++    let path = tmp.path().join(run_sink::segment_file_name(0));
++    let want = mem.segments()[0].len();
++    let restore = || {
++        let _ = std::fs::remove_file(&path);
++        std::fs::write(&path, &mem.segments()[0]).expect("the test restores segment 0");
++    };
++    let refused = |what: &str| {
++        let e = run::verify_run_from_dir(&st, &blocks, tmp.path()).err().unwrap_or_else(|| panic!("{what} was ACCEPTED"));
++        eprintln!("review r3_6, {what}: refused: {e}");
++        e
++    };
++    // (a) a symbolic link to /dev/zero
++    std::fs::remove_file(&path).expect("the test removes segment 0");
++    std::os::unix::fs::symlink("/dev/zero", &path).expect("the test links segment 0 to /dev/zero");
++    assert!(refused("a symbolic link to /dev/zero").contains("not a regular file"));
++    assert!(run::read_segment_bounded(&st, 0, &path).unwrap_err().contains("not a regular file"), "the bounded reader alone");
++    restore();
++    // (b) a FIFO
++    std::fs::remove_file(&path).expect("the test removes segment 0");
++    let made = std::process::Command::new("mkfifo").arg(&path).status().map(|s| s.success()).unwrap_or(false);
++    assert!(made, "the test could not make a FIFO with mkfifo");
++    assert!(refused("a FIFO").contains("not a regular file"));
++    restore();
++    // (c) a regular file ONE BYTE longer than the counted length
++    std::fs::OpenOptions::new().write(true).open(&path).and_then(|f| f.set_len(want as u64 + 1)).expect("the test extends segment 0 by one byte");
++    let e = refused("a segment file one byte too long");
++    assert!(e.contains("counted length") && e.contains("before it is read"), "{e}");
++    // (d) a 512 MiB SPARSE regular file (uses no disk blocks)
++    std::fs::OpenOptions::new().write(true).open(&path).and_then(|f| f.set_len(512 << 20)).expect("the test makes segment 0 a sparse 512 MiB file");
++    let e = refused("a 512 MiB sparse segment file");
++    assert!(e.contains("536870912 B") && e.contains("before it is read"), "{e}");
++    restore();
++    // and the honest run verifies again: every refusal above was its mutation
++    run::verify_run_from_dir(&st, &blocks, tmp.path()).expect("the restored two-block run verifies by streaming");
++}
++
+ /// A run never writes into a directory that does not exist or already holds
+ /// something: a half-run's segments must not be mistakable for this run's.
+ #[test]
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/rung_tests.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/rung_tests.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/rung_tests.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/rung_tests.rs	2026-10-17 07:31:18.536650697 -0700
+@@ -468,6 +468,10 @@
+ /// the one that carries a soundness claim, and every one of the lane's rung
+ /// tamper cases uses it.
+ fn assert_verifier_rejects(sh: &Shape, blk: &BlockPublic, w: Witness, label: &str) {
++    // STAGE 40 (ported, native round 5), ruling CS-3: the honest prover
++    // refuses a lookup miss by name; a cheating prover does not, so this
++    // helper proves with the check off and the verifier has to speak
++    let _cheating = super::protocol::CheatingProver::on();
+     match prove_rung(sh, blk, w) {
+         Err(e) => panic!("{label}: the PROVER refused, so this case says nothing about the verifier: {e}"),
+         Ok((expected, _, bytes)) => {
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/shape.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/shape.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/shape.rs	2026-10-17 04:22:05.788808823 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/shape.rs	2026-10-17 07:09:21.585637947 -0700
+@@ -322,6 +322,56 @@
+     128 - v.leading_zeros()
+ }
+ 
++/// **RULING CS-9: THE BLOCK PROFILE REGISTRY** (ported from the 125M lane's
++/// stage 44): the nine frozen constructors, each its profile's entry (they
++/// build past CS-9's own check because each IS the entry).
++const REGISTERED_BLOCK_SHAPES: [fn() -> Shape; 9] = [Shape::toy, Shape::rung, Shape::rung_g, Shape::rung_k4, Shape::rung_p2, Shape::rung_c6, Shape::rung_w14, Shape::rung_e32, Shape::m125];
++
++/// The one shape a block profile string names (a trained-calibration
++/// profile: its geometry at `f_e`), or `None` for a string this build does
++/// not register. No profile string is written here.
++fn registered_block_shape(profile: &str, f_e: u32) -> Option<Result<Shape, String>> {
++    if let Some(r) = trained_geometry(profile, f_e) {
++        return Some(r);
++    }
++    REGISTERED_BLOCK_SHAPES.iter().map(|ctor| ctor()).find(|s| s.profile == profile).map(Ok)
++}
++
++/// **ROUND 5 (ruling CS-9 in this lane): the registered GEOMETRY of each
++/// trained-calibration profile at `f_e`**, built past CS-9's check because it
++/// IS the registry's entry; the calibration (and the trained windows) are
++/// the trained door's. The one source of these parameters: the trained
++/// constructors build through it.
++fn trained_geometry(profile: &str, f_e: u32) -> Option<Result<Shape, String>> {
++    let mask = super::endpoint_g::MASK_ROWS;
++    let tl = |name: &'static str, p: &'static str, tokens: usize, lc: usize| Shape::build(name, p, tokens, 2048, 5632, 32, 64, 4, lc, 4, f_e, ((tokens * 2048) >> lc) + mask, None, None, None, None);
++    Some(match profile {
++        TINYLLAMA_T32_TRAINED_PROFILE => tl("TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads)", TINYLLAMA_T32_TRAINED_PROFILE, 32, 12),
++        TINYLLAMA_T64_TRAINED_PROFILE => tl("TinyLlama-1.1B block geometry, trained calibration (T64 / d2048 / f5632, 32 heads of 64 over 4 KV heads)", TINYLLAMA_T64_TRAINED_PROFILE, 64, 13),
++        TINYLLAMA_T128_TRAINED_PROFILE => tl("TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads)", TINYLLAMA_T128_TRAINED_PROFILE, 128, 14),
++        LLAMA3_8B_T32_TRAINED_PROFILE => Shape::build(
++            "Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads)",
++            LLAMA3_8B_T32_TRAINED_PROFILE,
++            32,
++            4096,
++            14336,
++            32,
++            128,
++            8,
++            LLAMA3_8B_LOG_COLS,
++            4,
++            f_e,
++            ((32 * 4096) >> LLAMA3_8B_LOG_COLS) + mask,
++            None,
++            None,
++            None,
++            None,
++        ),
++        TRAINED_CALIB_RUNG_PROFILE => Shape::build("development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)", TRAINED_CALIB_RUNG_PROFILE, 32, 384, 512, 12, 32, 4, 10, 4, 12, 21, None, None, None, None),
++        _ => return None,
++    })
++}
++
+ /// ONE block geometry, plus the PCS parameters its receipt is priced at.
+ ///
+ /// Built only through [`Shape::new`], which refuses by name every geometry the
+@@ -395,6 +445,17 @@
+ 
+ impl Shape {
+     #[allow(clippy::too_many_arguments)]
++    /// **THE one place a block profile string meets a geometry** (ruling
++    /// CS-9, ported from the 125M lane's stage 44): every refusal of the
++    /// construction ([`Shape::build`]), then the profile registry: a
++    /// REGISTERED block profile string is admitted only with the one shape it
++    /// is registered for (compared whole, as ruling CS-7 compares a run's
++    /// block shape), and a string this build does not register is refused —
++    /// outside `#[cfg(test)]` (a test build admits the probe and fixture
++    /// shapes the test files build under their own unregistered strings).
++    /// NATIVE LANE: a trained-calibration profile's registered entry is its
++    /// GEOMETRY at the handed `f_e` (the calibration is the trained door's).
++    #[allow(clippy::too_many_arguments)]
+     pub(crate) fn new(
+         name: &'static str,
+         profile: &'static str,
+@@ -413,6 +474,75 @@
+         norm_wrho: Option<u32>,
+         wrho_s: Option<u32>,
+     ) -> Result<Shape, String> {
++        let sh = Shape::build(name, profile, tokens, width, hidden, q_heads, head_dim, kv_heads, log_cols, inv_rate, f_e, endpoint_rows, endpoint_log_n, endpoint_inv_rate, norm_wrho, wrho_s)?;
++        sh.block_profile_names_this_shape(cfg!(test))?;
++        Ok(sh)
++    }
++
++    /// **Ruling CS-9's check** (see [`Shape::new`]). `admit_unregistered` is
++    /// `cfg!(test)` at its one production caller.
++    fn block_profile_names_this_shape(&self, admit_unregistered: bool) -> Result<(), String> {
++        const CS9: &str = "private block shape: ruling CS-9 — ";
++        match registered_block_shape(self.profile, self.f_e) {
++            Some(Ok(reg)) if reg == *self => Ok(()),
++            Some(Ok(reg)) => {
++                let differ: Vec<&str> = [
++                    ("name", reg.name != self.name),
++                    ("tokens", reg.tokens != self.tokens),
++                    ("width", reg.width != self.width),
++                    ("hidden", reg.hidden != self.hidden),
++                    ("q_heads", reg.q_heads != self.q_heads),
++                    ("head_dim", reg.head_dim != self.head_dim),
++                    ("kv_heads", reg.kv_heads != self.kv_heads),
++                    ("log_cols", reg.log_cols != self.log_cols),
++                    ("inv_rate", reg.inv_rate != self.inv_rate),
++                    ("f_e", reg.f_e != self.f_e),
++                    ("endpoint_rows", reg.endpoint_rows != self.endpoint_rows),
++                    ("endpoint_log_n", reg.endpoint_log_n != self.endpoint_log_n),
++                    ("endpoint_inv_rate", reg.endpoint_inv_rate != self.endpoint_inv_rate),
++                    ("norm_wrho", reg.norm_wrho != self.norm_wrho),
++                    ("wrho_s", reg.wrho_s != self.wrho_s),
++                ]
++                .iter()
++                .filter(|(_, d)| *d)
++                .map(|(n, _)| *n)
++                .collect();
++                Err(format!("{CS9}the block profile {:?} is registered for exactly one shape, {:?}; the shape handed, {:?}, differs from it in {}", self.profile, reg.name, self.name, differ.join(", ")))
++            }
++            Some(Err(e)) => Err(format!("{CS9}the block profile {:?}'s registered geometry does not build at this f_e: {e}", self.profile)),
++            None if admit_unregistered => Ok(()),
++            None => Err(format!("{CS9}{:?} is not a block profile this build registers, so it names no shape ({:?} was handed)", self.profile, self.name)),
++        }
++    }
++
++    /// **TEST ONLY (ruling CS-9).** The check as a release build makes it.
++    #[cfg(test)]
++    pub(crate) fn check_block_profile_as_a_release_build(&self) -> Result<(), String> {
++        self.block_profile_names_this_shape(false)
++    }
++
++    /// Every refusal of the construction but ruling CS-9's. PRIVATE: called
++    /// by [`Shape::new`] and by the registry's own entries (the nine frozen
++    /// constructors and [`trained_geometry`]).
++    #[allow(clippy::too_many_arguments)]
++    fn build(
++        name: &'static str,
++        profile: &'static str,
++        tokens: usize,
++        width: usize,
++        hidden: usize,
++        q_heads: usize,
++        head_dim: usize,
++        kv_heads: usize,
++        log_cols: usize,
++        inv_rate: usize,
++        f_e: u32,
++        endpoint_rows: usize,
++        endpoint_log_n: Option<usize>,
++        endpoint_inv_rate: Option<usize>,
++        norm_wrho: Option<u32>,
++        wrho_s: Option<u32>,
++    ) -> Result<Shape, String> {
+         if [tokens, width, hidden, q_heads, head_dim, kv_heads].iter().any(|v| *v == 0) {
+             return Err("private block shape: an axis is zero".into());
+         }
+@@ -698,7 +828,7 @@
+ 
+     /// THE TOY, the only shape that proves anything today.
+     pub(crate) fn toy() -> Shape {
+-        Shape::new("toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)", TOY_PROFILE, 32, 16, 16, 2, 8, 1, 8, 8, 9, 7, None, None, None, None).expect("the toy shape is well formed")
++        Shape::build("toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)", TOY_PROFILE, 32, 16, 16, 2, 8, 1, 8, 8, 9, 7, None, None, None, None).expect("the toy shape is well formed")
+     }
+ 
+     /// THE DEVELOPMENT RUNG of ruling P-7 (memo §9a). `F_E = 12` is a
+@@ -707,7 +837,7 @@
+     /// Development grade, never a deliverable: no receipt from it is shown to
+     /// anyone and no soundness or privacy statement is made from it.
+     pub(crate) fn rung() -> Shape {
+-        Shape::new(
++        Shape::build(
+             "development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)",
+             FROZEN_SEAM_RUNG_PROFILE,
+             24,
+@@ -752,7 +882,7 @@
+     /// shape cannot use — and `4 + MASK_ROWS = 9` commitment rows.
+     /// Development grade, never a deliverable.
+     pub(crate) fn rung_g() -> Shape {
+-        Shape::new(
++        Shape::build(
+             "development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)",
+             "hashline-zk-mr1/private-block-rung-g-t24-dev/1",
+             24,
+@@ -812,7 +942,7 @@
+     /// Development grade, never a deliverable (ruling P-7), its OWN profile
+     /// (D17) and therefore its own hash-tag key set. No existing shape moves.
+     pub(crate) fn rung_k4() -> Shape {
+-        Shape::new(
++        Shape::build(
+             "development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)",
+             "hashline-zk-mr1/private-block-rung-k4-t24-dev/1",
+             24,
+@@ -875,7 +1005,7 @@
+     /// Development grade, never a deliverable (ruling P-7), its OWN profile
+     /// (D17) and therefore its own hash-tag key set. No existing shape moves.
+     pub(crate) fn rung_p2() -> Shape {
+-        Shape::new(
++        Shape::build(
+             "development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)",
+             "hashline-zk-mr1/private-block-rung-p2-t32-dev/1",
+             32,
+@@ -950,7 +1080,7 @@
+     /// Development grade, never a deliverable (ruling P-7), its OWN profile
+     /// (D17) and therefore its own hash-tag key set. No existing shape moves.
+     pub(crate) fn rung_c6() -> Shape {
+-        Shape::new(
++        Shape::build(
+             "development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)",
+             "hashline-zk-mr1/private-block-rung-c6-t32-dev/1",
+             32,
+@@ -1029,7 +1159,7 @@
+     /// Development grade, never a deliverable (ruling P-7), its OWN profile
+     /// (D17) and therefore its own hash-tag key set. No existing shape moves.
+     pub(crate) fn rung_w14() -> Shape {
+-        Shape::new(
++        Shape::build(
+             "development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)",
+             "hashline-zk-mr1/private-block-rung-w14-t64-dev/1",
+             64,
+@@ -1091,7 +1221,7 @@
+     /// Development grade, never a deliverable (ruling P-7), its OWN profile
+     /// (D17) and therefore its own hash-tag key set. No existing shape moves.
+     pub(crate) fn rung_e32() -> Shape {
+-        Shape::new(
++        Shape::build(
+             "development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)",
+             "hashline-zk-mr1/private-block-rung-e32-t32-dev/1",
+             32,
+@@ -1127,7 +1257,7 @@
+     /// 733,184 B. **Padding is what removes the need for C6 here**: there is
+     /// no non-power-of-two plane left to batch over (finding S11b-F1).
+     pub(crate) fn m125() -> Shape {
+-        Shape::new("125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)", "hashline-zk-mr1/private-block-m125/1", 512, 768, 2048, 12, 64, 4, 14, 4, 9, 37, None, None, None, None)
++        Shape::build("125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)", "hashline-zk-mr1/private-block-m125/1", 512, 768, 2048, 12, 64, 4, 14, 4, 9, 37, None, None, None, None)
+             .expect("the 125M shape is well formed")
+     }
+ 
+@@ -1343,20 +1473,80 @@
+         Shape::tinyllama_trained(32, cal, f_e)
+     }
+ 
++    /// **RULING CS-8 (ported from the 125M lane's stage 43): is this value one
++    /// [`Shape::new`] builds?** `Shape`'s fields are readable (and writable)
++    /// across the crate, so the invariant is re-checked instead of sealed:
++    /// `Shape::new` is run again on this value's own parameters and the
++    /// result must equal this value, field for field. NATIVE LANE: a TRAINED
++    /// shape is rebuilt through the trained door at its own calibration (its
++    /// windows are derived there, so they are not passed as overrides), so
++    /// the declared classes, the derived windows and `D_max` are all re-run.
++    /// Called first at every single-block entry and in the two shared bodies.
++    /// It computes no digest, absorbs nothing, draws nothing.
++    pub(crate) fn check_constructed(&self) -> Result<(), String> {
++        const CS8: &str = "private block shape: ruling CS-8 — ";
++        let (nw, ws) = if self.trained_calibration { (None, None) } else { (Some(self.norm_wrho), Some(self.wrho_s)) };
++        let rebuilt = Shape::new(
++            self.name,
++            self.profile,
++            self.tokens,
++            self.width,
++            self.hidden,
++            self.q_heads,
++            self.head_dim,
++            self.kv_heads,
++            self.log_cols,
++            self.inv_rate,
++            self.f_e,
++            self.endpoint_rows,
++            Some(self.endpoint_log_n),
++            Some(self.endpoint_inv_rate),
++            nw,
++            ws,
++        )
++        .and_then(|b| if self.trained_calibration { b.with_trained_calibration(&self.norm_calibration()) } else { Ok(b) })
++        .map_err(|e| format!("{CS8}{:?} is not a shape Shape::new builds: Shape::new refuses its own parameters ({e})", self.name))?;
++        if rebuilt == *self {
++            return Ok(());
++        }
++        let differ: Vec<&str> = [
++            ("opened_cols", rebuilt.opened_cols != self.opened_cols),
++            ("endpoint_general", rebuilt.endpoint_general != self.endpoint_general),
++            ("t_pad", rebuilt.t_pad != self.t_pad),
++            ("d_pad", rebuilt.d_pad != self.d_pad),
++            ("h_pad", rebuilt.h_pad != self.h_pad),
++            ("f_pad", rebuilt.f_pad != self.f_pad),
++            ("d_max", rebuilt.d_max != self.d_max),
++            ("norm_wrho", rebuilt.norm_wrho != self.norm_wrho),
++            ("wrho_s", rebuilt.wrho_s != self.wrho_s),
++            ("the calibration", rebuilt.norm_calibration() != self.norm_calibration()),
++            ("trained_calibration", rebuilt.trained_calibration != self.trained_calibration),
++        ]
++        .iter()
++        .filter(|(_, d)| *d)
++        .map(|(n, _)| *n)
++        .collect();
++        Err(format!("{CS8}{:?} is not a shape Shape::new builds: its {} differ from what Shape::new derives from its parameters", self.name, differ.join(", ")))
++    }
++
+     /// **ROUND 4 (R4-1): THE TRAINED Llama-3-8B BLOCK SHAPE at T = 32.** Row
+     /// width [`LLAMA3_8B_LOG_COLS`], endpoint rows from the padded cube at that
+     /// width plus the mask rows. The FFN pads 14336 to 16384 and the head
+     /// axis is 32 slots of 128 (no padded head), the key-value groups of 4.
+     pub(crate) fn llama3_8b_t32_trained(cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
+-        Shape::llama3_8b_t32_at(LLAMA3_8B_LOG_COLS, cal, f_e)
++        Shape::check_f_e_class(32, f_e)?;
++        trained_geometry(LLAMA3_8B_T32_TRAINED_PROFILE, f_e).ok_or("private block shape: an unregistered trained profile")??.with_trained_calibration(cal)
+     }
+ 
+-    /// the same geometry at another row width (the counted-layout choice;
+-    /// one profile string, so only [`LLAMA3_8B_LOG_COLS`] is proved)
++    /// **TEST ONLY: the same geometry at another row width, for the counted
++    /// layouts.** It builds past ruling CS-9 (one profile string names one
++    /// shape, and only [`LLAMA3_8B_LOG_COLS`] is registered), so it exists in
++    /// test builds only and its shapes are COUNTED, never proved.
++    #[cfg(test)]
+     pub(crate) fn llama3_8b_t32_at(log_cols: usize, cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
+         Shape::check_f_e_class(32, f_e)?;
+         let rows = ((32 * 4096) >> log_cols) + super::endpoint_g::MASK_ROWS;
+-        Shape::new(
++        Shape::build(
+             "Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads)",
+             LLAMA3_8B_T32_TRAINED_PROFILE,
+             32,
+@@ -1389,9 +1579,9 @@
+             128 => ("TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads)", TINYLLAMA_T128_TRAINED_PROFILE, 14),
+             _ => return Err(format!("private block shape: no trained TinyLlama profile is registered at T = {tokens} (32, 64 and 128 are)")),
+         };
++        let _ = (name, log_cols);
+         Shape::check_f_e_class(tokens, f_e)?;
+-        let rows = ((tokens * 2048) >> log_cols) + super::endpoint_g::MASK_ROWS;
+-        Shape::new(name, profile, tokens, 2048, 5632, 32, 64, 4, log_cols, 4, f_e, rows, None, None, None, None)?.with_trained_calibration(cal)
++        trained_geometry(profile, f_e).ok_or("private block shape: an unregistered trained profile")??.with_trained_calibration(cal)
+     }
+ 
+     /// The same family at another token count, for the counted-layout ladder
+@@ -1402,7 +1592,9 @@
+     #[cfg(test)]
+     pub(crate) fn tinyllama_trained_ladder(tokens: usize, log_cols: usize, cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
+         let rows = ((tokens.next_power_of_two() * 2048) >> log_cols) + super::endpoint_g::MASK_ROWS;
+-        Shape::new(
++        // TEST ONLY and COUNTED, never proved: it builds past ruling CS-9
++        // (the T32 profile string names one shape)
++        Shape::build(
+             "TinyLlama-1.1B block geometry, trained calibration, counted-layout ladder",
+             TINYLLAMA_T32_TRAINED_PROFILE,
+             tokens,
+@@ -1429,25 +1621,7 @@
+     /// norm-alias cases (D16 item 6) and the coefficient tamper controls run
+     /// in seconds. At width 384 the class admits `tn <= 11`.
+     pub(crate) fn rung_tc(cal: &NormCalibration) -> Result<Shape, String> {
+-        Shape::new(
+-            "development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)",
+-            TRAINED_CALIB_RUNG_PROFILE,
+-            32,
+-            384,
+-            512,
+-            12,
+-            32,
+-            4,
+-            10,
+-            4,
+-            12,
+-            21,
+-            None,
+-            None,
+-            None,
+-            None,
+-        )?
+-        .with_trained_calibration(cal)
++        trained_geometry(TRAINED_CALIB_RUNG_PROFILE, 12).ok_or("private block shape: an unregistered trained profile")??.with_trained_calibration(cal)
+     }
+ 
+     // ---- the head permutation (correction C-1, ruling P-2) -----------------
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/tamper.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/tamper.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/tamper.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/tamper.rs	2026-10-17 07:31:18.535786990 -0700
+@@ -221,8 +221,12 @@
+     edit(blk.feed_forward(), &mut w);
+     let output = w.output().unwrap_or(honest);
+     let (expected, owners) = prepare_endpoints(spec(), input, &output).unwrap();
+-    // the prover does not pre-check any relation: a false witness still yields
+-    // a receipt, and that receipt must not verify
++    // a CHEATING prover pre-checks no relation: a false witness still yields
++    // a receipt, and that receipt must not verify. (Since stage 40, ruling
++    // CS-3 — ported in native round 5 — the HONEST prover refuses a lookup
++    // miss by name; the switch below turns that off, as a cheating prover
++    // would.)
++    let _cheating = super::protocol::CheatingProver::on();
+     let (receipt, stats) = prove_inner(blk, w, &expected, owners)?;
+     verify_inner(blk, &expected, &receipt).map(|_| stats)
+ }
+@@ -706,7 +710,11 @@
+     assert!(recompute_from_product(&mut w, ff));
+     let output = w.output().expect("the tampered output is in class");
+     let (expected, owners) = prepare_endpoints(spec(), &input, &output).unwrap();
+-    let (receipt, stats) = prove_inner(&blk, w, &expected, owners).expect("the prover does not pre-check any relation");
++    // since stage 40 (ruling CS-3, ported in native round 5) only a CHEATING
++    // prover skips the lookup check
++    let cheating = super::protocol::CheatingProver::on();
++    let (receipt, stats) = prove_inner(&blk, w, &expected, owners).expect("a cheating prover does not pre-check any relation");
++    drop(cheating);
+     // the TOTAL is preserved: one unit moved between rows, nothing created
+     assert_eq!(stats.act_lookups, 512, "the activation histogram totals the Dom::F cube");
+     let err = verify_inner(&blk, &expected, &receipt).expect_err("a moved activation multiplicity VERIFIED");
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/timing.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/timing.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/timing.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/timing.rs	2026-10-17 07:13:26.688815978 -0700
+@@ -91,6 +91,11 @@
+     Lookup,
+     /// the two external endpoint equality slots
+     Endpoint,
++    /// ROUND 5: a RUN's per-stage work before the block's body — the block
++    /// load and witness build of the witness source and the boundary `B_k`
++    /// commitment (the phase clock used to fold them into the first
++    /// prove_core phase)
++    Run,
+     /// the `M`, `A`, `H` and endpoint openings (prover) or verifications
+     Open,
+     /// the wire frame: encode on the prover's side, decode on the verifier's
+@@ -108,13 +113,14 @@
+             Half::Residual => "residual",
+             Half::Lookup => "lookup-table",
+             Half::Endpoint => "endpoints",
++            Half::Run => "run (witness, boundary)",
+             Half::Open => "openings",
+             Half::Frame => "frame",
+         }
+     }
+ }
+ 
+-const HALVES: [Half; 10] = [Half::Setup, Half::Commit, Half::Norm, Half::Attn, Half::Ff, Half::Residual, Half::Lookup, Half::Endpoint, Half::Open, Half::Frame];
++const HALVES: [Half; 11] = [Half::Run, Half::Setup, Half::Commit, Half::Norm, Half::Attn, Half::Ff, Half::Residual, Half::Lookup, Half::Endpoint, Half::Open, Half::Frame];
+ 
+ /// **THE SLOT-TO-HALF CLASSIFICATION, from the layout's own slot definitions.**
+ /// Indexed by the slot constants of `layout.rs` (`SC_SS` = 0 … `SC_IO_OUT` =
+@@ -190,6 +196,10 @@
+     /// the counted figure this phase's seconds should be set against
+     size: u64,
+     unit: &'static str,
++    /// ROUND 5 (the speed plan's task 1): the BYTES the phase's counted work
++    /// touches (committed / encoded / hashed / opened / read), a function of
++    /// the shape alone; 0 where none is counted
++    bytes: u64,
+     rss: f64,
+     hwm: f64,
+ }
+@@ -222,7 +232,25 @@
+         if !self.on {
+             return;
+         }
+-        self.push(half, label, None, size, unit);
++        self.push(half, label, None, size, unit, 0);
++    }
++
++    /// ROUND 5: [`Phases::mark`] with the counted BYTES the phase's work
++    /// touches, so the report gives ns per unit and GB/s
++    pub(crate) fn mark_bytes(&mut self, half: Half, label: &'static str, size: u64, unit: &'static str, bytes: u64) {
++        if !self.on {
++            return;
++        }
++        self.push(half, label, None, size, unit, bytes);
++    }
++
++    /// ROUND 5: one slot with its counted ELEMENT-TERMS (cube x tables) and
++    /// the bytes of one read of them (16 per extension-field element)
++    pub(crate) fn slot_work(&mut self, s: usize, element_terms: u64) {
++        if !self.on || s >= N_SLOTS {
++            return;
++        }
++        self.push(SLOT_HALF[s], SLOT_NAMES[s], Some(s), element_terms, "elem-terms", 16 * element_terms);
+     }
+ 
+     /// The same for one slot of the argument, labelled by the schedule's own
+@@ -231,13 +259,13 @@
+         if !self.on || s >= N_SLOTS {
+             return;
+         }
+-        self.push(SLOT_HALF[s], SLOT_NAMES[s], Some(s), size, unit);
++        self.push(SLOT_HALF[s], SLOT_NAMES[s], Some(s), size, unit, 0);
+     }
+ 
+-    fn push(&mut self, half: Half, label: &'static str, slot: Option<usize>, size: u64, unit: &'static str) {
++    fn push(&mut self, half: Half, label: &'static str, slot: Option<usize>, size: u64, unit: &'static str, bytes: u64) {
+         let secs = self.tick.elapsed().as_secs_f64();
+         let (rss, hwm) = mem_mib();
+-        self.rows.push(Row { label, slot, half, secs, size, unit, rss, hwm });
++        self.rows.push(Row { label, slot, half, secs, size, unit, bytes, rss, hwm });
+         // the clock restarts AFTER the `/proc` read, so the reading's own cost
+         // lands in no phase
+         self.tick = Instant::now();
+@@ -255,14 +283,16 @@
+         let sum: f64 = self.rows.iter().map(|r| r.secs).sum();
+         let pct = |s: f64| if wall > 0.0 { 100.0 * s / wall } else { 0.0 };
+         println!("PB-TIMING {side} [{profile}] {} phases, wall {wall:.3} s ({ENV}=1; diagnostics on a shared box, not a receipt)", self.rows.len());
+-        println!("PB-TIMING {side} | {:<44} | {:<12} | {:>8} | {:>6} | {:>14} | {:>9} | {:>9} |", "phase", "half", "seconds", "% wall", "size", "RSS MiB", "HWM MiB");
++        println!("PB-TIMING {side} | {:<44} | {:<12} | {:>8} | {:>6} | {:>14} | {:>9} | {:>9} | {:>10} | {:>14} | {:>8} |", "phase", "half", "seconds", "% wall", "size", "RSS MiB", "HWM MiB", "ns/unit", "bytes", "GB/s");
+         for r in &self.rows {
+             let name = match r.slot {
+                 Some(s) => format!("slot {s:02} {}", r.label),
+                 None => r.label.to_string(),
+             };
+             let size = format!("{} {}", r.size, r.unit);
+-            println!("PB-TIMING {side} | {:<44} | {:<12} | {:>8.3} | {:>5.1}% | {:>14} | {:>9.0} | {:>9.0} |", name, r.half.label(), r.secs, pct(r.secs), size, r.rss, r.hwm);
++            let ns = if r.size > 0 { 1e9 * r.secs / r.size as f64 } else { 0.0 };
++            let gbs = if r.bytes > 0 && r.secs > 0.0 { r.bytes as f64 / r.secs / 1e9 } else { 0.0 };
++            println!("PB-TIMING {side} | {:<44} | {:<12} | {:>8.3} | {:>5.1}% | {:>14} | {:>9.0} | {:>9.0} | {:>10.3} | {:>14} | {:>8.3} |", name, r.half.label(), r.secs, pct(r.secs), size, r.rss, r.hwm, ns, r.bytes, gbs);
+         }
+         println!("PB-TIMING {side} | {:<44} | {:<12} | {:>8.3} | {:>5.1}% |", "SUM OF PHASES", "", sum, pct(sum));
+         println!("PB-TIMING {side} | {:<44} | {:<12} | {:>8.3} | {:>5.1}% |", "WALL CLOCK OF THE CALL", "", wall, 100.0);
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/trained_block.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/trained_block.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/trained_block.rs	2026-10-17 05:15:39.716056677 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/trained_block.rs	2026-10-17 12:18:03.860925616 -0700
+@@ -370,6 +370,16 @@
+ }
+ 
+ fn load_array(dir: &Path, name: &str, spec: &J) -> Result<Array, String> {
++    load_array_checked(dir, name, spec, true)
++}
++
++/// ROUND 5 (R5-2): `check_sha = false` is the proving-pass RELOAD of a block
++/// the digest pass already hashed: every dtype / shape / size check still
++/// runs, the per-array SHA-256 is skipped, and the caller compares the
++/// rebuilt block's digest with the digest pass's — the bytes proved are the
++/// bytes digested (no time-of-check/time-of-use gap: the digest is taken of
++/// the very block that is proved).
++fn load_array_checked(dir: &Path, name: &str, spec: &J, check_sha: bool) -> Result<Array, String> {
+     let ctx = |e: String| format!("array `{name}`: {e}");
+     let file = plain_name(spec.get("file").and_then(J::str).map_err(ctx)?).map_err(ctx)?;
+     let dtype = Dtype::parse(spec.get("dtype").and_then(J::str).map_err(ctx)?).map_err(ctx)?;
+@@ -380,7 +390,7 @@
+     if bytes.len() != n {
+         return Err(ctx(format!("{} bytes on disk, the manifest's dtype and shape give {n}", bytes.len())));
+     }
+-    let got = sha256(&bytes);
++    let got = if check_sha { sha256(&bytes) } else { want };
+     if got != want {
+         return Err(ctx(format!("SHA-256 mismatch: the manifest says {}, the file is {}", hex(&want), hex(&got))));
+     }
+@@ -836,6 +846,18 @@
+     /// Load one layer: every array verified, the tables cross-checked, the
+     /// words padded per the shape (ruling P-2) into the public statement.
+     pub(crate) fn load_layer(&self, sh: &Shape, c: &Constants, index: u32, rope_from_export: bool) -> Result<TrainedLayer, String> {
++        self.load_layer_mode(sh, c, index, rope_from_export, true)
++    }
++
++    /// **ROUND 5 (R5-2): the proving-pass RELOAD.** The same block built by
++    /// the same code as [`TrainedExport::load_layer`], with the per-array
++    /// SHA-256s and the layer record (the padded-word SHA-256s) skipped; the
++    /// caller refuses it unless its digest is the digest pass's.
++    pub(crate) fn reload_block(&self, sh: &Shape, c: &Constants, index: u32, rope_from_export: bool) -> Result<BlockPublic, String> {
++        Ok(self.load_layer_mode(sh, c, index, rope_from_export, false)?.blk)
++    }
++
++    fn load_layer_mode(&self, sh: &Shape, c: &Constants, index: u32, rope_from_export: bool, full: bool) -> Result<TrainedLayer, String> {
+         let dir = self.layer_dir(index);
+         let (mpath, mbytes, m) = self.manifest(index)?;
+         let ctx = |e: String| format!("{}: {e}", mpath.display());
+@@ -853,7 +875,14 @@
+             return Err(ctx("the shape was not built from the run's constants".into()));
+         }
+         let arrays = m.get("arrays").map_err(ctx)?;
+-        let get = |name: &str| -> Result<Array, String> { load_array(&dir, name, arrays.get(name).map_err(ctx)?) };
++        // ROUND 5 (R5-2): the eleven arrays read and hashed IN PARALLEL (the
++        // same bytes, the same digests, the same checks)
++        let names = ["wq", "wk", "wv", "wo", "gamma_a", "gamma_m", "wg_t", "wu_t", "wd_t", "exp", "act"];
++        let mut loaded: std::collections::VecDeque<Result<Array, String>> = {
++            use rayon::prelude::*;
++            names.par_iter().map(|name| load_array_checked(&dir, name, arrays.get(name).map_err(ctx)?, full)).collect::<Vec<_>>().into()
++        };
++        let mut get = |_name: &str| -> Result<Array, String> { loaded.pop_front().expect("one result per name") };
+         let (d, f, kvw, half) = (sh.width, sh.hidden, sh.kv_heads * sh.head_dim, sh.head_dim / 2);
+         let wq = get("wq")?;
+         wq.expect("wq", Dtype::I8, &[d, d])?;
+@@ -889,7 +918,7 @@
+         let (gcos, gsin) = crate::tables_attn::rope_tables_generate(sh.tokens, sh.head_dim, c.rope_theta, F_RO);
+         let exported = match (arrays.opt("rope_cos").or_else(|| arrays.opt("cos")), arrays.opt("rope_sin").or_else(|| arrays.opt("sin"))) {
+             (Some(cs), Some(ss)) => {
+-                let (ca, sa) = (load_array(&dir, "rope_cos", cs)?, load_array(&dir, "rope_sin", ss)?);
++                let (ca, sa) = (load_array_checked(&dir, "rope_cos", cs, full)?, load_array_checked(&dir, "rope_sin", ss, full)?);
+                 ca.expect("rope_cos", Dtype::I64, &[sh.tokens, half]).or_else(|_| ca.expect("rope_cos", Dtype::I64, &[sh.tokens * half]))?;
+                 sa.expect("rope_sin", Dtype::I64, &[sh.tokens, half]).or_else(|_| sa.expect("rope_sin", Dtype::I64, &[sh.tokens * half]))?;
+                 Some((ca.i64s(), sa.i64s()))
+@@ -933,7 +962,7 @@
+                 source_tensors.push((name.clone(), unhex32(v.str().map_err(ctx)?).map_err(ctx)?));
+             }
+         }
+-        let mut record = LayerRecord::of_block(index, &blk, source_tensors);
++        let mut record = if full { LayerRecord::of_block(index, &blk, source_tensors) } else { LayerRecord::unhashed(index) };
+         let manifest_sha256 = sha256(&mbytes);
+         record.manifest_sha256 = manifest_sha256;
+         record.silu_member = tk.silu;
+@@ -997,13 +1026,29 @@
+ 
+ /// a true `(to, ti)` row-major matrix placed into the padded `(po, pi)` one
+ /// through the two index maps (ruling P-2; the same map as the driver's)
+-fn pad_matrix(w: &[i8], to: usize, ti: usize, po: usize, pi: usize, omap: &dyn Fn(usize) -> usize, imap: &dyn Fn(usize) -> usize) -> Vec<i8> {
++fn pad_matrix(w: &[i8], to: usize, ti: usize, po: usize, pi: usize, omap: &(dyn Fn(usize) -> usize + Sync), imap: &(dyn Fn(usize) -> usize + Sync)) -> Vec<i8> {
++    // ROUND 5 (R5-2): the same placement, made row by row in PARALLEL over
++    // the destination rows, with a straight row copy where the inner map is
++    // the identity (every map here is injective; the pad stays zero)
++    use rayon::prelude::*;
+     let mut out = vec![0i8; po * pi];
++    let mut src_of: Vec<Option<usize>> = vec![None; po];
+     for o in 0..to {
+-        for i in 0..ti {
+-            out[omap(o) * pi + imap(i)] = w[o * ti + i];
+-        }
++        src_of[omap(o)] = Some(o);
+     }
++    let inner: Vec<usize> = (0..ti).map(imap).collect();
++    let identity = inner.iter().enumerate().all(|(i, j)| i == *j);
++    out.par_chunks_mut(pi).enumerate().for_each(|(r, row)| {
++        let Some(o) = src_of[r] else { return };
++        let src = &w[o * ti..(o + 1) * ti];
++        if identity {
++            row[..ti].copy_from_slice(src);
++        } else {
++            for (i, v) in src.iter().enumerate() {
++                row[inner[i]] = *v;
++            }
++        }
++    });
+     out
+ }
+ 
+@@ -1568,11 +1613,14 @@
+         // drop the previous block BEFORE the next one is read
+         self.cur = None;
+         let t = Instant::now();
+-        let lay = self.ex.load_layer(self.sh, self.c, self.layers[k], self.rope_from_export)?;
+-        if lay.blk.digest() != self.digests[k] {
++        // ROUND 5 (R5-2): the reload skips the per-array and padded-word
++        // SHA-256s; the digest of the block it built — the bytes about to be
++        // proved — must be the digest pass's
++        let blk = self.ex.reload_block(self.sh, self.c, self.layers[k], self.rope_from_export)?;
++        if blk.digest() != self.digests[k] {
+             return Err(format!("trained stack: layer {}'s reloaded public statement is not the one the run statement binds", self.layers[k]));
+         }
+-        let a = std::sync::Arc::new(lay.blk);
++        let a = std::sync::Arc::new(blk);
+         self.cur = Some((k, a.clone()));
+         self.loads += 1;
+         self.load_s += t.elapsed().as_secs_f64();
+@@ -1588,6 +1636,48 @@
+         let a = self.0.borrow_mut().get(k)?;
+         Ok(run::BlockRef::Shared(a))
+     }
++    fn count(&self) -> usize {
++        self.0.borrow().layers.len()
++    }
++    /// RULINGS CS-1 / CS-4 for a STREAMING source: each block is built by
++    /// the loader through `new_shaped` at the run's shape (the constructor's
++    /// one check), and `prove_core` / `verify_core` re-run the check on it
++    /// before its stage commits or absorbs anything of it; the cache was
++    /// built for this shape, which is compared here.
++    ///
++    /// ROUND 5 (evening, 19:20 UTC): compared on the block statement's
++    /// GEOMETRY (profile, axes, padded axes) — not on the whole shape. The
++    /// calibration constants and windowed shifts are not in a block's words,
++    /// so a verifier at another calibration is handed the very same blocks
++    /// and must be refused by the run's transcript binding; the first port
++    /// compared whole shapes and so refused the run-level calibration
++    /// controls here, before the binding they test was reached (the R5 8B
++    /// stack's controls said "the block cache was built for the shape ..."
++    /// where R4's said "this segment belongs to another run"). `f_e` (the
++    /// exp table's top) is CS-4's, re-checked on every loaded block by
++    /// `prove_core` / `verify_core` before its stage commits or absorbs.
++    fn fit_the_shape(&mut self, sh: &Shape) -> Result<(), String> {
++        let c = self.0.borrow();
++        let geometry = |s: &Shape| (s.profile, s.tokens, s.width, s.hidden, s.q_heads, s.head_dim, s.kv_heads, s.t_pad, s.d_pad, s.h_pad, s.f_pad);
++        if geometry(c.sh) != geometry(sh) {
++            return Err(format!("private run: the block cache was built for the block geometry of {:?}, the run's shape is {:?}", c.sh.name, sh.name));
++        }
++        Ok(())
++    }
++    /// RULING CS-6 for a STREAMING source: the digest list the cache enforces
++    /// on every load (a reloaded block whose digest is not its entry is
++    /// refused) is the statement's, entry for entry
++    fn are_the_statements(&mut self, st: &RunStatement) -> Result<(), String> {
++        let c = self.0.borrow();
++        let want = st.block_digests();
++        if c.digests.len() != want.len() {
++            return Err(format!("private run: ruling CS-6 — the run statement holds {} block digests and {} blocks were handed", want.len(), c.digests.len()));
++        }
++        for (k, (got, w)) in c.digests.iter().zip(want).enumerate() {
++            run::digest_is_the_statements(k, got, w)?;
++        }
++        Ok(())
++    }
+ }
+ 
+ impl<'a> StackSource<'a> {
+@@ -1718,10 +1808,23 @@
+     let sh = ex.shape_for(&c)?;
+     let mut metas = Vec::with_capacity(layers.len());
+     let mut digests = Vec::with_capacity(layers.len());
+-    for &l in layers {
+-        let t = ex.load_layer(&sh, &c, l, rope_from_export)?;
+-        digests.push(t.blk.digest());
+-        metas.push(LayerMeta { index: t.index, manifest_sha256: t.manifest_sha256, record: t.record });
++    // ROUND 5 (R5-2): the digest pass loads DIGEST_PASS_WIDTH layers at a
++    // time, in parallel — the same loads and the same checks, the records and
++    // digests kept in layer order, and the first error IN LAYER ORDER is the
++    // one returned (what the sequential loop returned). Two at a time keeps
++    // the pass's transient memory at about two layers' (about 2 GiB at 8B).
++    const DIGEST_PASS_WIDTH: usize = 2;
++    for chunk in layers.chunks(DIGEST_PASS_WIDTH) {
++        let loaded: Vec<Result<TrainedLayer, String>> = {
++            use rayon::prelude::*;
++            chunk.par_iter().map(|&l| ex.load_layer(&sh, &c, l, rope_from_export)).collect()
++        };
++        for t in loaded {
++            let t = t?;
++            // the record already holds the block's digest (one blake3 pass)
++            digests.push(t.record.block_digest);
++            metas.push(LayerMeta { index: t.index, manifest_sha256: t.manifest_sha256, record: t.record });
++        }
+     }
+     let st = ex.statement_of_records(&sh, &c, metas.iter().map(|m| m.record.clone()).collect())?;
+     Ok((c, sh, metas, digests, st))
+@@ -1791,7 +1894,7 @@
+ /// plane after block K is off by one word, and the run must then FAIL to
+ /// verify (exit 0 means the control behaved).
+ pub fn trained_stack_prove_command(args: &[String]) -> i32 {
+-    let f = match flags(args, &["--export", "--seq", "--out", "--layers", "--label", "--lie-at-boundary"], &["--rope-from-export"]) {
++    let f = match flags(args, &["--export", "--seq", "--out", "--layers", "--label", "--lie-at-boundary"], &["--rope-from-export", "--verify-in-process"]) {
+         Ok(f) => f,
+         Err(e) => {
+             eprintln!("zk60_trained_block stack-prove: {e}");
+@@ -1909,10 +2012,18 @@
+         (cb.loads, cb.load_s)
+     };
+     drop(cache);
+-    // ---- in-process verification from the directory (a fresh cache)
++    // ---- in-process verification from the directory (a fresh cache).
++    //      ROUND 5 (R5-2): OFF by default — the fresh-process verify is the
++    //      check; `--verify-in-process` turns it on, and the boundary-lie
++    //      control always runs it (its verdict IS the control)
++    let in_process = flag(f, "--verify-in-process").is_some() || lie_at.is_some();
+     let t = Instant::now();
+-    let vcache = BlockCache::shared(&ex, &sh, &c, layers.clone(), digests.clone(), rope);
+-    let verdict = run::verify_run_from_dir_with(&rst, &mut CacheBlocks(vcache), &out);
++    let verdict = if in_process {
++        let vcache = BlockCache::shared(&ex, &sh, &c, layers.clone(), digests.clone(), rope);
++        run::verify_run_from_dir_with(&rst, &mut CacheBlocks(vcache), &out)
++    } else {
++        Ok(())
++    };
+     let verify_s = t.elapsed().as_secs_f64();
+     if let Some(k) = lie_at {
+         return match verdict {
+@@ -1931,7 +2042,7 @@
+     let segs: Vec<String> = (0..l).map(|k| format!("{{\"file\":{},\"bytes\":{},\"sha256\":{}}}", js(&super::run_sink::segment_file_name(k)), disk.lengths()[k], js(&disk.digests()[k]))).collect();
+     write_new(&sdir.join("segments.json"), format!("[\n {}\n]\n", segs.join(",\n ")).as_bytes())?;
+     println!(
+-        "{{\"event\":\"proved\",\"gpu\":{},\"gpu_declines\":{},\"blocks\":{l},\"receipt_bytes\":{},\"prove_run_seconds\":{prove_s:.3},\"of_which_witness_seconds\":{witness_s:.3},\"witness_seconds_per_block\":{:.3},\"of_which_block_load_seconds\":{block_load_s:.3},\"block_loads\":{block_loads},\"rayon_threads\":{},\"in_process_verify_seconds\":{verify_s:.3},\"sealing_pass_seconds\":{seal_s:.3},\"load_seconds\":{load_s:.3},\"total_seconds\":{:.3},\"vmhwm_mib\":{hwm:.0},\"statement_identity\":{},\"out\":{}}}",
++        "{{\"event\":\"proved\",\"gpu\":{},\"gpu_declines\":{},\"blocks\":{l},\"receipt_bytes\":{},\"prove_run_seconds\":{prove_s:.3},\"of_which_witness_seconds\":{witness_s:.3},\"witness_seconds_per_block\":{:.3},\"of_which_block_load_seconds\":{block_load_s:.3},\"block_loads\":{block_loads},\"rayon_threads\":{},\"in_process_verified\":{in_process},\"in_process_verify_seconds\":{verify_s:.3},\"sealing_pass_seconds\":{seal_s:.3},\"load_seconds\":{load_s:.3},\"total_seconds\":{:.3},\"vmhwm_mib\":{hwm:.0},\"statement_identity\":{},\"out\":{}}}",
+         js(&crate::gpu::label()),
+         crate::gpu::declines(),
+         disk.total_bytes(),
+@@ -2018,7 +2129,12 @@
+     if l < 2 {
+         return Err("trained stack: the run-level controls need at least two blocks".into());
+     }
+-    let mut segs: Vec<Vec<u8>> = super::run_sink::segment_paths(art, l)?.iter().map(|p| std::fs::read(p).map_err(|e| e.to_string())).collect::<Result<_, _>>()?;
++    // REVIEW r3_6: the segments are read through the run verifier's BOUNDED
++    // reader, each against its counted length in the honest run statement
++    // (checked from metadata before the file is opened)
++    let honest = RunStatement::new_bound_from_digests(ex.geometry.run_shape(sh, l)?, ctx, expected.clone(), digests.to_vec(), &vec![(0, 0); l], st)?;
++    let mut segs: Vec<Vec<u8>> = super::run_sink::segment_paths(art, l)?.iter().enumerate().map(|(k, p)| run::read_segment_bounded(&honest, k, p)).collect::<Result<_, _>>()?;
++    drop(honest);
+     let mut n = 0usize;
+     let mut refuse = |name: &str, r: Result<(), String>| -> Result<(), String> {
+         match r {
+@@ -2055,25 +2171,42 @@
+         refuse(&format!("a statement with blocks {a} and {b} swapped"), run_with(&sw, &st2, sh, expected, &segs))?;
+         refuse(&format!("the honest statement with the verifier's block list {a} <-> {b} swapped"), run_with(&sw, st, sh, expected, &segs))?;
+     }
++    // ROUND 5 (evening): a calibration control whose verifier CAN be built
++    // (shape, statement, policy at the moved constant) must be refused by
++    // the WIRE's binding of that verifier's own statement (the segment
++    // header's run tag, or the counted length when the layout moves), never
++    // by an earlier API guard, so a control that stops reaching the binding
++    // fails the run. (A verifier that cannot be built at all — e.g. the
++    // rung-TC geometry fixes f_e — is a refusal of its own, as before.)
++    let by_the_binding = |name: &str, built: Result<Result<(), String>, String>| -> Result<Result<(), String>, String> {
++        match built {
++            Err(e) => Ok(Err(e)),
++            Ok(Err(e)) if !e.starts_with("private run wire:") => Err(format!("CONTROL WEAK: `{name}` was refused by `{}`, before the run binding it tests", e.chars().take(160).collect::<String>())),
++            Ok(r) => Ok(r),
++        }
++    };
+     // (2) one calibration constant moved (the verifier's shape and statement)
+     for (name, v) in [("norm_cn_a + 1", NormCalibration { cn_a: rc.cal.cn_a + 1, ..rc.cal }), ("sh_z moved by one", NormCalibration { sh_z: nudge(rc.cal.sh_z, 1, 8), ..rc.cal }), ("sh_qkv moved by one", NormCalibration { sh_qkv: nudge(rc.cal.sh_qkv, 1, 8), ..rc.cal })] {
+-        let r = (|| -> Result<(), String> {
++        let built = (|| -> Result<Result<(), String>, String> {
+             let s2 = ex.geometry.shape_at(&v, rc.f_e)?;
+             let st2 = ex.statement_of_records(&s2, &Constants { cal: v, ..rc.clone() }, loaded.iter().map(|m| m.record.clone()).collect())?;
+             let e2 = ExpectedIo::from_bytes_at(&s2, &expected.to_bytes())?;
+-            run_with(&ident, &st2, &s2, &e2, &segs)
++            Ok(run_with(&ident, &st2, &s2, &e2, &segs))
+         })();
+-        refuse(&format!("a verifier statement with {name}"), r)?;
++        let name = format!("a verifier statement with {name}");
++        let r = by_the_binding(&name, built)?;
++        refuse(&name, r)?;
+     }
+     // (2b) review finding F-1: f_e moved by one inside its declared class
+     {
+         let fe2 = nudge(rc.f_e, *super::shape::TRAINED_F_E_RANGE.start(), *super::shape::TRAINED_F_E_RANGE.end());
+-        let r = (|| -> Result<(), String> {
++        let built = (|| -> Result<Result<(), String>, String> {
+             let s2 = ex.geometry.shape_at(&rc.cal, fe2)?;
+             let st2 = ex.statement_of_records(&s2, &Constants { f_e: fe2, ..rc.clone() }, loaded.iter().map(|m| m.record.clone()).collect())?;
+             let e2 = ExpectedIo::from_bytes_at(&s2, &expected.to_bytes())?;
+-            run_with(&ident, &st2, &s2, &e2, &segs)
++            Ok(run_with(&ident, &st2, &s2, &e2, &segs))
+         })();
++        let r = by_the_binding("a verifier statement with f_e moved by one", built)?;
+         refuse("a verifier statement with f_e moved by one", r)?;
+     }
+     // (3) another export digest
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/trained_calib_tests.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/trained_calib_tests.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/trained_calib_tests.rs	2026-10-17 04:48:20.986799965 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/trained_calib_tests.rs	2026-10-17 07:10:31.807578725 -0700
+@@ -233,8 +233,15 @@
+     assert_eq!(tinyllama().profile, TINYLLAMA_T32_TRAINED_PROFILE);
+     let t = tinyllama();
+     assert!(t.clone().with_trained_calibration(&c).unwrap_err().contains("once"), "a second application was accepted");
+-    // a TinyLlama-profile shape built with a window override is refused
+-    let over = Shape::new("override", TINYLLAMA_T32_TRAINED_PROFILE, 32, 2048, 5632, 32, 64, 4, 12, 4, 9, 21, None, None, Some(32), None).expect("constructs");
++    // a TinyLlama-profile shape built with a window override is refused —
++    // since round 5 by ruling CS-9 at `Shape::new` (the profile string names
++    // one shape), before the door's own override refusal is reached
++    let over = Shape::new("override", TINYLLAMA_T32_TRAINED_PROFILE, 32, 2048, 5632, 32, 64, 4, 12, 4, 9, 21, None, None, Some(32), None).expect_err("a TinyLlama-profile shape with a window override CONSTRUCTED");
++    assert!(over.contains("ruling CS-9"), "{over}");
++    // and the door's own refusal, on a value whose window was written
++    let mut over = Shape::tinyllama_t32_trained(&c, T3_F_E).unwrap();
++    over.trained_calibration = false;
++    over.norm_wrho = 32;
+     assert!(over.with_trained_calibration(&c).unwrap_err().contains("override"));
+     // and a shape whose fields were changed WITHOUT the door has no layout
+     let mut sneaky = Shape::rung_c6();
+@@ -442,12 +449,19 @@
+ 
+ /// the run shape of a one-block run at a trained-calibration shape
+ pub(super) fn run_shape_for(sh: &Shape, l: usize) -> super::run::RunShape {
++    run_shape_for_checked(sh, l).unwrap()
++}
++
++/// the same, refusing instead of panicking (ROUND 5: ruling CS-7 refuses a
++/// shape that is not its run profile's registered one, e.g. one edited after
++/// the door)
++pub(super) fn run_shape_for_checked(sh: &Shape, l: usize) -> Result<super::run::RunShape, String> {
+     // ROUND 4: every trained-model profile (TinyLlama, Llama-3-8B) has its
+     // own run profile; the development rung its own
+     if sh.profile == super::shape::TRAINED_CALIB_RUNG_PROFILE {
+-        super::run::RunShape::rung_tc(sh.clone(), l).unwrap()
++        super::run::RunShape::rung_tc(sh.clone(), l)
+     } else {
+-        super::run::RunShape::tinyllama_trained(sh.clone(), l).unwrap()
++        super::run::RunShape::tinyllama_trained(sh.clone(), l)
+     }
+ }
+ 
+@@ -467,7 +481,7 @@
+     prov.rope_theta = super::shape::trained_rope_theta(sh.profile).unwrap_or(prov.rope_theta);
+     let cal = IntegerCalibration::as_the_code_proves(sh, &prov);
+     let recs = blocks.iter().enumerate().map(|(k, b)| LayerRecord::of_block(k as u32, b, vec![])).collect();
+-    let rp = run_shape_for(sh, 1).profile;
++    let rp = run_shape_for_checked(sh, 1).map(|r| r.profile()).unwrap_or(sh.profile);
+     TrainedModelStatement::new_synthetic_at_trained_profile_for_tests(sh, rp, src, cal, recs).expect("the synthetic trained-model statement")
+ }
+ 
+@@ -482,7 +496,7 @@
+ pub(super) fn bound_statement(sh: &Shape, blk: &BlockPublic, expected_bytes: &[u8]) -> Result<super::run::RunStatement, String> {
+     let e = ExpectedIo::from_bytes_at(sh, expected_bytes)?;
+     let blocks = vec![blk.clone()];
+-    super::run::RunStatement::new_bound(run_shape_for(sh, 1), ctx_t3(), e, &blocks, &[(0, 0)], &synthetic_statement(sh, &blocks))
++    super::run::RunStatement::new_bound(run_shape_for_checked(sh, 1)?, ctx_t3(), e, &blocks, &[(0, 0)], &synthetic_statement(sh, &blocks))
+ }
+ 
+ struct OneWitness(Option<Witness>);
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/trained_stack_tests.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/trained_stack_tests.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/trained_stack_tests.rs	2026-10-17 02:22:20.515174555 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/trained_stack_tests.rs	2026-10-17 11:40:47.417486563 -0700
+@@ -158,6 +158,36 @@
+     std::fs::write(out.join("notes.txt"), b"x").unwrap();
+     assert_eq!(trained_stack_verify_command(&s(&["--export", &vd, "--artifact", &od, "--expect-statement", &id])), 1, "a run directory with a foreign file was accepted");
+     std::fs::remove_file(out.join("notes.txt")).unwrap();
++    // REVIEW r3_6 (verifier DoS): a segment that is a symbolic link to
++    // /dev/zero, a FIFO, or one byte too long is refused by the CLI verifier
++    // and by its --controls reader without being read (a read of either of
++    // the first two would never return), and the honest run verifies again
++    {
++        let seg0 = out.join(super::run_sink::segment_file_name(0));
++        let honest = std::fs::read(&seg0).unwrap();
++        let restore = || {
++            let _ = std::fs::remove_file(&seg0);
++            std::fs::write(&seg0, &honest).unwrap();
++        };
++        std::fs::remove_file(&seg0).unwrap();
++        std::os::unix::fs::symlink("/dev/zero", &seg0).unwrap();
++        assert_eq!(trained_stack_verify_command(&s(&["--export", &vd, "--artifact", &od, "--expect-statement", &id])), 1, "a /dev/zero segment was accepted");
++        restore();
++        std::fs::remove_file(&seg0).unwrap();
++        assert!(std::process::Command::new("mkfifo").arg(&seg0).status().map(|x| x.success()).unwrap_or(false), "mkfifo");
++        assert_eq!(trained_stack_verify_command(&s(&["--export", &vd, "--artifact", &od, "--expect-statement", &id])), 1, "a FIFO segment was accepted");
++        restore();
++        std::fs::OpenOptions::new().write(true).open(&seg0).and_then(|f| f.set_len(honest.len() as u64 + 1)).unwrap();
++        assert_eq!(trained_stack_verify_command(&s(&["--export", &vd, "--artifact", &od, "--expect-statement", &id])), 1, "a segment one byte too long was accepted");
++        restore();
++        // the --controls reader is the same bounded reader: the verify fails
++        // first, and the controls never read the FIFO
++        std::fs::remove_file(&seg0).unwrap();
++        assert!(std::process::Command::new("mkfifo").arg(&seg0).status().map(|x| x.success()).unwrap_or(false), "mkfifo");
++        assert_eq!(trained_stack_verify_command(&s(&["--export", &vd, "--artifact", &od, "--expect-statement", &id, "--controls"])), 1, "a FIFO segment was accepted with --controls");
++        restore();
++        assert_eq!(trained_stack_verify_command(&s(&["--export", &vd, "--artifact", &od, "--expect-statement", &id])), 0, "the restored honest run no longer verifies");
++    }
+     // an existing output directory is never overwritten
+     assert_eq!(trained_stack_prove_command(&s(&["--export", &vd, "--seq", "s0", "--out", &od])), 1, "an existing run directory was overwritten");
+     // the prover-side lie: exit 0 means the run FAILED to verify, as it must
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/trained_statement.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/trained_statement.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/trained_statement.rs	2026-10-17 04:26:51.489046968 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/trained_statement.rs	2026-10-17 07:13:26.636511537 -0700
+@@ -377,19 +377,22 @@
+ impl LayerRecord {
+     /// The record of one block's PUBLIC statement, computed from the words
+     /// the prover and the verifier actually use.
++    /// ROUND 5 (R5-2): the record of a proving-pass RELOAD, which keeps only
++    /// the block (its digest is compared with the digest pass's record)
++    pub(crate) fn unhashed(index: u32) -> LayerRecord {
++        LayerRecord { index, block_digest: [0; 32], word_sha256: [[0; 32]; 9], table_sha256: [[0; 32]; 3], source_tensors: vec![], manifest_sha256: [0; 32], silu_member: (0, 0), exp_e_s: 0 }
++    }
++
+     pub(crate) fn of_block(index: u32, blk: &BlockPublic, source_tensors: Vec<(String, [u8; 32])>) -> LayerRecord {
+         let (a, f) = (blk.attention(), blk.feed_forward());
+-        let word_sha256 = [
+-            sha(&i8_bytes(&a.wq)),
+-            sha(&i8_bytes(&a.wk)),
+-            sha(&i8_bytes(&a.wv)),
+-            sha(&i8_bytes(&a.wo)),
+-            sha(&i8_bytes(&a.gamma_a)),
+-            sha(&i8_bytes(&f.gamma_m)),
+-            sha(&i8_bytes(&f.wg_t)),
+-            sha(&i8_bytes(&f.wu_t)),
+-            sha(&i8_bytes(&f.wd_t)),
+-        ];
++        // ROUND 5 (R5-2): the nine padded-word SHA-256s IN PARALLEL (the
++        // same bytes, the same digests, in the same order)
++        let words: [&Vec<i8>; 9] = [&a.wq, &a.wk, &a.wv, &a.wo, &a.gamma_a, &f.gamma_m, &f.wg_t, &f.wu_t, &f.wd_t];
++        let hashed: Vec<[u8; 32]> = {
++            use rayon::prelude::*;
++            words.par_iter().map(|w| sha(&i8_bytes(w))).collect()
++        };
++        let word_sha256: [[u8; 32]; 9] = hashed.try_into().expect("nine digests");
+         let act: Vec<u8> = f.act.iter().flat_map(|v| v.to_le_bytes()).collect();
+         let table_sha256 = [sha(&i64_bytes(&[&a.rope_cos, &a.rope_sin])), sha(&i64_bytes(&[&a.exp])), sha(&act)];
+         let mut source_tensors = source_tensors;
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/witness.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/witness.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/witness.rs	2026-10-17 03:34:43.013403533 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/witness.rs	2026-10-17 06:37:47.112776514 -0700
+@@ -541,6 +541,11 @@
+ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedForwardPublic, input: &[i16]) -> Result<Witness, String> {
+     let ids = Ids::new(shape)?;
+     norm_limbs_are_the_pinned_count(shape)?;
++    // RULINGS CS-1 and CS-4 (ported from the 125M lane): the two halves are
++    // checked against the shape they are built at, attention first, before
++    // the input is read
++    public.check_for_shape(shape)?;
++    ff.check_for_shape(shape)?;
+     let ap = |toy_id: usize| ids.at(toy_id);
+     let g = Geom::new(shape);
+     if input.len() != g.t * g.d {
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block.rs	2026-10-17 04:24:41.553806152 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block.rs	2026-10-17 07:15:57.115959644 -0700
+@@ -155,6 +155,10 @@
+ // R4: the trained Llama-3-8B profile and its generic block (test only)
+ #[cfg(test)]
+ mod r4_tests;
++// R5-1: the 125M lane's rulings CS-1, CS-3, CS-4, CS-6, CS-7, CS-8, CS-9 and
++// S38-F1(a), ported (finding G-1 of the privacy-gate lane; test only)
++#[cfg(test)]
++mod cs_port_tests;
+ // STAGE 19 (test-only): DENSE public weights and a numerically non-trivial
+ // witness at the shaped geometries, where the diagonal fixture leaves every
+ // hidden unit above `d` with no input and no output weight.
+@@ -425,6 +429,28 @@
+ fn weights_vanish_off_support(sh: &shape::Shape, w: &[i8], outer: Axis, inner: Axis) -> Result<(), String> {
+     let (no, ni) = (outer.len(sh), inner.len(sh));
+     debug_assert_eq!(w.len(), no * ni, "the length check runs before this one");
++    // NATIVE LANE, round 5: rulings CS-1 / CS-4 re-run this check at every
++    // entry, over every word of a block (232 MB at Llama-3-8B), so the scan
++    // is first made in PARALLEL over the off-support entries only — a row off
++    // its outer support entirely, a supported row at its off-support inner
++    // indices — which is exactly the set of entries the sequential loop below
++    // can refuse on. The verdict is the same; on a violation the sequential
++    // loop runs and names the FIRST one in row-major order, as before.
++    {
++        use rayon::prelude::*;
++        let inner_off: Vec<usize> = (0..ni).filter(|&i| inner.supported(sh, i).is_err()).collect();
++        let violation = (0..no).into_par_iter().any(|o| {
++            let row = &w[o * ni..(o + 1) * ni];
++            if outer.supported(sh, o).is_err() {
++                row.iter().any(|v| *v != 0)
++            } else {
++                inner_off.iter().any(|&i| row[i] != 0)
++            }
++        });
++        if !violation {
++            return Ok(());
++        }
++    }
+     for o in 0..no {
+         let o_ok = outer.supported(sh, o).is_ok();
+         for i in 0..ni {
+@@ -492,6 +518,29 @@
+         rope_sin: &[i64],
+         exp: &[i64],
+     ) -> Result<Self, String> {
++        Self::check_words(sh, wq, wk, wv, wo, gamma_a, rope_cos, rope_sin, exp)?;
++        Ok(Self {
++            wq: wq.to_vec(),
++            wk: wk.to_vec(),
++            wv: wv.to_vec(),
++            wo: wo.to_vec(),
++            gamma_a: gamma_a.to_vec(),
++            rope_cos: rope_cos.to_vec(),
++            rope_sin: rope_sin.to_vec(),
++            exp: exp.to_vec(),
++        })
++    }
++
++    /// **RULING CS-4 (ported from the 125M lane's stage 41, round 5 of this
++    /// lane; finding G-1 of the privacy-gate lane): THE ONE CHECK of an
++    /// attention statement against a shape** — every rule of this half that
++    /// depends on the shape, in the constructor's own order and with its own
++    /// messages. The statement carries no shape, so this runs in
++    /// [`AttentionPublic::new_shaped`] and AGAIN, through
++    /// [`AttentionPublic::check_for_shape`], wherever a statement meets the
++    /// shape it is proved at, before anything is absorbed, committed or drawn.
++    #[allow(clippy::too_many_arguments)]
++    fn check_words(sh: &shape::Shape, wq: &[i8], wk: &[i8], wv: &[i8], wo: &[i8], gamma_a: &[i8], rope_cos: &[i64], rope_sin: &[i64], exp: &[i64]) -> Result<(), String> {
+         let (d, kv, half) = (sh.d_pad, sh.kv_heads * sh.head_dim, sh.head_dim / 2);
+         if [wq.len(), wo.len()] != [d * d; 2] || [wk.len(), wv.len()] != [kv * d; 2] || gamma_a.len() != d {
+             return Err("private block: public weight shape".into());
+@@ -519,16 +568,14 @@
+         if exp[0] != one_e || exp.iter().any(|e| !(0..=one_e).contains(e)) || exp.windows(2).any(|w| w[0] < w[1]) {
+             return Err("private block: exp table structure".into());
+         }
+-        Ok(Self {
+-            wq: wq.to_vec(),
+-            wk: wk.to_vec(),
+-            wv: wv.to_vec(),
+-            wo: wo.to_vec(),
+-            gamma_a: gamma_a.to_vec(),
+-            rope_cos: rope_cos.to_vec(),
+-            rope_sin: rope_sin.to_vec(),
+-            exp: exp.to_vec(),
+-        })
++        Ok(())
++    }
++
++    /// **RULING CS-4: the re-check**, by name, of an attention statement that
++    /// already exists against the shape it is about to be proved or verified
++    /// at, its refusal prefixed with [`CS4_ATTENTION_REFUSAL`].
++    pub(crate) fn check_for_shape(&self, sh: &shape::Shape) -> Result<(), String> {
++        Self::check_words(sh, &self.wq, &self.wk, &self.wv, &self.wo, &self.gamma_a, &self.rope_cos, &self.rope_sin, &self.exp).map_err(|e| format!("{CS4_ATTENTION_REFUSAL}: {e}"))
+     }
+ 
+     fn absorb_into(&self, h: &mut blake3::Hasher) {
+@@ -556,6 +603,15 @@
+     }
+ }
+ 
++/// **RULING CS-1's name**, the prefix of every re-check's refusal (the
++/// constructor's own message follows it). Ported from the 125M lane (stage 40).
++const CS1_REFUSAL: &str = "private block: ruling CS-1 — the feed-forward statement does not fit the shape it is proved at";
++
++/// **RULING CS-4's names** (the 125M lane's stage 41): ruling CS-1 extended
++/// to every shape-keyed part of a block or run statement.
++const CS4_ATTENTION_REFUSAL: &str = "private block: ruling CS-4 — the attention statement does not fit the shape it is proved at";
++const CS4_POLICY_REFUSAL: &str = "private block: ruling CS-4 — the endpoint policy does not fit the shape it is proved at";
++
+ /// The feed-forward half's PUBLIC words: the second norm gain `gamma_m`, the
+ /// three `(input, output)` row-major matrices `Wg`, `Wu`, `Wd` exactly as the
+ /// kernel stores them, and the 256-entry int16-output activation table.
+@@ -589,6 +645,18 @@
+     /// axis's support must be zero. The feed-forward axis carries no head
+     /// permutation — only `Dom::Q` does — so its support is a prefix.
+     pub(crate) fn new_shaped(sh: &shape::Shape, gamma_m: &[i8], wg_t: &[i8], wu_t: &[i8], wd_t: &[i8], act: &[i16]) -> Result<Self, String> {
++        Self::check_words(sh, gamma_m, wg_t, wu_t, wd_t, act)?;
++        let act: [i16; 256] = act.try_into().map_err(|_| "private block: activation table shape".to_string())?;
++        Ok(Self { gamma_m: gamma_m.to_vec(), wg_t: wg_t.to_vec(), wu_t: wu_t.to_vec(), wd_t: wd_t.to_vec(), act })
++    }
++
++    /// **RULING CS-1 (ported from the 125M lane's stage 40): THE ONE CHECK of
++    /// a feed-forward statement against a shape** — the padded lengths, ruling
++    /// P-2's entrywise support check on the four matrices, the table length,
++    /// and ruling S38-F1(a), in the constructor's order with its messages.
++    /// Re-run through [`FeedForwardPublic::check_for_shape`] wherever a
++    /// statement meets the shape it is proved at.
++    fn check_words(sh: &shape::Shape, gamma_m: &[i8], wg_t: &[i8], wu_t: &[i8], wd_t: &[i8], act: &[i16]) -> Result<(), String> {
+         let (d, f) = (sh.d_pad, sh.f_pad);
+         if gamma_m.len() != d || [wg_t.len(), wu_t.len()] != [d * f; 2] || wd_t.len() != f * d {
+             return Err("private block: feed-forward weight shape".into());
+@@ -597,8 +665,25 @@
+         weights_vanish_off_support(sh, wg_t, Axis::D, Axis::F)?;
+         weights_vanish_off_support(sh, wu_t, Axis::D, Axis::F)?;
+         weights_vanish_off_support(sh, wd_t, Axis::F, Axis::D)?;
+-        let act: [i16; 256] = act.try_into().map_err(|_| "private block: activation table shape".to_string())?;
+-        Ok(Self { gamma_m: gamma_m.to_vec(), wg_t: wg_t.to_vec(), wu_t: wu_t.to_vec(), wd_t: wd_t.to_vec(), act })
++        if act.len() != 256 {
++            return Err("private block: activation table shape".into());
++        }
++        // RULING S38-F1(a) (the 125M lane's stage 39): where `Dom::F` pads,
++        // every padded position carries `(g8, a16) = (0, 0)` and the
++        // never-gated activation LogUp arm looks up the pair `(128, 0)`, a
++        // table row only when `act[128] == 0` — any other value makes every
++        // honest proof fail at the verifier. Refused by name; where `Dom::F`
++        // does not pad nothing changes, and nothing new is absorbed.
++        if sh.pads(layout::Dom::F) && act[128] != 0 {
++            return Err("private block: activation table act[128] must be 0 at a shape whose feed-forward domain pads (ruling S38-F1(a))".into());
++        }
++        Ok(())
++    }
++
++    /// **RULING CS-1: the re-check**, by name, of a statement that already
++    /// exists against the shape it is about to be proved or verified at.
++    pub(crate) fn check_for_shape(&self, sh: &shape::Shape) -> Result<(), String> {
++        Self::check_words(sh, &self.gamma_m, &self.wg_t, &self.wu_t, &self.wd_t, &self.act).map_err(|e| format!("{CS1_REFUSAL}: {e}"))
+     }
+ 
+     /// The feed-forward half of the PUBLIC SYNTHETIC fixture
+@@ -650,6 +735,14 @@
+         &self.feed_forward
+     }
+ 
++    /// **RULINGS CS-1 and CS-4: the whole block statement against the shape
++    /// it is proved at** — the attention half's one check, then the
++    /// feed-forward half's, in block order, each refusing by its own name.
++    pub(crate) fn check_for_shape(&self, sh: &shape::Shape) -> Result<(), String> {
++        self.attention.check_for_shape(sh)?;
++        self.feed_forward.check_for_shape(sh)
++    }
++
+     pub fn digest(&self) -> Digest {
+         let mut h = blake3::Hasher::new();
+         h.update(b"hashline/private-block-public/1");
+@@ -735,16 +828,60 @@
+             opened_cols: sh.opened_cols,
+             hash_tag: sh.hash_tag(),
+         };
++        // RULING CS-4: the constructor's own call of the one check
++        spec.check_for_shape(sh)?;
+         spec.validate()?;
+         Ok(spec)
+     }
+ 
++    /// **RULING CS-4 (ported from the 125M lane's stage 41): THE ONE CHECK
++    /// of an endpoint spec against a shape** — the padded endpoint plane, the
++    /// endpoint construction, its commitment parameters and the hash tag, all
++    /// DERIVED from the shape and none absorbed. Re-run, by name, wherever a
++    /// spec meets the shape it is proved at, before the endpoint owners are
++    /// opened, anything is absorbed or anything is drawn.
++    pub(crate) fn check_for_shape(&self, sh: &shape::Shape) -> Result<(), String> {
++        // RULING CS-8 first: the one invariant of a spec that no shape keys
++        self.scales_are_the_approved_ones()?;
++        let refuse = |what: String| -> Result<(), String> { Err(format!("{CS4_POLICY_REFUSAL}: {what}")) };
++        if (self.t_pad, self.d_pad) != (sh.t_pad, sh.d_pad) {
++            return refuse(format!("its padded endpoint plane is ({}, {}), this shape's is ({}, {})", self.t_pad, self.d_pad, sh.t_pad, sh.d_pad));
++        }
++        if self.general != sh.endpoint_general {
++            let kind = |g: bool| if g { "the generalised endpoint" } else { "the frozen seam" };
++            return refuse(format!("its endpoint construction is {}, this shape's is {}", kind(self.general), kind(sh.endpoint_general)));
++        }
++        let (mine, theirs) = ((self.endpoint_log_n, self.endpoint_inv_rate, self.endpoint_rows, self.opened_cols), (sh.endpoint_log_n, sh.endpoint_inv_rate, sh.endpoint_rows, sh.opened_cols));
++        if mine != theirs {
++            return refuse(format!("its endpoint commitment parameters (log_n, rate, rows, opened columns) are {mine:?}, this shape's are {theirs:?}"));
++        }
++        if self.hash_tag != sh.hash_tag() {
++            return refuse("its hash tag is not this shape's (the endpoints were committed under another profile's hashing rule)".into());
++        }
++        Ok(())
++    }
++
++    /// **RULING CS-8 (the 125M lane's stage 43): the pinned scales,
++    /// re-checked** in [`IoSpec::check_for_shape`] and [`IoSpec::validate`]
++    /// (the fields are writable from every lane file).
++    fn scales_are_the_approved_ones(&self) -> Result<(), String> {
++        if (self.input_scale, self.output_scale) != ENDPOINT_SCALES {
++            return Err(format!(
++                "private block: ruling CS-8 — the endpoint policy's scales ({}, {}) are not the approved calibration's {ENDPOINT_SCALES:?}, which IoSpec::new pins (D12 item 5)",
++                self.input_scale, self.output_scale
++            ));
++        }
++        Ok(())
++    }
++
+     /// **S11b.** Build whichever endpoint statements this spec carries, and
+     /// check that their derived commitment geometry is the one the shape
+     /// DECLARES. A shape whose `endpoint_rows` disagrees with what its own
+     /// parameters give is refused here, at construction, instead of at the
+     /// first proof.
+     pub(crate) fn validate(&self) -> Result<(), String> {
++        // RULING CS-8: every caller re-checks the pinned scales first
++        self.scales_are_the_approved_ones()?;
+         let rows = if self.general { self.endpoints_g()?[0].commitment_rows() } else { self.seams()?[0].len().div_ceil(1usize << self.endpoint_log_n) + endpoint_g::MASK_ROWS };
+         if rows != self.endpoint_rows {
+             return Err(format!("private block: this shape declares {} endpoint rows, its endpoint parameters give {rows}", self.endpoint_rows));
+@@ -1025,6 +1162,12 @@
+ pub(crate) fn verify_bytes_at(sh: &shape::Shape, public: &BlockPublic, expected: &ExpectedIo, bytes: &[u8]) -> Result<(), String> {
+     #[cfg(test)]
+     capture::begin();
++    // RULING CS-8: the shape the caller trusts is one `Shape::new` builds
++    sh.check_constructed()?;
++    // RULINGS CS-1 and CS-4: the block statement and the endpoint policy,
++    // before the frame is decoded against the statement's transcript header
++    public.check_for_shape(sh)?;
++    expected.spec.check_for_shape(sh)?;
+     let receipt = Receipt::from_bytes_at(sh, public, expected, bytes)?;
+     protocol::verify_inner_at(sh, public, expected, &receipt).map(|_| ())
+ }
+@@ -1032,6 +1175,10 @@
+ pub fn verify_bytes(public: &BlockPublic, expected: &ExpectedIo, bytes: &[u8]) -> Result<(), String> {
+     #[cfg(test)]
+     capture::begin();
++    // RULINGS CS-1 and CS-4, at the toy's own bytes entry
++    let toy = shape::Shape::toy();
++    public.check_for_shape(&toy)?;
++    expected.spec.check_for_shape(&toy)?;
+     verify(public, expected, &Receipt::from_bytes(public, expected, bytes)?)
+ }
+ 

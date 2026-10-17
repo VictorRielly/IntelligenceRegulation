@@ -637,6 +637,93 @@ def integrity(bundle: RunBundle) -> dict:
                 f"in stage {k+1}"
             )
 
+    # [TINYLLAMA PORT, tools v4, finding G-10] the two EXTERNAL endpoints.
+    # Until v4 the run pass compared every INTERNAL boundary's committed root
+    # with the root opened one stage later, but never compared the
+    # external-endpoint openings with run.json's `external_endpoints` -- the
+    # comparison the standalone-block reader makes (`block_integrity`: the
+    # policy's roots, and each opened root, against the declared roots).  So
+    # control C5 at L = 1 (the only stage swapped for the other run's) was
+    # refused by the replay alone.  Every retained bundle carries equal roots,
+    # equal row counts and the policy's own roots / scales / context (checked
+    # on all 30 run bundles on disk before this edit), so on an honest bundle
+    # these lines add no finding and no record leaf.
+    ee = bundle.run.get("external_endpoints")
+    # [tools v5, review P-21] a missing member is a NAMED finding, never a
+    # KeyError; and the three comparisons the block reader makes beyond v4's
+    # (data rows, the endpoint commitment geometry, the approved scales)
+    ee_keys = ("input_root", "output_root", "rows", "data_rows", "log_n",
+               "inv_rate", "input_scale", "output_scale", "opened_at_stage")
+    if isinstance(ee, dict) and any(k not in ee for k in ee_keys):
+        f.append("run.json: external_endpoints lacks "
+                 f"{[k for k in ee_keys if k not in ee]} (finding G-10)")
+        ee = None
+    if isinstance(ee, dict):
+        if (ee["input_scale"], ee["output_scale"]) != (0, 0):
+            f.append("run.json: external_endpoints scales "
+                     f"{(ee['input_scale'], ee['output_scale'])} are not the "
+                     "approved (0, 0) (finding G-10)")
+        if (ee["log_n"], ee["inv_rate"]) != (sh.endpoint_log_n, sh.endpoint_inv_rate):
+            f.append("run.json: external_endpoints log_n / inv_rate are not the "
+                     "shape's endpoint geometry (finding G-10)")
+    if not isinstance(ee, dict):
+        if bundle.run.get("external_endpoints") is None:
+            f.append("run.json: no external_endpoints table (finding G-10)")
+    else:
+        last = bundle.blocks - 1
+        if list(ee.get("opened_at_stage") or []) != [0, last]:
+            f.append(
+                f"run.json: external_endpoints opened_at_stage "
+                f"{ee.get('opened_at_stage')} is not [0, {last}] (finding G-10)"
+            )
+        for role_name, root_key, idx in (("Input", "input_root", 0),
+                                         ("Output", "output_root", last)):
+            st = bundle.stages[idx] if 0 <= idx < len(bundle.stages) else None
+            r = st.role_or_none(role_name) if st is not None else None
+            if r is None or r["commitment_kind"] != "external-endpoint":
+                f.append(
+                    f"stage {idx}: no external-endpoint {role_name} opening, "
+                    f"run.json opens it there (finding G-10)"
+                )
+                continue
+            if bytes(r["commitment"]["root"]) != bytes(ee[root_key]):
+                f.append(
+                    f"{st.name} {role_name}: the opened external-endpoint root is "
+                    f"not run.json's external_endpoints {root_key} (finding G-10)"
+                )
+            if r["commitment"]["rows"] != ee["rows"]:
+                f.append(
+                    f"{st.name} {role_name}: endpoint rows "
+                    f"{r['commitment']['rows']} != external_endpoints rows "
+                    f"{ee['rows']} (finding G-10)"
+                )
+            if r.get("data_rows") != ee["data_rows"]:
+                f.append(f"{st.name} {role_name}: endpoint data rows "
+                         f"{r.get('data_rows')} != external_endpoints data_rows "
+                         f"{ee['data_rows']} (finding G-10)")
+            p = r.get("params") or {}
+            if (p.get("log_cols"), p.get("inv_rate")) != (ee["log_n"], ee["inv_rate"]):
+                f.append(f"{st.name} {role_name}: the opening's PCS parameters are "
+                         "not external_endpoints' log_n / inv_rate (finding G-10)")
+        # the policy the run header absorbs names the same roots and scales
+        from zk60_native_rg_block import parse_policy  # (block imports this module)
+        pol = parse_policy(bytes(bundle.run["expected_policy"]))
+        if pol is None:
+            f.append("run.json: expected_policy is not a 112-byte HBLKEXP1 frame "
+                     "(finding G-10)")
+        else:
+            if (pol["input_root"], pol["output_root"]) != (
+                    list(ee["input_root"]), list(ee["output_root"])):
+                f.append("run.json: the policy's roots are not external_endpoints' "
+                         "roots (finding G-10)")
+            if (pol["input_scale"], pol["output_scale"]) != (
+                    ee["input_scale"], ee["output_scale"]):
+                f.append("run.json: the policy's scales are not external_endpoints' "
+                         "scales (finding G-10)")
+            if pol["context"] != list(bundle.run["context"]):
+                f.append("run.json: the policy's context is not run.json's context "
+                         "(finding G-10)")
+
     # opened exactly once: no two openings of the whole run share a root
     roots = {}
     for st in bundle.stages:

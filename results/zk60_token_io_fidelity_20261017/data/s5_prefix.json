@@ -1,0 +1,129 @@
+{
+ "a_prefix_T32_vs_T128": {
+  "identical": true,
+  "layers": 22,
+  "words_differing_per_layer": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "a_prefix_T64_vs_T128": {
+  "identical": true,
+  "layers": 22,
+  "words_differing_per_layer": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "b_changed_suffix_positions_ge_cut_words_differing_L21": 524155,
+ "b_changed_suffix_prefix_positions": {
+  "identical": true,
+  "layers": 22,
+  "words_differing_per_layer": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "b_suffix_tokens_changed": 253,
+ "cut": 64,
+ "ok": true,
+ "refusals": {
+  "T128": [
+   null,
+   null,
+   null,
+   null
+  ],
+  "T128_changed_suffix": [
+   null,
+   null,
+   null,
+   null
+  ],
+  "T32": [
+   null,
+   null,
+   null,
+   null
+  ],
+  "T64": [
+   null,
+   null,
+   null,
+   null
+  ]
+ },
+ "seconds": 141.03987908363342,
+ "sequences_heldout_T128_index": [
+  0,
+  1,
+  36,
+  37
+ ],
+ "suffix_donors": [
+  2,
+  3,
+  38,
+  39
+ ]
+}

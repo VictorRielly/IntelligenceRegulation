@@ -238,11 +238,15 @@ def m9_3_the_unpadded_domains(bundle, index, replay) -> dict:
     # patches that class's `pads` for the length of one `check_terminals`.
     geom = PadGeometry(bundle.run["shape"], index.domain_log)
     geom_doms = {}
+    pad_errors = {}
     for dom in hosts:
         try:
             geom_doms[dom] = bool(geom.pads(dom))
-        except Exception:  # noqa: BLE001
+        except Exception as e:  # noqa: BLE001
+            # [v5, review P-11] no longer swallowed: a domain whose pad state
+            # cannot be read is NAMED and fails the control (it cannot fire)
             geom_doms[dom] = None
+            pad_errors[dom] = f"{type(e).__name__}: {e}"[:200]
     unpadded = sorted(d for d, v in geom_doms.items() if v is False)
     per = []
     for dom in unpadded:
@@ -283,8 +287,11 @@ def m9_3_the_unpadded_domains(bundle, index, replay) -> dict:
         "every domain pads at this shape, so the control does not exist "
         "here -- which is exactly why rounds 1-8 could not run it",
         "fires": bool(per) and all(p["fires"] for p in per),
-        "ok": all(p["fires"] and p["the_refusal_names_the_two_numbers"]
-                  for p in per) if per else True,
+        # [v5, review P-11] with no domain left, ok only when that is the
+        # named every-domain-pads case and no domain's pad state errored
+        "pad_state_errors": pad_errors,
+        "ok": (all(p["fires"] and p["the_refusal_names_the_two_numbers"]
+                   for p in per) if per else True) and not pad_errors,
     }
 
 
@@ -295,7 +302,13 @@ def m125_controls(bundle, index=None, replay=None) -> dict:
            m9_2_a_moved_opened_column_entry(bundle)]
     if index is not None and replay is not None:
         out.append(m9_3_the_unpadded_domains(bundle, index, replay))
+    else:
+        # [v5, review P-11] NAMED, never silently omitted
+        out.append({"control": "M9-3", "fires": None,
+                    "skipped": "not run in this pass: it needs the terminal "
+                    "stage's plane index (run the pass with `terminals`)"})
     after = _digests(bundle)
+    live = [c for c in out if not c.get("skipped")]
     return {
         "what": "round 9's own controls -- the ones the 125M shape and the "
         "binary array store make possible",
@@ -305,5 +318,7 @@ def m125_controls(bundle, index=None, replay=None) -> dict:
                                        and not c.get("skipped")],
         "nothing_on_disk_was_written": before == after,
         "bundle_file_digests_unchanged": before == after,
-        "ok": all(c.get("ok") for c in out) and before == after,
+        # [v5, review P-11] over the controls that RAN (a named skip is not a
+        # failure, as in the hash-rule family), and never over none
+        "ok": bool(live) and all(c.get("ok") for c in live) and before == after,
     }

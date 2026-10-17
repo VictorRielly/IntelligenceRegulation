@@ -1,0 +1,195 @@
+   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: unused variable: `envu`
+    --> src/gpu/cuda.rs:1244:9
+     |
+1244 |     let envu = |k: &str, d: usize| std::env::var(k).ok().and_then(|v| v.parse().ok()).unwrap_or(d);
+     |         ^^^^ help: if this is intentional, prefix it with an underscore: `_envu`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:830:13
+    |
+830 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: field `supp` is never read
+    --> src/gpu/cuda.rs:3975:5
+     |
+3961 | pub struct DevFzcRounds {
+     |            ------------ field in this struct
+...
+3975 |     supp: bool,
+     |     ^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `force_check` is never used
+  --> src/gpu/fzc.rs:56:15
+   |
+56 | pub(crate) fn force_check(v: Option<bool>) {
+   |               ^^^^^^^^^^^
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:966:4
+    |
+966 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:477:5
+    |
+470 | struct Rec {
+    |        --- field in this struct
+...
+477 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:579:15
+    |
+579 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: calls to `std::mem::drop` with a value that implements `Copy` does nothing
+    --> src/gpu/cuda.rs:1104:9
+     |
+1104 |         drop(d_pack.0.take().map(pool_put));
+     |         ^^^^^-----------------------------^
+     |              |
+     |              argument has type `Option<()>`
+     |
+     = note: `#[warn(dropping_copy_types)]` on by default
+help: use `let _ = ...` to ignore the expression or result
+     |
+1104 -         drop(d_pack.0.take().map(pool_put));
+1104 +         let _ = d_pack.0.take().map(pool_put);
+     |
+
+warning: `hashline` (lib test) generated 19 warnings (run `cargo fix --lib -p hashline --tests` to apply 11 suggestions)
+    Finished `release` profile [optimized] target(s) in 3m 17s
+     Running unittests src/lib.rs (/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/target-gpu/release/deps/hashline-5af71eb9341564fc)
+
+running 1 test
+test private_block::gpu_zc_tests::gzc_device_bench_cube_ladder ... PB-GZC-WARM slot 18 | 301.2 ms, 104 spin launches | first 9946 us | mean of first 5 6871 us | mean of last 5 1275 us | min 1234 us
+PB-GZC-WARM slot 18 | 300.6 ms, 238 spin launches | first 1231 us | mean of first 5 1248 us | mean of last 5 1263 us | min 1213 us
+PB-GZC-MEM slot 18 start | device free 6700 MiB of 8187 MiB | pool holds 1 idle buffers (336 MiB)
+PB-GZC-WARM slot 18 | 300.6 ms, 238 spin launches | first 1222 us | mean of first 5 1240 us | mean of last 5 1272 us | min 1204 us
+PB-GZC slot 18 [gzl_d5s fused] | sumchecks 1 | n 20 k 21 D 5 | total 468.220 ms | build 434.732 ms (0.0 GB/s; H2D 352321536 B) | rounds 11.585 ms (30.4 GB/s) | fused fold+round 18.391 ms (57.5 GB/s) | folds 0.044 ms (0.0 GB/s) | reduce+D2H+host 3.107 ms | finals 0.060 ms | counted device bytes 1409285136 (3.0 GB/s over the total) | pairs 1048575 | P evals 5767163
+PB-GZC-ROUND 0 | round | entering len 1048576 | kernel 11586.1 us | reduce+D2H+host 320.7 us
+PB-GZC-ROUND 1 | fused fold+round | entering len 1048576 | kernel 7424.8 us | reduce+D2H+host 288.1 us
+PB-GZC-ROUND 2 | fused fold+round | entering len 524288 | kernel 3876.3 us | reduce+D2H+host 233.1 us
+PB-GZC-ROUND 3 | fused fold+round | entering len 262144 | kernel 2035.3 us | reduce+D2H+host 158.1 us
+PB-GZC-ROUND 4 | fused fold+round | entering len 131072 | kernel 1073.2 us | reduce+D2H+host 134.8 us
+PB-GZC-ROUND 5 | fused fold+round | entering len 65536 | kernel 519.2 us | reduce+D2H+host 155.6 us
+PB-GZC-ROUND 6 | fused fold+round | entering len 32768 | kernel 252.1 us | reduce+D2H+host 127.7 us
+PB-GZC-ROUND 7 | fused fold+round | entering len 16384 | kernel 250.8 us | reduce+D2H+host 137.3 us
+PB-GZC-ROUND 8 | fused fold+round | entering len 8192 | kernel 244.2 us | reduce+D2H+host 118.8 us
+PB-GZC-ROUND 9 | fused fold+round | entering len 4096 | kernel 228.7 us | reduce+D2H+host 129.1 us
+PB-GZC-ROUND 10 | fused fold+round | entering len 2048 | kernel 249.2 us | reduce+D2H+host 170.9 us
+PB-GZC-ROUND 11 | fused fold+round | entering len 1024 | kernel 265.4 us | reduce+D2H+host 120.0 us
+PB-GZC-ROUND 12 | fused fold+round | entering len 512 | kernel 257.9 us | reduce+D2H+host 135.8 us
+PB-GZC-ROUND 13 | fused fold+round | entering len 256 | kernel 243.4 us | reduce+D2H+host 117.7 us
+PB-GZC-ROUND 14 | fused fold+round | entering len 128 | kernel 263.4 us | reduce+D2H+host 135.8 us
+PB-GZC-ROUND 15 | fused fold+round | entering len 64 | kernel 246.1 us | reduce+D2H+host 137.8 us
+PB-GZC-ROUND 16 | fused fold+round | entering len 32 | kernel 242.1 us | reduce+D2H+host 118.9 us
+PB-GZC-ROUND 17 | fused fold+round | entering len 16 | kernel 238.1 us | reduce+D2H+host 142.2 us
+PB-GZC-ROUND 18 | fused fold+round | entering len 8 | kernel 256.0 us | reduce+D2H+host 122.8 us
+PB-GZC-ROUND 19 | fused fold+round | entering len 4 | kernel 230.4 us | reduce+D2H+host 101.8 us
+PB-GZC-ROUND 20 | fold | entering len 2 | kernel 44.3 us | reduce+D2H+host 0.0 us
+GZC ladder n 20 lean (2^20 = 1048576 entries, k 21, D 5): CPU body 0.711 s (16 threads), device body best of 2 467.30 ms incl. H2D of the host tables (336 MB); plan figure 72 B x 2^n x 17 = 1.283 GB -> 2.7 GB/s = 1.1% of 256 GB/s; speed-up 1.5x
+GZC VRAM after ladder n 20: 1487 MiB in use with 1 pooled buffers; drained 1; 1135 MiB in use after the drain
+GZC ladder totals: ladder | sumchecks 3 | n 20 k 21 D 5 | total 16406.780 ms | build 16307.981 ms (0.0 GB/s; H2D 1056964608 B) | rounds 11.728 ms (90.1 GB/s) | fused fold+round 19.304 ms (164.3 GB/s) | folds 0.068 ms (0.0 GB/s) | reduce+D2H+host 66.609 ms | finals 0.312 ms | counted device bytes 4227855408 (0.3 GB/s over the total) | pairs 3145725 | P evals 17301489
+GZC slot-18 module compile (NVRTC + load, once per process): 14.96 s
+GZC streaming reference: device-to-device copy of 512 MiB at 166.0 GB/s (read + write counted) = 64.8% of 256 GB/s
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 572 filtered out; finished in 22.56s
+

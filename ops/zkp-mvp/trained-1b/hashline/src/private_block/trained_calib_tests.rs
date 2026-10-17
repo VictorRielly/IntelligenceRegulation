@@ -222,7 +222,7 @@ fn the_trained_door_refuses_every_frozen_profile() {
         assert!(e.contains("is frozen"), "{}: {e}", sh.name);
         assert!(!sh.trained_calibration && sh.norm_calibration() == NormCalibration::FROZEN, "{}: a registered shape carries a non-frozen calibration", sh.name);
     }
-    assert_eq!(TRAINED_CALIBRATION_PROFILES, [TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIB_RUNG_PROFILE, super::shape::TINYLLAMA_T64_TRAINED_PROFILE, super::shape::TINYLLAMA_T128_TRAINED_PROFILE, super::shape::LLAMA3_8B_T32_TRAINED_PROFILE]);
+    assert_eq!(TRAINED_CALIBRATION_PROFILES, [TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIB_RUNG_PROFILE, super::shape::TINYLLAMA_T64_TRAINED_PROFILE, super::shape::TINYLLAMA_T128_TRAINED_PROFILE, super::shape::LLAMA3_8B_T32_TRAINED_PROFILE, super::shape::LLAMA3_8B_T64_TRAINED_PROFILE, super::shape::LLAMA3_8B_T128_TRAINED_PROFILE]);
     // ROUND 3 (R3-2): one profile per context length; any other T is refused
     for t in [16usize, 48, 256, 512] {
         assert!(Shape::tinyllama_trained(t, &c, T3_F_E).unwrap_err().contains("no trained TinyLlama profile"), "T{t}");
@@ -998,7 +998,7 @@ fn every_committed_value_under_a_non_unit_coefficient_is_range_proved_at_the_tra
 /// the calibration values; the calibration is bound through the schedule
 /// digest and the statement), and each run profile with its block shape.
 pub(super) fn registered_trained_shapes() -> Vec<Shape> {
-    vec![tinyllama(), rung_tc(), tinyllama_at(64), tinyllama_at(128), llama3_8b()]
+    vec![tinyllama(), rung_tc(), tinyllama_at(64), tinyllama_at(128), llama3_8b(), llama3_8b_at(64), llama3_8b_at(128)]
 }
 
 /// ROUND 4 (R4-1): the trained Llama-3-8B shape with the B5 smoke's
@@ -1012,6 +1012,11 @@ pub(super) fn llama3_8b() -> Shape {
     Shape::llama3_8b_t32_trained(&llama3_8b_calibration(), 9).expect("the trained Llama-3-8B shape")
 }
 
+/// task 3: the trained Llama-3-8B shape at another registered T
+pub(super) fn llama3_8b_at(t: usize) -> Shape {
+    Shape::llama3_8b_trained(t, &llama3_8b_calibration(), 9).expect("the trained Llama-3-8B shape at T")
+}
+
 pub(super) fn registered_trained_runs() -> Vec<(&'static str, Shape)> {
     vec![
         (super::run::RUN_PROFILE_TINYLLAMA_T32_TRAINED, tinyllama()),
@@ -1019,6 +1024,8 @@ pub(super) fn registered_trained_runs() -> Vec<(&'static str, Shape)> {
         (super::run::RUN_PROFILE_TINYLLAMA_T64_TRAINED, tinyllama_at(64)),
         (super::run::RUN_PROFILE_TINYLLAMA_T128_TRAINED, tinyllama_at(128)),
         (super::run::RUN_PROFILE_LLAMA3_8B_T32_TRAINED, llama3_8b()),
+        (super::run::RUN_PROFILE_LLAMA3_8B_T64_TRAINED, llama3_8b_at(64)),
+        (super::run::RUN_PROFILE_LLAMA3_8B_T128_TRAINED, llama3_8b_at(128)),
     ]
 }
 

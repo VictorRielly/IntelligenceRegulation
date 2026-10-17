@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "checks": 5375,
+  "independent_extension_values": 700,
+  "negative_controls": {
+    "rotated sidecar word index is detected": true,
+    "single private ambiguity bit mutation is detected": true
+  },
+  "live_drift": [],
+  "wall_seconds": 0.1623965059998227,
+  "peak_rss_kib": 17704,
+  "threads": 1,
+  "scope": "Independent interval/preimage proof, actual FFI sidecar mutations, full-extension exponent oracle, source/payload/parent-clock audit. No native receipt, GPU, privacy or speed acceptance."
+}
+T128 COUNTED {'model': 'TinyLlama1.1B', 'context': 128, 'looked_payload_bytes': 231997440, 'prior_borrowed_remaining_bytes': 56360960, 'H_u8_payload_bytes': 246677504, 'all_lookup_source_plane_words': 21463040, 'affine_source_plane_words': 5111808, 'packed_ambiguity_sidecar_bytes': 638976, 'scope': 'allocation-free illustrative payload counts using earlier TinyLlama public shifts; 8B shifts hypothetical. Not peak, traffic, speed, fit or profile admission. Sidecar is private, per-proof, never serialized.'}
+CEILINGS [{'arm': 'cpu', 'elapsed_s': 175.258632, 'whole_U8_H_parent_s': 6.9110000000000005, 'ideal_whole_parent_deletion_speedup': 1.0410519584855225, 'note': '22 trained 1.1B blocks, T128, one cold process per arm, shared 16-thread laptop; GPU RTX4070Laptop; reused prior owner clocks, no fresh verifier inspected for these phase samples. Candidate retains arithmetic/work; no native speed estimate.'}, {'arm': 'gpu', 'elapsed_s': 161.857226, 'whole_U8_H_parent_s': 8.844000000000001, 'ideal_whole_parent_deletion_speedup': 1.0577989251726514, 'note': '22 trained 1.1B blocks, T128, one cold process per arm, shared 16-thread laptop; GPU RTX4070Laptop; reused prior owner clocks, no fresh verifier inspected for these phase samples. Candidate retains arithmetic/work; no native speed estimate.'}]

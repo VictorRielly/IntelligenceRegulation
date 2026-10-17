@@ -274,7 +274,7 @@ def main():
     ap.add_argument("--export-name", default=None, help="export directory name (default: the run name)")
     ap.add_argument("--profile-from", default=None, help="prepass.json of a run whose profile decisions to reuse (skips the pre-pass)")
     ap.add_argument("--link-from", default=None, help="export dir whose byte-identical files to hard-link layer by layer")
-    ap.add_argument("--l1-mode", default="none", choices=["none", "s16", "perhead", "m2zero", "fe13"],
+    ap.add_argument("--l1-mode", default="none", choices=["none", "s16", "perhead", "m2zero", "s0m", "fe13", "sh7", "o16", "sh7o16"],
                     help="B6 experiments on LAYER 1 only (NOT native except m2zero/fe13): see FIDELITY_OPTIONS_8B.md")
     ap.add_argument("--check-against", default=None, help="export dir: compare every non-overridden layer's words")
     args = ap.parse_args()
@@ -350,7 +350,11 @@ def main():
     xf_h = xh_f
     layers = []
     exp_root = HERE / "export" / (args.export_name or name)
-    raw_h = layer1_raw_per_head(ck, R, xc_f, rope_fc, args.chunk) if args.l1_mode == "perhead" else None
+    # B6 (18:3xZ): write_bin writes IN PLACE; a file left by an earlier (killed) run may be a hard link into
+    # another export (--link-from), so writing over it would truncate the shared inode. Exports start fresh.
+    if args.export and exp_root.exists() and any(exp_root.iterdir()):
+        raise SystemExit(f"export dir {exp_root} exists and is not empty: remove it first (hard links; never write in place)")
+    raw_h =layer1_raw_per_head(ck, R, xc_f, rope_fc, args.chunk) if args.l1_mode == "perhead" else None
     if raw_h is not None:
         log(f"layer-1 raw score max per query head: {np.round(raw_h, 1).tolist()}")
     word_mismatch = {}
@@ -363,7 +367,38 @@ def main():
             kw_l = dict(var.__dict__)
             kw_l.update({"s16": {"s16": True}, "m2zero": {"margin_pow2": 0.0}, "fe13": {"f_e": 13}}[args.l1_mode])
             var_l = b3.Variant(**kw_l)
-        P, rep = b3.solve_layer(W, stats[l], var_l, glob.s_in[l], glob.s_out[l], glob, caches[l])
+        # B6 (21:4xZ) screens: o16 = layer-1 o in the int16 class (B4-3 knob, NOT native: o limbs);
+        # sh7 = layer-1 SH_S 7 instead of the run-level 6 (e_s and all margins kept; native: per-layer SH_S)
+        if l == 1 and args.l1_mode in ("o16", "sh7o16"):
+            kw_l = dict(var.__dict__)
+            kw_l["o16"] = True
+            var_l = b3.Variant(**kw_l)
+        glob_l = glob
+        if l == 1 and args.l1_mode in ("sh7", "sh7o16"):
+            glob_l = b3.Globals(**{**glob.__dict__, "shifts": dict(glob.shifts, s=7)})
+        if l == 1 and args.l1_mode == "s0m":
+            # B6 (21:3xZ): NO MARGIN ON THE SCORE EXPONENT ONLY (native: a per-layer table key). m2zero also dropped
+            # the margin of the gate / act exponents, and layer 1's FFN gate then refused every chained sequence.
+            # solve_layer calls b3.qk_scales by module-global name with m2 as positional argument 9.
+            _qk = b3.qk_scales
+
+            def _qk_score_nomargin(*a, **k):
+                a = list(a)
+                if len(a) > 9:
+                    a[9] = 1.0
+                else:
+                    k["m2"] = 1.0
+                return _qk(*a, **k)
+            b3.qk_scales = _qk_score_nomargin
+            try:
+                P, rep = b3.solve_layer(W, stats[l], var_l, glob.s_in[l], glob.s_out[l], glob, caches[l])
+            finally:
+                b3.qk_scales = _qk
+            log(f"layer-1 s0m: score e_s {P.e_s} (margin 1.0 on the score exponent only), silu {P.silu}")
+        else:
+            P, rep = b3.solve_layer(W, stats[l], var_l, glob.s_in[l], glob.s_out[l], glob_l, caches[l])
+            if l == 1 and args.l1_mode in ("sh7", "o16", "sh7o16"):
+                log(f"layer-1 {args.l1_mode}: e_s {P.e_s} sh_s {P.sh_s} sh_o {P.sh_o} sh_ao {P.sh_ao} silu {P.silu}")
         if l == 1 and args.l1_mode == "perhead":
             e_h, e_rng = perhead_qk(W, stats[l], var, P, rep, raw_h)
             rep["perhead"] = {"e_s": e_h.tolist(), "e_range": e_rng.tolist()}

@@ -1,0 +1,58 @@
+Derived copy of result.json; raw stdout was returned by exec_command.
+{
+  "status": "PASS",
+  "cycle": "0068",
+  "run_id": "20261017T212105Z-f1b8cd7d",
+  "seed": 2026101768,
+  "counts": {
+    "fixtures": 96,
+    "pushforward_values": 3744,
+    "virtual_claims": 96,
+    "support_mass_checks": 96,
+    "real_columns": 1800
+  },
+  "negative_controls": {
+    "active bad index refuses": true,
+    "inactive bad index ignored": true,
+    "active exceeds own domain refuses": true,
+    "too few column bits refuses": true,
+    "non power of two row domain refuses": true,
+    "oversized row domain refuses": true,
+    "dummy column cannot acquire active support": true,
+    "row bit reversal detected": true,
+    "column bit reversal detected": true,
+    "zero lifting needs high bit factors": true,
+    "Boolean high bit can annihilate lifted claim": true,
+    "different points cannot be silently shared": true,
+    "batched unmasked singleton still reveals value": true,
+    "postchallenge compensating claims cancel": true,
+    "repeated column coordinate misses fixed compensating errors": true,
+    "independent column coordinates distinguish same weight columns": true,
+    "correlated fresh-view marginals uniform": true,
+    "correlated joint pads disclose linear relation": true,
+    "unused table zero refusal retained": true
+  },
+  "wall_seconds": 0.41672155699961877,
+  "peak_rss_kib": 20600,
+  "compiler_peak_rss_kib": 128868,
+  "compiler_argv": [
+    "/home/victor/.rustup/toolchains/1.97.0-x86_64-unknown-linux-gnu/bin/rustc",
+    "--edition=2021",
+    "--crate-type=cdylib",
+    "-C",
+    "opt-level=1",
+    "-C",
+    "codegen-units=1",
+    "isolated.rs",
+    "-o",
+    "isolated.so"
+  ],
+  "threads": 1,
+  "cpu_affinity": [
+    0
+  ],
+  "nice": 19,
+  "limits": "59s CPU/wall,512MiB AS; estimated main<96MiB/compiler<192MiB",
+  "scope": "Private-scratch arithmetic only; public synthetic layout/support. No GKR/PCS/transcript/RNG/privacy proof/native receipt/GPU or throughput measurement.",
+  "completed_at_utc": "2026-10-17T21:24:59.002042+00:00"
+}

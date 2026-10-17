@@ -1,0 +1,133 @@
+{
+  "status": "PASS",
+  "run_id": "20261017T192105Z-c342a26b",
+  "cycle": "0066",
+  "seed": 2026101766,
+  "counts": {
+    "codec_words": 7294208,
+    "sidecar_words": 120934,
+    "lookup_columns": 4176,
+    "lookup_residue_words": 106962,
+    "field_only_mismatches": 5323,
+    "missing_sidecar_mismatches": 2572,
+    "domains": 288,
+    "catalogs": 48,
+    "generic_columns": 4,
+    "H_fixtures": 35,
+    "H_fp2_values": 2436,
+    "H_sentinel_words_checked": 5250,
+    "refusal_fixtures": 5
+  },
+  "negative_controls": {
+    "same A residue has two signed preimages": true,
+    "field-only affine evaluation changes wrapped values": true,
+    "discarding ambiguity bit changes wrapped values": true,
+    "identical A can require different scaled H denominator": true,
+    "same A collision reaches different canonical H": true,
+    "unused public zero still refuses after helper stage": true,
+    "zero-multiplicity table entry cannot be skipped": true,
+    "invalid signed zero denominator not clamped": true,
+    "field-only port can miss an original refusal": true,
+    "field-only port can introduce a refusal": true,
+    "using u64 raw word directly as Fp is wrong": true,
+    "sign threshold at P/2 is not an exact full-i64 inverse": true
+  },
+  "collision": {
+    "raw": [
+      -9223372036854775808,
+      9223372032559808513
+    ],
+    "A_residue": 9223372032559808513,
+    "coefficient": 2,
+    "wrapped_i64": [
+      0,
+      -8589934590
+    ],
+    "lookup_residue": [
+      0,
+      18446744060824649731
+    ]
+  },
+  "refusal_counterexample": {
+    "raw": 4611686018427388160,
+    "coefficient": 2,
+    "literal_wrapped": -9223372036854775296,
+    "field_only": 9223372036854776320,
+    "original_stage": 1,
+    "field_only_stage": 0,
+    "reverse_original_stage": 0,
+    "reverse_field_stage": 1
+  },
+  "refusal_rows": [
+    {
+      "columns": [
+        [
+          3,
+          8
+        ]
+      ],
+      "zero": 3,
+      "stage": 1
+    },
+    {
+      "columns": [
+        [
+          3,
+          8
+        ]
+      ],
+      "zero": 11,
+      "stage": 2
+    },
+    {
+      "columns": [
+        [
+          300,
+          -1
+        ]
+      ],
+      "zero": 300,
+      "stage": 1
+    },
+    {
+      "columns": [
+        [
+          300,
+          -1
+        ]
+      ],
+      "zero": -1,
+      "stage": 1
+    },
+    {
+      "columns": [
+        []
+      ],
+      "zero": 11,
+      "stage": 2
+    }
+  ],
+  "output_sha256": "41321e8117f526e24d15d1e327647ab0408c8d6c7d3345fc30df0a68e46e23ff",
+  "wall_seconds": 7.009182081999825,
+  "parent_peak_rss_kib": 29700,
+  "child_peak_rss_kib": 129776,
+  "compiler_argv": [
+    "/home/victor/.rustup/toolchains/1.97.0-x86_64-unknown-linux-gnu/bin/rustc",
+    "--edition=2021",
+    "--crate-type=cdylib",
+    "-C",
+    "opt-level=2",
+    "-C",
+    "codegen-units=1",
+    "isolated.rs",
+    "-o",
+    "isolated.so"
+  ],
+  "cpu_affinity": [
+    0
+  ],
+  "nice": 19,
+  "threads": 1,
+  "limits": "59s CPU/wall;512MiB AS;estimated<96MiB Python/<192MiB compiler",
+  "scope": "Source-captured Rust field, wrapping lookup closure, byte cache/helper_one/write_h; serial CPU harness plus independent Python arbitrary-integer oracle. Native orchestrator, Rayon, CUDA, transcript, RNG, PCS, proof, privacy and runtime speed not tested."
+}

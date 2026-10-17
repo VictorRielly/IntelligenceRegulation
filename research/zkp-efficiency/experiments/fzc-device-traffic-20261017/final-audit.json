@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "checks": 62,
+  "files_pinned": 57,
+  "captured_native_files": 17,
+  "live_code_drift": [],
+  "live_noncode_drift": [
+    "/home/victor/IntelligenceRegulation/results/zk60_gpu_zerocheck_20261017/PROGRESS.md"
+  ],
+  "notes": "Owner progress-ledger drift retained; captured source and instrumented functions remain pinned. Not native/GPU/privacy validation.",
+  "finished_utc": "2026-10-17T18:33:16.134598+00:00",
+  "wall_seconds": 0.03182913499995266,
+  "peak_rss_kib": 17108
+}

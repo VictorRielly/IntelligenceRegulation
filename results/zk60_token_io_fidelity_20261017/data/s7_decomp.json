@@ -1,0 +1,114 @@
+{
+ "cn": 5664,
+ "seconds": 129.7958264350891,
+ "variants": {
+  "T128": {
+   "A_exact_y_pt_W": {
+    "agree": 9100,
+    "n": 9216,
+    "rate": 0.9874131944444444
+   },
+   "B_exact_y_pr_W": {
+    "agree": 9176,
+    "n": 9216,
+    "rate": 0.9956597222222222
+   },
+   "C_int8_y_float_W": {
+    "agree": 9125,
+    "n": 9216,
+    "rate": 0.9901258680555556
+   },
+   "D_int16_keyed_window_bits_worst_case": 49,
+   "D_int16_logit_absmax": 8454262,
+   "D_int16_logit_absmax_bits": 23.011247391918065,
+   "D_int16_tie_positions": 0,
+   "D_int16_y_pt_W": {
+    "agree": 9102,
+    "n": 9216,
+    "rate": 0.9876302083333334
+   },
+   "E_int16_y_pr_W": {
+    "agree": 9176,
+    "n": 9216,
+    "rate": 0.9956597222222222
+   },
+   "F_int16_y_pr_m12": {
+    "agree": 9179,
+    "n": 9216,
+    "rate": 0.9959852430555556
+   },
+   "G_int16_y_pr_m8": {
+    "agree": 9070,
+    "n": 9216,
+    "rate": 0.9841579861111112
+   },
+   "keyed_delta_bits_measured": {
+    "D": 39,
+    "F": 51,
+    "G": 47
+   },
+   "keyed_delta_bits_worst_case": {
+    "D": 49,
+    "F": 61,
+    "G": 57,
+    "int8_y_pr_m12": 53,
+    "int8_y_pr_m8": 49,
+    "int8_y_pt": 41
+   }
+  },
+  "T32": {
+   "A_exact_y_pt_W": {
+    "agree": 2277,
+    "n": 2304,
+    "rate": 0.98828125
+   },
+   "B_exact_y_pr_W": {
+    "agree": 2292,
+    "n": 2304,
+    "rate": 0.9947916666666666
+   },
+   "C_int8_y_float_W": {
+    "agree": 2273,
+    "n": 2304,
+    "rate": 0.9865451388888888
+   },
+   "D_int16_keyed_window_bits_worst_case": 49,
+   "D_int16_logit_absmax": 7240456,
+   "D_int16_logit_absmax_bits": 22.787649129646756,
+   "D_int16_tie_positions": 0,
+   "D_int16_y_pt_W": {
+    "agree": 2277,
+    "n": 2304,
+    "rate": 0.98828125
+   },
+   "E_int16_y_pr_W": {
+    "agree": 2293,
+    "n": 2304,
+    "rate": 0.9952256944444444
+   },
+   "F_int16_y_pr_m12": {
+    "agree": 2292,
+    "n": 2304,
+    "rate": 0.9947916666666666
+   },
+   "G_int16_y_pr_m8": {
+    "agree": 2273,
+    "n": 2304,
+    "rate": 0.9865451388888888
+   },
+   "keyed_delta_bits_measured": {
+    "D": 39,
+    "F": 51,
+    "G": 47
+   },
+   "keyed_delta_bits_worst_case": {
+    "D": 49,
+    "F": 61,
+    "G": 57,
+    "int8_y_pr_m12": 53,
+    "int8_y_pr_m8": 49,
+    "int8_y_pt": 41
+   }
+  }
+ }
+}

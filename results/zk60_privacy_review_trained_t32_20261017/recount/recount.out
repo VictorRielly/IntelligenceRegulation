@@ -1,0 +1,16 @@
+per-draw SD log2 = -96.000000 (D9 bound 2^-96)
+toy block {'A_mask': 61952, 'A_pads': 116480, 'M_cfs': 1166, 'M_pads': 11776, 'M_b_u': 4096, 'H_mask': 26624, 'H_zero_sum': 510, 'H_pads': 98304, 'total': 320908} toy total 327052 (D22: 327,052)
+TL layout: A rows 1729 data 1487 sites 120 | H rows 1798 data 1698 sites 49
+TL specs [(17, 3), (17, 3), (6, 3), (13, 4), (16, 3), (12, 2), (12, 2), (12, 2), (10, 3), (9, 3), (12, 2), (12, 2), (12, 2), (14, 2), (17, 4), (17, 4), (14, 4), (16, 4), (19, 5), (13, 3), (13, 2), (17, 2), (17, 2)] sum L_s (Fp2) = 979 sum rounds = 317
+pads per dom: {'T': False, 'Ht': False, 'L': True, 'D': False, 'Q': False, 'Kv': False, 'S': False, 'F': True, 'Tab': True}
+TL block {'A_mask': 991232, 'A_pads': 442624, 'M_cfs': 1958, 'M_pads': 11776, 'M_b_u': 4096, 'H_mask': 409600, 'H_zero_sum': 8190, 'H_pads': 460288, 'total': 2329764}
+boundary 30208 endpoint 25856
+L=1 draws 2381476  sampler(2^-96) -74.817  exactSD -74.817 | S4 1w -118.415 2w -117.415 | salts 69632 salt-guess -111.913 leafcoll -224.825 | live (3L+1)/p -62.000  exact-det (3L+1)(1/p+1/p^2) -62.000 | 2^20 runs -54.817 10^6 runs -54.885
+L=2 draws 4741448  sampler(2^-96) -73.823  exactSD -73.823 | S4 1w -117.415 2w -116.415 | salts 122880 salt-guess -111.093 leafcoll -223.186 | live (3L+1)/p -61.193  exact-det (3L+1)(1/p+1/p^2) -61.193 | 2^20 runs -53.823 10^6 runs -53.892
+L=22 draws 51940888  sampler(2^-96) -70.370  exactSD -70.370 | S4 1w -113.956 2w -112.956 | salts 1187840 salt-guess -107.820 leafcoll -216.640 | live (3L+1)/p -57.934  exact-det (3L+1)(1/p+1/p^2) -57.934 | 2^20 runs -50.370 10^6 runs -50.438
+per-stage counted squeezes (no slot-definition draws): 4283
+implied slot-definition draws per stage from the measured L=2 counter 9,578: 376.0
+L=1 absorbs 454 counted 4455 challenges(meas-extrap) 4511 | A_bound 5937 prequery -115.464 coll -231.929 B10 -128.000 | A_meas 5289 prequery -115.631
+L=2 absorbs 904 counted 8826 challenges(meas-extrap) 9002 | A_bound 11786 prequery -114.475 coll -229.951 B10 -128.000 | A_meas 10490 prequery -114.643
+L=22 absorbs 9904 counted 96246 challenges(meas-extrap) 98822 | A_bound 128766 prequery -111.026 coll -223.051 B10 -128.000 | A_meas 114510 prequery -111.195
+tag-key C(12,2) -249.96 ; 3*4 -252.42

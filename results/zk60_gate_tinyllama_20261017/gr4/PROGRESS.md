@@ -1,0 +1,90 @@
+# P-12 sub-lane: the stage-47 G-R4 root-rebuild check, ported to the trained TinyLlama T32 tree
+
+Sub-lane of the privacy gate lane. Brief: port
+`/home/victor/wt-zk60-block125m/hashline/src/private_block/gr4_check_tests.rs`
+(stage 47, ruling LW-2) to the trained R5 tree and run it at the trained shape
+(review `results/zk60_privacy_review_trained_t32_20261017/REVIEW.md` §2.2, §P-12).
+
+**Nothing in this sub-lane is a privacy acceptance.** It is a machine check
+that one owed condition (G-R4's value-level half) holds on the witnesses run;
+only the security review process can accept anything, and rulings are Victor's.
+
+Write set: `ops/zkp-mvp/trained-1b-gate-gr4/` (copy of the frozen R5 tree) and
+this directory. Test-only addition; no prover or verifier relation changes.
+
+## Log (UTC from `date -u`)
+
+- 2026-10-17T21:37Z — started; read `ops/zkp-mvp/LANE_RULES_20261017.md`,
+  REVIEW.md §2.2 and §P-12, the 125M `gr4_check_tests.rs` (449 lines).
+- 2026-10-17T21:40Z — copy made: `rsync -a --exclude=target
+  results/zk60_1b_native_20261017/r5/frozen-tree/ ops/zkp-mvp/trained-1b-gate-gr4/`.
+  Verified against `r5/manifest_frozen.json`: 217 files in the manifest, 217
+  in the copy, 0 extra, 0 missing, 0 sha256 mismatches; the manifest's
+  `tree_sha256` recomputes (sorted `path sha256\n` lines) to
+  d67fae7ef3d03bb6a30c89880ac41b6e4543b7f8b5df8040c8a29ba7404df952.
+- 2026-10-17T21:47Z — read the trained tree (protocol.rs `prove_core` /
+  `verify_core`, run.rs `prove_run_with` / `RunVerifier`, pcs/zk commit
+  paths, boundary.rs, endpoint_g.rs, layout.rs, wire.rs, trained_block.rs,
+  run_capture.rs header rebuild). Findings that shape the port:
+  1. `protocol::transcript` asserts `single_block_profile_allowed`, so the
+     single-block header cannot be built at the trained profile (R2-4).
+  2. `RunStatement::transcript`, `stage_layout`, `seg_geom` and
+     `run::position_tag` are PRIVATE to run.rs; a sibling test module cannot
+     call them. The test-only accessors `RunStatement::binding()` and
+     `capture_header()` exist (the run capture rebuilds the header from them
+     and compares with the binding), so the header can be rebuilt from public
+     words and checked against the binding, with no production edit.
+  3. This tree's `zkp_core::rng::ZkRng` has NO `consumed_bytes()` accessor
+     (the 125M lane added one to its zkp-core). It cannot be added test-only
+     (a separate crate: its `cfg(test)` is off when hashline's tests build).
+     Substitute: a NEXT-DRAW PROBE (the next 32 bytes of each generator, on
+     the same seed, compared for equality) plus a fresh generator advanced by
+     the prediction's COUNTED bytes, which must give the prover's probe; a
+     generator advanced 16 bytes further must not (non-vacuity).
+  4. Draw order in this tree, read: `commit_zk_owned_with_tag` draws pads
+     (`rows*q`, `fp_vec` = repeated `fp`) then salts (`nn` x `bytes32`)
+     BEFORE the backend offer and before `encode_buffer::encode_rows` (new
+     path); `mask_commit_tagged` draws the 23 alpha vectors, per-row pads,
+     b, u, salts, with `b[m] := -b[0]`; boundary and endpoint preparers fill
+     every row above the data rows, then commit. H's zero-sum rows are a DATA
+     plane below `h_mask_base`, so segments 8 and 9 are disjoint.
+  5. LW-4's note carries forward to this tree [READ]: `CfsMask` derives
+     `Clone` (zkp-core/src/sumcheck.rs:192) and `CommittedZk`'s `data`,
+     `pads`, `salts` are `pub` (zkp-core/src/pcs.rs:591-606).
+  Plan: a test-only module `src/private_block/gr4_trained_tests.rs` (child of
+  `private_block`, one `mod` line) that builds a ONE-BLOCK BOUND RUN through
+  the production constructors, rebuilds the run header from public words
+  (checked = binding), replicates stage 0 of `prove_run_with` (locality
+  absorbs, `prove_core` on a SEEDED generator, the two endpoint openings),
+  encodes the segment with `wire::encode_segment` and verifies it with the
+  production `run::verify_run`; then rebuilds A, M, H from the witness and the
+  replayed stream with `encode_row_zk` / `hash_columns_keyed` /
+  `salt_leaf_keyed` / `build_keyed`. The seeded receipt is never written to
+  disk (a public seed makes its openings non-hiding).
+- 2026-10-17T21:50Z — wrote
+  `ops/zkp-mvp/trained-1b-gate-gr4/hashline/src/private_block/gr4_trained_tests.rs`
+  (three `#[ignore]`d tests, the tree's convention for export-reading tests)
+  and its `#[cfg(test)] mod gr4_trained_tests;` line in `src/private_block.rs`.
+  No other file touched.
+- 2026-10-17T21:51Z — build launched detached through the guard (class
+  build, need 3, cap 5; heavy lock then held by `r5-ladder8b-T64-gpu`, so it
+  queues). Markers: `gr4-build.done` (guard), `gr4-build.wrapper.done`
+  (detach wrapper), `gr4-build.guard.json`, log `gr4-build.log`.
+- 2026-10-17T22:04Z — build DONE, exit 0, first attempt (no warning in the
+  new module). Queue wait 580.6 s, build 235.4 s, peak RSS 1.78 GiB
+  [MEASURED, shared box, n=1]. Test binary
+  `ops/zkp-mvp/trained-1b-gate-gr4/hashline/target/release/deps/hashline-62424158dd0cb79c`.
+- 2026-10-17T22:10Z — patch and manifest written (sources final): 2 files
+  differ from the frozen R5 tree (`private_block.rs` +4 lines,
+  `gr4_trained_tests.rs` new); copy tree sha256 3f99de80...; binary and
+  patch sha256 in `binaries_and_patch.sha256`.
+- 2026-10-17T22:36Z — DENSE block test (layer 0, ho00) PASS, exit 0 (log
+  `gr4-block-dense.log`). Queue wait 1857 s behind `r4-suite`; run 8.5 s;
+  peak RSS 0.85 GiB (cgroup 0.88) [MEASURED, shared box, n=1].
+- 2026-10-17T22:37Z — zero-input block test launched (need 2, cap 3.5).
+- 2026-10-17T23:06Z — CLASS CHANGE, at the caller's (privacy-gate lane)
+  direction: the dense test measured 8.5 s at 0.85 GiB, under the lane
+  rules' heavy thresholds, and the heavy lock keeps going to other lanes'
+  suites. The zero-input job, already queued as `cpu`, is left to run (not
+  killed); the boundary test will be launched as class `light` (need 2,
+  cap 3.5), one job at a time, after it finishes.

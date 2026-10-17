@@ -1,0 +1,9 @@
+[zk60-guard 12:20:15] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 12:21:15] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 12:22:15] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 12:23:15] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 12:24:15] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 12:25:15] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 12:26:15] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 12:27:11] START t6-release-seeded-failclosed class=gpu need=4G cap=7G enforce=cgroup+watchdog waited=417s run=0dc1a6d4c070
+[zk60-guard 12:30:57] END t6-release-seeded-failclosed exit=0 child_wall=226s peak_rss=2.04G min_avail=9.13G peak_vram=7123MiB

@@ -1,0 +1,16 @@
+/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/manifest_r5b-suite1.json: 218 files, tree 0a07d19aa821f20c2d80b9a27168ab84b94ae14dbd8331596085a488c1f2950c
+[zk60-guard 15:00:49] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 15:01:49] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 15:02:50] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 15:03:50] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 15:04:50] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 15:05:50] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 15:06:50] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 15:07:50] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 15:08:50] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 15:09:50] waiting for /tmp/zk-heavy.lock (541s)
+[zk60-guard 15:10:50] waiting for /tmp/zk-heavy.lock (601s)
+[zk60-guard 15:11:50] waiting for /tmp/zk-heavy.lock (661s)
+[zk60-guard 15:12:02] START r5b-suite1 class=cpu need=4.5G cap=8G enforce=cgroup+watchdog waited=673s run=e52d61d89039
+[zk60-guard 15:29:48] END r5b-suite1 exit=0 child_wall=1066s peak_rss=4.95G min_avail=7.07G
+suite r5b-suite1 exit 0

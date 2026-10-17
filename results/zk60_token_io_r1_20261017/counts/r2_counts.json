@@ -1,0 +1,56 @@
+{
+ "model": {
+  "d": 2048,
+  "V": 32000,
+  "V_pad": 32768,
+  "L": 22,
+  "T": 32,
+  "stage_log": 12
+ },
+ "stage_in": {
+  "A_rows": 17,
+  "H_rows": 28,
+  "M_rows": 12,
+  "elems": 184320,
+  "a_sites": 3,
+  "h_sites": 3,
+  "slots": 4,
+  "fold": 67108864,
+  "endpoints": {
+   "input token endpoint": {
+    "plane": 256,
+    "sites": 1,
+    "rows": 6
+   }
+  }
+ },
+ "stage_out": {
+  "A_rows": 182,
+  "H_rows": 110,
+  "M_rows": 26,
+  "elems": 1196032,
+  "a_sites": 49,
+  "h_sites": 13,
+  "slots": 11,
+  "u8": 282624,
+  "fold": 67108864,
+  "endpoints": {
+   "output token endpoint": {
+    "plane": 256,
+    "sites": 1,
+    "rows": 6
+   }
+  }
+ },
+ "argmax": {
+  "window_bits": 53,
+  "limbs": 7,
+  "pin": 0,
+  "lookups_per_vocab_entry": 7,
+  "vocab_planes": 8
+ },
+ "best_width": {
+  "in": 12,
+  "out": 12
+ }
+}

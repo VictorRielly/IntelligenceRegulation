@@ -3943,7 +3943,7 @@ fn fzc_module(g: &Gpu, degree: usize, supp: bool, lean: bool) -> Result<&'static
     let src = format!("#define FZ_D {degree}\n#define FZ_SUPP {}\n#define FZ_LEAN {}\n{prims}{FZC_SRC}", u8::from(supp), u8::from(lean));
     let opts = CompileOptions { arch: arch_str(g.cc), ..Default::default() };
     let ptx = compile_ptx_with_opts(src, opts).map_err(|e| format!("fzc NVRTC compile ({name}): {e}"))?;
-    g.dev.load_ptx(ptx, name, &["k_fzc_round", "k_fzc_fold_round"]).map_err(|e| format!("fzc module load ({name}): {e}"))?;
+    g.dev.load_ptx(ptx, name, &["k_fzc_round", "k_fzc_fold_round", "k_fzc_spin"]).map_err(|e| format!("fzc module load ({name}): {e}"))?;
     let secs = t0.elapsed().as_secs_f64();
     *FZC_COMPILE_SECS.lock().unwrap() += secs;
     if verbose() || super::fzc::profile() {
@@ -3985,6 +3985,9 @@ pub struct DevFzcRounds {
     prof: bool,
     st: FzcStats,
     t0: Instant,
+    /// profile mode only: per round (entering length, kernel kind, kernel
+    /// seconds, reduce + D2H seconds), printed under `HL_GZC_ROUNDS=1`
+    rounds_log: Vec<(usize, &'static str, f64, f64)>,
 }
 
 impl DevFzcRounds {
@@ -3996,13 +3999,61 @@ impl DevFzcRounds {
         let dev = g.dev.clone();
         let t0 = Instant::now();
         let prof = super::fzc::profile();
+        if prof {
+            // diagnosis aid (profile mode only): the card's state as slot 18
+            // starts — free device memory and the pool's idle buffers
+            if let Ok((free, total)) = cu::mem_get_info() {
+                let (held, held_b) = {
+                    let pool = POOL.lock().unwrap();
+                    (pool.len(), pool.iter().map(|b| b.len() * 8).sum::<usize>())
+                };
+                println!("PB-GZC-MEM slot 18 start | device free {} MiB of {} MiB | pool holds {held} idle buffers ({} MiB)", free >> 20, total >> 20, held_b >> 20);
+            }
+        }
+        // DIAGNOSIS AID (`HL_GZC_WARM_MS=W`, off by default): before anything
+        // of slot 18 touches the device, spin a pure-arithmetic kernel (no
+        // table, no transcript, no randomness) for about W ms and report the
+        // first and last launch times: a falling spin time is the SM clock
+        // rising (the laptop GPU's DVFS), measured with no memory involved.
+        let warm_ms: f64 = std::env::var("HL_GZC_WARM_MS").ok().and_then(|v| v.parse().ok()).unwrap_or(0.0);
+        if warm_ms > 0.0 {
+            let m = fzc_module(&g, degree, supp, fzc_lean())?;
+            let f = dev.get_func(m, "k_fzc_spin").ok_or("k_fzc_spin missing")?;
+            let mut d_out = dev.alloc_zeros::<u64>(1).map_err(|e| e.to_string())?;
+            let cfg = LaunchConfig { grid_dim: ((g.sms as u32).max(1) * 8, 1, 1), block_dim: (128, 1, 1), shared_mem_bytes: 0 };
+            let tw = Instant::now();
+            let mut times: Vec<f64> = Vec::new();
+            while tw.elapsed().as_secs_f64() * 1e3 < warm_ms && times.len() < 10_000 {
+                let ts = Instant::now();
+                unsafe { f.clone().launch(cfg, (&mut d_out, 2048i32)) }.map_err(|e| format!("k_fzc_spin: {e}"))?;
+                dev.synchronize().map_err(|e| e.to_string())?;
+                times.push(ts.elapsed().as_secs_f64() * 1e6);
+            }
+            let n = times.len();
+            let q = |a: usize, b: usize| times[a..b].iter().sum::<f64>() / (b - a).max(1) as f64;
+            println!(
+                "PB-GZC-WARM slot 18 | {:.1} ms, {n} spin launches | first {:.0} us | mean of first 5 {:.0} us | mean of last 5 {:.0} us | min {:.0} us",
+                tw.elapsed().as_secs_f64() * 1e3,
+                times[0],
+                q(0, n.min(5)),
+                q(n.saturating_sub(5), n),
+                times.iter().cloned().fold(f64::INFINITY, f64::min)
+            );
+        }
         let k = srcs.len();
         let l = 1usize << n;
         if n == 0 || n > 26 || l * k * 2 >= (1usize << 31) {
             return Err(format!("fzc: cube 2^{n} x {k} tables is outside the kernel's index range"));
         }
         let mut st = FzcStats { sumchecks: 1, n, k, degree, ..Default::default() };
-        let mut tabs = Pooled::take(&dev, k * l * 2)?;
+        // AT LEAST k x 2^n Fp2 (`take_min`): inside a proof the pool holds
+        // the commitments' idle scratch (encode / Merkle buffers, ~2.9 GiB
+        // at TinyLlama T128), so the tables reuse one of those instead of
+        // adding 336 MiB of VRAM (lane finding 2026-10-17, 4 GiB rule). Every
+        // entry a kernel reads is written first (table t lives at
+        // [t * 2^n, (t + 1) * 2^n)); a longer buffer's tail is inert. It
+        // returns to the pool when this evaluator drops, before slot 19.
+        let mut tabs = Pooled::take_min(&dev, k * l * 2)?;
         let f_fp = dev.get_func(MODULE, "k_tab_from_fp").ok_or("k_tab_from_fp missing")?;
         let f_fp2 = dev.get_func(MODULE, "k_tab_from_fp2").ok_or("k_tab_from_fp2 missing")?;
         let f_exp = dev.get_func(MODULE, "k_fzc_expand").ok_or("k_fzc_expand missing")?;
@@ -4094,7 +4145,7 @@ impl DevFzcRounds {
         }
         Ok(DevFzcRounds {
             dev, tabs, k, stride: l, n_vars: n, degree, len: l, d_prm, d_part, d_sums, d_fin, supp, fused: fzc_fused(), module, blocks_cap,
-            deferred: None, next: 0, pending: None, claim, finals: Vec::new(), err: None, prof, st, t0,
+            deferred: None, next: 0, pending: None, claim, finals: Vec::new(), err: None, prof, st, t0, rounds_log: Vec::new(),
         })
     }
 
@@ -4107,7 +4158,12 @@ impl DevFzcRounds {
     pub fn report(&mut self) {
         self.st.secs_total = self.t0.elapsed().as_secs_f64();
         if self.prof {
-            println!("{}", self.st.line("PB-GZC slot 18"));
+            println!("{}", self.st.line(&format!("PB-GZC slot 18 [{} {}]", self.module, if self.fused { "fused" } else { "unfused" })));
+            if std::env::var("HL_GZC_ROUNDS").map(|v| v == "1").unwrap_or(false) {
+                for (j, (len, kind, ks, rs)) in self.rounds_log.iter().enumerate() {
+                    println!("PB-GZC-ROUND {j} | {kind} | entering len {len} | kernel {:.1} us | reduce+D2H+host {:.1} us", ks * 1e6, rs * 1e6);
+                }
+            }
         }
         let mut tot = FZC_TOTALS.lock().unwrap();
         tot.get_or_insert_with(FzcStats::default).add(&self.st);
@@ -4128,6 +4184,8 @@ impl DevFzcRounds {
         let nv = self.degree + 1;
         let one = i32::from(eval_one);
         let pts = (if eval_one { nv } else { nv - 1 }) as u64;
+        let len0 = self.len;
+        let kind: &'static str = if self.deferred.is_some() { "fused fold+round" } else { "round" };
         let ta = Instant::now();
         let (blocks, pairs) = if let Some(r) = self.deferred.take() {
             let hp = self.len / 2;
@@ -4154,12 +4212,17 @@ impl DevFzcRounds {
         };
         self.st.pairs += pairs as u64;
         self.st.evals += pairs as u64 * pts;
+        let k_secs = ta.elapsed().as_secs_f64();
         let tb = Instant::now();
         let f_red = self.dev.get_func(MODULE, "k_reduce_f2").ok_or("k_reduce_f2 missing")?;
         let cfg_r = LaunchConfig { grid_dim: (1, 1, 1), block_dim: (1024, 1, 1), shared_mem_bytes: 0 };
         unsafe { f_red.launch(cfg_r, (&self.d_part, blocks as i32, nv as i32, &mut self.d_sums)) }.map_err(|e| format!("k_reduce_f2: {e}"))?;
         let h = self.dev.dtoh_sync_copy(&self.d_sums).map_err(|e| e.to_string())?;
-        self.st.secs_reduce += tb.elapsed().as_secs_f64();
+        let r_secs = tb.elapsed().as_secs_f64();
+        self.st.secs_reduce += r_secs;
+        if self.prof {
+            self.rounds_log.push((len0, kind, k_secs, r_secs));
+        }
         Ok((0..nv).map(|d| Fp2::new(Fp(h[2 * d]), Fp(h[2 * d + 1]))).collect())
     }
 
@@ -4176,8 +4239,12 @@ impl DevFzcRounds {
             let cfg = LaunchConfig::for_num_elems((self.k * half) as u32);
             unsafe { f_fold.launch(cfg, (self.tabs.get_mut(), self.k as i32, half as i32, self.stride as i32, r.c0.0, r.c1.0)) }.map_err(|e| format!("k_sc_fold: {e}"))?;
             self.sync_if_prof()?;
-            self.st.secs_fold += ta.elapsed().as_secs_f64();
+            let f_secs = ta.elapsed().as_secs_f64();
+            self.st.secs_fold += f_secs;
             self.st.bytes_fold += 24 * (self.k * self.len) as u64;
+            if self.prof {
+                self.rounds_log.push((self.len, "fold", f_secs, 0.0));
+            }
             self.len = half;
         }
         if last {

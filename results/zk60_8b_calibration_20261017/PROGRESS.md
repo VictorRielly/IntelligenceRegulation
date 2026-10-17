@@ -121,3 +121,194 @@ Calibration data, not a proof, not a privacy claim.
   `logs/b5_run.sh` (replaced atomically; the running instance keeps the old
   inode) now runs label b6_l1_none on the first 2 layers only: the layer-1
   isolated baseline on the same FineWeb sequences, ~5 min instead of ~50.
+- 14:59:58 UTC: clean box shutdown. T=64 export (guard label b5-b6_T64) got
+  SIGTERM, exit 143 after layer 5; the queue then started the T=128 verifier
+  at 14:59:55, which died at once (`logs/b6-verify-llama3_8b_pg_rot1_b6_T128.log`
+  is 0 bytes, no .done): **T=128 was never independently verified**. Box up
+  again 18:21 UTC, /tmp empty.
+
+## B6 resume (round B6, coordinator brief 18:40 UTC), from 2026-10-17 18:29 UTC
+
+- 18:30 UTC: inspected the partial `export/llama3_8b_pg_rot1_b6_T64`: layers
+  00..05 only, every weight/table file a hard link (nlink 2) into the T128
+  export; manifests and rope tables own inodes. `b3_ladder.write_bin` writes
+  IN PLACE, so re-running over it would truncate shared T128 inodes. Removed
+  the partial tree with `rm -r` (unlinking names never changes the T128
+  inodes; afterwards 0 of T128's 584 files have nlink > 1; T128 profile.json
+  sha256 still eedbcff1...). Moved the killed run dir to
+  `runs/KILLED_20261017T1459Z_llama3_8b_pg_rot1_b6_T64_cal128` (evidence only).
+  The driver now refuses to export into a non-empty export dir (b5_8b.py sha
+  changes; T128 export records the earlier sha).
+- 18:31 UTC: launched `logs/b6r_serial.sh` detached (stdout `logs/b6r_serial.out`,
+  marker `logs/b6r_serial.done`), one guarded `light` job at a time: verify
+  T128 (need 2.5 / cap 3.5) -> T64 export `b5-b6r_T64` (need 4 / cap 5, same
+  args as before, hard links from T128) -> verify T64 -> B6-2 `b6_l1_s16`,
+  `b6_l1_perhead`, `b6_l1_m2zero` (whole model, T=32, 36 FineWeb held-out) ->
+  `b6_l1_none` (2 layers).
+- 18:37 UTC: T=128 export VERIFIED (`logs/b6r-verify-llama3_8b_pg_rot1_b6_T128.*`,
+  independent reader, fresh process, export bytes only): 32 layers, seq_ho00
+  (licence) and seq_ho09 (FineWeb) bit-exact at all 32 layers, every sha256 /
+  table key / no -128, errors [] [MEASURED; 396 s, peak RSS 2.00 GiB, shared
+  box n=1]. T64 export `b5-b6r_T64` started 18:37 UTC.
+- 18:38 UTC: native-cost facts collected (read-only, from
+  ops/zkp-mvp/trained-1b/hashline/src/private_block/): one 256-row exp table
+  per layer (per-layer key exp_e_s in -8..8), SH_S and f_e RUN-LEVEL (one value
+  for all 32 layers), score s8 checked by two U8 lookups, 11 committed planes +
+  8 Fp2 helper planes per score element at 8B T32, table domain padded to
+  2^13 = 8192 rows at 8B (log_cols 13), importer accepts only exp shape [256].
+  Feeds the B6-2 cost column (B6_REPORT.md).
+- 19:05 UTC: T=64 export DONE (`logs/b5-b6r_T64.*`, run
+  `runs/llama3_8b_pg_rot1_b6_T64_cal128`): `export/llama3_8b_pg_rot1_b6_T64`,
+  profile.json sha256 ea84a6b74bbbbc8c3145e3fb746b87c536004b9165ab2337baaa9dc1289d25be.
+  Same calibration as T128 (B5 T=128 statistics + profile). Layer numbers
+  identical to the killed run's layers 0-5 (deterministic). Held-out FineWeb
+  6 seqs top-1 0.630 (ppl 12.59 -> 23.21, KL 0.581), licence 9 seqs 0.628
+  (5.84 -> 13.46, KL 0.911), 0 refused [MEASURED; 1655 s, peak RSS 3.02 GiB,
+  shared box n=1]. 352 files (32 layers x 11 weight/table words) hard-linked
+  to T128 (byte-identical), 232 own files (manifests, RoPE T=64 tables, 2
+  sequences seq_ho00 / seq_ho09, root files). T64 verifier started 19:05 UTC.
+- 19:08 UTC: T=64 export VERIFIED (`logs/b6r-verify-llama3_8b_pg_rot1_b6_T64.*`):
+  32 layers, seq_ho00 and seq_ho09 bit-exact at all 32 layers, errors []
+  [MEASURED; 197 s, peak RSS 1.69 GiB]. Its 352 linked files are T128's
+  inodes, so T128's weight bytes are re-confirmed after the linking run; T128
+  profile.json sha256 unchanged (eedbcff1...). B6-1 COMPLETE. B6-2 `b6_l1_s16`
+  started 19:08 UTC.
+- 19:30 UTC: COORDINATOR HOLD: the privacy gate's guarded job
+  `tl-v4-l22-dense-f` (light, need 6 GiB) has been starved of admission since
+  18:50. My running job (s16) finishes normally; no new guarded job of mine
+  starts until the guard status lists `tl-v4-l22-dense-f` as a live job or
+  20:30 UTC, whichever is first. Implemented by atomically replacing
+  `logs/b5_run.sh` (each queue step execs it afresh; the running s16 instance
+  keeps the old inode) with a version that polls the guard status every 30 s
+  before launching; it prints "hold released" to `logs/b6r_serial.out`.
+- 19:48 UTC: B6-2 `s16` DONE (`logs/b5-b6_l1_s16.*`, run
+  `runs/llama3_8b_pg_rot1_b6l1s16_T32`; 2398 s, peak RSS 3.01 GiB, shared box
+  n=1): words of every layer other than 1 identical to the B5 T32 export
+  (0 layers differ). FineWeb 36 seqs: top-1 0.680, ppl 18.85 -> 29.14, KL
+  0.529, 1 refused (same sequence count as B5). Layer 1 e_s -4, iso cos 0.824.
+- 19:49 UTC: `tl-v4-l22-dense-f` admitted 19:48:34 (when s16 freed its
+  budget); hold released 19:49:04; `perhead` waiting in guard admission
+  (budget 10.5 + 4 > 11.9 GiB).
+- 19:51 UTC: added `b6_sink.py` (FLOAT-only layer-1 diagnostic: how much of
+  the score / Q / K range is the BOS sink; per head, with and without the BOS
+  key column / row; implied e_s; softmax mass on BOS) and enqueued it
+  detached behind the serial queue (starts only once `logs/b6r_serial.done`
+  exists; guard label b6-sink, light need 3.5 / cap 4.5; marker
+  `logs/b6-sink.done`). Also `b6_summarize.py` (B6-2 table ->
+  `runs/b6_l1_summary.json`) and `b6_t512_estimate.py` (task 3 arithmetic ->
+  `runs/b6_t512_estimate.json`).
+- 20:02 UTC: `perhead` (need 4) still waiting for admission: smaller jobs
+  (2-3 GiB) keep fitting beside the 6 GiB privacy job. `logs/b5_run.sh`
+  atomically replaced again: B6-2 labels now declare need 3.5 / cap 4.5
+  (measured s16 peak RSS 3.01 GiB + margin) for the remaining runs (m2zero,
+  none). The waiting perhead guard keeps its 4 / 5 (a waiting guard is never
+  killed).
+- 20:26 UTC: `perhead` admitted (waited 2225 s). Layer 1: per-head e_s
+  [1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,1,2,2,2,1,1,1,0,1,1,1,1,1,1,0,1,1]; raw score
+  max per head 67-223 on the calibration set (the sink reaches every head);
+  iso cos 0.790.
+- 20:50 UTC: COORDINATOR HOLD #2: heavy queue blocked on budget
+  (`r5-ladder8b-T128-cpu` need 7 holds the heavy lock in admission; GPU stack
+  runs behind it). perhead finishes normally; no new guarded job of mine until
+  `r5-ladder8b-T128-*`, `gzc-stack-s0*`, `gzc-stack-s4*` have completion
+  records in the guard history (ts_end >= 20:45Z) and none is live, or 22:00
+  UTC. Implemented as `logs/b6_hold2.py` (tested both paths), polled every
+  30 s by the again atomically replaced `logs/b5_run.sh` (release line in
+  `logs/b6_hold2.log` and `logs/b6r_serial.out`). The b6-sink follow-up starts
+  only after the queue's last run, so it is behind the same hold. Limitation:
+  the guard status lists only admitted jobs; the 22:00 deadline bounds it.
+- 20:58 UTC: B6-2 `perhead` DONE (`logs/b5-b6_l1_perhead.*`, run
+  `runs/llama3_8b_pg_rot1_b6l1perhead_T32`; 1948 s, peak RSS 3.06 GiB, shared
+  box n=1): other layers' words identical to the B5 export. FineWeb 36 seqs:
+  top-1 0.648 (accepted 0.656), ppl 18.85 -> 29.99, KL 0.570 (acc 0.547),
+  2 refused: FineWeb #10 at layer 24 V (the same sequence refuses in the
+  baseline and s16) and #21 at layer 2 FFN gate (downstream of the changed
+  layer-1 output). m2zero held by hold #2.
+- 21:26 UTC: hold #2 released by its condition (history: r5-ladder8b-T128-cpu
+  ended 21:10:26Z, gzc-stack-s0-base 21:13:37Z, a gzc-stack-s4* run by
+  21:26Z; none live). `m2zero` started 21:26:46 (need 3.5 / cap 4.5).
+- 21:30 UTC: `m2zero` layer 1: e_s 1, SiLU member (-3, -11) instead of
+  (-2, -11), iso cos 0.834 (12 iso seqs, no refusal) BUT chain: all 36
+  held-out sequences REFUSE at layer 1's FFN GATE (integer chain max 133 >
+  127; float-quantized iso input stays inside). m2zero drops the margin of
+  all three power-of-two exponents of layer 1 (score e_s, gate e_in, act
+  e_out), so it does not isolate "no-margin e_s"; its whole-model numbers can
+  only be diagnostic (refusals clamped; head_accepted empty -> None).
+- 21:33 UTC: added l1-mode `s0m` to b5_8b.py (margin 1.0 on the SCORE
+  exponent only, by wrapping b3.qk_scales for layer 1's solve_layer call;
+  gate / act exponents keep their margin; native: a per-layer table key).
+  Enqueued detached `b6_l1_s0m` after b6-sink (same args as the other B6-2
+  runs; through logs/b5_run.sh, so need 3.5 / cap 4.5 and the hold check;
+  marker `logs/b6_s0m_chain.done`, guard marker `logs/b5-b6_l1_s0m.done`).
+- 21:40 UTC: MECHANISM from the layer-1 site errors: s16 (score step 1/16)
+  and m2zero (step 2) have the SAME score error 0.297 and the same q/k errors
+  0.095 / 0.072; native has 0.668 with q/k 0.194 / 0.142. The solver ties
+  s_q s_k 2^SH_S = 2^e_s; with the run-level SH_S 6, native e_s 2 forces the
+  int8 Q/K words one bit coarser than their ranges need (qk slack 2.84 vs
+  1.84 bits). The score grid itself is not the bottleneck; Q/K coarseness
+  is. o stays at rel err ~1.44 in every option (next suspect: the int8 o
+  class). Added l1-modes `sh7` (layer-1 SH_S 7, e_s 2, all margins kept =
+  per-layer SH_S), `o16` (layer-1 o int16, B4-3 knob), `sh7o16`; enqueued as
+  2-layer screens (~5 min each) after s0m (labels b5-b6_l1_scr_*, marker
+  `logs/b6_screens_chain.done`).
+- 22:03 UTC: `m2zero` DONE (2184 s; other layers' words identical to B5):
+  36/36 refused (layer 1 FFN gate). DIAGNOSTIC ONLY (refusals clamped):
+  top-1 0.685, ppl 18.85 -> 29.87, KL 0.549. `none` (2 layers) next.
+- 22:08 UTC: `none` (2 layers) DONE (299 s): layer 1 on the 36 FineWeb seqs
+  (12 iso): iso cos 0.720, dcos 0.608, chain cos 0.712 (layer 0: 0.949).
+  `logs/b6r_serial.done` written (queue complete).
+- 22:10 UTC: `b6-sink` DONE (109 s; `runs/b6_sink_layer1_v1_unsigned.json`):
+  layer-1 max |raw score| is NOT at the BOS key: 223.4 (calibration) / 229.9
+  (held-out FineWeb) on the full rectangle, identical without the BOS key
+  column and without BOS row+column (causal non-BOS 223.4 / 227.6); implied
+  e_s 2 at margin 1.25 either way. K per-pair ranges unchanged without
+  position 0 (ratio 1.0); Q ranges up to 1.34-1.42x. Softmax mass on BOS
+  0.80-0.81 (the sink is a probability phenomenon, not the range driver).
+  So a "public BOS key/value" special case would not lower layer 1's e_s.
+  Held-out max 229.9 < 254 = 127 x 2^1, so e_s 1 without margin holds in
+  float on held-out (s0m test running). Extended b6_sink.py with signed
+  extremes (positive vs negative, diagonal, BOS column, off-diagonal) and
+  enqueued it as `b6-sink2` after the screens (behind hold2 as well).
+- 22:10 UTC: `s0m` (whole model) started.
+- 22:13 UTC: `s0m` layer 1: e_s 1, SiLU member unchanged (-2, -11), iso cos
+  0.824, dcos 0.731, chain 0.801, no refusal; site errors = s16's exactly
+  (q 0.095, k 0.072, score 0.297, prob 0.487, o 1.447): confirms the Q/K
+  coupling mechanism. BUT the T=128 calibration's layer-1 raw max is 278.9 >
+  254 = 127 x 2^1 (T=32: 223.4), so e_s 1 is infeasible at T=128 even with no
+  margin: s0m is a T=32-only fix. Layer 1's own free-shift choice was SH_S 7
+  in both the T=32 and T=128 pre-passes (profile median imposed 6); SH_S 7
+  with e_s 2 is feasible at both (log2 need_P -5.73 / -5.64 <= -5). The sh7
+  screen decides between "per-layer SH_S" and the T=32-only s0m.
+- 22:50 UTC: `s0m` DONE (`logs/b5-b6_l1_s0m.*`, run
+  `runs/llama3_8b_pg_rot1_b6l1s0m_T32`; 2373 s; other layers' words identical
+  to B5): FineWeb 36 seqs top-1 0.668 (accepted 0.669), ppl 18.85 -> 29.69
+  (acc 30.17), KL 0.544 (acc 0.521), 1 refused (FineWeb #10, as baseline).
+  Within noise of s16 (acc 0.679 / 29.97 / 0.517). Screens started.
+- 22:57 UTC: screen `sh7` (2 layers; 241 s): layer 1 e_s 2, SH_S 7, SiLU
+  (-2, -11): iso cos 0.8236, dcos 0.731, chain 0.8006, no refusal = s0m / s16
+  at layer 1 with every margin kept. Screen `o16`: iso cos 0.717, dcos 0.406,
+  chain 0.684 (WORSE than native: the int8 o class is not the lever as
+  wired). `sh7o16` running.
+- 23:01 UTC: enqueued `b6_l1_sh7_T128` after b6-sink2: sh7 at T=128 (B5
+  T=128 statistics + profile, held-out 9 licence + 6 FineWeb as the T128
+  export, words checked against `export/llama3_8b_pg_rot1_b6_T128`; no
+  export; marker `logs/b6_sh7T128_chain.done`), to test the fix at the export
+  length, where s0m is infeasible.
+- 23:01 UTC: screen `sh7o16` = `o16` at layer 1 (iso 0.717, dcos 0.406).
+  The o16 screens are INVALID, not negative: layer-1 AO rel err is exactly
+  1.000 (integer AO output all zero) because the profile's run-level SH_AO 3
+  was not re-solved for SH_O 1 (o 2^8 larger); attention contributed nothing.
+  (Their internal site errors, o 0.69 vs 1.45, hint the o class matters;
+  untested.)
+- 23:03 UTC: `b6-sink2` DONE (121 s; `runs/b6_sink_layer1.json`, signed):
+  layer 1's score range is set by NEGATIVE scores: max positive raw 61.7
+  (calibration) / 57.4 (held-out), BOS column max 43.9 / 43.2, diagonal 29.5 /
+  29.9; most negative -223.4 / -229.9 (causal region -223.4 / -227.6).
+  Negative scores that far below the row max contribute exp ~ 0 to the
+  softmax, but the symmetric int8 class must hold them -> e_s 2. A
+  positive-side range alone would allow e_s 0 (61.7 x 1.25 / 127 < 1).
+  `b6_l1_sh7_T128` started 23:03:08.
+- 23:05 UTC: sh7 at T=128, layer 1: e_s 2, SH_S 7: iso cos 0.841, dcos 0.753,
+  chain 0.800, no refusal (native T128 export on the same sequences: 0.768 /
+  0.670 / 0.733). B6_REPORT.md drafted (all sections; sh7-T128 whole-model
+  numbers pending).

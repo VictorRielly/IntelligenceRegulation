@@ -1,0 +1,4 @@
+TL-4/table-3                 ok=True  failing=[[1, 19]] predicted=[[1, 19]]
+TL-4/table-6                 ok=True  failing=[[1, 19]] predicted=[[1, 19]]
+TL-4/table-9                 ok=True  failing=[[1, 19]] predicted=[[1, 19]]
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/v5/tl4-l22-dense.json  3 of 3 fire  ok=True

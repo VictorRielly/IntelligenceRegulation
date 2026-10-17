@@ -1,0 +1,227 @@
+[
+ {
+  "T": 64,
+  "mode": "cpu",
+  "ladder": {
+   "T": 64,
+   "log_cols": 13,
+   "gpu": "gpu: off (built without --features gpu-cuda)",
+   "gpu_declines": 0,
+   "witness_seconds": 1.506,
+   "prove_seconds": 5.073,
+   "verify_seconds": 1.166,
+   "segment_bytes": 21697592,
+   "counted_receipt_bytes": 21697512,
+   "a_rows": 3229,
+   "h_rows": 3534,
+   "peak_rss_after_witness_mib": 2074,
+   "peak_rss_after_prove_mib": 3848,
+   "rayon_threads": 16,
+   "block_digest": "f36f8b7cf182711aa773a6d869cf7caf311197d9ed4b32e33d4390aa87470df3"
+  },
+  "groups": {
+   "commit": 1.088,
+   "zc_D": 0.813,
+   "zc_Q": 0.243,
+   "zc_Kv": 0.191,
+   "zc_S": 0.225,
+   "zc_F": 0.631,
+   "inverses": 0.27299999999999996,
+   "openings": 0.235,
+   "conversion": 0.115,
+   "run": 0.0,
+   "zero_checks": 2.103,
+   "rest": 0.4589999999999995,
+   "block_wall": 4.273
+  },
+  "verify_table_wall": null,
+  "prove_guard": {
+   "wall": 255.12102675437927,
+   "peak_rss_gib": 3.9,
+   "peak_vram_mib": null,
+   "exit": 0
+  },
+  "verify_guard": {
+   "wall": 32.821818113327026,
+   "peak_rss_gib": 1.07,
+   "exit": 0
+  },
+  "fresh": null,
+  "model": {
+   "conversion": 0.163,
+   "commit": 1.277,
+   "inverses": 0.31,
+   "zc_D": 1.116,
+   "zc_F": 0.757,
+   "zc_S": 0.219,
+   "zc_Q": 0.323,
+   "zc_Kv": 0.223,
+   "openings": 0.322,
+   "rest": 0.761,
+   "weight_fold_part_of_rest": 0.409,
+   "total": 5.471,
+   "zero_checks": 2.637
+  },
+  "model_gpu_total": 4.779,
+  "plan": {
+   "cpu": 5.47,
+   "gpu": 4.78,
+   "witness": 1.19,
+   "peak": 3.2,
+   "verify": 0.48,
+   "receipt_mb": 21.7
+  }
+ },
+ {
+  "T": 64,
+  "mode": "gpu",
+  "ladder": {
+   "T": 64,
+   "log_cols": 13,
+   "gpu": "gpu: ON \u2014 NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)",
+   "gpu_declines": 0,
+   "witness_seconds": 1.571,
+   "prove_seconds": 7.657,
+   "verify_seconds": 1.631,
+   "segment_bytes": 21697592,
+   "counted_receipt_bytes": 21697512,
+   "a_rows": 3229,
+   "h_rows": 3534,
+   "peak_rss_after_witness_mib": 2213,
+   "peak_rss_after_prove_mib": 2438,
+   "rayon_threads": 16,
+   "block_digest": "f36f8b7cf182711aa773a6d869cf7caf311197d9ed4b32e33d4390aa87470df3"
+  },
+  "groups": {
+   "commit": 0.72,
+   "zc_D": 1.715,
+   "zc_Q": 0.579,
+   "zc_Kv": 0.32,
+   "zc_S": 0.332,
+   "zc_F": 1.02,
+   "inverses": 0.351,
+   "openings": 0.613,
+   "conversion": 0.171,
+   "run": 0.0,
+   "zero_checks": 3.9659999999999997,
+   "rest": 0.7300000000000006,
+   "block_wall": 6.551
+  },
+  "verify_table_wall": null,
+  "prove_guard": {
+   "wall": 277.482869386673,
+   "peak_rss_gib": 2.38,
+   "peak_vram_mib": 4417,
+   "exit": 0
+  },
+  "verify_guard": {
+   "wall": null,
+   "peak_rss_gib": null,
+   "exit": null
+  },
+  "fresh": null,
+  "model": {
+   "conversion": 0.163,
+   "commit": 1.277,
+   "inverses": 0.31,
+   "zc_D": 1.116,
+   "zc_F": 0.757,
+   "zc_S": 0.219,
+   "zc_Q": 0.323,
+   "zc_Kv": 0.223,
+   "openings": 0.322,
+   "rest": 0.761,
+   "weight_fold_part_of_rest": 0.409,
+   "total": 5.471,
+   "zero_checks": 2.637
+  },
+  "model_gpu_total": 4.779,
+  "plan": {
+   "cpu": 5.47,
+   "gpu": 4.78,
+   "witness": 1.19,
+   "peak": 3.2,
+   "verify": 0.48,
+   "receipt_mb": 21.7
+  }
+ },
+ {
+  "T": 128,
+  "mode": "cpu",
+  "ladder": {
+   "T": 128,
+   "log_cols": 14,
+   "gpu": "gpu: off (built without --features gpu-cuda)",
+   "gpu_declines": 0,
+   "witness_seconds": 2.384,
+   "prove_seconds": 8.917,
+   "verify_seconds": 1.369,
+   "segment_bytes": 29300936,
+   "counted_receipt_bytes": 29300856,
+   "a_rows": 3405,
+   "h_rows": 3790,
+   "peak_rss_after_witness_mib": 2324,
+   "peak_rss_after_prove_mib": 7071,
+   "rayon_threads": 16,
+   "block_digest": "8b6144ea05a71794b47744703f0aec55d0639f6faadc40f62eacbbf76dd220a0"
+  },
+  "groups": {
+   "commit": 2.8419999999999996,
+   "zc_D": 1.245,
+   "zc_Q": 0.351,
+   "zc_Kv": 0.221,
+   "zc_S": 0.397,
+   "zc_F": 1.123,
+   "inverses": 0.5549999999999999,
+   "openings": 0.479,
+   "conversion": 0.208,
+   "run": 0.0,
+   "zero_checks": 3.3370000000000006,
+   "rest": 0.7329999999999998,
+   "block_wall": 8.154
+  },
+  "verify_table_wall": null,
+  "prove_guard": {
+   "wall": 431.4676842689514,
+   "peak_rss_gib": 7.14,
+   "peak_vram_mib": null,
+   "exit": 0
+  },
+  "verify_guard": {
+   "wall": 18.099833011627197,
+   "peak_rss_gib": 1.11,
+   "exit": 0
+  },
+  "fresh": null,
+  "model": {
+   "conversion": 0.344,
+   "commit": 2.717,
+   "inverses": 0.668,
+   "zc_D": 2.152,
+   "zc_F": 1.433,
+   "zc_S": 0.532,
+   "zc_Q": 0.566,
+   "zc_Kv": 0.366,
+   "openings": 0.685,
+   "rest": 1.135,
+   "weight_fold_part_of_rest": 0.409,
+   "total": 10.599,
+   "zero_checks": 5.049
+  },
+  "model_gpu_total": 8.783,
+  "plan": {
+   "cpu": 10.6,
+   "gpu": 8.78,
+   "witness": 2.51,
+   "peak": 6.3,
+   "verify": 0.77,
+   "receipt_mb": 29.3,
+   "commit": 2.72,
+   "zc": 5.05,
+   "inverses": 0.67,
+   "openings": 0.69,
+   "conversion": 0.34,
+   "rest": 1.14
+  }
+ }
+]

@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "checks": 3510,
+  "fixtures": 94,
+  "method": "Polynomial-convolution round coefficients; direct tensor MLE; monomial mask integration; public support projection; captured-source extraction equality.",
+  "wall_seconds": 0.7955668510003306,
+  "peak_rss_kib": 17048,
+  "threads": 1,
+  "scope": "Independent local arithmetic audit only; no cryptographic verification or full-stack proof.",
+  "completed_at_utc": "2026-10-17T22:25:38.001208+00:00"
+}

@@ -210,3 +210,271 @@ No git. Heavy jobs through scripts/zk60_resource_guard.py.
 - 14:10 UTC: the production-CLI stack-verify (honest, --controls) and the
   /dev/zero-segment check are queued for admission (budget full: the
   calibration lane's 4.5 GiB light job + another lane's 7 GiB cpu job).
+- 14:12 UTC (entry RECONSTRUCTED at 18:30 UTC by the r3 successor from the
+  guard JSONs, the logs and the scratch tree; the original append was blocked
+  by a missed permission prompt; the box shut down cleanly 14:59:58 and
+  rebooted 18:21). Both runs used the r4 production CLI
+  (results/zk60_1b_native_20261017/r4/zk60_trained_block.release.bin, sha256
+  ca736d48..., re-hashed 18:30), class light, need 0.5 / cap 1.5 GiB. The
+  guard records only cmd[:8], so `--controls` (9th arg) does not show in the
+  JSON; the log proves it ran.
+  * r3-stack2-verify (ts_end 14:11:57Z, waited 701.8 s for admission, exit 0,
+    child 1.27 s, peak RSS 0.04 GiB): `stack-verify` of the 2-layer rung
+    stack (export review_out/stack2/rev-stack2, artifact .../stack2/run)
+    "verified", 2 blocks, 15,012,880 B, statement 72098637f55f5b49...,
+    verify 0.373 s, VmHWM 30 MiB; all 11 run-level controls refused (blocks
+    0/1 swapped in the statement -> "segment belongs to another run"; honest
+    statement with the verifier's list swapped -> "block 0's public digest is
+    not the statement's layer 0 digest"; norm_cn_a+1, sh_z+-1, sh_qkv+-1,
+    other export profile digest -> binding mismatch; f_e+1 -> "rung-TC
+    geometry fixes f_e = 12"; one block shorter -> counted-length mismatch;
+    byte flip -> Merkle path fails; segments swapped / last truncated ->
+    counted-length mismatch); honest still verifies. r3-stack2-verify.log.
+  * r3-stack2-dos (ts_end 14:11:58Z, exit 137 = child killed by the kernel
+    memory cap, guard_killed null, child 0.77 s, sampled peak RSS 1.18 GiB,
+    EMPTY log: no "rejected" line was ever printed). Artifact
+    .../stack2/run-dos = the honest run with segment-000.bin replaced by a
+    SYMLINK to /dev/zero; segment-001.bin and statement/ byte-identical to
+    the honest run (cmp, 18:30); statement/segments.json still says segment 0
+    is 7,398,936 B. Interpretation: see the 18:3x entries below.
+
+## ROUND 3 continued (successor session, after the 18:21 UTC reboot)
+
+- 18:30 UTC: resumed from this ledger. Frozen r3 copy re-verified against
+  trained-1b-review-r3.sha256 (195 entries, all OK; the unlisted files are
+  target-gpu/, results/ fixtures and gpu/kernels.cu, as in r1/r2). r4 CLI
+  re-hashed ca736d48... = binaries.sha256. Guard status: heavy held by
+  another lane's gpu job (t2-debug-small), budget 3.0 / 11.89.
+- 18:31 UTC: CODE READ (frozen r3): `stack-verify` ->
+  trained_block.rs:1976 stack_verify_inner -> :1998
+  run::verify_run_from_dir_with -> run.rs:1057-1070, which does
+  `std::fs::read(p)` on each segment path with NO bound: no
+  symlink/file-type check, no comparison of the file length with the
+  verifier's own counted length (wire::segment_len, computable before the
+  read from st.stage_layout(k) and st.seg_geom(k)), no ceiling. The length
+  is compared only after the whole file is resident, in
+  wire.rs:438-442 decode_segment. run_sink.rs:90 segment_paths checks
+  entry NAMES only (a symlink, device or FIFO named segment-000.bin
+  passes). statement/segments.json is never read by the verifier. The
+  single-block `verify` command does NOT have the hole: trained_block.rs:1355
+  uses read_bounded (:294: symlink refused, regular file only, len <=
+  wire_ceiling 256 MiB before the read). --controls additionally reads all
+  L segments resident with an unbounded fs::read (trained_block.rs:2021).
+- 18:31 UTC: bounded reproductions with the r4 CLI (each guarded, light):
+  r3-stack2-sparse: segment-000.bin = a SPARSE regular file of 512 MiB
+  (truncate; no disk used): exit 1 "segment 0 is 536870912 B, the counted
+  length is 7398936" -> the whole file was read before the comparison.
+  r3-stack2-sparse-time: the same under /usr/bin/time -v: Maximum resident
+  set size 527,448 KiB (515 MiB) [MEASURED] for a 15 MB honest receipt.
+  r3-stack2-fifo: segment-000.bin = a FIFO: the verifier blocks in open()
+  forever; killed by the guard's --max-secs 20 (exit 75, child 143, empty
+  log). Together with 14:11 r3-stack2-dos (symlink -> /dev/zero, killed by
+  the 1.5 GiB kernel cap, exit 137): finding r3_6, VERIFIER DoS (memory
+  exhaustion / hang), NOT soundness (nothing false is ever accepted; every
+  case either refuses or dies). Scratch dirs run-sparse/ and run-fifo/
+  (a named pipe) left under review_out/stack2/. No reviewer job live after
+  18:32 (guard status).
+- 18:34 UTC: Round-4 items re-read in the frozen copy for the verdict:
+  derive_at_width (shape.rs:216; D_max 2,097,152..2,344,687 over the ceps
+  class, 22 bits -> tn <= 9, 2 D_max < 2^24 [COUNTED]); the door + the
+  check_trained_class re-check; trained_rope_theta per profile (500000 8B)
+  enforced in check_honoured_by_code and encoded in the statement;
+  pinned_for_profile (TinyLlama x3, Llama-3-8B shard-list digest) enforced
+  by check_self, waiver test-build only; statement encode binds profile,
+  run profile, geometry incl. kv-heads, source pin, calibration incl. RoPE
+  base, per-layer block/word/table digests; check_against binds the run's
+  block digests. Note N-r3-a: with --rope-from-export the bound tables may
+  differ from the pinned base while the statement's rope-theta field still
+  names the base (tables are bound by digest; labelling only, not new).
+- 18:35 UTC: r3_3 vs the native lane's R5 CS-6 port (READ ONLY,
+  ops/zkp-mvp/trained-1b/, run.rs sha256 8f6f0d04..., trained_block.rs
+  c3c60f6b... at read time): RunVerifier::start (run.rs:1004) calls
+  blocks.are_the_statements(st) before the header is absorbed, never
+  consulting the cheating switch; every verifier entry goes through start;
+  SliceBlocks -> blocks_are_the_statements (run.rs:806: count, then
+  blocks[k].digest() == st.block_digests[k]); BlockPublic::digest is
+  recomputed from every field the verifier reads; BlockCache's enforced list
+  is compared with st.block_digests() (trained_block.rs:1657). As written
+  it CLOSES r3_3. Its test (cs_port_tests cs6_...) has not run: r5-suite-a
+  exit 70 at the shutdown. The R5 tree still has the unbounded segment reads
+  (run.rs:1255, trained_block.rs:2119): r3_6 open there too.
+- 18:36 UTC: R3_VERDICT.md written. VERDICT: Round-4 Llama-3-8B profile
+  changes ACCEPTED on soundness (tn 9 at 4096, derived D_max, per-profile
+  RoPE base and checkpoint pin, 8B table digests, statement binding).
+  Findings: r3_1 CLOSED (R2-a), r3_2 HOLDS (endpoint binding), r3_3 OPEN in
+  r3 (library-level CS-6, not CLI-reachable) -> closed by R5 port as written,
+  r3_4 HOLDS (TOCTOU), r3_5 PASS (CLI stack verify + 11 controls), r3_6 OPEN
+  verifier DoS (unbounded segment read; minimal fix in R3_VERDICT.md),
+  N-r3-a note. Round 3 closed; no new round started; nothing of mine is
+  running.
+
+## ROUND 4 (re-review of the native Round-5 tree, ops/zkp-mvp/trained-1b-review-r4/)
+
+- 19:49 UTC: opened. Read LANE_RULES_20261017.md, this ledger, R3_VERDICT.md,
+  the native lane's Round 5 notes (PROGRESS 893-1060) and r5/FROZEN.txt.
+- 19:52 UTC: copied r5/frozen-tree/ (217 files, no target dirs) to
+  ops/zkp-mvp/trained-1b-review-r4/; sha256 list
+  ops/zkp-mvp/trained-1b-review-r4.sha256 (217 entries) equals
+  r5/manifest_frozen.json file for file (0 missing, 0 extra, 0 mismatch);
+  the tree hash over sorted "path hash" lines recomputes to d67fae7e...
+  = FROZEN.txt. Scratch: ops/zkp-mvp/trained-1b-review-r4-scratch/.
+- 19:53 UTC: r3 -> r4 diff (r3-vs-r4.patch, 2,695 lines, 23 files = the
+  author's round5-vs-review-r3.patch size); only private_block/ changes.
+  Read every non-test hunk: run.rs (CS-6 count + digests in prove_run_with /
+  RunVerifier::start, CS-7 registry, CS-8 private fields,
+  read_segment_bounded), protocol.rs (CS-3 refuse_lookup_misses before the
+  A mask draw, CS-1/4/8 at every entry and in prove_core/verify_core),
+  shape.rs (CS-9 registry, check_constructed), layout.rs
+  (check_is_for_shape), private_block.rs (check_words split, IoSpec CS-4,
+  off-support parallel pre-scan), trained_block.rs (reload_block without
+  SHA, parallel digest pass and array loads, parallel pad_matrix, BlockCache
+  count/fit_the_shape/are_the_statements, in-process verify off, stack
+  controls through the bounded reader), trained_statement.rs (parallel
+  word hashes, LayerRecord::unhashed), timing.rs (byte counters).
+  Code-read verdicts so far: CheatingProver and cheating_prover_is_on are
+  #[cfg(test)] only and the run prover's switch is `false` under
+  cfg(not(test)); the verifier never reads it. Only two BlockSource impls
+  (SliceBlocks, CacheBlocks). Shape derives PartialEq over every field;
+  IoSpec CS-4 compares every shape-derived field. All non-registered
+  Shape::new callers are test-only. timing.rs imports no transcript.
+  The off-support pre-scan scans exactly the entries the sequential loop can
+  refuse on and falls back to that loop. get() order = names order in the
+  parallel array load. The verifier's digest pass is the FULL load (array
+  SHA vs manifest, manifest SHA vs profile.json) before the statement pin;
+  only the reload skips the SHA and it is digest-checked.
+- 20:02 UTC: scratch copy ops/zkp-mvp/trained-1b-review-r4-scratch/ (r4 copy
+  + target/release from the r3 scratch). Review modules (scratch only):
+  review_r4_tests.rs (r4_1 r3_3 retest both sides, r4_2 off-support
+  pre-scan vs the round-3 loop, r4_3 CS-8 field-write sweep, r4_5 bounded
+  segment reader under a concurrent swap) and review_r4_inner in
+  trained_block.rs (r4_4a SHA-free reload TOCTOU, r4_4b parallel digest
+  pass == sequential + first error in layer order, r4_4c streaming CS-6,
+  r4_4d parallel pad == sequential, r4_4e export reader under a concurrent
+  swap); write_stack_export made pub(super). Fixtures
+  (r4/make_fixtures.py): the round-3 2-layer rung stack (statement
+  72098637...) with segment 0 a /dev/zero symlink, 512 MiB sparse, FIFO,
+  1 B short, 1 B long, a directory, /dev/null symlink, a symlink to the
+  honest file, segment 1 a FIFO, a hard link (control); exports with
+  layer_01/wq.bin a /dev/zero symlink / FIFO, layer_00/wq.bin 300 MiB
+  sparse, and exp-fat (all 22 arrays 255 MiB sparse, under the 256 MiB
+  per-array bound).
+- 20:04 UTC: launched r4/r4_queue.sh (detached, serial, each leaf guarded):
+  CLI from the PRISTINE frozen copy (--target-dir in scratch), the CLI
+  checks, the scratch test build, review tests, the author's full suite
+  (--skip review_r4). Queued behind another lane's gpu job (heavy lock).
+- 20:14 UTC: r4-cli-build exit 0 (from the PRISTINE frozen copy into
+  scratch target-cli; waited ~10 min for the heavy lock). Review CLI
+  r4/zk60_trained_block.review-r4.release.bin sha256 bc627953...
+  (r4/binaries.sha256). CLI checks, each guarded light 0.5/1.5 GiB:
+  * r4-stack2-verify: the R5 CLI's PARALLEL digest pass rebuilds the
+    round-3 statement 72098637... (identity pin passes), the round-3
+    receipt (15,012,880 B) verifies, all 11 run-level controls refused; the
+    three calibration controls now by the run binding ("this segment
+    belongs to another run"), f_e by "rung-TC geometry fixes f_e = 12".
+    RSS 41 MiB.
+  * r3_6 reproductions, segment 0 = /dev/zero symlink, 512 MiB sparse, FIFO,
+    1 B short, 1 B long, a directory, a /dev/null symlink, a symlink to the
+    honest file; segment 1 = FIFO (with and without --controls): every one
+    exit 1 refused BY NAME ("not a regular file ... refused before it is
+    opened" / "is N B, the counted length is M; refused before it is read"),
+    ~0.05 s, max RSS 10-12 MiB (29 MiB for segment-1 FIFO after stage 0 was
+    verified). Round 3: killed at the 1.5 GiB cap / 515 MiB RSS / hang.
+    A hard link to the honest file verifies (control).
+  * export side: layer_01/wq.bin a /dev/zero symlink -> "a symbolic link",
+    a FIFO -> "not a regular file", layer_00/wq.bin 300 MiB sparse ->
+    "exceeds the bound 268435456"; each ~0.05 s, ~8 MiB RSS.
+  exp-fat (r4 CLI and the round-4 CLI) waiting for admission (1.5 GiB).
+- 20:15 UTC: r4/r4_prove_checks.sh (light, each guarded): the review CLI
+  proves the 2-layer rung stack WITH HL_PB_TIMING=1 (112 PB-TIMING lines)
+  and WITHOUT; both: statement 72098637..., parity bit-exact, receipt
+  15,012,880 B, segment lengths 7,398,936 / 7,613,944 = the round-3
+  receipt's, "in_process_verified":false. Fresh-process verify of the
+  timing receipt WITHOUT the variable: verified + 11 controls refused; of
+  the plain receipt WITH HL_PB_TIMING=1: verified. (A generic honest
+  witness: the dense trained recipe, per-layer words and tables differ.)
+- 20:26 UTC: EXPORT-SIDE MEMORY AMPLIFICATION (new in R5). exp-fat = the
+  rung export with all 22 arrays replaced by 255 MiB sparse files (under
+  MAX_ARRAY_BYTES 256 MiB, over each array's true length; manifest
+  unchanged). r4-exp-fat (review CLI, light, cap 1.5 GiB): NO refusal;
+  the cgroup sat at its 1.5 GiB cap (peak RSS 1.43 GiB) until the guard's
+  60 s limit killed it (exit 75, child 143, empty log). r4-exp-fat-r4cli
+  (the round-4 CLI ca736d48..., sequential loads): exit 1 in 0.28 s,
+  "array `wq`: 267386880 bytes on disk, the manifest's dtype and shape
+  give 147456", max RSS 264 MB. Measured under the cap with 40 MiB arrays
+  (exp-fat40, 20:28): review CLI 471 MB RSS before the same refusal,
+  round-4 CLI 44 MB [MEASURED, shared box, n=1] -> ~11 arrays resident at
+  once instead of 1 (two layers x eleven parallel array loads, each read
+  bounded only by the 256 MiB per-array constant, the length compared
+  only after the read). Finding r4_A.
+- 20:50 UTC: r4-test-build still waiting (queued 20:26). /proc/locks: the
+  heavy lock (inode 36955) is held by pid 86262 = the native lane's
+  r5-ladder8b-T128-cpu guard, itself waiting for 7 GiB of budget while the
+  calibration lane's light jobs tl-v4-l22-dense-f (6 GiB, since 19:48, max
+  3 h) and b5-b6_l1_perhead (4 GiB, since 20:26) hold 10.0 of 11.89 GiB
+  (the known admission gap). Also queued for the heavy lock: gzc-stack-s0-
+  base / s4-diag (gpu), r5-stack-verify (cpu), tio-c1-check (build).
+  This r5b-test-build's measured peak was 2.88 GiB, so the 3 GiB
+  declaration stays. Meanwhile: Layout's ten pub row fields are exactly
+  the ones check_is_for_shape compares (the rest are private to layout.rs);
+  every trained CLI path (prove, verify, stack-prove, stack-verify,
+  controls) goes through the CS-6-checked run entry points.
+- 21:23 UTC: r4-test-build exit 0 (admitted 21:15:58 after ~50 min in the
+  queue; ~7 min). r4-fast (cpu 2/4 GiB, --test-threads=1): 9 passed, 0
+  failed (r4/r4-fast.log):
+  * r4_1 (r3_3 CLOSED): statement over A (two-block bound run, rung-TC),
+    block 1 of B differs. Honest prover handed B: "ruling CS-6 — block 1
+    ... refused before anything is absorbed", 0 witnesses asked, 0 segments
+    sunk. A CHEATING prover (test switch) proves B under A (15,012,880 B);
+    verify_run handed B: refused by CS-6 by name (round 3: ACCEPTED), also
+    with the switch on in the verifier's thread; handed A: rejected ("M:
+    mask: the product polynomial's sum != the combined functional");
+    verify_run_from_dir with B from the real directory and from a missing
+    one: CS-6; counts 1 and 3: CS-6 by name; honest A chain verifies.
+  * r4_2: 9,672 cases (9,648 violating) at rung-G/P2/K4/TC, all six axis
+    pairs: pre-scan verdict and first error == the round-3 loop.
+  * r4_3: frozen rung-G and m125: every one of 35 field writes refused by
+    CS-8/CS-9. Trained rung: check_constructed ADMITS in-class writes of
+    norm_cn_a, norm_cn_m, norm_ceps, sh_ao, sh_s, sh_o, sh_h, sh_z (the
+    door's inputs; derived fields, flags, axes, f_e, windows refused).
+  * r4_4a: 5 TOCTOU cases between the digest pass and the SHA-free reload
+    (array rewritten with its manifest SHA left stale x3 arrays; array +
+    manifest with/without profile digests): every reload of the changed
+    block refused (block digest, or manifest SHA vs profile.json).
+  * r4_4b: 4 layers: parallel digest pass == sequential load_layer ==
+    reload_block digests, records equal; first error in LAYER order in all
+    3 cases (wk of layer 0 over wq of layer 1 in one chunk; layer 1 over
+    layer 3 across chunks; layer 3 alone).
+  * r4_4c: streaming CS-6: cache digest list swapped / consistent cache over
+    swapped layers: verifier and prover refuse by CS-6's name, 0 asked, 0
+    sunk, 0 block loads; the statement's list over swapped layers: the
+    reload is refused; one block fewer: CS-6 count.
+  * r4_4d: parallel pad_matrix == sequential at 4 shapes (Wq/Wo head map,
+    Wk, gamma, Wg, Wd).
+  * r4_4e (r4_B evidence): trained_block::read_bounded(max 4096) under a
+    concurrent swap, 6,362 calls in 10 s: 340 returned MORE than the bound
+    (largest 67,108,864 B = 16,384x the bound), 171 parked in a FIFO open
+    (rescued by a non-blocking writer; without it, forever).
+  * r4_5: run::read_segment_bounded under 1.8 M swaps over 7 candidates,
+    105,316 reads: Ok only with the counted length (5,842 good + 17,648
+    same-length other); refused by lstat type 29,067, lstat length 49,456,
+    O_NOFOLLOW open 3,279, fstat after open 24; no unknown refusal; slowest
+    call 5.6 ms; process VmHWM 189 MiB.
+  The author's suite (r4-suite) is next in the queue.
+- 22:12 UTC: r4-suite exit 0 (admitted 22:04:38 after 2,460 s in the
+  queue; wall 444 s, peak RSS 4.25 GiB): the author's full release suite
+  on the scratch copy with --skip review_r4: 29 targets, 688 passed, 0
+  failed, 29 ignored (lib 543 / 0 / 29, 9 filtered out = my review tests)
+  = the author's r5-suite2 counts. r4_queue.sh, r4_prove_checks.sh and
+  r4_fat40.sh all wrote their done markers; no review job is live (ps).
+  /tmp: 8 dirs /tmp/zk60-native-tiny-159633-* (37 MB, 22:05 UTC) fall in
+  the suite's window but cannot be attributed with certainty (other lanes
+  run the same tests), so they were left in place; the 153419 ones
+  predate the suite. review_tmp/ is empty (my tests clean up).
+- 22:13 UTC: R4_VERDICT.md final. VERDICT: the Round-5 changes are
+  ACCEPTED on soundness; r3_3 CLOSED (r4_1), r3_6 CLOSED. New: r4_A
+  (export-side memory amplification from the parallel array loads; verifier
+  DoS, low-medium, new in R5; minimal fix: bound each array read by its
+  exact length and check the manifest's dtype/shape against the code's
+  before reading), r4_B (read_bounded lstat-to-read race in the export
+  reader, low, pre-existing; fix: read_segment_bounded's open discipline).
+  Notes N-r4-a..e. Round 4 closed; nothing of mine is running.

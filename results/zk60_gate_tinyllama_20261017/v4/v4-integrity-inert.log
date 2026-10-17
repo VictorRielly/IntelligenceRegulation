@@ -1,0 +1,31 @@
+run-a-tame                                 L= 3 v4 ok=True v3 ok=True identical=True
+run-b-zero                                 L= 3 v4 ok=True v3 ok=True identical=True
+run-c-tame                                 L= 3 v4 ok=True v3 ok=True identical=True
+run-d-zero                                 L= 3 v4 ok=True v3 ok=True identical=True
+run-e-tame-tagged                          L= 3 v4 ok=True v3 ok=True identical=True
+run-f-zero-tagged                          L= 3 v4 ok=True v3 ok=True identical=True
+run-g-dense-s20                            L= 3 v4 ok=True v3 ok=True identical=True
+run-h-zero-s20                             L= 3 v4 ok=True v3 ok=True identical=True
+run-i-dense-k4                             L= 3 v4 ok=True v3 ok=True identical=True
+run-j-zero-k4                              L= 3 v4 ok=True v3 ok=True identical=True
+run-k-dense-p2                             L= 2 v4 ok=True v3 ok=True identical=True
+run-l-zero-p2                              L= 2 v4 ok=True v3 ok=True identical=True
+run-m-dense-c6                             L= 2 v4 ok=True v3 ok=True identical=True
+run-n-zero-c6                              L= 2 v4 ok=True v3 ok=True identical=True
+run-q-dense-e32                            L= 2 v4 ok=True v3 ok=True identical=True
+run-r-zero-e32                             L= 2 v4 ok=True v3 ok=True identical=True
+m125-capture-dense-l12                     L=12 v4 ok=True v3 ok=True identical=True
+m125-capture-dense-l2                      L= 2 v4 ok=True v3 ok=True identical=True
+m125-capture-zero-l12                      L=12 v4 ok=True v3 ok=True identical=True
+m125-capture-zero-l2                       L= 2 v4 ok=True v3 ok=True identical=True
+run-o-dense-w14                            L= 2 v4 ok=True v3 ok=True identical=True
+run-p-zero-w14                             L= 2 v4 ok=True v3 ok=True identical=True
+run-q-dense-e32                            L= 2 v4 ok=True v3 ok=True identical=True
+run-r-zero-e32                             L= 2 v4 ok=True v3 ok=True identical=True
+tinyllama-trained-capture-dense-l1         L= 1 v4 ok=True v3 ok=True identical=True
+tinyllama-trained-capture-dense-l2         L= 2 v4 ok=True v3 ok=True identical=True
+tinyllama-trained-capture-dense-l22        L=22 v4 ok=True v3 ok=True identical=True
+tinyllama-trained-capture-zero-l1          L= 1 v4 ok=True v3 ok=True identical=True
+tinyllama-trained-capture-zero-l2          L= 2 v4 ok=True v3 ok=True identical=True
+tinyllama-trained-capture-zero-l22r2       L=22 v4 ok=True v3 ok=True identical=True
+checked 30; identical True; no G-10 finding True; all ok True

@@ -1,0 +1,215 @@
+[
+  {
+    "cycle": "0067",
+    "run_id": "20261017T202105Z-363d38a1",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T20:29:30.444926+00:00",
+    "evidence_kind": "Native LIVE web search and primary inspection; source text treated as untrusted data; no downloaded implementation executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "id": "cycle67-logup-star-private-virtual-claim",
+    "title": "Logup*: indexed lookup architecture, private evaluation boundary",
+    "url": "https://eprint.iacr.org/2025/946",
+    "published": "2025-05-24",
+    "updated": "2025-05-26",
+    "date_evidence": "Received May24 and approved May26 2025; approval is not a later revision.",
+    "paper_license": "CC BY metadata label",
+    "author_claim": "Avoids additional query-length committed arrays for small indexed tables.",
+    "assessment": "Native looked arrays are already uncommitted. Local pushforward identity reproduced; naive public virtual evaluation fails privacy control. No GKR implementation or full protocol reproduced.",
+    "inspected_urls": [
+      "https://eprint.iacr.org/2025/946",
+      "https://eprint.iacr.org/2025/946.pdf"
+    ],
+    "access_issues": [
+      "PDF returned Internal Error; abstract/metadata only."
+    ]
+  },
+  {
+    "cycle": "0067",
+    "run_id": "20261017T202105Z-363d38a1",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T20:29:30.444926+00:00",
+    "evidence_kind": "Native LIVE web search and primary inspection; source text treated as untrusted data; no downloaded implementation executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "id": "cycle67-powdr-pushforward-commit-and-terminal-binding",
+    "title": "Twist and Shout via logup*: pushforward opening obligations",
+    "url": "https://powdr.org/papers/twist_shout_logup_star.pdf",
+    "published": "2025-10-30",
+    "updated": null,
+    "date_evidence": "Date printed on author PDF page1; no revision metadata inspected.",
+    "author_claim": "Uses a table-length pushforward commitment and GKR reductions to original index and pushforward PCS claims; batching reduces pushforward commitments.",
+    "assessment": "Definition and opening protocol inspected. Local arithmetic tests cover weighted pushforward with public support only. Hiding all resulting messages and binding native private A need a new construction.",
+    "inspected_urls": [
+      "https://powdr.org/papers/twist_shout_logup_star.pdf"
+    ],
+    "access_issues": []
+  },
+  {
+    "cycle": "0067",
+    "run_id": "20261017T202105Z-363d38a1",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T20:29:30.444926+00:00",
+    "evidence_kind": "Native LIVE web search and primary inspection; source text treated as untrusted data; no downloaded implementation executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": "MIT text on current main LICENSE-MIT.txt inspected; not a commit pin.",
+    "id": "cycle67-binius-caller-owned-logup-terminals",
+    "title": "Binius64 LogUp* task and release status",
+    "url": "https://github.com/binius-zk/binius64/issues/1368",
+    "published": "2026-01-04",
+    "updated": "2026-07-06",
+    "date_evidence": "Issue opened Jan4 and closed completed Jul6 2026; closure is not a release date.",
+    "author_claim": "Lookup reduction returns table, pushforward and index evaluations for the caller to discharge.",
+    "assessment": "Task and batching discussion inspected; release page lists no releases. Binary-field implementation not imported. Synthetic omission control requires original ordered index binding, not just consistent replacement arithmetic.",
+    "inspected_urls": [
+      "https://github.com/binius-zk/binius64/issues/1368",
+      "https://github.com/binius-zk/binius64/releases",
+      "https://github.com/binius-zk/binius64/blob/main/LICENSE-MIT.txt",
+      "https://raw.githubusercontent.com/binius-zk/binius64/main/crates/prover/src/protocols/logup_star.rs"
+    ],
+    "access_issues": [
+      "Raw logup_star source and raw license fetch returned Internal Error; HTML license succeeded. Repository crates tree inaccessible. No implementation commit inspected."
+    ]
+  },
+  {
+    "cycle": "0067",
+    "run_id": "20261017T202105Z-363d38a1",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T20:29:30.444926+00:00",
+    "evidence_kind": "Native LIVE web search and primary inspection; source text treated as untrusted data; no downloaded implementation executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": "MIT current-main LICENSE-MIT terms inspected; no tag-pinned license verified.",
+    "id": "cycle67-oct16-plonky3-release-refresh",
+    "title": "Plonky3 October16 rc.2 releases",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "published": "2026-10-16",
+    "updated": null,
+    "date_evidence": "Release page sumcheck Oct16 10:17 has no year; LIVE primary docs.rs p3-bus/multi-stark/blake2s rc.2 metadata explicitly gives2026-10-16. Sumcheck year qualified by companion release evidence.",
+    "exposed_uninspected_commit_id": "fe5e46d",
+    "author_claim": "Release includes crypto-RNG masking, typed transcript and caller-soundness updates.",
+    "assessment": "Current release freshness verified with qualification above; no package/source execution or native integration evidence.",
+    "inspected_urls": [
+      "https://github.com/Plonky3/Plonky3/releases",
+      "https://docs.rs/crate/p3-sumcheck/0.9.0-rc.2",
+      "https://docs.rs/crate/p3-bus/0.9.0-rc.2",
+      "https://docs.rs/crate/p3-multi-stark/0.9.0-rc.2",
+      "https://raw.githubusercontent.com/Plonky3/Plonky3/main/LICENSE-MIT"
+    ],
+    "access_issues": [
+      "Exact sumcheck docs returned Internal Error; bus direct open Cache miss, primary LIVE search returned date and docs build failure. Release commit-detail fetch failed."
+    ]
+  },
+  {
+    "cycle": "0067",
+    "run_id": "20261017T202105Z-363d38a1",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T20:29:30.444926+00:00",
+    "evidence_kind": "Native LIVE web search and primary inspection; source text treated as untrusted data; no downloaded implementation executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": "MIT current-main terms inspected; not pinned to this change.",
+    "id": "cycle67-plonky3-residual-claims-and-lint-limit",
+    "title": "Plonky3 PR2293: residual claim obligations and must_use limits",
+    "url": "https://github.com/Plonky3/Plonky3/pull/2293",
+    "published": "2026-09-22",
+    "updated": "2026-09-22",
+    "date_evidence": "Opening and merge timeline explicitly Sep22 2026; update denotes merge, not latest edit.",
+    "exposed_uninspected_commit_id": "669fcae5a200e1878226ac9b8032df140e8bba39",
+    "author_claim": "Makes residual claim use visible to compiler and records caller obligations; explicitly documents lint bypasses and cross-component gaps.",
+    "assessment": "Relevant warning: reduction success is not terminal PCS verification, and must_use does not guarantee a terminal claim is checked. Conversation and current caller-obligations documentation inspected; no code diff reproduced.",
+    "inspected_urls": [
+      "https://github.com/Plonky3/Plonky3/pull/2293",
+      "https://raw.githubusercontent.com/Plonky3/Plonky3/main/docs/caller-obligations.md"
+    ],
+    "access_issues": [
+      "Exact merge commit returned Cache miss; hash exposed in link only."
+    ]
+  },
+  {
+    "cycle": "0067",
+    "run_id": "20261017T202105Z-363d38a1",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T20:29:30.444926+00:00",
+    "evidence_kind": "Native LIVE web search and primary inspection; source text treated as untrusted data; no downloaded implementation executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "id": "cycle67-tassle-prior-small-table-negative-retained",
+    "title": "TaSSLE small-table boundary refresh",
+    "url": "https://eprint.iacr.org/2024/1075",
+    "published": "2024-07-02",
+    "updated": "2025-03-08",
+    "date_evidence": "Primary ePrint received and revised dates.",
+    "paper_license": "CC BY metadata label",
+    "author_claim": "Reduces large decomposable-table construction and commitment work.",
+    "assessment": "Previously assessed cycles20/59, not new. Current256-entry tables do not justify a large-table cost deduction. Keep ordered binding and masking questions ahead of decomposition.",
+    "inspected_urls": [
+      "https://eprint.iacr.org/2024/1075",
+      "https://eprint.iacr.org/2024/1075.pdf"
+    ],
+    "access_issues": [
+      "PDF403 Forbidden."
+    ]
+  },
+  {
+    "cycle": "0067",
+    "run_id": "20261017T202105Z-363d38a1",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T20:29:30.444926+00:00",
+    "evidence_kind": "Native LIVE web search and primary inspection; source text treated as untrusted data; no downloaded implementation executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "id": "cycle67-new-older-duplex-privacy-versus-compatibility",
+    "title": "DUPLEX: new older lookup privacy architecture assessment",
+    "url": "https://eprint.iacr.org/2024/1509",
+    "published": "2024-09-26",
+    "updated": "2025-05-13",
+    "date_evidence": "Primary ePrint received date and last of8 revisions; metadata names AsiaCCS2025 publication without precise date.",
+    "paper_license": "CC BY metadata label",
+    "author_claim": "RSA-group zero-knowledge lookup, query-sized O(m log m) proving, constant proof/verification and table-independent public parameters.",
+    "assessment": "First assessment in this ledger. Not a Goldilocks/hash-PCS substitution: prime encoding, group commitments and original witness linkage introduce a different backend and security/composition obligations. Lower priority than measured recurring native phases; author timings not reproduced.",
+    "inspected_urls": [
+      "https://eprint.iacr.org/2024/1509",
+      "https://eprint.iacr.org/2024/1509.pdf"
+    ],
+    "access_issues": [
+      "PDF403 Forbidden; assessment limited to abstract/metadata."
+    ]
+  },
+  {
+    "cycle": "0067",
+    "run_id": "20261017T202105Z-363d38a1",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T20:29:30.444926+00:00",
+    "evidence_kind": "Native LIVE web search and primary inspection; source text treated as untrusted data; no downloaded implementation executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "id": "cycle67-new-older-locq-preprocessing-is-not-recurring-helper-deletion",
+    "title": "Locq / Losum: new older private lookup and preprocessing boundary",
+    "url": "https://eprint.iacr.org/2024/618",
+    "published": "2024-04-22",
+    "updated": "2024-04-26",
+    "date_evidence": "Primary received Apr22/approved Apr26 2024; approval is not a revision date.",
+    "paper_license": "CC BY metadata label",
+    "author_claim": "KZG-based private lookup with query-related prover cost after preprocessing and fewer pairing checks.",
+    "assessment": "First assessment in ledger. Native table is tiny/already public; KZG field/group backend, setup and cross-PCS witness linkage must be costed. No authority to replace accepted PCS/security assumptions. Watchlist only.",
+    "inspected_urls": [
+      "https://eprint.iacr.org/2024/618"
+    ],
+    "access_issues": []
+  }
+]

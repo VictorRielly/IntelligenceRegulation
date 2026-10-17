@@ -435,6 +435,17 @@ __device__ __forceinline__ void fzl_fold_round_impl(u64* tabs, int hp, long long
 
 
 // ---------------------------------------------------------------------------
+// [ZK60-GZC] DIAGNOSIS AID (HL_GZC_WARM_MS, never on a proof's data path): a
+// pure-arithmetic spin of `iters` dependent Goldilocks products per thread.
+// It reads and writes no table (one word, only on an impossible value), so
+// its duration measures the SM clock and nothing else.
+extern "C" __global__ void k_fzc_spin(u64* out, int iters) {
+    u64 x = (u64)threadIdx.x + 2ULL, y = (u64)blockIdx.x + 3ULL;
+    for (int i = 0; i < iters; i++) { x = gl_mul(x, y); y = gl_add(y, x); }
+    if (x == 0x123456789ULL && y == 0x987654321ULL) out[0] = x;
+}
+
+// ---------------------------------------------------------------------------
 // The two entry points of this module: FZ_D (4 or 5), FZ_SUPP (0 or 1) and
 // FZ_LEAN (0: v1/v2 direct evaluation, 1: v3 lean evaluation) are defined
 // by the host in front of this source (cuda.rs `fzc_module`).

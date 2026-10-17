@@ -88,6 +88,10 @@ pub(crate) const RUN_PROFILE_TINYLLAMA_T64_TRAINED: &str = "hashline-zk-mr1/priv
 pub(crate) const RUN_PROFILE_TINYLLAMA_T128_TRAINED: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t128-trained-statement/1";
 /// ROUND 4 (R4-1): the run profile of the trained Llama-3-8B shape at T32.
 pub(crate) const RUN_PROFILE_LLAMA3_8B_T32_TRAINED: &str = "hashline-zk-mr1/private-run-llama-3-8b-t32-trained-statement/1";
+/// task 3 (2026-10-17 evening): the run profiles of the trained Llama-3-8B
+/// shapes at T64 and T128 (one per shape, D17). PENDING REVIEW.
+pub(crate) const RUN_PROFILE_LLAMA3_8B_T64_TRAINED: &str = "hashline-zk-mr1/private-run-llama-3-8b-t64-trained-statement/1";
+pub(crate) const RUN_PROFILE_LLAMA3_8B_T128_TRAINED: &str = "hashline-zk-mr1/private-run-llama-3-8b-t128-trained-statement/1";
 /// NATIVE LANE: the run profile of the trained-calibration development rung.
 pub(crate) const RUN_PROFILE_RUNG_TC: &str = "hashline-zk-mr1/private-run-rung-tc-t32-dev/1";
 
@@ -127,6 +131,8 @@ fn registered_block_shape(profile: &str, sh: &Shape) -> Option<Result<Shape, Str
         RUN_PROFILE_TINYLLAMA_T64_TRAINED => Shape::tinyllama_trained(64, &cal, sh.f_e),
         RUN_PROFILE_TINYLLAMA_T128_TRAINED => Shape::tinyllama_trained(128, &cal, sh.f_e),
         RUN_PROFILE_LLAMA3_8B_T32_TRAINED => Shape::llama3_8b_t32_trained(&cal, sh.f_e),
+        RUN_PROFILE_LLAMA3_8B_T64_TRAINED => Shape::llama3_8b_trained(64, &cal, sh.f_e),
+        RUN_PROFILE_LLAMA3_8B_T128_TRAINED => Shape::llama3_8b_trained(128, &cal, sh.f_e),
         #[cfg(test)]
         RUN_PROFILE_TINYLLAMA_T32_DEV => Ok(Shape::tinyllama_t32_dev()),
         _ => return None,
@@ -215,6 +221,8 @@ impl RunShape {
             p if p == TINYLLAMA_T64_TRAINED_PROFILE => RUN_PROFILE_TINYLLAMA_T64_TRAINED,
             p if p == TINYLLAMA_T128_TRAINED_PROFILE => RUN_PROFILE_TINYLLAMA_T128_TRAINED,
             p if p == super::shape::LLAMA3_8B_T32_TRAINED_PROFILE => RUN_PROFILE_LLAMA3_8B_T32_TRAINED,
+            p if p == super::shape::LLAMA3_8B_T64_TRAINED_PROFILE => RUN_PROFILE_LLAMA3_8B_T64_TRAINED,
+            p if p == super::shape::LLAMA3_8B_T128_TRAINED_PROFILE => RUN_PROFILE_LLAMA3_8B_T128_TRAINED,
             _ => return Err("private run: a trained-model run profile needs a trained TinyLlama or Llama-3-8B shape".into()),
         };
         if !sh.trained_calibration {
@@ -275,7 +283,7 @@ impl RunStatement {
         // the SHAPE's own flag (it was a substring test on the run profile,
         // which let an unbound run at the trained-calibration rung absorb
         // `calibration_identity()`), and on the trained run profile by name.
-        if rs.sh.trained_calibration || [RUN_PROFILE_TINYLLAMA_T32_TRAINED, RUN_PROFILE_TINYLLAMA_T64_TRAINED, RUN_PROFILE_TINYLLAMA_T128_TRAINED, RUN_PROFILE_LLAMA3_8B_T32_TRAINED, RUN_PROFILE_RUNG_TC].contains(&rs.profile) {
+        if rs.sh.trained_calibration || [RUN_PROFILE_TINYLLAMA_T32_TRAINED, RUN_PROFILE_TINYLLAMA_T64_TRAINED, RUN_PROFILE_TINYLLAMA_T128_TRAINED, RUN_PROFILE_LLAMA3_8B_T32_TRAINED, RUN_PROFILE_LLAMA3_8B_T64_TRAINED, RUN_PROFILE_LLAMA3_8B_T128_TRAINED, RUN_PROFILE_RUNG_TC].contains(&rs.profile) {
             return Err(format!("private run: {} is a trained-calibration run; it needs its trained-model statement (RunStatement::new_bound)", rs.profile));
         }
         if blocks.len() != rs.l || block_scales.len() != rs.l {
@@ -1251,9 +1259,115 @@ pub(crate) fn verify_run_from_dir_with(st: &RunStatement, blocks: &mut dyn Block
     let paths = run_sink::segment_paths(dir, l)?;
     for (k, p) in paths.iter().enumerate() {
         // ONE segment's bytes are resident: read here, dropped at the end of
-        // this iteration, before the next file is opened
-        let bytes = std::fs::read(p).map_err(|e| format!("private run: segment {k} ({}) cannot be read: {e}", p.display()))?;
+        // this iteration, before the next file is opened. REVIEW r3_6: read
+        // through the bounded reader (the verifier's own counted length,
+        // checked from metadata before the file is opened)
+        let bytes = read_segment_bounded(st, k, p)?;
         v.step(k, &bytes)?;
     }
     v.finish()
+}
+
+/// `O_NOFOLLOW | O_NONBLOCK` on x86-64 Linux (the open flags differ by
+/// architecture and this crate takes no `libc` dependency): a path swapped
+/// to a symbolic link after the `lstat` fails to open, and one swapped to a
+/// FIFO does not block the open. Elsewhere the `fstat` re-check below holds.
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+const SEGMENT_OPEN_FLAGS: i32 = 0o400000 | 0o4000;
+
+/// **REVIEW r3 FINDING r3_6 (verifier DoS, not soundness; fixed in native
+/// round 5): THE BOUNDED SEGMENT READER.** The stack verifier read each
+/// segment file with an unbounded `std::fs::read` and compared its length
+/// with the counted length only in `wire::decode_segment`, after the whole
+/// file was resident: a symbolic link to `/dev/zero` ran into the memory
+/// cap, a 512 MiB sparse file was read whole, a FIFO hung forever. Now, in
+/// this order and before ONE byte of the segment is read:
+///
+/// 1. the verifier's OWN counted length `want` of segment `k` (from its run
+///    statement, never from a prover-written file), refused above the wire
+///    ceiling;
+/// 2. `symlink_metadata`: anything that is not a regular file (a symbolic
+///    link, FIFO, device, directory) is refused by name, unopened;
+/// 3. the metadata length must be exactly `want`;
+/// 4. the open does not follow a link nor block on a FIFO (x86-64 Linux),
+///    the OPENED file is re-checked (`fstat`: regular, length `want`), and
+///    the read is capped at `want + 1` bytes, so a file that grows or is
+///    swapped after the check is still refused (`decode_segment` re-checks
+///    the length too).
+pub(crate) fn read_segment_bounded(st: &RunStatement, k: usize, p: &std::path::Path) -> Result<Vec<u8>, String> {
+    use std::io::Read;
+    let want = wire::segment_len(&st.stage_layout(k)?, st.seg_geom(k)?);
+    let ceiling = wire::wire_ceiling(&st.rs.sh);
+    if want > ceiling {
+        return Err(format!("private run wire: segment {k}'s counted length {want} B exceeds the wire ceiling {ceiling} B"));
+    }
+    let meta = std::fs::symlink_metadata(p).map_err(|e| format!("private run: segment {k} ({}) cannot be read: {e}", p.display()))?;
+    if !meta.file_type().is_file() {
+        return Err(format!("private run: segment {k} ({}) is not a regular file (a symbolic link, FIFO, device or directory is refused before it is opened; review r3_6)", p.display()));
+    }
+    if meta.len() != want as u64 {
+        return Err(format!("private run wire: segment {k} is {} B, the counted length is {want}; refused before it is read (review r3_6)", meta.len()));
+    }
+    let mut opts = std::fs::OpenOptions::new();
+    opts.read(true);
+    #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+    {
+        use std::os::unix::fs::OpenOptionsExt;
+        opts.custom_flags(SEGMENT_OPEN_FLAGS);
+    }
+    let f = opts.open(p).map_err(|e| format!("private run: segment {k} ({}) cannot be opened as a regular file: {e}", p.display()))?;
+    let fm = f.metadata().map_err(|e| format!("private run: segment {k} ({}): {e}", p.display()))?;
+    if !fm.file_type().is_file() || fm.len() != want as u64 {
+        return Err(format!("private run wire: segment {k} ({}) changed after its check (now {} B, regular file {}); the counted length is {want}", p.display(), fm.len(), fm.file_type().is_file()));
+    }
+    let mut bytes = Vec::with_capacity(want);
+    f.take(want as u64 + 1).read_to_end(&mut bytes).map_err(|e| format!("private run: segment {k} ({}) cannot be read: {e}", p.display()))?;
+    if bytes.len() != want {
+        return Err(format!("private run wire: segment {k} read {} B, the counted length is {want}", bytes.len()));
+    }
+    Ok(bytes)
+}
+
+/// **REVIEW r4 FINDING r4_B (verifier DoS, not soundness; native R5b): THE
+/// BOUNDED READER OF A REGULAR FILE**, with [`read_segment_bounded`]'s open
+/// discipline, for every other file the trained CLI and the MVP driver read
+/// by path (an export's `profile.json`, manifests, arrays and sequence files;
+/// an artifact's policy and single segment): `symlink_metadata` refuses
+/// anything that is not a regular file and any length above `max` (or other
+/// than `max` when `exact`) BEFORE the open; the open follows no link and
+/// does not block on a FIFO (x86-64 Linux); the OPENED file is re-checked
+/// (`fstat`: regular, the same length); the read is capped at `max + 1`
+/// bytes and its length re-checked — so a path swapped between the check and
+/// the read is refused, never followed, blocked on or read without bound.
+pub(crate) fn read_regular_file_bounded(path: &std::path::Path, max: u64, exact: bool) -> Result<Vec<u8>, String> {
+    use std::io::Read;
+    let meta = std::fs::symlink_metadata(path).map_err(|e| format!("{}: {e}", path.display()))?;
+    if !meta.file_type().is_file() {
+        return Err(format!("{}: not a regular file (a symbolic link, FIFO, device or directory is refused before it is opened)", path.display()));
+    }
+    let len = meta.len();
+    if exact && len != max {
+        return Err(format!("{}: {len} bytes on disk, the expected length is {max}; refused before it is read", path.display()));
+    }
+    if len > max {
+        return Err(format!("{}: {len} bytes exceeds the bound {max}; refused before it is read", path.display()));
+    }
+    let mut opts = std::fs::OpenOptions::new();
+    opts.read(true);
+    #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+    {
+        use std::os::unix::fs::OpenOptionsExt;
+        opts.custom_flags(SEGMENT_OPEN_FLAGS);
+    }
+    let f = opts.open(path).map_err(|e| format!("{}: cannot be opened as a regular file: {e}", path.display()))?;
+    let fm = f.metadata().map_err(|e| format!("{}: {e}", path.display()))?;
+    if !fm.file_type().is_file() || fm.len() != len {
+        return Err(format!("{}: changed after its check; refused", path.display()));
+    }
+    let mut bytes = Vec::with_capacity(len as usize);
+    f.take(max + 1).read_to_end(&mut bytes).map_err(|e| format!("{}: {e}", path.display()))?;
+    if bytes.len() as u64 != len {
+        return Err(format!("{}: changed while it was read ({} bytes, {len} at the check); refused", path.display(), bytes.len()));
+    }
+    Ok(bytes)
 }

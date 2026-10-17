@@ -1,0 +1,14 @@
+{
+ "written_utc": "2026-10-17T21:58Z, before v5/queue.sh ran",
+ "already_seen": "scratch trials of the pin controls (held sets exact; PC-0/PC-6 then NOT-OK only because of the pre-fix PASS rule), the export check on L1/L2 (ok, controls fire), the schema check on two bundles, TL-4 on L2 (3 of 3, exactly stage 1 slot 19), the G-10 v5 controls on L1 (8 of 8), the verdict check (21 records, ok and status unchanged)",
+ "v5-unit-tests": "47 OK",
+ "v5-verdicts": "21 records: every recorded ok equals the v5 rule; every status unchanged (pass F stays PASS, unexplained 1 -> 0); every pin check ok",
+ "v5-equivalence-k4": "5,261 leaves, 0 unexplained, exit 1 / 1",
+ "v5-pincontrols-l1": "PC-0 and PC-6 PASS with nothing held; PC-1..PC-5, PC-7..PC-9 ok false, NOT-OK, exactly the predicted stages held",
+ "v5-g10": "8 of 8 at L = 1, 2, 22; v3 accepted all 8 at L = 1 and all but G10-4 at L >= 2",
+ "v5-export": "ok at L = 1, 2 (dense, zero), 22 (dense, zero); identity compared and equal only at L = 22 (68ad19c8...); stage-to-layer maps [0], [7, 8], [0..21]; tables equal per layer; EX-1..EX-4 and EX-6 fire everywhere, EX-5 at L = 22",
+ "v5-schema": "six bundles: every key on the 222-key allow-list, no forbidden word, arrays.bin covered exactly; SC-1..SC-4 fire on each",
+ "v5-tl4-l22": "TL-4 at the first adjacent pair with different tables (stages 7 | 8): exactly (8, 19) fails for each differing SC_TAB table",
+ "v5-tl-l2": "TL-1, TL-2 x11, TL-3 x3, TL-4 x3: 18 of 18",
+ "v5-ct4-ch6-l2": "CT-4 FIRES (old bundle run-a-tame), CH-6 FIRES (legacy-rule run-a-tame), C1..C6, CH-1..7, M9-1, M9-2 fire, M9-3 fires with its wording criterion false (G-4) -> round-9 family false -> record ok false, status NOT-OK; stage 14 export cross-check ok"
+}

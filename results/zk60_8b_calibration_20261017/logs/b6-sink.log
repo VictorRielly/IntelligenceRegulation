@@ -1,0 +1,3 @@
+calibration {"full_rectangle": 223.36776733398438, "without_bos_key_column": 223.36776733398438, "without_bos_row_and_column": 223.36776733398438, "causal_without_bos": 223.36776733398438} {'full_rectangle': 2, 'without_bos_key_column': 2, 'without_bos_row_and_column': 2} K ratio {'max': 1.0, 'median': 1.0} Q ratio {'max': 1.3389883658888482, 'median': 1.0} BOS mass 0.801
+heldout_fineweb {"full_rectangle": 229.93414306640625, "without_bos_key_column": 229.93414306640625, "without_bos_row_and_column": 229.93414306640625, "causal_without_bos": 227.6373291015625} {'full_rectangle': 2, 'without_bos_key_column': 2, 'without_bos_row_and_column': 2} K ratio {'max': 1.0, 'median': 1.0} Q ratio {'max': 1.4219178854965417, 'median': 1.0} BOS mass 0.81
+done (109s)

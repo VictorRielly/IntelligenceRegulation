@@ -1,0 +1,40 @@
+{
+  "preparation": "Read-only inline Python snapshots current public native source and owner phase/control metrics, writes only this experiment directory; field-only.rs removes tests/module doc comments for isolated std-only rustc.",
+  "executed_in_order": [
+    [
+      "python3",
+      "experiments/logup-star-batch-domains-20261017/run.py"
+    ],
+    [
+      "python3",
+      "experiments/logup-star-batch-domains-20261017/run.py"
+    ],
+    [
+      "python3",
+      "experiments/logup-star-batch-domains-20261017/audit.py"
+    ],
+    [
+      "python3",
+      "experiments/logup-star-batch-domains-20261017/account.py"
+    ],
+    [
+      "python3",
+      "experiments/logup-star-batch-domains-20261017/audit.py"
+    ]
+  ],
+  "seed": 2026101768,
+  "execution": "Sequential, one thread, nice19,CPU0, each59s CPU/wall and512MiB AS; no native/Cargo/GPU/installation.",
+  "compiler_argv": [
+    "/home/victor/.rustup/toolchains/1.97.0-x86_64-unknown-linux-gnu/bin/rustc",
+    "--edition=2021",
+    "--crate-type=cdylib",
+    "-C",
+    "opt-level=1",
+    "-C",
+    "codegen-units=1",
+    "isolated.rs",
+    "-o",
+    "isolated.so"
+  ],
+  "result_logs": "Derived copies of returned JSON, not independent raw stdout captures."
+}

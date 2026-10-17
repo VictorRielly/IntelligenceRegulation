@@ -1,0 +1,14 @@
+[zk60-guard 12:37:29] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 12:38:29] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 12:39:29] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 12:40:29] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 12:41:29] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 12:42:29] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 12:43:29] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 12:44:29] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 12:45:29] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 12:46:29] waiting for /tmp/zk-heavy.lock (541s)
+[zk60-guard 12:47:29] waiting for /tmp/zk-heavy.lock (601s)
+[zk60-guard 12:48:29] waiting for /tmp/zk-heavy.lock (661s)
+[zk60-guard 12:48:44] START t9-seeded-tl128 class=gpu need=4.5G cap=7G enforce=cgroup+watchdog waited=675s run=eaaa92085a4b
+[zk60-guard 12:51:52] END t9-seeded-tl128 exit=0 child_wall=189s peak_rss=1.86G min_avail=9.09G peak_vram=3393MiB

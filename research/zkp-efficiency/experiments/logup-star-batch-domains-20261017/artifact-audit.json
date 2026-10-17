@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "checks": {
+    "source_prefix_preserved": true,
+    "findings_prefix_preserved": true,
+    "source_count_357": true,
+    "new_source_ids_unique": true,
+    "all_experiment_results_pass": true,
+    "captured_source_integrity": true,
+    "full_artifact_integrity": true,
+    "report_and_state_completed": true,
+    "bounded_main_and_audit": true
+  },
+  "artifact_files": 54,
+  "completed_at_utc": "2026-10-17T21:30:22.860484+00:00",
+  "scope": "Artifact/source/report integrity only; no extra native proof or speed/privacy validation."
+}

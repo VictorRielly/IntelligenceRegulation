@@ -1,0 +1,13 @@
+[zk60-guard 11:36:44] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 11:37:44] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 11:38:44] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 11:39:44] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 11:40:44] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 11:41:44] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 11:42:44] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 11:43:44] waiting for /tmp/zk-heavy.lock (421s)
+[zk60-guard 11:44:44] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 11:45:44] waiting for /tmp/zk-heavy.lock (541s)
+[zk60-guard 11:46:44] waiting for /tmp/zk-heavy.lock (601s)
+[zk60-guard 11:47:40] START t3-release-small class=gpu need=4G cap=6G enforce=cgroup+watchdog waited=657s run=ac7b77dd878d
+[zk60-guard 11:48:36] END t3-release-small exit=0 child_wall=56s peak_rss=0.58G min_avail=10.50G peak_vram=441MiB
