@@ -1,0 +1,26 @@
+{
+  "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency",
+  "commands": [
+    {
+      "command": "python3 -B experiments/pending-fold-weighted-round-20261018/run.py",
+      "purpose": "Initial mutable-finish PASS, then refined exact-native-trait/immutable-finals PASS; initial retained"
+    },
+    {
+      "command": "python3 -B experiments/pending-fold-weighted-round-20261018/audit.py",
+      "purpose": "Independent audit for both initial/refined adapter"
+    },
+    {
+      "command": "python3 -B experiments/pending-fold-weighted-round-20261018/operations.py",
+      "purpose": "Executed Fp2 API arithmetic counters"
+    },
+    {
+      "command": "python3 -B experiments/pending-fold-weighted-round-20261018/account.py",
+      "purpose": "Integer traffic census, native trait check, carried native clocks"
+    },
+    {
+      "command": "python3 -B experiments/pending-fold-weighted-round-20261018/final_audit.py",
+      "purpose": "Final artifact, history, clock and source-pin consistency checks"
+    }
+  ],
+  "limits": "Each experiment59s CPU/wall,512MiB AS,one CPU thread,nice19;no device/dependencies/native builds"
+}

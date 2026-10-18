@@ -890,3 +890,192 @@ CS-2 and CS-5: owed by the native lane, not ported here.
 - 22:17 UTC: the P-12 sub-lane's build finished at 22:04 (exit 0, first
   attempt, 235 s); its tests wait for the heavy lock (the native lane's
   r5b-suite1 holds it).
+- 22:36 UTC: P-12 sub-lane, DENSE block test at the trained shape PASSED
+  (`gr4/gr4-block-dense.log`): one-block bound run (layer 0, ho00, parity
+  65,536 words), stage 0 proved on a SEEDED generator, the segment verified
+  by the production run verifier; the single-block receipt refused at this
+  profile (as R2-4 says); A, M and H roots REBUILT from the witness and the
+  predicted stream segments equal the prover's; the prover consumed exactly
+  the predicted 38,455,872 bytes; the three non-vacuity perturbations each
+  move their root; endpoint owners' 51,712 drawn values and 32,768 salts
+  all distinct. 8.5 s, 0.85 GiB.
+- 23:06 UTC: asked the sub-lane to run its remaining short tests (8 s,
+  < 1 GiB) as guard class `light`, since the heavy lock kept going to other
+  suites; the queued zero-input job stays as `cpu` (not killed).
+- ~23:10-23:21 UTC: session paused (coordinator). 23:22 UTC resumed: tools
+  check against the v5 manifest 52 / 0 moved / 0 unlisted (no partial
+  edit); the draft is complete apart from the three P-12 placeholders; the
+  sub-lane is alive (zero-input test queued for the heavy lock). Nothing of
+  this lane's own queues is running.
+- 23:24-23:34 UTC: P-12 sub-lane: ZERO-INPUT block test PASS (9.1 s, 0.84
+  GiB) and BOUNDARY B_0 test PASS (class light, 1.3 s, 0.32 GiB; dense and
+  zero planes: root rebuilt from the predicted stream, 1,007,616 bytes
+  consumed exactly, a copied reserved word moves the root; geometry 22 =
+  16 + 2x2 + 2). All three stage-47 tests PASS at the trained shape on R5's
+  prover core (`gr4/gr4-{block-dense,block-zero,boundary}.log`, patch
+  `gr4/trained-1b-gate-gr4-vs-frozen-r5.patch`). To be re-applied and
+  re-run on R5b. The sub-lane was resumed by the coordinator at 23:21 and
+  hands back to it.
+- 23:36 UTC: draft placeholders filled (§3 step 4, §3b P-12 row, §10b item
+  3, §0, header 21:35-23:40). No placeholder left.
+- 23:37 UTC: round 4 complete for this lane. No job of this lane's own is
+  running or queued: `v4/queue.done` 0, `v5/queue.done` 0, R5 heavy queue
+  ended 21:44 with code 5 (no capture). Captures wait for the native R5b
+  freeze.
+- 23:38 UTC: the P-12 sub-lane's hand-back read (all four witness cases PASS; same-process verification; next-draw probe in place of a byte counter; LW-4's note confirmed); its scope limits added to the draft's §3 step 4.
+
+## Round 5 (coordinator, 2026-10-18 ~00:07 UTC): capture from R5b, re-pin, re-gate
+
+R5b frozen 2026-10-18T00:06:31Z (`results/zk60_1b_native_20261017/r5b/
+frozen-tree/`, tree 44013397..., 218 files; P-1 fix, r4_A/r4_B, C-R4, P-5,
+P-6, P-7, the N-r4-d pins: SHARED 29, OWN 17; `r5b-suite2` green).
+
+- 00:08 UTC: `ops/zkp-mvp/trained-1b-gate-r5b/` = rsync of the frozen tree
+  minus target dirs; 218 of 218 files equal the manifest
+  (`r5b/copy_verify_r5b.json`).
+- 00:08-00:09 UTC: the capture patch (round 1's v2) applied (offset 24
+  lines); the bundle note names R5b. The P-12 stage-47 module is mounted
+  as a child of the unpinned `run_capture_tests.rs` (paths rewritten to
+  `crate::private_block::`), so `private_block.rs` keeps R5b's bytes and no
+  file a bundle pins changes except run_capture.rs (the capture additions,
+  as in every earlier round). R5 -> R5b run.rs read: new 8B T64/T128 run
+  profiles and r4_B's bounded file reader; `prove_run_with` unchanged, so
+  the stage-0 copy in the stage-47 module still applies. Patch
+  `r5b/trained-1b-gate-r5b-vs-frozen-r5b.v1.patch` (3 files, b847dcea...),
+  sources `r5b/trained-1b-gate-r5b.sources.v1.sha256` (219 files,
+  444b948f...).
+- 00:10 UTC: hand prediction `r5b/prediction_r5b_by_hand.json`; 00:09:48
+  UTC `r5b/heavy_queue.sh` launched detached (marker `r5b/heavy_queue.done`):
+  build (build 3 / 5), the three stage-47 tests (light 2 / 3.5), six
+  captures (cpu) into `~/zk60-artifacts/tinyllama-trained-r5b-capture-
+  {dense,zero}-{l1,l2,l22}`. Waiting for the heavy lock.
+- 00:10-00:14 UTC (while the heavy queue waits behind the native lane's 8B
+  stack run): R5 -> R5b pinned-file changes READ: run.rs (+52/-1, 8B
+  T64/T128 run profiles, r4_B bounded reader; no absorb), run_capture.rs
+  (N-r4-d pins: SHARED 29, OWN 17), shape.rs (+58/-2, the 8B T64/T128
+  shapes; the T32 entry untouched), private_block.rs (+5, a cfg(test) mod),
+  trained_statement.rs (+1/-1). layout.rs, protocol.rs, argument.rs are R5's
+  bytes (round-4 readings apply). New pins read: gpu/mod.rs (the CPU build's
+  constant-false stub; backend() = zkp_core::pcs::Cpu), tables_v3.rs (a
+  3-line re-export), zkp-core tables.rs (the frozen SiLU/GELU registry,
+  digest-checked; row 128 = g 0 -> act[128] = 0 for every SiLU member),
+  trained_block.rs (report-only; P-1 sealing pass before the header and
+  unverified statements kept apart until stack-verify, P-5 --seq-dir and
+  the verifier's seq_* refusal, P-6 count-free parity text, C-R4 label
+  allow-list, P-7 backend in statement.json, r4_A checks all present
+  [READ]). Tools v6 WORKING COPY (not frozen): new
+  `zk60_native_rg_tinyllama_r5b_pins.py`; runpins generalises G-2's
+  required-group rule to the N-r4-d group (`pins_nr4d`) with
+  SHARED_AFFECTED entries; terminals / mask merges for R5b's shape.rs;
+  TOOLS; pin controls PC-10 / PC-11; 2 more unit tests (49 OK). v5 kept
+  byte-exact in `gate-tinyllama/frozen_v5/` for the failing-first probe.
+  Gate queue `r5b/light_queue.sh` written (not launched).
+- 00:17:27-00:19:58 UTC: R5b test binary built (guarded build, waited 459 s;
+  exit 0; the stage-47 module compiles under `run_capture_tests`).
+- 00:19:58-00:20:14 UTC **STAGE-47 (P-12) ON R5b: ALL THREE PASS** (class
+  light; `r5b/gr4-*.log`): block layer 0 dense ho00 and all-zero (one-block
+  bound run, the single-block receipt refused, header rebuilt = binding,
+  seeded segment 11,627,288 B verified by the production run verifier, A /
+  M / H roots rebuilt equal, exactly 38,455,872 bytes consumed, the three
+  non-vacuity perturbations move their roots, 51,712 endpoint draws and
+  32,768 salts distinct; 7.1 / 7.2 s, 0.85 GiB) and boundary B_0 (dense
+  and zero: root rebuilt, exactly 1,007,616 bytes, a copied reserved word
+  moves the root; 0.8 s). Same counts as on R5. Captures now wait for the
+  heavy lock.
+- 00:20:53-00:21:18 UTC: R5b captures L2 dense / zero and L1 dense / zero
+  DONE (8 s / 8 s / 5 s / 4 s each under the parallel witness builder;
+  parity bit-exact, 131,072 / 65,536 words; 46 source pins per bundle =
+  17 own + 29 shared; L2 bundle 41,976,300 B). L22 dense capture started
+  00:21:18.
+- 00:21 UTC **FAILING-FIRST PROBE** (`r5b/probe_before_repin/`): the frozen
+  v5 driver on the R5b L2 dense bundle refuses run.rs (c192fd33) and
+  run_capture.rs (31557a27) and SUSPENDS EVERY STAGE (P-2 working as
+  designed; status NOT-OK); shared pins not moved (the N-r4-d files are not
+  in v5's tables). The frozen v5 integrity pass and replay called directly
+  on all four L1 / L2 R5b bundles: integrity ok, replay ok, 251 / 127
+  positions, 9,002 / 4,511 challenges, final counter 9,578 / 4,831, binding
+  reproduced -- the transcript structure is unchanged, as predicted.
+- 00:21:54 UTC **TOOLS v6 FROZEN**: `gate-tinyllama.tools.frozen.v6.sha256`
+  (53 files, 48c5046e...), `gate-tinyllama-vs-original.v6.patch` (9bebf36c...),
+  `gate-tinyllama-v5-to-v6.{scripts,tests}.patch` (78e22e0d..., 03d83382...);
+  49 tests OK. Scratch check (not evidence): v6 pins ok on R5b L1 / L2 (G-2
+  3 of 3, N-r4-d 3 of 3), L1 pass A PASS.
+- 00:22 UTC: `r5b/light_queue.sh` launched detached (marker
+  `r5b/light_queue.done`; progress `r5b/light_queue.progress`).
+- 00:22:52-00:24:28 UTC: R5b L22 captures DONE (dense 94 s, zero 96 s
+  under the parallel witness; heavy queue done = 0). All six R5b bundles
+  exist.
+- 00:23-00:31 UTC gate v6 on R5b, first blocks (`r5b/l2/`, `r5b/l1/`):
+  rung-K4 equivalence 5,261 leaves, 0 unexplained (`equivalence-k4-v6`);
+  L2 dense / zero pass A PASS (pins ok incl. G-2 and N-r4-d groups; 9,002
+  challenges, final counter 9,578; terminal identity 46 / 46; A 0, H 2,
+  E 0, B0 0; whole run joint 4 = 4; stage 14 export ok, layers [7, 8]); TL
+  controls 18 / 18 on both; witness comparison 128 figures; G-10 8 / 8.
+  L1 pass A dense / zero, TL, G-10 done. The predictions exit 1 only
+  because no --validate is passed (as in every round).
+- 00:31 UTC: `r5b/l1/pincontrols/r5b-pincontrols-l1.json` exit 1: 11 of 12
+  controls exactly as predicted (PC-10 honest R5b writer PASS, PC-11 5
+  stages held), but **PC-9 could not fire on an R5b bundle**: its mutation
+  only SETS one G-2 pin, which presumes a writer that pinned none (tree A);
+  the R5b bundle pins all three, so the mutation was a no-op and the pass
+  came out honest. My control-design miss. Corrected construction (tree A's
+  run_capture digest as a pre-G-2 writer, one G-2 pin kept, two DROPPED) run
+  as an evidence script beside the frozen v6 driver
+  (`r5b/pincontrols_pc9.py`; scripts NOT edited while the v6 queue runs):
+  PC-9b fires exactly as predicted (stages 7, 8, 10 held, ok false) on both
+  the R5b and the tree-A L1 bundles (`r5b/l1/pincontrols_pc9/`). To be
+  folded into the tool at the next freeze.
+- 00:31-01:04 UTC: R5b everything passes with `--old` / `--legacy` and stage
+  14: L1 dense (`r5b/l1/r5b-l1-dense-everything.json`) and L2 dense
+  (`r5b/l2/r5b-l2-dense-everything.json`, 1,099 s, 0.76 GiB): CT 9 of 9
+  (CT-4 FIRES), C families fire (L1: C1-C4 n/a by name), CH 7 of 7 (CH-6
+  FIRES), M9-1, M9-2, M9-3 fire; P-1..P-6 fire; full preimage 1,134,038 /
+  2,242,634 entries 0 differing; mask 16,155 / 32,310 0 differing; joint
+  1,150,193 / 2,274,944 0 differing; export ok; channels 10 / 5 / 5 / 8.
+  The ONLY false items are M9-3's wording criterion and its parents (G-4),
+  so both records are NOT-OK by G-4 alone, as predicted. G-4's fix (accept
+  "only the slots pad::indicator_slots lists": D -> {SS, SSM, DZC}, S ->
+  {RS, SZC}, per R5b `pad.rs:225-238`) is scoped but deferred to the next
+  freeze with PC-9's construction, so this queue keeps one tool version.
+- 01:04-01:31 UTC: L2 zero everything (`r5b/l2/r5b-l2-zero-everything.json`):
+  as the dense one (full preimage 2,242,296 / 0, mask 32,310 / 0, joint
+  2,274,606 / 0, CT 9 / 9, export ok; NOT-OK by G-4 alone). L22: schema on
+  all six R5b bundles ok (keys 29,494 / 56,047 / 587,107 all on the
+  allow-list, arrays covered exactly, SC-1..SC-4 fire); G-10 at L22 8 / 8;
+  TL-4 at L22 3 / 3, exactly (1, 19) each. R5b L22 captures: 46 pins, 25
+  files, 370,692,935 / 370,905,787 B; prove + verify + record ~92 s each.
+- 01:31 UTC: the L22 pass T waits for admission (needs 6 GiB; 8.5 of
+  11.89 committed by other lanes' jobs).
+- 01:44:09 UTC: L22 pass T admitted (waited 778 s; the coordinator freed the window and the calibration lane holds its exports until the chain ends or 05:30 UTC).
+- 01:44-02:18 UTC **L22 PASS T on R5b** (`r5b/l22/r5b-l22-dense-t.json`,
+  terminals + commitments + boundary + preimage + run controls + export,
+  --controls --old --legacy; 2,054 s, peak 5.46 GiB, shared box, n=1):
+  terminal identity 506 / 506; **CT 9 of 9 (CT-4 fires), GQ 13 fire** -- the
+  first time CT, GQ and M9-3 run at L = 22; C families fire; CH 7 of 7;
+  M9-1, M9-2, M9-3 fire (all five unpadded domains); whole run joint 44 =
+  44; export ok with the identity EQUAL to the native CLI's at L22. NOT-OK
+  by G-4 alone (M9-3's criterion: D and S also stop their indicator slots).
+- 02:18-02:30 UTC **L22 pass A, all-zero, on R5b** (`r5b/l22/r5b-l22-zero-a.json`,
+  690 s, 5.52 GiB): **PASS**. Pins ok (G-2 and N-r4-d groups), integrity ok
+  (67 roots), replay 2,731 positions / 98,822 challenges / final counter
+  104,518, hash layer 89 openings / 22,784 columns / 162,197,504 B,
+  terminal identity 506 / 506, A 0 / H 2 / E 0 / B 0 everywhere, whole run
+  joint 44 = 44, export ok and identity equal. Every figure equals the
+  tree-A record for the same input. Pass F dense running next.
+- ~03:17-04:21 UTC: session stopped (usage limit) and resumed by the
+  coordinator at 04:21. The L22 chain kept running under the guard. The
+  failing-first probe the coordinator names was ALREADY COMPLETE before the
+  stop (both halves recorded at 00:21: the v5 driver's refusal of run.rs /
+  run_capture.rs with every stage suspended, and v5's own integrity /
+  replay called directly on all four L1 / L2 R5b bundles --
+  `r5b/probe_before_repin/`, 6 files); nothing of it is owed.
+- 02:30-03:38 UTC **L22 PASS F, DENSE, on R5b** (`r5b/l22/r5b-l22-dense-f.json`,
+  --controls --legacy --cross-profile + export; 4,113 s, peak 5.48 GiB):
+  **ok TRUE, status PASS, 0 unexplained leaves** (CH-6 FIRES now that a
+  legacy bundle is supplied). Full preimage 67 of 67 commitments,
+  24,605,616 entries / 0 differing, 17,152 salted leaves, P-1..P-6 6 of 6;
+  mask 355,410 / 0, M1..M6 fire; joint 24,961,026 / 0, four couplings
+  respected, 704 data-row pairs; C1..C6 6 of 6; CH 7 of 7; M9-1, M9-2 fire,
+  M9-3 NAMED not-run (no terminal stage, as designed in v5); export ok
+  with the identity equal; pins ok. Channels 10 / 3 / 5 / 10.
+- 04:23 UTC: zero-F running since 03:38 (in its full-preimage stage).

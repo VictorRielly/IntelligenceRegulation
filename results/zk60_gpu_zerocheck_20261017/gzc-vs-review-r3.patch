@@ -1,6 +1,6 @@
 diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/gpu/cuda.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/cuda.rs
 --- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/gpu/cuda.rs	2026-09-29 17:00:18.236062547 -0700
-+++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/cuda.rs	2026-10-17 14:46:59.806545929 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/cuda.rs	2026-10-17 19:30:33.765695183 -0700
 @@ -47,6 +47,9 @@
      // [FSP-L9] the opening's expand transform writing only the residues its
      // one consumer reads, and that consumer reading the compact block.
@@ -11,7 +11,22 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
  ];
  const SC_THREADS: u32 = 256;
  const SC_MAX_BLOCKS: u32 = 1024;
-@@ -3824,6 +3827,532 @@
+@@ -774,6 +777,14 @@
+         let p = unsafe { cu::malloc_host(len * 8, flags) }.map_err(|e| format!("cuMemHostAlloc({} MB): {e}", len * 8 >> 20))?;
+         Ok(PinBuf { ptr: p as *mut u64, len })
+     }
++    /// [ZK60-GZC round 2, K3] a page-locked buffer the HOST READS (the slot-18
++    /// round sums, the host-tail tables): plain cached pinned memory, never
++    /// write-combined (write-combined pages are uncached for host reads).
++    fn new_read(dev: &Arc<CudaDevice>, len: usize) -> Result<PinBuf, String> {
++        dev.bind_to_thread().map_err(|e| e.to_string())?;
++        let p = unsafe { cu::malloc_host(len.max(1) * 8, 0) }.map_err(|e| format!("cuMemHostAlloc({} B): {e}", len * 8))?;
++        Ok(PinBuf { ptr: p as *mut u64, len })
++    }
+     #[inline]
+     fn as_mut_slice(&mut self) -> &mut [u64] {
+         unsafe { std::slice::from_raw_parts_mut(self.ptr, self.len) }
+@@ -3824,6 +3835,1068 @@
  }
  
  // ---------------------------------------------------------------------------
@@ -46,6 +61,12 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +    pub bytes_fold: u64,
 +    pub pairs: u64,
 +    pub evals: u64,
++    /// round 2: host-tail rounds (K4) and their seconds, the tail download,
++    /// public-table cache hits (K2)
++    pub tail_rounds: u64,
++    pub secs_tail: f64,
++    pub bytes_d2h: u64,
++    pub pub_hits: u64,
 +}
 +
 +impl FzcStats {
@@ -66,6 +87,10 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +        self.bytes_fold += o.bytes_fold;
 +        self.pairs += o.pairs;
 +        self.evals += o.evals;
++        self.tail_rounds += o.tail_rounds;
++        self.secs_tail += o.secs_tail;
++        self.bytes_d2h += o.bytes_d2h;
++        self.pub_hits += o.pub_hits;
 +    }
 +    /// counted device bytes (build + rounds + fused + folds; H2D apart)
 +    pub fn device_bytes(&self) -> u64 {
@@ -75,7 +100,7 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +    pub fn line(&self, tag: &str) -> String {
 +        let gbs = |b: u64, s: f64| if s > 0.0 { b as f64 / s / 1e9 } else { 0.0 };
 +        format!(
-+            "{tag} | sumchecks {} | n {} k {} D {} | total {:.3} ms | build {:.3} ms ({:.1} GB/s; H2D {} B) | rounds {:.3} ms ({:.1} GB/s) | fused fold+round {:.3} ms ({:.1} GB/s) | folds {:.3} ms ({:.1} GB/s) | reduce+D2H+host {:.3} ms | finals {:.3} ms | counted device bytes {} ({:.1} GB/s over the total) | pairs {} | P evals {}",
++            "{tag} | sumchecks {} | n {} k {} D {} | total {:.3} ms | build {:.3} ms ({:.1} GB/s; H2D {} B) | rounds {:.3} ms ({:.1} GB/s) | fused fold+round {:.3} ms ({:.1} GB/s) | folds {:.3} ms ({:.1} GB/s) | reduce+D2H+host {:.3} ms | finals {:.3} ms | counted device bytes {} ({:.1} GB/s over the total) | pairs {} | P evals {} | host tail {} rounds {:.3} ms (D2H {} B) | public-table hits {}",
 +            self.sumchecks, self.n, self.k, self.degree,
 +            self.secs_total * 1e3,
 +            self.secs_build * 1e3, gbs(self.bytes_build, self.secs_build), self.bytes_h2d,
@@ -85,6 +110,7 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +            self.secs_reduce * 1e3, self.secs_finals * 1e3,
 +            self.device_bytes(), gbs(self.device_bytes(), self.secs_total),
 +            self.pairs, self.evals,
++            self.tail_rounds, self.secs_tail * 1e3, self.bytes_d2h, self.pub_hits,
 +        )
 +    }
 +}
@@ -108,42 +134,246 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +    *FZC_COMPILE_SECS.lock().unwrap()
 +}
 +
-+/// `HL_GZC_LEAN=1` selects the v3 lean evaluation (staged, stepped linear
-+/// forms, Karatsuba products); the default is the direct evaluation (v1/v2).
-+/// Same values either way.
++/// `HL_GZC_LEAN=0` selects the direct evaluation (v1/v2) among the per-pair
++/// kernels; the lean evaluation (v3) is their default since round 2. Read
++/// only when the split kernel is off. Same values either way.
 +fn fzc_lean() -> bool {
-+    std::env::var("HL_GZC_LEAN").map(|v| v == "1").unwrap_or(false)
++    std::env::var("HL_GZC_LEAN").map(|v| v != "0").unwrap_or(true)
 +}
 +
-+/// The NVRTC module holding `k_fzc_round` / `k_fzc_fold_round` for one
-+/// (degree, gate, variant), compiled and loaded on first use.
-+fn fzc_module(g: &Gpu, degree: usize, supp: bool, lean: bool) -> Result<&'static str, String> {
-+    const NAMES: [&str; 8] = ["gzc_d4", "gzc_d4s", "gzc_d5", "gzc_d5s", "gzl_d4", "gzl_d4s", "gzl_d5", "gzl_d5s"];
++/// `HL_GZC_SPLIT=0` falls back to the per-pair kernels; the term-group split
++/// with the fused reduction (v4, round 2: K1 + K3) is the default. Same
++/// values either way.
++fn fzc_split() -> bool {
++    std::env::var("HL_GZC_SPLIT").map(|v| v != "0").unwrap_or(true)
++}
++
++/// the host tail's default threshold (K4): rounds over at most 2^t entries
++/// run on the host; 0 = never (round 4: 2^5, measured -0.5 ms at 2^20 /
++/// -1 ms at 2^21 in round 3 and gated by the seeded proof-byte gate)
++const FZC_TAIL_DEFAULT: usize = 5;
++
++/// `HL_GZC_TAIL_LOG=t` overrides [`FZC_TAIL_DEFAULT`]
++fn fzc_tail_log() -> usize {
++    std::env::var("HL_GZC_TAIL_LOG").ok().and_then(|v| v.parse().ok()).unwrap_or(FZC_TAIL_DEFAULT).min(20)
++}
++
++/// [ZK60-GZC round 3] THE CROSS-PROCESS MODULE CACHE. The slot-18 module's
++/// NVRTC compile (~3.5-6 s) was paid by every process. Its PTX is now kept
++/// on disk under a key that hashes everything the PTX depends on: the full
++/// source (defines + `kernels.cu` primitives + `fzc_kernels.cu`), the
++/// target architecture, the device name and compute capability, the driver
++/// version and the NVRTC version. The file carries its key and the blake3
++/// of its PTX in a header; a file whose header does not match is REFUSED
++/// (recompiled and overwritten), never loaded. Directory: `HL_GZC_CACHE_DIR`
++/// (`0` or empty = no disk cache), default `$HOME/.cache/hashline-gzc`.
++pub(crate) fn fzc_cache_dir() -> Option<std::path::PathBuf> {
++    match std::env::var("HL_GZC_CACHE_DIR") {
++        Ok(v) if v.is_empty() || v == "0" => None,
++        Ok(v) => Some(v.into()),
++        Err(_) => std::env::var("HOME").ok().map(|h| std::path::Path::new(&h).join(".cache").join("hashline-gzc")),
++    }
++}
++
++const FZC_CACHE_MAGIC: &str = "ZK60-GZC-PTX v1";
++
++/// The cache's verdict on one file: `Ok(Some(ptx))` a valid entry,
++/// `Ok(None)` no entry, `Err(reason)` an entry that is REFUSED (stale key,
++/// corrupt body or unreadable).
++pub(crate) fn fzc_cache_load(dir: &std::path::Path, key: &str) -> Result<Option<String>, String> {
++    let path = dir.join(format!("{key}.ptx"));
++    let text = match std::fs::read_to_string(&path) {
++        Ok(t) => t,
++        Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(None),
++        Err(e) => return Err(format!("unreadable {}: {e}", path.display())),
++    };
++    let (head, body) = text.split_once('\n').ok_or("no header line")?;
++    let f: Vec<&str> = head.split(' ').collect();
++    if f.len() != 4 || format!("{} {}", f[0], f[1]) != FZC_CACHE_MAGIC {
++        return Err("not a slot-18 module cache file".into());
++    }
++    if f[2] != key {
++        return Err(format!("stale: the header key {} is not the expected {key}", f[2]));
++    }
++    let h = blake3::hash(body.as_bytes()).to_hex().to_string();
++    if f[3] != h {
++        return Err(format!("corrupt: the body hashes to {h}, the header says {}", f[3]));
++    }
++    Ok(Some(body.to_string()))
++}
++
++/// Write one entry atomically (temporary file + rename).
++pub(crate) fn fzc_cache_store(dir: &std::path::Path, key: &str, ptx: &str) -> Result<(), String> {
++    std::fs::create_dir_all(dir).map_err(|e| format!("cache dir {}: {e}", dir.display()))?;
++    let path = dir.join(format!("{key}.ptx"));
++    let tmp = dir.join(format!("{key}.ptx.tmp.{}", std::process::id()));
++    let text = format!("{FZC_CACHE_MAGIC} {key} {}\n{ptx}", blake3::hash(ptx.as_bytes()).to_hex());
++    std::fs::write(&tmp, text).map_err(|e| format!("cache write {}: {e}", tmp.display()))?;
++    std::fs::rename(&tmp, &path).map_err(|e| format!("cache rename {}: {e}", path.display()))
++}
++
++/// the cache key of one module source on this device, driver and NVRTC
++fn fzc_cache_key(g: &Gpu, src: &str) -> String {
++    let mut drv: std::ffi::c_int = 0;
++    let _ = unsafe { sys::lib().cuDriverGetVersion(&mut drv) };
++    let (mut nv_maj, mut nv_min): (std::ffi::c_int, std::ffi::c_int) = (0, 0);
++    let _ = unsafe { cudarc::nvrtc::sys::lib().nvrtcVersion(&mut nv_maj, &mut nv_min) };
++    let material = format!(
++        "zk60-gzc-module v1\nsrc {}\narch {:?}\ndevice {}\ncc {}.{}\ndriver {drv}\nnvrtc {nv_maj}.{nv_min}\n",
++        blake3::hash(src.as_bytes()).to_hex(),
++        arch_str(g.cc),
++        g.name,
++        g.cc.0,
++        g.cc.1
++    );
++    blake3::hash(material.as_bytes()).to_hex().to_string()
++}
++
++static FZC_CACHE_HITS: AtomicUsize = AtomicUsize::new(0);
++static FZC_CACHE_REFUSED: AtomicUsize = AtomicUsize::new(0);
++
++/// (modules loaded from the disk cache, cache files refused) in this process
++pub fn fzc_cache_counts() -> (usize, usize) {
++    (FZC_CACHE_HITS.load(Ordering::Relaxed), FZC_CACHE_REFUSED.load(Ordering::Relaxed))
++}
++
++/// The NVRTC module holding the slot-18 round kernels for one (degree,
++/// gate, variant), loaded on first use: from the disk cache when a valid
++/// entry exists, else compiled (and cached).
++fn fzc_module(g: &Gpu, degree: usize, supp: bool, lean: bool, split: bool) -> Result<&'static str, String> {
++    const NAMES: [&str; 12] = ["gzc_d4", "gzc_d4s", "gzc_d5", "gzc_d5s", "gzl_d4", "gzl_d4s", "gzl_d5", "gzl_d5s", "gzs_d4", "gzs_d4s", "gzs_d5", "gzs_d5s"];
 +    if degree != 4 && degree != 5 {
 +        return Err(format!("fzc: no kernel for degree {degree}"));
 +    }
-+    let name = NAMES[usize::from(lean) * 4 + (degree - 4) * 2 + usize::from(supp)];
++    let var = if split { 2 } else { usize::from(lean) };
++    let name = NAMES[var * 4 + (degree - 4) * 2 + usize::from(supp)];
 +    if g.dev.has_func(name, "k_fzc_round") {
 +        return Ok(name);
 +    }
 +    let t0 = Instant::now();
 +    let prims = KSRC.find("// The probe: mul").map(|i| &KSRC[..i]).ok_or("fzc: the primitive section of kernels.cu moved")?;
-+    let src = format!("#define FZ_D {degree}\n#define FZ_SUPP {}\n#define FZ_LEAN {}\n{prims}{FZC_SRC}", u8::from(supp), u8::from(lean));
-+    let opts = CompileOptions { arch: arch_str(g.cc), ..Default::default() };
-+    let ptx = compile_ptx_with_opts(src, opts).map_err(|e| format!("fzc NVRTC compile ({name}): {e}"))?;
-+    g.dev.load_ptx(ptx, name, &["k_fzc_round", "k_fzc_fold_round", "k_fzc_spin"]).map_err(|e| format!("fzc module load ({name}): {e}"))?;
++    let src = format!("#define FZ_D {degree}\n#define FZ_SUPP {}\n#define FZ_LEAN {}\n#define FZ_SPLIT {}\n{prims}{FZC_SRC}", u8::from(supp), u8::from(lean && !split), u8::from(split));
++    let dir = fzc_cache_dir();
++    let key = fzc_cache_key(g, &src);
++    let mut how = "compiled";
++    let cached = match &dir {
++        Some(d) => match fzc_cache_load(d, &key) {
++            Ok(v) => v,
++            Err(reason) => {
++                FZC_CACHE_REFUSED.fetch_add(1, Ordering::Relaxed);
++                eprintln!("[ZK60-GZC] slot-18 module cache entry REFUSED ({reason}); recompiling");
++                None
++            }
++        },
++        None => None,
++    };
++    let ptx = match cached {
++        Some(text) => {
++            FZC_CACHE_HITS.fetch_add(1, Ordering::Relaxed);
++            how = "loaded from the disk cache";
++            cudarc::nvrtc::Ptx::from_src(text)
++        }
++        None => {
++            let opts = CompileOptions { arch: arch_str(g.cc), ..Default::default() };
++            let ptx = compile_ptx_with_opts(src, opts).map_err(|e| format!("fzc NVRTC compile ({name}): {e}"))?;
++            if let Some(d) = &dir {
++                if let Err(e) = fzc_cache_store(d, &key, &ptx.to_src()) {
++                    eprintln!("[ZK60-GZC] slot-18 module not cached: {e}");
++                }
++            }
++            ptx
++        }
++    };
++    let funcs: &[&'static str] = if split {
++        &["k_fzc_round", "k_fzc_round_r", "k_fzc_round_b", "k_fzc_round_rb", "k_fzc_fold_round", "k_fzc_fold_round_r", "k_fzc_derive", "k_fzc_spin", "k_fzc_pack"]
++    } else {
++        &["k_fzc_round", "k_fzc_fold_round", "k_fzc_spin", "k_fzc_pack"]
++    };
++    g.dev.load_ptx(ptx, name, funcs).map_err(|e| format!("fzc module load ({name}): {e}"))?;
 +    let secs = t0.elapsed().as_secs_f64();
 +    *FZC_COMPILE_SECS.lock().unwrap() += secs;
 +    if verbose() || super::fzc::profile() {
-+        eprintln!("[ZK60-GZC] compiled the slot-18 module {name} in {secs:.2} s (once per process)");
++        eprintln!("[ZK60-GZC] slot-18 module {name}: {how} in {secs:.2} s (once per process; key {})", &key[..16]);
 +    }
 +    Ok(name)
++}
++
++/// [ZK60-GZC round 4] `HL_GZC_RAW=0` keeps the materialised build (widened
++/// A planes and interleaved helper pairs); by default rounds 0 and 1 read the
++/// device-resident commitment rows directly when the split kernel is fused.
++fn fzc_raw() -> bool {
++    std::env::var("HL_GZC_RAW").map(|v| v != "0").unwrap_or(true)
++}
++
++/// [ZK60-GZC round 4] `HL_GZC_MAPPED=0` keeps the copy + stream sync per
++/// round; by default the split kernel's last block writes the round words and
++/// a sequence flag into MAPPED page-locked memory that the host polls.
++fn fzc_mapped() -> bool {
++    std::env::var("HL_GZC_MAPPED").map(|v| v != "0").unwrap_or(true) && !FZC_MAPPED_BROKEN.load(Ordering::Relaxed)
++}
++/// set once if the mapped path ever times out (it then stays off for the process)
++static FZC_MAPPED_BROKEN: AtomicBool = AtomicBool::new(false);
++
++/// A page-locked host buffer mapped into the device's address space
++/// (`cuMemHostAlloc` with DEVICEMAP): the kernel writes it, the host reads it.
++struct FzcMapped {
++    host: *mut u64,
++    dev: u64,
++    len: usize,
++}
++impl FzcMapped {
++    fn new(dev: &Arc<CudaDevice>, len: usize) -> Result<FzcMapped, String> {
++        dev.bind_to_thread().map_err(|e| e.to_string())?;
++        let p = unsafe { cu::malloc_host(len * 8, sys::CU_MEMHOSTALLOC_DEVICEMAP) }.map_err(|e| format!("cuMemHostAlloc(DEVICEMAP): {e}"))?;
++        let mut d: sys::CUdeviceptr = 0;
++        let r = unsafe { sys::lib().cuMemHostGetDevicePointer_v2(&mut d, p, 0) };
++        if r != sys::CUresult::CUDA_SUCCESS {
++            unsafe { let _ = cu::free_host(p); }
++            return Err(format!("cuMemHostGetDevicePointer: {r:?}"));
++        }
++        let host = p as *mut u64;
++        for i in 0..len {
++            unsafe { std::ptr::write_volatile(host.add(i), 0) };
++        }
++        Ok(FzcMapped { host, dev: d, len })
++    }
++    fn read(&self, i: usize) -> u64 {
++        assert!(i < self.len);
++        unsafe { std::ptr::read_volatile(self.host.add(i)) }
++    }
++}
++impl Drop for FzcMapped {
++    fn drop(&mut self) {
++        unsafe { let _ = cu::free_host(self.host as *mut std::ffi::c_void); }
++    }
 +}
 +
 +/// `HL_GZC_FUSED=0` keeps the separate fold and round kernels (v1); the
 +/// fused fold + next round (v2) is the default. Same values either way.
 +fn fzc_fused() -> bool {
 +    std::env::var("HL_GZC_FUSED").map(|v| v != "0").unwrap_or(true)
++}
++
++/// [ZK60-GZC round 2, K2] public tables (slot 18's support indicator)
++/// resident per process. The caller's key hashes everything the table is a
++/// function of (the full shape, the slot, the table index, the cube size); a
++/// cached copy is used only if 128 sampled entries also equal the caller's,
++/// otherwise the table is uploaded again. At most four entries (16 MiB each
++/// at 2^20).
++struct FzcPub {
++    key: [u8; 32],
++    len: usize,
++    data: CudaSlice<u64>,
++    sample: Vec<(usize, u64, u64)>,
++    /// every entry has a zero imaginary part (round 3: the BASE round 0)
++    base: bool,
++}
++static FZC_PUB: Mutex<Vec<FzcPub>> = Mutex::new(Vec::new());
++
++fn fzc_pub_positions(len: usize) -> Vec<usize> {
++    let mut v: Vec<usize> = (0..64).map(|j| j * (len - 1) / 63).collect();
++    v.extend((0..64u64).map(|j| ((j.wrapping_mul(0x9E37_79B9_7F4A_7C15) >> 11) as usize) % len));
++    v
 +}
 +
 +pub struct DevFzcRounds {
@@ -176,16 +406,39 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +    /// profile mode only: per round (entering length, kernel kind, kernel
 +    /// seconds, reduce + D2H seconds), printed under `HL_GZC_ROUNDS=1`
 +    rounds_log: Vec<(usize, &'static str, f64, f64)>,
++    /// round 2: the term-group split kernel (K1 + K3) is in use
++    split: bool,
++    /// the split kernel's last-block counter (reset to 0 by every launch)
++    d_cnt: CudaSlice<u32>,
++    /// K3: the page-locked buffer the 2 (D + 1) round words land in
++    pin: PinBuf,
++    /// K4: rounds over at most 2^tail_log entries run on the host (0 = never)
++    tail_log: usize,
++    /// K4: the host tables once the tail has moved to the host
++    host: Option<Vec<Vec<Fp2>>>,
++    /// the polynomial's public description (the host tail evaluates it)
++    desc: super::fzc::FzcDesc,
++    /// round 3: the device table count (the slot's k tables + the derived
++    /// ones of the split kernel) and the BASE flag (the A planes and S hold
++    /// base-field values: round 0 uses the base-field kernel)
++    kd: usize,
++    base: bool,
++    /// round 4: rounds 0 and 1 read the resident rows (per-table descriptors
++    /// in `d_src`: mode, words, words), and round 0 derives T_GL / T_PL
++    raw: bool,
++    d_src: CudaSlice<u64>,
++    /// round 4: the mapped round result and its sequence number
++    mapped: Option<FzcMapped>,
++    seq: u64,
 +}
 +
 +impl DevFzcRounds {
 +    /// Build the tables on the device and stage the parameters.
-+    pub fn new(srcs: &[super::fzc::FzcSrc], n: usize, degree: usize, prm: &[u64], supp: bool, claim: Option<Fp2>) -> Result<DevFzcRounds, String> {
++    pub fn new(srcs: &[super::fzc::FzcSrc], n: usize, degree: usize, prm: &[u64], supp: bool, claim: Option<Fp2>, desc: &super::fzc::FzcDesc) -> Result<DevFzcRounds, String> {
 +        use super::fzc::FzcSrc;
 +        let g = gpu().ok_or_else(init_err)?;
 +        let g = g.lock().unwrap();
 +        let dev = g.dev.clone();
-+        let t0 = Instant::now();
 +        let prof = super::fzc::profile();
 +        if prof {
 +            // diagnosis aid (profile mode only): the card's state as slot 18
@@ -205,7 +458,7 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +        // rising (the laptop GPU's DVFS), measured with no memory involved.
 +        let warm_ms: f64 = std::env::var("HL_GZC_WARM_MS").ok().and_then(|v| v.parse().ok()).unwrap_or(0.0);
 +        if warm_ms > 0.0 {
-+            let m = fzc_module(&g, degree, supp, fzc_lean())?;
++            let m = fzc_module(&g, degree, supp, fzc_lean(), fzc_split())?;
 +            let f = dev.get_func(m, "k_fzc_spin").ok_or("k_fzc_spin missing")?;
 +            let mut d_out = dev.alloc_zeros::<u64>(1).map_err(|e| e.to_string())?;
 +            let cfg = LaunchConfig { grid_dim: ((g.sms as u32).max(1) * 8, 1, 1), block_dim: (128, 1, 1), shared_mem_bytes: 0 };
@@ -228,11 +481,35 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +                times.iter().cloned().fold(f64::INFINITY, f64::min)
 +            );
 +        }
++        // the body's clock starts AFTER the optional warm-up probe
++        let t0 = Instant::now();
 +        let k = srcs.len();
 +        let l = 1usize << n;
-+        if n == 0 || n > 26 || l * k * 2 >= (1usize << 31) {
-+            return Err(format!("fzc: cube 2^{n} x {k} tables is outside the kernel's index range"));
++        let split = fzc_split();
++        // round 3: the split kernel appends its derived tables (T_GL, and T_PL
++        // with the support indicator) after the slot's own k tables
++        let kd = if split { k + 1 + usize::from(supp) } else { k };
++        if n == 0 || n > 26 || l * kd * 2 >= (1usize << 31) {
++            return Err(format!("fzc: cube 2^{n} x {kd} tables is outside the kernel's index range"));
 +        }
++        // round 3: BASE iff every A plane (tables 3..=13) and S (table 20) holds
++        // base-field values: by construction for a committed plane, else checked
++        let base_table = |t: usize| (3..=13).contains(&t) || (supp && t == 20);
++        let mut base = split;
++        // round 4: rounds 0 and 1 straight from the resident rows when round 1
++        // is a fused round (n - 1 above the host-tail threshold) and every A
++        // plane and helper pair is device-resident
++        let tail_log = fzc_tail_log();
++        let raw = split
++            && fzc_fused()
++            && fzc_raw()
++            && n >= 3
++            && n - 1 > tail_log
++            && srcs.iter().enumerate().all(|(t, sp)| match sp {
++                FzcSrc::Base { dev, .. } | FzcSrc::Pair { dev, .. } => dev.is_some() || !(3..=19).contains(&t),
++                _ => !(3..=19).contains(&t),
++            });
++        let mut src_desc: Vec<u64> = vec![0u64; 3 * k];
 +        let mut st = FzcStats { sumchecks: 1, n, k, degree, ..Default::default() };
 +        // AT LEAST k x 2^n Fp2 (`take_min`): inside a proof the pool holds
 +        // the commitments' idle scratch (encode / Merkle buffers, ~2.9 GiB
@@ -241,7 +518,7 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +        // entry a kernel reads is written first (table t lives at
 +        // [t * 2^n, (t + 1) * 2^n)); a longer buffer's tail is inert. It
 +        // returns to the pool when this evaluator drops, before slot 19.
-+        let mut tabs = Pooled::take_min(&dev, k * l * 2)?;
++        let mut tabs = Pooled::take_min(&dev, kd * l * 2)?;
 +        let f_fp = dev.get_func(MODULE, "k_tab_from_fp").ok_or("k_tab_from_fp missing")?;
 +        let f_fp2 = dev.get_func(MODULE, "k_tab_from_fp2").ok_or("k_tab_from_fp2 missing")?;
 +        let f_exp = dev.get_func(MODULE, "k_fzc_expand").ok_or("k_fzc_expand missing")?;
@@ -257,7 +534,13 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +                                return Err("fzc: a plane runs past the resident commitment".into());
 +                            }
 +                            let src = dc.data.get().slice(*off..*off + l);
-+                            unsafe { f_fp.clone().launch(cfg, (&src, &mut dst, l as i32)) }.map_err(|e| format!("k_tab_from_fp: {e}"))?;
++                            if raw {
++                                // round 4: no widened copy; rounds 0 and 1 read these words
++                                src_desc[3 * t] = 1;
++                                src_desc[3 * t + 1] = *src.device_ptr();
++                            } else {
++                                unsafe { f_fp.clone().launch(cfg, (&src, &mut dst, l as i32)) }.map_err(|e| format!("k_tab_from_fp: {e}"))?;
++                            }
 +                        }
 +                        None => {
 +                            let d_src = dev.htod_sync_copy(as_u64s(&host[*off..*off + l])).map_err(|e| format!("fzc upload: {e}"))?;
@@ -266,9 +549,14 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +                            st.bytes_h2d += 8 * l as u64;
 +                        }
 +                    }
-+                    st.bytes_build += 24 * l as u64;
++                    if !(raw && dc.is_some()) {
++                        st.bytes_build += 24 * l as u64;
++                    }
 +                }
 +                FzcSrc::Pair { dev: dc, host, re, im } => {
++                    if base_table(t) {
++                        base = false;
++                    }
 +                    match dc {
 +                        Some(dc) => {
 +                            if re.max(im) + l > dc.data.get().len() {
@@ -276,7 +564,13 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +                            }
 +                            let s_re = dc.data.get().slice(*re..*re + l);
 +                            let s_im = dc.data.get().slice(*im..*im + l);
-+                            unsafe { f_fp2.clone().launch(cfg, (&s_re, &s_im, &mut dst, l as i32)) }.map_err(|e| format!("k_tab_from_fp2: {e}"))?;
++                            if raw {
++                                src_desc[3 * t] = 2;
++                                src_desc[3 * t + 1] = *s_re.device_ptr();
++                                src_desc[3 * t + 2] = *s_im.device_ptr();
++                            } else {
++                                unsafe { f_fp2.clone().launch(cfg, (&s_re, &s_im, &mut dst, l as i32)) }.map_err(|e| format!("k_tab_from_fp2: {e}"))?;
++                            }
 +                        }
 +                        None => {
 +                            let d_re = dev.htod_sync_copy(as_u64s(&host[*re..*re + l])).map_err(|e| format!("fzc upload: {e}"))?;
@@ -287,9 +581,14 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +                            st.bytes_h2d += 16 * l as u64;
 +                        }
 +                    }
-+                    st.bytes_build += 32 * l as u64;
++                    if !(raw && dc.is_some()) {
++                        st.bytes_build += 32 * l as u64;
++                    }
 +                }
 +                FzcSrc::Eq { point, start } => {
++                    if base_table(t) {
++                        base = false;
++                    }
 +                    let bits = point.len();
 +                    if start + bits > n {
 +                        return Err(format!("fzc: eq table precondition start + |point| <= n violated ({start} + {bits} > {n})"));
@@ -312,18 +611,80 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +                    }
 +                    dev.htod_sync_copy_into(&as_u64s_f2(v), &mut dst).map_err(|e| format!("fzc upload: {e}"))?;
 +                    st.bytes_h2d += 16 * l as u64;
++                    if base && base_table(t) && !v.par_iter().all(|x| x.c1.is_zero()) {
++                        base = false;
++                    }
++                }
++                FzcSrc::Public { v, key } => {
++                    if v.len() != l {
++                        return Err(format!("fzc: public table {t} has {} entries, the cube {l}", v.len()));
++                    }
++                    let mut cache = FZC_PUB.lock().unwrap();
++                    let hit = cache.iter().position(|e| e.key == *key && e.len == l && e.sample.iter().all(|(i, c0, c1)| v[*i].c0.0 == *c0 && v[*i].c1.0 == *c1));
++                    let at = match hit {
++                        Some(i) => {
++                            st.pub_hits += 1;
++                            i
++                        }
++                        None => {
++                            let data = dev.htod_sync_copy(&as_u64s_f2(v)).map_err(|e| format!("fzc public upload: {e}"))?;
++                            st.bytes_h2d += 16 * l as u64;
++                            let sample = fzc_pub_positions(l).into_iter().map(|i| (i, v[i].c0.0, v[i].c1.0)).collect();
++                            let all_base = v.par_iter().all(|x| x.c1.is_zero());
++                            cache.retain(|e| e.key != *key);
++                            if cache.len() >= 4 {
++                                cache.remove(0);
++                            }
++                            cache.push(FzcPub { key: *key, len: l, data, sample, base: all_base });
++                            cache.len() - 1
++                        }
++                    };
++                    dev.dtod_copy(&cache[at].data, &mut dst).map_err(|e| format!("fzc public copy: {e}"))?;
++                    st.bytes_build += 32 * l as u64;
++                    if base_table(t) && !cache[at].base {
++                        base = false;
++                    }
 +                }
 +            }
 +        }
 +        let d_prm = dev.htod_sync_copy(prm).map_err(|e| e.to_string())?;
 +        let nv = degree + 1;
-+        let module = fzc_module(&g, degree, supp, fzc_lean())?;
-+        let f_round = dev.get_func(module, "k_fzc_round").ok_or("k_fzc_round missing")?;
-+        let occ = f_round.occupancy_max_active_blocks_per_multiprocessor(FZ_THREADS, 0, None).map_err(|e| format!("occupancy: {e}"))?.max(1);
++        let module = fzc_module(&g, degree, supp, fzc_lean(), split)?;
++        if split && !raw {
++            // round 3: the derived tables, from the slot's tables just built
++            // (round 4: with raw sources round 0 derives them in place)
++            let f = dev.get_func(module, "k_fzc_derive").ok_or("k_fzc_derive missing")?;
++            unsafe { f.launch(LaunchConfig::for_num_elems(l as u32), (tabs.get_mut(), l as i64, &d_prm)) }.map_err(|e| format!("k_fzc_derive: {e}"))?;
++            st.bytes_build += 208 * l as u64; // reads 11 A planes, writes 2 tables
++        }
++        let occ = if split {
++            let f = dev.get_func(module, "k_fzc_fold_round_r").ok_or("k_fzc_fold_round_r missing")?;
++            f.occupancy_max_active_blocks_per_multiprocessor(32 * fzs_groups(supp), 0, None).map_err(|e| format!("occupancy: {e}"))?.max(1)
++        } else {
++            let f = dev.get_func(module, "k_fzc_round").ok_or("k_fzc_round missing")?;
++            f.occupancy_max_active_blocks_per_multiprocessor(FZ_THREADS, 0, None).map_err(|e| format!("occupancy: {e}"))?.max(1)
++        };
 +        let blocks_cap = (g.sms as u32).max(1) * occ;
 +        let d_part = unsafe { dev.alloc::<u64>(blocks_cap as usize * nv * 2) }.map_err(|e| e.to_string())?;
 +        let d_sums = unsafe { dev.alloc::<u64>(nv * 2) }.map_err(|e| e.to_string())?;
 +        let d_fin = unsafe { dev.alloc::<u64>(k * 2) }.map_err(|e| e.to_string())?;
++        let d_cnt = dev.alloc_zeros::<u32>(1).map_err(|e| e.to_string())?;
++        let pin = PinBuf::new_read(&dev, nv * 2)?;
++        // round 4: the per-table source descriptors (a dummy when not raw) and
++        // the mapped round result (none if the driver refuses the mapping)
++        let d_src = dev.htod_sync_copy(&src_desc).map_err(|e| e.to_string())?;
++        let mapped = if split && fzc_mapped() {
++            match FzcMapped::new(&dev, nv * 2 + 1) {
++                Ok(m) => Some(m),
++                Err(e) => {
++                    FZC_MAPPED_BROKEN.store(true, Ordering::Relaxed);
++                    eprintln!("[ZK60-GZC] mapped round result unavailable ({e}); copy + sync per round");
++                    None
++                }
++            }
++        } else {
++            None
++        };
 +        dev.synchronize().map_err(|e| format!("fzc build: {e}"))?;
 +        drop(keep);
 +        note_vram(&g);
@@ -334,6 +695,7 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +        Ok(DevFzcRounds {
 +            dev, tabs, k, stride: l, n_vars: n, degree, len: l, d_prm, d_part, d_sums, d_fin, supp, fused: fzc_fused(), module, blocks_cap,
 +            deferred: None, next: 0, pending: None, claim, finals: Vec::new(), err: None, prof, st, t0, rounds_log: Vec::new(),
++            split, d_cnt, pin, tail_log, host: None, desc: desc.clone(), kd, base, raw, d_src, mapped, seq: 0,
 +        })
 +    }
 +
@@ -346,7 +708,7 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +    pub fn report(&mut self) {
 +        self.st.secs_total = self.t0.elapsed().as_secs_f64();
 +        if self.prof {
-+            println!("{}", self.st.line(&format!("PB-GZC slot 18 [{} {}]", self.module, if self.fused { "fused" } else { "unfused" })));
++            println!("{}", self.st.line(&format!("PB-GZC slot 18 [{} {} tail {}{}{}{}]", self.module, if self.fused { "fused" } else { "unfused" }, self.tail_log, if self.base { " base" } else { "" }, if self.raw { " raw" } else { "" }, if self.mapped.is_some() { " mapped" } else { "" })));
 +            if std::env::var("HL_GZC_ROUNDS").map(|v| v == "1").unwrap_or(false) {
 +                for (j, (len, kind, ks, rs)) in self.rounds_log.iter().enumerate() {
 +                    println!("PB-GZC-ROUND {j} | {kind} | entering len {len} | kernel {:.1} us | reduce+D2H+host {:.1} us", ks * 1e6, rs * 1e6);
@@ -366,7 +728,65 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +        }
 +    }
 +
++    /// K4: one round over the HOST tables — `ClosureRounds`' arithmetic (the
++    /// same pair walk, point stepping and d = 1 rule) on the description's
++    /// polynomial `FzcDesc::eval`, which the tests prove equal to the slot's
++    /// closure. Field sums are exact; the order is irrelevant.
++    fn host_round(&mut self, eval_one: bool) -> Vec<Fp2> {
++        let ta = Instant::now();
++        let tabs = self.host.as_ref().expect("host tables");
++        let (k, degree, desc) = (self.k, self.degree, &self.desc);
++        let half = tabs[0].len() / 2;
++        let round_of = |lo: usize, hi: usize| {
++            let mut acc = vec![Fp2::ZERO; degree + 1];
++            let mut cur = vec![Fp2::ZERO; k];
++            let mut dif = vec![Fp2::ZERO; k];
++            for i in lo..hi {
++                for (t, tb) in tabs.iter().enumerate() {
++                    cur[t] = tb[i];
++                    dif[t] = tb[i + half].sub(tb[i]);
++                }
++                acc[0] = acc[0].add(desc.eval(&cur));
++                for d in 1..=degree {
++                    for t in 0..k {
++                        cur[t] = cur[t].add(dif[t]);
++                    }
++                    if d != 1 || eval_one {
++                        acc[d] = acc[d].add(desc.eval(&cur));
++                    }
++                }
++            }
++            acc
++        };
++        let sums = if half <= 64 {
++            round_of(0, half)
++        } else {
++            let chunk = 16usize;
++            (0..half.div_ceil(chunk)).into_par_iter().map(|c| round_of(c * chunk, ((c + 1) * chunk).min(half))).reduce(
++                || vec![Fp2::ZERO; degree + 1],
++                |mut a, b| {
++                    for (x, y) in a.iter_mut().zip(b.iter()) {
++                        *x = x.add(*y);
++                    }
++                    a
++                },
++            )
++        };
++        let secs = ta.elapsed().as_secs_f64();
++        self.st.tail_rounds += 1;
++        self.st.secs_tail += secs;
++        self.st.pairs += half as u64;
++        self.st.evals += half as u64 * (if eval_one { degree + 1 } else { degree }) as u64;
++        if self.prof {
++            self.rounds_log.push((2 * half, "host tail", secs, 0.0));
++        }
++        sums
++    }
++
 +    fn try_round(&mut self, eval_one: bool) -> Result<Vec<Fp2>, String> {
++        if self.host.is_some() {
++            return Ok(self.host_round(eval_one));
++        }
 +        let g = gpu().ok_or_else(init_err)?;
 +        let _g = g.lock().unwrap();
 +        let nv = self.degree + 1;
@@ -375,7 +795,51 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +        let len0 = self.len;
 +        let kind: &'static str = if self.deferred.is_some() { "fused fold+round" } else { "round" };
 +        let ta = Instant::now();
-+        let (blocks, pairs) = if let Some(r) = self.deferred.take() {
++        let (blocks, pairs) = if self.split {
++            // K1 + K3: one launch, the block partials summed by the last block
++            let ng = fzs_groups(self.supp);
++            let cfg = |blocks: u32| LaunchConfig { grid_dim: (blocks, 1, 1), block_dim: (32, ng, 1), shared_mem_bytes: 0 };
++            if let Some(r) = self.deferred.take() {
++                let hp = self.len / 2;
++                let q = hp / 2;
++                let blocks = (q.div_ceil(32) as u32).clamp(1, self.blocks_cap);
++                let name = if eval_one { "k_fzc_fold_round" } else { "k_fzc_fold_round_r" };
++                let f = self.dev.get_func(self.module, name).ok_or("k_fzc_fold_round missing")?;
++                // round 4: round 1 (the first fold) reads the resident rows
++                let raw = i32::from(self.raw && self.next == 1);
++                self.seq += 1;
++                let mdev = self.mapped.as_ref().map(|m| m.dev).unwrap_or(0);
++                unsafe { f.launch(cfg(blocks), (self.tabs.get_mut(), hp as i32, self.stride as i64, r.c0.0, r.c1.0, &self.d_prm, &mut self.d_part, &mut self.d_cnt, &mut self.d_sums, &self.d_src, raw, mdev, self.seq)) }.map_err(|e| format!("{name}: {e}"))?;
++                self.sync_if_prof()?;
++                self.st.secs_fused += ta.elapsed().as_secs_f64();
++                // counted: raw A planes are 8-byte words
++                self.st.bytes_fused += if raw == 1 { (280 + 8 * self.kd as u64) * self.len as u64 } else { 24 * (self.kd * self.len) as u64 };
++                self.len = hp;
++                (blocks, q)
++            } else {
++                let half = self.len / 2;
++                let blocks = (half.div_ceil(32) as u32).clamp(1, self.blocks_cap);
++                // round 3: the base-field round 0 (BASE holds only before the first fold)
++                let base = self.base && self.next == 0;
++                let name = match (eval_one, base) {
++                    (true, false) => "k_fzc_round",
++                    (false, false) => "k_fzc_round_r",
++                    (true, true) => "k_fzc_round_b",
++                    (false, true) => "k_fzc_round_rb",
++                };
++                let f = self.dev.get_func(self.module, name).ok_or("k_fzc_round missing")?;
++                // round 4: round 0 reads the resident rows and derives T_GL / T_PL
++                let raw = i32::from(self.raw && self.next == 0);
++                self.seq += 1;
++                let mdev = self.mapped.as_ref().map(|m| m.dev).unwrap_or(0);
++                unsafe { f.launch(cfg(blocks), (self.tabs.get_mut(), half as i32, self.stride as i64, &self.d_prm, &mut self.d_part, &mut self.d_cnt, &mut self.d_sums, &self.d_src, raw, mdev, self.seq)) }.map_err(|e| format!("{name}: {e}"))?;
++                self.sync_if_prof()?;
++                self.st.secs_round += ta.elapsed().as_secs_f64();
++                // counted: raw A planes 8 B, the derived tables written (280 B/entry)
++                self.st.bytes_round += if raw == 1 { 280 * self.len as u64 } else { 16 * (self.kd * self.len) as u64 };
++                (blocks, half)
++            }
++        } else if let Some(r) = self.deferred.take() {
 +            let hp = self.len / 2;
 +            let q = hp / 2;
 +            let blocks = ((q as u32 + FZ_THREADS - 1) / FZ_THREADS).clamp(1, self.blocks_cap);
@@ -402,38 +866,115 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +        self.st.evals += pairs as u64 * pts;
 +        let k_secs = ta.elapsed().as_secs_f64();
 +        let tb = Instant::now();
-+        let f_red = self.dev.get_func(MODULE, "k_reduce_f2").ok_or("k_reduce_f2 missing")?;
-+        let cfg_r = LaunchConfig { grid_dim: (1, 1, 1), block_dim: (1024, 1, 1), shared_mem_bytes: 0 };
-+        unsafe { f_red.launch(cfg_r, (&self.d_part, blocks as i32, nv as i32, &mut self.d_sums)) }.map_err(|e| format!("k_reduce_f2: {e}"))?;
-+        let h = self.dev.dtoh_sync_copy(&self.d_sums).map_err(|e| e.to_string())?;
++        if !self.split {
++            let f_red = self.dev.get_func(MODULE, "k_reduce_f2").ok_or("k_reduce_f2 missing")?;
++            let cfg_r = LaunchConfig { grid_dim: (1, 1, 1), block_dim: (1024, 1, 1), shared_mem_bytes: 0 };
++            unsafe { f_red.launch(cfg_r, (&self.d_part, blocks as i32, nv as i32, &mut self.d_sums)) }.map_err(|e| format!("k_reduce_f2: {e}"))?;
++        }
++        // round 4: the split kernel's last block wrote the words and the
++        // sequence flag into mapped page-locked memory: POLL the flag (no
++        // driver call). A timeout falls back to the stream sync, which also
++        // surfaces any kernel error, and turns the mapped path off.
++        let mut polled: Option<Vec<Fp2>> = None;
++        if self.split {
++            if let Some(m) = self.mapped.as_ref() {
++                let deadline = Instant::now() + std::time::Duration::from_secs(5);
++                loop {
++                    if m.read(2 * nv) == self.seq {
++                        std::sync::atomic::fence(Ordering::Acquire);
++                        polled = Some((0..nv).map(|d| Fp2::new(Fp(m.read(2 * d)), Fp(m.read(2 * d + 1)))).collect());
++                        break;
++                    }
++                    if Instant::now() > deadline {
++                        FZC_MAPPED_BROKEN.store(true, Ordering::Relaxed);
++                        eprintln!("[ZK60-GZC] mapped round result: flag not seen in 5 s; copy + sync from now on");
++                        break;
++                    }
++                    std::hint::spin_loop();
++                }
++            }
++            if polled.is_none() {
++                self.mapped = None;
++            }
++        }
++        let out: Vec<Fp2> = match polled {
++            Some(v) => v,
++            None => {
++                // K3: ONE stream-ordered copy of the 2 (D + 1) words into the
++                // page-locked buffer, then ONE synchronisation
++                self.dev.bind_to_thread().map_err(|e| e.to_string())?;
++                let stream = *self.dev.cu_stream();
++                unsafe { cu::memcpy_dtoh_async(self.pin.as_mut_slice(), *self.d_sums.device_ptr(), stream) }.map_err(|e| format!("fzc round copy: {e}"))?;
++                unsafe { cu::stream::synchronize(stream) }.map_err(|e| format!("fzc round sync: {e}"))?;
++                let h = self.pin.as_slice();
++                (0..nv).map(|d| Fp2::new(Fp(h[2 * d]), Fp(h[2 * d + 1]))).collect()
++            }
++        };
 +        let r_secs = tb.elapsed().as_secs_f64();
 +        self.st.secs_reduce += r_secs;
 +        if self.prof {
 +            self.rounds_log.push((len0, kind, k_secs, r_secs));
 +        }
-+        Ok((0..nv).map(|d| Fp2::new(Fp(h[2 * d]), Fp(h[2 * d + 1]))).collect())
++        Ok(out)
 +    }
 +
 +    fn try_fold(&mut self, r: Fp2) -> Result<(), String> {
++        let last = self.next + 1 >= self.n_vars;
++        if let Some(tabs) = self.host.as_mut() {
++            // K4: the host fold, `ClosureRounds::fold`'s expression
++            let ta = Instant::now();
++            let half = tabs[0].len() / 2;
++            for tb in tabs.iter_mut() {
++                let (lo, hi) = tb.split_at_mut(half);
++                for (a, b) in lo.iter_mut().zip(hi[..half].iter()) {
++                    *a = a.add(r.mul(b.sub(*a)));
++                }
++                tb.truncate(half);
++            }
++            if last {
++                self.finals = tabs.iter().map(|t| t[0]).collect();
++            }
++            self.st.secs_tail += ta.elapsed().as_secs_f64();
++            return Ok(());
++        }
 +        let g = gpu().ok_or_else(init_err)?;
 +        let _g = g.lock().unwrap();
-+        let last = self.next + 1 >= self.n_vars;
-+        if self.fused && !last && self.len >= 4 {
++        let half = self.len / 2;
++        // K4: the next round's tables (half entries) are small enough for the host
++        let to_host = self.tail_log > 0 && !last && half >= 2 && half <= (1usize << self.tail_log);
++        if self.fused && !last && self.len >= 4 && !to_host {
 +            self.deferred = Some(r);
 +        } else {
 +            let ta = Instant::now();
-+            let half = self.len / 2;
 +            let f_fold = self.dev.get_func(MODULE, "k_sc_fold").ok_or("k_sc_fold missing")?;
-+            let cfg = LaunchConfig::for_num_elems((self.k * half) as u32);
-+            unsafe { f_fold.launch(cfg, (self.tabs.get_mut(), self.k as i32, half as i32, self.stride as i32, r.c0.0, r.c1.0)) }.map_err(|e| format!("k_sc_fold: {e}"))?;
++            let cfg = LaunchConfig::for_num_elems((self.kd * half) as u32);
++            unsafe { f_fold.launch(cfg, (self.tabs.get_mut(), self.kd as i32, half as i32, self.stride as i32, r.c0.0, r.c1.0)) }.map_err(|e| format!("k_sc_fold: {e}"))?;
 +            self.sync_if_prof()?;
 +            let f_secs = ta.elapsed().as_secs_f64();
 +            self.st.secs_fold += f_secs;
-+            self.st.bytes_fold += 24 * (self.k * self.len) as u64;
++            self.st.bytes_fold += 24 * (self.kd * self.len) as u64;
 +            if self.prof {
 +                self.rounds_log.push((self.len, "fold", f_secs, 0.0));
 +            }
 +            self.len = half;
++        }
++        if to_host {
++            // pack the k live prefixes, ONE copy into page-locked memory
++            let ta = Instant::now();
++            let n_words = self.k * half * 2;
++            let mut d_pack = unsafe { self.dev.alloc::<u64>(n_words) }.map_err(|e| e.to_string())?;
++            let f_pack = self.dev.get_func(self.module, "k_fzc_pack").ok_or("k_fzc_pack missing")?;
++            let cfg = LaunchConfig::for_num_elems((self.k * half) as u32);
++            unsafe { f_pack.launch(cfg, (self.tabs.get(), self.k as i32, self.stride as i64, half as i32, &mut d_pack)) }.map_err(|e| format!("k_fzc_pack: {e}"))?;
++            let mut pin = PinBuf::new_read(&self.dev, n_words)?;
++            self.dev.bind_to_thread().map_err(|e| e.to_string())?;
++            let stream = *self.dev.cu_stream();
++            unsafe { cu::memcpy_dtoh_async(pin.as_mut_slice(), *d_pack.device_ptr(), stream) }.map_err(|e| format!("fzc tail copy: {e}"))?;
++            unsafe { cu::stream::synchronize(stream) }.map_err(|e| format!("fzc tail sync: {e}"))?;
++            let w = pin.as_slice();
++            self.host = Some((0..self.k).map(|t| (0..half).map(|i| Fp2::new(Fp(w[2 * (t * half + i)]), Fp(w[2 * (t * half + i) + 1]))).collect()).collect());
++            self.st.bytes_d2h += 8 * n_words as u64;
++            self.st.secs_tail += ta.elapsed().as_secs_f64();
 +        }
 +        if last {
 +            let ta = Instant::now();
@@ -445,6 +986,16 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +            self.st.secs_finals += ta.elapsed().as_secs_f64();
 +        }
 +        Ok(())
++    }
++}
++
++/// the split kernel's warps per block: one per term group (8 with the
++/// support indicator, 7 without; `fzc_kernels.cu` FZS_NT)
++fn fzs_groups(supp: bool) -> u32 {
++    if supp {
++        8
++    } else {
++        7
 +    }
 +}
 +
@@ -546,8 +1097,8 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
  // buffer, in every configuration). This one is the pair that only exists
 diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/gpu/fzc.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/fzc.rs
 --- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/gpu/fzc.rs	1969-12-31 16:00:00.000000000 -0800
-+++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/fzc.rs	2026-10-17 06:57:10.753723341 -0700
-@@ -0,0 +1,376 @@
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/fzc.rs	2026-10-17 16:38:07.382621758 -0700
+@@ -0,0 +1,387 @@
 +//! [ZK60-GZC] The private block's slot 18 (`SC_FZC`, the f-cube zero-check)
 +//! on the device: the PUBLIC description of its polynomial, the host mirror
 +//! of the device expression, the switch, and the dispatch. Compiled in every
@@ -573,7 +1124,11 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +//! through `gpu::declined`, which panics under `HL_GPU_REQUIRED=1`.
 +//! `HL_GZC_CHECK=1` additionally runs the CPU body from the same transcript
 +//! state and asserts equality (shadow mode). `HL_GZC_PROFILE=1` synchronises
-+//! after every kernel and prints a per-sumcheck phase/bytes line.
++//! after every kernel and prints a per-sumcheck phase/bytes line. Kernel
++//! variants (same values): `HL_GZC_SPLIT` (default 1: the term-group split,
++//! round 2), `HL_GZC_LEAN` (default 1 among the per-pair kernels),
++//! `HL_GZC_FUSED` (default 1), `HL_GZC_TAIL_LOG=t` (rounds over at most 2^t
++//! entries on the host; 0 = never).
 +//!
 +//! Nothing here touches a transcript, a generator or a committed buffer; the
 +//! parameters it carries are Fiat-Shamir challenges and shape constants, all
@@ -829,7 +1384,8 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +        let a = |j: usize| v[T_A + j];
 +        let base = |c: Fp2| c; // the Fp2 constants with c1 = 0
 +        let den = |k: usize| self.alpha.sub(self.lk_cst[k].add(a(LK_PLANES[k]).mul_base(self.lk_coef[k])));
-+        let d: Vec<Fp2> = (0..9).map(den).collect();
++        // an array, not a Vec: the host tail (K4) calls this per point
++        let d: [Fp2; 9] = std::array::from_fn(den);
 +        let mu = &self.mu;
 +        let mut helper = Fp2::ZERO;
 +        for k in 0..4 {
@@ -878,6 +1434,12 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +    Eq { point: &'a [Fp2], start: usize },
 +    /// a host table (a public payload, or an already built table), uploaded
 +    Host(&'a [Fp2]),
++    /// [round 2, K2] a PUBLIC table that is a pure function of `key` (the
++    /// caller hashes the full shape, the slot, the table index and the cube
++    /// size into it): kept resident on the device per process and copied
++    /// device-to-device on later uses; uploaded again whenever a sample of
++    /// its entries differs from the cached copy's
++    Public { v: &'a [Fp2], key: [u8; 32] },
 +}
 +
 +/// (masked rounds, challenges, finals) — `zk::masked_prove_rounds`'s output
@@ -907,7 +1469,7 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +            return Err(format!("fzc: degree {degree} (the kernel has 4 and 5)"));
 +        }
 +        let prm = desc.params()?;
-+        let mut ev = super::cuda::DevFzcRounds::new(srcs, n, degree, &prm, desc.supp.is_some(), claim)?;
++        let mut ev = super::cuda::DevFzcRounds::new(srcs, n, degree, &prm, desc.supp.is_some(), claim, desc)?;
 +        let mut tr2 = crate::transcript::Transcript::clone_state(tr);
 +        let out = crate::zk::masked_prove_rounds(&mut ev, mask, c, &mut tr2);
 +        if let Some(e) = ev.error() {
@@ -926,8 +1488,8 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +}
 diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/gpu/fzc_kernels.cu /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/fzc_kernels.cu
 --- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/gpu/fzc_kernels.cu	1969-12-31 16:00:00.000000000 -0800
-+++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/fzc_kernels.cu	2026-10-17 14:46:59.722544017 -0700
-@@ -0,0 +1,466 @@
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/fzc_kernels.cu	2026-10-17 19:29:10.402388005 -0700
+@@ -0,0 +1,979 @@
 +// [ZK60-GZC] the private block's slot 18 (SC_FZC, the f-cube zero-check)
 +// on the device: the round kernels. Compiled by NVRTC at first use, ONE
 +// variant per module, behind the field primitives of `kernels.cu` (the host
@@ -1365,6 +1927,496 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +
 +
 +// ---------------------------------------------------------------------------
++// [ZK60-GZC] v4, THE TERM-GROUP SPLIT (round 2, K1) WITH THE REDUCTION FOLDED
++// INTO THE ROUND KERNEL (K3). Same tables, same points, same field elements.
++// The slot polynomial is a SUM of independent groups, each closed under its
++// own factor of E0 (or S):
++//   P = sum_{k<4} (mu_{4+k} E0) (H_k d_2k d_2k+1 - d_2k - d_2k+1)   groups 0-3
++//     + E0 (mu_8 (H_4 d_8 - 1) + mu_3 (HF FD - 1))                   group 4
++//     + E0 mu_pad (1 - S) sum_j w_j A_j            (SUPP only)       group 5
++//     + E0 S^[SUPP] (mu_0 f0 + mu_1 f1 + mu_2 f2)                    group 6
++//     + S^[SUPP] (nu_0 E1 (K_g G8 + RGL - K_g/2) + nu_1 E2 U16)      group 7
++// (= E0 zc + S hs, the lean form distributed over E0), so ONE WARP PER GROUP
++// evaluates its group for 32 consecutive pairs and every group sums
++// independently into the block reduction: <= 80 live registers instead of 255,
++// and a serial chain per thread ~8x shorter. A block is 32 x NG threads
++// (NG = 8 with the support indicator, 7 without: 3 blocks = 24 / 21 warps):
++//   phase 1: the block loads (round 0) or FOLDS (fused rounds: the k_sc_fold
++//     expression, written in place to i and i + q exactly as v2) every table
++//     entry of its 32 pairs ONCE, coalesced, into shared memory as (value at
++//     the pair's first point, difference);
++//   phase 2: warp g evaluates group g at the points from shared memory.
++// The block partials are summed by the LAST block to finish (threadfence +
++// counter, the CUDA "threadFenceReduction" pattern) into `sums`, which the
++// host copies into a page-locked buffer: one launch and one sync per round.
++// Field sums are exact, so the order of every addition is irrelevant.
++#define FZS_PAIRS 32
++
++__device__ __forceinline__ void fzs_get(const u64* sv, const u64* sd, int t, int x, f2& v, f2& dv) {
++    const int o = (t * FZS_PAIRS + x) * 2;
++    v.c0 = sv[o]; v.c1 = sv[o + 1];
++    dv.c0 = sd[o]; dv.c1 = sd[o + 1];
++}
++
++// A product of two linear forms a(d) = a + d da, b(d) = b + d db is the
++// quadratic c0 + c1 d + c2 d^2 with c0 = a b, c1 = a db + da b, c2 = da db;
++// terms accumulate into (c0, c1, c2). It is then STEPPED over d = 0, 1, ...
++// by forward differences: p(0) = c0, dp(0) = c1 + c2, ddp = 2 c2,
++// p(d+1) = p(d) + dp(d), dp(d+1) = dp(d) + ddp — exact identities of the
++// polynomial, so every p(d) is the same field element as a direct product.
++// Three live values per quadratic instead of two linear forms (four).
++__device__ __forceinline__ void q2_term(f2& c0, f2& c1, f2& c2, f2 a, f2 da, f2 b, f2 db) {
++    c0 = f2_add(c0, fz_mulk(a, b));
++    c1 = f2_add(c1, f2_add(fz_mulk(a, db), fz_mulk(da, b)));
++    c2 = f2_add(c2, fz_mulk(da, db));
++}
++__device__ __forceinline__ void q2_steps(f2 c0, f2 c1, f2 c2, f2& p, f2& dp, f2& ddp) {
++    p = c0;
++    dp = f2_add(c1, c2);
++    ddp = f2_add(c2, c2);
++}
++
++// [round 3] the DERIVED tables, appended after the slot's own K0 tables
++// (21 with the support indicator, 20 without), built once on the device
++// from the others and folded with them (a fold is linear, so a derived
++// table stays the same linear combination of the folded tables; the
++// constant of an affine combination is a fixed point of every fold):
++//   T_GL = K0:      mu0 f0l + mu1 f1 + mu2 f2 (the gated clauses' affine part)
++//   T_PL = K0 + 1:  mu_pad sum_j w_j A_j       (the pad sum; SUPP only)
++#define FZS_K0(SUPP) ((SUPP) ? 21 : 20)
++#define FZS_KD(SUPP) ((SUPP) ? 23 : 21)
++
++// A Fp2 linear form times a BASE linear form (b, db have c1 = 0 in round 0
++// when the A planes and S are base-field, the host's BASE flag): the same
++// quadratic coefficients as q2_term with two base products per Fp2 product.
++__device__ __forceinline__ void q2_term_b(f2& c0, f2& c1, f2& c2, f2 a, f2 da, u64 b, u64 db) {
++    c0 = f2_add(c0, f2_mul_base(a, b));
++    c1 = f2_add(c1, f2_add(f2_mul_base(a, db), f2_mul_base(da, b)));
++    c2 = f2_add(c2, f2_mul_base(da, db));
++}
++
++// group g of the pair in lane x, accumulated into acc[0..D] (d = 1 skipped
++// unless ONE, as every other variant; ONE is a template parameter so the
++// recovery rounds, which never evaluate s(1), carry no accumulator for it).
++// BASE (round 0 only, decided by the host): tables 3..13 (the A planes) and
++// table 20 (S) hold base-field values, so products with their linear forms
++// use base multiplications; every value is the same field element.
++template <int D, bool SUPP, bool ONE, bool BASE>
++__device__ __forceinline__ void fzs_group(int g, const u64* sv, const u64* sd, int x, const u64* s, f2* acc) {
++    constexpr int K0 = FZS_K0(SUPP);
++    const f2 alpha = prm_f2(s, FZ_ALPHA);
++    if (g < 4) {
++        // a paired U8 helper: lookups 2g, 2g+1 on A positions (1,1) (4,5) (7,8) (9,10).
++        // inner(d) = H d1 d2 - d1 - d2 is a CUBIC in d: evaluated directly at
++        // d = 0..3 and stepped by forward differences (exact), then
++        // (mu E0)(d) inner(d): one product per evaluated point
++        const int p1 = (g == 0) ? 1 : (g == 1) ? 4 : (g == 2) ? 7 : 9;
++        const int p2 = (g == 0) ? 1 : (g == 1) ? 5 : (g == 2) ? 8 : 10;
++        f2 ip, idp, iddp, idddp;
++        {
++            f2 h, dh, t, dt;
++            fzs_get(sv, sd, 14 + g, x, h, dh);
++            fzs_get(sv, sd, 3 + p1, x, t, dt);
++            const u64 c1 = s[FZ_LKK + 2 * g], c2 = s[FZ_LKK + 2 * g + 1];
++            f2 d1 = f2_sub(alpha, f2_add(prm_f2(s, FZ_LKC + 4 * g), f2_mul_base(t, c1)));
++            const f2 dd1 = fz_neg(f2_mul_base(dt, c1));
++            fzs_get(sv, sd, 3 + p2, x, t, dt);
++            f2 d2 = f2_sub(alpha, f2_add(prm_f2(s, FZ_LKC + 4 * g + 2), f2_mul_base(t, c2)));
++            const f2 dd2 = fz_neg(f2_mul_base(dt, c2));
++            // i(0), then the difference table built incrementally
++            ip = f2_sub(f2_sub(fz_mulk(fz_mulk(h, d1), d2), d1), d2);
++            h = f2_add(h, dh); d1 = f2_add(d1, dd1); d2 = f2_add(d2, dd2);
++            const f2 i1 = f2_sub(f2_sub(fz_mulk(fz_mulk(h, d1), d2), d1), d2);
++            idp = f2_sub(i1, ip);
++            h = f2_add(h, dh); d1 = f2_add(d1, dd1); d2 = f2_add(d2, dd2);
++            const f2 i2 = f2_sub(f2_sub(fz_mulk(fz_mulk(h, d1), d2), d1), d2);
++            const f2 t2 = f2_sub(i2, i1);
++            iddp = f2_sub(t2, idp);
++            h = f2_add(h, dh); d1 = f2_add(d1, dd1); d2 = f2_add(d2, dd2);
++            const f2 i3 = f2_sub(f2_sub(fz_mulk(fz_mulk(h, d1), d2), d1), d2);
++            idddp = f2_sub(f2_sub(f2_sub(i3, i2), t2), iddp);
++        }
++        f2 e0, de0;
++        fzs_get(sv, sd, 0, x, e0, de0);
++        f2 em = fz_mulk(prm_f2(s, FZ_MU + 8 + 2 * g), e0);
++        const f2 dem = fz_mulk(prm_f2(s, FZ_MU + 8 + 2 * g), de0);
++        #pragma unroll
++        for (int d = 0; d <= D; d++) {
++            if (d) { em = f2_add(em, dem); ip = f2_add(ip, idp); idp = f2_add(idp, iddp); iddp = f2_add(iddp, idddp); }
++            if (d == 1 && !ONE) continue;
++            acc[d] = f2_add(acc[d], fz_mulk(em, ip));
++        }
++    } else if (g == 4) {
++        // the single U8 helper (lookup 8 on RH1, A position 10) AND the
++        // activation pair, which share E0:
++        //   E0 (mu8 (H4 d8 - 1) + mu3 (HF FD - 1)),  FD = alpha - (G8 + 128 + beta A16 + g_act)
++        // = E0 q(d), q = mh d8 + mhf FD - (mu8 + mu3) a quadratic in d (stepped)
++        const f2 mu8 = prm_f2(s, FZ_MU + 16), mu3 = prm_f2(s, FZ_MU + 6);
++        f2 c0 = fz_neg(f2_add(mu8, mu3)), c1 = f2_zero(), c2 = f2_zero();
++        {
++            f2 t, dt;
++            fzs_get(sv, sd, 18, x, t, dt); // H4
++            const f2 mh = fz_mulk(mu8, t), dmh = fz_mulk(mu8, dt);
++            fzs_get(sv, sd, 13, x, t, dt); // RH1
++            const u64 c = s[FZ_LKK + 8];
++            const f2 d8 = f2_sub(alpha, f2_add(prm_f2(s, FZ_LKC + 16), f2_mul_base(t, c)));
++            const f2 dd8 = fz_neg(f2_mul_base(dt, c));
++            q2_term(c0, c1, c2, mh, dmh, d8, dd8);
++        }
++        {
++            f2 t, dt;
++            fzs_get(sv, sd, 19, x, t, dt); // HF
++            const f2 mhf = fz_mulk(mu3, t), dmhf = fz_mulk(mu3, dt);
++            fzs_get(sv, sd, 3, x, t, dt); // G8
++            f2 fd = f2_sub(f2_sub(alpha, f2_add(t, f2_base(128ULL))), prm_f2(s, FZ_GACT));
++            f2 dfd = fz_neg(dt);
++            fzs_get(sv, sd, 5, x, t, dt); // A16
++            if (BASE) {
++                fd = f2_sub(fd, f2_mul_base(prm_f2(s, FZ_BETA), t.c0));
++                dfd = f2_sub(dfd, f2_mul_base(prm_f2(s, FZ_BETA), dt.c0));
++            } else {
++                fd = f2_sub(fd, fz_mulk(prm_f2(s, FZ_BETA), t));
++                dfd = f2_sub(dfd, fz_mulk(prm_f2(s, FZ_BETA), dt));
++            }
++            q2_term(c0, c1, c2, mhf, dmhf, fd, dfd);
++        }
++        f2 q, dq, ddq;
++        q2_steps(c0, c1, c2, q, dq, ddq);
++        f2 e0, de0;
++        fzs_get(sv, sd, 0, x, e0, de0);
++        #pragma unroll
++        for (int d = 0; d <= D; d++) {
++            if (d) { e0 = f2_add(e0, de0); q = f2_add(q, dq); dq = f2_add(dq, ddq); }
++            if (d == 1 && !ONE) continue;
++            acc[d] = f2_add(acc[d], fz_mulk(e0, q));
++        }
++    } else if (g == 5) {
++        // the pad term (SUPP only): E0 q(d), q = (1 - S) PL, PL the derived table
++        f2 c0 = f2_zero(), c1 = f2_zero(), c2 = f2_zero();
++        {
++            f2 pl, dpl, sv0, dsv;
++            fzs_get(sv, sd, K0 + 1, x, pl, dpl);
++            fzs_get(sv, sd, 20, x, sv0, dsv);
++            if (BASE) q2_term_b(c0, c1, c2, pl, dpl, gl_sub(1ULL, sv0.c0), gl_sub(0ULL, dsv.c0));
++            else q2_term(c0, c1, c2, f2_sub(f2_base(1ULL), sv0), fz_neg(dsv), pl, dpl);
++        }
++        f2 q, dq, ddq;
++        q2_steps(c0, c1, c2, q, dq, ddq);
++        f2 e0, de0;
++        fzs_get(sv, sd, 0, x, e0, de0);
++        #pragma unroll
++        for (int d = 0; d <= D; d++) {
++            if (d) { e0 = f2_add(e0, de0); q = f2_add(q, dq); dq = f2_add(dq, ddq); }
++            if (d == 1 && !ONE) continue;
++            acc[d] = f2_add(acc[d], fz_mulk(e0, q));
++        }
++    } else if (g == 6) {
++        // the gated clauses: S^[SUPP] (mu0 A16 U16 + GL), GL the derived table;
++        // B(d) = mu0 A16 U16 + GL is a quadratic in d
++        f2 b0, b1, b2 = f2_zero();
++        fzs_get(sv, sd, K0, x, b0, b1); // GL and its difference
++        {
++            const f2 mu0 = prm_f2(s, FZ_MU + 0);
++            f2 a16, da16, u16, du16;
++            fzs_get(sv, sd, 5, x, a16, da16);
++            fzs_get(sv, sd, 6, x, u16, du16);
++            if (BASE) {
++                // A16 U16 = au + (a du + da u) d + da du d^2 in the base field, then times mu0
++                const u64 a = a16.c0, da = da16.c0, u = u16.c0, du = du16.c0;
++                b0 = f2_add(b0, f2_mul_base(mu0, gl_mul(a, u)));
++                b1 = f2_add(b1, f2_mul_base(mu0, gl_add(gl_mul(a, du), gl_mul(da, u))));
++                b2 = f2_mul_base(mu0, gl_mul(da, du));
++            } else {
++                q2_term(b0, b1, b2, fz_mulk(mu0, a16), fz_mulk(mu0, da16), u16, du16);
++            }
++        }
++        f2 qb, dqb, ddqb;
++        q2_steps(b0, b1, b2, qb, dqb, ddqb);
++        f2 e0, de0;
++        fzs_get(sv, sd, 0, x, e0, de0);
++        if (SUPP) {
++            // A(d) = E0 S, a second quadratic: the group is A(d) B(d)
++            f2 sg, dsg, a0 = f2_zero(), a1 = f2_zero(), a2 = f2_zero();
++            fzs_get(sv, sd, 20, x, sg, dsg);
++            if (BASE) q2_term_b(a0, a1, a2, e0, de0, sg.c0, dsg.c0);
++            else q2_term(a0, a1, a2, e0, de0, sg, dsg);
++            f2 qa, dqa, ddqa;
++            q2_steps(a0, a1, a2, qa, dqa, ddqa);
++            #pragma unroll
++            for (int d = 0; d <= D; d++) {
++                if (d) { qa = f2_add(qa, dqa); dqa = f2_add(dqa, ddqa); qb = f2_add(qb, dqb); dqb = f2_add(dqb, ddqb); }
++                if (d == 1 && !ONE) continue;
++                acc[d] = f2_add(acc[d], fz_mulk(qa, qb));
++            }
++        } else {
++            #pragma unroll
++            for (int d = 0; d <= D; d++) {
++                if (d) { e0 = f2_add(e0, de0); qb = f2_add(qb, dqb); dqb = f2_add(dqb, ddqb); }
++                if (d == 1 && !ONE) continue;
++                acc[d] = f2_add(acc[d], fz_mulk(e0, qb));
++            }
++        }
++    } else {
++        // the two hosted matmul terms (no E0): S^[SUPP] q(d),
++        // q = (nu0 E1) HG + (nu1 E2) U16 a quadratic in d (HG, U16 base in BASE)
++        f2 c0 = f2_zero(), c1 = f2_zero(), c2 = f2_zero();
++        {
++            f2 t, dt;
++            fzs_get(sv, sd, 1, x, t, dt); // E1
++            const f2 n1 = fz_mulk(prm_f2(s, FZ_NU0), t), dn1 = fz_mulk(prm_f2(s, FZ_NU0), dt);
++            fzs_get(sv, sd, 3, x, t, dt); // G8
++            f2 hg = f2_sub(f2_mul_base(t, s[FZ_KG]), f2_base(s[FZ_KGH]));
++            f2 dhg = f2_mul_base(dt, s[FZ_KG]);
++            fzs_get(sv, sd, 4, x, t, dt); // RGL
++            hg = f2_add(hg, t); dhg = f2_add(dhg, dt);
++            if (BASE) q2_term_b(c0, c1, c2, n1, dn1, hg.c0, dhg.c0);
++            else q2_term(c0, c1, c2, n1, dn1, hg, dhg);
++        }
++        {
++            f2 t, dt, u16, du16;
++            fzs_get(sv, sd, 2, x, t, dt); // E2
++            fzs_get(sv, sd, 6, x, u16, du16);
++            const f2 n2 = fz_mulk(prm_f2(s, FZ_NU1), t), dn2 = fz_mulk(prm_f2(s, FZ_NU1), dt);
++            if (BASE) q2_term_b(c0, c1, c2, n2, dn2, u16.c0, du16.c0);
++            else q2_term(c0, c1, c2, n2, dn2, u16, du16);
++        }
++        f2 q, dq, ddq;
++        q2_steps(c0, c1, c2, q, dq, ddq);
++        f2 sg = f2_zero(), dsg = f2_zero();
++        if (SUPP) fzs_get(sv, sd, 20, x, sg, dsg);
++        #pragma unroll
++        for (int d = 0; d <= D; d++) {
++            if (d) { q = f2_add(q, dq); dq = f2_add(dq, ddq); if (SUPP) sg = f2_add(sg, dsg); }
++            if (d == 1 && !ONE) continue;
++            acc[d] = f2_add(acc[d], SUPP ? (BASE ? f2_mul_base(q, sg.c0) : fz_mulk(sg, q)) : q);
++        }
++    }
++}
++
++// [round 3] build the derived tables (T_GL, and T_PL with the support
++// indicator) at every entry i < L of the slot's own tables
++template <bool SUPP>
++__device__ __forceinline__ void fzs_derive_impl(u64* tabs, long long L, const u64* __restrict__ s) {
++    constexpr int K0 = FZS_K0(SUPP);
++    const long long i = (long long)blockIdx.x * blockDim.x + threadIdx.x;
++    if (i >= L) return;
++    const u64 p1 = s[FZ_P1];
++    auto T = [&](int t) { return ld_f2(tabs, (size_t)t * (size_t)L + (size_t)i); };
++    // f0l = -K_h H16 + K_h/2 - RH0 - 256 RH1; f1 = U16 + 32768 - UL0 - 256 UL1; f2 = H16 + 32768 - HL0 - 256 HL1
++    const f2 h16 = T(9);
++    const f2 f0l = f2_sub(f2_sub(f2_add(fz_neg(f2_mul_base(h16, s[FZ_KH])), f2_base(s[FZ_KHH])), T(12)), f2_mul_base(T(13), p1));
++    const f2 f1 = f2_sub(f2_sub(f2_add(T(6), f2_base(32768ULL)), T(7)), f2_mul_base(T(8), p1));
++    const f2 fh = f2_sub(f2_sub(f2_add(h16, f2_base(32768ULL)), T(10)), f2_mul_base(T(11), p1));
++    const f2 gl = f2_add(f2_add(fz_mulk(prm_f2(s, FZ_MU + 0), f0l), fz_mulk(prm_f2(s, FZ_MU + 2), f1)), fz_mulk(prm_f2(s, FZ_MU + 4), fh));
++    st_f2(tabs, (size_t)K0 * (size_t)L + (size_t)i, gl);
++    if (SUPP) {
++        f2 pl = f2_zero();
++        #pragma unroll
++        for (int j = 0; j < 11; j++) {
++            const f2 w = prm_f2(s, FZ_PADW + 2 * j);
++            if ((w.c0 | w.c1) == 0ULL) continue;
++            pl = f2_add(pl, fz_mulk(w, T(3 + j)));
++        }
++        st_f2(tabs, (size_t)(K0 + 1) * (size_t)L + (size_t)i, fz_mulk(prm_f2(s, FZ_MUPAD), pl));
++    }
++}
++
++// [round 4] RAW SOURCES. In round 0 and in the fused round 1 a table may be
++// read straight from the device-resident commitment rows instead of a
++// widened copy: srcd[3 t] = mode (0: the Fp2 table in `tabs`, 1: a base
++// plane, srcd[3 t + 1] its u64 words, 2: a helper pair, srcd[3 t + 1] /
++// srcd[3 t + 2] the re / im words). Round 1's fold writes the folded halves
++// into `tabs`, which every later round reads. Same values as the widened
++// copies (a base plane widens to (a, 0), a pair to (re, im)).
++__device__ __forceinline__ f2 fzs_ld(const u64* tabs, long long L, const u64* srcd, int raw, int t, size_t idx) {
++    if (raw) {
++        const u64 mode = srcd[3 * t];
++        if (mode == 1ULL) {
++            f2 r;
++            r.c0 = ((const u64*)srcd[3 * t + 1])[idx];
++            r.c1 = 0ULL;
++            return r;
++        }
++        if (mode == 2ULL) {
++            f2 r;
++            r.c0 = ((const u64*)srcd[3 * t + 1])[idx];
++            r.c1 = ((const u64*)srcd[3 * t + 2])[idx];
++            return r;
++        }
++    }
++    return ld_f2(tabs, (size_t)t * (size_t)L + idx);
++}
++
++// [round 4] the derived tables INSIDE round 0, from the A values the block
++// just staged (lane x; `hi` = the pair's second entry, value + difference):
++// T_GL (which = 0) or T_PL (which = 1), the same expressions as k_fzc_derive
++__device__ __forceinline__ f2 fzs_a(const u64* sv, const u64* sd, int j, int x, bool hi) {
++    f2 v, dv;
++    fzs_get(sv, sd, 3 + j, x, v, dv);
++    return hi ? f2_add(v, dv) : v;
++}
++__device__ __forceinline__ f2 fzs_derived_at(const u64* sv, const u64* sd, int x, bool hi, int which, const u64* s) {
++    if (which == 0) {
++        const u64 p1 = s[FZ_P1];
++        const f2 h16 = fzs_a(sv, sd, 6, x, hi);
++        f2 f0l = f2_add(fz_neg(f2_mul_base(h16, s[FZ_KH])), f2_base(s[FZ_KHH]));
++        f0l = f2_sub(f0l, fzs_a(sv, sd, 9, x, hi));
++        f0l = f2_sub(f0l, f2_mul_base(fzs_a(sv, sd, 10, x, hi), p1));
++        f2 f1 = f2_add(fzs_a(sv, sd, 3, x, hi), f2_base(32768ULL));
++        f1 = f2_sub(f1, fzs_a(sv, sd, 4, x, hi));
++        f1 = f2_sub(f1, f2_mul_base(fzs_a(sv, sd, 5, x, hi), p1));
++        f2 fh = f2_add(h16, f2_base(32768ULL));
++        fh = f2_sub(fh, fzs_a(sv, sd, 7, x, hi));
++        fh = f2_sub(fh, f2_mul_base(fzs_a(sv, sd, 8, x, hi), p1));
++        return f2_add(f2_add(fz_mulk(prm_f2(s, FZ_MU + 0), f0l), fz_mulk(prm_f2(s, FZ_MU + 2), f1)), fz_mulk(prm_f2(s, FZ_MU + 4), fh));
++    }
++    f2 pl = f2_zero();
++    #pragma unroll
++    for (int j = 0; j < 11; j++) {
++        const f2 w = prm_f2(s, FZ_PADW + 2 * j);
++        if ((w.c0 | w.c1) == 0ULL) continue;
++        pl = f2_add(pl, fz_mulk(w, fzs_a(sv, sd, j, x, hi)));
++    }
++    return fz_mulk(prm_f2(s, FZ_MUPAD), pl);
++}
++
++// One round (FOLD = false: round 0, pairs (i, i + half)) or one fused fold +
++// next round (FOLD = true: fold every table at r over the pre-fold half hp,
++// in place, then the round on the folded tables' pairs (i, i + q), q = hp/2).
++// Race-free for the same reason as v2: chunk pairs are disjoint, a block
++// writes only i and i + q of its own pairs, and reads of i + hp, i + q + hp
++// are never written in this launch; phase 2 reads shared memory only.
++template <int D, bool SUPP, bool FOLD, bool ONE, bool BASE>
++__device__ __forceinline__ void fzs_impl(u64* tabs, int hn, long long L, u64 r0, u64 r1, const u64* __restrict__ prm, u64* __restrict__ partial, unsigned int* cnt, u64* __restrict__ sums, const u64* __restrict__ srcd, int raw, u64 mapped, u64 seq) {
++    constexpr int K = FZS_KD(SUPP); // the slot's tables + the derived ones
++    constexpr int NG = SUPP ? 8 : 7;
++    constexpr int NT = 32 * NG;
++    constexpr int NV = D + 1;
++    __shared__ u64 sp[FZ_LEN];
++    __shared__ u64 sv[K * FZS_PAIRS * 2];
++    __shared__ u64 sd[K * FZS_PAIRS * 2];
++    __shared__ u64 red[NG * NV * 2];
++    __shared__ u64 ssrc[FZS_K0(SUPP) * 3];
++    __shared__ int am_last;
++    constexpr int K0 = FZS_K0(SUPP);
++    const int tid = threadIdx.y * 32 + threadIdx.x;
++    for (int i = tid; i < FZ_LEN; i += NT) sp[i] = prm[i];
++    if (raw) for (int i = tid; i < K0 * 3; i += NT) ssrc[i] = srcd[i];
++    // round 0 from raw sources stages the slot's K0 tables and then derives
++    // T_GL / T_PL in place (phase 1b); every other launch stages all K
++    const int kstage = (raw && !FOLD) ? K0 : K;
++    const int npairs = FOLD ? (hn >> 1) : hn;
++    f2 r; r.c0 = r0; r.c1 = r1;
++    f2 acc[NV];
++    #pragma unroll
++    for (int d = 0; d < NV; d++) acc[d] = f2_zero();
++    int g = threadIdx.y;
++    if (!SUPP && g >= 5) g += 1; // no pad group without the support indicator
++    const int nchunks = (npairs + FZS_PAIRS - 1) / FZS_PAIRS;
++    for (int c = blockIdx.x; c < nchunks; c += gridDim.x) {
++        const int base = c * FZS_PAIRS;
++        __syncthreads(); // the previous chunk's readers are done (and sp is loaded)
++        for (int it = tid; it < kstage * FZS_PAIRS; it += NT) {
++            const int t = it / FZS_PAIRS, lane = it % FZS_PAIRS, i = base + lane;
++            const int o = (t * FZS_PAIRS + lane) * 2;
++            // raw sources exist for the slot's own tables only (the derived
++            // ones live in `tabs`, written by round 0)
++            const int rawt = (raw && t < K0) ? 1 : 0;
++            f2 lo = f2_zero(), dif = f2_zero();
++            if (i < npairs) {
++                const size_t tb = (size_t)t * (size_t)L;
++                if (FOLD) {
++                    const int hp = hn, q = npairs;
++                    const f2 a0 = fzs_ld(tabs, L, ssrc, rawt, t, (size_t)i), a1 = fzs_ld(tabs, L, ssrc, rawt, t, (size_t)(i + hp));
++                    const f2 b0 = fzs_ld(tabs, L, ssrc, rawt, t, (size_t)(i + q)), b1 = fzs_ld(tabs, L, ssrc, rawt, t, (size_t)(i + q + hp));
++                    lo = f2_add(a0, fz_mulk(r, f2_sub(a1, a0)));
++                    const f2 hi = f2_add(b0, fz_mulk(r, f2_sub(b1, b0)));
++                    st_f2(tabs, tb + i, lo);
++                    st_f2(tabs, tb + i + q, hi);
++                    dif = f2_sub(hi, lo);
++                } else {
++                    lo = fzs_ld(tabs, L, ssrc, rawt, t, (size_t)i);
++                    dif = f2_sub(fzs_ld(tabs, L, ssrc, rawt, t, (size_t)(i + npairs)), lo);
++                }
++            }
++            sv[o] = lo.c0; sv[o + 1] = lo.c1;
++            sd[o] = dif.c0; sd[o + 1] = dif.c1;
++        }
++        __syncthreads();
++        if (raw && !FOLD) {
++            // phase 1b (round 0 from raw sources): the derived tables, written
++            // to `tabs` at full length (round 1 folds them) and staged
++            const int nder = SUPP ? 2 : 1;
++            if (tid < 32 * nder) {
++                const int lane = tid & 31, which = tid >> 5, i = base + lane, t = K0 + which;
++                const int o = (t * FZS_PAIRS + lane) * 2;
++                f2 lo = f2_zero(), dif = f2_zero();
++                if (i < npairs) {
++                    lo = fzs_derived_at(sv, sd, lane, false, which, sp);
++                    const f2 hi = fzs_derived_at(sv, sd, lane, true, which, sp);
++                    dif = f2_sub(hi, lo);
++                    const size_t tb = (size_t)t * (size_t)L;
++                    st_f2(tabs, tb + i, lo);
++                    st_f2(tabs, tb + i + npairs, hi);
++                }
++                sv[o] = lo.c0; sv[o + 1] = lo.c1;
++                sd[o] = dif.c0; sd[o + 1] = dif.c1;
++            }
++            __syncthreads();
++        }
++        if (base + (int)threadIdx.x < npairs) fzs_group<D, SUPP, ONE, BASE>(g, sv, sd, threadIdx.x, sp, acc);
++    }
++    // the block's partial: warp shuffles, then one value per warp in shared
++    #pragma unroll
++    for (int d = 0; d < NV; d++) {
++        u64 c0 = acc[d].c0, c1 = acc[d].c1;
++        #pragma unroll
++        for (int off = 16; off > 0; off >>= 1) {
++            c0 = gl_add(c0, __shfl_down_sync(0xffffffffu, c0, off));
++            c1 = gl_add(c1, __shfl_down_sync(0xffffffffu, c1, off));
++        }
++        if (threadIdx.x == 0) { red[(threadIdx.y * NV + d) * 2] = c0; red[(threadIdx.y * NV + d) * 2 + 1] = c1; }
++    }
++    __syncthreads();
++    if (tid < NV * 2) {
++        u64 v = 0ULL;
++        for (int w = 0; w < NG; w++) v = gl_add(v, red[w * NV * 2 + tid]);
++        partial[(size_t)blockIdx.x * NV * 2 + tid] = v;
++    }
++    // K3: the last block to finish sums every block's partial into `sums`
++    __threadfence();
++    __syncthreads();
++    if (tid == 0) am_last = (atomicAdd(cnt, 1u) == gridDim.x - 1) ? 1 : 0;
++    __syncthreads();
++    if (am_last) {
++        if (tid < NV * 2) {
++            u64 v = 0ULL;
++            for (int b = 0; b < (int)gridDim.x; b++) v = gl_add(v, __ldcg(&partial[(size_t)b * NV * 2 + tid]));
++            sums[tid] = v;
++            // [round 4] the mapped page-locked result: the words, then (after
++            // a system fence) the sequence flag the host polls
++            if (mapped) ((volatile u64*)mapped)[tid] = v;
++        }
++        if (tid == 0) *cnt = 0u; // ready for the next launch (stream order)
++        if (mapped) {
++            __threadfence_system();
++            __syncthreads();
++            if (tid == 0) ((volatile u64*)mapped)[NV * 2] = seq;
++        }
++    }
++}
++
++// K4 aid: pack the live prefix (len entries) of every table contiguously for
++// ONE device-to-host copy when the tail rounds move to the host.
++extern "C" __global__ void k_fzc_pack(const u64* __restrict__ tabs, int k, long long L, int len, u64* __restrict__ out) {
++    const long long idx = (long long)blockIdx.x * blockDim.x + threadIdx.x;
++    if (idx >= (long long)k * len) return;
++    const long long t = idx / len, i = idx - t * len;
++    out[2 * idx] = tabs[2 * (t * L + i)];
++    out[2 * idx + 1] = tabs[2 * (t * L + i) + 1];
++}
++
++// ---------------------------------------------------------------------------
 +// [ZK60-GZC] DIAGNOSIS AID (HL_GZC_WARM_MS, never on a proof's data path): a
 +// pure-arithmetic spin of `iters` dependent Goldilocks products per thread.
 +// It reads and writes no table (one word, only on an impossible value), so
@@ -1378,8 +2430,31 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +// ---------------------------------------------------------------------------
 +// The two entry points of this module: FZ_D (4 or 5), FZ_SUPP (0 or 1) and
 +// FZ_LEAN (0: v1/v2 direct evaluation, 1: v3 lean evaluation) are defined
-+// by the host in front of this source (cuda.rs `fzc_module`).
-+#if FZ_LEAN
++// by the host in front of this source (cuda.rs `fzc_module`), with FZ_SPLIT
++// (1: v4, the term-group split with the fused reduction; its entry points
++// take the counter and the sums buffer).
++#if FZ_SPLIT
++#define FZS_NT ((FZ_SUPP != 0) ? 256 : 224)
++// `_r` = the recovery rounds (s(1) not evaluated), the others evaluate s(1);
++// `_b` = round 0 with base-field A planes and S (the host's BASE flag)
++#define FZS_ROUND(NAME, ONE, BASE) \
++extern "C" __global__ __launch_bounds__(FZS_NT, 3) void NAME(u64* tabs, int half, long long L, const u64* __restrict__ prm, u64* __restrict__ partial, unsigned int* cnt, u64* __restrict__ sums, const u64* __restrict__ srcd, int raw, u64 mapped, u64 seq) { \
++    fzs_impl<FZ_D, (FZ_SUPP != 0), false, ONE, BASE>(tabs, half, L, 0ULL, 0ULL, prm, partial, cnt, sums, srcd, raw, mapped, seq); \
++}
++FZS_ROUND(k_fzc_round, true, false)
++FZS_ROUND(k_fzc_round_r, false, false)
++FZS_ROUND(k_fzc_round_b, true, true)
++FZS_ROUND(k_fzc_round_rb, false, true)
++extern "C" __global__ __launch_bounds__(FZS_NT, 3) void k_fzc_fold_round(u64* tabs, int hp, long long L, u64 r0, u64 r1, const u64* __restrict__ prm, u64* __restrict__ partial, unsigned int* cnt, u64* __restrict__ sums, const u64* __restrict__ srcd, int raw, u64 mapped, u64 seq) {
++    fzs_impl<FZ_D, (FZ_SUPP != 0), true, true, false>(tabs, hp, L, r0, r1, prm, partial, cnt, sums, srcd, raw, mapped, seq);
++}
++extern "C" __global__ __launch_bounds__(FZS_NT, 3) void k_fzc_fold_round_r(u64* tabs, int hp, long long L, u64 r0, u64 r1, const u64* __restrict__ prm, u64* __restrict__ partial, unsigned int* cnt, u64* __restrict__ sums, const u64* __restrict__ srcd, int raw, u64 mapped, u64 seq) {
++    fzs_impl<FZ_D, (FZ_SUPP != 0), true, false, false>(tabs, hp, L, r0, r1, prm, partial, cnt, sums, srcd, raw, mapped, seq);
++}
++extern "C" __global__ void k_fzc_derive(u64* tabs, long long L, const u64* __restrict__ prm) {
++    fzs_derive_impl<(FZ_SUPP != 0)>(tabs, L, prm);
++}
++#elif FZ_LEAN
 +extern "C" __global__ __launch_bounds__(FZ_THREADS) void k_fzc_round(const u64* tabs, int half, long long L, const u64* __restrict__ prm, int one, u64* __restrict__ partial) {
 +    fzl_round_impl<FZ_D, (FZ_SUPP != 0)>(tabs, half, L, prm, one, partial);
 +}
@@ -1429,8 +2504,8 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +}
 diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/gpu/mod.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/mod.rs
 --- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/gpu/mod.rs	2026-10-17 01:48:08.492180163 -0700
-+++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/mod.rs	2026-10-17 07:42:51.142139027 -0700
-@@ -19,6 +19,12 @@
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/mod.rs	2026-10-17 17:48:49.389628775 -0700
+@@ -19,6 +19,14 @@
  #[cfg(feature = "gpu-cuda")]
  mod cuda;
  
@@ -1438,14 +2513,16 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +/// the description, the switch (`HL_GPU_ZEROCHECK=1`) and the dispatch.
 +pub mod fzc;
 +#[cfg(feature = "gpu-cuda")]
-+pub use cuda::{dev_copy_bandwidth, dev_resident_rows, fzc_compile_secs, fzc_totals, FzcStats};
++pub use cuda::{dev_copy_bandwidth, dev_resident_rows, fzc_cache_counts, fzc_compile_secs, fzc_totals, FzcStats};
++#[cfg(all(feature = "gpu-cuda", test))]
++pub(crate) use cuda::{fzc_cache_load, fzc_cache_store};
 +
  /// **ROUND 2 (R2-5): GPU MODE FAILS CLOSED.** Every place a device entry
  /// point declines and the prover would silently take the CPU body reports
  /// here. The decline is counted and logged; and when the caller CLAIMED the
 diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/argument.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/argument.rs
 --- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/argument.rs	2026-10-17 01:13:56.549642658 -0700
-+++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/argument.rs	2026-10-17 07:16:02.924406112 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/argument.rs	2026-10-17 16:38:07.384342244 -0700
 @@ -84,6 +84,11 @@
      groups: Option<(Vec<sumcheck::EqualityGroup>, GroupPoly)>,
      /// (hosted private slot, nu * kappa)
@@ -1469,7 +2546,7 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
  }
  
  pub(crate) enum Side<'a> {
-@@ -439,6 +448,74 @@
+@@ -439,6 +448,80 @@
      CfsMask::sum_weights(n + e, d)
  }
  
@@ -1499,7 +2576,13 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +        .enumerate()
 +        .map(|(t, tab)| match tab {
 +            Tab::Eq { point, start } => Ok(FzcSrc::Eq { point: point.as_slice(), start: *start }),
-+            Tab::Pub(v) if v.len() == 1usize << n => Ok(FzcSrc::Host(v.as_slice())),
++            // [round 2, K2] a public table is a pure function of the shape, the
++            // slot, its index and the cube size (`B::supp`), so that is its
++            // device-cache key: resident once per process, not re-uploaded
++            Tab::Pub(v) if v.len() == 1usize << n => Ok(FzcSrc::Public {
++                v: v.as_slice(),
++                key: *blake3::hash(format!("zk60-gzc-public-table|{:?}|slot {}|table {t}|n {n}", def.sh, def.slot).as_bytes()).as_bytes(),
++            }),
 +            Tab::Pub(_) => tables.get(t).map(|v| FzcSrc::Host(v.as_slice())).ok_or_else(|| format!("table {t}: a moved public table and no host copy")),
 +            Tab::Priv(p) => {
 +                let identity = p.log == n && p.coords.iter().enumerate().all(|(j, c)| matches!(c, Coord::Rho(k) if *k == j));
@@ -1544,7 +2627,7 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
  // ---------------------------------------------------------------- one slot
  
  // STAGE 28: `def` is `mut` because the proving path MOVES each public table
-@@ -492,8 +569,18 @@
+@@ -492,8 +575,18 @@
              // crate's own rayon style. The iterator is INDEXED, so the table
              // set is the same set in the same order whatever the thread count
              // is; no randomness is drawn here, so no draw order can move.
@@ -1565,7 +2648,7 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
              if tables.iter().any(|t| t.len() != 1usize << n) {
                  return Err(format!("private block: slot {s} table length"));
              }
-@@ -530,7 +617,8 @@
+@@ -530,7 +623,8 @@
              });
              tr.absorb_fp2(b"pb-scalar", &[scalar]);
              let poly = |v: &[Fp2]| (def.poly)(v);
@@ -1575,7 +2658,7 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
                  // Private slots already measured their actual cube sum.
                  // Host/standalone slots instead ASSERT a sum which need not
                  // hold on an inconsistent witness. Evaluate their first round
-@@ -543,16 +631,29 @@
+@@ -543,16 +637,29 @@
                  // Compare bounded actual slot fixtures with the old prover
                  // at the same transcript/tables, including masked bytes.
                  #[cfg(test)]
@@ -1607,7 +2690,7 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
                      let mut evaluator = sumcheck::ClosureRounds::new(&mut tables, degree, &poly)
                          .recover_one(unmasked_claim);
                      crate::zk::masked_prove_rounds(&mut evaluator, mask, c, tr)
-@@ -820,7 +921,7 @@
+@@ -820,7 +927,7 @@
          if self.ak != self.lay.a_sites()[self.slot] || self.hk != self.lay.h_sites()[self.slot] {
              return Err(format!("private block: slot {} uses {} A / {} H sites, schedule declares {} / {}", self.slot, self.ak, self.hk, self.lay.a_sites()[self.slot], self.lay.h_sites()[self.slot]));
          }
@@ -1616,7 +2699,7 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
      }
  }
  
-@@ -1632,6 +1733,36 @@
+@@ -1632,6 +1739,36 @@
              // ROUND 2: the product and gate shifts are the SHAPE's (the frozen
              // SH_H_PROD / SH_G at every registered shape)
              let (k_h, k_h_half, k_g, k_g_half) = (k(1i64 << sh.sh_h), k(super::witness::half(sh.sh_h)), k(1i64 << sh.sh_g), k(super::witness::half(sh.sh_g)));
@@ -1653,7 +2736,7 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
              let poly = move |v: &[Fp2]| {
                  let at = |p: usize| v[idx[p]];
                  let l2 = |o: usize| at(o).add(at(o + 1).mul(p1));
-@@ -1650,7 +1781,10 @@
+@@ -1650,7 +1787,10 @@
                  let host_u = u16;
                  v[0].mul(zc).add(nu[0].mul(v[1]).mul(g).mul(host_g)).add(nu[1].mul(v[2]).mul(g).mul(host_u))
              };
@@ -1667,8 +2750,8 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
              let q = slot == SC_QZC;
 diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/gpu_zc_tests.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/gpu_zc_tests.rs
 --- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/gpu_zc_tests.rs	1969-12-31 16:00:00.000000000 -0800
-+++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/gpu_zc_tests.rs	2026-10-17 12:32:45.180712638 -0700
-@@ -0,0 +1,668 @@
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/gpu_zc_tests.rs	2026-10-17 19:31:05.820918618 -0700
+@@ -0,0 +1,759 @@
 +//! **[ZK60-GZC] THE DEVICE SLOT-18 ZERO-CHECK: EQUALITY EVIDENCE.** TEST CODE
 +//! ONLY. Public synthetic data only.
 +//!
@@ -1911,10 +2994,80 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +    assert!(d.params().is_err(), "an extension-field shift constant: accepted");
 +}
 +
++/// Round 3: the cross-process module cache loads only an entry whose header
++/// names the expected key AND whose body hashes to the recorded digest; a
++/// stale key, a corrupt body or a foreign file is REFUSED. Host code only.
++#[cfg(feature = "gpu-cuda")]
++#[test]
++fn gzc_module_cache_refuses_stale_and_corrupt_entries() {
++    use crate::gpu::{fzc_cache_load, fzc_cache_store};
++    // inside the crate directory (the lane's own copy), removed at the end
++    let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(format!("target-gzc-cache-test-{}", std::process::id()));
++    let _ = std::fs::remove_dir_all(&dir);
++    let (key, other) = ("a".repeat(64), "b".repeat(64));
++    assert_eq!(fzc_cache_load(&dir, &key), Ok(None), "an empty cache has no entry");
++    fzc_cache_store(&dir, &key, "// ptx body\n.version 8.0\n").unwrap();
++    assert_eq!(fzc_cache_load(&dir, &key), Ok(Some("// ptx body\n.version 8.0\n".to_string())), "a valid entry loads");
++    // a stale entry: the file for `key` carries another key in its header
++    let body = "// other\n";
++    std::fs::write(dir.join(format!("{key}.ptx")), format!("ZK60-GZC-PTX v1 {other} {}\n{body}", blake3::hash(body.as_bytes()).to_hex())).unwrap();
++    assert!(fzc_cache_load(&dir, &key).unwrap_err().contains("stale"), "a stale key is refused");
++    // a corrupt body: the digest does not match
++    fzc_cache_store(&dir, &key, "// good\n").unwrap();
++    let path = dir.join(format!("{key}.ptx"));
++    let text = std::fs::read_to_string(&path).unwrap().replace("good", "evil");
++    std::fs::write(&path, text).unwrap();
++    assert!(fzc_cache_load(&dir, &key).unwrap_err().contains("corrupt"), "a corrupt body is refused");
++    // a foreign file
++    std::fs::write(&path, "hello\nworld").unwrap();
++    assert!(fzc_cache_load(&dir, &key).is_err(), "a foreign file is refused");
++    let _ = std::fs::remove_dir_all(&dir);
++    eprintln!("GZC module cache: valid entry loads; stale key, corrupt body and foreign file refused");
++}
++
 +// ------------------------------------------------------------ device
 +
 +fn require_device() {
 +    assert!(crate::gpu::enabled(), "GZC device tests need the gpu-cuda build and HL_GPU=1 ({})", crate::gpu::label());
++}
++
++/// The kernel variants (same field values by construction; the tests prove
++/// it): name, HL_GZC_SPLIT, HL_GZC_FUSED, HL_GZC_LEAN, HL_GZC_TAIL_LOG.
++/// Round 2 made the split kernel the default and lean the per-pair default.
++/// Round 4: `split` is the production default (host tail from 2^5, raw
++/// resident-row reads when the sources are resident, mapped round result);
++/// `-mat` keeps the materialised build (HL_GZC_RAW=0), `-nomap` the copy +
++/// sync per round (HL_GZC_MAPPED=0).
++const VARIANTS: [(&str, &str, &str, &str, &str); 10] = [
++    ("split", "1", "1", "1", "5"),
++    ("split-mat", "1", "1", "1", "5"),
++    ("split-nomap", "1", "1", "1", "5"),
++    ("split-tail3", "1", "1", "1", "3"),
++    ("split-tail10", "1", "1", "1", "10"),
++    ("split-unfused", "1", "0", "1", "0"),
++    ("lean", "0", "1", "1", "0"),
++    ("lean-unfused", "0", "0", "1", "0"),
++    ("v2", "0", "1", "0", "0"),
++    ("v1", "0", "0", "0", "0"),
++];
++
++fn variant(name: &str) -> (&'static str, &'static str, &'static str, &'static str, &'static str) {
++    *VARIANTS.iter().find(|v| v.0 == name).unwrap_or_else(|| panic!("no variant {name}"))
++}
++
++fn set_variant(v: &(&str, &str, &str, &str, &str)) {
++    std::env::set_var("HL_GZC_RAW", if v.0.contains("-mat") { "0" } else { "1" });
++    std::env::set_var("HL_GZC_MAPPED", if v.0.contains("-nomap") { "0" } else { "1" });
++    std::env::set_var("HL_GZC_SPLIT", v.1);
++    std::env::set_var("HL_GZC_FUSED", v.2);
++    std::env::set_var("HL_GZC_LEAN", v.3);
++    std::env::set_var("HL_GZC_TAIL_LOG", v.4);
++}
++
++fn clear_variant() {
++    for k in ["HL_GZC_SPLIT", "HL_GZC_FUSED", "HL_GZC_LEAN", "HL_GZC_TAIL_LOG", "HL_GZC_RAW", "HL_GZC_MAPPED"] {
++        std::env::remove_var(k);
++    }
 +}
 +
 +/// one CPU body and one device body from the same transcript state; both
@@ -1986,29 +3139,49 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +            let mut r = xs(0x6A5C_0000 + seed * 977 + degree as u64 * 31 + u64::from(supp) * 7 + u64::from(pad));
 +            let desc = synthetic_desc(&mut r, supp, pad);
 +            let k = desc.k();
-+            let tables: Vec<Vec<Fp2>> = (0..k).map(|_| (0..1usize << n).map(|_| fp2_of(&mut r)).collect()).collect();
-+            let srcs: Vec<FzcSrc> = tables.iter().map(|t| FzcSrc::Host(t.as_slice())).collect();
-+            let poly = |v: &[Fp2]| desc.eval(v);
-+            let total = (0..1usize << n).fold(Fp2::ZERO, |acc, x| {
-+                let row: Vec<Fp2> = tables.iter().map(|t| t[x]).collect();
-+                acc.add(poly(&row))
-+            });
-+            let mut claims = vec![None, Some(total)];
-+            if !cfg!(debug_assertions) {
-+                claims.push(Some(total.add(Fp2::ONE)));
-+            }
-+            for claim in claims {
-+                for (fused, lean) in [("1", "0"), ("0", "0"), ("1", "1"), ("0", "1")] {
-+                    std::env::set_var("HL_GZC_FUSED", fused);
-+                    std::env::set_var("HL_GZC_LEAN", lean);
-+                    compare_bodies(&format!("synthetic n {n} D {degree} supp {supp} pad {pad} claim {claim:?} fused {fused} lean {lean}"), &desc, &srcs, &tables, &poly, degree, claim, seed);
-+                    cases += 1;
++            // round 3: also BASE-valued A planes and a 0/1 indicator (the real
++            // slot's round-0 data), which selects the base-field round 0 of the
++            // split kernel; the generic tables keep the generic kernels honest
++            for base_a in [false, true] {
++                let tables: Vec<Vec<Fp2>> = (0..k)
++                    .map(|t| {
++                        (0..1usize << n)
++                            .map(|_| {
++                                if base_a && (fzc::T_A..fzc::T_A + fzc::N_A_F).contains(&t) {
++                                    Fp2::from_base(fp_of(&mut r))
++                                } else if base_a && t == fzc::T_SUPP {
++                                    if r() & 3 == 0 { Fp2::ZERO } else { Fp2::ONE }
++                                } else {
++                                    fp2_of(&mut r)
++                                }
++                            })
++                            .collect()
++                    })
++                    .collect();
++                let srcs: Vec<FzcSrc> = tables.iter().map(|t| FzcSrc::Host(t.as_slice())).collect();
++                let poly = |v: &[Fp2]| desc.eval(v);
++                let total = (0..1usize << n).fold(Fp2::ZERO, |acc, x| {
++                    let row: Vec<Fp2> = tables.iter().map(|t| t[x]).collect();
++                    acc.add(poly(&row))
++                });
++                let mut claims = vec![None, Some(total)];
++                if !cfg!(debug_assertions) {
++                    claims.push(Some(total.add(Fp2::ONE)));
++                }
++                for claim in claims {
++                    for v in VARIANTS.iter() {
++                        if base_a && v.1 != "1" {
++                            continue; // the BASE path exists only in the split kernel
++                        }
++                        set_variant(v);
++                        compare_bodies(&format!("synthetic n {n} D {degree} supp {supp} pad {pad} base-A {base_a} claim {claim:?} variant {}", v.0), &desc, &srcs, &tables, &poly, degree, claim, seed);
++                        cases += 1;
++                    }
 +                }
 +            }
 +        }
 +    }
-+    std::env::remove_var("HL_GZC_FUSED");
-+    std::env::remove_var("HL_GZC_LEAN");
++    clear_variant();
 +    eprintln!("GZC device synthetic: {cases} device bodies equal the CPU body (rounds, challenges, finals, transcript)");
 +}
 +
@@ -2081,20 +3254,21 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +        let cpu_s = t0.elapsed().as_secs_f64();
 +        let cpu_state = tr_cpu.state();
 +        let cpu_next = tr_cpu.challenge_fp2();
-+        for lean in ["0", "1"] {
-+            std::env::set_var("HL_GZC_LEAN", lean);
++        for v in [variant("split"), variant("split-mat"), variant("split-tail10"), variant("lean")] {
++            set_variant(&v);
++            let lean = v.0;
 +            let mut tr_dev = Transcript::clone_state(&tr0);
 +            let t1 = std::time::Instant::now();
 +            let dev = device_fzc(&def, &pd, &[], n, degree, claim, &mask, c, &mut tr_dev).unwrap_or_else(|| panic!("{what}: the device declined"));
 +            let dev_s = t1.elapsed().as_secs_f64();
-+            assert_eq!(dev.0, cpu.0, "{what} lean {lean}: masked rounds");
-+            assert_eq!(dev.1, cpu.1, "{what} lean {lean}: challenges");
-+            assert_eq!(dev.2, cpu.2, "{what} lean {lean}: finals");
-+            assert_eq!(tr_dev.state(), cpu_state, "{what} lean {lean}: transcript state");
-+            assert_eq!(tr_dev.challenge_fp2(), cpu_next, "{what} lean {lean}: next challenge");
-+            eprintln!("GZC device == CPU: {what}, lean {lean}, claim {}: {} rounds equal; CPU body {cpu_s:.3} s, device body (tables built on the device) {dev_s:.4} s", if claim.is_some() { "given" } else { "none (round 0 evaluated)" }, cpu.0.len());
++            assert_eq!(dev.0, cpu.0, "{what} variant {lean}: masked rounds");
++            assert_eq!(dev.1, cpu.1, "{what} variant {lean}: challenges");
++            assert_eq!(dev.2, cpu.2, "{what} variant {lean}: finals");
++            assert_eq!(tr_dev.state(), cpu_state, "{what} variant {lean}: transcript state");
++            assert_eq!(tr_dev.challenge_fp2(), cpu_next, "{what} variant {lean}: next challenge");
++            eprintln!("GZC device == CPU: {what}, variant {lean}, claim {}: {} rounds equal; CPU body {cpu_s:.3} s, device body (tables built on the device) {dev_s:.4} s", if claim.is_some() { "given" } else { "none (round 0 evaluated)" }, cpu.0.len());
 +        }
-+        std::env::remove_var("HL_GZC_LEAN");
++        clear_variant();
 +    }
 +}
 +
@@ -2271,17 +3445,18 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +        }
 +        // the variants, each in this ONE process (one GPU pass): v2 fused
 +        // (default), v1 separate fold/round, lean fused, lean unfused
-+        let variants: Vec<String> = std::env::var("GZC_BENCH_VARIANTS").ok().map(|v| v.split(',').map(|x| x.trim().to_string()).collect()).unwrap_or_else(|| ["v2", "v1", "lean", "lean-unfused"].iter().map(|s| s.to_string()).collect());
++        let variants: Vec<String> = std::env::var("GZC_BENCH_VARIANTS").ok().map(|v| v.split(',').map(|x| x.trim().to_string()).collect()).unwrap_or_else(|| ["split", "split-unfused", "lean", "lean-unfused", "v2", "v1"].iter().map(|s| s.to_string()).collect());
 +        for var in &variants {
-+            let (fused, lean) = match var.as_str() {
-+                "v2" => ("1", "0"),
-+                "v1" => ("0", "0"),
-+                "lean" => ("1", "1"),
-+                "lean-unfused" => ("0", "1"),
-+                other => panic!("GZC_BENCH_VARIANTS: unknown variant {other}"),
-+            };
-+            std::env::set_var("HL_GZC_FUSED", fused);
-+            std::env::set_var("HL_GZC_LEAN", lean);
++            // `split-tN`: the split kernel with the host tail from 2^N entries down
++            let tail: Option<String> = var.strip_prefix("split-t").map(|t| t.to_string());
++            match VARIANTS.iter().find(|v| v.0 == var.as_str()) {
++                Some(v) => set_variant(v),
++                None if tail.is_some() => {
++                    set_variant(&VARIANTS[0]);
++                    std::env::set_var("HL_GZC_TAIL_LOG", tail.as_deref().unwrap());
++                }
++                None => panic!("GZC_BENCH_VARIANTS: unknown variant {var}"),
++            }
 +            let mut best = f64::INFINITY;
 +            for rep in 0..reps {
 +                let mut tr = Transcript::clone_state(&tr0);
@@ -2322,8 +3497,7 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
 +                cpu_s / best
 +            );
 +        }
-+        std::env::remove_var("HL_GZC_FUSED");
-+        std::env::remove_var("HL_GZC_LEAN");
++        clear_variant();
 +        drain_device_pool(&format!("ladder n {n}"));
 +    }
 +    #[cfg(feature = "gpu-cuda")]
@@ -2400,7 +3574,7 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
          let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha, beta, g_u8, g_exp, g_act };
 diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/trained_block.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/trained_block.rs
 --- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r3/hashline/src/private_block/trained_block.rs	2026-10-17 05:15:39.716056677 -0700
-+++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/trained_block.rs	2026-10-17 07:19:15.611003518 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/trained_block.rs	2026-10-17 17:48:27.421656557 -0700
 @@ -1824,6 +1824,8 @@
      // path is live, and any later decline aborts it (`gpu::declined`)
      crate::gpu::require_live()?;
@@ -2410,13 +3584,16 @@ diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/ops/zkp-mvp/tr
      let t = Instant::now();
      let ex = TrainedExport::load(&export)?;
      let layers = parse_layers(flag(f, "--layers"), &ex.layers)?;
-@@ -1941,6 +1943,19 @@
+@@ -1941,6 +1943,22 @@
          js(&hex(&st.identity())),
          js(&out.display().to_string())
      );
 +    // [ZK60-GZC] how many slot-18 bodies ran on the device, how many shadow checks passed
 +    #[cfg(feature = "gpu-cuda")]
-+    let gzc_totals = crate::gpu::fzc_totals().line("totals");
++    let gzc_totals = {
++        let (hits, refused) = crate::gpu::fzc_cache_counts();
++        format!("{} | module load {:.2} s (disk-cache hits {hits}, refused {refused})", crate::gpu::fzc_totals().line("totals"), crate::gpu::fzc_compile_secs())
++    };
 +    #[cfg(not(feature = "gpu-cuda"))]
 +    let gzc_totals = String::new();
 +    println!(

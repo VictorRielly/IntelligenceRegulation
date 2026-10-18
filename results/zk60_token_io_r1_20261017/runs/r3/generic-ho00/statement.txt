@@ -1,0 +1,20 @@
+profile hashline-zk-mr1/private-token-io-run-llama-3-8b-t32-trained-statement-public-row/1
+L 32
+seq ho00
+tables generic
+final_norm g0 127 cn 512 tn 9 ceps 78617
+context f6e2d91008339a94344b9e37c38d0ad9749f7114d8ca38e4eb9cb234da9e5f58
+input_root 8e1b2cd48fb89d7db8f3857e3aa82eb6a12bf2579a741cf24cdded3941622810
+output_root b10087906cf5fe936861b73d30747b764b5429f12251fba54d1d02ee2c8078b5
+trained_statement_identity 0a2eee1d05a18bc48500c84d2decf08657964137cb30d25c8885056795261c6c
+segment_bytes [1415192, 14547080, 14547080, 14547080, 14547080, 14547080, 14547080, 14547080, 14547080, 14547080, 14547080, 14547080, 14547080, 14547080, 14547080, 14547080, 14547080, 14547080, 14547080, 14547080, 14547080, 14547080, 14547080, 14547080, 14547080, 14547080, 14547080, 14547080, 14547080, 14547080, 14547080, 14547080, 14547080, 4363320]
+total_bytes 471285072
+prove_seconds 188.678
+stage_seconds [0.423, 5.495, 5.409, 5.508, 5.454, 5.418, 5.199, 5.598, 5.597, 5.543, 5.451, 5.504, 5.439, 5.785, 5.49, 5.603, 5.707, 5.537, 5.711, 5.656, 5.573, 5.727, 5.714, 5.693, 5.494, 5.765, 5.478, 5.681, 5.572, 5.731, 5.444, 5.502, 5.638, 1.236]
+of_which_witness_seconds 18.160
+of_which_block_load_seconds 16.338
+vmhwm_mib [1862.0, 3324.0, 3354.0, 3361.0, 3364.0, 3374.0, 3384.0, 3384.0, 3384.0, 3384.0, 3415.0, 3415.0, 3415.0, 3415.0, 3415.0, 3415.0, 3421.0, 3421.0, 3421.0, 3425.0, 3425.0, 3425.0, 3429.0, 3429.0, 3429.0, 3429.0, 3429.0, 3429.0, 3429.0, 3429.0, 3446.0, 3446.0, 3448.0, 3448.0]
+digest_pass_seconds 20.256
+tables_seconds 0.450
+whole_run openings 137 column_log2 -98.045 logup_log2 -99.446 total_log2 -97.581 floor_bits 97
+parameter_line T32/d4096/f14336/H32/KV8/dh128/log_cols13/inv_rate4/Q256/P1/sh-g8-u0-h14-z5/two-private-endpoints/one-proof-one-transcript/endpoint-log_n13-rate4-pad256-rows21/L32/boundaries-B_in-B_out-and-interior-log_n13-rate4-pad256-rows22-sites2/token-endpoints-log_n8-rate8-pad256-in-words256-in-rows6-out-words256-out-rows6-sites1/stages-log_n12-rate4-pad256/token-io R1: V=128256 V_pad=131072 d=4096 d_pad=4096 T=32 BOS=128000 final-norm g0=127 cn=512 tn=9 ceps=78617 wrho=32 dmax=2097152 head-words=[-127,127] head-multipliers=[1,2^12] keyed-window=56 byte-limbs=7 no-pin embedding=e69ce56ec304c4e6c0595347d970e093554da28bd2d19f4a9711a974fd615370 head=055254be970e065dcffff7d11b9c2b9a41b76a5a495964a72d95c1bf49a60bb8 variant=public-row mode=next-token tier mvp-95-whole-run (D27): Q=256 stage-row 2^12 rate 1/4 token-endpoint-row 2^8 rate 1/8 lookup-field F_p^2/whole-run-floor-97-bits-137-openings-column-plus-logup-derived/one-run-one-transcript

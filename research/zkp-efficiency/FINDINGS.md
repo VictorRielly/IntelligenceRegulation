@@ -4903,3 +4903,536 @@ remain allowed. >=50/s complete private8B high-end-GPU target unchanged and
 unachieved. Production/runtime/Git/receipts/calibration/instructions/reviewer
 files untouched; no installs, external messages or escalation. Saved reports
 do not establish notification delivery.
+
+
+## Cycle 0070 — factorized distinct-column public equality, 2026-10-17
+
+Run `20261017T232105Z-d713e393`. No native proving speedup found. Current
+AGENDA/target/durable/project memory and latest three results consulted;
+365 prior sources parsed. Early STATE/startup originals retained; six LIVE
+primary records appended, 371 total, original prefix preserved. Full report:
+progress/20261017T232105Z-d713e393.md.
+
+Rust row-first MSB E*S*V evaluator avoids full public E/S/index arrays using
+per-column prefix factors and a division-free suffix-weight traversal. One
+owned column-major V buffer remains; polynomial bit order is unchanged from
+this probe's row-first baseline. 84 synthetic fixtures (30 prior), 1,788 round
+values, 252 terminals, 447 whole-cube masked-chain rounds, 197 quadratic-base
+checks and 22 controls pass against dense Python/prior Rust. Independent
+original-table/convolution/MLE/monomial audit: 4,768 checks. Future-challenge
+causality: 1,699 unchanged-prior-round checks +1 sensitivity control. Main
+3.151398 s /28,696 KiB incl compile/oracles; compiler135,348 KiB; audit
+7.180672 s /21,272 KiB; causality0.111618 s /16,732 KiB. One Core Ultra9
+185H CPU0 thread, nice19, seed2026101770; each command <59 s /512 MiB AS.
+No native proof, PCS, GKR, entropy/privacy theorem or GPU result. Initial
+21-control PASS retained. First audit failed its final extraction assertion
+because it omitted eight doc-comment marker conversions; failed script and
+finding retained, exact source check corrected, no arithmetic changed.
+
+NEW: independent per-column row points remain distinct; after row rounds E
+is a mixture across columns and S is non-Boolean. Retain all E/S/V terminals.
+Quadratic base row rounds do NOT permit quadratic masked messages: cubic
+CFS terms remain. Numerical private zeros preserve schedules. Raw singleton
+values still leak. Fixed public shape support only, never hidden prompt
+length/selectors/private mask rows. All prior rank/diagonal-coordinate,
+joint-mask, D/C, i64 wrapping, unused-table-zero, off-cube-product and
+endpoint-history negatives remain. Probe is not a complete/minimal lookup
+argument or byte-preserving native lookup adaptation.
+
+Counted prior 8B T32 four-group naive index+E+S+V payload625.625 MiB ->
+178.783936 MiB including conservative small payload; largest group94.017731
+MiB. Aggregate payload, not peak. Original source, allocator/recursion,
+GKR/masks/commitments/PCS remain. Local caps refuse large groups, no full-shape
+execution. Added suffix regeneration23,426,212 Fp2 multiplies; weighted and
+fold passes each read23,428,954 values; fold writes11,714,477. Logical counts,
+not DRAM traffic or runtime. All83 ordered original-A/wrapping links,
+distinct-point reduction, GKR, fresh masks/extensions/terminals/PCS and
+soundness/privacy remain. Extra query commitment saving zero.
+
+NEW carried R5b 8B T32 CPU, 32 linked blocks, one cold pass, 16 threads,
+GPU off, shared n=1: app191.755/process191.975140 s; diagnostic total rates
+0.166880/0.166688 positions/s. Sealing37.214 s =19.407056%; cumulative load
+35.798 and witness32.584 s OVERLAP within it. Prove154.427 includes reload
+19.052, zero witness rebuilds; remainder135.375 includes serialization/sink.
+Fresh load14.507 +check32.248 s (reload17.015/crypto remainder15.233);
+verifier process141.571000 includes11 refused controls/honest recheck.
+Receipt465,815,776 B; RSS4.73 GiB/cgroup7.09 incl cache. Full startup/prefill,
+steady slope, serialization, latency/lag/drain unknown. Shape privacy acceptance
+open. Free deletion of four direct H phase families21.568 s ->1.126731x,
+0.188028 diagnostic positions/s with other work fixed BEFORE new costs; only
+a phase-set ceiling, not whole architecture/shared zero-check/GPU/5090.
+Owner suite692/0/31 over29 targets. GPU1.1B warm190 s vs prior159 includes
+22*300 ms spin; no enclosing gain. Logical plan-byte bandwidth11.7% lean,
+8.0% default is not measured DRAM. Next kernel round active at23:22, no duplicate.
+
+Rank:1 owner whole-prover GPU kernel design/contiguous useful work;2 owner
+R5b public residency plus complete pass slopes;3 tested factored private lookup
+representation with all protocol costs;4 NEW pending-known-previous-challenge
+fold plus NEXT weighted contraction;5 NEW older Orion code-switching backend.
+Cannot fold using the current unknown challenge before its message. Next local
+compares a stateful SumcheckRounds adapter to saved rounds/finals/causality,
+charging equality work/read counts/final drain; reject mismatch or no enclosing
+gain. Full new-architecture end-to-end ceiling unknown. Owner workload/device
+work remains higher priority; no heavy job queued by researcher.
+
+LIVE SP1 ordering/shift/input-preservation diff, EPFL raw split-Eq common-point
+source, March2026 sumcheck, Jolt documented factoring/2025 PR dates, older
+2024/524 refreshed. NEW older Orion2022/1010 revisionNov2,2023 explicitly fixes
+inadequate masks and missing commit-and-prove; inspected repo bf9743cc... is
+Sep19,2022 and does not establish those fixes. Apache2 terms plus dependency
+exceptions scoped. Failed PDF/license/commit fetches, displayed release year
+uncertainty and inspected versus exposed hashes recorded; no author runtime
+reproduced. Rotation next NTT/commitments+memory traffic, other queues retained.
+Unapplied handoff: handoffs/20261017-factorized-public-equality.md. Native
+seam SumcheckRounds/prove_rounds; full lookup also needs private_block
+protocol/argument/shape/layout H/M/PCS review. No production patch/merge.
+
+New target proofs/passes/positions0/0/0; target steady/total rates and proof
+clocks unmeasured. No resident repeats, long-context prefill or decode. Larger
+workloads allowed with fresh masks, attention can grow quadratically, decode
+needs proved state. >=50/s complete private8B high-end-GPU target stands,
+unachieved. Production/runtime/Git/receipts/calibration/instructions/reviewer
+files untouched; no installs/external writes/messages/escalation. Saved reports
+are checkpoints, not external delivery evidence.
+
+
+## Cycle 0071 — pending previous fold plus next weighted round, 2026-10-18
+
+Run `20261018T002105Z-32d7e4fc`. No native proving speedup found.
+AGENDA/current target, durable/project memory and latest three results
+consulted; 371 starting sources parsed. Six LIVE records appended, 377 total,
+original prefix preserved. Early STATE/startup/native hashes saved under
+experiments/pending-fold-weighted-round-20261018/. Full dated report:
+progress/20261018T002105Z-32d7e4fc.md. Prior findings preserved.
+
+Rust PendingRows emits each message before its own challenge enters, then
+combines the known previous row fold with the next weighted contraction.
+132 synthetic fixtures (84 prior), 3,020 round values, 396 E/S/V terminals,
+755 whole-cube masked rounds, 23 control categories with eight lifecycle
+checks pass against Python dense/prior Rust. Challenge mutations preserve
+3,031 current/earlier messages and change 753 finals. Independent original-
+table/power-basis-convolution/MLE/monomial audit: 7,795 checks.
+Main 1.959028 s / 33,392 KiB, compiler 143,700 KiB; audit 7.184318 s /
+28,080 KiB; API counter 1.370311 s, compiler 144,844 KiB. One Core Ultra 9
+185H CPU0 thread, nice 19, seed 2026101871; each command 59 s / 512 MiB AS.
+Initial mutable-finish PASS retained. Native finals(&self) cannot settle:
+refined adapter drains last fold/zero-variable constructor; copied native
+trait matches. Actual native crate/transcript/RNG/proof-byte gates unrun.
+No native proof, GKR, PCS, GPU or privacy theorem result.
+
+Core row reads 4C(N-1) -> C(3N-2), writes C(N-1) unchanged; N1 no work,
+N2 no saving. Prior T32 four-group census 46,857,908 -> 35,143,514 reads:
+178.747467 MiB logical read reduction, asymptotic 25% reads /20% read+writes.
+Same V allocation/O(logN) DFS. Input copies/common setup/output/original
+witness/masks/links/GKR/PCS additional. Column tail adds 660 field reads /
+330 Fp2 subs; executed API counters across 132 fixtures confirm add/mul
+zero delta, sub 3(W-1). Suffix 23,426,212 multiplications/folds unchanged.
+Core byte-only ratio 1.249998x is not runtime/DRAM or full-prover gain.
+Full ceiling unknown without native Caffected/Cadded. Large census groups
+not executed, caps preserved. All 83 original links/distinct-point/wrapping/
+privacy obligations remain. No singleton/D-C/joint-mask/off-cube/endpoint
+negative overturned. Only fixed PUBLIC shape support, never hidden prompt/
+selector/mask or numerical witness sparsity. Prior slower native fusion
+remains demoted.
+
+NEW carried owner R5b 8B T128: 32 blocks, one cold CPU 16-thread pass,
+GPU off, shared n=1, fresh verify, 11 controls and honest recheck. App606.598 /
+process606.728291 s; diagnostic total0.211013 /0.210968 positions/s. Seal
+105.287 s =17.356965%; cumulative load36.570/witness103.349 overlap within it.
+Inclusive prove501.126 s includes32 rebuilds122.694 and reload21.176 s;
+serialization/sink unisolated. Fresh load14.126 +check43.902 s, reload18.459
+within check, arithmetic remainder25.443; verifier process186.088255 s with
+controls. Receipt922,711,264 B; RSS6.55/cgroup8.47 GiB. Full startup/prefill/
+steady/latency/lag/drain unknown; trained-shape privacy acceptance open.
+Four direct H phase free-deletion95.882 s ->1.187740x/0.250629 diagnostic
+positions/s, other work fixed before added costs. Only that phase-set bound,
+not architecture/shared zero-check/GPU. T32 counts and T128 clocks are
+separate evidence, not a combined measured estimate.
+
+Owner GPU 255-register/spill findings and K1-K4 design remain first; small
+gates pass23:58, trained gates queued23:59 at capture. No duplicate job.
+Plan-byte11.7% is not measured DRAM; warm-up/drain remain charged.
+Rank: (1) owner whole-prover GPU kernel design; (2) resident immutable public
+setup and full fresh-pass slopes; (3) tested pending factored lookup arithmetic
+with complete protocol costs; (4) NEW older Kim2020 consecutive precomputed
+late-stage NTT root products versus cache/integer costs; (5) deferred Orion/
+Hermes backend. Next local reads owner verdict, then exact root-product
+oracle/census if still useful. Preserve roots/order/scale/padding/swizzles/
+pruning and first-six-stage shift candidate. Reject mismatch, already-cached
+table pressure or arithmetic erasing gains. Owner measurements keep priority.
+
+LIVE primary versioned P3 pending-binding source, displayed Oct16 releases/
+Sep9 IDFT PR and ICICLE release refresh; NEW older Kim2020 OT sectionVII adds
+modular products rather than free roots; NEW Hermes2026 is U280 FPGA, not a
+CUDA drop-in; Valk2026 instruction-roofline scope refreshed. Versioned docs/
+GitHub main lengths differ; no inferred version mapping. Dates/licenses/
+commit scopes and Cache miss/Internal Error failures saved. No foreign code
+executed. Unapplied handoff: handoffs/20261018-pending-fold-weighted-round.md.
+Native seam SumcheckRounds/prove_rounds plus separately reviewed private_block
+lookup protocol/argument/shape/layout H/M/PCS. No production patch/merge.
+
+New target proofs/passes/positions0/0/0; target steady/total rates/clocks
+unmeasured. No resident repeats, long prefill or decode; attention can grow
+quadratically, decode needs proved state. Larger workloads/fresh masks allowed.
+>=50/s private 8B high-end-GPU target unchanged/unachieved. Production/runtime/
+Git/receipts/calibration/instructions/reviewer files untouched; no installs,
+GPU, external writes/messages or escalation. Saved reports are not delivery.
+
+
+## Cycle 0072 — native order-64 late-root compression, 2026-10-18
+
+Run `20261018T012105Z-ac328993`. No native proving speedup found. AGENDA,
+current target, project/durable memory and latest three result JSONs consulted;
+377 prior sources parsed, six LIVE primary records appended, 383 total with
+original prefix preserved. Early STATE and startup originals/hashes retained.
+Full report: progress/20261018T012105Z-ac328993.md.
+
+NEW: native generator7 root64=2^39. For s>6, d=s-6,
+k=l+2^d h, 0<=h<32: w_s^k=w_s^l*2^(39h). Apply one low-root product
+(if l!=0) and canonical shift; invert both factors for inverse stages.
+Stage-major low length2^d at offset2^d-2 has a monotonic size prefix.
+First6 shift candidate retained. Existing field/root/order/scale/coset/padding,
+private relation, blinding and proof security unchanged by the proposed action.
+Source-derived native canonical primitives compiled only as a small local C++
+CPU library; no CUDA/PTX/native-crate/proof/RNG/privacy result.
+
+Main PASS280,366 checks/18 controls,3.353462s incl compile,29,436KiB RSS,
+compiler24,980KiB. All131,070 root/action values through log16 in both
+directions,14,016 shift checks,4,096 sampled stage17..32 actions; DFT,
+roundtrip, counters and6 independent Lagrange hiding rows with q>n overlap.
+Independent audit PASS1,452 checks,6.312016s/24,344KiB: tiled DIT/inverseDIF
+logs7/12/13/14, swizzles, bit-reversed rb2/rb3 pad skip/full,256 original-
+polynomial samples. One Core Ultra9 185H CPU0 thread,nice19,seed2026101872,
+audit+1; each command59s/512MiB AS. Initial PASS retained; meaningful zero-only
+and schedule controls refined without changing arithmetic. Zero-only tests
+miss corrupted roots. Unaccessed corruption requires constructor provenance,
+not inference from a single arithmetic result. Native pruned stores/sync/races,
+cache lifetimes/transcript/masked RNG/fresh verification gates remain unrun.
+
+Counted both-direction public device roots at log16:1,048,560->32,736B;
+log20:16,777,200->524,256B; logs20/24 counted, not allocated/run. SAME general
+multiplication count as prior sparse-shift candidate, but285,727 /6,602,783
+extra shifts per respective transform. At log20 general6,815,776 plus total
+nonidentity shifts9,224,192. Earlier sparse/first6/inverse-scale opportunity
+must not be counted again. Hybrid only stage>=13 at log16:95,232B,+126,511
+shifts, counted not device-tested. Native CPU tables/stage-major temporary
+construction remain, probe full oracle tables remain: no peak-memory saving
+measured. Native uploads already cached. Late general-root logical read count
+unchanged versus sparse dispatch; no32xDRAM/throughput claim. Added shift/
+reduction dependencies/registers/dispatch/cache behavior can erase benefits.
+Generic OT comparator exact but stage20 general products1,047,040 versus
+original524,288 despite1,536 root words: cost-demoted, no GPU ratio inferred.
+
+Seam: owner gpu/cuda.rs::stage_major/ensure_twiddles, kernels k_ntt_p1,
+ntt_p2_body,dif_pa/pb,dit_p1_pad and gather/pruned actions. Preserve immutable
+native-root/direction provenance, monotonic mixed-size cache, old tables for
+unmigrated routes, all skipped stages and fresh masks. Unapplied handoff:
+handoffs/20261018-native-root-compression.md. Ceiling remains
+N/(Ttotal-Caffected+Cnew), affected NTT share/new timing unknown. Reject any
+arithmetic/refusal/profile/privacy/byte/RNG mismatch or no enclosing gain.
+
+Carried R5b8B T128 CPU:32blocks,one cold pass,16threads,GPUoff,shared n1.
+App606.598/process606.728291s, diagnostic total0.211013/0.210968 positions/s.
+Seal105.287s=17.356965% is NOT isolated startup: load36.570/witness103.349s
+overlap inside. Inclusive prove501.126 includes122.694s rebuilt witnesses
+and21.176s reload; serialization unisolated. Fresh verifier load14.126+
+check43.902s (reload18.459within; arithmetic remainder25.443). Verifier
+process186.088255s includes11controls/honest recheck. Receipt922,711,264B;
+RSS6.55/cgroup8.47GiB. NEW reviewR5 accepts soundness/T64/T128 arithmetic,
+independently verifies128 and11controls; not privacy acceptance. Publication
+marker race r5_A assignedR6, not proof-soundness finding. Full startup,
+initial-prefill, steady slope, proof latency, lag/drain remain unknown.
+
+Owner latest reread: round2 warm split34.7ms isolated/35.4–36.4in-stack,
+plan-byte13.8–14.4% not measuredDRAM; cold173s versus prior159s, warm185s
+includes spin, no enclosing gain. NEW round3 kernels23.02ms at2^20, REAL
+T128 warm body28.25/29.83ms incl6.0–6.8build; module diskload0.01–0.02s.
+Trained54equalities and seeded bytes all4shapes pass01:19, requiredGPU,
+peak3,173MiB. Thermalreason0x20/P4 persists. CLIbuilt01:22, enclosing default/
+warm+fresh verify queued; no enclosing result captured. Do not duplicate.
+
+Rank1ownerwhole-prover GPU arithmetic/continuous useful work,2ownerimmutable
+public residency/full-pass slopes,3testedrootcompressionunknowncachegain,
+4factoredlookup/pendingfolds with fullGKR/PCS/links/mask cost,5genericOT/newPCS.
+NEW nextlocal: audit source-captured derivedF-slot arithmetic versus original
+closure, charge build/folds/base-round eligibility, preserve earlier cubic/CSE
+negatives and avoid owned implementation duplication. Read owner enclosing
+verdict first. Owner root nextprofile actualcache/NTTshare, then guarded
+largest-stage-only A/B only after fullgates. Rotation sumcheck/GKR/arithmetic,
+retain lookup/softmax,NTT/commitments,memory,batching and composition.
+
+LIVE Kim2020 OT refined; NEW olderShivdikar2022 convolutionfusion needs a
+missing two-polynomial-convolution seam; NEW Sep24,2026 CGLA q3329/FPGA/FP32
+scope cannot transfer. CurrentCUDArepo source/cache/release negatives,
+GoldilocksNTT L2qualification andICICLEreleases refreshed. Exact dates,
+license inspection scope, exposed-versus-inspected commits and fetch errors
+recorded; no foreign code executed or author performance reproduced.
+
+New target proofs/passes/positions0/0/0. Target steady/total rates, startup
+fraction and witness/proof/serialization/verification clocks unmeasured this
+cycle; device none. No longprefill,resident repeats ordecode; context growth
+can increase attention quadratically. Larger workloads/fresh masks allowed;
+>=50/sprivate8Bhigh-endGPUtargetunchanged/unachieved. Production/runtime/Git/
+receipts/calibration/safety/instructions/reviewer files untouched; no installs,
+GPU/heavy job, externalwrites/messages or escalation. Savedreports do not
+establish delivery. All previous negativefindings preserved.
+
+
+## Cycle0073 — base-aware derived construction, 2026-10-18
+
+Run20261018T022105Z-6cb6453f. No native speedup found. Source-captured owner
+round3 fzs_derive_impl uses general Fp2 products on base A planes. Candidate
+constructs GL with scalar/mixed operations, prepares mu_pad*w once per proof,
+and retains generic fallback/public zero-weight skips. Full-pad scalar-product
+counts53N ->32N+33 (C++Karatsuba prep); Rustfive-product prep costs55 instead33.
+N2/w11 generic LOSES27 products. New176B workspace, same source accesses,
+same32N derived bytes and2(N-1) Fp2 folds/96(N-1) logical fold bytes. No masks,
+protocol, quantization or security changed. Coefficients must be proof-local.
+
+Main PASS120fixtures,4,644baseline+4,644candidate values,6,966fold values,
+1,944offcube values,600counter checks,120,744unchanged source values,10controls.
+Independent PASS32fixtures,2,960original full-F-polynomial comparisons,
+720original-cube terminals,2,072prefix values,5controls incl MSB/finalfold/
+nonlinear materialization. Main0.439298s inclcompile/RSS17,584KiB; compiler
+24,716KiB; audit0.464633s/15,944KiB; oneCoreUltra9 185H CPU0,nice19,seed
+2026101873/74, each59s/512MiB AS. N2..64; huge shapes counted only. Exactu128
+CPU substitute arithmetic, no native field/PTX/CUDA/races/DRAM/proof/RNG/
+privacy theorem. Artifacts experiments/fzc-derived-cost-audit-20261018/.
+
+New retained owner round3 enclosing results: TinyLlama1.1B T128,22blocks,
+16threads,RTX4070Laptop,each fresh-processverified497,665,904B. Default
+app174.052/process174.196237s, diagnostic0.735412positions/s; inclusiveprove
+132.202 includes15.473witness/11.181reload; load13.521,seal0.059,inprocess
+verify23.290. Freshload11.009+verify9.394/process20.480536. Warmapp216.500/
+process216.656004s,0.591224positions/s; prove153.729 includes17.952witness/
+12.785reload; load29.322,seal0.100,inprocessverify24.227. Freshload13.082+
+verify13.067/process26.236683. Sameidentity,0declines,peakVRAM3137MiB each.
+Warm22spins6.6241s recur; not startup. Load+seal7.802%/13.590% phasefractions,
+not isolated startup. Serialization/prefill/steady/lag/drain unknown. Default
+kernel counters implausible/unsynchronized; use enclosing clocks, not derived
+BW. Ownerthermalpolicy unchanged. Shared n1/settings differ, no causal A/B.
+
+Slot18inclusivebody3.409578/1.268204s; build0.952456/0.533091s. Deleting ALL
+build gives only0.547%/0.246% total-time upper saving; candidate touches a
+subset. Actual derive time and8B ceiling unknown. Newdefault phases:
+Arowallocation30.827s,Dzero-check26.691s,softmax11.381s; warm35.587/31.885/
+14.063s, rounded diagnostic sums. Promote next local D affine-aggregate
+cost audit, not more microconstructor tuning. Source GL/PL derivation8+w
+reads +1+support writes; fullpadding336N sourcebytes vs208N owner's unique-
+union count, neither measuredDRAM. Preserve original byte/eligibility gates.
+Unapplied handoff handoffs/20261018-base-aware-derived-build.md.
+
+Carried8B R5bT128CPU32blocks/onecoldpass remains606.598app/606.728291process,
+0.211013/0.210968positions/s,seal105.287(17.357%phase,notstartup),overlapping
+load36.570/witness103.349;prove501.126 includes122.694witness/21.176reload;
+serializationunisolated;fresh14.126load+43.902check(process186.088255includes
+11controls). R5 accepts soundness/T64/T128 arithmetic, notprivacy; marker race
+assignedR6. Receipt922,711,264B,RSS6.55/cgroup8.47GiB. No targetmeasurementnew.
+
+Ranks:1ownerwholeprover GPU/Dzero-check andArowwork;2owner publicresidency/
+fixedcontext fresh-pass slopes;3new tested base-awarederive lowceiling;
+4priorrootcompression unknown cache gain;5factoredlookup/newPCS withfull
+GKR/link/maskingcost. Next D11clause affine aggregate plus4bilinear terms,
+sourcecaptured fullpolynomial/offcube oracle andnetbuild/fold costs; avoid
+owned implementation/build duplication. Preserve all previous cubic/CSE,
+lookupjointmask/offcube/singleton/D-C/wrapping/history andslowerfusionnegatives.
+
+LIVE6records: knownSumCATSrefresh (alreadycycles2/13/34/56), extendedePrint2026/
+587receivedMar24approvedMar25 +Sep1authorpost; NEWolderZhangprecombineGKRarrays
+(reportMay1,2025,thesis2023); Plonky3rc.2release tags16Octyearunverified,
+PR2293/2297explicitSep22,2026; fullmergecommit fetchesfail, hashesexposedonly,
+mainMIT/nestedMITlicense scopesrecorded. No foreigncode executed/performance
+reproduced.383originalsources preserved,6appended=389.
+
+Newtargetproofs/passes/positions0/0/0; targetsteady/totalrates/startupfraction/
+witness/proof/serialization/verificationclocksunmeasured,device none. No
+residentseries,longprefill ordecode; largeramortizationallowed but attention
+can growquadratically; decode needsprovedstate. >=50/sprivate8Btargetunchanged/
+unachieved. Production/runtime/Git/receipts/calibration/safety/instructions/
+reviewer filesuntouched; noinstalls,GPU/heavyjobs,externalwrites/messages/
+escalation. Savedreports do notestablish delivery.
+
+## Final owner-source movement checkpoint
+
+At the final hash check, the owner had begun round4 in `gpu/cuda.rs` and
+`gpu/fzc_kernels.cu`. Captured round3 baseline/test hashes remain intact.
+Separate snapshots/diffs are in `owner-update/`; the initial stable-source
+assertion failure is retained as `audit-attempt-source-movement.json` and is
+resolved as concurrent owner movement, not an arithmetic failure. No researcher
+production write occurred.
+
+Observed round4 code reads resident base/pair sources directly in rounds0/1,
+derives GL/PL inside round0 through `fzs_derived_at`, uses mapped results, and
+changes the default host tail. This cycle did not compile, test or measure
+those changes. Rebase the handoff on BOTH `fzs_derived_at` and the standalone
+`fzs_derive_impl` fallback; an old derive-only patch may miss the new default.
+The base/mixed identities remain research candidates, but new inline register,
+shared-memory, lifetime and synchronization costs need the owner's gates.
+Round3's inclusive-build deletion bound is specific to its recorded runs;
+round4 moves arithmetic into round0, so it is not a universal ceiling for
+the new schedule. Do not transplant the old source-load/counter accounting.
+Read the owner's newest results before another local experiment.
+
+
+## Cycle0074 — D affine aggregate, 2026-10-18
+
+Run `20261018T032105Z-8464ee28`, 2026-10-18 UTC. Started03:21:05Z; checkpoint2026-10-18T03:31:31.478029+00:00.
+**No native proving speedup measured; no new complete proof.** Research only.
+
+Completed: read AGENDA/target, STATE/FINDINGS/source inventory/latest results,
+CLAUDE, MVP status, decisions and active coordination. Early STATE checkpoint
+saved before experiment. Startup captures/hashes retained; MVP is aggregate
+only and decisions omit the actual inference-token identifier. No private
+prompt/activation/weight/token data entered experiments or search queries.
+Prior findings and389source records preserved; six LIVE records appended=395.
+
+The latest decisions register accepts next-token rungR2 on soundness following
+independent review; token-stage privacy, hidden-length variant and stream
+remain open. This is a1.1B/T32 milestone, not the target workload, and not
+permission to change arithmetic/privacy or target. No token identifier saved.
+
+Tested question: can D's eleven clauses be represented by one affine table
+plus four bilinear terms, without changing any full-polynomial values?
+The current closure already specializes public base constants, shares two
+norm products and hoists its support gate. Candidate eliminates repeated
+weighted affine clause evaluation at sumcheck points; retains four bilinear
+products, all helpers/padding/hosts, original tables and original finals.
+
+Baseline seam is owner `private_block/argument.rs::SC_DZC`, slot14;
+`zkp-core/src/sumcheck/rounds.rs::SumcheckRounds` is the driver seam. Slot18's
+existing GPU F template may inform a future D port, but no current D GPU
+adapter is implied. Prototype `candidate.py` and captured Rust expression are
+under `experiments/dzc-affine-aggregate-20261018/`. Eight native source pins.
+[Review handoff](../handoffs/20261018-dzc-affine-aggregate.md), unapplied.
+
+Main PASS96synthetic fixtures, seed2026101874: N2/4/16/64, padded/unpadded,
+base/generic sources,1/2/9synthetic lookups,4/5limbs. Four is current trained
+width; five and the toy-index bindings are generic tests, not native trained
+layout validation. Exact captured Rust clause expression runs with independent
+u128 modular substitutes, not native field/PTX. Independent Python original
+clauses and candidate match9,840values; enclosing helper/pad/host equations
+match9,840points;1,968fold values,6,240direct-cube terminal values,
+1,032base constructor values and48base-contract refusals pass. Eight control
+checks and two invariants pass. The full nonlinear-clause MLE shortcut fails
+offcube as required; no polynomial degree or relation changes.
+
+Independent PASS24fixtures, seed2026101875:1,536native-basis linear coefficients,
+96bilinear coefficients,396full enclosing round sums at unchanged declared
+D4/D5,24native terminals,24fifth differences,888synthetic boundary values,
+seven negative controls. Controls cover coefficient swap, missing constant,
+nonlinear-table folding, MSB reversal, wrong claim, stale mu and omitted last
+fold. Original final vectors are retained. No proof/transcript/RNG/privacy
+construction was executed or accepted.
+
+Local resource clocks: main3.023713s including tiny local Rust
+shim compilation; RSS18,296KiB, compiler122,356KiB.
+Audit0.498599s/RSS16,104KiB; count audit
+0.000597s/RSS13,920KiB. One CoreUltra9 185H CPU0
+thread,nice19,WSL2. Every experiment limited59s/512MiB AS; no GPU, Cargo,
+dependency installation, downloaded code execution or competing heavy job.
+First PASS retained under `initial-before-base-constructor-gate/`; rerun added
+the meaningful mixed-constructor/provenance check without changing algebra.
+
+Four-limb clause API census per point:
+
+| Scope | Fp2mul | mul_base | add | sub |
+|---|---:|---:|---:|---:|
+| Current native clause |15|23|39|15|
+| Candidate online |8|0|5|0|
+| Proof-local coefficient preparation |0|26|9|20|
+| Generic constructor, per entry |33|0|34|0|
+
+Base constructor replaces33general products with33mixed products. Charge
+extra N-1Fp2 folds, native step additions and16N+608Bcapacity. Original
+sources/finals/folds remain. At counted N2^19/D4/unknown first claim/four limbs:
+scalar products285,474,332->183,500,687generic or131,596,175base; extra8MiB
+table. At N2^21:1,141,898,780->734,003,087generic or526,385,039base; extra32MiB.
+These are Rust5-scalar/Fp2,2-scalar/mul_base operation models, not CUDA/PTX
+instructions, byte traffic, timings, whole-D speedup or target projections.
+Generic construction at2^19 reads285,212,672logical source/output bytes;
+extra folds25,165,776B and round reads16,777,184B. Actual DRAM/cache/peak RAM
+and row0fusion costs remain unmeasured.
+
+Accounting correction retained explicitly: initial `result.json` charges an
+extra5scalar products per evaluation for conservative interpolation. Source
+inspection shows native ClosureRounds steps with additions; `cost-result.json`
+charges those additions instead. Host slot14 has unknown initial claim,
+E=D(N-1)+N/2; later release rounds recover s(1). Known initial claim uses
+E=D(N-1); debug evaluates every point. Padded schedule staysD5, unpaddedD4.
+N2/D4/generic/unknown first claim costs605->587 under actual stepping; the
+conservative model605->612 loses7. Known-first-claim generic484->547 loses63.
+Do not repeat the conservative tiny loss as a native D-host timing result.
+
+The inherited default1.1B full-D phase is26.691s within174.052s total. Deleting
+ALL D gives at most1.18113x and0.868615diagnostic positions/s; the candidate
+changes only the clause subset. Actual clause timing and8B ceiling unknown:
+N/(Ttotal-Caffected+Cnew), with Cnew charging construction/folds/transfers,
+verification separately and pipeline drain. Native compiler/common subexpression
+work, CPU parallel cutoffs, added liveness/register pressure and shared memory
+may erase the counted benefit. Falsify on polynomial/final/refusal/byte/RNG/
+privacy divergence or no enclosing workload gain.
+
+Owner movement read only: round4 small/trained device tests now exited0;
+trained seeded proof-byte gate passes four shapes. At real TinyLlamaT128
+resident slot18, printed known-claim raw bodies27.921/26.474ms versus
+materialized25.964/25.855ms; raw round0~9.2ms vs~6.5ms. Raw eliminates some
+build traffic but is not a clear body improvement. First raw build72.933ms;
+warm3.883/3.249ms. Owner host-upload ladder n20 default486.86ms includes
+336MBH2D, so it is not resident kernel throughput. No enclosing round4 stack
+result captured, no new independent full-stack proof credited. Owner source
+and metrics snapshots are distinct from this local D experiment. Current
+thermal policy unchanged. No relaunch or claim of synchronized DRAM bandwidth.
+
+Retained full-stack clocks, shared n1 diagnostics (no causal settings A/B):
+
+| Scope | App/process seconds | Witness/proof clocks | Serialization | Verification |
+|---|---|---|---|---|
+| 8B R5b,T128,32blocks,1cold CPU pass,16threads,GPUoff |606.598/606.728291; diagnostic0.211013/0.210968positions/s|seal105.287 includes overlapping load36.570/witness103.349; prove501.126 includes witnessrebuild122.694/reload21.176|not isolated;922,711,264Breceipt|fresh load14.126+check43.902; verifier process186.088255 includes11controls|
+| 1.1B ownerR3,T128,22blocks,1default pass,16threads,RTX4070Laptop |174.052/174.196237; diagnostic0.735412positions/s|load13.521,seal0.059,prove132.202 includes witness15.473/reload11.181|not isolated;497,665,904B|inprocess23.290; fresh11.009load+9.394check;20.480536process|
+| 1.1B ownerR3,T128,22blocks,1warm pass,same device |216.500/216.656004; diagnostic0.591224positions/s|load29.322,seal0.100,prove153.729 includes witness17.952/reload12.785; recurring22spins6.6241|not isolated;same receipt bytes|inprocess24.227; fresh13.082load+13.067check;26.236683process|
+
+Startup fraction remains unisolated:8B seal/app17.357% is a phase fraction;
+1.1B load+seal/app7.802%/13.590% are phase fractions. Witness work overlaps
+seal; none is an isolated startup or initial-prefill boundary. Steady-state
+slope, initial prefill, lag/drain and proof latency are unknown. These all
+predate this cycle and are not accepted trained-shape privacy measurements.
+No long-context prefill/resident repeat series/decode equivalence follows.
+
+Ranked questions after this cycle:
+
+| Rank | Hypothesis and expected impact | Cost/prerequisites, exactness/privacy and falsifier |
+|---|---|---|
+|1 OWNER|Whole-prover GPU arithmetic/row construction; broadest measured bottlenecks,8Bimpact unknown|D/A descriptors,correct kernels,full build/fold/transfer/verify/drain costs; preserve all CFS/masks/PCS/refusals. Reject absent enclosing gain or any gate failure.|
+|2 OWNER|Immutable public residency and fixed-context fresh-pass slopes; possible repeated startup amortization,unmeasured|Retain model/config identity and charge recurring witnesses/load/serialization plus fresh private masks/openings. Need multiple completed verified workloads. Reject backlog/stale identity or no slope gain.|
+|3 TESTED NEW|D affine aggregation; exact clause arithmetic reduction,8Bimpact unmeasured|Moderate integration: realB/Ids binding and D adapter missing; adds scratch/build/folds. Preserve original finals/extension/degree/privacy. Reject any mismatch or net regression.|
+|4 TESTED PRIOR|Root compression/F constructor; capacity or small-phase opportunities only|Cached roots still need provenance/dispatch and added shifts; F ownerR4 now inline. Actual affected timing and enclosing gain required; prior genericOT/small-N negatives retained.|
+|5 DEFERRED|Recursive GKR/composed lookup/pooled commitments; potential architecture gains,high integration cost|New2024PoT and Hekate evidence require exact native relation,field/PCS/hiding/jointview/soundness and state links. No migration or privacy weakening authorized.|
+
+NEW follow-up refinement: does D's real lookup/host/final dependency set allow
+an aggregate table to remove any working-table reads, or only add one more
+stream? Source-capture real TinyLlamaT128/8BT128 catalogs and shaped bindings;
+count each mandatory dependency, test table-order permutations/alias/refusal
+controls against the original full polynomial. No new GPU job requested.
+Owner should profile clause construction/evaluation separately before porting.
+
+LIVE sources: hardwareZeroCheck/SRAM fulltext, currentEPFL claim/oracle and
+Sage precompute sources refreshed; NEW older [CCS2024training/GKR recursion](https://eprint.iacr.org/2024/162)
+receivedFeb4/revisedJul22,2024; NEW Sep15,2026 [ROSETTA](https://arxiv.org/abs/2609.16915)
+is encrypted inference, not verified proof; newly inspected [Hekate engine
+releases](https://github.com/oumuamua-labs/hekate/releases) and helper-tree
+postmortem extend prior math-only discovery. Hekate0.37date07Oct year
+unverified; postmortem's check explicitly6Oct2026; verifier/coreAGPL claim and
+full linking exception read, prover proprietary. No code adopted. All dates,
+license scope, exposed versus inspected commits,403/cache failures and queries
+are in source/search records. No external performance reproduced.
+
+Target accounting this cycle: new completed full-stack proofs0,passes0,
+proved positions0; target contextnone,device none. Steady and total-workload
+rates,startup fraction,witness/proof/serialization/verification clocks are
+unmeasured for the target. Test harness clocks above are synthetic only.
+Larger valid workloads may amortize setup, but attention grows quadratically
+with context, and decode requires proved state. Complete private8B>=50/s on
+RTX5090 or another named high-endGPU remains unchanged and unachieved.
+Production/runtime/Git/receipts/calibration/safety/instructions/reviewer files
+untouched; no install/GPU/heavyjob/externalwrite/message/escalation. Saved
+reports do not establish message delivery.

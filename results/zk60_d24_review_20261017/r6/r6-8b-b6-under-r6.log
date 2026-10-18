@@ -1,0 +1,26 @@
+{"event":"verified","blocks":32,"receipt_bytes":922711264,"load_seconds":12.599,"verify_seconds":33.413,"of_which_block_load_seconds":15.529,"vmhwm_mib":2056,"statement_identity":"6aba46fbd12d14b053a0ec4afb29ba7b7dbad5ef4fe327213474a737b6e3fe24","scope":"ALL the listed trained blocks of the export's model (TinyLlama-1.1B-Chat or Llama-3-8B) as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"}
+{"event":"rejected","error":"/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5b/stack-llama3_8b_pg_rot1_b6_T128-ho00-cpu/run/statement: statement.json: not schema zk60-trained-stack-run/2 (review r5_A)"}
+Command exited with non-zero status 1
+	Command being timed: "/home/victor/IntelligenceRegulation/results/zk60_d24_review_20261017/r6/zk60_trained_block.review-r6.release.bin stack-verify --export /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r5-scratch/verifier-8b-T128 --artifact /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5b/stack-llama3_8b_pg_rot1_b6_T128-ho00-cpu/run --expect-statement 6aba46fbd12d14b053a0ec4afb29ba7b7dbad5ef4fe327213474a737b6e3fe24"
+	User time (seconds): 123.03
+	System time (seconds): 66.77
+	Percent of CPU this job got: 412%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:46.04
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 2104928
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 17741752
+	Voluntary context switches: 1346245
+	Involuntary context switches: 7108
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

@@ -1,0 +1,2 @@
+[zk60-guard 16:40:28] START k11-check-gpu class=light need=1.2G cap=1.5G enforce=cgroup+watchdog waited=0s run=02ade11bd821
+[zk60-guard 16:40:39] END k11-check-gpu exit=0 child_wall=10s peak_rss=0.59G min_avail=10.44G

@@ -240,10 +240,80 @@ fn gzc_layout_check_refuses_a_perturbed_description() {
     assert!(d.params().is_err(), "an extension-field shift constant: accepted");
 }
 
+/// Round 3: the cross-process module cache loads only an entry whose header
+/// names the expected key AND whose body hashes to the recorded digest; a
+/// stale key, a corrupt body or a foreign file is REFUSED. Host code only.
+#[cfg(feature = "gpu-cuda")]
+#[test]
+fn gzc_module_cache_refuses_stale_and_corrupt_entries() {
+    use crate::gpu::{fzc_cache_load, fzc_cache_store};
+    // inside the crate directory (the lane's own copy), removed at the end
+    let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(format!("target-gzc-cache-test-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    let (key, other) = ("a".repeat(64), "b".repeat(64));
+    assert_eq!(fzc_cache_load(&dir, &key), Ok(None), "an empty cache has no entry");
+    fzc_cache_store(&dir, &key, "// ptx body\n.version 8.0\n").unwrap();
+    assert_eq!(fzc_cache_load(&dir, &key), Ok(Some("// ptx body\n.version 8.0\n".to_string())), "a valid entry loads");
+    // a stale entry: the file for `key` carries another key in its header
+    let body = "// other\n";
+    std::fs::write(dir.join(format!("{key}.ptx")), format!("ZK60-GZC-PTX v1 {other} {}\n{body}", blake3::hash(body.as_bytes()).to_hex())).unwrap();
+    assert!(fzc_cache_load(&dir, &key).unwrap_err().contains("stale"), "a stale key is refused");
+    // a corrupt body: the digest does not match
+    fzc_cache_store(&dir, &key, "// good\n").unwrap();
+    let path = dir.join(format!("{key}.ptx"));
+    let text = std::fs::read_to_string(&path).unwrap().replace("good", "evil");
+    std::fs::write(&path, text).unwrap();
+    assert!(fzc_cache_load(&dir, &key).unwrap_err().contains("corrupt"), "a corrupt body is refused");
+    // a foreign file
+    std::fs::write(&path, "hello\nworld").unwrap();
+    assert!(fzc_cache_load(&dir, &key).is_err(), "a foreign file is refused");
+    let _ = std::fs::remove_dir_all(&dir);
+    eprintln!("GZC module cache: valid entry loads; stale key, corrupt body and foreign file refused");
+}
+
 // ------------------------------------------------------------ device
 
 fn require_device() {
     assert!(crate::gpu::enabled(), "GZC device tests need the gpu-cuda build and HL_GPU=1 ({})", crate::gpu::label());
+}
+
+/// The kernel variants (same field values by construction; the tests prove
+/// it): name, HL_GZC_SPLIT, HL_GZC_FUSED, HL_GZC_LEAN, HL_GZC_TAIL_LOG.
+/// Round 2 made the split kernel the default and lean the per-pair default.
+/// Round 4: `split` is the production default (host tail from 2^5, raw
+/// resident-row reads when the sources are resident, mapped round result);
+/// `-mat` keeps the materialised build (HL_GZC_RAW=0), `-nomap` the copy +
+/// sync per round (HL_GZC_MAPPED=0).
+const VARIANTS: [(&str, &str, &str, &str, &str); 10] = [
+    ("split", "1", "1", "1", "5"),
+    ("split-mat", "1", "1", "1", "5"),
+    ("split-nomap", "1", "1", "1", "5"),
+    ("split-tail3", "1", "1", "1", "3"),
+    ("split-tail10", "1", "1", "1", "10"),
+    ("split-unfused", "1", "0", "1", "0"),
+    ("lean", "0", "1", "1", "0"),
+    ("lean-unfused", "0", "0", "1", "0"),
+    ("v2", "0", "1", "0", "0"),
+    ("v1", "0", "0", "0", "0"),
+];
+
+fn variant(name: &str) -> (&'static str, &'static str, &'static str, &'static str, &'static str) {
+    *VARIANTS.iter().find(|v| v.0 == name).unwrap_or_else(|| panic!("no variant {name}"))
+}
+
+fn set_variant(v: &(&str, &str, &str, &str, &str)) {
+    std::env::set_var("HL_GZC_RAW", if v.0.contains("-mat") { "0" } else { "1" });
+    std::env::set_var("HL_GZC_MAPPED", if v.0.contains("-nomap") { "0" } else { "1" });
+    std::env::set_var("HL_GZC_SPLIT", v.1);
+    std::env::set_var("HL_GZC_FUSED", v.2);
+    std::env::set_var("HL_GZC_LEAN", v.3);
+    std::env::set_var("HL_GZC_TAIL_LOG", v.4);
+}
+
+fn clear_variant() {
+    for k in ["HL_GZC_SPLIT", "HL_GZC_FUSED", "HL_GZC_LEAN", "HL_GZC_TAIL_LOG", "HL_GZC_RAW", "HL_GZC_MAPPED"] {
+        std::env::remove_var(k);
+    }
 }
 
 /// one CPU body and one device body from the same transcript state; both
@@ -315,29 +385,49 @@ fn gzc_device_synthetic_edges_equal_the_cpu_body() {
             let mut r = xs(0x6A5C_0000 + seed * 977 + degree as u64 * 31 + u64::from(supp) * 7 + u64::from(pad));
             let desc = synthetic_desc(&mut r, supp, pad);
             let k = desc.k();
-            let tables: Vec<Vec<Fp2>> = (0..k).map(|_| (0..1usize << n).map(|_| fp2_of(&mut r)).collect()).collect();
-            let srcs: Vec<FzcSrc> = tables.iter().map(|t| FzcSrc::Host(t.as_slice())).collect();
-            let poly = |v: &[Fp2]| desc.eval(v);
-            let total = (0..1usize << n).fold(Fp2::ZERO, |acc, x| {
-                let row: Vec<Fp2> = tables.iter().map(|t| t[x]).collect();
-                acc.add(poly(&row))
-            });
-            let mut claims = vec![None, Some(total)];
-            if !cfg!(debug_assertions) {
-                claims.push(Some(total.add(Fp2::ONE)));
-            }
-            for claim in claims {
-                for (fused, lean) in [("1", "0"), ("0", "0"), ("1", "1"), ("0", "1")] {
-                    std::env::set_var("HL_GZC_FUSED", fused);
-                    std::env::set_var("HL_GZC_LEAN", lean);
-                    compare_bodies(&format!("synthetic n {n} D {degree} supp {supp} pad {pad} claim {claim:?} fused {fused} lean {lean}"), &desc, &srcs, &tables, &poly, degree, claim, seed);
-                    cases += 1;
+            // round 3: also BASE-valued A planes and a 0/1 indicator (the real
+            // slot's round-0 data), which selects the base-field round 0 of the
+            // split kernel; the generic tables keep the generic kernels honest
+            for base_a in [false, true] {
+                let tables: Vec<Vec<Fp2>> = (0..k)
+                    .map(|t| {
+                        (0..1usize << n)
+                            .map(|_| {
+                                if base_a && (fzc::T_A..fzc::T_A + fzc::N_A_F).contains(&t) {
+                                    Fp2::from_base(fp_of(&mut r))
+                                } else if base_a && t == fzc::T_SUPP {
+                                    if r() & 3 == 0 { Fp2::ZERO } else { Fp2::ONE }
+                                } else {
+                                    fp2_of(&mut r)
+                                }
+                            })
+                            .collect()
+                    })
+                    .collect();
+                let srcs: Vec<FzcSrc> = tables.iter().map(|t| FzcSrc::Host(t.as_slice())).collect();
+                let poly = |v: &[Fp2]| desc.eval(v);
+                let total = (0..1usize << n).fold(Fp2::ZERO, |acc, x| {
+                    let row: Vec<Fp2> = tables.iter().map(|t| t[x]).collect();
+                    acc.add(poly(&row))
+                });
+                let mut claims = vec![None, Some(total)];
+                if !cfg!(debug_assertions) {
+                    claims.push(Some(total.add(Fp2::ONE)));
+                }
+                for claim in claims {
+                    for v in VARIANTS.iter() {
+                        if base_a && v.1 != "1" {
+                            continue; // the BASE path exists only in the split kernel
+                        }
+                        set_variant(v);
+                        compare_bodies(&format!("synthetic n {n} D {degree} supp {supp} pad {pad} base-A {base_a} claim {claim:?} variant {}", v.0), &desc, &srcs, &tables, &poly, degree, claim, seed);
+                        cases += 1;
+                    }
                 }
             }
         }
     }
-    std::env::remove_var("HL_GZC_FUSED");
-    std::env::remove_var("HL_GZC_LEAN");
+    clear_variant();
     eprintln!("GZC device synthetic: {cases} device bodies equal the CPU body (rounds, challenges, finals, transcript)");
 }
 
@@ -410,20 +500,21 @@ fn real_slot_case(sh: &Shape, honest: bool, resident: bool, seed: u64) {
         let cpu_s = t0.elapsed().as_secs_f64();
         let cpu_state = tr_cpu.state();
         let cpu_next = tr_cpu.challenge_fp2();
-        for lean in ["0", "1"] {
-            std::env::set_var("HL_GZC_LEAN", lean);
+        for v in [variant("split"), variant("split-mat"), variant("split-tail10"), variant("lean")] {
+            set_variant(&v);
+            let lean = v.0;
             let mut tr_dev = Transcript::clone_state(&tr0);
             let t1 = std::time::Instant::now();
             let dev = device_fzc(&def, &pd, &[], n, degree, claim, &mask, c, &mut tr_dev).unwrap_or_else(|| panic!("{what}: the device declined"));
             let dev_s = t1.elapsed().as_secs_f64();
-            assert_eq!(dev.0, cpu.0, "{what} lean {lean}: masked rounds");
-            assert_eq!(dev.1, cpu.1, "{what} lean {lean}: challenges");
-            assert_eq!(dev.2, cpu.2, "{what} lean {lean}: finals");
-            assert_eq!(tr_dev.state(), cpu_state, "{what} lean {lean}: transcript state");
-            assert_eq!(tr_dev.challenge_fp2(), cpu_next, "{what} lean {lean}: next challenge");
-            eprintln!("GZC device == CPU: {what}, lean {lean}, claim {}: {} rounds equal; CPU body {cpu_s:.3} s, device body (tables built on the device) {dev_s:.4} s", if claim.is_some() { "given" } else { "none (round 0 evaluated)" }, cpu.0.len());
+            assert_eq!(dev.0, cpu.0, "{what} variant {lean}: masked rounds");
+            assert_eq!(dev.1, cpu.1, "{what} variant {lean}: challenges");
+            assert_eq!(dev.2, cpu.2, "{what} variant {lean}: finals");
+            assert_eq!(tr_dev.state(), cpu_state, "{what} variant {lean}: transcript state");
+            assert_eq!(tr_dev.challenge_fp2(), cpu_next, "{what} variant {lean}: next challenge");
+            eprintln!("GZC device == CPU: {what}, variant {lean}, claim {}: {} rounds equal; CPU body {cpu_s:.3} s, device body (tables built on the device) {dev_s:.4} s", if claim.is_some() { "given" } else { "none (round 0 evaluated)" }, cpu.0.len());
         }
-        std::env::remove_var("HL_GZC_LEAN");
+        clear_variant();
     }
 }
 
@@ -600,17 +691,18 @@ fn gzc_device_bench_cube_ladder() {
         }
         // the variants, each in this ONE process (one GPU pass): v2 fused
         // (default), v1 separate fold/round, lean fused, lean unfused
-        let variants: Vec<String> = std::env::var("GZC_BENCH_VARIANTS").ok().map(|v| v.split(',').map(|x| x.trim().to_string()).collect()).unwrap_or_else(|| ["v2", "v1", "lean", "lean-unfused"].iter().map(|s| s.to_string()).collect());
+        let variants: Vec<String> = std::env::var("GZC_BENCH_VARIANTS").ok().map(|v| v.split(',').map(|x| x.trim().to_string()).collect()).unwrap_or_else(|| ["split", "split-unfused", "lean", "lean-unfused", "v2", "v1"].iter().map(|s| s.to_string()).collect());
         for var in &variants {
-            let (fused, lean) = match var.as_str() {
-                "v2" => ("1", "0"),
-                "v1" => ("0", "0"),
-                "lean" => ("1", "1"),
-                "lean-unfused" => ("0", "1"),
-                other => panic!("GZC_BENCH_VARIANTS: unknown variant {other}"),
-            };
-            std::env::set_var("HL_GZC_FUSED", fused);
-            std::env::set_var("HL_GZC_LEAN", lean);
+            // `split-tN`: the split kernel with the host tail from 2^N entries down
+            let tail: Option<String> = var.strip_prefix("split-t").map(|t| t.to_string());
+            match VARIANTS.iter().find(|v| v.0 == var.as_str()) {
+                Some(v) => set_variant(v),
+                None if tail.is_some() => {
+                    set_variant(&VARIANTS[0]);
+                    std::env::set_var("HL_GZC_TAIL_LOG", tail.as_deref().unwrap());
+                }
+                None => panic!("GZC_BENCH_VARIANTS: unknown variant {var}"),
+            }
             let mut best = f64::INFINITY;
             for rep in 0..reps {
                 let mut tr = Transcript::clone_state(&tr0);
@@ -651,8 +743,7 @@ fn gzc_device_bench_cube_ladder() {
                 cpu_s / best
             );
         }
-        std::env::remove_var("HL_GZC_FUSED");
-        std::env::remove_var("HL_GZC_LEAN");
+        clear_variant();
         drain_device_pool(&format!("ladder n {n}"));
     }
     #[cfg(feature = "gpu-cuda")]

@@ -1,0 +1,2 @@
+[zk60-guard 19:31:05] START k15-check-gpu class=light need=1.2G cap=1.5G enforce=cgroup+watchdog waited=0s run=d84b8d0906fa
+[zk60-guard 19:31:33] END k15-check-gpu exit=0 child_wall=28s peak_rss=1.01G min_avail=10.67G

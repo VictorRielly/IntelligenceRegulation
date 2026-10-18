@@ -1,0 +1,6 @@
+R6 tree frozen for review at 2026-10-18T02:36:11Z
+tree sha256 83f1fdcbdcda3687815a76d5dc7714bf6b49d413ccfd9bc5b595bd898406cc33
+manifest /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r6/manifest_frozen.json
+copy /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r6/frozen-tree/
+CLIs r6/zk60_trained_block.release.bin and .gpu.release.bin (r6/binaries.sha256), built from this tree
+supersedes nothing: R5b (r5b/frozen-tree/, tree 44013397...) stays frozen

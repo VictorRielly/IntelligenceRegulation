@@ -1,0 +1,7 @@
+tinyllama-trained-r5b-capture-dense-l1       keys    29494 refs    589 covered True ok True
+tinyllama-trained-r5b-capture-zero-l1        keys    29494 refs    589 covered True ok True
+tinyllama-trained-r5b-capture-dense-l2       keys    56047 refs   1177 covered True ok True
+tinyllama-trained-r5b-capture-zero-l2        keys    56047 refs   1177 covered True ok True
+tinyllama-trained-r5b-capture-dense-l22      keys   587107 refs  12937 covered True ok True
+tinyllama-trained-r5b-capture-zero-l22       keys   587107 refs  12937 covered True ok True
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/r5b/r5b-schema-six-bundles.json   ok=True

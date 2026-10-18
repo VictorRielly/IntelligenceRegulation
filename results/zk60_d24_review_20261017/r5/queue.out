@@ -1,0 +1,36 @@
+[00:18:11Z] queue start
+[00:20:52Z] r5-cli-build exit 0
+[00:20:52Z] cli copied: 2dcf76d01b468c6d
+[00:20:52Z] r5-p5-seq-in-export exit 1
+[00:20:52Z] r5-cr4-verify-label exit 1
+[00:20:53Z] r5-cr4-prove-label exit 1
+[00:20:53Z] after r5-cr4-prove-label: run-label exists: no; unverified exists: no
+[00:20:55Z] r5-honest-verify exit 0
+[00:20:55Z] r5-seg-dos exit 1
+[00:20:55Z] r5-seg-sparse exit 1
+[00:20:55Z] r5-seg-fifo exit 1
+[00:20:55Z] r5-seg-short exit 1
+[00:20:56Z] r5-seg-long1 exit 1
+[00:20:56Z] r5-seg-dir exit 1
+[00:20:56Z] r5-seg-devnull exit 1
+[00:20:56Z] r5-seg-symlink-honest exit 1
+[00:20:56Z] r5-seg-fifo1 exit 1
+[00:20:57Z] r5-seg-hardlink exit 0
+[00:20:57Z] r5-seg-expected-fifo exit 1
+[00:20:58Z] r5-seg-fifo1-ctl exit 1
+[00:20:58Z] r5-exp-arr-zero-v exit 1
+[00:20:58Z] r5-exp-arr-fifo-v exit 1
+[00:20:58Z] r5-exp-arr-big-v exit 1
+[00:20:58Z] r5-exp-profile-fifo-v exit 1
+[00:20:58Z] r5-exp-manifest-zero-v exit 1
+[00:20:59Z] r5-exp-misdeclared-v exit 1
+[00:20:59Z] r5-exp-fat40-v exit 1
+[00:20:59Z] r5-exp-fat-v exit 1
+[00:20:59Z] r5-exp-fat-prove exit 1
+[00:20:59Z] after r5-exp-fat-prove: run-fatp exists: no
+[00:30:54Z] r5-8b-T128-verify exit 0
+[00:33:43Z] r5-test-build exit 0
+[00:33:43Z] lib test binary: target/release/deps/hashline-858cf4a01eef387d
+[00:34:00Z] r5-fast exit 0
+[00:34:20Z] r5-author-subset exit 0
+[00:34:20Z] queue end

@@ -76,3 +76,82 @@ Write set (exclusive): `ops/zkp-mvp/token-io-review-r1/` (frozen copy),
 - 22:39 REVIEW.md final: verdict sound as built / faithful except TR-1
   (MEDIUM), TR-2 (LOW-MEDIUM), TR-3, TR-4 (LOW), TR-5..7 INFO, TR-8
   acceptance gaps, TR-9 R2 notes; R2 base yes with conditions (a)-(e).
+
+## ROUND 2 (2026-10-18 UTC): TR fixes + rung R2 (TinyLlama-1.1B, 22 blocks, T32)
+
+Brief (coordinator): re-review `ops/zkp-mvp/token-io/` at the lane's
+`manifest_final.sha256`; TR-1..TR-5 fixes; R2 multi-row layout; whole-run
+figure and VerifierPolicy; the D20 refusal at the calibrated Cn; re-verify
+the R2 honest run with my own binary in a fresh process; own tamper tests at
+R2. Write REVIEW2.md. Same write set plus `ops/zkp-mvp/token-io-review-r2/`,
+`ops/zkp-mvp/token-io-review-r2-scratch/`.
+
+- 01:41:57 round 2 start.
+- 01:43 frozen copy `ops/zkp-mvp/token-io-review-r2/` (rsync, no target);
+  manifest `ops/zkp-mvp/token-io-review-r2.sha256` (225 files, list sha256
+  5c4e14b84407ae3830ee4480feced5258c5f69fc71528c648ce1eb8fb0d8bcfb). All 224
+  entries of the lane's `manifest_final.sha256` (file sha256 1ef25c3c...)
+  match byte for byte; the extra file is BASELINE.sha256. => the reviewed
+  tree IS the lane's final tree.
+- 01:44-01:50 read the lane's ledger (census fixes, TR-1..TR-5 test-first,
+  R2 plan / build / run), and the code diffs r1-tree -> r2-tree:
+  token_io.rs (registered tiers + B-1 floors + Q == MASK_Q in Tier::check;
+  column/hiding/mask opening log2; head -128 refused; derived multi-row
+  stage domains; M opening sized from zk.rs), stage_in/out (per-domain logs,
+  multi-row planes, logup_size, `pb-*` labels with stage locality words),
+  run.rs (WholeRun derived in TokenRunStatement::new and bound in the
+  parameter line; VerifierPolicy; variant_is_built in specs / statement /
+  prover / verifier; owner_check_input / owner_check_output), private_block
+  run.rs (TinyLlama token profile, TOKEN_IO_RUN_PROFILES), r2_tests.rs.
+  Static: each TR fix closes its finding; the whole-run figure is DERIVED
+  from levers inside the constructor (no claim input), the LogUp term uses
+  the checked (N + 3R - 1)/|F_p^2| convention (= N + 2303 for blocks;
+  stage IN reuses it with R = V: no term for r_emb's degree, negligible);
+  the floor is not margin-checked (comment says it is); multi-row row counts
+  re-derived by hand = the counter (IN 17/28, OUT 182/110).
+- 01:47 saved R2 receipt fingerprint (lane runs/r2/ho00): 24 segments,
+  255,258,816 B, sha256 over per-segment sha256s 687b6cba3defd72f...;
+  statement.txt sha256 6341f768f9e5e6b7...
+- 01:50 scratch `ops/zkp-mvp/token-io-review-r2-scratch/tree/` = frozen r2
+  copy + `token_io/run/review_tests.rs` (rv2_a1..a4 cheap; rv2_b (two real
+  layers, R2 tables / profile / multi-row: 12 forgeries), rv2_c1 (lane's
+  saved ho00 receipt, fresh process, probes), rv2_c2 (two full-scale
+  forgeries); B/C #[ignore]) + one `mod review_tests;` line.
+- 01:51:59 launched detached `launch_r2.sh` (marker `logs2/launch_r2.done`):
+  build (build 3/5) -> token_io tests incl. lane's R2 unit tests + my A
+  (cpu 4/7) -> my B/C `rv2_ --ignored --test-threads 1` (cpu 5/8) -> the
+  lane's `token_io_r2_verify_from_dir` on THEIR saved bytes with MY binary
+  (cpu 4/7). Queued (heavy lock held; budget 9.5/11.9 GiB committed).
+- 02:44:54 build started (waited ~53 min: the lane's own R3 fail-first job
+  and others held the lock); 02:48:09 build exit 0 (3m07s; no warning from
+  my file).
+- 02:50:24 t1 token_io exit 0: 24 passed / 0 failed / 7 ignored (lane 16
+  R1+TR + 4 R2 unit + my 4 A); 71 AS PREDICTED, 0 NOT. My round-1 probes
+  now all REFUSED: rate 1/4, rate 1/2, stage 2^9, Q 128, Q 1, stronger
+  unregistered levers, F_p^3 at the door AND the statement; -128; P / F
+  relabelled forged receipts refused by the verifier ("variant is not
+  built"); owner checks refuse my round-1 planes, the wrong owner and
+  another run's statement; an inflated whole-run figure (120 on the
+  prover's statement) refused by binding, and by policy. Only the
+  in-process mutated statement object itself is accepted (TR2-figure,
+  info: the verifier derives its own; nothing reads the figure from bytes).
+- 02:57:05 t2-r2scale exit 0 (400 s, peak 2.84 GiB): rv2_b 12/12 refused
+  as predicted (two real layers, R2 tables / profile / 8-row planes, Cn
+  5,664 admitted on the 2-layer row, max |y| 55; honest 2-layer token
+  25608, 12.0 s, floor 100 bits); rv2_c1: the lane's ho00 receipt VERIFIES
+  with my binary in a fresh process (8.9 s, 95-bit policy; derived 97 bits:
+  97 openings, column 2^-97.457, logup 2^-100.957, total 2^-97.335) and 10
+  probes refused (98-bit policy with/without segments, inflated 120,
+  Cn 1,024, ho36 context, roots swapped, 21-layer prefix, segments 5/6
+  swapped, a stage IN bit flip, a changed head multiplier); rv2_c2: full
+  22-layer forgeries A6-only across rows (86.7 s) and m to a padded entry,
+  both refused as predicted.
+- 02:57:35 t3 lane's token_io_r2_verify_from_dir with MY binary on the
+  lane's bytes: accepted 9.1 s, one-bit change refused. launch_r2.done = 0.
+  NOTHING OF MINE PENDING.
+- 03:00 REVIEW2.md final: TR-1..TR-5 closed (probes re-run), TR-6
+  exception, TR-7 decision; R2 sound as built at the level tested; new
+  findings R2-1 LOW (floor margin not enforced), R2-2..R2-6 INFO; verdict:
+  R2 may stand as the trained-model next-token result (with the stated
+  wording / limits); base for R3 yes, conditionally (streaming blocks,
+  V_pad 2^17 edge, census, R2-1, own controls, G-gates owed).

@@ -1,0 +1,35 @@
+[load          ]      7.1 s   peak RSS     841 MB   ok
+[replay        ]      4.9 s   peak RSS     841 MB   ok
+[terminals     ]   1023.0 s   peak RSS     841 MB   ok
+[commitments   ]     64.0 s   peak RSS    1093 MB   ok
+[boundary      ]    647.1 s   peak RSS    5596 MB   ok
+[preimage      ]      5.2 s   peak RSS    5596 MB   ok
+[runcontrols   ]    301.9 s   peak RSS    5596 MB   FAIL
+[export        ]      0.0 s   peak RSS    5596 MB   ok
+[channels      ]      0.0 s   peak RSS    5596 MB   ok
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/r5b/l22/r5b-l22-dense-t.json   total 2053.2 s   peak RSS 5596 MB   ok=False
+status: NOT-OK   unexplained false leaves 4   -> /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/r5b/l22/r5b-l22-dense-t.status.json
+Command exited with non-zero status 1
+	Command being timed: "python3 /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/scripts/zk60_native_rg_m125.py --bundle /home/victor/zk60-artifacts/tinyllama-trained-r5b-capture-dense-l22 --other /home/victor/zk60-artifacts/tinyllama-trained-r5b-capture-zero-l22 --cross-profile /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-i-dense-k4 --old /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-a-tame --legacy /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-a-tame --stages load,replay,terminals,commitments,boundary,preimage,runcontrols,export,channels --controls --export /home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_export_T32 --statement /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r2/stack-pg_rot1-ho00-gpu/run/statement/statement.json --evidence /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/r5b/l22 --name r5b-l22-dense-t"
+	User time (seconds): 2032.73
+	System time (seconds): 20.19
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 34:14.03
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 5729824
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 132
+	Minor (reclaiming a frame) page faults: 7002794
+	Voluntary context switches: 1375
+	Involuntary context switches: 104495
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

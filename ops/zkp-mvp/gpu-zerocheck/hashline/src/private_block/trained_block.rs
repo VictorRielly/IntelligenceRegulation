@@ -1945,7 +1945,10 @@ fn stack_prove_inner(f: &[(String, String)]) -> Result<(), String> {
     );
     // [ZK60-GZC] how many slot-18 bodies ran on the device, how many shadow checks passed
     #[cfg(feature = "gpu-cuda")]
-    let gzc_totals = crate::gpu::fzc_totals().line("totals");
+    let gzc_totals = {
+        let (hits, refused) = crate::gpu::fzc_cache_counts();
+        format!("{} | module load {:.2} s (disk-cache hits {hits}, refused {refused})", crate::gpu::fzc_totals().line("totals"), crate::gpu::fzc_compile_secs())
+    };
     #[cfg(not(feature = "gpu-cuda"))]
     let gzc_totals = String::new();
     println!(

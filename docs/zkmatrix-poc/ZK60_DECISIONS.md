@@ -881,3 +881,41 @@ issue as the privacy review's blocking item P-1, also being fixed in R5b.
 Evidence: `results/zk60_d24_review_20261017/R4_VERDICT.md`. The Llama-3-8B
 T64/T128 profiles added after the freeze are not covered by this round. Not a
 privacy acceptance.
+
+**Independent review round 5, 2026-10-18 (reported 00:37 UTC) — R5b accepted on
+soundness; the Llama-3-8B T64 and T128 trained profiles accepted.** Frozen copy
+`ops/zkp-mvp/trained-1b-review-r5/` (= the R5b freeze of 2026-10-18T00:06:31Z,
+tree 44013397…). r4_A and r4_B closed (oversized, misdeclared, non-regular and
+swapped export files refused by name before any read; 5.8 million racing reads
+returned only the honest bytes). The privacy review's P-1: H-1 holds (the
+sealing pass loads, digests, builds and parity-checks every layer before the
+run exists; endpoints are the witness builder's planes) and M-9 / D12b(1) holds
+for an honest prover (only `<run>.unverified-statement/` is written; a failed
+verify promotes nothing). C-R4, P-5, P-6, P-7 as described. The 8B T64/T128
+profiles: every T-dependent no-wrap clause far below p/2 at every f_e in 9..=16
+(T128, f_e 16: c2 2^33, c3 2^24, PV 2^24, host-PV 2^24.6), counted layouts
+re-derived, other T and f_e refused, all 14 trained profile strings distinct
+(D17). The reviewer's own binary re-verified the 32-block Llama-3-8B T128 stack
+(identity 6aba46fb…, 922,711,264 B, 11 controls refused) from its own copy of
+the export. **Open, not proof soundness:** r5_A (medium) — `stack-verify`
+promotes the prover's statement directory after a passing verify without
+binding it to the verified bytes (a post-verify segment swap, forged
+statement.json fields, or a symlinked directory get promoted); fix assigned to
+native round R6 (the verifier writes `statement/` itself from what it
+verified). Notes N-r5-a..d assigned with it. Evidence:
+`results/zk60_d24_review_20261017/R5_VERDICT.md`. Not a privacy acceptance.
+
+**D25 implementation status, 2026-10-18 (reported 03:00 UTC).** The next-token
+proof (D25, D26) is built through rung R2: one private run proves a hidden
+next token of the calibrated TinyLlama-1.1B (22 trained blocks, T32, public-row
+variant, BOS forced, per-row head with 12-bit multipliers, calibrated final
+norm with overflow as a D20 refusal): token 29914, 255,258,816 B, whole-run 97
+bits (derived convention, TinyLlama T32). The independent code review accepted
+R1 (round 1) and R2 with the round-1 fixes (round 2: no high or medium finding;
+`results/zk60_token_io_review_r1_20261017/REVIEW.md`, `REVIEW2.md`); it
+re-verified the R2 receipt with its own binary and refused ten probes and
+fourteen R2-shape forgeries. Not a privacy acceptance (the G-1..G-7 gate is
+owed), not a hidden prompt length (D26 variant P not built), not a token stream
+(T6), not a figure at the named D27 workload. Rung R3 (Llama-3-8B) is in
+progress with the review's conditions (streaming blocks, R2-1 fixed before an
+8B figure).

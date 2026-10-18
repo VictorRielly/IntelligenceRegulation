@@ -1397,3 +1397,247 @@ pre-edit tree is `r5/manifest_before_r5b.json`, tree beb54f9d...): files
   **9b71dfb0...** (unchanged), receipt 250,855,088 B, sealing pass 6.8 s, 22
   witnesses kept, total wall 65.7 s, peak RSS 2.18 GiB; fresh verify from the
   verifier's copy: verified, 11 controls refused, statement promoted.
+- 23:21 UTC resume check (coordinator relay said a partial r4_A / r4_B edit
+  might exist): NONE — the working copy equals the R5b freeze (tree
+  0a07d19a..., `r5b/manifest_check_2321.json`); the r4_A / r4_B / N-r4-e edits
+  were completed at 21:58-22:00, compiled and passed in `r5b-suite1`, and are
+  in R5b.
+- 23:05-23:19 UTC **task 3, GPU arm under the 4 GiB limit (chunked commit
+  forced, `HL_ZK_CHUNK=force`)** [MEASURED, shared box n=1: a calibration
+  `light` job live]: T64 (`r5/ladder8b-T64-gpu-chunked/`) peak VRAM **737
+  MiB**, witness 1.64 s, prove 7.37 s, block wall 6.17 s, segment 21,697,592 B,
+  verify 1.52 s; T128 (`r5/ladder8b-T128-gpu-chunked/`) peak VRAM **1,345
+  MiB**, peak RSS 3.66 GiB, witness 3.75 s, prove 10.50 s, block wall **9.12
+  s vs the plan's GPU-arm 8.78 s (+4%)**, segment 29,300,936 B (= CPU), verify
+  1.81 s; both "gpu: ON — RTX 4070 Laptop", 0 declines, and each segment
+  verified in a FRESH process by the CPU test binary with the verifier
+  controls refusing. The resident T128 GPU arm was never run (its guard
+  exited 126 at exec: binary disabled, 0 s, no VRAM).
+- **Phase ladder (`r5/LADDER8B.md`, `r5/ladder8b.json`)**, block wall per
+  block (PB-TIMING, run rows excluded) vs the plan's prediction: T64 CPU 4.27 s
+  vs 5.47 (-22%); T64 GPU resident 6.55 vs 4.78 (+37%; 4,417 MiB); T64 GPU
+  chunked 6.17 vs 4.78 (+29%); T128 CPU 8.15 vs 10.60 (-23%); T128 GPU chunked
+  9.12 vs 8.78 (+4%). Keyed GPU commit: 6.43 ns per committed element at T128
+  (plan 5.06), 12.5 ns at T64 (fixed costs dominate). The GPU arms' host-side
+  phases (zero-checks 3.5 / 5.3 s, openings 0.68 / 0.89 s) ran with a light
+  job live, so GPU vs CPU here is confounded by contention; the openings are
+  slower on the GPU arm, as in R4-4 (device-host traffic). A GPU-arm G0 refit
+  (3.0 s) is contention-dominated and NOT used in the projection (the
+  projection outputs above use the plan's GPU constants).
+- 23:24-23:37 UTC **task 4 ON R5b: the 32-block Llama-3-8B T128 trained
+  stack with the R5b CLI** (`r5b/stack-llama3_8b_pg_rot1_b6_T128-ho00-cpu/`;
+  PENDING INDEPENDENT REVIEW OF THE T128 PROFILE) [MEASURED, shared box n=1:
+  the calibration lane's T128 `light` job live]: the sealing pass BEFORE the
+  header 105.3 s (witness 103.3 s, 3.2 s/block), parity bit-exact at all 32
+  layers; `--witness-cache-gib 0` (a T128 witness is ~0.45 GB, 32 would be
+  ~14 GB), so the proving pass rebuilt all 32 (122.7 s, each checked equal
+  to the sealed output); identity **6aba46fb...** (= the pre-R5b run),
+  receipt 922,711,264 B, **all 32 segment lengths = the pre-R5b run's**;
+  proving pass 501.1 s (loads 21.2 s, proofs 357.3 s = 11.2 s/block); **total
+  wall 606.7 s** (pre-R5b 487.3 s: the extra is the second witness build),
+  peak RSS 6.55 GiB. Fresh verify from the verifier's copy (186 s wall):
+  verified (43.9 s, loads 18.5 s), **11 run-level controls refused**, the
+  statement promoted to `run/statement/`.
+- 23:37 UTC coordinator relay (privacy-gate lane draft section 5a, review r4
+  note N-r4-d): added to the capture writer's source pins (`run_capture.rs`):
+  `src/gpu/mod.rs`, `src/tables_v3.rs`, `../zkp-core/src/tables.rs`
+  (SHARED_SOURCE_FILES, 26 -> 29) and `src/private_block/trained_block.rs`
+  (OWN_SOURCE_FILES 16 -> 17; removed from NOT_ON_THE_RUNS_PATH, 3 -> 2);
+  `gpu/cuda.rs`, `gpu/kernels.cu` (gpu-cuda feature only) and `layer.rs` /
+  `wcache.rs` (older FFN provers) stay off, with the reason in a comment;
+  `s24_tests::the_capture_writer_pins_every_run_layer_source_it_depends_on`
+  asserts both the new pins and the exclusions with their reasons. Both files
+  are `#[cfg(test)]` modules: no production byte and no CLI moves (the R5b
+  CLIs of 22:51 stand). The P-fixes match the gate's operating rules: C-R4
+  allow-listed label, P-5 no `seq_*` in the verifier's export copy (refused),
+  P-6 parity refusal without count / position, P-7 backend recorded in
+  `statement.json`.
+- 23:39 UTC queued `r5b_refreeze.sh`: the full suite on that tree
+  (`r5b-suite2`, manifest tree 44013397...), then — only if green and the
+  tree has not moved — the R5b RE-FREEZE superseding the 22:30 copy (kept as
+  `r5b/frozen-tree-2230-superseded/`).
+- **NEXT ROUND (R6), item 1** (coordinator relay 23:49 UTC, from the
+  calibration lane's `results/zk60_8b_calibration_20261017/B6_REPORT.md`; NOT
+  in R5b): make the softmax score shift `sh_s` a PER-LAYER export constant
+  instead of run-wide — in the trained statement, the schedule digest and the
+  importer, validated per layer at the trained door, with the no-wrap clauses
+  re-checked over the class (one-limb window 1..=8). Layer 1 at SH_S 7 lifts
+  8B T128 held-out top-1 0.651 -> 0.673 and cuts KL 0.61 -> 0.50, with no
+  layout, table or plane change. Goes with the review of the 8B T64 / T128
+  profiles.
+- 23:58-00:06 UTC `r5b-suite2` GREEN (guarded full release suite,
+  `--no-fail-fast`, 481 s, peak RSS 4.39 GiB, tree 44013397... at its start):
+  **29 targets, 692 passed, 0 failed, 31 ignored** (lib 547 / 0 / 31).
+
+**R5b tree frozen for review at 2026-10-18T00:06:31Z, sha256 manifest `results/zk60_1b_native_20261017/r5b/manifest_frozen.json`** (tree 440133975de99fe06d091e4393bb5192f1d726c39f60cbbaef53326498b881d9; source copy `r5b/frozen-tree/`; `r5b/FROZEN.txt`; all changes against the R5 freeze in `r5b/r5b-vs-r5.patch`, 2,099 lines). It SUPERSEDES the 22:30:00Z R5b freeze above (copy kept as `r5b/frozen-tree-2230-superseded/`, `r5b/manifest_frozen-2230-superseded.json`): the only files changed are `run_capture.rs` and `s24_tests.rs` (the N-r4-d source pins; both `#[cfg(test)]`), so the R5b CLIs (`r5b/zk60_trained_block.release.bin` 1a341478..., `.gpu.release.bin` 1c5ca1d1...) and every R5b measurement above stand for this tree.
+
+**Status at hand-back (00:07 UTC 2026-10-18):** task 1 green (R5 suite 688 / 0 / 29, R5 frozen 19:48:50Z; speed-plan task-1 acceptance met on R5 cli3: digest 15.3 s, loads 16.0 s, total 171.6 s, identities and lengths unchanged, 11 controls refused); R5b (privacy review P-1/P-3/P-5/P-6/P-7, review r4 r4_A/r4_B/N-r4-e, N-r4-d pins, and the task-3 8B T64/T128 profiles — those PENDING INDEPENDENT REVIEW) green and frozen 00:06:31Z; 8B T32 on R5b 192.0 s (shared box), TinyLlama T32 65.7 s, both identities unchanged, statements promoted only by fresh-process verifies; task 3 ladder measured at T64 / T128 on CPU and on the GPU arm (chunked, 737 / 1,345 MiB VRAM; the resident T64 arm hit 4,417 MiB, over the limit), refit and projection re-run (`r5/refit/`); task 4: the first private 32-block Llama-3-8B T128 stack proved and fresh-verified with 11 controls refused, on the pre-R5b CLI (487 s) and again on R5b (607 s), identity 6aba46fb... both times. No job of mine is running or queued; `r5/ladder8b-testbin/lib-test.gpu` is left non-executable on purpose (it is the binary of the resident GPU arm).
+
+## Round 6 (coordinator, 2026-10-18 ~00:10 UTC): per-layer sh_s; quiet-box re-measure
+
+Live tree `ops/zkp-mvp/trained-1b/` (R5b stays frozen at
+`N/r5b/frozen-tree/`, tree 44013397..., for the reviewer and the gate).
+
+- Item 1: per-layer `sh_s` (statement, schedule digest, importer; validated
+  per layer at the trained door; no-wrap over the class; run-wide exports
+  keep loading and keep their identities; a per-layer test with layer 1 at a
+  different shift, bit-exact against an independent reference). Then tell
+  the coordinator the export format, so the calibration lane can write
+  `llama3_8b_pg_rot1_b7_T{32,64,128}`; then the 8B T128 stack on b7.
+- Item 2: quiet-box re-measure of 8B T32 and T128 on R5b. 00:11 UTC queued
+  `r6_quiet.sh` (detached): each run starts only when the guard `status`
+  shows no guarded job and a free heavy lock; `r6_quiet_label.py` then labels
+  it "quiet box" / "shared box" from the guard history (`box_label.json`).
+- 00:12-00:17 UTC item 2, 8B T32 quiet run (R5b CLI, cache 4 GiB): stack
+  prove 156.4 s wall, peak RSS 4.74 GiB; fresh verify 124.2 s, exit 0.
+  The first label said "shared box" from a boundary tie (t16-r2-ladder's
+  history end 00:12:46 truncated to the second = our start second; the
+  heavy lock serializes heavy jobs). `r6_quiet_label.py` now treats overlaps
+  <= 1.5 s as boundary ties (recorded in `box_label.json`): **quiet box**
+  (guarded jobs only). T128 waits for the next quiet window.
+- 00:19 UTC item 1 source edits complete (uncompiled until now): shape.rs
+  `Shape::with_score_shift` (trained shapes only, window 1..=8, CS-8 rebuild +
+  trained class); trained_statement.rs `LayerRecord.sh_s: Option<u32>`
+  (encoded as `sh-score-layer` only when present -> run-wide identities
+  unchanged; refused when equal to the run's or outside the window); run.rs
+  per-stage shapes (`stage_sh_s`, `stage_shape(k)`, stage line suffix only when
+  it differs, prove/verify cores at the stage shape); trained_block.rs
+  importer (`sh_s` in `per_layer_constants_differ` + profile `sh_s` null; run
+  base = the mode, ties to the smaller; per-layer witness shapes in the sealed
+  chain; statement.json layer objects carry `"sh_s"` only when own). Tests:
+  new `r6_tests.rs` (window/frozen, layout moves only in the calibration line,
+  no-wrap over the class at 8B T128, canonical statement + identity binding,
+  two-block bound run with block 1 at 6: proves/verifies, run-wide verifier
+  and a 7-verifier refuse, a cheating 5-witness is rejected), and in
+  trained_stack_tests a 3-layer per-layer export (layer 1 at 6, an
+  independent kernel-shaped reference checked bit-exact against the witness)
+  that stack-proves, verifies with controls, and a flattened copy re-pinned
+  is refused. 00:19 queued `r6_check.sh r6-check1` (guarded, waits on the
+  heavy lock behind another lane's build).
+- 00:36 UTC review round r5 in (`results/zk60_d24_review_20261017/R5_VERDICT.md`):
+  R5b ACCEPTED on soundness; 8B T64/T128 profiles ACCEPTED. Added to R6:
+  r5_A (medium: stack-verify's promotion not bound to what was verified),
+  N-r5-a (CS-3 miss refusal in the sealing pass), N-r5-c (label the P-7
+  fields as prover claims), N-r5-d (rename the early `run_header` event;
+  scope text "PENDING INDEPENDENT REVIEW" -> accepted). The first R6 check
+  (r6-check1) compiled mid-edit and failed on two protocol.rs names and a
+  test import (fixed); r6-check2 queued 00:48.
+- R6 edits for the verdict (live tree, 00:40-00:50 UTC):
+  * r5_A: `run::verify_run_from_dir_hashed_with` returns (length, SHA-256)
+    of EXACTLY the bytes each step verified. `stack-verify` now: refuses a
+    statement directory that is a symlink or holds anything but its files
+    (`check_statement_dir`); reads expected.bin once (must be canonical);
+    after the verify (and controls) requires the found statement.json to be
+    byte for byte its own rendering with the writer and prover self-reports
+    it names, and the found segments.json to be the verified hashes; for an
+    unverified statement it then WRITES `<run>/statement/` itself into a
+    fresh `statement.writing-<pid>` and renames it (refusing an existing
+    target), then removes the prover's directory (re-checked, never
+    followed); an existing statement/ is only checked (byte for byte).
+    `promote_statement` is gone. The in-process path publishes the same way,
+    its segments.json from the hashes it verified (must equal the sink's).
+    Statement schema `zk60-trained-stack-run/2`: `statement_written_by`
+    (three writers) and `prover_reported: {backend, gpu_declines, what}`.
+    A test-only hook runs a writer of the run directory between the verify
+    and the statement checks (r5_3 (b)).
+  * N-r5-a: `protocol::check_lookup_misses` (the exp/act histograms factored
+    into helpers shared with prove_core) runs in `seal_and_record` on every
+    sealed witness, one layout per score shift.
+  * N-r5-c: block statement too: schema `zk60-trained-block-run/2` with
+    `prover_reported`.
+  * N-r5-d: stdout `run_header` -> `prover_start`; SCOPE_8B_LONGER and two
+    shape.rs comments now say accepted by review round 5.
+  * Tests: trained_stack_tests `review_r5_3_the_published_statement_is_bound_
+    to_what_was_verified` ((b) race refused, (b') verified hashes published,
+    (c) 4 forgeries refused, (e) 5 edits of an existing statement/ refused,
+    (d) symlinked dir refused); r6_tests CS-3 sealing check; existing stack
+    test updated (+ a fresh verify of the in-process statement/).
+  * sh_s window no-wrap, class-wide: `r6/r6_nowrap_sh_s.py` [COUNTED]:
+    the score host relation (the only relation with sh_s constants) stays
+    below 2^21.03 at sh_s 1..=8 for head_dim 64 and 128 (p/2 ~ 2^63; margin
+    about 2^41); also the Rust test at the 8B T128 shape.
+- 00:52 UTC **r6-check2 GREEN**: 68 passed, 0 failed, 7 ignored (heavy) of
+  the targeted filters (r6_tests 6, trained_stack_tests incl. the per-layer
+  export and review_r5_3, trained_block_tests, trained_statement, review_e,
+  s24, s25, cs_port, trained_calib, review_d24, r4) [MEASURED 209 s wall,
+  peak RSS 1.76 GiB, shared box]. Tree 83f1fdcb... (219 files; R5b + r6_tests.rs).
+- 00:53 UTC sent the coordinator the export-format change (profile sh_s null
+  + "sh_s" in per_layer_constants_differ + per-layer manifest constants.sh_s
+  in 1..=8; base = the mode). Calibration lane writes b7 T128 first.
+- 00:53 UTC queued (detached): `r6_compat.sh` (R6 CPU CLI build; the R5b
+  proof bytes of 8B T32 and TinyLlama T32 copied into r6/compat-<v>/ with an
+  R6-layout unverified statement via r6_compat_prepare.py, then R6
+  stack-verify pinned to 259dad7c... / 9b71dfb0... twice: publish, then the
+  byte re-check; then the R6 GPU CLI build) -> `r6_suite.sh r6-suite1`
+  (full release suite) -> `r6_freeze.sh` (freezes only if the suite is green,
+  the tree did not move and the CLI was built from the same tree) and
+  `r6_b7_queue.sh` (waits, no lock, for the calibration lane's verify marker
+  logs/*verify*llama3_8b_pg_rot1_b7_T128*.done = 0 with "errors": [] /
+  "ok": true, checks the per-layer format, then `r6_stack.sh` on b7 T128 with
+  a real verifier copy, prove -> verify --controls -> byte re-check).
+- 01:03 UTC R6 CPU CLI built (78 s): `r6/zk60_trained_block.release.bin`
+  from tree 83f1fdcb....
+- 01:22-01:24 UTC **compat GREEN: R5b proofs verify under R6, run-wide
+  identities unchanged** [MEASURED, shared box n=1]: 8B T32 (R5b quiet run's
+  32 segments, 465,815,776 B) pinned to 259dad7c...: verified (load 15.7 s,
+  verify 36.7 s), statement published by the verifier, re-check against it
+  (statement-checked) exit 0; TinyLlama T32 (22 segments, 250,855,088 B)
+  pinned to 9b71dfb0...: verified (7.7 s), published, re-checked exit 0.
+  Since the transcript absorbs the run schedule digest, an R5b proof
+  verifying under R6 also shows the run-wide schedule digest is unchanged.
+  The re-laid unverified statement (r6_compat_prepare.py) passed R6's
+  byte-for-byte check, so the re-layout was exact.
+- 01:41 UTC calibration lane: b7 T128 VERIFIED (profile.json sha256
+  040eb5cf..., layer 1 sh_s 7, others 6). My queue's format sanity check
+  failed on its own bug (`p["layers"]` is a list; log kept as
+  r6/b7_queue-1-failed-sanity-bug.out); fixed and relaunched 01:42: format
+  OK ({1: 7}, base 6), sequence ho00, r6_stack.sh started (verifier copy,
+  then the guarded prove; L22 passes have budget priority, the guard queues).
+- 02:19 UTC R6 GPU CLI built (68 s, after a 53 min wait on the heavy lock):
+  `r6/binaries.sha256`: CPU c17abef1..., GPU ffcb0bf6....
+- 02:24-02:35 UTC **r6-suite1 GREEN**: full release suite, 29 test targets,
+  700 passed, 0 failed, 31 ignored (heavy/env) [MEASURED 695 s wall, peak
+  RSS 4.94 GiB, shared box].
+- **R6 tree frozen for review at 2026-10-18T02:36:11Z, sha256 manifest
+  `results/zk60_1b_native_20261017/r6/manifest_frozen.json`** (tree
+  83f1fdcbdcda3687815a76d5dc7714bf6b49d413ccfd9bc5b595bd898406cc33; copy
+  `r6/frozen-tree/`, note `r6/FROZEN.txt`, patch `r6/r6-vs-r5b.patch` 1,610
+  lines; the CLIs above were built from this tree; R5b stays frozen).
+
+### Session resume 04:21 UTC (usage-limit stop at ~03:17 UTC)
+
+- The two guarded jobs that exited 1 at 03:17 are the REVIEW lane's (its
+  own CLI `results/zk60_d24_review_20261017/r6/zk60_trained_block.review-r6.release.bin`,
+  its scratch verifier copies), not this lane's; both are expected
+  refusals, neither is an R6 incompatibility:
+  * `r6-8b-b6-under-r6` (46 s): the reviewer's R6 CLI stack-verified the
+    R5b b6 T128 run (`r5b/stack-llama3_8b_pg_rot1_b6_T128-ho00-cpu/run`, 32
+    blocks, 922,711,264 B) pinned to 6aba46fb...: event `verified` (load
+    12.6 s, verify 33.4 s) — so the run-wide b6 T128 proof bytes, identity
+    and schedule digest are unchanged under R6 — then `rejected` at the
+    statement check: that run's `statement/statement.json` is schema
+    `zk60-trained-stack-run/1` and R6's r5_A rule accepts an existing
+    `statement/` only byte for byte as the R6 rendering (schema /2). That
+    is the rule working, not a proof failure; it is why the compat runs
+    re-lay the R5b statement (r6_compat_prepare.py) before the R6 verify.
+    An R5b-format `statement/` is never silently accepted under R6.
+  * `r6-8b-b7-identity` (12 s): the reviewer's R6 CLI rebuilt the b7 T128
+    trained statement from its scratch verifier copy with
+    `--expect-statement 0000...` (an identity probe) and refused at the pin,
+    before touching any artifact: "the rebuilt trained statement
+    97c4acda9da994c11790c2c8ec93b44beecb21501686b7e25965d2c18f970566 is not
+    the pinned 0000...". This gives the b7 T128 identity the native run
+    below must reproduce. The artifact it named (`r6/stack-llama3_8b_pg_rot1_
+    b7_T128-ho00-cpu/run`) did not exist yet (the prove had not been
+    admitted), which a verifier would also refuse; the pin refusal came first.
+- My detached jobs survived the stop (setsid): `r6_b7_queue.sh` ->
+  `r6_stack.sh` (pids 300443/300460) is still in its budget pre-check
+  (need 7.5 GiB; the gate's `tl-r5b-l22-zero-f` holds 6 of 11.89 GiB since
+  03:38, so 13.5 > 11.89 blocks admission until it ends; the heavy lock is
+  free); `r6_quiet.sh` (pid 236185) still waits for a quiet box for the T128
+  re-measure. No `.done` for either yet. The 7.5 GiB need stays: the R5b
+  b6 T128 prove peaked at 6.55 GiB RSS / 8.47 GiB cgroup.
+- 04:23 UTC no partial edit: the working copy's manifest tree is
+  83f1fdcb... = the R6 freeze (219 files; scratch manifest, not kept). The
+  review lane opened its round 6 on the frozen copy at 02:37 (its ledger
+  line 647 on); its b7 identity probe is the 97c4acda... above.

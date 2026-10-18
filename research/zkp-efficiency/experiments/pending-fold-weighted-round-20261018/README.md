@@ -1,0 +1,186 @@
+# Cycle 0071 — pending fold plus next weighted round
+
+Run `20261018T002105Z-32d7e4fc`, 2026-10-18 UTC.
+**No native proving speedup found. The >=50 proved-token/s target is unchanged and unachieved.**
+
+Completed a locally authored Rust arithmetic adapter for the prior row-first
+rectangular E*S*V probe. The known previous challenge folds V while the next
+weighted contraction is accumulated. The message is returned before its own
+challenge is supplied. All four samples, distinct per-column points, public
+selector, E/S/V terminals and whole-cube cubic CFS mask messages remain.
+Numerical private zeros do not change the work schedule. This is an arithmetic
+prerequisite for a potential lookup construction, not that construction.
+
+## Evidence and resource limits
+
+- 132 synthetic fixtures, including all84 previous fixtures;
+  rows1/2/4/8/16/32/64, real columns through83, odd padded tails and Fp2 points.
+  3020 round values, 396 terminals,
+  755 masked-chain rounds match dense Python and prior Rust.
+- 23 control categories, including eight lifecycle refusal/idempotence
+  checks, plus 3031 unchanged-message checks after mutating
+  the current and later challenges; 753 final-state sensitivities.
+- Independent original-table prefix-sum/power-basis-convolution/MLE and
+  monomial-mask audit: 7795 checks /755 rounds /500 direct MLE samples.
+  It does not import run.py or use the pending-fold algorithm.
+- Executed add/sub/mul API counters over all132 fixtures: **zero added Fp2
+  multiplications or additions**, +3*(W-1) Fp2 subtractions in the column tail.
+  The separate measure/bind calls recompute column differences. Row arithmetic
+  and suffix generation are unchanged. These are API counts, not instructions.
+- Main 1.959028s including compilation/references, RSS33392KiB,
+  compiler143700KiB; audit7.184318s/28080KiB;
+  counter experiment1.370311s/26672KiB,
+  compiler144844KiB; accounting0.022548s.
+  One Core Ultra9 185H CPU0 thread, nice19, seed2026101871. Every command
+  has59s CPU/wall and512MiB AS caps, single Rust codegen unit; estimates
+  main<128MiB/compiler<192MiB. No GPU/dependency/native build/proof job.
+
+The initial passing API used mutable finish to drain. Inspection of the
+native immutable `finals(&self)` contract led to a refined adapter: the last
+fold drains, and the zero-variable constructor is already settled. Both
+versions and their passing results are retained. The final API compiles against
+a whitespace-identical copy of the captured native trait; actual native-crate
+compilation, transcript/RNG parity and integration have not been run.
+
+## Baseline, removed work, added cost and ceiling
+
+For C real columns and N>=2 rows, previous core row loops read4*C*(N-1)
+Fp2 values and write C*(N-1). The adapter reads C*(3*N-2) and writes the
+same count; N=1 has no row work and N=2 has no saving. The first measuring
+pass and final fold remain. A division-free DFS uses O(logN) stack and
+per-column prefix state; one C*N Fp2 V working allocation remains resident.
+No expanded public E/S/index tables are reintroduced; original witness sources
+remain live. No mask, commitment, link or verified token is removed.
+
+At the **prior T32 census domains**, not executed model-size arrays:
+
+| Scope | Separate | Pending | Change |
+|---|---:|---:|---:|
+| Core row value reads | 46,857,908 | 35,143,514 | -11,714,394 |
+| Core row value writes | 11,714,477 | 11,714,477 | 0 |
+| Suffix-weight Fp2 multiplies | 23,426,212 | 23,426,212 | 0 |
+
+Savings are178.747467MiB of **logical** row reads,
+24.9998% of reads or19.9999% of row reads+writes. Add660 column value reads
+and330 Fp2 subtractions across the four groups; state checks/branches, ownership,
+allocation/copies, equality arithmetic, masks/links/GKR/PCS and final drain
+remain charged. The hypothetical byte-only core ratio is at most1.249998x
+before those additional costs. Cache hits, compiler loads, spills and native
+phase shares are unmeasured: **no runtime or DRAM reduction follows**.
+The local caps refuse N>32768 or N*C>2^20; large census groups were not run.
+
+Full end-to-end ceiling is unknown because this prospective adapter has no
+measured affected phase in a complete native construction. Required accounting
+is Nproved/(Tbaseline - Caffected + Cadded), with fresh verification and all
+recurring witness/proof/serialization/transfer/drain included. Do not multiply
+T32 counts by T128 phase clocks. As a separate measured-phase limit, free
+zero-cost deletion of the four direct H families at T128 removes95.882s
+from606.598s, at most1.187740x /0.250629
+diagnostic positions/s before new costs. This bounds only that phase set,
+not all lookup architecture work, shared zero-checks, GPU or this adapter.
+The earlier **native fold fusion was slower**; this result does not reverse it.
+
+## Current carried native baseline — functional, privacy acceptance open
+
+Newly inspected R5b Llama-3-8B T128:32 linked transformer blocks, one cold
+fixed-context pass, Core Ultra9 185H CPU16 threads, GPU off, shared host n=1.
+Fresh-process verification succeeds,11 controls refuse and honest recheck
+verifies. Public weights; D13 scope excludes embedding/final norm/head/selection.
+These are carried owner results, not proofs run by this cycle.
+
+| Clock / metric | Value and interpretation |
+|---|---|
+| Total workload | app606.598s; process606.728291s |
+| Diagnostic total rate | app0.211013; process0.210968 positions/s |
+| Steady rate | unmeasured; no resident-pass slope |
+| Sealing boundary |105.287s = 17.356965% of app; full startup/prefill not isolated |
+| Sealing cumulative clocks | load36.570s; witness103.349s; overlap inside sealing |
+| Inclusive proving |501.126s, including32 witness rebuilds122.694s and reload21.176s |
+| Pure proof / serialization | not separately isolated; serialization/sink included above |
+| Fresh verifier | initial load14.126s + inclusive check43.902s; reload18.459s within check |
+| Check minus reload |25.443s, arithmetic difference, not independently isolated crypto timer |
+| Verifier process |186.088255s including controls/honest recheck |
+| Receipt |922,711,264B |
+| Host memory | RSS6.55GiB; cgroup8.47GiB including cache |
+
+Known sealing fraction is not an all-startup estimate. No steady-state,
+proof latency/lag/drain, isolated serialization or prefill clock was produced.
+No long-context sweep, resident repeat or decode experiment occurred here.
+Increasing T can increase attention quadratically; decode requires proved KV
+state. No repeated receipt verification is credited as new proof work.
+Target-accepted new proofs/passes/positions: **0/0/0**; target steady/total
+rates and proof clocks remain unmeasured. Trained-shape privacy acceptance
+is open; the functional128-position diagnostic is not target acceptance.
+
+Owner GPU work stays first: captured report identifies255-register round
+kernels and spills, lean plan-byte30GB/s (11.7% of256GB/s) including build.
+These are normalized logical plan bytes, not measured physical DRAM traffic.
+Fold kernels alone are faster. K1–K4 kernel-design round is owned/active;
+small gates passed23:58, trained gates queued23:59 at capture. No duplicate
+job was launched. Spin warm-up costs must remain in enclosing workload clocks.
+
+## Ranked hypotheses and next action
+
+1. **OWNER whole-prover device kernels and useful continuous work.** Largest
+   measured opportunity. Resolve register pressure, integer dependencies,
+   coalescing, table build/transfers, host extension, idle ramp and drain.
+   Existing byte/transcript/fresh-verifier gates; moderate/high integration.
+   Reject any gate failure or no enclosing gain.50/s remains unmeasured.
+2. **OWNER fixed-context resident passes with immutable public setup.** Measure
+   fresh completed-proof slopes plus startup, witness, serialization, verify,
+   lag/drain; retain valid model identity and all fresh masks/openings.
+   Moderate integration and retained RAM. Current T128 rebuilds are recurring
+   costs; old bounded typed witness replay has its budget/leakage obligations.
+   Reject stale data, backlog or >20ms recurring/new position for a50/s claim.
+3. **TESTED pending fold on factored public lookup support.** Arithmetic parity
+   and lower logical reads only. Moderate adapter cost; high full lookup/GKR/
+   PCS integration cost. All83 original-A/wrapping links, distinct-point
+   reduction, fresh whole-cube masks/extensions/H/M/PCS and joint privacy remain.
+   Reject any mismatch, changed refusal/support, stale final, privacy weakness,
+   peak overflow or added costs erasing enclosing gain. Ceiling unknown.
+4. **NEW next local: late-stage decomposed public NTT root products.** Older
+   Kim2020OT uses consecutive precomputed factors, not free twiddle generation.
+   Compare actual native stage-major forward/inverse roots and scale/order
+   with independent modular arithmetic; count saved root words versus added
+   Goldilocks products. Preserve prior first6-stage shift candidate, existing
+   padding skips/swizzles/pruning and prior table-cache negatives. Low CPU
+   accounting cost; device suitability needs owner instruction/cache/register
+   measurements. Reject mismatches, table-pressure already cached, or added
+   integer dependency cost dominating avoided traffic; full ceiling unknown.
+5. **Deferred architecture:** Orion/code-switching and Hermes-style dataflow.
+   High backend/hardware migration; no borrowed speed factor or privacy claim.
+   No purchase or hardware change is proposed. Other queues retain sumcheck/GKR,
+   lookup/softmax, quantization/arithmetic, batching and composition.
+
+Next owner action: finish K1–K4 verdict and complete fresh resident-workload
+slopes with all clocks. Next local action is the bounded NTT root-product
+oracle/census above, only if current owner measurements still justify it.
+No main-path merge or production change; native owner/Claude reviews the
+[unapplied handoff](../../handoffs/20261018-pending-fold-weighted-round.md).
+
+## Primary search and blockers
+
+Six LIVE records appended (371->377), original prefix preserved. Exact URLs,
+access date2026-10-18, verified versus unknown dates, license scope and inspected
+versus merely exposed commits are in
+[the source ledger](source-records.json).
+Search covered GPU NTT/commitments, sumcheck state and memory traffic:
+
+- [Versioned Plonky3 pending binding](https://docs.rs/p3-sumcheck/0.8.0/src/p3_sumcheck/strategy.rs.html)
+  motivated lifecycle review; current GitHub/source-doc versions differ.
+- [Current releases and September9 inverse-transform PR](https://github.com/Plonky3/Plonky3/pull/2113)
+  retain allocation fallbacks and negative microbenchmarks; no native gain imported.
+- [New older2020NTT OT](https://arxiv.org/abs/2012.01968) supplies the next
+  arithmetic/cost question; HE/RNS table pressure is a distinct workload.
+- [Hermes2026](https://arxiv.org/abs/2603.01556) is an FPGA design; no CUDA
+  drop-in conclusion. [Instruction-wall2026](https://arxiv.org/abs/2608.13696)
+  supports separating bytes from instruction/occupancy limits, not prover timing.
+- [ICICLE displayed release](https://github.com/ingonyama-zk/icicle/releases)
+  refreshed; release-target commit inspected, no exact rendered release year.
+
+Web Cache miss/Internal Error affected release tags, PR diffs/commit pages,
+VCS metadata and old arXiv HTML; PDF and versioned docs were accessible.
+No network/sandbox bypass. No foreign code executed. No runtime/, production,
+Git metadata, receipts, calibration, safety/instruction/reviewer files changed;
+no installs/GPU/external writes/messages/escalation. Saved reports are durable
+checkpoints and do not establish external notification delivery.

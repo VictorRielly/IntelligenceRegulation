@@ -1,0 +1,610 @@
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: unused variable: `envu`
+    --> src/gpu/cuda.rs:1252:9
+     |
+1252 |     let envu = |k: &str, d: usize| std::env::var(k).ok().and_then(|v| v.parse().ok()).unwrap_or(d);
+     |         ^^^^ help: if this is intentional, prefix it with an underscore: `_envu`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:830:13
+    |
+830 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `force_check` is never used
+  --> src/gpu/fzc.rs:60:15
+   |
+60 | pub(crate) fn force_check(v: Option<bool>) {
+   |               ^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:972:4
+    |
+972 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:477:5
+    |
+470 | struct Rec {
+    |        --- field in this struct
+...
+477 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:579:15
+    |
+579 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: calls to `std::mem::drop` with a value that implements `Copy` does nothing
+    --> src/gpu/cuda.rs:1112:9
+     |
+1112 |         drop(d_pack.0.take().map(pool_put));
+     |         ^^^^^-----------------------------^
+     |              |
+     |              argument has type `Option<()>`
+     |
+     = note: `#[warn(dropping_copy_types)]` on by default
+help: use `let _ = ...` to ignore the expression or result
+     |
+1112 -         drop(d_pack.0.take().map(pool_put));
+1112 +         let _ = d_pack.0.take().map(pool_put);
+     |
+
+warning: `hashline` (lib test) generated 18 warnings (run `cargo fix --lib -p hashline --tests` to apply 11 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running unittests src/lib.rs (/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/target-gpu/release/deps/hashline-5af71eb9341564fc)
+
+running 1 test
+test private_block::gpu_zc_tests::gzc_device_real_slot18_equals_the_cpu_body_at_the_trained_shapes ... PB-GZC-MEM slot 18 start | device free 6508 MiB of 8187 MiB | pool holds 0 idle buffers (0 MiB)
+[ZK60-GZC] slot-18 module gzs_d5s: loaded from the disk cache in 0.02 s (once per process; key 5779ec69eb80eecd)
+PB-GZC-WARM slot 18 | 301.1 ms, 142 spin launches | first 3509 us | mean of first 5 2817 us | mean of last 5 1837 us | min 1788 us
+PB-GZC slot 18 [gzs_d5s fused tail 0 base] | sumchecks 1 | n 20 k 21 D 5 | total 92.563 ms | build 69.653 ms (11.2 GB/s; H2D 16777216 B) | rounds 7.007 ms (55.1 GB/s) | fused fold+round 14.005 ms (82.7 GB/s) | folds 0.042 ms (0.0 GB/s) | reduce+D2H+host 1.579 ms | finals 0.059 ms | counted device bytes 2323643312 (25.1 GB/s over the total) | pairs 1048575 | P evals 5767163 | host tail 0 rounds 0.000 ms (D2H 0 B) | public-table hits 0
+PB-GZC-ROUND 0 | round | entering len 1048576 | kernel 7007.5 us | reduce+D2H+host 231.0 us
+PB-GZC-ROUND 1 | fused fold+round | entering len 1048576 | kernel 5989.9 us | reduce+D2H+host 140.6 us
+PB-GZC-ROUND 2 | fused fold+round | entering len 524288 | kernel 3183.8 us | reduce+D2H+host 236.6 us
+PB-GZC-ROUND 3 | fused fold+round | entering len 262144 | kernel 1778.0 us | reduce+D2H+host 91.6 us
+PB-GZC-ROUND 4 | fused fold+round | entering len 131072 | kernel 915.3 us | reduce+D2H+host 79.3 us
+PB-GZC-ROUND 5 | fused fold+round | entering len 65536 | kernel 568.0 us | reduce+D2H+host 74.0 us
+PB-GZC-ROUND 6 | fused fold+round | entering len 32768 | kernel 314.2 us | reduce+D2H+host 63.5 us
+PB-GZC-ROUND 7 | fused fold+round | entering len 16384 | kernel 199.0 us | reduce+D2H+host 51.3 us
+PB-GZC-ROUND 8 | fused fold+round | entering len 8192 | kernel 112.3 us | reduce+D2H+host 51.7 us
+PB-GZC-ROUND 9 | fused fold+round | entering len 4096 | kernel 84.2 us | reduce+D2H+host 45.7 us
+PB-GZC-ROUND 10 | fused fold+round | entering len 2048 | kernel 83.8 us | reduce+D2H+host 58.7 us
+PB-GZC-ROUND 11 | fused fold+round | entering len 1024 | kernel 85.5 us | reduce+D2H+host 50.7 us
+PB-GZC-ROUND 12 | fused fold+round | entering len 512 | kernel 82.0 us | reduce+D2H+host 118.4 us
+PB-GZC-ROUND 13 | fused fold+round | entering len 256 | kernel 121.6 us | reduce+D2H+host 49.3 us
+PB-GZC-ROUND 14 | fused fold+round | entering len 128 | kernel 68.6 us | reduce+D2H+host 32.7 us
+PB-GZC-ROUND 15 | fused fold+round | entering len 64 | kernel 68.2 us | reduce+D2H+host 29.5 us
+PB-GZC-ROUND 16 | fused fold+round | entering len 32 | kernel 76.4 us | reduce+D2H+host 57.2 us
+PB-GZC-ROUND 17 | fused fold+round | entering len 16 | kernel 125.1 us | reduce+D2H+host 48.1 us
+PB-GZC-ROUND 18 | fused fold+round | entering len 8 | kernel 80.3 us | reduce+D2H+host 36.1 us
+PB-GZC-ROUND 19 | fused fold+round | entering len 4 | kernel 70.3 us | reduce+D2H+host 33.7 us
+PB-GZC-ROUND 20 | fold | entering len 2 | kernel 41.7 us | reduce+D2H+host 0.0 us
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, dense random data, device-resident rows), variant split, claim none (round 0 evaluated): 20 rounds equal; CPU body 1.125 s, device body (tables built on the device) 0.4139 s
+PB-GZC-MEM slot 18 start | device free 6124 MiB of 8187 MiB | pool holds 1 idle buffers (368 MiB)
+PB-GZC-WARM slot 18 | 300.9 ms, 239 spin launches | first 1263 us | mean of first 5 1283 us | mean of last 5 1250 us | min 1196 us
+PB-GZC slot 18 [gzs_d5s fused tail 10 base] | sumchecks 1 | n 20 k 21 D 5 | total 31.022 ms | build 5.501 ms (141.8 GB/s; H2D 0 B) | rounds 6.742 ms (57.2 GB/s) | fused fold+round 13.020 ms (88.7 GB/s) | folds 0.059 ms (19.1 GB/s) | reduce+D2H+host 0.848 ms | finals 0.000 ms | counted device bytes 2322513920 (74.9 GB/s over the total) | pairs 1048575 | P evals 5767163 | host tail 10 rounds 4.624 ms (D2H 344064 B) | public-table hits 1
+PB-GZC-ROUND 0 | round | entering len 1048576 | kernel 6741.9 us | reduce+D2H+host 164.8 us
+PB-GZC-ROUND 1 | fused fold+round | entering len 1048576 | kernel 6020.9 us | reduce+D2H+host 112.3 us
+PB-GZC-ROUND 2 | fused fold+round | entering len 524288 | kernel 3143.6 us | reduce+D2H+host 303.4 us
+PB-GZC-ROUND 3 | fused fold+round | entering len 262144 | kernel 1747.1 us | reduce+D2H+host 68.6 us
+PB-GZC-ROUND 4 | fused fold+round | entering len 131072 | kernel 923.0 us | reduce+D2H+host 43.0 us
+PB-GZC-ROUND 5 | fused fold+round | entering len 65536 | kernel 507.9 us | reduce+D2H+host 33.2 us
+PB-GZC-ROUND 6 | fused fold+round | entering len 32768 | kernel 314.6 us | reduce+D2H+host 42.8 us
+PB-GZC-ROUND 7 | fused fold+round | entering len 16384 | kernel 182.1 us | reduce+D2H+host 25.8 us
+PB-GZC-ROUND 8 | fused fold+round | entering len 8192 | kernel 101.4 us | reduce+D2H+host 26.3 us
+PB-GZC-ROUND 9 | fused fold+round | entering len 4096 | kernel 81.2 us | reduce+D2H+host 28.5 us
+PB-GZC-ROUND 10 | fold | entering len 2048 | kernel 59.3 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 11 | host tail | entering len 1024 | kernel 1652.8 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 12 | host tail | entering len 512 | kernel 1260.1 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 13 | host tail | entering len 256 | kernel 828.6 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 14 | host tail | entering len 128 | kernel 159.8 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 15 | host tail | entering len 64 | kernel 85.1 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 16 | host tail | entering len 32 | kernel 43.2 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 17 | host tail | entering len 16 | kernel 19.4 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 18 | host tail | entering len 8 | kernel 9.9 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 19 | host tail | entering len 4 | kernel 4.9 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 20 | host tail | entering len 2 | kernel 2.5 us | reduce+D2H+host 0.0 us
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, dense random data, device-resident rows), variant split-tail10, claim none (round 0 evaluated): 20 rounds equal; CPU body 1.125 s, device body (tables built on the device) 0.3330 s
+PB-GZC-MEM slot 18 start | device free 6124 MiB of 8187 MiB | pool holds 1 idle buffers (368 MiB)
+[ZK60-GZC] slot-18 module gzl_d5s: loaded from the disk cache in 0.01 s (once per process; key f0919bfbc1d70f87)
+PB-GZC-WARM slot 18 | 300.9 ms, 239 spin launches | first 1225 us | mean of first 5 1231 us | mean of last 5 1230 us | min 1191 us
+PB-GZC slot 18 [gzl_d5s fused tail 0] | sumchecks 1 | n 20 k 21 D 5 | total 40.429 ms | build 5.472 ms (102.7 GB/s; H2D 0 B) | rounds 12.383 ms (28.5 GB/s) | fused fold+round 18.960 ms (55.7 GB/s) | folds 0.055 ms (0.0 GB/s) | reduce+D2H+host 3.129 ms | finals 0.104 ms | counted device bytes 1971321872 (48.8 GB/s over the total) | pairs 1048575 | P evals 5767163 | host tail 0 rounds 0.000 ms (D2H 0 B) | public-table hits 1
+PB-GZC-ROUND 0 | round | entering len 1048576 | kernel 12384.2 us | reduce+D2H+host 318.2 us
+PB-GZC-ROUND 1 | fused fold+round | entering len 1048576 | kernel 7494.9 us | reduce+D2H+host 253.3 us
+PB-GZC-ROUND 2 | fused fold+round | entering len 524288 | kernel 3871.3 us | reduce+D2H+host 182.6 us
+PB-GZC-ROUND 3 | fused fold+round | entering len 262144 | kernel 2156.5 us | reduce+D2H+host 340.8 us
+PB-GZC-ROUND 4 | fused fold+round | entering len 131072 | kernel 1173.6 us | reduce+D2H+host 161.1 us
+PB-GZC-ROUND 5 | fused fold+round | entering len 65536 | kernel 528.6 us | reduce+D2H+host 126.7 us
+PB-GZC-ROUND 6 | fused fold+round | entering len 32768 | kernel 262.0 us | reduce+D2H+host 111.8 us
+PB-GZC-ROUND 7 | fused fold+round | entering len 16384 | kernel 262.0 us | reduce+D2H+host 109.2 us
+PB-GZC-ROUND 8 | fused fold+round | entering len 8192 | kernel 256.1 us | reduce+D2H+host 115.5 us
+PB-GZC-ROUND 9 | fused fold+round | entering len 4096 | kernel 262.0 us | reduce+D2H+host 116.9 us
+PB-GZC-ROUND 10 | fused fold+round | entering len 2048 | kernel 255.1 us | reduce+D2H+host 122.9 us
+PB-GZC-ROUND 11 | fused fold+round | entering len 1024 | kernel 266.1 us | reduce+D2H+host 111.4 us
+PB-GZC-ROUND 12 | fused fold+round | entering len 512 | kernel 289.3 us | reduce+D2H+host 115.5 us
+PB-GZC-ROUND 13 | fused fold+round | entering len 256 | kernel 259.8 us | reduce+D2H+host 106.8 us
+PB-GZC-ROUND 14 | fused fold+round | entering len 128 | kernel 253.7 us | reduce+D2H+host 124.8 us
+PB-GZC-ROUND 15 | fused fold+round | entering len 64 | kernel 322.2 us | reduce+D2H+host 129.6 us
+PB-GZC-ROUND 16 | fused fold+round | entering len 32 | kernel 247.6 us | reduce+D2H+host 105.4 us
+PB-GZC-ROUND 17 | fused fold+round | entering len 16 | kernel 246.1 us | reduce+D2H+host 133.7 us
+PB-GZC-ROUND 18 | fused fold+round | entering len 8 | kernel 255.8 us | reduce+D2H+host 176.4 us
+PB-GZC-ROUND 19 | fused fold+round | entering len 4 | kernel 300.3 us | reduce+D2H+host 166.0 us
+PB-GZC-ROUND 20 | fold | entering len 2 | kernel 55.0 us | reduce+D2H+host 0.0 us
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, dense random data, device-resident rows), variant lean, claim none (round 0 evaluated): 20 rounds equal; CPU body 1.125 s, device body (tables built on the device) 0.3570 s
+PB-GZC-MEM slot 18 start | device free 6122 MiB of 8187 MiB | pool holds 1 idle buffers (368 MiB)
+PB-GZC-WARM slot 18 | 301.1 ms, 239 spin launches | first 1647 us | mean of first 5 1314 us | mean of last 5 1243 us | min 1172 us
+PB-GZC slot 18 [gzs_d5s fused tail 0 base] | sumchecks 1 | n 20 k 21 D 5 | total 29.833 ms | build 6.798 ms (114.8 GB/s; H2D 0 B) | rounds 6.758 ms (57.1 GB/s) | fused fold+round 13.970 ms (82.9 GB/s) | folds 0.172 ms (0.0 GB/s) | reduce+D2H+host 1.699 ms | finals 0.120 ms | counted device bytes 2323643312 (77.9 GB/s over the total) | pairs 1048575 | P evals 5242875 | host tail 0 rounds 0.000 ms (D2H 0 B) | public-table hits 1
+PB-GZC-ROUND 0 | round | entering len 1048576 | kernel 6758.9 us | reduce+D2H+host 294.7 us
+PB-GZC-ROUND 1 | fused fold+round | entering len 1048576 | kernel 6159.5 us | reduce+D2H+host 174.6 us
+PB-GZC-ROUND 2 | fused fold+round | entering len 524288 | kernel 3371.3 us | reduce+D2H+host 156.3 us
+PB-GZC-ROUND 3 | fused fold+round | entering len 262144 | kernel 1559.2 us | reduce+D2H+host 92.6 us
+PB-GZC-ROUND 4 | fused fold+round | entering len 131072 | kernel 863.0 us | reduce+D2H+host 128.0 us
+PB-GZC-ROUND 5 | fused fold+round | entering len 65536 | kernel 526.1 us | reduce+D2H+host 54.3 us
+PB-GZC-ROUND 6 | fused fold+round | entering len 32768 | kernel 300.2 us | reduce+D2H+host 90.7 us
+PB-GZC-ROUND 7 | fused fold+round | entering len 16384 | kernel 191.1 us | reduce+D2H+host 78.4 us
+PB-GZC-ROUND 8 | fused fold+round | entering len 8192 | kernel 108.4 us | reduce+D2H+host 45.7 us
+PB-GZC-ROUND 9 | fused fold+round | entering len 4096 | kernel 108.7 us | reduce+D2H+host 64.4 us
+PB-GZC-ROUND 10 | fused fold+round | entering len 2048 | kernel 84.3 us | reduce+D2H+host 49.4 us
+PB-GZC-ROUND 11 | fused fold+round | entering len 1024 | kernel 78.1 us | reduce+D2H+host 43.5 us
+PB-GZC-ROUND 12 | fused fold+round | entering len 512 | kernel 78.1 us | reduce+D2H+host 57.2 us
+PB-GZC-ROUND 13 | fused fold+round | entering len 256 | kernel 80.8 us | reduce+D2H+host 34.8 us
+PB-GZC-ROUND 14 | fused fold+round | entering len 128 | kernel 81.1 us | reduce+D2H+host 44.7 us
+PB-GZC-ROUND 15 | fused fold+round | entering len 64 | kernel 78.0 us | reduce+D2H+host 64.2 us
+PB-GZC-ROUND 16 | fused fold+round | entering len 32 | kernel 75.3 us | reduce+D2H+host 51.4 us
+PB-GZC-ROUND 17 | fused fold+round | entering len 16 | kernel 79.8 us | reduce+D2H+host 47.6 us
+PB-GZC-ROUND 18 | fused fold+round | entering len 8 | kernel 74.2 us | reduce+D2H+host 35.5 us
+PB-GZC-ROUND 19 | fused fold+round | entering len 4 | kernel 75.9 us | reduce+D2H+host 91.6 us
+PB-GZC-ROUND 20 | fold | entering len 2 | kernel 172.0 us | reduce+D2H+host 0.0 us
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, dense random data, device-resident rows), variant split, claim given: 20 rounds equal; CPU body 1.062 s, device body (tables built on the device) 0.3323 s
+PB-GZC-MEM slot 18 start | device free 6122 MiB of 8187 MiB | pool holds 1 idle buffers (368 MiB)
+PB-GZC-WARM slot 18 | 300.5 ms, 247 spin launches | first 1481 us | mean of first 5 1257 us | mean of last 5 1182 us | min 1156 us
+PB-GZC slot 18 [gzs_d5s fused tail 10 base] | sumchecks 1 | n 20 k 21 D 5 | total 32.751 ms | build 6.288 ms (124.1 GB/s; H2D 0 B) | rounds 6.717 ms (57.5 GB/s) | fused fold+round 12.592 ms (91.8 GB/s) | folds 0.055 ms (20.5 GB/s) | reduce+D2H+host 1.051 ms | finals 0.000 ms | counted device bytes 2322513920 (70.9 GB/s over the total) | pairs 1048575 | P evals 5242875 | host tail 10 rounds 5.758 ms (D2H 344064 B) | public-table hits 1
+PB-GZC-ROUND 0 | round | entering len 1048576 | kernel 6717.3 us | reduce+D2H+host 191.6 us
+PB-GZC-ROUND 1 | fused fold+round | entering len 1048576 | kernel 5852.8 us | reduce+D2H+host 121.9 us
+PB-GZC-ROUND 2 | fused fold+round | entering len 524288 | kernel 3010.9 us | reduce+D2H+host 121.6 us
+PB-GZC-ROUND 3 | fused fold+round | entering len 262144 | kernel 1577.4 us | reduce+D2H+host 160.9 us
+PB-GZC-ROUND 4 | fused fold+round | entering len 131072 | kernel 952.9 us | reduce+D2H+host 67.2 us
+PB-GZC-ROUND 5 | fused fold+round | entering len 65536 | kernel 444.9 us | reduce+D2H+host 42.8 us
+PB-GZC-ROUND 6 | fused fold+round | entering len 32768 | kernel 304.4 us | reduce+D2H+host 41.3 us
+PB-GZC-ROUND 7 | fused fold+round | entering len 16384 | kernel 182.1 us | reduce+D2H+host 147.2 us
+PB-GZC-ROUND 8 | fused fold+round | entering len 8192 | kernel 137.6 us | reduce+D2H+host 99.3 us
+PB-GZC-ROUND 9 | fused fold+round | entering len 4096 | kernel 130.7 us | reduce+D2H+host 57.9 us
+PB-GZC-ROUND 10 | fold | entering len 2048 | kernel 55.1 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 11 | host tail | entering len 1024 | kernel 1689.0 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 12 | host tail | entering len 512 | kernel 1666.1 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 13 | host tail | entering len 256 | kernel 1211.8 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 14 | host tail | entering len 128 | kernel 208.8 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 15 | host tail | entering len 64 | kernel 81.9 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 16 | host tail | entering len 32 | kernel 47.7 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 17 | host tail | entering len 16 | kernel 20.5 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 18 | host tail | entering len 8 | kernel 10.3 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 19 | host tail | entering len 4 | kernel 5.2 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 20 | host tail | entering len 2 | kernel 2.6 us | reduce+D2H+host 0.0 us
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, dense random data, device-resident rows), variant split-tail10, claim given: 20 rounds equal; CPU body 1.062 s, device body (tables built on the device) 0.3347 s
+PB-GZC-MEM slot 18 start | device free 6122 MiB of 8187 MiB | pool holds 1 idle buffers (368 MiB)
+PB-GZC-WARM slot 18 | 300.7 ms, 248 spin launches | first 1496 us | mean of first 5 1277 us | mean of last 5 1234 us | min 1152 us
+PB-GZC slot 18 [gzl_d5s fused tail 0] | sumchecks 1 | n 20 k 21 D 5 | total 48.672 ms | build 16.608 ms (33.8 GB/s; H2D 0 B) | rounds 10.993 ms (32.1 GB/s) | fused fold+round 18.158 ms (58.2 GB/s) | folds 0.042 ms (0.0 GB/s) | reduce+D2H+host 2.622 ms | finals 0.047 ms | counted device bytes 1971321872 (40.5 GB/s over the total) | pairs 1048575 | P evals 5242875 | host tail 0 rounds 0.000 ms (D2H 0 B) | public-table hits 1
+PB-GZC-ROUND 0 | round | entering len 1048576 | kernel 10993.1 us | reduce+D2H+host 337.9 us
+PB-GZC-ROUND 1 | fused fold+round | entering len 1048576 | kernel 7362.0 us | reduce+D2H+host 203.7 us
+PB-GZC-ROUND 2 | fused fold+round | entering len 524288 | kernel 3676.0 us | reduce+D2H+host 184.5 us
+PB-GZC-ROUND 3 | fused fold+round | entering len 262144 | kernel 2084.2 us | reduce+D2H+host 126.8 us
+PB-GZC-ROUND 4 | fused fold+round | entering len 131072 | kernel 1114.0 us | reduce+D2H+host 195.4 us
+PB-GZC-ROUND 5 | fused fold+round | entering len 65536 | kernel 505.4 us | reduce+D2H+host 129.4 us
+PB-GZC-ROUND 6 | fused fold+round | entering len 32768 | kernel 255.2 us | reduce+D2H+host 103.5 us
+PB-GZC-ROUND 7 | fused fold+round | entering len 16384 | kernel 248.7 us | reduce+D2H+host 98.8 us
+PB-GZC-ROUND 8 | fused fold+round | entering len 8192 | kernel 249.9 us | reduce+D2H+host 104.1 us
+PB-GZC-ROUND 9 | fused fold+round | entering len 4096 | kernel 229.4 us | reduce+D2H+host 103.4 us
+PB-GZC-ROUND 10 | fused fold+round | entering len 2048 | kernel 232.5 us | reduce+D2H+host 95.0 us
+PB-GZC-ROUND 11 | fused fold+round | entering len 1024 | kernel 240.3 us | reduce+D2H+host 91.6 us
+PB-GZC-ROUND 12 | fused fold+round | entering len 512 | kernel 238.1 us | reduce+D2H+host 92.9 us
+PB-GZC-ROUND 13 | fused fold+round | entering len 256 | kernel 237.4 us | reduce+D2H+host 125.6 us
+PB-GZC-ROUND 14 | fused fold+round | entering len 128 | kernel 245.5 us | reduce+D2H+host 104.8 us
+PB-GZC-ROUND 15 | fused fold+round | entering len 64 | kernel 240.3 us | reduce+D2H+host 97.6 us
+PB-GZC-ROUND 16 | fused fold+round | entering len 32 | kernel 262.3 us | reduce+D2H+host 119.3 us
+PB-GZC-ROUND 17 | fused fold+round | entering len 16 | kernel 253.8 us | reduce+D2H+host 102.0 us
+PB-GZC-ROUND 18 | fused fold+round | entering len 8 | kernel 242.5 us | reduce+D2H+host 101.3 us
+PB-GZC-ROUND 19 | fused fold+round | entering len 4 | kernel 241.3 us | reduce+D2H+host 104.5 us
+PB-GZC-ROUND 20 | fold | entering len 2 | kernel 41.8 us | reduce+D2H+host 0.0 us
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, dense random data, device-resident rows), variant lean, claim given: 20 rounds equal; CPU body 1.062 s, device body (tables built on the device) 0.3506 s
+GZC VRAM after TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) dense random: 2065 MiB in use with 3 pooled buffers; drained 3; 1201 MiB in use after the drain
+NATIVE generic witness at hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-block/1: built in 0.93 s; max|y_a| 13 max|y_m| 21 max|q8| 43 max|s8| 55 max|g8| 100 max|u16| 12947 max|z16| 5712 max|x2| 10415; upper half gate 98.1% act 98.1% nonzero
+PB-GZC-MEM slot 18 start | device free 6442 MiB of 8187 MiB | pool holds 0 idle buffers (0 MiB)
+PB-GZC-WARM slot 18 | 300.4 ms, 239 spin launches | first 1616 us | mean of first 5 1317 us | mean of last 5 1307 us | min 1177 us
+PB-GZC slot 18 [gzs_d5s fused tail 0 base] | sumchecks 1 | n 20 k 21 D 5 | total 46.464 ms | build 23.713 ms (32.9 GB/s; H2D 0 B) | rounds 7.381 ms (52.3 GB/s) | fused fold+round 13.511 ms (85.7 GB/s) | folds 0.039 ms (0.0 GB/s) | reduce+D2H+host 1.520 ms | finals 0.066 ms | counted device bytes 2323643312 (50.0 GB/s over the total) | pairs 1048575 | P evals 5767163 | host tail 0 rounds 0.000 ms (D2H 0 B) | public-table hits 1
+PB-GZC-ROUND 0 | round | entering len 1048576 | kernel 7380.9 us | reduce+D2H+host 199.0 us
+PB-GZC-ROUND 1 | fused fold+round | entering len 1048576 | kernel 5910.2 us | reduce+D2H+host 189.6 us
+PB-GZC-ROUND 2 | fused fold+round | entering len 524288 | kernel 3218.8 us | reduce+D2H+host 156.2 us
+PB-GZC-ROUND 3 | fused fold+round | entering len 262144 | kernel 1561.7 us | reduce+D2H+host 88.1 us
+PB-GZC-ROUND 4 | fused fold+round | entering len 131072 | kernel 843.3 us | reduce+D2H+host 112.1 us
+PB-GZC-ROUND 5 | fused fold+round | entering len 65536 | kernel 461.8 us | reduce+D2H+host 114.5 us
+PB-GZC-ROUND 6 | fused fold+round | entering len 32768 | kernel 325.3 us | reduce+D2H+host 109.1 us
+PB-GZC-ROUND 7 | fused fold+round | entering len 16384 | kernel 215.9 us | reduce+D2H+host 66.4 us
+PB-GZC-ROUND 8 | fused fold+round | entering len 8192 | kernel 112.3 us | reduce+D2H+host 37.1 us
+PB-GZC-ROUND 9 | fused fold+round | entering len 4096 | kernel 86.1 us | reduce+D2H+host 32.6 us
+PB-GZC-ROUND 10 | fused fold+round | entering len 2048 | kernel 83.6 us | reduce+D2H+host 30.5 us
+PB-GZC-ROUND 11 | fused fold+round | entering len 1024 | kernel 69.3 us | reduce+D2H+host 38.2 us
+PB-GZC-ROUND 12 | fused fold+round | entering len 512 | kernel 69.5 us | reduce+D2H+host 29.2 us
+PB-GZC-ROUND 13 | fused fold+round | entering len 256 | kernel 67.9 us | reduce+D2H+host 35.5 us
+PB-GZC-ROUND 14 | fused fold+round | entering len 128 | kernel 89.8 us | reduce+D2H+host 66.6 us
+PB-GZC-ROUND 15 | fused fold+round | entering len 64 | kernel 81.2 us | reduce+D2H+host 27.0 us
+PB-GZC-ROUND 16 | fused fold+round | entering len 32 | kernel 76.3 us | reduce+D2H+host 57.8 us
+PB-GZC-ROUND 17 | fused fold+round | entering len 16 | kernel 78.8 us | reduce+D2H+host 63.1 us
+PB-GZC-ROUND 18 | fused fold+round | entering len 8 | kernel 82.3 us | reduce+D2H+host 33.1 us
+PB-GZC-ROUND 19 | fused fold+round | entering len 4 | kernel 82.4 us | reduce+D2H+host 34.6 us
+PB-GZC-ROUND 20 | fold | entering len 2 | kernel 38.8 us | reduce+D2H+host 0.0 us
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, honest-witness data, device-resident rows), variant split, claim none (round 0 evaluated): 20 rounds equal; CPU body 1.166 s, device body (tables built on the device) 0.3484 s
+PB-GZC-MEM slot 18 start | device free 6122 MiB of 8187 MiB | pool holds 1 idle buffers (368 MiB)
+PB-GZC-WARM slot 18 | 300.2 ms, 245 spin launches | first 1190 us | mean of first 5 1208 us | mean of last 5 1238 us | min 1158 us
+PB-GZC slot 18 [gzs_d5s fused tail 10 base] | sumchecks 1 | n 20 k 21 D 5 | total 31.023 ms | build 6.116 ms (127.6 GB/s; H2D 0 B) | rounds 6.527 ms (59.1 GB/s) | fused fold+round 12.561 ms (92.0 GB/s) | folds 0.056 ms (20.0 GB/s) | reduce+D2H+host 0.988 ms | finals 0.000 ms | counted device bytes 2322513920 (74.9 GB/s over the total) | pairs 1048575 | P evals 5767163 | host tail 10 rounds 4.475 ms (D2H 344064 B) | public-table hits 1
+PB-GZC-ROUND 0 | round | entering len 1048576 | kernel 6527.3 us | reduce+D2H+host 230.8 us
+PB-GZC-ROUND 1 | fused fold+round | entering len 1048576 | kernel 5821.7 us | reduce+D2H+host 210.5 us
+PB-GZC-ROUND 2 | fused fold+round | entering len 524288 | kernel 3047.1 us | reduce+D2H+host 150.6 us
+PB-GZC-ROUND 3 | fused fold+round | entering len 262144 | kernel 1673.5 us | reduce+D2H+host 150.1 us
+PB-GZC-ROUND 4 | fused fold+round | entering len 131072 | kernel 883.3 us | reduce+D2H+host 60.9 us
+PB-GZC-ROUND 5 | fused fold+round | entering len 65536 | kernel 495.5 us | reduce+D2H+host 31.3 us
+PB-GZC-ROUND 6 | fused fold+round | entering len 32768 | kernel 285.8 us | reduce+D2H+host 28.1 us
+PB-GZC-ROUND 7 | fused fold+round | entering len 16384 | kernel 185.2 us | reduce+D2H+host 28.5 us
+PB-GZC-ROUND 8 | fused fold+round | entering len 8192 | kernel 95.6 us | reduce+D2H+host 28.0 us
+PB-GZC-ROUND 9 | fused fold+round | entering len 4096 | kernel 75.7 us | reduce+D2H+host 69.7 us
+PB-GZC-ROUND 10 | fold | entering len 2048 | kernel 56.4 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 11 | host tail | entering len 1024 | kernel 1224.0 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 12 | host tail | entering len 512 | kernel 1016.5 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 13 | host tail | entering len 256 | kernel 966.1 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 14 | host tail | entering len 128 | kernel 355.7 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 15 | host tail | entering len 64 | kernel 173.4 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 16 | host tail | entering len 32 | kernel 87.0 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 17 | host tail | entering len 16 | kernel 43.2 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 18 | host tail | entering len 8 | kernel 21.9 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 19 | host tail | entering len 4 | kernel 10.8 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 20 | host tail | entering len 2 | kernel 7.2 us | reduce+D2H+host 0.0 us
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, honest-witness data, device-resident rows), variant split-tail10, claim none (round 0 evaluated): 20 rounds equal; CPU body 1.166 s, device body (tables built on the device) 0.3326 s
+PB-GZC-MEM slot 18 start | device free 6122 MiB of 8187 MiB | pool holds 1 idle buffers (368 MiB)
+PB-GZC-WARM slot 18 | 300.8 ms, 244 spin launches | first 1217 us | mean of first 5 1206 us | mean of last 5 1249 us | min 1169 us
+PB-GZC slot 18 [gzl_d5s fused tail 0] | sumchecks 1 | n 20 k 21 D 5 | total 41.193 ms | build 6.431 ms (87.4 GB/s; H2D 0 B) | rounds 11.882 ms (29.7 GB/s) | fused fold+round 18.514 ms (57.1 GB/s) | folds 0.039 ms (0.0 GB/s) | reduce+D2H+host 3.786 ms | finals 0.158 ms | counted device bytes 1971321872 (47.9 GB/s over the total) | pairs 1048575 | P evals 5767163 | host tail 0 rounds 0.000 ms (D2H 0 B) | public-table hits 1
+PB-GZC-ROUND 0 | round | entering len 1048576 | kernel 11883.5 us | reduce+D2H+host 272.9 us
+PB-GZC-ROUND 1 | fused fold+round | entering len 1048576 | kernel 7350.1 us | reduce+D2H+host 183.3 us
+PB-GZC-ROUND 2 | fused fold+round | entering len 524288 | kernel 3685.9 us | reduce+D2H+host 242.0 us
+PB-GZC-ROUND 3 | fused fold+round | entering len 262144 | kernel 2069.1 us | reduce+D2H+host 196.0 us
+PB-GZC-ROUND 4 | fused fold+round | entering len 131072 | kernel 1131.8 us | reduce+D2H+host 210.8 us
+PB-GZC-ROUND 5 | fused fold+round | entering len 65536 | kernel 518.4 us | reduce+D2H+host 177.0 us
+PB-GZC-ROUND 6 | fused fold+round | entering len 32768 | kernel 300.5 us | reduce+D2H+host 185.0 us
+PB-GZC-ROUND 7 | fused fold+round | entering len 16384 | kernel 268.4 us | reduce+D2H+host 183.2 us
+PB-GZC-ROUND 8 | fused fold+round | entering len 8192 | kernel 299.7 us | reduce+D2H+host 126.0 us
+PB-GZC-ROUND 9 | fused fold+round | entering len 4096 | kernel 238.5 us | reduce+D2H+host 126.4 us
+PB-GZC-ROUND 10 | fused fold+round | entering len 2048 | kernel 325.0 us | reduce+D2H+host 215.1 us
+PB-GZC-ROUND 11 | fused fold+round | entering len 1024 | kernel 258.9 us | reduce+D2H+host 132.1 us
+PB-GZC-ROUND 12 | fused fold+round | entering len 512 | kernel 266.6 us | reduce+D2H+host 175.9 us
+PB-GZC-ROUND 13 | fused fold+round | entering len 256 | kernel 250.5 us | reduce+D2H+host 198.4 us
+PB-GZC-ROUND 14 | fused fold+round | entering len 128 | kernel 250.7 us | reduce+D2H+host 195.3 us
+PB-GZC-ROUND 15 | fused fold+round | entering len 64 | kernel 246.4 us | reduce+D2H+host 194.6 us
+PB-GZC-ROUND 16 | fused fold+round | entering len 32 | kernel 258.8 us | reduce+D2H+host 234.3 us
+PB-GZC-ROUND 17 | fused fold+round | entering len 16 | kernel 248.7 us | reduce+D2H+host 182.1 us
+PB-GZC-ROUND 18 | fused fold+round | entering len 8 | kernel 296.4 us | reduce+D2H+host 175.8 us
+PB-GZC-ROUND 19 | fused fold+round | entering len 4 | kernel 254.8 us | reduce+D2H+host 179.2 us
+PB-GZC-ROUND 20 | fold | entering len 2 | kernel 38.7 us | reduce+D2H+host 0.0 us
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, honest-witness data, device-resident rows), variant lean, claim none (round 0 evaluated): 20 rounds equal; CPU body 1.166 s, device body (tables built on the device) 0.3433 s
+PB-GZC-MEM slot 18 start | device free 6122 MiB of 8187 MiB | pool holds 1 idle buffers (368 MiB)
+PB-GZC-WARM slot 18 | 301.1 ms, 252 spin launches | first 1609 us | mean of first 5 1300 us | mean of last 5 1193 us | min 1124 us
+PB-GZC slot 18 [gzs_d5s fused tail 0 base] | sumchecks 1 | n 20 k 21 D 5 | total 28.250 ms | build 6.030 ms (129.4 GB/s; H2D 0 B) | rounds 6.320 ms (61.1 GB/s) | fused fold+round 13.761 ms (84.1 GB/s) | folds 0.045 ms (0.0 GB/s) | reduce+D2H+host 1.661 ms | finals 0.069 ms | counted device bytes 2323643312 (82.3 GB/s over the total) | pairs 1048575 | P evals 5242875 | host tail 0 rounds 0.000 ms (D2H 0 B) | public-table hits 1
+PB-GZC-ROUND 0 | round | entering len 1048576 | kernel 6320.1 us | reduce+D2H+host 161.3 us
+PB-GZC-ROUND 1 | fused fold+round | entering len 1048576 | kernel 5898.6 us | reduce+D2H+host 107.0 us
+PB-GZC-ROUND 2 | fused fold+round | entering len 524288 | kernel 3043.3 us | reduce+D2H+host 186.9 us
+PB-GZC-ROUND 3 | fused fold+round | entering len 262144 | kernel 1533.6 us | reduce+D2H+host 104.7 us
+PB-GZC-ROUND 4 | fused fold+round | entering len 131072 | kernel 856.1 us | reduce+D2H+host 67.9 us
+PB-GZC-ROUND 5 | fused fold+round | entering len 65536 | kernel 486.8 us | reduce+D2H+host 59.8 us
+PB-GZC-ROUND 6 | fused fold+round | entering len 32768 | kernel 310.9 us | reduce+D2H+host 116.2 us
+PB-GZC-ROUND 7 | fused fold+round | entering len 16384 | kernel 317.4 us | reduce+D2H+host 63.6 us
+PB-GZC-ROUND 8 | fused fold+round | entering len 8192 | kernel 108.2 us | reduce+D2H+host 40.1 us
+PB-GZC-ROUND 9 | fused fold+round | entering len 4096 | kernel 94.2 us | reduce+D2H+host 38.6 us
+PB-GZC-ROUND 10 | fused fold+round | entering len 2048 | kernel 89.5 us | reduce+D2H+host 37.5 us
+PB-GZC-ROUND 11 | fused fold+round | entering len 1024 | kernel 78.1 us | reduce+D2H+host 50.3 us
+PB-GZC-ROUND 12 | fused fold+round | entering len 512 | kernel 80.0 us | reduce+D2H+host 39.3 us
+PB-GZC-ROUND 13 | fused fold+round | entering len 256 | kernel 79.0 us | reduce+D2H+host 61.7 us
+PB-GZC-ROUND 14 | fused fold+round | entering len 128 | kernel 73.7 us | reduce+D2H+host 50.3 us
+PB-GZC-ROUND 15 | fused fold+round | entering len 64 | kernel 128.3 us | reduce+D2H+host 133.2 us
+PB-GZC-ROUND 16 | fused fold+round | entering len 32 | kernel 174.5 us | reduce+D2H+host 121.3 us
+PB-GZC-ROUND 17 | fused fold+round | entering len 16 | kernel 151.3 us | reduce+D2H+host 138.8 us
+PB-GZC-ROUND 18 | fused fold+round | entering len 8 | kernel 178.6 us | reduce+D2H+host 44.9 us
+PB-GZC-ROUND 19 | fused fold+round | entering len 4 | kernel 83.9 us | reduce+D2H+host 37.7 us
+PB-GZC-ROUND 20 | fold | entering len 2 | kernel 44.6 us | reduce+D2H+host 0.0 us
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, honest-witness data, device-resident rows), variant split, claim given: 20 rounds equal; CPU body 1.001 s, device body (tables built on the device) 0.3310 s
+PB-GZC-MEM slot 18 start | device free 6122 MiB of 8187 MiB | pool holds 1 idle buffers (368 MiB)
+PB-GZC-WARM slot 18 | 300.8 ms, 252 spin launches | first 1149 us | mean of first 5 1223 us | mean of last 5 1194 us | min 1123 us
+PB-GZC slot 18 [gzs_d5s fused tail 10 base] | sumchecks 1 | n 20 k 21 D 5 | total 31.794 ms | build 6.139 ms (127.1 GB/s; H2D 0 B) | rounds 6.235 ms (61.9 GB/s) | fused fold+round 12.424 ms (93.0 GB/s) | folds 0.050 ms (22.6 GB/s) | reduce+D2H+host 1.160 ms | finals 0.000 ms | counted device bytes 2322513920 (73.0 GB/s over the total) | pairs 1048575 | P evals 5242875 | host tail 10 rounds 5.429 ms (D2H 344064 B) | public-table hits 1
+PB-GZC-ROUND 0 | round | entering len 1048576 | kernel 6236.6 us | reduce+D2H+host 234.2 us
+PB-GZC-ROUND 1 | fused fold+round | entering len 1048576 | kernel 5973.3 us | reduce+D2H+host 241.3 us
+PB-GZC-ROUND 2 | fused fold+round | entering len 524288 | kernel 3003.0 us | reduce+D2H+host 176.5 us
+PB-GZC-ROUND 3 | fused fold+round | entering len 262144 | kernel 1504.6 us | reduce+D2H+host 131.2 us
+PB-GZC-ROUND 4 | fused fold+round | entering len 131072 | kernel 830.8 us | reduce+D2H+host 72.7 us
+PB-GZC-ROUND 5 | fused fold+round | entering len 65536 | kernel 440.3 us | reduce+D2H+host 95.1 us
+PB-GZC-ROUND 6 | fused fold+round | entering len 32768 | kernel 287.0 us | reduce+D2H+host 55.7 us
+PB-GZC-ROUND 7 | fused fold+round | entering len 16384 | kernel 191.4 us | reduce+D2H+host 51.2 us
+PB-GZC-ROUND 8 | fused fold+round | entering len 8192 | kernel 108.1 us | reduce+D2H+host 50.9 us
+PB-GZC-ROUND 9 | fused fold+round | entering len 4096 | kernel 88.3 us | reduce+D2H+host 50.7 us
+PB-GZC-ROUND 10 | fold | entering len 2048 | kernel 50.0 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 11 | host tail | entering len 1024 | kernel 1791.4 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 12 | host tail | entering len 512 | kernel 1564.8 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 13 | host tail | entering len 256 | kernel 639.9 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 14 | host tail | entering len 128 | kernel 350.9 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 15 | host tail | entering len 64 | kernel 172.2 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 16 | host tail | entering len 32 | kernel 86.1 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 17 | host tail | entering len 16 | kernel 43.2 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 18 | host tail | entering len 8 | kernel 21.6 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 19 | host tail | entering len 4 | kernel 10.9 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 20 | host tail | entering len 2 | kernel 5.5 us | reduce+D2H+host 0.0 us
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, honest-witness data, device-resident rows), variant split-tail10, claim given: 20 rounds equal; CPU body 1.001 s, device body (tables built on the device) 0.3342 s
+PB-GZC-MEM slot 18 start | device free 6122 MiB of 8187 MiB | pool holds 1 idle buffers (368 MiB)
+PB-GZC-WARM slot 18 | 301.2 ms, 254 spin launches | first 1455 us | mean of first 5 1235 us | mean of last 5 1181 us | min 1128 us
+PB-GZC slot 18 [gzl_d5s fused tail 0] | sumchecks 1 | n 20 k 21 D 5 | total 37.259 ms | build 5.546 ms (101.3 GB/s; H2D 0 B) | rounds 10.777 ms (32.7 GB/s) | fused fold+round 17.974 ms (58.8 GB/s) | folds 0.080 ms (0.0 GB/s) | reduce+D2H+host 2.587 ms | finals 0.053 ms | counted device bytes 1971321872 (52.9 GB/s over the total) | pairs 1048575 | P evals 5242875 | host tail 0 rounds 0.000 ms (D2H 0 B) | public-table hits 1
+PB-GZC-ROUND 0 | round | entering len 1048576 | kernel 10777.7 us | reduce+D2H+host 264.6 us
+PB-GZC-ROUND 1 | fused fold+round | entering len 1048576 | kernel 7269.2 us | reduce+D2H+host 225.8 us
+PB-GZC-ROUND 2 | fused fold+round | entering len 524288 | kernel 3602.5 us | reduce+D2H+host 220.7 us
+PB-GZC-ROUND 3 | fused fold+round | entering len 262144 | kernel 2097.4 us | reduce+D2H+host 194.4 us
+PB-GZC-ROUND 4 | fused fold+round | entering len 131072 | kernel 1106.1 us | reduce+D2H+host 158.6 us
+PB-GZC-ROUND 5 | fused fold+round | entering len 65536 | kernel 527.2 us | reduce+D2H+host 107.4 us
+PB-GZC-ROUND 6 | fused fold+round | entering len 32768 | kernel 244.8 us | reduce+D2H+host 91.6 us
+PB-GZC-ROUND 7 | fused fold+round | entering len 16384 | kernel 245.2 us | reduce+D2H+host 95.6 us
+PB-GZC-ROUND 8 | fused fold+round | entering len 8192 | kernel 307.9 us | reduce+D2H+host 155.0 us
+PB-GZC-ROUND 9 | fused fold+round | entering len 4096 | kernel 232.3 us | reduce+D2H+host 95.2 us
+PB-GZC-ROUND 10 | fused fold+round | entering len 2048 | kernel 237.4 us | reduce+D2H+host 88.0 us
+PB-GZC-ROUND 11 | fused fold+round | entering len 1024 | kernel 237.7 us | reduce+D2H+host 91.2 us
+PB-GZC-ROUND 12 | fused fold+round | entering len 512 | kernel 235.9 us | reduce+D2H+host 88.5 us
+PB-GZC-ROUND 13 | fused fold+round | entering len 256 | kernel 233.1 us | reduce+D2H+host 104.2 us
+PB-GZC-ROUND 14 | fused fold+round | entering len 128 | kernel 250.8 us | reduce+D2H+host 109.0 us
+PB-GZC-ROUND 15 | fused fold+round | entering len 64 | kernel 229.3 us | reduce+D2H+host 94.1 us
+PB-GZC-ROUND 16 | fused fold+round | entering len 32 | kernel 228.0 us | reduce+D2H+host 95.5 us
+PB-GZC-ROUND 17 | fused fold+round | entering len 16 | kernel 234.8 us | reduce+D2H+host 96.1 us
+PB-GZC-ROUND 18 | fused fold+round | entering len 8 | kernel 226.7 us | reduce+D2H+host 92.0 us
+PB-GZC-ROUND 19 | fused fold+round | entering len 4 | kernel 231.3 us | reduce+D2H+host 119.7 us
+PB-GZC-ROUND 20 | fold | entering len 2 | kernel 80.0 us | reduce+D2H+host 0.0 us
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, honest-witness data, device-resident rows), variant lean, claim given: 20 rounds equal; CPU body 1.001 s, device body (tables built on the device) 0.3402 s
+NATIVE generic witness at hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-block/1: built in 0.91 s; max|y_a| 13 max|y_m| 21 max|q8| 43 max|s8| 55 max|g8| 100 max|u16| 12947 max|z16| 5712 max|x2| 10415; upper half gate 98.1% act 98.1% nonzero
+PB-GZC-MEM slot 18 start | device free 6122 MiB of 8187 MiB | pool holds 3 idle buffers (889 MiB)
+PB-GZC-WARM slot 18 | 300.4 ms, 87 spin launches | first 6995 us | mean of first 5 6392 us | mean of last 5 1244 us | min 1196 us
+PB-GZC slot 18 [gzs_d5s fused tail 0 base] | sumchecks 1 | n 20 k 21 D 5 | total 80.477 ms | build 56.605 ms (13.8 GB/s; H2D 192937984 B) | rounds 8.744 ms (44.1 GB/s) | fused fold+round 13.833 ms (83.7 GB/s) | folds 0.028 ms (0.0 GB/s) | reduce+D2H+host 1.030 ms | finals 0.043 ms | counted device bytes 2323643312 (28.9 GB/s over the total) | pairs 1048575 | P evals 5767163 | host tail 0 rounds 0.000 ms (D2H 0 B) | public-table hits 1
+PB-GZC-ROUND 0 | round | entering len 1048576 | kernel 8745.2 us | reduce+D2H+host 176.3 us
+PB-GZC-ROUND 1 | fused fold+round | entering len 1048576 | kernel 6339.2 us | reduce+D2H+host 166.6 us
+PB-GZC-ROUND 2 | fused fold+round | entering len 524288 | kernel 3061.5 us | reduce+D2H+host 116.8 us
+PB-GZC-ROUND 3 | fused fold+round | entering len 262144 | kernel 1750.8 us | reduce+D2H+host 64.3 us
+PB-GZC-ROUND 4 | fused fold+round | entering len 131072 | kernel 858.0 us | reduce+D2H+host 61.6 us
+PB-GZC-ROUND 5 | fused fold+round | entering len 65536 | kernel 497.0 us | reduce+D2H+host 63.3 us
+PB-GZC-ROUND 6 | fused fold+round | entering len 32768 | kernel 307.7 us | reduce+D2H+host 47.1 us
+PB-GZC-ROUND 7 | fused fold+round | entering len 16384 | kernel 183.7 us | reduce+D2H+host 29.0 us
+PB-GZC-ROUND 8 | fused fold+round | entering len 8192 | kernel 103.6 us | reduce+D2H+host 28.3 us
+PB-GZC-ROUND 9 | fused fold+round | entering len 4096 | kernel 80.3 us | reduce+D2H+host 24.7 us
+PB-GZC-ROUND 10 | fused fold+round | entering len 2048 | kernel 72.0 us | reduce+D2H+host 25.7 us
+PB-GZC-ROUND 11 | fused fold+round | entering len 1024 | kernel 62.9 us | reduce+D2H+host 22.8 us
+PB-GZC-ROUND 12 | fused fold+round | entering len 512 | kernel 60.6 us | reduce+D2H+host 25.0 us
+PB-GZC-ROUND 13 | fused fold+round | entering len 256 | kernel 70.1 us | reduce+D2H+host 23.3 us
+PB-GZC-ROUND 14 | fused fold+round | entering len 128 | kernel 62.7 us | reduce+D2H+host 35.1 us
+PB-GZC-ROUND 15 | fused fold+round | entering len 64 | kernel 75.0 us | reduce+D2H+host 26.2 us
+PB-GZC-ROUND 16 | fused fold+round | entering len 32 | kernel 61.1 us | reduce+D2H+host 25.2 us
+PB-GZC-ROUND 17 | fused fold+round | entering len 16 | kernel 66.5 us | reduce+D2H+host 24.1 us
+PB-GZC-ROUND 18 | fused fold+round | entering len 8 | kernel 62.5 us | reduce+D2H+host 22.9 us
+PB-GZC-ROUND 19 | fused fold+round | entering len 4 | kernel 60.5 us | reduce+D2H+host 22.0 us
+PB-GZC-ROUND 20 | fold | entering len 2 | kernel 28.5 us | reduce+D2H+host 0.0 us
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, honest-witness data, host words), variant split, claim none (round 0 evaluated): 20 rounds equal; CPU body 0.770 s, device body (tables built on the device) 0.3821 s
+PB-GZC-MEM slot 18 start | device free 6090 MiB of 8187 MiB | pool holds 3 idle buffers (889 MiB)
+PB-GZC-WARM slot 18 | 300.5 ms, 243 spin launches | first 1528 us | mean of first 5 1317 us | mean of last 5 1222 us | min 1191 us
+PB-GZC slot 18 [gzs_d5s fused tail 10 base] | sumchecks 1 | n 20 k 21 D 5 | total 83.527 ms | build 56.775 ms (13.7 GB/s; H2D 192937984 B) | rounds 8.932 ms (43.2 GB/s) | fused fold+round 13.269 ms (87.1 GB/s) | folds 0.042 ms (26.8 GB/s) | reduce+D2H+host 0.806 ms | finals 0.000 ms | counted device bytes 2322513920 (27.8 GB/s over the total) | pairs 1048575 | P evals 5767163 | host tail 10 rounds 3.447 ms (D2H 344064 B) | public-table hits 1
+PB-GZC-ROUND 0 | round | entering len 1048576 | kernel 8933.3 us | reduce+D2H+host 148.7 us
+PB-GZC-ROUND 1 | fused fold+round | entering len 1048576 | kernel 6374.0 us | reduce+D2H+host 126.4 us
+PB-GZC-ROUND 2 | fused fold+round | entering len 524288 | kernel 3238.3 us | reduce+D2H+host 60.0 us
+PB-GZC-ROUND 3 | fused fold+round | entering len 262144 | kernel 1630.9 us | reduce+D2H+host 123.5 us
+PB-GZC-ROUND 4 | fused fold+round | entering len 131072 | kernel 855.4 us | reduce+D2H+host 75.2 us
+PB-GZC-ROUND 5 | fused fold+round | entering len 65536 | kernel 510.4 us | reduce+D2H+host 101.4 us
+PB-GZC-ROUND 6 | fused fold+round | entering len 32768 | kernel 294.6 us | reduce+D2H+host 43.2 us
+PB-GZC-ROUND 7 | fused fold+round | entering len 16384 | kernel 184.6 us | reduce+D2H+host 43.6 us
+PB-GZC-ROUND 8 | fused fold+round | entering len 8192 | kernel 101.3 us | reduce+D2H+host 41.6 us
+PB-GZC-ROUND 9 | fused fold+round | entering len 4096 | kernel 81.4 us | reduce+D2H+host 42.4 us
+PB-GZC-ROUND 10 | fold | entering len 2048 | kernel 42.2 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 11 | host tail | entering len 1024 | kernel 1478.0 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 12 | host tail | entering len 512 | kernel 854.9 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 13 | host tail | entering len 256 | kernel 416.8 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 14 | host tail | entering len 128 | kernel 139.4 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 15 | host tail | entering len 64 | kernel 69.3 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 16 | host tail | entering len 32 | kernel 34.8 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 17 | host tail | entering len 16 | kernel 17.4 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 18 | host tail | entering len 8 | kernel 10.3 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 19 | host tail | entering len 4 | kernel 4.4 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 20 | host tail | entering len 2 | kernel 2.2 us | reduce+D2H+host 0.0 us
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, honest-witness data, host words), variant split-tail10, claim none (round 0 evaluated): 20 rounds equal; CPU body 0.770 s, device body (tables built on the device) 0.3851 s
+PB-GZC-MEM slot 18 start | device free 6090 MiB of 8187 MiB | pool holds 3 idle buffers (889 MiB)
+PB-GZC-WARM slot 18 | 301.1 ms, 244 spin launches | first 2131 us | mean of first 5 1404 us | mean of last 5 1213 us | min 1190 us
+PB-GZC slot 18 [gzl_d5s fused tail 0] | sumchecks 1 | n 20 k 21 D 5 | total 104.958 ms | build 67.190 ms (8.4 GB/s; H2D 192937984 B) | rounds 15.370 ms (22.9 GB/s) | fused fold+round 18.559 ms (57.0 GB/s) | folds 0.039 ms (0.0 GB/s) | reduce+D2H+host 3.435 ms | finals 0.146 ms | counted device bytes 1971321872 (18.8 GB/s over the total) | pairs 1048575 | P evals 5767163 | host tail 0 rounds 0.000 ms (D2H 0 B) | public-table hits 1
+PB-GZC-ROUND 0 | round | entering len 1048576 | kernel 15371.3 us | reduce+D2H+host 510.5 us
+PB-GZC-ROUND 1 | fused fold+round | entering len 1048576 | kernel 7544.8 us | reduce+D2H+host 219.7 us
+PB-GZC-ROUND 2 | fused fold+round | entering len 524288 | kernel 3763.3 us | reduce+D2H+host 124.4 us
+PB-GZC-ROUND 3 | fused fold+round | entering len 262144 | kernel 2088.5 us | reduce+D2H+host 160.4 us
+PB-GZC-ROUND 4 | fused fold+round | entering len 131072 | kernel 1144.6 us | reduce+D2H+host 152.6 us
+PB-GZC-ROUND 5 | fused fold+round | entering len 65536 | kernel 526.3 us | reduce+D2H+host 140.5 us
+PB-GZC-ROUND 6 | fused fold+round | entering len 32768 | kernel 248.3 us | reduce+D2H+host 162.5 us
+PB-GZC-ROUND 7 | fused fold+round | entering len 16384 | kernel 347.0 us | reduce+D2H+host 153.2 us
+PB-GZC-ROUND 8 | fused fold+round | entering len 8192 | kernel 251.3 us | reduce+D2H+host 152.8 us
+PB-GZC-ROUND 9 | fused fold+round | entering len 4096 | kernel 236.7 us | reduce+D2H+host 149.7 us
+PB-GZC-ROUND 10 | fused fold+round | entering len 2048 | kernel 247.6 us | reduce+D2H+host 150.1 us
+PB-GZC-ROUND 11 | fused fold+round | entering len 1024 | kernel 247.2 us | reduce+D2H+host 151.6 us
+PB-GZC-ROUND 12 | fused fold+round | entering len 512 | kernel 245.3 us | reduce+D2H+host 152.6 us
+PB-GZC-ROUND 13 | fused fold+round | entering len 256 | kernel 243.0 us | reduce+D2H+host 151.1 us
+PB-GZC-ROUND 14 | fused fold+round | entering len 128 | kernel 246.3 us | reduce+D2H+host 155.8 us
+PB-GZC-ROUND 15 | fused fold+round | entering len 64 | kernel 235.9 us | reduce+D2H+host 164.4 us
+PB-GZC-ROUND 16 | fused fold+round | entering len 32 | kernel 236.7 us | reduce+D2H+host 150.9 us
+PB-GZC-ROUND 17 | fused fold+round | entering len 16 | kernel 235.6 us | reduce+D2H+host 129.1 us
+PB-GZC-ROUND 18 | fused fold+round | entering len 8 | kernel 239.5 us | reduce+D2H+host 155.7 us
+PB-GZC-ROUND 19 | fused fold+round | entering len 4 | kernel 233.9 us | reduce+D2H+host 147.3 us
+PB-GZC-ROUND 20 | fold | entering len 2 | kernel 38.8 us | reduce+D2H+host 0.0 us
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, honest-witness data, host words), variant lean, claim none (round 0 evaluated): 20 rounds equal; CPU body 0.770 s, device body (tables built on the device) 0.4070 s
+PB-GZC-MEM slot 18 start | device free 6090 MiB of 8187 MiB | pool holds 3 idle buffers (889 MiB)
+PB-GZC-WARM slot 18 | 300.1 ms, 243 spin launches | first 1616 us | mean of first 5 1317 us | mean of last 5 1225 us | min 1187 us
+PB-GZC slot 18 [gzs_d5s fused tail 0 base] | sumchecks 1 | n 20 k 21 D 5 | total 81.092 ms | build 54.569 ms (14.3 GB/s; H2D 192937984 B) | rounds 9.157 ms (42.1 GB/s) | fused fold+round 15.315 ms (75.6 GB/s) | folds 0.060 ms (0.0 GB/s) | reduce+D2H+host 1.679 ms | finals 0.114 ms | counted device bytes 2323643312 (28.7 GB/s over the total) | pairs 1048575 | P evals 5242875 | host tail 0 rounds 0.000 ms (D2H 0 B) | public-table hits 1
+PB-GZC-ROUND 0 | round | entering len 1048576 | kernel 9157.9 us | reduce+D2H+host 106.0 us
+PB-GZC-ROUND 1 | fused fold+round | entering len 1048576 | kernel 6411.6 us | reduce+D2H+host 240.5 us
+PB-GZC-ROUND 2 | fused fold+round | entering len 524288 | kernel 3085.3 us | reduce+D2H+host 97.2 us
+PB-GZC-ROUND 3 | fused fold+round | entering len 262144 | kernel 1608.8 us | reduce+D2H+host 130.7 us
+PB-GZC-ROUND 4 | fused fold+round | entering len 131072 | kernel 2008.3 us | reduce+D2H+host 155.1 us
+PB-GZC-ROUND 5 | fused fold+round | entering len 65536 | kernel 501.7 us | reduce+D2H+host 58.1 us
+PB-GZC-ROUND 6 | fused fold+round | entering len 32768 | kernel 314.0 us | reduce+D2H+host 64.1 us
+PB-GZC-ROUND 7 | fused fold+round | entering len 16384 | kernel 202.4 us | reduce+D2H+host 66.5 us
+PB-GZC-ROUND 8 | fused fold+round | entering len 8192 | kernel 127.4 us | reduce+D2H+host 63.8 us
+PB-GZC-ROUND 9 | fused fold+round | entering len 4096 | kernel 101.8 us | reduce+D2H+host 68.8 us
+PB-GZC-ROUND 10 | fused fold+round | entering len 2048 | kernel 105.0 us | reduce+D2H+host 62.5 us
+PB-GZC-ROUND 11 | fused fold+round | entering len 1024 | kernel 99.4 us | reduce+D2H+host 63.2 us
+PB-GZC-ROUND 12 | fused fold+round | entering len 512 | kernel 97.2 us | reduce+D2H+host 60.3 us
+PB-GZC-ROUND 13 | fused fold+round | entering len 256 | kernel 95.5 us | reduce+D2H+host 63.7 us
+PB-GZC-ROUND 14 | fused fold+round | entering len 128 | kernel 92.2 us | reduce+D2H+host 62.4 us
+PB-GZC-ROUND 15 | fused fold+round | entering len 64 | kernel 94.7 us | reduce+D2H+host 64.5 us
+PB-GZC-ROUND 16 | fused fold+round | entering len 32 | kernel 93.8 us | reduce+D2H+host 63.5 us
+PB-GZC-ROUND 17 | fused fold+round | entering len 16 | kernel 91.2 us | reduce+D2H+host 62.8 us
+PB-GZC-ROUND 18 | fused fold+round | entering len 8 | kernel 94.3 us | reduce+D2H+host 62.6 us
+PB-GZC-ROUND 19 | fused fold+round | entering len 4 | kernel 93.9 us | reduce+D2H+host 62.5 us
+PB-GZC-ROUND 20 | fold | entering len 2 | kernel 60.2 us | reduce+D2H+host 0.0 us
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, honest-witness data, host words), variant split, claim given: 20 rounds equal; CPU body 0.766 s, device body (tables built on the device) 0.3824 s
+PB-GZC-MEM slot 18 start | device free 6090 MiB of 8187 MiB | pool holds 3 idle buffers (889 MiB)
+PB-GZC-WARM slot 18 | 301.1 ms, 242 spin launches | first 2233 us | mean of first 5 1417 us | mean of last 5 1223 us | min 1189 us
+PB-GZC slot 18 [gzs_d5s fused tail 10 base] | sumchecks 1 | n 20 k 21 D 5 | total 84.708 ms | build 58.063 ms (13.4 GB/s; H2D 192937984 B) | rounds 8.963 ms (43.1 GB/s) | fused fold+round 13.086 ms (88.3 GB/s) | folds 0.044 ms (25.8 GB/s) | reduce+D2H+host 0.868 ms | finals 0.000 ms | counted device bytes 2322513920 (27.4 GB/s over the total) | pairs 1048575 | P evals 5242875 | host tail 10 rounds 3.386 ms (D2H 344064 B) | public-table hits 1
+PB-GZC-ROUND 0 | round | entering len 1048576 | kernel 8964.4 us | reduce+D2H+host 114.0 us
+PB-GZC-ROUND 1 | fused fold+round | entering len 1048576 | kernel 6247.6 us | reduce+D2H+host 179.7 us
+PB-GZC-ROUND 2 | fused fold+round | entering len 524288 | kernel 3060.8 us | reduce+D2H+host 145.2 us
+PB-GZC-ROUND 3 | fused fold+round | entering len 262144 | kernel 1638.2 us | reduce+D2H+host 88.9 us
+PB-GZC-ROUND 4 | fused fold+round | entering len 131072 | kernel 931.7 us | reduce+D2H+host 73.1 us
+PB-GZC-ROUND 5 | fused fold+round | entering len 65536 | kernel 486.8 us | reduce+D2H+host 62.7 us
+PB-GZC-ROUND 6 | fused fold+round | entering len 32768 | kernel 307.8 us | reduce+D2H+host 70.9 us
+PB-GZC-ROUND 7 | fused fold+round | entering len 16384 | kernel 217.5 us | reduce+D2H+host 48.7 us
+PB-GZC-ROUND 8 | fused fold+round | entering len 8192 | kernel 107.9 us | reduce+D2H+host 48.2 us
+PB-GZC-ROUND 9 | fused fold+round | entering len 4096 | kernel 91.3 us | reduce+D2H+host 36.3 us
+PB-GZC-ROUND 10 | fold | entering len 2048 | kernel 43.9 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 11 | host tail | entering len 1024 | kernel 1522.3 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 12 | host tail | entering len 512 | kernel 669.8 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 13 | host tail | entering len 256 | kernel 439.6 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 14 | host tail | entering len 128 | kernel 143.3 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 15 | host tail | entering len 64 | kernel 71.1 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 16 | host tail | entering len 32 | kernel 35.7 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 17 | host tail | entering len 16 | kernel 17.8 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 18 | host tail | entering len 8 | kernel 9.0 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 19 | host tail | entering len 4 | kernel 4.5 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 20 | host tail | entering len 2 | kernel 2.3 us | reduce+D2H+host 0.0 us
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, honest-witness data, host words), variant split-tail10, claim given: 20 rounds equal; CPU body 0.766 s, device body (tables built on the device) 0.3869 s
+PB-GZC-MEM slot 18 start | device free 6090 MiB of 8187 MiB | pool holds 3 idle buffers (889 MiB)
+PB-GZC-WARM slot 18 | 301.3 ms, 241 spin launches | first 1222 us | mean of first 5 1234 us | mean of last 5 1251 us | min 1193 us
+PB-GZC slot 18 [gzl_d5s fused tail 0] | sumchecks 1 | n 20 k 21 D 5 | total 98.069 ms | build 62.669 ms (9.0 GB/s; H2D 192937984 B) | rounds 14.312 ms (24.6 GB/s) | fused fold+round 18.403 ms (57.4 GB/s) | folds 0.050 ms (0.0 GB/s) | reduce+D2H+host 2.335 ms | finals 0.111 ms | counted device bytes 1971321872 (20.1 GB/s over the total) | pairs 1048575 | P evals 5242875 | host tail 0 rounds 0.000 ms (D2H 0 B) | public-table hits 1
+PB-GZC-ROUND 0 | round | entering len 1048576 | kernel 14313.4 us | reduce+D2H+host 257.5 us
+PB-GZC-ROUND 1 | fused fold+round | entering len 1048576 | kernel 7525.6 us | reduce+D2H+host 253.6 us
+PB-GZC-ROUND 2 | fused fold+round | entering len 524288 | kernel 3779.1 us | reduce+D2H+host 193.6 us
+PB-GZC-ROUND 3 | fused fold+round | entering len 262144 | kernel 2081.5 us | reduce+D2H+host 122.7 us
+PB-GZC-ROUND 4 | fused fold+round | entering len 131072 | kernel 1115.2 us | reduce+D2H+host 125.5 us
+PB-GZC-ROUND 5 | fused fold+round | entering len 65536 | kernel 509.7 us | reduce+D2H+host 104.5 us
+PB-GZC-ROUND 6 | fused fold+round | entering len 32768 | kernel 258.7 us | reduce+D2H+host 103.2 us
+PB-GZC-ROUND 7 | fused fold+round | entering len 16384 | kernel 262.2 us | reduce+D2H+host 91.7 us
+PB-GZC-ROUND 8 | fused fold+round | entering len 8192 | kernel 248.4 us | reduce+D2H+host 93.6 us
+PB-GZC-ROUND 9 | fused fold+round | entering len 4096 | kernel 236.4 us | reduce+D2H+host 81.4 us
+PB-GZC-ROUND 10 | fused fold+round | entering len 2048 | kernel 237.9 us | reduce+D2H+host 82.2 us
+PB-GZC-ROUND 11 | fused fold+round | entering len 1024 | kernel 247.6 us | reduce+D2H+host 87.6 us
+PB-GZC-ROUND 12 | fused fold+round | entering len 512 | kernel 246.8 us | reduce+D2H+host 79.0 us
+PB-GZC-ROUND 13 | fused fold+round | entering len 256 | kernel 238.1 us | reduce+D2H+host 104.9 us
+PB-GZC-ROUND 14 | fused fold+round | entering len 128 | kernel 235.5 us | reduce+D2H+host 77.2 us
+PB-GZC-ROUND 15 | fused fold+round | entering len 64 | kernel 230.4 us | reduce+D2H+host 78.5 us
+PB-GZC-ROUND 16 | fused fold+round | entering len 32 | kernel 227.6 us | reduce+D2H+host 78.4 us
+PB-GZC-ROUND 17 | fused fold+round | entering len 16 | kernel 236.2 us | reduce+D2H+host 81.4 us
+PB-GZC-ROUND 18 | fused fold+round | entering len 8 | kernel 247.5 us | reduce+D2H+host 119.1 us
+PB-GZC-ROUND 19 | fused fold+round | entering len 4 | kernel 240.5 us | reduce+D2H+host 119.4 us
+PB-GZC-ROUND 20 | fold | entering len 2 | kernel 50.0 us | reduce+D2H+host 0.0 us
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, honest-witness data, host words), variant lean, claim given: 20 rounds equal; CPU body 0.766 s, device body (tables built on the device) 0.4004 s
+GZC VRAM after TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) honest witness: 2097 MiB in use with 3 pooled buffers; drained 3; 1201 MiB in use after the drain
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 573 filtered out; finished in 118.06s
+

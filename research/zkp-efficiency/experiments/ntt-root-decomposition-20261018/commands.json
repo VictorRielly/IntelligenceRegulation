@@ -1,0 +1,10 @@
+{
+  "main": "python3 experiments/ntt-root-decomposition-20261018/experiment.py > experiments/ntt-root-decomposition-20261018/run.log 2>&1",
+  "main_exit": 0,
+  "initial_main": "same script before zero-only control refinement; initial-result.json retained",
+  "audit": "python3 experiments/ntt-root-decomposition-20261018/audit.py",
+  "audit_exit": 0,
+  "hybrid_census": "one CPU0 nice19 Python accounting command,10s/128MiB AS; formulas in README",
+  "seed": 2026101872,
+  "audit_seed": 2026101873
+}

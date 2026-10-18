@@ -164,6 +164,9 @@ mod cs_port_tests;
 // the generic dense block at each (test only)
 #[cfg(test)]
 mod ladder8b_tests;
+// NATIVE R6: the per-layer softmax score shift (test only)
+#[cfg(test)]
+mod r6_tests;
 // STAGE 19 (test-only): DENSE public weights and a numerically non-trivial
 // witness at the shaped geometries, where the diagonal fixture leaves every
 // hidden unit above `d` with no input and no output weight.

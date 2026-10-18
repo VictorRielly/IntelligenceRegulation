@@ -1,0 +1,15 @@
+[package]
+name = "private-block-kernel-shaped"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Shape-driven exact-integer ZK60 block kernel (computation only, not a proof). A SEPARATE crate from private-block-kernel, which is frozen because it is compiled into the zkVM guest."
+
+# Standalone: not a member of any parent workspace, no dependencies.
+[workspace]
+
+[lib]
+name = "private_block_kernel_shaped"
+path = "src/lib.rs"
+
+[dependencies]

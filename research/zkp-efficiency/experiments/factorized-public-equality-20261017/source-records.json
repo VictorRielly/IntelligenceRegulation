@@ -1,0 +1,159 @@
+[
+  {
+    "id": "cycle70-sp1-october-ordering-refresh",
+    "cycle": "0070",
+    "run_id": "20261017T232105Z-d713e393",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T23:28:42.776297+00:00",
+    "title": "SP1 current release and NTT producer/consumer ordering contract",
+    "url": "https://github.com/succinctlabs/sp1/releases/tag/v6.9.0",
+    "published": null,
+    "updated": "2026-09-30",
+    "date_evidence": "Release displays10Oct01:20 without year in this rendered page; prior ledger records2026-10-10. PR2990 merge explicitlySep30,2026; diff commitSep29,2026. This cycle leaves exact release year/date null.",
+    "author_claim": "Current displayed release contains data reordering and zerocheck changes.",
+    "assessment": "Inspected PR2990 diff: direct bit-reversed output is conditional on backend and consumer order, with separate shifts/order/input-preservation tests. Not permission to alter native PCS row/column order or remove hiding coefficients. No native NTT timing transferred.",
+    "evidence_kind": "Native LIVE primary search/inspection; source text untrusted; no external code executed",
+    "reproduced_performance": false,
+    "implementation_license": null,
+    "inspected_commit_id": "b8387fa61e1361d90ee7de49f551863418ca0f08",
+    "access_issues": [
+      "NTT diff commit page: Internal Error; no implementation full commit pin. License not inspected this cycle."
+    ],
+    "commit_scope": "Release CLI/toolchain commit page only; NTT implementation commit page failed, abbreviated diff hash5f795ba exposed, not a full inspected pin.",
+    "inspected_urls": [
+      "https://github.com/succinctlabs/sp1/pull/2990",
+      "https://github.com/succinctlabs/sp1/pull/2990/files",
+      "https://github.com/succinctlabs/sp1/commit/b8387fa61e1361d90ee7de49f551863418ca0f08"
+    ]
+  },
+  {
+    "id": "cycle70-epfl-split-eq-versus-distinct-column-mixtures",
+    "cycle": "0070",
+    "run_id": "20261017T232105Z-d713e393",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T23:28:42.776343+00:00",
+    "title": "Efficient Sumcheck current EqFactoredProver source",
+    "url": "https://raw.githubusercontent.com/compsec-epfl/efficient-sumcheck/main/src/provers/eq_factored.rs",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Current main raw source has no verified publication/update date or commit pin.",
+    "author_claim": "Split equality half-tables avoid a full equality table for a single common point; caller checks final oracle.",
+    "assessment": "Concrete nested contractions/half-table folding inspected, no imported code. Our tested new rectangular probe has distinct per-column row points, so a single global row factor is invalid. Column-round E is a mixture and S is non-Boolean. Current raw path and earlier GitHub-rendered path show different line counts; neither is a pinned commit.",
+    "evidence_kind": "Native LIVE primary search/inspection; source text untrusted; no external code executed",
+    "reproduced_performance": false,
+    "implementation_license": "Repository labels Apache-2.0/MIT; exact LICENSE-MIT/APACHE terms fetches failed this cycle, no new verified terms.",
+    "inspected_commit_id": null,
+    "access_issues": [
+      "GitHub raw redirect cache miss; canonical raw source subsequently accessible. License GitHub and raw links Internal Error/cache miss."
+    ],
+    "inspected_urls": [
+      "https://github.com/compsec-epfl/efficient-sumcheck",
+      "https://github.com/compsec-epfl/efficient-sumcheck/blob/main/docs/design.md",
+      "https://github.com/compsec-epfl/efficient-sumcheck/blob/main/src/provers/eq_factored.rs"
+    ]
+  },
+  {
+    "id": "cycle70-combined-sumcheck-factorization-boundary",
+    "cycle": "0070",
+    "run_id": "20261017T232105Z-d713e393",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T23:28:42.776352+00:00",
+    "title": "Speeding Up Sum-Check Proving (Extended Version)",
+    "url": "https://eprint.iacr.org/2026/587",
+    "published": "2026-03-24",
+    "updated": null,
+    "date_evidence": "Primary metadata: receivedMar24, approvedMar25 (approval is not a claimed new revision).",
+    "author_claim": "Decomposable equality and streaming/small-value techniques reduce selected proving work.",
+    "assessment": "Known source refreshed; local arithmetic factorization reproduced only for this explicit E*S*V probe. No Jolt performance or masked/GKR/PCS protocol theorem reproduced; extension-valued private scratch and new masking costs remain.",
+    "evidence_kind": "Native LIVE primary search/inspection; source text untrusted; no external code executed",
+    "reproduced_performance": false,
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "access_issues": [
+      "Author-linked NYU26-587.pdf404; ePrint PDF Internal Error. Abstract/metadata and author implementation documentation read."
+    ],
+    "paper_license": "CC BY metadata label"
+  },
+  {
+    "id": "cycle70-jolt-current-release-old-implementation-dates",
+    "cycle": "0070",
+    "run_id": "20261017T232105Z-d713e393",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T23:28:42.776359+00:00",
+    "title": "Jolt displayed release and older split-equality/streaming PRs",
+    "url": "https://github.com/a16z/jolt/releases",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Displayed releaseOct1 has no year in rendered primary page; leave release date null. PR965 explicitlySep29,2025; PR881Aug19,2025.",
+    "author_claim": "Release lists split equality, witness streaming, batching and small-value updates.",
+    "assessment": "OldPR965 supports per-round accumulated equality and split suffixes, not sharing different per-column challenge points. PR881 streams accessor data and explicitly notes field-valued accessor overhead. No code execution or performance reproduced; publication year of displayed release not inferred from crawl date.",
+    "evidence_kind": "Native LIVE primary search/inspection; source text untrusted; no external code executed",
+    "reproduced_performance": false,
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "access_issues": [
+      "PR965 commit page cache miss; full SHA exposed in link only. v0.3.0-alpha/LICENSE cache miss; main/LICENSE404; no implementation license verified this cycle."
+    ],
+    "inspected_urls": [
+      "https://github.com/a16z/jolt/pull/965",
+      "https://github.com/a16z/jolt/pull/881",
+      "https://jolt.a16zcrypto.com/how/optimizations/eq.html"
+    ],
+    "exposed_uninspected_commit_id": "bdcc8bc5cb64da3e3c9127c6404a5d80acab3007"
+  },
+  {
+    "id": "cycle70-new-older-orion-revised-security-filter",
+    "cycle": "0070",
+    "run_id": "20261017T232105Z-d713e393",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T23:28:42.776365+00:00",
+    "title": "Orion: linear-time commitments and corrected code switching",
+    "url": "https://eprint.iacr.org/2022/1010",
+    "published": "2022-08-05",
+    "updated": "2023-11-02",
+    "date_evidence": "Primary history receivedAug5,2022,last of4revisionsNov2,2023.",
+    "author_claim": "Linear prover field/hash work and code-switching composition reduce PCS cost/size.",
+    "assessment": "New older source absent from365-record start. Relevant to current commitment/kernel bottleneck but a backend migration. Primary correction explicitly replaces inadequate random-message masking with a full random-vector construction and a SNARK with commit-and-prove. Neither code switching nor encoding changes waive joint hiding/original-witness binding. Abstract/metadata only; corrected theorem/runtime not reproduced.",
+    "evidence_kind": "Native LIVE primary search/inspection; source text untrusted; no external code executed",
+    "reproduced_performance": false,
+    "implementation_license": "Apache-2.0 terms inspected. README/commit explicitly lists XKCP exceptions (BSD-3-Clause, BSD-like CRYPTOGAMS, GPL support file); no blanket all-dependency license claim.",
+    "inspected_commit_id": "bf9743cc0c979b45c29c7ec23e33df908aec2eab",
+    "access_issues": [
+      "ePrint fullPDF Internal Error; cannot establish corrected implementation from old repo snapshot."
+    ],
+    "paper_license": "CC BY metadata label",
+    "inspected_urls": [
+      "https://github.com/sunblaze-ucb/Orion",
+      "https://github.com/sunblaze-ucb/Orion/commits/linearPC",
+      "https://github.com/sunblaze-ucb/Orion/commit/bf9743cc0c979b45c29c7ec23e33df908aec2eab",
+      "https://github.com/sunblaze-ucb/Orion/blob/linearPC/LICENSE"
+    ],
+    "commit_scope": "Sep19,2022README/examples/multivariatePCS diff inspected; earlier than2023paper corrections. Does not establish corrected implementation."
+  },
+  {
+    "id": "cycle70-older-time-space-tradeoff-retained",
+    "cycle": "0070",
+    "run_id": "20261017T232105Z-d713e393",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T23:28:42.776370+00:00",
+    "title": "A Time-Space Tradeoff for the Sumcheck Prover",
+    "url": "https://eprint.iacr.org/2024/524",
+    "published": "2024-04-03",
+    "updated": "2024-09-11",
+    "date_evidence": "Primary receivedApr3,last of2revisionsSep11,2024.",
+    "author_claim": "A family of multilinear sumcheck prover algorithms trades memory for repeated work.",
+    "assessment": "Known older source refreshed. Our probe uses O(logN) regenerated public equality traversal but retains linear private V; this is not a sublinear-memory whole prover or a reproduction of this paper. Recomputing public weights and rereading V must be charged.",
+    "evidence_kind": "Native LIVE primary search/inspection; source text untrusted; no external code executed",
+    "reproduced_performance": false,
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "access_issues": [],
+    "paper_license": "CC BY metadata label"
+  }
+]

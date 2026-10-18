@@ -478,3 +478,311 @@ No git. Heavy jobs through scripts/zk60_resource_guard.py.
   before reading), r4_B (read_bounded lstat-to-read race in the export
   reader, low, pre-existing; fix: read_segment_bounded's open discipline).
   Notes N-r4-a..e. Round 4 closed; nothing of mine is running.
+
+## ROUND 5 (re-review of the native R5b tree, ops/zkp-mvp/trained-1b-review-r5/)
+
+- 00:07 UTC (2026-10-18): opened on the coordinator's relay. Read the native
+  ledger's R5 tail and R5b section (PROGRESS 1060-1440) and the privacy
+  review's P-1..P-7 (REVIEW.md 40-100, 315-520).
+- 00:08 UTC: copied r5b/frozen-tree/ (218 files, no target dirs) to
+  ops/zkp-mvp/trained-1b-review-r5/; ops/zkp-mvp/trained-1b-review-r5.sha256
+  (218 entries) equals r5b/manifest_frozen.json file for file; tree hash
+  recomputes to 44013397... = FROZEN.txt. r4-vs-r5.patch (my R5 copy ->
+  R5b copy) = 2,099 lines = the author's r5b-vs-r5.patch length; 14 files
+  (trained_block.rs +504/-195, ladder8b_tests.rs new, shape.rs, run.rs,
+  trained_block_tests.rs, trained_stack_tests.rs, run_capture.rs, run_tests,
+  s24_tests, mvp_driver, examples/zk60_trained_block.rs, trained_calib_tests,
+  trained_statement.rs, private_block.rs).
+- 00:08-00:16 UTC: read every non-test hunk of r4-vs-r5.patch. Code-read
+  results: (P-1 a / H-1) seal_and_record runs the full checked load + digest,
+  the witness builder from the previous output and parity at EVERY layer,
+  and the block-0 input check, BEFORE prepare_endpoints / create_dir; the
+  endpoints are the builder's planes; builder refusals name the check only.
+  (P-1 b / M-9) default: the prover writes <out>.unverified-statement/ (+
+  UNVERIFIED.txt); stack-verify promotes by RENAME after verification, having
+  checked only three substrings of statement.json (identity, context,
+  expected_io) and segments.json against a RE-READ of the segment files.
+  (C-R4) label_of on all four CLI entries, allow-list = the defaults; flags()
+  takes the FIRST of duplicate flags (no bypass). (C-R1) c_r1 on both context
+  digests. (P-5) refuse_prover_private_entries on both verifiers (top-level
+  "seq_*" names). (P-6) PARITY_REFUSAL without count/position/value; the
+  stack names the layer; load_seq_dir errors generic. (P-7) backend,
+  gpu_declines, prover_verified_in_process in statement.json (prover self-
+  reports). (r4_A) load_array_checked: manifest dtype/shape vs the code's
+  expected alternatives BEFORE the read, n <= MAX_ARRAY_BYTES, read with the
+  EXACT length. (r4_B) run::read_regular_file_bounded (lstat type/length,
+  O_NOFOLLOW|O_NONBLOCK, fstat re-check, take(max+1), length re-check) backs
+  trained_block::read_bounded and mvp_driver's reader + segment scan.
+  (8B T64/T128) new block + run strings, llama3_8b_log_cols 13/14,
+  trained_geometry entries, Shape::llama3_8b_trained (refuses other T),
+  Geometry::Llama3_8B(T) in the reader (T 32/64/128; shape_for refuses a T /
+  geometry mismatch), every registry uses the generic lists
+  (TRAINED_CALIBRATION_PROFILES 7, LLAMA3_8B_TRAINED_PROFILES 3, CS-7 map,
+  RunShape::tinyllama_trained map, RunStatement::new refusal list, pinned
+  source, RoPE 500000); the softmax top-limb pins (layout.rs 707-708:
+  scaled(top, 2^(8 ls - wrho_s)), scaled(pl_top, 64)) bound sr, sg < 2^wrho_s
+  and p < 2^10.
+- 00:16 UTC: reviewer_nowrap_r5.py (light, exit 0, r5/r5-nowrap.log, json):
+  8B T32/T64/T128, every f_e 9..=16, whole shift windows: T128 f_e 16 c2
+  2^33.0, c3 2^24.0, PV accumulator 2^24, PV host 2^24.6; T64 c2 2^32, PV
+  host 2^24.0; Sum - 1 < 2^wrho_s at every (T, f_e); geometry hosts <= 2^36
+  (down over f_pad 16384); norm at width 4096 T-independent (r3: C0
+  2^48.039, tn <= 9).
+- 00:17 UTC: scratch ops/zkp-mvp/trained-1b-review-r5-scratch/ (r5 copy +
+  review modules: review_r5_inner in trained_block.rs [r5_1 export reader
+  race, r5_3 promotion attacks], review_r5_tests.rs [r5_5 8B profiles];
+  write_stack_export pub(super)); my verifier copy of the calibration lane's
+  llama3_8b_pg_rot1_b6_T128 export (hard links, seq_* excluded, 454 files)
+  at verifier-8b-T128/; fixtures r5/make_fixtures_r5.py (verifier copies
+  without seq_*; fat / zero / FIFO / big / misdeclared arrays, FIFO
+  profile.json, /dev/zero manifest, FIFO expected.bin).
+- 00:18 UTC: launched r5/r5_queue.sh (detached, serial, each leaf guarded).
+- 00:20 UTC: r5-cli-build exit 0 (pristine frozen copy -> scratch
+  target-cli, ~2.7 min); review CLI r5/zk60_trained_block.review-r5.release.bin
+  sha256 2dcf76d0... (r5/binaries.sha256). Probes 00:20:52-00:20:59, each
+  guarded light 0.5/1.5 GiB (1.5/1.5 for the fat ones) [MEASURED, shared box,
+  n=1]:
+  * P-5: a verifier export holding seq_s0 -> "privacy review P-5: ... holds
+    the prover-private entry \"seq_s0\"". C-R4: stack-verify --label
+    request-42 and stack-prove --label request-42 refused by name; the prover
+    created neither the run dir nor the unverified dir.
+  * honest (verifier copy, round-3 run with statement/): verified, 11
+    controls refused, 41 MiB.
+  * r3_6 probes on R5b (unchanged reader): /dev/zero, 512 MiB sparse, FIFO,
+    1 B short/long, directory, /dev/null, symlink-to-honest, segment-1 FIFO
+    (+ --controls): all refused by name, 0.02-0.26 s, 10-30 MiB; hard link
+    verifies; statement/expected.bin a FIFO -> "not a regular file ...
+    refused before it is opened".
+  * r4_A / r4_B (verifier): wq a /dev/zero symlink or a FIFO -> "layer 1:
+    array `wq`: ... not a regular file ... refused before it is opened";
+    300 MiB -> "314572800 bytes on disk, the expected length is 147456;
+    refused before it is read"; profile.json a FIFO and a manifest a /dev/zero
+    symlink -> "not a regular file"; wk misdeclared [384, 384] -> "the
+    manifest declares I8 [384, 384], expected one of [(I8, [128, 384])]
+    (refused before it is read: review r4_A)"; exp-fat40-v and exp-fat-v
+    (22 sparse 40 / 255 MiB arrays) -> refused at layer 0 wq from metadata in
+    0.00 s, max RSS 3.7 / 4.0 MiB (round 4: 471 MB / 1.43 GiB at the cap
+    until killed). Prover side: stack-prove on the fat export (with seq_s0)
+    -> refused in the sealing pass before any read, 3.8 MiB, no run dir.
+    r4_A and r4_B CLOSED at the CLI.
+- 00:28-00:30 UTC: r5-8b-T128-verify (cpu 1.5/3 GiB, RAYON 16): the review
+  CLI, in a fresh process, from MY verifier copy of the calibration lane's
+  ORIGINAL export (hard links, no seq_*), of the native lane's 32-block
+  Llama-3-8B T128 run (r5b/stack-llama3_8b_pg_rot1_b6_T128-ho00-cpu/run,
+  read only: its statement/ already exists, so nothing is promoted or
+  written): "verified", 32 blocks, 922,711,264 B, statement identity
+  6aba46fbd12d14b0... rebuilt from the original export = the pin; load 14.7
+  s, verify 38.5 s (block loads 17.7 s); all 11 run-level controls refused
+  (f_e + 1 by the counted length: the T128 layout moves with the sigma_s
+  limbs); honest still verifies; wall 166.6 s, max RSS 2.34 GiB [MEASURED,
+  shared box, n=1].
+- 00:33-00:34 UTC: r5-test-build exit 0 (--lib --no-run, ~2.7 min); r5-fast
+  (cpu 2/4, --test-threads=1) 3 passed, 0 failed (r5/r5-fast.log):
+  * r5_5: 8B T64 and T128 at every f_e 9..=16 and two calibrations (the
+    R4 test constants and the R5b export's) build through the door with
+    wrho_s = log2 T + f_e, log_cols 13 / 14, 37 endpoint rows, a layout and
+    CS-8; counted A 3229 / H 3534 / 21,697,512 B (T64) and A 3405 / H 3790 /
+    29,300,856 B (T128) at f_e 9; f_e 8 and 17 refused; T 16/33/96/256
+    refused; every other trained run profile refuses each shape (CS-7); each
+    block string at the other T's geometry refused (CS-9 as a release build)
+    and by CS-8; a TinyLlama geometry under the 8B string refused (CS-8); 14
+    trained block/run strings pairwise distinct (D17); T64/T128 in the door
+    list, RoPE 500000, pinned checkpoint.
+  * r5_1 (r4_B re-run): read_bounded(max 4096) under a concurrent swap
+    (4 KiB file / 64 MiB sparse / symlink to it / /dev/zero symlink / FIFO):
+    5,841,763 calls in 10 s, Ok only with the regular file's bytes
+    (1,472,702), 0 other returns (round 4: 340 over-bound, 64 MiB); refusals
+    3,022,981 lstat type, 969,872 lstat length, 197,729 O_NOFOLLOW open,
+    178,479 fstat after open; slowest call 4.9 ms. (15 non-blocking writer
+    opens of the FIFO succeeded: the reader holds an O_NONBLOCK fd for
+    microseconds before fstat refuses it; a blocking park is impossible with
+    O_NONBLOCK, and none of those calls returned data.) r4_B CLOSED.
+  * r5_3 (P-1 b promotion under attack), 2-layer rung stacks proved by the
+    R5b stack-prove (default, no in-process verify):
+    (a) the prover writes only <run>.unverified-statement/; a FAILED
+        verification (segment byte flipped) promotes nothing. HOLDS.
+    (b) the race at its point: run A verified; then segment 1 replaced by
+        run B's segment 1 (same counted length, other transcript) and A's
+        unverified segments.json rewritten to name it; promote_statement
+        ACCEPTS; A has statement/; a fresh stack-verify of A afterwards
+        fails (exit 1). The promotion binds segments.json to a RE-READ of
+        the files, not to the bytes the verification consumed.
+    (c) NO race needed: the prover's statement.json with false "scope",
+        "backend", "blocks" and a DUPLICATE "trained_statement_identity" of
+        zeros after the real one, plus an extra file EXTRA-prover-file.txt:
+        an ordinary stack-verify exits 0 and PROMOTES both (only three
+        substrings of statement.json are checked; the directory is renamed
+        whole).
+    (d) <run>.unverified-statement a SYMLINK to a directory elsewhere:
+        stack-verify exits 0, <run>/statement becomes that symlink, and the
+        marker inside the symlink's target is deleted.
+    Finding r5_A (M-9 / D12b(1) publication integrity; not verification
+    soundness: stack-verify never trusts statement.json).
+- 00:34 UTC: r5-author-subset (cpu 4/6, the author's tests of the touched
+  modules on my binary: trained_block_tests, trained_stack_tests,
+  review_r4_b, review_r3_6, cs_port_tests, ladder8b_tests, s24_tests,
+  s25_tests, trained_calib_tests, review_d24_tests, r4_tests; review_r5
+  skipped): 64 passed, 0 failed, 9 ignored (heavy), incl. the layer-1
+  parity refusal with no run dir, the P-1/P-3/P-5/P-6/P-7 CLI tests, r4_A /
+  r4_B regressions, the 8B T64/T128 counted layouts and no-wrap tests, the
+  N-r4-d capture pins, the s25 census. Removed only the 9
+  /tmp/zk60-native-tiny-250615-* dirs created 00:34:00-00:34:20 UTC (inside
+  that job's window, while it held the heavy lock). r5_queue.sh done; no
+  review job live (guard status).
+- 00:37 UTC: R5_VERDICT.md written. VERDICT: R5b ACCEPTED on soundness;
+  the Llama-3-8B T64 / T128 profiles ACCEPTED (no-wrap, counted layouts,
+  registries / D17, door classes, CS-7 / CS-9 cross pairs, export T mapping;
+  the real 32-block 8B T128 stack verifies in a fresh process from my own
+  verifier copy, identity 6aba46fb..., 11 controls refused). r4_A, r4_B
+  CLOSED. P-1: H-1 holds; M-9 holds for the honest prover, but NEW finding
+  r5_A (medium, publication integrity, not verification soundness): the
+  promotion renames prover files checked by three substrings and a re-read
+  of the segments -> a post-verify segment swap, a forged statement.json
+  (+ duplicate identity key), extra files and a symlinked directory are all
+  promoted (r5_3 b/c/d); minimal fix in the verdict (the verifier writes
+  statement/ from its own data and the hashes of the bytes it verified).
+  C-R4 / P-5 / P-6 / P-7 as described (notes N-r5-a..d). Round 5 closed;
+  nothing of mine is running.
+
+## ROUND 6 (re-review of the native R6 tree, ops/zkp-mvp/trained-1b-review-r6/)
+
+- 02:37 UTC (2026-10-18): opened on the coordinator's relay. Read the native
+  ledger's Round 6 section (PROGRESS 1476-1580).
+- 02:38 UTC: copied r6/frozen-tree/ (219 files) to
+  ops/zkp-mvp/trained-1b-review-r6/; ops/zkp-mvp/trained-1b-review-r6.sha256
+  (219 entries) equals r6/manifest_frozen.json; tree hash 83f1fdcb... =
+  FROZEN.txt. r5-vs-r6.patch = 1,610 lines = the author's r6-vs-r5b.patch;
+  11 files (trained_block.rs +370/-90, trained_stack_tests +250, r6_tests.rs
+  new, run.rs, protocol.rs, shape.rs, trained_statement.rs, ...).
+- 02:38-02:42 UTC: read every non-test hunk of r5-vs-r6.patch. Code-read
+  results: (r5_A) verify_run_from_dir_hashed_with returns (length, SHA-256)
+  of exactly the bytes each step verified; stack-verify: check_statement_dir
+  (real dir, symlink refused, exactly the named regular files) before any
+  read; expected.bin read once and must be canonical; after the verify (and
+  controls) the found statement.json must be byte for byte the verifier's
+  render_stack_statement with the writer and prover claims it names (strict
+  parse; writer must be Unverified for an unverified dir, InProcess /
+  FreshVerify for statement/), segments.json must equal the verified hashes;
+  publication writes a fresh statement.writing-<pid> (create_dir), checks
+  the target is absent, renames, removes tmp on failure; the prover's
+  unverified dir is re-checked as a real dir before remove_dir_all (which
+  does not follow a top-level link). In-process path: verified hashes must
+  equal the sink's. Schema /2: statement_written_by + prover_reported
+  {backend, gpu_declines, what} (N-r5-c, also the block statement).
+  (per-layer sh_s) loader: profile_constants nulls must equal
+  per_layer_constants_differ; with sh_s listed and no uniform profile
+  constants the run base = the mode over the run's layers (ties: smaller);
+  load_layer_mode compares every other constant with the run's and records
+  an own sh_s (Some only when != base) after Shape::with_score_shift
+  (trained shapes only, ONE_LIMB_SHIFT window, CS-8 rebuild, trained class);
+  LayerRecord.sh_s encoded as "sh-score-layer" only when present (run-wide
+  identities unchanged), check_self refuses own == base or outside the
+  window; RunStatement::new_bound_from_digests re-validates each own value
+  at the door (prover and verifier both build it) into stage_sh_s; the
+  stage schedule line carries "score shift v (the layer's own; the run's is
+  b)" only when it differs; stage_layout, prove_core and verify_core run at
+  stage_shape(k); the sealing pass builds each witness at its stage shape
+  and runs protocol::check_lookup_misses on it (N-r5-a); rebuilds use the
+  sealed shapes. sh_s enters one relation (the score host) and one lookup
+  coefficient (scaled(rsl, 2^(8 - sh_s))). (N-r5-d) prover_start event;
+  scope texts updated.
+- 02:43 UTC reviewer_nowrap_r6.py (light, exit 0; json): score host over
+  sh_s 1..=8 <= 2^20.022 (head_dim 64) / 2^21.0 (head_dim 128); round 5's
+  full clause set at TinyLlama T32/T64/T128 (worst 2^35; T128 f_e 16: c2
+  2^33, c3 2^24, PV host 2^24.6) and 8B T32/T64/T128 (worst 2^36).
+- by 02:43 UTC: scratch ops/zkp-mvp/trained-1b-review-r6-scratch/ (r6 copy +
+  review_r6_inner in trained_block.rs: r6_1 writer attacks, r6_2 per-layer
+  export attacks, r6_3 CS-3 sealing check; write_stack_export /
+  write_stack_export_with pub(super)); my b7 T128 verifier copy (hard links,
+  no seq_*, 454 files) at verifier-8b-b7-T128/. The calibration lane's b7
+  T128 export: profile sh_s null, per_layer_constants_differ [exp_e_s, sh_s,
+  silu_member], layer 1 at 7, 31 layers at 6, 32 manifest digests pinned,
+  profile sha256 040eb5cf.... The native lane's b7 stack has NOT landed
+  (its run dir is empty; the prove waits in the guard).
+- 02:44 UTC: launched r6/r6_queue.sh (detached, serial, guarded).
+- 04:22 UTC (2026-10-18): resumed after the usage-limit stop (~03:17 UTC)
+  on the coordinator's relay. r6_queue.sh had finished by itself at
+  03:20:45 (markers present; no job of mine live; heavy lock free). r6
+  frozen copy re-verified unchanged (219 OK). Results of the queue:
+  * 03:16 r6-cli-build exit 0: review CLI r6/zk60_trained_block.review-r6.
+    release.bin sha256 46a949f6... (r6/binaries.sha256).
+  * run-wide export keeps its identity under R6: r6-runwide-prove (R6 CLI,
+    default = no in-process verify) printed 72098637... = round 3's; prove
+    wrote only <run>.unverified-statement; r6-runwide-verify --controls
+    verified, 11 controls refused, "statement-published ... by stack-verify,
+    from its own rendering and the hashes of the verified bytes", the
+    prover's dir removed; r6-runwide-recheck: "statement-checked ... byte
+    for byte this verifier's rendering of the verified run".
+  * r6-8b-b6-under-r6 (exit 1, EXPLAINED, not a loader fault): the R5b-
+    proved run-wide 32-block 8B b6 T128 run, read only, from my round-5
+    verifier copy: "verified", identity 6aba46fb... UNCHANGED under R6
+    (load 12.6 s, verify 33.4 s, 2.1 GB); then refused at the r5_A
+    byte-check of its EXISTING statement/, which R5b wrote under schema
+    /1 ("statement.json: not schema zk60-trained-stack-run/2 (review
+    r5_A)"). That is the intended rule (an older writer's statement/ is
+    refused, never trusted); the native lane re-lays such statements
+    (r6_compat_prepare.py). Note N-r6-c.
+  * r6-8b-b7-identity (exit 1, EXPLAINED): a deliberate zero pin so the
+    CLI prints the identity it rebuilds from MY verifier copy of the
+    calibration lane's per-layer b7 T128 export: 97c4acda9da994c1... (the
+    loader accepts the real per-layer export; no artifact needed before the
+    pin check). The native lane's b7 stack has not landed (run dir empty at
+    03:17 and at 04:22).
+  * 03:20 r6-test-build exit 0; r6-fast (my review tests, cpu 2/4,
+    --test-threads=1): 3 passed, 0 failed (r6/r6-fast.log):
+    r6_1 writer attacks: (b) swap + rewritten segments.json after the
+    verify: refused, nothing published; (b') swap alone: published
+    segments.json names the VERIFIED bytes, a later verify of the swapped
+    dir fails; (c) duplicate keys + false scope, writer label InProcess /
+    FreshVerify inside an unverified dir, a non-canonical JSON escape, a
+    300-char backend, one trailing space: each refused, nothing published;
+    (c') a canonical but false backend claim is published under
+    prover_reported (by design, labelled); (d) symlinked unverified dir:
+    refused, the target's marker intact; (d2) a published statement/
+    replaced by a symlink to an identical copy: refused; (e) a leftover
+    statement.writing-424242/: the run refuses to verify at all (note
+    N-r6-b); (f) a PROVER-written statement/ naming stack-verify as its
+    writer, canonical otherwise: accepted at the byte check (exit 0) after
+    a full verification (note N-r6-a: the writer label is not
+    authenticated); (i) both dirs: refused; (k) two concurrent
+    publications of one run: exits 0 / 1, no leftover writing dir, a third
+    verify checks byte for byte.
+    r6_2 per-layer export attacks (rung-TC 3-layer export, layer 1 at 6,
+    base 5): honest proves, verifies with controls, publishes; layer 1 at 9
+    or 0 (re-pinned), base 9, profile sh_s non-null while listed, null but
+    unlisted, a stale manifest digest, a run-level constant (sh_o) differing
+    in one layer: verifier statement refused AND stack-prove refused with
+    no run dir; layer 1 at 7 re-pinned: another identity, the run proved at
+    6 refused under it (binding); tie {6,5}: base 5, layer 0 own 6,
+    verifies; sub-range --layers 1..2: base 6, no own record, verifies,
+    identity differs from the full range.
+    r6_3: check_lookup_misses refuses an exp miss and an act miss by CS-3's
+    name with the family only.
+  * r6-author-subset (the author's tests of the touched modules on my
+    binary): 72 passed, 0 failed, 9 ignored, incl. r6_tests (6), the
+    per-layer stack test and review_r5_3.
+  Removed only the 11 /tmp/zk60-native-tiny-368286-* dirs of my author-
+  subset run (pid dead, inside its 03:20:11-03:20:45 window).
+- 04:24-04:25 UTC: two variants of my b7 verifier copy (make_b7_variants.py:
+  hard links, the two edited files fresh copies; the original export's
+  profile.json sha256 040eb5cf... re-checked untouched), each a guarded
+  cpu 3/5 digest pass of my CLI with a zero pin: `flat` (layer 1's sh_s
+  7 -> 6, profile re-pinned) rebuilds identity d29c4343... != the per-layer
+  export's 97c4acda... (11.3 s, 2.0 GB); `shs9` (layer 1 at 9, re-pinned)
+  refused at the door before any array is read: "layer 1's own sh_s: ...
+  a per-layer sh_s 9 is outside its structure-preserving window 1..=8"
+  (0.6 s). (queue.out's "exit 0" lines for these two are a wrapper
+  artefact — `$?` read after a command substitution; the .done files and
+  guard JSON hold the real codes, 1 and 1.) The native lane's r6_stack.sh
+  for b7 T128 is still live (its prove waits in the guard); not landed.
+- 04:2x UTC: R6_VERDICT.md written. VERDICT: R6 ACCEPTED on soundness.
+  r5_A CLOSED (writer attacks (b) (b') (c) (d) (d2) (e) (i) (k) all
+  refused or correct; (c') and (f) by design); per-layer sh_s ACCEPTED
+  (format, door on both sides, binding incl. the real b7 export, class-wide
+  no-wrap at all six profiles, run-wide identities unchanged incl. 8B b6
+  T128); N-r5-a/c/d CLOSED; the two exit-1 jobs explained (schema /1
+  statement refused after a successful verify; a deliberate zero pin).
+  Notes N-r6-a (writer label unauthenticated), N-r6-b (leftover writing
+  dir blocks verifies), N-r6-c (R5b statement/ needs re-layout), N-r6-d
+  (queue.out artefact), N-r6-e (prover claims labelled). Round 6 closed;
+  nothing of mine is running.

@@ -1,0 +1,1334 @@
+[
+  {
+    "log_n": 12,
+    "first_stage": 1,
+    "baseline_root_words_both_directions": 8190,
+    "compressed_root_words_both_directions": 252,
+    "full_butterfly_multiplications": 24576,
+    "general_multiplications": 10272,
+    "shift_calls": 20160,
+    "extra_shifts_vs_prior": 9951,
+    "logical_low_root_reads": 10272,
+    "stages": [
+      {
+        "stage": 1,
+        "general": 0,
+        "shifts": 0,
+        "prior_sparse_shifts": 0
+      },
+      {
+        "stage": 2,
+        "general": 0,
+        "shifts": 1024,
+        "prior_sparse_shifts": 1024
+      },
+      {
+        "stage": 3,
+        "general": 0,
+        "shifts": 1536,
+        "prior_sparse_shifts": 1536
+      },
+      {
+        "stage": 4,
+        "general": 0,
+        "shifts": 1792,
+        "prior_sparse_shifts": 1792
+      },
+      {
+        "stage": 5,
+        "general": 0,
+        "shifts": 1920,
+        "prior_sparse_shifts": 1920
+      },
+      {
+        "stage": 6,
+        "general": 0,
+        "shifts": 1984,
+        "prior_sparse_shifts": 1984
+      },
+      {
+        "stage": 7,
+        "general": 1024,
+        "shifts": 1984,
+        "prior_sparse_shifts": 992
+      },
+      {
+        "stage": 8,
+        "general": 1536,
+        "shifts": 1984,
+        "prior_sparse_shifts": 496
+      },
+      {
+        "stage": 9,
+        "general": 1792,
+        "shifts": 1984,
+        "prior_sparse_shifts": 248
+      },
+      {
+        "stage": 10,
+        "general": 1920,
+        "shifts": 1984,
+        "prior_sparse_shifts": 124
+      },
+      {
+        "stage": 11,
+        "general": 1984,
+        "shifts": 1984,
+        "prior_sparse_shifts": 62
+      },
+      {
+        "stage": 12,
+        "general": 2016,
+        "shifts": 1984,
+        "prior_sparse_shifts": 31
+      }
+    ]
+  },
+  {
+    "log_n": 12,
+    "first_stage": 3,
+    "baseline_root_words_both_directions": 8190,
+    "compressed_root_words_both_directions": 252,
+    "full_butterfly_multiplications": 20480,
+    "general_multiplications": 10272,
+    "shift_calls": 19136,
+    "extra_shifts_vs_prior": 9951,
+    "logical_low_root_reads": 10272,
+    "stages": [
+      {
+        "stage": 3,
+        "general": 0,
+        "shifts": 1536,
+        "prior_sparse_shifts": 1536
+      },
+      {
+        "stage": 4,
+        "general": 0,
+        "shifts": 1792,
+        "prior_sparse_shifts": 1792
+      },
+      {
+        "stage": 5,
+        "general": 0,
+        "shifts": 1920,
+        "prior_sparse_shifts": 1920
+      },
+      {
+        "stage": 6,
+        "general": 0,
+        "shifts": 1984,
+        "prior_sparse_shifts": 1984
+      },
+      {
+        "stage": 7,
+        "general": 1024,
+        "shifts": 1984,
+        "prior_sparse_shifts": 992
+      },
+      {
+        "stage": 8,
+        "general": 1536,
+        "shifts": 1984,
+        "prior_sparse_shifts": 496
+      },
+      {
+        "stage": 9,
+        "general": 1792,
+        "shifts": 1984,
+        "prior_sparse_shifts": 248
+      },
+      {
+        "stage": 10,
+        "general": 1920,
+        "shifts": 1984,
+        "prior_sparse_shifts": 124
+      },
+      {
+        "stage": 11,
+        "general": 1984,
+        "shifts": 1984,
+        "prior_sparse_shifts": 62
+      },
+      {
+        "stage": 12,
+        "general": 2016,
+        "shifts": 1984,
+        "prior_sparse_shifts": 31
+      }
+    ]
+  },
+  {
+    "log_n": 12,
+    "first_stage": 4,
+    "baseline_root_words_both_directions": 8190,
+    "compressed_root_words_both_directions": 252,
+    "full_butterfly_multiplications": 18432,
+    "general_multiplications": 10272,
+    "shift_calls": 17600,
+    "extra_shifts_vs_prior": 9951,
+    "logical_low_root_reads": 10272,
+    "stages": [
+      {
+        "stage": 4,
+        "general": 0,
+        "shifts": 1792,
+        "prior_sparse_shifts": 1792
+      },
+      {
+        "stage": 5,
+        "general": 0,
+        "shifts": 1920,
+        "prior_sparse_shifts": 1920
+      },
+      {
+        "stage": 6,
+        "general": 0,
+        "shifts": 1984,
+        "prior_sparse_shifts": 1984
+      },
+      {
+        "stage": 7,
+        "general": 1024,
+        "shifts": 1984,
+        "prior_sparse_shifts": 992
+      },
+      {
+        "stage": 8,
+        "general": 1536,
+        "shifts": 1984,
+        "prior_sparse_shifts": 496
+      },
+      {
+        "stage": 9,
+        "general": 1792,
+        "shifts": 1984,
+        "prior_sparse_shifts": 248
+      },
+      {
+        "stage": 10,
+        "general": 1920,
+        "shifts": 1984,
+        "prior_sparse_shifts": 124
+      },
+      {
+        "stage": 11,
+        "general": 1984,
+        "shifts": 1984,
+        "prior_sparse_shifts": 62
+      },
+      {
+        "stage": 12,
+        "general": 2016,
+        "shifts": 1984,
+        "prior_sparse_shifts": 31
+      }
+    ]
+  },
+  {
+    "log_n": 16,
+    "first_stage": 1,
+    "baseline_root_words_both_directions": 131070,
+    "compressed_root_words_both_directions": 4092,
+    "full_butterfly_multiplications": 524288,
+    "general_multiplications": 294944,
+    "shift_calls": 449536,
+    "extra_shifts_vs_prior": 285727,
+    "logical_low_root_reads": 294944,
+    "stages": [
+      {
+        "stage": 1,
+        "general": 0,
+        "shifts": 0,
+        "prior_sparse_shifts": 0
+      },
+      {
+        "stage": 2,
+        "general": 0,
+        "shifts": 16384,
+        "prior_sparse_shifts": 16384
+      },
+      {
+        "stage": 3,
+        "general": 0,
+        "shifts": 24576,
+        "prior_sparse_shifts": 24576
+      },
+      {
+        "stage": 4,
+        "general": 0,
+        "shifts": 28672,
+        "prior_sparse_shifts": 28672
+      },
+      {
+        "stage": 5,
+        "general": 0,
+        "shifts": 30720,
+        "prior_sparse_shifts": 30720
+      },
+      {
+        "stage": 6,
+        "general": 0,
+        "shifts": 31744,
+        "prior_sparse_shifts": 31744
+      },
+      {
+        "stage": 7,
+        "general": 16384,
+        "shifts": 31744,
+        "prior_sparse_shifts": 15872
+      },
+      {
+        "stage": 8,
+        "general": 24576,
+        "shifts": 31744,
+        "prior_sparse_shifts": 7936
+      },
+      {
+        "stage": 9,
+        "general": 28672,
+        "shifts": 31744,
+        "prior_sparse_shifts": 3968
+      },
+      {
+        "stage": 10,
+        "general": 30720,
+        "shifts": 31744,
+        "prior_sparse_shifts": 1984
+      },
+      {
+        "stage": 11,
+        "general": 31744,
+        "shifts": 31744,
+        "prior_sparse_shifts": 992
+      },
+      {
+        "stage": 12,
+        "general": 32256,
+        "shifts": 31744,
+        "prior_sparse_shifts": 496
+      },
+      {
+        "stage": 13,
+        "general": 32512,
+        "shifts": 31744,
+        "prior_sparse_shifts": 248
+      },
+      {
+        "stage": 14,
+        "general": 32640,
+        "shifts": 31744,
+        "prior_sparse_shifts": 124
+      },
+      {
+        "stage": 15,
+        "general": 32704,
+        "shifts": 31744,
+        "prior_sparse_shifts": 62
+      },
+      {
+        "stage": 16,
+        "general": 32736,
+        "shifts": 31744,
+        "prior_sparse_shifts": 31
+      }
+    ]
+  },
+  {
+    "log_n": 16,
+    "first_stage": 3,
+    "baseline_root_words_both_directions": 131070,
+    "compressed_root_words_both_directions": 4092,
+    "full_butterfly_multiplications": 458752,
+    "general_multiplications": 294944,
+    "shift_calls": 433152,
+    "extra_shifts_vs_prior": 285727,
+    "logical_low_root_reads": 294944,
+    "stages": [
+      {
+        "stage": 3,
+        "general": 0,
+        "shifts": 24576,
+        "prior_sparse_shifts": 24576
+      },
+      {
+        "stage": 4,
+        "general": 0,
+        "shifts": 28672,
+        "prior_sparse_shifts": 28672
+      },
+      {
+        "stage": 5,
+        "general": 0,
+        "shifts": 30720,
+        "prior_sparse_shifts": 30720
+      },
+      {
+        "stage": 6,
+        "general": 0,
+        "shifts": 31744,
+        "prior_sparse_shifts": 31744
+      },
+      {
+        "stage": 7,
+        "general": 16384,
+        "shifts": 31744,
+        "prior_sparse_shifts": 15872
+      },
+      {
+        "stage": 8,
+        "general": 24576,
+        "shifts": 31744,
+        "prior_sparse_shifts": 7936
+      },
+      {
+        "stage": 9,
+        "general": 28672,
+        "shifts": 31744,
+        "prior_sparse_shifts": 3968
+      },
+      {
+        "stage": 10,
+        "general": 30720,
+        "shifts": 31744,
+        "prior_sparse_shifts": 1984
+      },
+      {
+        "stage": 11,
+        "general": 31744,
+        "shifts": 31744,
+        "prior_sparse_shifts": 992
+      },
+      {
+        "stage": 12,
+        "general": 32256,
+        "shifts": 31744,
+        "prior_sparse_shifts": 496
+      },
+      {
+        "stage": 13,
+        "general": 32512,
+        "shifts": 31744,
+        "prior_sparse_shifts": 248
+      },
+      {
+        "stage": 14,
+        "general": 32640,
+        "shifts": 31744,
+        "prior_sparse_shifts": 124
+      },
+      {
+        "stage": 15,
+        "general": 32704,
+        "shifts": 31744,
+        "prior_sparse_shifts": 62
+      },
+      {
+        "stage": 16,
+        "general": 32736,
+        "shifts": 31744,
+        "prior_sparse_shifts": 31
+      }
+    ]
+  },
+  {
+    "log_n": 16,
+    "first_stage": 4,
+    "baseline_root_words_both_directions": 131070,
+    "compressed_root_words_both_directions": 4092,
+    "full_butterfly_multiplications": 425984,
+    "general_multiplications": 294944,
+    "shift_calls": 408576,
+    "extra_shifts_vs_prior": 285727,
+    "logical_low_root_reads": 294944,
+    "stages": [
+      {
+        "stage": 4,
+        "general": 0,
+        "shifts": 28672,
+        "prior_sparse_shifts": 28672
+      },
+      {
+        "stage": 5,
+        "general": 0,
+        "shifts": 30720,
+        "prior_sparse_shifts": 30720
+      },
+      {
+        "stage": 6,
+        "general": 0,
+        "shifts": 31744,
+        "prior_sparse_shifts": 31744
+      },
+      {
+        "stage": 7,
+        "general": 16384,
+        "shifts": 31744,
+        "prior_sparse_shifts": 15872
+      },
+      {
+        "stage": 8,
+        "general": 24576,
+        "shifts": 31744,
+        "prior_sparse_shifts": 7936
+      },
+      {
+        "stage": 9,
+        "general": 28672,
+        "shifts": 31744,
+        "prior_sparse_shifts": 3968
+      },
+      {
+        "stage": 10,
+        "general": 30720,
+        "shifts": 31744,
+        "prior_sparse_shifts": 1984
+      },
+      {
+        "stage": 11,
+        "general": 31744,
+        "shifts": 31744,
+        "prior_sparse_shifts": 992
+      },
+      {
+        "stage": 12,
+        "general": 32256,
+        "shifts": 31744,
+        "prior_sparse_shifts": 496
+      },
+      {
+        "stage": 13,
+        "general": 32512,
+        "shifts": 31744,
+        "prior_sparse_shifts": 248
+      },
+      {
+        "stage": 14,
+        "general": 32640,
+        "shifts": 31744,
+        "prior_sparse_shifts": 124
+      },
+      {
+        "stage": 15,
+        "general": 32704,
+        "shifts": 31744,
+        "prior_sparse_shifts": 62
+      },
+      {
+        "stage": 16,
+        "general": 32736,
+        "shifts": 31744,
+        "prior_sparse_shifts": 31
+      }
+    ]
+  },
+  {
+    "log_n": 20,
+    "first_stage": 1,
+    "baseline_root_words_both_directions": 2097150,
+    "compressed_root_words_both_directions": 65532,
+    "full_butterfly_multiplications": 10485760,
+    "general_multiplications": 6815776,
+    "shift_calls": 9224192,
+    "extra_shifts_vs_prior": 6602783,
+    "logical_low_root_reads": 6815776,
+    "stages": [
+      {
+        "stage": 1,
+        "general": 0,
+        "shifts": 0,
+        "prior_sparse_shifts": 0
+      },
+      {
+        "stage": 2,
+        "general": 0,
+        "shifts": 262144,
+        "prior_sparse_shifts": 262144
+      },
+      {
+        "stage": 3,
+        "general": 0,
+        "shifts": 393216,
+        "prior_sparse_shifts": 393216
+      },
+      {
+        "stage": 4,
+        "general": 0,
+        "shifts": 458752,
+        "prior_sparse_shifts": 458752
+      },
+      {
+        "stage": 5,
+        "general": 0,
+        "shifts": 491520,
+        "prior_sparse_shifts": 491520
+      },
+      {
+        "stage": 6,
+        "general": 0,
+        "shifts": 507904,
+        "prior_sparse_shifts": 507904
+      },
+      {
+        "stage": 7,
+        "general": 262144,
+        "shifts": 507904,
+        "prior_sparse_shifts": 253952
+      },
+      {
+        "stage": 8,
+        "general": 393216,
+        "shifts": 507904,
+        "prior_sparse_shifts": 126976
+      },
+      {
+        "stage": 9,
+        "general": 458752,
+        "shifts": 507904,
+        "prior_sparse_shifts": 63488
+      },
+      {
+        "stage": 10,
+        "general": 491520,
+        "shifts": 507904,
+        "prior_sparse_shifts": 31744
+      },
+      {
+        "stage": 11,
+        "general": 507904,
+        "shifts": 507904,
+        "prior_sparse_shifts": 15872
+      },
+      {
+        "stage": 12,
+        "general": 516096,
+        "shifts": 507904,
+        "prior_sparse_shifts": 7936
+      },
+      {
+        "stage": 13,
+        "general": 520192,
+        "shifts": 507904,
+        "prior_sparse_shifts": 3968
+      },
+      {
+        "stage": 14,
+        "general": 522240,
+        "shifts": 507904,
+        "prior_sparse_shifts": 1984
+      },
+      {
+        "stage": 15,
+        "general": 523264,
+        "shifts": 507904,
+        "prior_sparse_shifts": 992
+      },
+      {
+        "stage": 16,
+        "general": 523776,
+        "shifts": 507904,
+        "prior_sparse_shifts": 496
+      },
+      {
+        "stage": 17,
+        "general": 524032,
+        "shifts": 507904,
+        "prior_sparse_shifts": 248
+      },
+      {
+        "stage": 18,
+        "general": 524160,
+        "shifts": 507904,
+        "prior_sparse_shifts": 124
+      },
+      {
+        "stage": 19,
+        "general": 524224,
+        "shifts": 507904,
+        "prior_sparse_shifts": 62
+      },
+      {
+        "stage": 20,
+        "general": 524256,
+        "shifts": 507904,
+        "prior_sparse_shifts": 31
+      }
+    ]
+  },
+  {
+    "log_n": 20,
+    "first_stage": 3,
+    "baseline_root_words_both_directions": 2097150,
+    "compressed_root_words_both_directions": 65532,
+    "full_butterfly_multiplications": 9437184,
+    "general_multiplications": 6815776,
+    "shift_calls": 8962048,
+    "extra_shifts_vs_prior": 6602783,
+    "logical_low_root_reads": 6815776,
+    "stages": [
+      {
+        "stage": 3,
+        "general": 0,
+        "shifts": 393216,
+        "prior_sparse_shifts": 393216
+      },
+      {
+        "stage": 4,
+        "general": 0,
+        "shifts": 458752,
+        "prior_sparse_shifts": 458752
+      },
+      {
+        "stage": 5,
+        "general": 0,
+        "shifts": 491520,
+        "prior_sparse_shifts": 491520
+      },
+      {
+        "stage": 6,
+        "general": 0,
+        "shifts": 507904,
+        "prior_sparse_shifts": 507904
+      },
+      {
+        "stage": 7,
+        "general": 262144,
+        "shifts": 507904,
+        "prior_sparse_shifts": 253952
+      },
+      {
+        "stage": 8,
+        "general": 393216,
+        "shifts": 507904,
+        "prior_sparse_shifts": 126976
+      },
+      {
+        "stage": 9,
+        "general": 458752,
+        "shifts": 507904,
+        "prior_sparse_shifts": 63488
+      },
+      {
+        "stage": 10,
+        "general": 491520,
+        "shifts": 507904,
+        "prior_sparse_shifts": 31744
+      },
+      {
+        "stage": 11,
+        "general": 507904,
+        "shifts": 507904,
+        "prior_sparse_shifts": 15872
+      },
+      {
+        "stage": 12,
+        "general": 516096,
+        "shifts": 507904,
+        "prior_sparse_shifts": 7936
+      },
+      {
+        "stage": 13,
+        "general": 520192,
+        "shifts": 507904,
+        "prior_sparse_shifts": 3968
+      },
+      {
+        "stage": 14,
+        "general": 522240,
+        "shifts": 507904,
+        "prior_sparse_shifts": 1984
+      },
+      {
+        "stage": 15,
+        "general": 523264,
+        "shifts": 507904,
+        "prior_sparse_shifts": 992
+      },
+      {
+        "stage": 16,
+        "general": 523776,
+        "shifts": 507904,
+        "prior_sparse_shifts": 496
+      },
+      {
+        "stage": 17,
+        "general": 524032,
+        "shifts": 507904,
+        "prior_sparse_shifts": 248
+      },
+      {
+        "stage": 18,
+        "general": 524160,
+        "shifts": 507904,
+        "prior_sparse_shifts": 124
+      },
+      {
+        "stage": 19,
+        "general": 524224,
+        "shifts": 507904,
+        "prior_sparse_shifts": 62
+      },
+      {
+        "stage": 20,
+        "general": 524256,
+        "shifts": 507904,
+        "prior_sparse_shifts": 31
+      }
+    ]
+  },
+  {
+    "log_n": 20,
+    "first_stage": 4,
+    "baseline_root_words_both_directions": 2097150,
+    "compressed_root_words_both_directions": 65532,
+    "full_butterfly_multiplications": 8912896,
+    "general_multiplications": 6815776,
+    "shift_calls": 8568832,
+    "extra_shifts_vs_prior": 6602783,
+    "logical_low_root_reads": 6815776,
+    "stages": [
+      {
+        "stage": 4,
+        "general": 0,
+        "shifts": 458752,
+        "prior_sparse_shifts": 458752
+      },
+      {
+        "stage": 5,
+        "general": 0,
+        "shifts": 491520,
+        "prior_sparse_shifts": 491520
+      },
+      {
+        "stage": 6,
+        "general": 0,
+        "shifts": 507904,
+        "prior_sparse_shifts": 507904
+      },
+      {
+        "stage": 7,
+        "general": 262144,
+        "shifts": 507904,
+        "prior_sparse_shifts": 253952
+      },
+      {
+        "stage": 8,
+        "general": 393216,
+        "shifts": 507904,
+        "prior_sparse_shifts": 126976
+      },
+      {
+        "stage": 9,
+        "general": 458752,
+        "shifts": 507904,
+        "prior_sparse_shifts": 63488
+      },
+      {
+        "stage": 10,
+        "general": 491520,
+        "shifts": 507904,
+        "prior_sparse_shifts": 31744
+      },
+      {
+        "stage": 11,
+        "general": 507904,
+        "shifts": 507904,
+        "prior_sparse_shifts": 15872
+      },
+      {
+        "stage": 12,
+        "general": 516096,
+        "shifts": 507904,
+        "prior_sparse_shifts": 7936
+      },
+      {
+        "stage": 13,
+        "general": 520192,
+        "shifts": 507904,
+        "prior_sparse_shifts": 3968
+      },
+      {
+        "stage": 14,
+        "general": 522240,
+        "shifts": 507904,
+        "prior_sparse_shifts": 1984
+      },
+      {
+        "stage": 15,
+        "general": 523264,
+        "shifts": 507904,
+        "prior_sparse_shifts": 992
+      },
+      {
+        "stage": 16,
+        "general": 523776,
+        "shifts": 507904,
+        "prior_sparse_shifts": 496
+      },
+      {
+        "stage": 17,
+        "general": 524032,
+        "shifts": 507904,
+        "prior_sparse_shifts": 248
+      },
+      {
+        "stage": 18,
+        "general": 524160,
+        "shifts": 507904,
+        "prior_sparse_shifts": 124
+      },
+      {
+        "stage": 19,
+        "general": 524224,
+        "shifts": 507904,
+        "prior_sparse_shifts": 62
+      },
+      {
+        "stage": 20,
+        "general": 524256,
+        "shifts": 507904,
+        "prior_sparse_shifts": 31
+      }
+    ]
+  },
+  {
+    "log_n": 24,
+    "first_stage": 1,
+    "baseline_root_words_both_directions": 33554430,
+    "compressed_root_words_both_directions": 1048572,
+    "full_butterfly_multiplications": 201326592,
+    "general_multiplications": 142606368,
+    "shift_calls": 180092928,
+    "extra_shifts_vs_prior": 138149919,
+    "logical_low_root_reads": 142606368,
+    "stages": [
+      {
+        "stage": 1,
+        "general": 0,
+        "shifts": 0,
+        "prior_sparse_shifts": 0
+      },
+      {
+        "stage": 2,
+        "general": 0,
+        "shifts": 4194304,
+        "prior_sparse_shifts": 4194304
+      },
+      {
+        "stage": 3,
+        "general": 0,
+        "shifts": 6291456,
+        "prior_sparse_shifts": 6291456
+      },
+      {
+        "stage": 4,
+        "general": 0,
+        "shifts": 7340032,
+        "prior_sparse_shifts": 7340032
+      },
+      {
+        "stage": 5,
+        "general": 0,
+        "shifts": 7864320,
+        "prior_sparse_shifts": 7864320
+      },
+      {
+        "stage": 6,
+        "general": 0,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 8126464
+      },
+      {
+        "stage": 7,
+        "general": 4194304,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 4063232
+      },
+      {
+        "stage": 8,
+        "general": 6291456,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 2031616
+      },
+      {
+        "stage": 9,
+        "general": 7340032,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 1015808
+      },
+      {
+        "stage": 10,
+        "general": 7864320,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 507904
+      },
+      {
+        "stage": 11,
+        "general": 8126464,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 253952
+      },
+      {
+        "stage": 12,
+        "general": 8257536,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 126976
+      },
+      {
+        "stage": 13,
+        "general": 8323072,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 63488
+      },
+      {
+        "stage": 14,
+        "general": 8355840,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 31744
+      },
+      {
+        "stage": 15,
+        "general": 8372224,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 15872
+      },
+      {
+        "stage": 16,
+        "general": 8380416,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 7936
+      },
+      {
+        "stage": 17,
+        "general": 8384512,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 3968
+      },
+      {
+        "stage": 18,
+        "general": 8386560,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 1984
+      },
+      {
+        "stage": 19,
+        "general": 8387584,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 992
+      },
+      {
+        "stage": 20,
+        "general": 8388096,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 496
+      },
+      {
+        "stage": 21,
+        "general": 8388352,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 248
+      },
+      {
+        "stage": 22,
+        "general": 8388480,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 124
+      },
+      {
+        "stage": 23,
+        "general": 8388544,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 62
+      },
+      {
+        "stage": 24,
+        "general": 8388576,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 31
+      }
+    ]
+  },
+  {
+    "log_n": 24,
+    "first_stage": 3,
+    "baseline_root_words_both_directions": 33554430,
+    "compressed_root_words_both_directions": 1048572,
+    "full_butterfly_multiplications": 184549376,
+    "general_multiplications": 142606368,
+    "shift_calls": 175898624,
+    "extra_shifts_vs_prior": 138149919,
+    "logical_low_root_reads": 142606368,
+    "stages": [
+      {
+        "stage": 3,
+        "general": 0,
+        "shifts": 6291456,
+        "prior_sparse_shifts": 6291456
+      },
+      {
+        "stage": 4,
+        "general": 0,
+        "shifts": 7340032,
+        "prior_sparse_shifts": 7340032
+      },
+      {
+        "stage": 5,
+        "general": 0,
+        "shifts": 7864320,
+        "prior_sparse_shifts": 7864320
+      },
+      {
+        "stage": 6,
+        "general": 0,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 8126464
+      },
+      {
+        "stage": 7,
+        "general": 4194304,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 4063232
+      },
+      {
+        "stage": 8,
+        "general": 6291456,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 2031616
+      },
+      {
+        "stage": 9,
+        "general": 7340032,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 1015808
+      },
+      {
+        "stage": 10,
+        "general": 7864320,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 507904
+      },
+      {
+        "stage": 11,
+        "general": 8126464,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 253952
+      },
+      {
+        "stage": 12,
+        "general": 8257536,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 126976
+      },
+      {
+        "stage": 13,
+        "general": 8323072,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 63488
+      },
+      {
+        "stage": 14,
+        "general": 8355840,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 31744
+      },
+      {
+        "stage": 15,
+        "general": 8372224,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 15872
+      },
+      {
+        "stage": 16,
+        "general": 8380416,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 7936
+      },
+      {
+        "stage": 17,
+        "general": 8384512,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 3968
+      },
+      {
+        "stage": 18,
+        "general": 8386560,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 1984
+      },
+      {
+        "stage": 19,
+        "general": 8387584,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 992
+      },
+      {
+        "stage": 20,
+        "general": 8388096,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 496
+      },
+      {
+        "stage": 21,
+        "general": 8388352,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 248
+      },
+      {
+        "stage": 22,
+        "general": 8388480,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 124
+      },
+      {
+        "stage": 23,
+        "general": 8388544,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 62
+      },
+      {
+        "stage": 24,
+        "general": 8388576,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 31
+      }
+    ]
+  },
+  {
+    "log_n": 24,
+    "first_stage": 4,
+    "baseline_root_words_both_directions": 33554430,
+    "compressed_root_words_both_directions": 1048572,
+    "full_butterfly_multiplications": 176160768,
+    "general_multiplications": 142606368,
+    "shift_calls": 169607168,
+    "extra_shifts_vs_prior": 138149919,
+    "logical_low_root_reads": 142606368,
+    "stages": [
+      {
+        "stage": 4,
+        "general": 0,
+        "shifts": 7340032,
+        "prior_sparse_shifts": 7340032
+      },
+      {
+        "stage": 5,
+        "general": 0,
+        "shifts": 7864320,
+        "prior_sparse_shifts": 7864320
+      },
+      {
+        "stage": 6,
+        "general": 0,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 8126464
+      },
+      {
+        "stage": 7,
+        "general": 4194304,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 4063232
+      },
+      {
+        "stage": 8,
+        "general": 6291456,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 2031616
+      },
+      {
+        "stage": 9,
+        "general": 7340032,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 1015808
+      },
+      {
+        "stage": 10,
+        "general": 7864320,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 507904
+      },
+      {
+        "stage": 11,
+        "general": 8126464,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 253952
+      },
+      {
+        "stage": 12,
+        "general": 8257536,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 126976
+      },
+      {
+        "stage": 13,
+        "general": 8323072,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 63488
+      },
+      {
+        "stage": 14,
+        "general": 8355840,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 31744
+      },
+      {
+        "stage": 15,
+        "general": 8372224,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 15872
+      },
+      {
+        "stage": 16,
+        "general": 8380416,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 7936
+      },
+      {
+        "stage": 17,
+        "general": 8384512,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 3968
+      },
+      {
+        "stage": 18,
+        "general": 8386560,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 1984
+      },
+      {
+        "stage": 19,
+        "general": 8387584,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 992
+      },
+      {
+        "stage": 20,
+        "general": 8388096,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 496
+      },
+      {
+        "stage": 21,
+        "general": 8388352,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 248
+      },
+      {
+        "stage": 22,
+        "general": 8388480,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 124
+      },
+      {
+        "stage": 23,
+        "general": 8388544,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 62
+      },
+      {
+        "stage": 24,
+        "general": 8388576,
+        "shifts": 8126464,
+        "prior_sparse_shifts": 31
+      }
+    ]
+  }
+]

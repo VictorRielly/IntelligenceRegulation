@@ -1,0 +1,13 @@
+128 figures, 116 identical, 12 differ -> /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/r5b/l2/r5b-witness_comparison_l2.json
+  DIFFERS: distinct opened columns/0:A [253, 254]
+  DIFFERS: pad margin/0:A [3, 2]
+  DIFFERS: distinct opened columns/1:A [253, 255]
+  DIFFERS: pad margin/1:A [3, 1]
+  DIFFERS: distinct opened columns/1:H [254, 251]
+  DIFFERS: pad margin/1:H [2, 5]
+  DIFFERS: distinct opened columns/1:Input [255, 250]
+  DIFFERS: pad margin/1:Input [1, 6]
+  DIFFERS: distinct opened columns/1:Output [255, 254]
+  DIFFERS: pad margin/1:Output [1, 2]
+  DIFFERS: pad block/distinct columns [255, 250]
+  DIFFERS: pad block/exact rank [255, 250]

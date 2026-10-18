@@ -1,0 +1,48 @@
+{
+ "classifier_sha256": "0578430f50f03020db26cc7c27b66fcc8b501e602cfec7ad4c9f8ec612376992",
+ "control_families_not_fired_in_this_pass": {},
+ "controls_requested": true,
+ "controls_requested_inferred_from_the_record": true,
+ "explained": {},
+ "false_leaves": [
+  "/ok",
+  "/stage6_negative_controls/ok",
+  "/stage6_negative_controls/round_9_controls/controls[2]/ok",
+  "/stage6_negative_controls/round_9_controls/ok"
+ ],
+ "non_bool_leaves": [],
+ "ok": false,
+ "ok_is_unchanged": "this status never changes `ok`; ok = false stays ok = false",
+ "privacy_acceptance": false,
+ "privacy_property_established": false,
+ "record": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/r5b/l2/r5b-l2-dense-everything.json",
+ "record_bundle": "tinyllama-trained-r5b-capture-dense-l2",
+ "record_driver_sha256": "b64799b32e8d5fc3a3fea0d67ab28e49bfc167439d96fd8d561d12ad644f3ce9",
+ "record_sha256": "806700939a0b95fcf4058921125027aa63cbc41010199774fbabf96485459ad5",
+ "record_stages_run": [
+  "stage10_bilinear_group_factor",
+  "stage11_full_preimage",
+  "stage12_mask_and_cfs",
+  "stage13_joint_run_preimage",
+  "stage14_export_crosscheck",
+  "stage1_integrity",
+  "stage2_transcript_replay",
+  "stage3_per_commitment",
+  "stage4_the_boundary",
+  "stage5_zero_data_preimage",
+  "stage6_negative_controls",
+  "stage7_channels",
+  "stage8_plane_index_and_terminals",
+  "stage9_hash_layer"
+ ],
+ "stages_that_raised": [],
+ "status": "NOT-OK",
+ "unexplained": [
+  "/ok",
+  "/stage6_negative_controls/ok",
+  "/stage6_negative_controls/round_9_controls/controls[2]/ok",
+  "/stage6_negative_controls/round_9_controls/ok"
+ ],
+ "what_ARMS_ONLY_means": "every figure of the arms this pass ran closed (recomputed here from the record), and the ONLY reason ok is false is that the pass was run without --controls",
+ "what_it_does_not_mean": "that those controls fired: they did not, in this pass.  An arm counts only where its controls fired on the same tools and shape in another record, which the ledger must cite"
+}

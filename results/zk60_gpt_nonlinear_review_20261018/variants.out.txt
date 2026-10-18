@@ -1,0 +1,70 @@
+== A. shared reciprocal exactness, exhaustive small geometries (fE 3..5, T 4..16, F_P 3/9) ==
+   B >= fE + wrho_s : 140708 (E, Sum) cases, 0 mismatches
+   B <  fE + wrho_s : 140708 cases, 864 mismatches, in 36 of 36 configs
+== A. 8B T512 geometry (fE 9, wrho_s 18, F_P 9), zr at the window top ==
+   B=26: 485744 cases, 8 mismatches
+   B=27: 485744 cases, 0 mismatches
+   B=32: 485744 cases, 0 mismatches
+   no wrap at B=32: max LHS 2^50.00, max RHS 2^60.00 < q 2^64.00: True
+== B. normalise-after-PV vs today, synthetic (1152 outputs) ==
+   o8 differs in 52.69% (max |diff| 2); mean |err| vs float: today 0.6357, fused 0.2570
+== C. per-entry census, 8B T512 (A planes, U8 lookups, Fp2 helpers, committed base elements, zero-check terms) ==
+   today            D: A35 lk34 H17 c69 t54  Q: A7 lk13 H7 c21 t15  S: A13 lk15 H9 c31 t24  F: A11 lk9 H6 c23 t17
+   EXR              D: A35 lk34 H17 c69 t54  Q: A7 lk13 H7 c21 t15  S: A11 lk11 H7 c25 t21  F: A11 lk9 H6 c23 t17
+   FN               D: A35 lk34 H17 c69 t54  Q: A11 lk18 H9 c29 t22  S: A5 lk4 H3 c11 t10  F: A11 lk9 H6 c23 t17
+   FN_trilinear_PV  D: A35 lk34 H17 c69 t54  Q: A11 lk18 H9 c29 t22  S: A4 lk4 H3 c10 t9  F: A11 lk9 H6 c23 t17
+   L8_sketch        D: A35 lk34 H17 c69 t54  Q: A7 lk13 H7 c21 t15  S: A3 lk4 H3 c9 t8  F: A11 lk9 H6 c23 t17
+   VPE              D: A30 lk34 H17 c64 t49  Q: A7 lk13 H7 c21 t15  S: A12 lk15 H9 c30 t23  F: A9 lk9 H6 c21 t15
+== C. layout variants, Llama-3-8B T512, per block (receipt-optimal row width) ==
+variant                             n  elems(M)      d%     H%    u8(M)      d% eterm(M)      d%  +bits     anchored l/c/h   roof 25/40
+today                            2^15     663.3    +0.0   54.6    306.2    +0.0    495.5    +0.0   0.00  3.36/ 6.89/12.76  37.1/ 57.3
+VPE value planes from limbs      2^15     627.5    -5.4   57.7    306.2    +0.0    459.8    -7.2   0.00  3.55/ 7.26/13.40  39.0/ 60.3
+EXR exact shared reciprocal      2^15     613.0    -7.6   53.6    272.8   -10.9    470.5    -5.0   0.16  3.53/ 7.25/13.44  39.8/ 61.4
+FN normalise after PV [ruling]   2^15     511.8   -22.8   52.7    224.5   -26.7    392.7   -20.7   0.42  3.96/ 8.17/15.14  47.2/ 72.3
+EXR + VPE                        2^15     577.2   -13.0   57.0    272.8   -10.9    434.8   -12.2   0.16  3.73/ 7.66/14.16  42.1/ 64.8
+FN + VPE [ruling]                2^15     484.4   -27.0   55.7    224.5   -26.7    365.4   -26.2   0.42  4.17/ 8.59/15.86  49.6/ 75.8
+L7 triangle (plan)               2^15     533.2   -19.6   53.8    243.3   -20.5    394.8   -20.3   0.34  4.00/ 8.20/15.10  45.6/ 69.9
+L7 + EXR                         2^15     508.1   -23.4   53.1    226.7   -26.0    382.4   -22.8   0.43  4.12/ 8.46/15.57  47.6/ 72.9
+L7 + EXR + VPE                   2^15     476.5   -28.2   56.7    226.7   -26.0    350.9   -29.2   0.43  4.38/ 8.96/16.43  50.5/ 77.1
+L7 + FN [ruling]                 2^15     465.7   -29.8   52.5    207.7   -32.2    350.7   -29.2   0.55  4.33/ 8.91/16.41  51.6/ 78.7
+L7 + FN + VPE [ruling]           2^15     438.3   -33.9   55.8    207.7   -32.2    323.5   -34.7   0.55  4.58/ 9.40/17.25  54.5/ 83.0
+L7 + L8 zkAttn (plan) [ruling]   2^15     439.9   -33.7   53.7    197.2   -35.6    327.7   -33.9   0.62  4.56/ 9.36/17.18  54.4/ 82.9
+L7 + L8 + VPE [ruling]           2^15     412.5   -37.8   57.2    197.2   -35.6    300.4   -39.4   0.62  4.83/ 9.91/18.11  57.7/ 87.6
+   bandwidth fraction of a 5090 needed for 50 positions/s (roofline): today 34%, VPE value planes from limbs 33%, EXR exact shared reciprocal 32%, FN normalise after PV 27%, EXR + VPE 30%, FN + VPE 25%, L7 triangle (plan) 28%, L7 + EXR 26%, L7 + EXR + VPE 25%, L7 + FN 24%, L7 + FN + VPE 23%, L7 + L8 zkAttn (plan) 23%, L7 + L8 + VPE 21%
+== A. EXR admissible B (exact and wrap-free) ==
+   T32    fE 9  F_P 9  wrho_s 14: B in [23, 39], byte-aligned 24
+   T32    fE 9  F_P 12 wrho_s 14: B in [23, 36], byte-aligned 24
+   T32    fE 10 F_P 9  wrho_s 15: B in [25, 38], byte-aligned 32
+   T32    fE 10 F_P 12 wrho_s 15: B in [25, 35], byte-aligned 32
+   T32    fE 12 F_P 9  wrho_s 17: B in [29, 36], byte-aligned 32
+   T32    fE 12 F_P 12 wrho_s 17: B in [29, 33], byte-aligned 32
+   T32    fE 16 F_P 9  wrho_s 21: NOT admissible (exactness needs B >= 37, which wraps mod q)
+   T32    fE 16 F_P 12 wrho_s 21: NOT admissible (exactness needs B >= 37, which wraps mod q)
+   T128   fE 9  F_P 9  wrho_s 16: B in [25, 37], byte-aligned 32
+   T128   fE 9  F_P 12 wrho_s 16: B in [25, 34], byte-aligned 32
+   T128   fE 10 F_P 9  wrho_s 17: B in [27, 36], byte-aligned 32
+   T128   fE 10 F_P 12 wrho_s 17: B in [27, 33], byte-aligned 32
+   T128   fE 12 F_P 9  wrho_s 19: B in [31, 34], byte-aligned 32
+   T128   fE 12 F_P 12 wrho_s 19: B in [31, 31], byte-aligned None
+   T128   fE 16 F_P 9  wrho_s 23: NOT admissible (exactness needs B >= 39, which wraps mod q)
+   T128   fE 16 F_P 12 wrho_s 23: NOT admissible (exactness needs B >= 39, which wraps mod q)
+   T512   fE 9  F_P 9  wrho_s 18: B in [27, 35], byte-aligned 32
+   T512   fE 9  F_P 12 wrho_s 18: B in [27, 32], byte-aligned 32
+   T512   fE 10 F_P 9  wrho_s 19: B in [29, 34], byte-aligned 32
+   T512   fE 10 F_P 12 wrho_s 19: B in [29, 31], byte-aligned None
+   T512   fE 12 F_P 9  wrho_s 21: NOT admissible (exactness needs B >= 33, which wraps mod q)
+   T512   fE 12 F_P 12 wrho_s 21: NOT admissible (exactness needs B >= 33, which wraps mod q)
+   T1024  fE 9  F_P 9  wrho_s 19: B in [28, 34], byte-aligned 32
+   T1024  fE 9  F_P 12 wrho_s 19: B in [28, 31], byte-aligned None
+   T1024  fE 10 F_P 9  wrho_s 20: B in [30, 33], byte-aligned 32
+   T1024  fE 10 F_P 12 wrho_s 20: B in [30, 30], byte-aligned None
+   T1024  fE 12 F_P 9  wrho_s 22: NOT admissible (exactness needs B >= 34, which wraps mod q)
+   T1024  fE 12 F_P 12 wrho_s 22: NOT admissible (exactness needs B >= 34, which wraps mod q)
+   T4096  fE 9  F_P 9  wrho_s 21: B in [30, 32], byte-aligned 32
+   T4096  fE 9  F_P 12 wrho_s 21: NOT admissible (exactness needs B >= 30, which wraps mod q)
+   T4096  fE 10 F_P 9  wrho_s 22: NOT admissible (exactness needs B >= 32, which wraps mod q)
+   T4096  fE 10 F_P 12 wrho_s 22: NOT admissible (exactness needs B >= 32, which wraps mod q)
+   T4096  fE 12 F_P 9  wrho_s 24: NOT admissible (exactness needs B >= 36, which wraps mod q)
+   T4096  fE 12 F_P 12 wrho_s 24: NOT admissible (exactness needs B >= 36, which wraps mod q)
+   laptop-CPU-law proof per block (s): today 52.0 (+0.0%), VPE value planes from limbs 49.1 (-5.5%), EXR exact shared reciprocal 49.2 (-5.4%), FN normalise after PV 43.2 (-16.8%), EXR + VPE 46.3 (-10.9%), FN + VPE 40.9 (-21.3%), L7 triangle (plan) 43.0 (-17.3%), L7 + EXR 41.6 (-20.0%), L7 + EXR + VPE 39.0 (-25.0%), L7 + FN 39.3 (-24.4%), L7 + FN + VPE 37.0 (-28.9%), L7 + L8 zkAttn (plan) 37.2 (-28.5%), L7 + L8 + VPE 34.9 (-32.9%)
+wrote variants.json

@@ -1,0 +1,650 @@
+-x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r5/hashline/src/private_block/trained_block.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r6/hashline/src/private_block/trained_block.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r5/hashline/src/private_block/trained_block.rs	2026-10-17 14:59:54.014014753 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r6/hashline/src/private_block/trained_block.rs	2026-10-17 17:46:22.765693043 -0700
+@@ -55,7 +55,7 @@
+ const MAX_ARRAY_BYTES: u64 = 256 * 1024 * 1024;
+ const SCOPE: &str = "ONE trained TinyLlama-1.1B-Chat block (of 22) at the export's T (32, 64 or 128), CPU unless the run line says gpu; the integer model the calibration export names; NOT a model pass; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement";
+ const SCOPE_8B: &str = "ONE trained Llama-3-8B block (of 32) at T=32, CPU unless the run line says gpu; the integer model the calibration export names; NOT a model pass; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement";
+-const SCOPE_8B_LONGER: &str = "ONE trained Llama-3-8B block (of 32) at the export's T (64 or 128; these two profiles are PENDING INDEPENDENT REVIEW), CPU unless the run line says gpu; the integer model the calibration export names; NOT a model pass; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement";
++const SCOPE_8B_LONGER: &str = "ONE trained Llama-3-8B block (of 32) at the export's T (64 or 128; both profiles accepted by the independent review, round 5), CPU unless the run line says gpu; the integer model the calibration export names; NOT a model pass; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement";
+ const SCOPE_RUNG: &str = "SYNTHETIC development export at the trained-calibration rung (rung-TC, width 384): NOT a trained model, NOT TinyLlama; a test of the export reader and the driver only; no privacy acceptance";
+ 
+ // ------------------------------------------------------------------ JSON
+@@ -818,15 +818,41 @@
+         Ok((mpath, mbytes, m))
+     }
+ 
++    /// **NATIVE R6: does this export name `sh_s` per layer?** (`profile.json`
++    /// lists it in `per_layer_constants_differ`, with `null` in
++    /// `profile_constants`, as it already does for the table keys.)
++    pub(crate) fn sh_s_per_layer(&self) -> bool {
++        self.per_layer_differ.iter().any(|k| k == "sh_s")
++    }
++
+     /// **The ONE calibration of a run over `layers`.** The profile's uniform
+     /// constants, or, where the writer marked some per-layer, the layers'
+     /// own manifest constants — which must then agree across the run (a run
+     /// has one shape). Every layer's manifest constants must equal the result.
+     pub(crate) fn run_constants(&self, layers: &[u32]) -> Result<Constants, String> {
+         let mut out = self.constants.clone();
++        // NATIVE R6: with a per-layer `sh_s` the RUN's value is the one most
++        // of the run's layers carry (ties: the smaller); the others are
++        // recorded per layer (`LayerRecord::sh_s`). Every other run-level
++        // constant must agree across the run's layers, as before.
++        let base_sh_s: Option<u32> = if self.sh_s_per_layer() && out.is_none() {
++            let mut counts: std::collections::BTreeMap<u32, usize> = std::collections::BTreeMap::new();
++            for &l in layers {
++                let (mpath, _, m) = self.manifest(l)?;
++                let c = constants_of(m.get("constants").map_err(|e| format!("{}: {e}", mpath.display()))?, &mpath.display().to_string(), self.geometry.rope_theta())?;
++                *counts.entry(c.cal.sh_s).or_default() += 1;
++            }
++            let best = counts.values().copied().max().unwrap_or(0);
++            counts.iter().find(|(_, n)| **n == best).map(|(v, _)| *v)
++        } else {
++            None
++        };
+         for &l in layers {
+             let (mpath, _, m) = self.manifest(l)?;
+-            let c = constants_of(m.get("constants").map_err(|e| format!("{}: {e}", mpath.display()))?, &mpath.display().to_string(), self.geometry.rope_theta())?;
++            let mut c = constants_of(m.get("constants").map_err(|e| format!("{}: {e}", mpath.display()))?, &mpath.display().to_string(), self.geometry.rope_theta())?;
++            if let Some(b) = base_sh_s {
++                c.cal.sh_s = b;
++            }
+             match &out {
+                 Some(o) if *o != c => {
+                     return Err(format!(
+@@ -882,9 +908,21 @@
+             return Err(ctx(format!("the manifest is for layer {mi}, not {index}")));
+         }
+         let lc = constants_of(m.get("constants").map_err(ctx)?, &mpath.display().to_string(), self.geometry.rope_theta())?;
+-        if lc != *c {
++        // NATIVE R6: a profile that names `sh_s` per layer lets this layer's
++        // score shift differ from the run's; every other constant is the
++        // run's (one calibration per run)
++        let layer_sh_s = lc.cal.sh_s;
++        let lc_run = if self.sh_s_per_layer() { Constants { cal: NormCalibration { sh_s: c.cal.sh_s, ..lc.cal }, ..lc.clone() } } else { lc.clone() };
++        if lc_run != *c {
+             return Err(ctx("this layer's constants are not the run's (one calibration per run)".into()));
+         }
++        let own_sh_s = if layer_sh_s != c.cal.sh_s {
++            // validated per layer at the trained door
++            sh.with_score_shift(layer_sh_s).map_err(|e| ctx(format!("layer {index}'s own sh_s: {e}")))?;
++            Some(layer_sh_s)
++        } else {
++            None
++        };
+         // the per-block table keys: this layer's own
+         let tk = table_keys_of(m.get("constants").map_err(ctx)?, &mpath.display().to_string())?;
+         if sh.norm_calibration() != c.cal || sh.f_e != c.f_e {
+@@ -1003,6 +1041,7 @@
+         record.manifest_sha256 = manifest_sha256;
+         record.silu_member = tk.silu;
+         record.exp_e_s = tk.exp_e_s;
++        record.sh_s = own_sh_s;
+         let _ = (wq.sha256, exp.sha256);
+         Ok(TrainedLayer { index, manifest_sha256, blk, record, rope_note })
+     }
+@@ -1238,10 +1277,11 @@
+ fn render_statement(ex: &TrainedExport, sh: &Shape, layer: &TrainedLayer, st: &TrainedModelStatement, ctx: &Digest, expected: &ExpectedIo, label: &str) -> String {
+     let c = sh.norm_calibration();
+     format!(
+-        "{{\n \"schema\": \"zk60-trained-block-run/1\",\n \"scope\": {},\n \"backend\": {},\n \"gpu_declines\": {},\n \"block_profile\": {},\n \"run_profile\": {},\n \"export_variant\": {},\n \"export_profile_sha256\": {},\n \"calibration_tool_sha256\": {},\n \"layer\": {},\n \"layer_manifest_sha256\": {},\n \"block_digest\": {},\n \"trained_statement_identity\": {},\n \"context_label\": {},\n \"context\": {},\n \"expected_io\": {},\n \"rope_tables\": {},\n \"constants_source\": {},\n \"shape\": {{\"tokens\": {}, \"width\": {}, \"hidden\": {}, \"q_heads\": {}, \"kv_heads\": {}, \"head_dim\": {}, \"log_cols\": {}, \"inv_rate\": {}, \"opened_cols\": {}, \"f_e\": {}, \"wrho_s\": {}, \"norm_wrho\": {}, \"norm_tn\": {}, \"norm_cn_a\": {}, \"norm_cn_m\": {}, \"norm_ceps\": {}, \"sh_ao\": {}, \"d_max\": {}}}\n}}\n",
++        "{{\n \"schema\": \"zk60-trained-block-run/2\",\n \"scope\": {},\n \"prover_reported\": {{\"backend\": {}, \"gpu_declines\": {}, \"what\": {}}},\n \"block_profile\": {},\n \"run_profile\": {},\n \"export_variant\": {},\n \"export_profile_sha256\": {},\n \"calibration_tool_sha256\": {},\n \"layer\": {},\n \"layer_manifest_sha256\": {},\n \"block_digest\": {},\n \"trained_statement_identity\": {},\n \"context_label\": {},\n \"context\": {},\n \"expected_io\": {},\n \"rope_tables\": {},\n \"constants_source\": {},\n \"shape\": {{\"tokens\": {}, \"width\": {}, \"hidden\": {}, \"q_heads\": {}, \"kv_heads\": {}, \"head_dim\": {}, \"log_cols\": {}, \"inv_rate\": {}, \"opened_cols\": {}, \"f_e\": {}, \"wrho_s\": {}, \"norm_wrho\": {}, \"norm_tn\": {}, \"norm_cn_a\": {}, \"norm_cn_m\": {}, \"norm_ceps\": {}, \"sh_ao\": {}, \"d_max\": {}}}\n}}\n",
+         js(ex.geometry.scope()),
+         js(&crate::gpu::label()),
+         crate::gpu::declines(),
++        js(PROVER_REPORTED_WHAT),
+         js(sh.profile),
+         js(ex.geometry.run_profile()),
+         js(&ex.variant),
+@@ -1694,6 +1734,9 @@
+ struct SealedChain {
+     /// block 0's true input words (a rebuild of witness 0 starts from them)
+     x_in0: Vec<i16>,
++    /// NATIVE R6: the shape each block's witness is built at (the run shape,
++    /// or its layer's own score shift)
++    shapes: Vec<Shape>,
+     /// block k's padded output plane, sealed
+     outs: Vec<Vec<i16>>,
+     /// the witnesses kept from the sealing pass (within the budget)
+@@ -1831,7 +1874,7 @@
+         let t = Instant::now();
+         let x = if k == 0 { self.chain.x_in0.clone() } else { true_words(self.sh, &self.chain.outs[k - 1]) };
+         let blk = self.blocks.borrow_mut().get(k)?;
+-        let w = witness::build_shaped(self.sh, blk.attention(), blk.feed_forward(), &x)?;
++        let w = witness::build_shaped(&self.chain.shapes[k], blk.attention(), blk.feed_forward(), &x)?;
+         drop(blk);
+         if padded_plane(&w, self.ids.at(A_X2))? != self.chain.outs[k] {
+             return Err(format!("trained stack: the rebuilt witness of block {k} is not the sealed one (the builder is not deterministic?); the run is abandoned"));
+@@ -1986,6 +2029,8 @@
+     let mut kept: Vec<Option<Witness>> = Vec::with_capacity(l);
+     let (mut kept_bytes, mut load_s, mut witness_s) = (0u64, 0.0f64, 0.0f64);
+     let mut first: Option<Vec<i16>> = None;
++    let mut shapes: Vec<Shape> = Vec::with_capacity(l);
++    let mut lays: Vec<(u32, super::layout::Layout)> = Vec::new();
+     let mut x = x_in0.clone();
+     let timed_load = |k: usize| -> (Result<TrainedLayer, String>, f64) {
+         let t = Instant::now();
+@@ -1998,10 +2043,15 @@
+         load_s += ls;
+         let cur = cur?;
+         let layer = layers[k];
++        // NATIVE R6: the block's witness at its layer's own score shift
++        let ssh = match cur.record.sh_s {
++            Some(v) => sh.with_score_shift(v)?,
++            None => sh.clone(),
++        };
+         let ((wres, ws), nxt) = rayon::join(
+             || {
+                 let t = Instant::now();
+-                let r = witness::build_shaped(&sh, cur.blk.attention(), cur.blk.feed_forward(), &x);
++                let r = witness::build_shaped(&ssh, cur.blk.attention(), cur.blk.feed_forward(), &x);
+                 (r, t.elapsed().as_secs_f64())
+             },
+             || if k + 1 < l { Some(timed_load(k + 1)) } else { None },
+@@ -2009,6 +2059,18 @@
+         next = nxt;
+         witness_s += ws;
+         let w = wres.map_err(|e| format!("the witness builder refuses layer {layer} (before the run header; ruling H-1): {e}"))?;
++        // NATIVE R6 (review r5 note N-r5-a): ruling CS-3's lookup-miss
++        // refusal on the sealed witness, here in the sealing pass, so that no
++        // refusal of an admissible-looking chain is left to `prove_core`
++        // mid-run (H-1 as a fact of the code). One layout per score shift.
++        let lay = match lays.iter().position(|(v, _)| *v == ssh.sh_s) {
++            Some(i) => &lays[i].1,
++            None => {
++                lays.push((ssh.sh_s, super::layout::Layout::for_shape(&ssh)?));
++                &lays[lays.len() - 1].1
++            }
++        };
++        super::protocol::check_lookup_misses(&ssh, lay, &cur.blk, &w).map_err(|e| format!("layer {layer}, in the sealing pass (before the run header; ruling H-1): {e}"))?;
+         let out = padded_plane(&w, ids.at(A_X2))?;
+         if k == 0 {
+             first = Some(padded_plane(&w, ids.at(A_X))?);
+@@ -2029,6 +2091,7 @@
+             kept.push(None);
+         }
+         outs.push(out);
++        shapes.push(ssh);
+     }
+     let first = first.expect("at least one block");
+     if first != pad_d_plane(&sh, &x_in0)? {
+@@ -2036,7 +2099,7 @@
+     }
+     let last = outs[l - 1].clone();
+     let st = ex.statement_of_records(&sh, &c, metas.iter().map(|m| m.record.clone()).collect())?;
+-    let chain = SealedChain { x_in0, outs, kept, kept_bytes, first, last, rebuilt: 0 };
++    let chain = SealedChain { x_in0, shapes, outs, kept, kept_bytes, first, last, rebuilt: 0 };
+     Ok((c, sh, metas, digests, st, chain, SealTimes { wall_s: t0.elapsed().as_secs_f64(), load_s, witness_s }))
+ }
+ 
+@@ -2056,8 +2119,10 @@
+ /// **R5b (P-1, rulings M-9 / D12b(1)): where an UNVERIFIED run's prover-
+ /// written statement goes** — beside the run directory, never inside it:
+ /// `<out>.unverified-statement/`. Only `stack-verify`, after a fresh-process
+-/// verification of the directory passes, moves it to `<out>/statement/`, so
+-/// `statement/` always means "this run verified".
++/// verification of the directory passes, writes `<out>/statement/` — ITSELF,
++/// from its own rendering and the hashes of the bytes it verified (NATIVE R6,
++/// review r5_A) — and then removes this directory, so `statement/` always
++/// means "this run verified, and these are the verified bytes".
+ fn unverified_statement_dir(out: &Path) -> Result<PathBuf, String> {
+     let name = out.file_name().ok_or_else(|| format!("{}: the run directory has no name", out.display()))?;
+     Ok(out.with_file_name(format!("{}.unverified-statement", name.to_string_lossy())))
+@@ -2066,19 +2131,188 @@
+ /// the marker inside an unverified statement directory
+ const UNVERIFIED_MARKER: &str = "UNVERIFIED.txt";
+ 
++/// NATIVE R6 (review r5 finding r5_A): the stack statement's schema. `/2`:
++/// the writer is named (`statement_written_by`) and the prover's
++/// self-reports are grouped and labelled (`prover_reported`, note N-r5-c).
++const STACK_STATEMENT_SCHEMA: &str = "zk60-trained-stack-run/2";
++
++/// NATIVE R6 (review r5 note N-r5-c): what the `prover_reported` fields are
++const PROVER_REPORTED_WHAT: &str = "self-reports of the prover (privacy review P-7): a CPU proof and a GPU proof have the same form, so no verifier can check these fields";
++
++/// **NATIVE R6 (review r5 finding r5_A): who wrote a stack statement.**
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++enum StatementWriter {
++    /// `stack-prove` without a verification: `<run>.unverified-statement/`
++    Unverified,
++    /// `stack-prove --verify-in-process`, after its in-process verification
++    /// of the run directory: `<run>/statement/`
++    InProcess,
++    /// `stack-verify`, after its fresh-process verification of the run
++    /// directory: `<run>/statement/`, written by the verifier itself
++    FreshVerify,
++}
++
++impl StatementWriter {
++    const ALL: [StatementWriter; 3] = [StatementWriter::Unverified, StatementWriter::InProcess, StatementWriter::FreshVerify];
++    fn text(self) -> &'static str {
++        match self {
++            StatementWriter::Unverified => "stack-prove, WITHOUT a verification (unverified: only stack-verify publishes a statement for this run)",
++            StatementWriter::InProcess => "stack-prove, after its in-process verification of the run directory (--verify-in-process)",
++            StatementWriter::FreshVerify => "stack-verify, after its fresh-process verification of the run directory, from its own data and the hashes of the bytes it verified",
++        }
++    }
++}
++
++/// **NATIVE R6 (review r5 note N-r5-c): the prover's self-reports** (privacy
++/// review P-7). Copied into a verifier-written statement only under
++/// `prover_reported`, and only from a prover statement that is byte for byte
++/// the canonical rendering with these values.
++#[derive(Clone, Debug, PartialEq, Eq)]
++struct ProverClaims {
++    backend: String,
++    gpu_declines: u64,
++}
++
++impl ProverClaims {
++    fn of_this_process() -> ProverClaims {
++        ProverClaims { backend: crate::gpu::label(), gpu_declines: crate::gpu::declines() as u64 }
++    }
++
++    /// the writer and the claims a stack `statement.json` names (the strict
++    /// parser refuses duplicate keys and trailing bytes); the caller then
++    /// re-renders with them and compares byte for byte
++    fn of_statement(bytes: &[u8]) -> Result<(StatementWriter, ProverClaims), String> {
++        let j = parse_json(bytes).map_err(|e| format!("statement.json: {e}"))?;
++        if j.get("schema").and_then(J::str).map_err(|e| format!("statement.json: {e}"))? != STACK_STATEMENT_SCHEMA {
++            return Err(format!("statement.json: not schema {STACK_STATEMENT_SCHEMA}"));
++        }
++        let by = j.get("statement_written_by").and_then(J::str).map_err(|e| format!("statement.json: {e}"))?;
++        let writer = StatementWriter::ALL.iter().copied().find(|w| w.text() == by).ok_or("statement.json: an unknown writer")?;
++        let pr = j.get("prover_reported").map_err(|e| format!("statement.json: {e}"))?;
++        let backend = pr.get("backend").and_then(J::str).map_err(|e| format!("statement.json: prover_reported: {e}"))?;
++        if backend.len() > 256 || backend.chars().any(|c| c.is_control()) {
++            return Err("statement.json: prover_reported.backend is not a short printable string".into());
++        }
++        let d = pr.get("gpu_declines").and_then(J::i64).map_err(|e| format!("statement.json: prover_reported: {e}"))?;
++        let gpu_declines = u64::try_from(d).map_err(|_| "statement.json: prover_reported.gpu_declines is negative".to_string())?;
++        Ok((writer, ProverClaims { backend: backend.to_string(), gpu_declines }))
++    }
++}
++
++/// the `segments.json` of a run: one entry per segment, its file name, length
++/// and SHA-256 (from the prover's sink, or from the bytes a verification
++/// consumed)
++fn render_segments_json(seen: &[(u64, String)]) -> String {
++    let segs: Vec<String> = seen.iter().enumerate().map(|(k, (n, h))| format!("{{\"file\":{},\"bytes\":{n},\"sha256\":{}}}", js(&super::run_sink::segment_file_name(k)), js(h))).collect();
++    format!("[\n {}\n]\n", segs.join(",\n "))
++}
++
++/// the text of the marker inside an unverified statement directory
++const UNVERIFIED_TEXT: &[u8] = b"The prover wrote this statement WITHOUT verifying the run. It is not a public statement: only `stack-verify`, after a fresh-process verification of the run directory passes, writes <run>/statement/ itself (rulings M-9 / D12b(1); review r5_A).\n";
++
++/// **NATIVE R6 (review r5 finding r5_A, (c) and (d)).** A statement directory
++/// as found: a REAL directory (a symbolic link is refused by name, never
++/// followed) holding exactly `names`, each a regular file. Anything else —
++/// an extra file, a link, a FIFO, a subdirectory — is refused.
++fn check_statement_dir(dir: &Path, names: &[&str]) -> Result<(), String> {
++    let m = std::fs::symlink_metadata(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
++    if m.file_type().is_symlink() {
++        return Err(format!("{} is a symbolic link; a statement directory is never followed (review r5_A)", dir.display()));
++    }
++    if !m.is_dir() {
++        return Err(format!("{} is not a directory", dir.display()));
++    }
++    let mut found: Vec<String> = Vec::new();
++    for e in std::fs::read_dir(dir).map_err(|e| format!("{}: {e}", dir.display()))? {
++        let e = e.map_err(|e| format!("{}: {e}", dir.display()))?;
++        let name = e.file_name().to_string_lossy().to_string();
++        let fm = std::fs::symlink_metadata(e.path()).map_err(|er| format!("{}: {er}", e.path().display()))?;
++        if !fm.file_type().is_file() {
++            return Err(format!("{}: `{name}` is not a regular file (review r5_A)", dir.display()));
++        }
++        found.push(name);
++    }
++    found.sort();
++    let mut want: Vec<String> = names.iter().map(|s| s.to_string()).collect();
++    want.sort();
++    if found != want {
++        return Err(format!("{} holds {found:?}, not exactly {want:?} (review r5_A)", dir.display()));
++    }
++    Ok(())
++}
++
++/// **NATIVE R6 (review r5 finding r5_A): publish `files` as `<run>/statement/`.**
++/// The files are written into a NEW directory `<run>/statement.writing-<pid>`
++/// (`create_dir` fails if it exists), then renamed to `statement/` after a
++/// check that nothing is there. (Without `renameat2(RENAME_NOREPLACE)` — this
++/// crate takes no `libc` — a writer of the run directory racing the check can
++/// only make the rename replace an EMPTY directory or a link entry, or fail:
++/// nothing of theirs is published.) On any failure the new directory is
++/// removed.
++fn publish_statement_dir(art: &Path, files: &[(&str, &[u8])]) -> Result<PathBuf, String> {
++    let target = art.join(super::run_sink::STATEMENT_DIR);
++    let tmp = art.join(format!("{}.writing-{}", super::run_sink::STATEMENT_DIR, std::process::id()));
++    std::fs::create_dir(&tmp).map_err(|e| format!("{}: {e}", tmp.display()))?;
++    let res = (|| -> Result<(), String> {
++        for (name, bytes) in files {
++            write_new(&tmp.join(name), bytes)?;
++        }
++        match std::fs::symlink_metadata(&target) {
++            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}
++            Ok(_) => return Err(format!("{} exists; a statement is never replaced (review r5_A)", target.display())),
++            Err(e) => return Err(format!("{}: {e}", target.display())),
++        }
++        std::fs::rename(&tmp, &target).map_err(|e| format!("{} -> {}: {e}", tmp.display(), target.display()))
++    })();
++    if let Err(e) = res {
++        let _ = std::fs::remove_dir_all(&tmp);
++        return Err(e);
++    }
++    Ok(target)
++}
++
++#[cfg(test)]
++thread_local! {
++    static AFTER_VERIFY_HOOK: std::cell::RefCell<Option<Box<dyn FnOnce()>>> = const { std::cell::RefCell::new(None) };
++}
++
++/// NATIVE R6, TEST ONLY (review r5_3 (b)): `f` runs once, in this thread's
++/// next `stack-verify`, between its verification and its statement checks —
++/// the point where a writer of the run directory races the publication
++#[cfg(test)]
++pub(crate) fn after_verify_hook_for_tests(f: Box<dyn FnOnce()>) {
++    AFTER_VERIFY_HOOK.with(|h| *h.borrow_mut() = Some(f));
++}
++
++/// NATIVE R6, TEST ONLY: the trained statement identity a stack verifier
++/// over every layer of this export would pin (the digest pass alone)
++#[cfg(test)]
++pub(crate) fn stack_identity_for_tests(export: &Path) -> Result<Digest, String> {
++    let ex = TrainedExport::load(export)?;
++    let layers = ex.layers.clone();
++    let (_, _, _, _, st) = stack_records(&ex, &layers, false)?;
++    Ok(st.identity())
++}
++
+ #[allow(clippy::too_many_arguments)]
+-fn render_stack_statement(ex: &TrainedExport, sh: &Shape, layers: &[LayerMeta], st: &TrainedModelStatement, ctx: &Digest, expected: &ExpectedIo, label: &str, verified_in_process: bool) -> String {
++fn render_stack_statement(ex: &TrainedExport, sh: &Shape, layers: &[LayerMeta], st: &TrainedModelStatement, ctx: &Digest, expected: &ExpectedIo, label: &str, writer: StatementWriter, claims: &ProverClaims) -> String {
+     let c = sh.norm_calibration();
+     let recs: Vec<String> = layers
+         .iter()
+-        .map(|l| format!("{{\"layer\": {}, \"block_digest\": {}, \"manifest_sha256\": {}, \"silu_member\": [{}, {}], \"exp_e_s\": {}}}", l.index, js(&hex(&l.record.block_digest)), js(&hex(&l.manifest_sha256)), l.record.silu_member.0, l.record.silu_member.1, l.record.exp_e_s))
++        .map(|l| {
++            // NATIVE R6: a layer's own score shift, when it has one
++            let own = l.record.sh_s.map(|v| format!(", \"sh_s\": {v}")).unwrap_or_default();
++            format!("{{\"layer\": {}, \"block_digest\": {}, \"manifest_sha256\": {}, \"silu_member\": [{}, {}], \"exp_e_s\": {}{own}}}", l.index, js(&hex(&l.record.block_digest)), js(&hex(&l.manifest_sha256)), l.record.silu_member.0, l.record.silu_member.1, l.record.exp_e_s)
++        })
+         .collect();
+     format!(
+-        "{{\n \"schema\": \"zk60-trained-stack-run/1\",\n \"scope\": {},\n \"backend\": {},\n \"gpu_declines\": {},\n \"prover_verified_in_process\": {},\n \"block_profile\": {},\n \"run_profile\": {},\n \"blocks\": {},\n \"export_variant\": {},\n \"export_profile_sha256\": {},\n \"calibration_tool_sha256\": {},\n \"trained_statement_identity\": {},\n \"context_label\": {},\n \"context\": {},\n \"expected_io\": {},\n \"layers\": [\n  {}\n ],\n \"shape\": {{\"tokens\": {}, \"width\": {}, \"hidden\": {}, \"q_heads\": {}, \"kv_heads\": {}, \"head_dim\": {}, \"log_cols\": {}, \"inv_rate\": {}, \"opened_cols\": {}, \"f_e\": {}, \"wrho_s\": {}, \"norm_wrho\": {}, \"norm_tn\": {}, \"norm_cn_a\": {}, \"norm_cn_m\": {}, \"norm_ceps\": {}, \"sh_ao\": {}, \"sh_qkv\": {}, \"sh_s\": {}, \"sh_o\": {}, \"sh_g\": {}, \"sh_h\": {}, \"sh_z\": {}, \"d_max\": {}}}\n}}\n",
++        "{{\n \"schema\": \"{}\",\n \"scope\": {},\n \"statement_written_by\": {},\n \"prover_reported\": {{\"backend\": {}, \"gpu_declines\": {}, \"what\": {}}},\n \"block_profile\": {},\n \"run_profile\": {},\n \"blocks\": {},\n \"export_variant\": {},\n \"export_profile_sha256\": {},\n \"calibration_tool_sha256\": {},\n \"trained_statement_identity\": {},\n \"context_label\": {},\n \"context\": {},\n \"expected_io\": {},\n \"layers\": [\n  {}\n ],\n \"shape\": {{\"tokens\": {}, \"width\": {}, \"hidden\": {}, \"q_heads\": {}, \"kv_heads\": {}, \"head_dim\": {}, \"log_cols\": {}, \"inv_rate\": {}, \"opened_cols\": {}, \"f_e\": {}, \"wrho_s\": {}, \"norm_wrho\": {}, \"norm_tn\": {}, \"norm_cn_a\": {}, \"norm_cn_m\": {}, \"norm_ceps\": {}, \"sh_ao\": {}, \"sh_qkv\": {}, \"sh_s\": {}, \"sh_o\": {}, \"sh_g\": {}, \"sh_h\": {}, \"sh_z\": {}, \"d_max\": {}}}\n}}\n",
++        STACK_STATEMENT_SCHEMA,
+         js(STACK_SCOPE),
+-        js(&crate::gpu::label()),
+-        crate::gpu::declines(),
+-        verified_in_process,
++        js(writer.text()),
++        js(&claims.backend),
++        claims.gpu_declines,
++        js(PROVER_REPORTED_WHAT),
+         js(sh.profile),
+         js(ex.geometry.run_profile()),
+         layers.len(),
+@@ -2138,7 +2372,8 @@
+ /// the directory and its public statement written to `<out>/statement/`;
+ /// WITHOUT it (the default since R5-2) the prover-written statement goes to
+ /// `<out>.unverified-statement/` and only `stack-verify`'s fresh-process
+-/// verification moves it to `<out>/statement/` (rulings M-9 / D12b(1)).
++/// verification publishes `<out>/statement/`, written by the verifier itself
++/// (rulings M-9 / D12b(1); NATIVE R6, review r5_A).
+ /// A run that fails after `--out` exists is removed, and a failed removal is
+ /// reported. `--lie-at-boundary K` is a CONTROL: the boundary plane after
+ /// block K is off by one word, and the run must then FAIL to verify (exit 0
+@@ -2185,7 +2420,11 @@
+     // ROUND 2 (R2-5): a claimed GPU run refuses to start unless the device
+     // path is live, and any later decline aborts it (`gpu::declined`)
+     crate::gpu::require_live()?;
+-    println!("{{\"event\":\"run_header\",\"gpu\":{},\"hl_gpu_required\":{}}}", js(&crate::gpu::label()), crate::gpu::required());
++    // NATIVE R6 (review r5 note N-r5-d): this stdout event is the prover's
++    // START (the backend it runs on), printed before the sealing pass; it was
++    // called `run_header`, which is the transcript's name for something that
++    // happens only after the sealing pass
++    println!("{{\"event\":\"prover_start\",\"gpu\":{},\"hl_gpu_required\":{}}}", js(&crate::gpu::label()), crate::gpu::required());
+     let ex = TrainedExport::load(&export)?;
+     let layers = parse_layers(flag(f, "--layers"), &ex.layers)?;
+     let l = layers.len();
+@@ -2260,34 +2499,47 @@
+     let t = Instant::now();
+     let verdict = if in_process {
+         let vcache = BlockCache::shared(&ex, &sh, &c, layers.clone(), digests.clone(), rope);
+-        run::verify_run_from_dir_with(&rst, &mut CacheBlocks(vcache), &out)
++        run::verify_run_from_dir_hashed_with(&rst, &mut CacheBlocks(vcache), &out).map(Some)
+     } else {
+-        Ok(())
++        Ok(None)
+     };
+     let verify_s = t.elapsed().as_secs_f64();
+     if let Some(k) = lie_at {
+         return match verdict {
+-            Ok(()) => Err(format!("CONTROL FAILED: a run whose boundary after block {k} was off by one word VERIFIED")),
++            Ok(_) => Err(format!("CONTROL FAILED: a run whose boundary after block {k} was off by one word VERIFIED")),
+             Err(e) => {
+                 println!("{{\"event\":\"control-refused\",\"control\":\"the boundary plane after block {k} off by one word\",\"error\":{}}}", js(&e.chars().take(200).collect::<String>()));
+                 Ok(())
+             }
+         };
+     }
+-    if let Err(e) = verdict {
+-        return Err(fail_run(&out, format!("in-process verification of the run directory: {e}")));
+-    }
++    let verified_seen = match verdict {
++        Err(e) => return Err(fail_run(&out, format!("in-process verification of the run directory: {e}"))),
++        Ok(v) => v,
++    };
+     // ---- the run's public statement: in <out>/statement/ only after a
+-    //      verification (M-9 / D12b(1)); otherwise beside the run, unverified
+-    let sdir = if in_process { out.join(super::run_sink::STATEMENT_DIR) } else { unverified.clone() };
+-    std::fs::create_dir(&sdir).map_err(|e| format!("{}: {e}", sdir.display()))?;
+-    if !in_process {
+-        write_new(&sdir.join(UNVERIFIED_MARKER), b"The prover wrote this statement WITHOUT verifying the run. It is not a public statement: only `stack-verify`, after a fresh-process verification of the run directory passes, moves it to <run>/statement/ (rulings M-9 / D12b(1)).\n")?;
+-    }
+-    write_new(&sdir.join("expected.bin"), &expected.to_bytes())?;
+-    write_new(&sdir.join("statement.json"), render_stack_statement(&ex, &sh, &loaded, &st, &ctx, &expected, label, in_process).as_bytes())?;
+-    let segs: Vec<String> = (0..l).map(|k| format!("{{\"file\":{},\"bytes\":{},\"sha256\":{}}}", js(&super::run_sink::segment_file_name(k)), disk.lengths()[k], js(&disk.digests()[k]))).collect();
+-    write_new(&sdir.join("segments.json"), format!("[\n {}\n]\n", segs.join(",\n ")).as_bytes())?;
++    //      verification (M-9 / D12b(1)); otherwise beside the run, unverified.
++    //      NATIVE R6 (review r5_A): an in-process verification's segments.json
++    //      is the hashes of the bytes it verified, which must be the sink's
++    let sunk: Vec<(u64, String)> = (0..l).map(|k| (disk.lengths()[k] as u64, disk.digests()[k].clone())).collect();
++    let claims = ProverClaims::of_this_process();
++    let sdir = match verified_seen {
++        Some(seen) => {
++            if seen != sunk {
++                return Err(fail_run(&out, "in-process verification: the bytes it verified are not the bytes the prover wrote".into()));
++            }
++            let stmt = render_stack_statement(&ex, &sh, &loaded, &st, &ctx, &expected, label, StatementWriter::InProcess, &claims);
++            publish_statement_dir(&out, &[("expected.bin", &expected.to_bytes()), ("statement.json", stmt.as_bytes()), ("segments.json", render_segments_json(&seen).as_bytes())]).map_err(|e| fail_run(&out, e))?
++        }
++        None => {
++            std::fs::create_dir(&unverified).map_err(|e| format!("{}: {e}", unverified.display()))?;
++            write_new(&unverified.join(UNVERIFIED_MARKER), UNVERIFIED_TEXT)?;
++            write_new(&unverified.join("expected.bin"), &expected.to_bytes())?;
++            write_new(&unverified.join("statement.json"), render_stack_statement(&ex, &sh, &loaded, &st, &ctx, &expected, label, StatementWriter::Unverified, &claims).as_bytes())?;
++            write_new(&unverified.join("segments.json"), render_segments_json(&sunk).as_bytes())?;
++            unverified.clone()
++        }
++    };
+     println!(
+         "{{\"event\":\"proved\",\"gpu\":{},\"gpu_declines\":{},\"blocks\":{l},\"receipt_bytes\":{},\"prove_run_seconds\":{prove_s:.3},\"of_which_witness_seconds\":{rebuild_s:.3},\"rebuilt_witnesses\":{rebuilt},\"witness_seconds_per_block\":{:.3},\"of_which_block_load_seconds\":{block_load_s:.3},\"block_loads\":{block_loads},\"rayon_threads\":{},\"in_process_verified\":{in_process},\"in_process_verify_seconds\":{verify_s:.3},\"sealing_pass_seconds\":{:.3},\"sealing_witness_seconds\":{:.3},\"load_seconds\":{:.3},\"total_seconds\":{:.3},\"vmhwm_mib\":{hwm:.0},\"statement_identity\":{},\"statement_dir\":{},\"out\":{}}}",
+         js(&crate::gpu::label()),
+@@ -2318,6 +2570,16 @@
+ /// a statement with one calibration constant moved, a statement with another
+ /// export digest, one block fewer, a mutated segment, two segments swapped,
+ /// a truncated segment.
++///
++/// NATIVE R6 (review r5 finding r5_A): the statement found — the prover's
++/// `<artifact>.unverified-statement/` or an existing `<artifact>/statement/`
++/// — must be a real directory holding exactly its files, its
++/// `statement.json` byte for byte this verifier's rendering (with the writer
++/// and the prover's self-reports it names) and its `segments.json` the
++/// hashes of the bytes this verification consumed. An unverified statement
++/// is then replaced by one the VERIFIER writes into a fresh directory and
++/// renames to `<artifact>/statement/` (never over an existing one); an
++/// existing `statement/` is only checked.
+ pub fn trained_stack_verify_command(args: &[String]) -> i32 {
+     let f = match flags(args, &["--export", "--artifact", "--expect-statement", "--layers", "--label"], &["--rope-from-export", "--controls"]) {
+         Ok(f) => f,
+@@ -2352,22 +2614,38 @@
+         return Err(format!("the rebuilt trained statement {} is not the pinned {}", hex(&st.identity()), hex(&pin)));
+     }
+     let ctx = stack_context(&ex.variant, &layers, label)?;
+-    // R5b (P-1, M-9): the policy comes from <art>/statement/ (a run that
+-    // verified before) or from the prover's UNVERIFIED statement beside the
+-    // run, which this verification promotes only if it passes
++    // R5b (P-1, M-9) and NATIVE R6 (review r5 finding r5_A): the policy comes
++    // from <art>/statement/ (a run that verified before; checked byte for byte
++    // against this verifier's own rendering below) or from the prover's
++    // UNVERIFIED statement beside the run. Either must be a REAL directory
++    // holding exactly its files (a symbolic link, an extra file or a
++    // non-regular entry is refused before anything is read from it).
+     let verified_dir = art.join(super::run_sink::STATEMENT_DIR);
+     let unverified = unverified_statement_dir(&art)?;
+-    let (sdir, promote) = if verified_dir.is_dir() {
+-        if unverified.exists() {
+-            return Err(format!("{} and {} both exist; refused", verified_dir.display(), unverified.display()));
+-        }
+-        (verified_dir.clone(), false)
+-    } else if unverified.is_dir() {
+-        (unverified.clone(), true)
+-    } else {
+-        return Err(format!("no statement: neither {} nor {} exists", verified_dir.display(), unverified.display()));
++    let present = |p: &Path| -> Result<bool, String> {
++        match std::fs::symlink_metadata(p) {
++            Ok(_) => Ok(true),
++            Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(false),
++            Err(e) => Err(format!("{}: {e}", p.display())),
++        }
++    };
++    let (sdir, promote) = match (present(&verified_dir)?, present(&unverified)?) {
++        (true, true) => return Err(format!("{} and {} both exist; refused", verified_dir.display(), unverified.display())),
++        (true, false) => (verified_dir.clone(), false),
++        (false, true) => (unverified.clone(), true),
++        (false, false) => return Err(format!("no statement: neither {} nor {} exists", verified_dir.display(), unverified.display())),
+     };
+-    let expected = ExpectedIo::from_bytes_at(&sh, &read_bounded(&sdir.join("expected.bin"), 4096)?)?;
++    if promote {
++        check_statement_dir(&sdir, &[UNVERIFIED_MARKER, "expected.bin", "statement.json", "segments.json"])?;
++    } else {
++        check_statement_dir(&sdir, &["expected.bin", "statement.json", "segments.json"])?;
++    }
++    // the policy bytes are read ONCE; the published copy is these bytes
++    let expected_bytes = read_bounded(&sdir.join("expected.bin"), 4096)?;
++    let expected = ExpectedIo::from_bytes_at(&sh, &expected_bytes)?;
++    if expected.to_bytes() != expected_bytes {
++        return Err("expected.bin is not the canonical encoding of its policy".into());
++    }
+     if expected.to_bytes()[8..40] != ctx {
+         return Err("the artifact's endpoint policy carries another context".into());
+     }
+@@ -2375,10 +2653,11 @@
+     let load_s = t.elapsed().as_secs_f64();
+     let t = Instant::now();
+     let vcache = BlockCache::shared(&ex, &sh, &c, layers.clone(), digests.clone(), rope);
+-    run::verify_run_from_dir_with(&rst, &mut CacheBlocks(vcache.clone()), &art)?;
++    // NATIVE R6 (r5_A (b)): the hashes of EXACTLY the bytes verified
++    let seen = run::verify_run_from_dir_hashed_with(&rst, &mut CacheBlocks(vcache.clone()), &art)?;
+     let verify_s = t.elapsed().as_secs_f64();
+     let block_load_s = vcache.borrow().load_s;
+-    let total: u64 = super::run_sink::segment_paths(&art, l)?.iter().map(|p| std::fs::metadata(p).map(|m| m.len()).unwrap_or(0)).sum();
++    let total: u64 = seen.iter().map(|(n, _)| *n).sum();
+     println!(
+         "{{\"event\":\"verified\",\"blocks\":{l},\"receipt_bytes\":{total},\"load_seconds\":{load_s:.3},\"verify_seconds\":{verify_s:.3},\"of_which_block_load_seconds\":{block_load_s:.3},\"vmhwm_mib\":{:.0},\"statement_identity\":{},\"scope\":{}}}",
+         peak_rss_mib(),
+@@ -2388,48 +2667,50 @@
+     if flag(f, "--controls").is_some() {
+         stack_controls(&ex, &c, &sh, &layers, &digests, rope, &loaded, &st, ctx, &expected, &art)?;
+     }
+-    if promote {
+-        promote_statement(&art, &sdir, &verified_dir, &rst, l, &st, &ctx, &expected)?;
++    // review r5_3 (b), test builds only: a writer of the run directory acts
++    // HERE, after the verification and before the statement checks
++    #[cfg(test)]
++    if let Some(h) = AFTER_VERIFY_HOOK.with(|h| h.borrow_mut().take()) {
++        h();
++    }
++    // ---- NATIVE R6 (review r5 finding r5_A): the statement is bound to what
++    //      was verified. The found statement.json must be, byte for byte, this
++    //      verifier's rendering (its own export, shape, identity, context and
++    //      policy) with the writer and prover self-reports it names, and the
++    //      found segments.json must be the hashes of the verified bytes.
++    let segs_json = render_segments_json(&seen);
++    let found_stmt = read_bounded(&sdir.join("statement.json"), MAX_JSON_BYTES)?;
++    let found_segs = read_bounded(&sdir.join("segments.json"), MAX_JSON_BYTES)?;
++    let (writer, claims) = ProverClaims::of_statement(&found_stmt).map_err(|e| format!("{}: {e} (review r5_A)", sdir.display()))?;
++    let allowed: &[StatementWriter] = if promote { &[StatementWriter::Unverified] } else { &[StatementWriter::InProcess, StatementWriter::FreshVerify] };
++    if !allowed.contains(&writer) {
++        return Err(format!("{}: statement.json names the writer \"{}\", which does not write this directory (review r5_A)", sdir.display(), writer.text()));
++    }
++    if render_stack_statement(&ex, &sh, &loaded, &st, &ctx, &expected, label, writer, &claims).as_bytes() != found_stmt.as_slice() {
++        return Err(format!("{}: statement.json is not, byte for byte, this verifier's rendering of the verified run (review r5_A)", sdir.display()));
++    }
++    if found_segs != segs_json.as_bytes() {
++        return Err(format!("{}: segments.json does not name the bytes this verification consumed (review r5_A)", sdir.display()));
++    }
++    if !promote {
++        println!("{{\"event\":\"statement-checked\",\"dir\":{},\"writer\":{},\"result\":\"byte for byte this verifier's rendering of the verified run\"}}", js(&sdir.display().to_string()), js(writer.text()));
++        return Ok(());
++    }
++    if read_bounded(&sdir.join(UNVERIFIED_MARKER), 4096)? != UNVERIFIED_TEXT {
++        return Err(format!("{}: the marker is not the prover's marker (review r5_A)", sdir.display()));
++    }
++    // ---- publication: the VERIFIER writes <run>/statement/ itself, from its
++    //      own rendering and the bytes it verified, into a fresh directory
++    let stmt = render_stack_statement(&ex, &sh, &loaded, &st, &ctx, &expected, label, StatementWriter::FreshVerify, &claims);
++    let published = publish_statement_dir(&art, &[("expected.bin", &expected_bytes), ("statement.json", stmt.as_bytes()), ("segments.json", segs_json.as_bytes())])?;
++    // then the prover's unverified directory goes: re-checked as a real
++    // directory, never followed (`remove_dir_all` removes a link itself)
++    let um = std::fs::symlink_metadata(&unverified).map_err(|e| format!("{}: {e}", unverified.display()))?;
++    if um.file_type().is_symlink() || !um.is_dir() {
++        return Err(format!("{} changed into a non-directory after the verification; the published statement stands, the entry is left in place (review r5_A)", unverified.display()));
+     }
+-    Ok(())
+-}
+-
+-/// **R5b (P-1, rulings M-9 / D12b(1)): the promotion of a verified run's
+-/// statement.** After the fresh-process verification passed: the prover's
+-/// `statement.json` must carry this verifier's trained identity, context
+-/// and endpoint policy; `segments.json` must name every segment with its
+-/// on-disk length and SHA-256 (re-read through the bounded reader); then the
+-/// unverified marker is removed and the directory is renamed to
+-/// `<run>/statement/` (one rename on one file system).
+-#[allow(clippy::too_many_arguments)]
+-fn promote_statement(art: &Path, sdir: &Path, verified_dir: &Path, rst: &RunStatement, l: usize, st: &TrainedModelStatement, ctx: &Digest, expected: &ExpectedIo) -> Result<(), String> {
+-    let stmt = String::from_utf8(read_bounded(&sdir.join("statement.json"), MAX_JSON_BYTES)?).map_err(|_| "statement.json is not UTF-8".to_string())?;
+-    for (key, want) in [("trained_statement_identity", hex(&st.identity())), ("context", hex(ctx)), ("expected_io", hex(&expected.to_bytes()))] {
+-        if !stmt.contains(&format!("\"{key}\": \"{want}\"")) {
+-            return Err(format!("promotion refused: the prover's statement.json does not carry this verifier's {key}"));
+-        }
+-    }
+-    let segs = parse_json(&read_bounded(&sdir.join("segments.json"), MAX_JSON_BYTES)?).map_err(|e| format!("segments.json: {e}"))?;
+-    let segs = segs.arr().map_err(|e| format!("segments.json: {e}"))?;
+-    if segs.len() != l {
+-        return Err(format!("promotion refused: segments.json lists {} segments, the run has {l}", segs.len()));
+-    }
+-    let paths = super::run_sink::segment_paths(art, l)?;
+-    for (k, (s, p)) in segs.iter().zip(&paths).enumerate() {
+-        let bytes = run::read_segment_bounded(rst, k, p)?;
+-        let file = s.get("file").and_then(J::str).map_err(|e| format!("segments.json: {e}"))?;
+-        let n = s.get("bytes").and_then(J::i64).map_err(|e| format!("segments.json: {e}"))?;
+-        let h = s.get("sha256").and_then(J::str).map_err(|e| format!("segments.json: {e}"))?;
+-        if file != super::run_sink::segment_file_name(k) || n != bytes.len() as i64 || h != hex(&sha256(&bytes)) {
+-            return Err(format!("promotion refused: segments.json's entry {k} is not the verified segment file"));
+-        }
+-    }
+-    if verified_dir.exists() {
+-        return Err(format!("promotion refused: {} already exists", verified_dir.display()));
+-    }
+-    std::fs::remove_file(sdir.join(UNVERIFIED_MARKER)).map_err(|e| format!("promotion: {}: {e}", sdir.join(UNVERIFIED_MARKER).display()))?;
+-    std::fs::rename(sdir, verified_dir).map_err(|e| format!("promotion: {} -> {}: {e}", sdir.display(), verified_dir.display()))?;
+-    println!("{{\"event\":\"statement-promoted\",\"from\":{},\"to\":{},\"after\":\"a fresh-process verification of the run directory\"}}", js(&sdir.display().to_string()), js(&verified_dir.display().to_string()));
++    std::fs::remove_dir_all(&unverified).map_err(|e| format!("{}: {e}", unverified.display()))?;
++    println!("{{\"event\":\"statement-published\",\"by\":\"stack-verify, from its own rendering and the hashes of the verified bytes\",\"to\":{},\"prover_statement_removed\":{}}}", js(&published.display().to_string()), js(&unverified.display().to_string()));
+     Ok(())
+ }
+ 

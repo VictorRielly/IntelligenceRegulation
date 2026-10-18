@@ -1,0 +1,47 @@
+[
+  {
+    "argv": [
+      "python3",
+      "experiments/factorized-public-equality-20261017/run.py"
+    ],
+    "tool_session": 96687,
+    "exit": 0,
+    "note": "Initial21-control PASS archived; compiler output actual compile.log overwritten by stronger run."
+  },
+  {
+    "argv": [
+      "python3",
+      "experiments/factorized-public-equality-20261017/run.py"
+    ],
+    "tool_session": 39110,
+    "exit": 0,
+    "note": "Final22-control PASS; compiler argv in result.json; stdout result retained as result.json, not claimed as a shell log."
+  },
+  {
+    "argv": [
+      "python3",
+      "experiments/factorized-public-equality-20261017/audit.py"
+    ],
+    "tool_session": 39880,
+    "exit": 1,
+    "note": "Comment-extraction assertion failed after arithmetic; failed source and exact finding retained."
+  },
+  {
+    "command": "python3 experiments/factorized-public-equality-20261017/audit.py > experiments/factorized-public-equality-20261017/audit.log 2>&1",
+    "tool_session": 83557,
+    "exit": 0
+  },
+  {
+    "command": "python3 experiments/factorized-public-equality-20261017/account.py > experiments/factorized-public-equality-20261017/account.log 2>&1",
+    "exit": 0
+  },
+  {
+    "command": "python3 experiments/factorized-public-equality-20261017/causality.py > experiments/factorized-public-equality-20261017/causality.log 2>&1",
+    "exit": 0
+  },
+  {
+    "command": "python3 experiments/factorized-public-equality-20261017/final_audit.py > experiments/factorized-public-equality-20261017/final-audit.log 2>&1",
+    "exit": 0,
+    "result": "73 consistency checks PASS"
+  }
+]

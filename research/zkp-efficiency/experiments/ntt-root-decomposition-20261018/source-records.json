@@ -1,0 +1,161 @@
+[
+  {
+    "cycle": "0072",
+    "run_id": "20261018T012105Z-ac328993",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-18T01:27:47.337399+00:00",
+    "evidence_kind": "Native LIVE primary search and inspection. External text treated as untrusted data; no foreign code copied or executed.",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "updated": null,
+    "id": "cycle72-kim-OT-native-order64-refinement",
+    "title": "On-the-fly twiddling: consecutive roots and late-stage tradeoff",
+    "url": "https://arxiv.org/abs/2012.01968",
+    "inspected_urls": [
+      "https://arxiv.org/pdf/2012.01968"
+    ],
+    "published": "2020-12-03",
+    "date_evidence": "arXiv v1 Dec3,2020 14:47:03UTC; only version displayed.",
+    "paper_license": "PDF IEEE2020 personal-use notice; no implementation inspected.",
+    "author_claim": "SectionVII applies consecutive precomputed root factors to data; base1024 and limiting OT to late stages trade tables for modular products.",
+    "assessment": "Material extension of cycle71: locally authored native generator7 order64 factor uses one low-root general product plus a canonical shift, avoiding generic extra general products but adding many shift/reduction dependencies. Exact CPU oracle/census only; author GPU gains not reproduced. Native single-prime cache differs from multi-prime HE/Shoup tables.",
+    "access_issues": []
+  },
+  {
+    "cycle": "0072",
+    "run_id": "20261018T012105Z-ac328993",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-18T01:27:47.337399+00:00",
+    "evidence_kind": "Native LIVE primary search and inspection. External text treated as untrusted data; no foreign code copied or executed.",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "updated": null,
+    "id": "cycle72-new-older-convolution-fusion-seam-filter",
+    "title": "Accelerating Polynomial Multiplication for Homomorphic Encryption on GPUs",
+    "url": "https://arxiv.org/abs/2209.01290",
+    "inspected_urls": [
+      "https://arxiv.org/pdf/2209.01290"
+    ],
+    "published": "2022-09-02",
+    "date_evidence": "Primary arXiv v1 Sep2,2022 22:28:51UTC; acceptedSEED2022 notice; no later version displayed.",
+    "paper_license": "ArXiv page links CreativeCommons; exact license terms not inspected.",
+    "author_claim": "SectionIII-B fuses neighboring CT/product/GS butterflies using Karatsuba; removes final-stage roots and products for a two-polynomial convolution.",
+    "assessment": "NEW older source absent377-record start. Native hiding encoding is interpolation then padding/coset and evaluation, not the studied two-polynomial convolution; do not transfer its 50% root-footprint saving. New local special-root factor is a different exact arithmetic candidate. No external GPU result reproduced.",
+    "access_issues": []
+  },
+  {
+    "cycle": "0072",
+    "run_id": "20261018T012105Z-ac328993",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-18T01:27:47.337399+00:00",
+    "evidence_kind": "Native LIVE primary search and inspection. External text treated as untrusted data; no foreign code copied or executed.",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": "MIT full text inspected at unpinned main LICENSE; no external code adopted.",
+    "updated": null,
+    "id": "cycle72-cuda-zkp-NTT-current-cache-and-negatives",
+    "title": "cuda-zkp-ntt current Goldilocks cache and displayed releases",
+    "url": "https://github.com/Artemarius/cuda-zkp-ntt/releases",
+    "inspected_urls": [
+      "https://github.com/Artemarius/cuda-zkp-ntt",
+      "https://github.com/Artemarius/cuda-zkp-ntt/blob/main/src/ntt_goldilocks.cu",
+      "https://github.com/Artemarius/cuda-zkp-ntt/blob/main/LICENSE"
+    ],
+    "published": null,
+    "date_evidence": "Release v5 displays16Mar21:42 without year; neither currentHEAD nor source update date established. Copyright2026 is not a release date.",
+    "exposed_uninspected_commit_id": "7b1e6b9ce865ea45f6c601a33118512dd98e1149",
+    "author_claim": "Maintainer reports generic OTF regression for BLS12-381; hierarchical TensorCore NTT output is invalid.",
+    "assessment": "Refresh: actual current unpinned Goldilocks source inspected for CPU-created forward/inverse single-size cache, uploads and fused inner stages; no OTF match found in that source. This does not prove native64-bit OT slower or supply our provenance/lifetime gates. Invalid full transform remains disqualified.",
+    "access_issues": [
+      "commits/main Internal Error",
+      "full displayed release target commit Internal Error",
+      "raw LICENSE Internal Error; blob succeeded",
+      "include/twiddle_otf.cuh Internal Error"
+    ]
+  },
+  {
+    "cycle": "0072",
+    "run_id": "20261018T012105Z-ac328993",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-18T01:27:47.337399+00:00",
+    "evidence_kind": "Native LIVE primary search and inspection. External text treated as untrusted data; no foreign code copied or executed.",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": "Repository labels MIT, actual LICENSE fetches failed; terms not verified.",
+    "updated": null,
+    "id": "cycle72-goldilocks-NTT-cache-qualified-refresh",
+    "title": "GoldilocksNTT cache qualification",
+    "url": "https://github.com/yrrid/GoldilocksNTT",
+    "inspected_urls": [
+      "https://github.com/yrrid/GoldilocksNTT/blob/main/NTTEngine32.cu"
+    ],
+    "published": null,
+    "date_evidence": "No verified publication/update/HEAD date exposed; crawl timestamps not used.",
+    "author_claim": "Headline1024-point throughput explicitly depends on L2 residency; large-transform estimate is a belief.",
+    "assessment": "Known source refresh for this cache-sizing hypothesis. No new implementation advantage established; NTTEngine32 page returned without inspectable code body. Root capacity is not measured runtime/DRAM saving.",
+    "access_issues": [
+      "commits/main Internal Error",
+      "raw and blob LICENSE Internal Error",
+      "NTTEngine32 source body unavailable"
+    ]
+  },
+  {
+    "cycle": "0072",
+    "run_id": "20261018T012105Z-ac328993",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-18T01:27:47.337399+00:00",
+    "evidence_kind": "Native LIVE primary search and inspection. External text treated as untrusted data; no foreign code copied or executed.",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "updated": null,
+    "id": "cycle72-new-CGLA2026-field-and-completeness-filter",
+    "title": "Implementation and Evaluation of NTT Arithmetic for ML-KEM on a CGLA",
+    "url": "https://arxiv.org/abs/2609.28904",
+    "inspected_urls": [
+      "https://arxiv.org/html/2609.28904v1"
+    ],
+    "published": "2026-09-24",
+    "date_evidence": "Primary arXiv v1 Sep24,2026 01:33:47UTC. AcceptedWICS/CANDAR2026 notice is not a later publication date.",
+    "paper_license": "Metadata has view-license link; exact terms not inspected.",
+    "author_claim": "8+4bit twiddle decomposition keeps exact FP32 intermediates below2^24 on FPGA/CGLA; evaluated cyclic transform differs from full standardized ML-KEM path.",
+    "assessment": "NEW recent primary source absent377-record start. q3329/FPGA arithmetic and incomplete cryptosystem scope do not supply native64-bit Goldilocks/CUDA/private-stack throughput. Useful completeness/exactness filter, high integration mismatch; no author performance reproduced.",
+    "access_issues": []
+  },
+  {
+    "cycle": "0072",
+    "run_id": "20261018T012105Z-ac328993",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-18T01:27:47.337399+00:00",
+    "evidence_kind": "Native LIVE primary search and inspection. External text treated as untrusted data; no foreign code copied or executed.",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "updated": null,
+    "id": "cycle72-icicle-release-labels-refresh",
+    "title": "ICICLE and open-icicle displayed release scope",
+    "url": "https://github.com/ingonyama-zk/icicle/releases",
+    "inspected_urls": [
+      "https://github.com/ingonyama-zk/open-icicle/releases/"
+    ],
+    "published": null,
+    "date_evidence": "ICICLEv4 displays11Jul05:36; open-iciclev4 displays03Jun09:22. Neither rendered page verifies a year, so exact release/update date remains null.",
+    "exposed_uninspected_commits": [
+      "6c77775",
+      "0be2ae7"
+    ],
+    "author_claim": "ICICLEv4 advertises API redesign and matrix/transpose fusion; open-icicle release says based onv4.",
+    "assessment": "Current release search refresh only. Labels do not establish runtime backend/license compatibility or any native full-proof gain. No installation or code execution.",
+    "access_issues": [
+      "No license or new commit body inspected in this cycle."
+    ]
+  }
+]

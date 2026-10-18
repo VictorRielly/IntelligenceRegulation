@@ -1,0 +1,17 @@
+[zk60-guard 17:57:04] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 17:58:04] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 17:59:04] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 18:00:04] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 18:01:04] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 18:02:04] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 18:03:04] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 18:04:04] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 18:05:04] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 18:06:05] waiting for /tmp/zk-heavy.lock (541s)
+[zk60-guard 18:07:05] waiting for /tmp/zk-heavy.lock (601s)
+[zk60-guard 18:08:05] waiting for /tmp/zk-heavy.lock (661s)
+[zk60-guard 18:09:05] waiting for /tmp/zk-heavy.lock (721s)
+[zk60-guard 18:10:05] waiting for /tmp/zk-heavy.lock (781s)
+[zk60-guard 18:11:05] waiting for /tmp/zk-heavy.lock (841s)
+[zk60-guard 18:11:23] START t18-r3-trained class=gpu need=4.5G cap=7G enforce=cgroup+watchdog waited=859s run=10a6868c5949
+[zk60-guard 18:19:14] END t18-r3-trained exit=0 child_wall=471s peak_rss=2.26G min_avail=8.23G peak_vram=3173MiB

@@ -1,0 +1,56 @@
+{
+  "status": "PASS",
+  "seed": 2026101873,
+  "checks": {
+    "native_tiled_DIT": 8,
+    "native_tiled_DIF_inverse": 8,
+    "original_polynomial_samples": 128,
+    "original_inverse_polynomial_samples": 128,
+    "bitreversed_pad_full_stages": 16,
+    "bitreversed_pad_skip_stages": 16,
+    "generic_OT_exactness": 1048
+  },
+  "generic_comparator": [
+    {
+      "stage": 7,
+      "full_stage_words": 64,
+      "two_table_words": 16,
+      "action_gl_mul_calls_per_distinct_k_sum": 112,
+      "two_general_product_k_count": 49,
+      "baseline_products_including_identity": 64
+    },
+    {
+      "stage": 12,
+      "full_stage_words": 2048,
+      "two_table_words": 96,
+      "action_gl_mul_calls_per_distinct_k_sum": 4000,
+      "two_general_product_k_count": 1953,
+      "baseline_products_including_identity": 2048
+    },
+    {
+      "stage": 16,
+      "full_stage_words": 32768,
+      "two_table_words": 384,
+      "action_gl_mul_calls_per_distinct_k_sum": 65152,
+      "two_general_product_k_count": 32385,
+      "baseline_products_including_identity": 32768
+    },
+    {
+      "stage": 20,
+      "full_stage_words": 524288,
+      "two_table_words": 1536,
+      "action_gl_mul_calls_per_distinct_k_sum": 1047040,
+      "two_general_product_k_count": 522753,
+      "baseline_products_including_identity": 524288
+    }
+  ],
+  "wall_seconds": 6.312015870000323,
+  "peak_rss_kib": 24344,
+  "threads": 1,
+  "cpu_affinity": [
+    0
+  ],
+  "limits": "59s wall/CPU,512MiB AS",
+  "scope": "Independent exact polynomial samples and source-derived serial DIT/DIF/tile/swizzle/pad-skip model. No CUDA race/sync, pruned output kernel, native transcript/proof/RNG or GPU check.",
+  "completed_at_utc": "2026-10-18T01:25:52.419306+00:00"
+}

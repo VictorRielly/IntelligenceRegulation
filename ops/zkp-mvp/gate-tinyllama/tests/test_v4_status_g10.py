@@ -452,3 +452,77 @@ class PinEnforcement(unittest.TestCase):
         out = self.check(m)
         self.assertFalse(out["ok"])
         self.assertIn("stage12_mask_and_cfs", out["stages_not_checked"])
+
+
+class R5bPins(unittest.TestCase):
+    """[v6, round 5] the R5b readings: every digest is the gate's R5b copy's
+    file, and an R5b writer must pin the N-r4-d group as well as G-2's"""
+
+    R5B = "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-r5b/hashline"
+
+    def _sha(self, rel):
+        import hashlib
+        with open(os.path.join(self.R5B, rel), "rb") as fh:
+            return hashlib.sha256(fh.read()).hexdigest()
+
+    @unittest.skipUnless(os.path.isdir(R5B), "the gate's R5b copy is not on disk")
+    def test_every_r5b_digest_is_the_r5b_copys_file(self):
+        import zk60_native_rg_tinyllama_r5b_pins as R
+        for table in (R.RUN_LAYER_PINS, R.TERMINALS_PINNED_IF_PRESENT, R.MASK_LAYER_PINS):
+            for path, digests in table.items():
+                self.assertEqual(list(digests), [self._sha(path)], path)
+        for path, e in R.SHARED_NR4D_PINS.items():
+            self.assertEqual(e["sha256"], self._sha(path), path)
+        for path, (d, _why) in R.REPORT_ONLY_OWN_FILES.items():
+            self.assertEqual(d, self._sha(path), path)
+        # the files the ports transcribe that R5b did NOT change keep R5's digests
+        import zk60_native_rg_tinyllama_r5_pins as R5
+        self.assertIn(self._sha("src/private_block/layout.rs"), R5.TERMINALS_ALSO_ACCEPTED["src/private_block/layout.rs"])
+        self.assertIn(self._sha("src/private_block/protocol.rs"), R5.TERMINALS_ALSO_ACCEPTED["src/private_block/protocol.rs"])
+        self.assertIn(self._sha("src/private_block/argument.rs"), R5.ARGUMENT_DEFINITIONS)
+
+    @unittest.skipUnless(os.path.isdir(TL1D), "L = 1 bundle not on disk")
+    def test_an_r5b_writer_must_pin_the_nr4d_group(self):
+        import types
+        import zk60_native_rg_runpins as RP
+        import zk60_native_rg_tinyllama_r5b_pins as R
+        import zk60_native_rg_tinyllama_r5_pins as R5
+        with open(os.path.join(TL1D, "manifest.json")) as fh:
+            man = json.load(fh)
+
+        def set_(pins, f, d):
+            for p in pins:
+                if p["file"] == f:
+                    p["sha256"] = d
+                    return
+            pins.append({"file": f, "sha256": d})
+
+        def r5b(pins):
+            set_(pins, "src/private_block/run.rs", next(iter(R.RUN_LAYER_PINS["src/private_block/run.rs"])))
+            set_(pins, "src/private_block/run_capture.rs", next(iter(R.RUN_LAYER_PINS["src/private_block/run_capture.rs"])))
+            for f, e in R5.SHARED_G2_PINS.items():
+                set_(pins, f, e["sha256"])
+            for f, e in R.SHARED_NR4D_PINS.items():
+                set_(pins, f, e["sha256"])
+
+        def check(m):
+            mm = copy.deepcopy(man)
+            m(mm["source_pins"])
+            return RP.check_run_layer_pins(types.SimpleNamespace(manifest=mm))
+        out = check(r5b)
+        self.assertTrue(out["ok"], out["shared_files"].get("pins_that_moved"))
+        self.assertEqual(len(out["shared_files"]["nr4d_files"]), 3)
+
+        def missing(p):
+            r5b(p)
+            p[:] = [x for x in p if x["file"] != "src/gpu/mod.rs"]
+        out = check(missing)
+        self.assertFalse(out["ok"])
+        self.assertIn("stage9_hash_layer", out["stages_not_checked"])
+
+        def moved(p):
+            r5b(p)
+            set_(p, "../zkp-core/src/tables.rs", "0" * 64)
+        out = check(moved)
+        self.assertFalse(out["ok"])
+        self.assertIn("stage8_plane_index_and_terminals", out["stages_not_checked"])

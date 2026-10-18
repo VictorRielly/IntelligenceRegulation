@@ -183,6 +183,8 @@ TOOLS = [
     "zk60_native_rg_pincontrols.py",
     "zk60_native_rg_exportcheck.py",
     "zk60_native_rg_schema.py",
+    # [v6, round 5] the readings of the R5b tree's digests
+    "zk60_native_rg_tinyllama_r5b_pins.py",
 ]
 
 EXPECTED_DISCLOSED = {

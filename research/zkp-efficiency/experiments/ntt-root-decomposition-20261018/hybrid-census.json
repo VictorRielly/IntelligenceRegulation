@@ -1,0 +1,366 @@
+[
+  {
+    "log_n": 12,
+    "compress_from_stage": 7,
+    "root_bytes_both_directions": 2016,
+    "extra_shifts_vs_sparse_candidate": 9951,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 12,
+    "compress_from_stage": 8,
+    "root_bytes_both_directions": 3008,
+    "extra_shifts_vs_sparse_candidate": 8959,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 12,
+    "compress_from_stage": 9,
+    "root_bytes_both_directions": 4992,
+    "extra_shifts_vs_sparse_candidate": 7471,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 12,
+    "compress_from_stage": 10,
+    "root_bytes_both_directions": 8960,
+    "extra_shifts_vs_sparse_candidate": 5735,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 12,
+    "compress_from_stage": 11,
+    "root_bytes_both_directions": 16896,
+    "extra_shifts_vs_sparse_candidate": 3875,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 12,
+    "compress_from_stage": 12,
+    "root_bytes_both_directions": 32768,
+    "extra_shifts_vs_sparse_candidate": 1953,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 12,
+    "compress_from_stage": null,
+    "root_bytes_both_directions": 64512,
+    "extra_shifts_vs_sparse_candidate": 0,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 16,
+    "compress_from_stage": 7,
+    "root_bytes_both_directions": 32736,
+    "extra_shifts_vs_sparse_candidate": 285727,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 16,
+    "compress_from_stage": 8,
+    "root_bytes_both_directions": 33728,
+    "extra_shifts_vs_sparse_candidate": 269855,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 16,
+    "compress_from_stage": 9,
+    "root_bytes_both_directions": 35712,
+    "extra_shifts_vs_sparse_candidate": 246047,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 16,
+    "compress_from_stage": 10,
+    "root_bytes_both_directions": 39680,
+    "extra_shifts_vs_sparse_candidate": 218271,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 16,
+    "compress_from_stage": 11,
+    "root_bytes_both_directions": 47616,
+    "extra_shifts_vs_sparse_candidate": 188511,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 16,
+    "compress_from_stage": 12,
+    "root_bytes_both_directions": 63488,
+    "extra_shifts_vs_sparse_candidate": 157759,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 16,
+    "compress_from_stage": 13,
+    "root_bytes_both_directions": 95232,
+    "extra_shifts_vs_sparse_candidate": 126511,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 16,
+    "compress_from_stage": 14,
+    "root_bytes_both_directions": 158720,
+    "extra_shifts_vs_sparse_candidate": 95015,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 16,
+    "compress_from_stage": 15,
+    "root_bytes_both_directions": 285696,
+    "extra_shifts_vs_sparse_candidate": 63395,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 16,
+    "compress_from_stage": 16,
+    "root_bytes_both_directions": 539648,
+    "extra_shifts_vs_sparse_candidate": 31713,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 16,
+    "compress_from_stage": null,
+    "root_bytes_both_directions": 1047552,
+    "extra_shifts_vs_sparse_candidate": 0,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 20,
+    "compress_from_stage": 7,
+    "root_bytes_both_directions": 524256,
+    "extra_shifts_vs_sparse_candidate": 6602783,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 20,
+    "compress_from_stage": 8,
+    "root_bytes_both_directions": 525248,
+    "extra_shifts_vs_sparse_candidate": 6348831,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 20,
+    "compress_from_stage": 9,
+    "root_bytes_both_directions": 527232,
+    "extra_shifts_vs_sparse_candidate": 5967903,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 20,
+    "compress_from_stage": 10,
+    "root_bytes_both_directions": 531200,
+    "extra_shifts_vs_sparse_candidate": 5523487,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 20,
+    "compress_from_stage": 11,
+    "root_bytes_both_directions": 539136,
+    "extra_shifts_vs_sparse_candidate": 5047327,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 20,
+    "compress_from_stage": 12,
+    "root_bytes_both_directions": 555008,
+    "extra_shifts_vs_sparse_candidate": 4555295,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 20,
+    "compress_from_stage": 13,
+    "root_bytes_both_directions": 586752,
+    "extra_shifts_vs_sparse_candidate": 4055327,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 20,
+    "compress_from_stage": 14,
+    "root_bytes_both_directions": 650240,
+    "extra_shifts_vs_sparse_candidate": 3551391,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 20,
+    "compress_from_stage": 15,
+    "root_bytes_both_directions": 777216,
+    "extra_shifts_vs_sparse_candidate": 3045471,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 20,
+    "compress_from_stage": 16,
+    "root_bytes_both_directions": 1031168,
+    "extra_shifts_vs_sparse_candidate": 2538559,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 20,
+    "compress_from_stage": 17,
+    "root_bytes_both_directions": 1539072,
+    "extra_shifts_vs_sparse_candidate": 2031151,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 20,
+    "compress_from_stage": 18,
+    "root_bytes_both_directions": 2554880,
+    "extra_shifts_vs_sparse_candidate": 1523495,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 20,
+    "compress_from_stage": 19,
+    "root_bytes_both_directions": 4586496,
+    "extra_shifts_vs_sparse_candidate": 1015715,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 20,
+    "compress_from_stage": 20,
+    "root_bytes_both_directions": 8649728,
+    "extra_shifts_vs_sparse_candidate": 507873,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 20,
+    "compress_from_stage": null,
+    "root_bytes_both_directions": 16776192,
+    "extra_shifts_vs_sparse_candidate": 0,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 24,
+    "compress_from_stage": 7,
+    "root_bytes_both_directions": 8388576,
+    "extra_shifts_vs_sparse_candidate": 138149919,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 24,
+    "compress_from_stage": 8,
+    "root_bytes_both_directions": 8389568,
+    "extra_shifts_vs_sparse_candidate": 134086687,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 24,
+    "compress_from_stage": 9,
+    "root_bytes_both_directions": 8391552,
+    "extra_shifts_vs_sparse_candidate": 127991839,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 24,
+    "compress_from_stage": 10,
+    "root_bytes_both_directions": 8395520,
+    "extra_shifts_vs_sparse_candidate": 120881183,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 24,
+    "compress_from_stage": 11,
+    "root_bytes_both_directions": 8403456,
+    "extra_shifts_vs_sparse_candidate": 113262623,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 24,
+    "compress_from_stage": 12,
+    "root_bytes_both_directions": 8419328,
+    "extra_shifts_vs_sparse_candidate": 105390111,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 24,
+    "compress_from_stage": 13,
+    "root_bytes_both_directions": 8451072,
+    "extra_shifts_vs_sparse_candidate": 97390623,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 24,
+    "compress_from_stage": 14,
+    "root_bytes_both_directions": 8514560,
+    "extra_shifts_vs_sparse_candidate": 89327647,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 24,
+    "compress_from_stage": 15,
+    "root_bytes_both_directions": 8641536,
+    "extra_shifts_vs_sparse_candidate": 81232927,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 24,
+    "compress_from_stage": 16,
+    "root_bytes_both_directions": 8895488,
+    "extra_shifts_vs_sparse_candidate": 73122335,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 24,
+    "compress_from_stage": 17,
+    "root_bytes_both_directions": 9403392,
+    "extra_shifts_vs_sparse_candidate": 65003807,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 24,
+    "compress_from_stage": 18,
+    "root_bytes_both_directions": 10419200,
+    "extra_shifts_vs_sparse_candidate": 56881311,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 24,
+    "compress_from_stage": 19,
+    "root_bytes_both_directions": 12450816,
+    "extra_shifts_vs_sparse_candidate": 48756831,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 24,
+    "compress_from_stage": 20,
+    "root_bytes_both_directions": 16514048,
+    "extra_shifts_vs_sparse_candidate": 40631359,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 24,
+    "compress_from_stage": 21,
+    "root_bytes_both_directions": 24640512,
+    "extra_shifts_vs_sparse_candidate": 32505391,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 24,
+    "compress_from_stage": 22,
+    "root_bytes_both_directions": 40893440,
+    "extra_shifts_vs_sparse_candidate": 24379175,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 24,
+    "compress_from_stage": 23,
+    "root_bytes_both_directions": 73399296,
+    "extra_shifts_vs_sparse_candidate": 16252835,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 24,
+    "compress_from_stage": 24,
+    "root_bytes_both_directions": 138411008,
+    "extra_shifts_vs_sparse_candidate": 8126433,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  },
+  {
+    "log_n": 24,
+    "compress_from_stage": null,
+    "root_bytes_both_directions": 268434432,
+    "extra_shifts_vs_sparse_candidate": 0,
+    "scope": "algebraic counts only; stages<=6 implicit; no measured cache/traffic/speed"
+  }
+]

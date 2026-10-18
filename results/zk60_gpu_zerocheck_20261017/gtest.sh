@@ -14,5 +14,5 @@ LD=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages
 REL=""; [ "$P" = release ] && REL="--release"
 python3 $G run --class gpu --need-gib "$NEED" --cap-gib "$CAP" --label "$L" --wait-secs 14400 --max-secs "$MAX" \
   --log "$E/$L.log" --done "$E/$L.done" --result-json "$E/$L.guard.json" \
-  -- /usr/bin/env CUDA_ROOT=/home/victor/cuda-root LD_LIBRARY_PATH=$LD CARGO_TARGET_DIR=$W/target-gpu HL_GPU=1 RAYON_NUM_THREADS=16 "${XENV[@]}" \
+  -- /usr/bin/env CUDA_ROOT=/home/victor/cuda-root LD_LIBRARY_PATH=$LD CARGO_TARGET_DIR=$W/target-gpu HL_GPU=1 RAYON_NUM_THREADS=16 HL_GZC_CACHE_DIR=/home/victor/IntelligenceRegulation/results/zk60_gpu_zerocheck_20261017/gzc_module_cache "${XENV[@]}" \
      /home/victor/.cargo/bin/cargo test $REL --offline --locked -j2 --manifest-path $W/Cargo.toml --features gpu-cuda --lib "$F" -- --test-threads=1 --nocapture "$@"

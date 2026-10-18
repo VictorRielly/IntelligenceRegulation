@@ -1,0 +1,342 @@
+{
+  "status": "PASS",
+  "cycle": "0073",
+  "run_id": "20261018T022105Z-6cb6453f",
+  "seed": 2026101873,
+  "checks": {
+    "fixtures": 120,
+    "native_reference_values": 4644,
+    "candidate_reference_values": 4644,
+    "count_formulas": 600,
+    "fold_commutation_values": 6966,
+    "offcube_values": 1944,
+    "unchanged_source_values": 120744
+  },
+  "negative_controls": {
+    "forced_base_on_extension": true,
+    "base_flag_cannot_survive_extension_fold": true,
+    "stale_mu_pad": true,
+    "stale_mu_gate": true,
+    "omit_affine_constant": true,
+    "pad_index_swap": true,
+    "nonlinear_table_cannot_be_folded": true,
+    "omit_preparation_cost": true,
+    "private_zero_does_not_remove_work": true,
+    "logical_reads_not_unique_union": true
+  },
+  "counts_order": [
+    "gl_mul",
+    "gl_add",
+    "gl_sub",
+    "Fp2_source_reads",
+    "Fp2_source_writes",
+    "prep_gl_mul"
+  ],
+  "census": [
+    {
+      "N": 64,
+      "supp": 0,
+      "w": 0,
+      "base": 0,
+      "baseline": [
+        1088,
+        1792,
+        1472,
+        512,
+        64,
+        0
+      ],
+      "candidate": [
+        1088,
+        1792,
+        1472,
+        512,
+        64,
+        0
+      ],
+      "saved_mul_including_prep": 0
+    },
+    {
+      "N": 64,
+      "supp": 0,
+      "w": 0,
+      "base": 1,
+      "baseline": [
+        1088,
+        1792,
+        1472,
+        512,
+        64,
+        0
+      ],
+      "candidate": [
+        640,
+        384,
+        448,
+        512,
+        64,
+        0
+      ],
+      "saved_mul_including_prep": 448
+    },
+    {
+      "N": 64,
+      "supp": 1,
+      "w": 0,
+      "base": 0,
+      "baseline": [
+        1280,
+        2176,
+        1664,
+        512,
+        128,
+        0
+      ],
+      "candidate": [
+        1088,
+        1792,
+        1472,
+        512,
+        128,
+        0
+      ],
+      "saved_mul_including_prep": 192
+    },
+    {
+      "N": 64,
+      "supp": 1,
+      "w": 0,
+      "base": 1,
+      "baseline": [
+        1280,
+        2176,
+        1664,
+        512,
+        128,
+        0
+      ],
+      "candidate": [
+        640,
+        384,
+        448,
+        512,
+        128,
+        0
+      ],
+      "saved_mul_including_prep": 640
+    },
+    {
+      "N": 64,
+      "supp": 1,
+      "w": 1,
+      "base": 0,
+      "baseline": [
+        1472,
+        2688,
+        1856,
+        576,
+        128,
+        0
+      ],
+      "candidate": [
+        1283,
+        2310,
+        1667,
+        576,
+        128,
+        3
+      ],
+      "saved_mul_including_prep": 189
+    },
+    {
+      "N": 64,
+      "supp": 1,
+      "w": 1,
+      "base": 1,
+      "baseline": [
+        1472,
+        2688,
+        1856,
+        576,
+        128,
+        0
+      ],
+      "candidate": [
+        771,
+        518,
+        451,
+        576,
+        128,
+        3
+      ],
+      "saved_mul_including_prep": 701
+    },
+    {
+      "N": 64,
+      "supp": 1,
+      "w": 3,
+      "base": 0,
+      "baseline": [
+        1856,
+        3712,
+        2240,
+        704,
+        128,
+        0
+      ],
+      "candidate": [
+        1673,
+        3346,
+        2057,
+        704,
+        128,
+        9
+      ],
+      "saved_mul_including_prep": 183
+    },
+    {
+      "N": 64,
+      "supp": 1,
+      "w": 3,
+      "base": 1,
+      "baseline": [
+        1856,
+        3712,
+        2240,
+        704,
+        128,
+        0
+      ],
+      "candidate": [
+        1033,
+        786,
+        457,
+        704,
+        128,
+        9
+      ],
+      "saved_mul_including_prep": 823
+    },
+    {
+      "N": 64,
+      "supp": 1,
+      "w": 11,
+      "base": 0,
+      "baseline": [
+        3392,
+        7808,
+        3776,
+        1216,
+        128,
+        0
+      ],
+      "candidate": [
+        3233,
+        7490,
+        3617,
+        1216,
+        128,
+        33
+      ],
+      "saved_mul_including_prep": 159
+    },
+    {
+      "N": 64,
+      "supp": 1,
+      "w": 11,
+      "base": 1,
+      "baseline": [
+        3392,
+        7808,
+        3776,
+        1216,
+        128,
+        0
+      ],
+      "candidate": [
+        2081,
+        1858,
+        481,
+        1216,
+        128,
+        33
+      ],
+      "saved_mul_including_prep": 1311
+    }
+  ],
+  "projections": [
+    {
+      "logN": 19,
+      "scope": "counted only; no allocation/device measurement",
+      "full_pad_baseline_gl_mul": 27787264,
+      "full_pad_candidate_gl_mul": 16777249,
+      "saved_gl_mul": 11010015,
+      "extra_coefficient_bytes": 176,
+      "unchanged_derived_table_capacity_bytes": 16777216,
+      "derivation_source_load_store_bytes": 176160768,
+      "owner_unique_union_counter_bytes": 109051904,
+      "extra_fold_Fp2_products_for_two_tables": 1048574,
+      "extra_fold_table_bytes": 50331552
+    },
+    {
+      "logN": 20,
+      "scope": "counted only; no allocation/device measurement",
+      "full_pad_baseline_gl_mul": 55574528,
+      "full_pad_candidate_gl_mul": 33554465,
+      "saved_gl_mul": 22020063,
+      "extra_coefficient_bytes": 176,
+      "unchanged_derived_table_capacity_bytes": 33554432,
+      "derivation_source_load_store_bytes": 352321536,
+      "owner_unique_union_counter_bytes": 218103808,
+      "extra_fold_Fp2_products_for_two_tables": 2097150,
+      "extra_fold_table_bytes": 100663200
+    },
+    {
+      "logN": 21,
+      "scope": "counted only; no allocation/device measurement",
+      "full_pad_baseline_gl_mul": 111149056,
+      "full_pad_candidate_gl_mul": 67108897,
+      "saved_gl_mul": 44040159,
+      "extra_coefficient_bytes": 176,
+      "unchanged_derived_table_capacity_bytes": 67108864,
+      "derivation_source_load_store_bytes": 704643072,
+      "owner_unique_union_counter_bytes": 436207616,
+      "extra_fold_Fp2_products_for_two_tables": 4194302,
+      "extra_fold_table_bytes": 201326496
+    },
+    {
+      "logN": 23,
+      "scope": "counted only; no allocation/device measurement",
+      "full_pad_baseline_gl_mul": 444596224,
+      "full_pad_candidate_gl_mul": 268435489,
+      "saved_gl_mul": 176160735,
+      "extra_coefficient_bytes": 176,
+      "unchanged_derived_table_capacity_bytes": 268435456,
+      "derivation_source_load_store_bytes": 2818572288,
+      "owner_unique_union_counter_bytes": 1744830464,
+      "extra_fold_Fp2_products_for_two_tables": 16777214,
+      "extra_fold_table_bytes": 805306272
+    }
+  ],
+  "synthetic_sha256": "0c3c3d1b070ef5c7b57a9ec53401ebbecb3665f5c521a48468013f04226af1d0",
+  "wall_seconds": 0.4392984770020121,
+  "rss_kib": 17584,
+  "compiler_rss_kib": 24716,
+  "cpu_affinity": [
+    0
+  ],
+  "nice": 19,
+  "threads": 1,
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "compiler_argv": [
+    "/usr/bin/g++",
+    "-std=c++17",
+    "-O0",
+    "-shared",
+    "-fPIC",
+    "shim.cpp",
+    "-o",
+    "isolated.so"
+  ],
+  "scope": "Captured native derived-table source executed serially on CPU with exact u128 modular substitutes vs independent Python Fp2. Candidate and operation census only; no native primitives/PTX/CUDA/races/DRAM/proof/transcript/RNG/privacy or runtime gain."
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/gpu/kernels.cu",
+    "snapshot": "experiments/ntt-root-decomposition-20261018/native/ops__zkp-mvp__sonnet-hardening__hashline__src__gpu__kernels.cu",
+    "sha256": "b59bc396fa955bbdbc8bf8bb7b047c37c7f8df1fed0992d7b15ef983e2fc3969",
+    "bytes": 78055
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/gpu/cuda.rs",
+    "snapshot": "experiments/ntt-root-decomposition-20261018/native/ops__zkp-mvp__sonnet-hardening__hashline__src__gpu__cuda.rs",
+    "sha256": "8fe2a2a39e0796254be37d0d7507d7fc22ea3af141d97d35cd93754d505072c9",
+    "bytes": 205193
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/zkp-core/src/ntt.rs",
+    "snapshot": "experiments/ntt-root-decomposition-20261018/native/ops__zkp-mvp__sonnet-hardening__zkp-core__src__ntt.rs",
+    "sha256": "97572d4f242637d21a089388abad4b5b39136c62036faa17ae94b3ba6f170890",
+    "bytes": 5725
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/zkp-core/src/field.rs",
+    "snapshot": "experiments/ntt-root-decomposition-20261018/native/ops__zkp-mvp__sonnet-hardening__zkp-core__src__field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "bytes": 11065
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_gpu_zerocheck_20261017/PROGRESS.md",
+    "snapshot": "experiments/ntt-root-decomposition-20261018/native/results__zk60_gpu_zerocheck_20261017__PROGRESS.md",
+    "sha256": "9b1e2b086b1dedc52bd54e63bba4ede3826bab6ab6b05269024abcec05739937",
+    "bytes": 34398
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_gpu_zerocheck_20261017/DESIGN.md",
+    "snapshot": "experiments/ntt-root-decomposition-20261018/native/results__zk60_gpu_zerocheck_20261017__DESIGN.md",
+    "sha256": "8f082eb28cd3b71f0a724146eaec56599fdc5af211ed55a2dbbf166f9cf5379a",
+    "bytes": 13666
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_SPEED_PLAN_20261017.md",
+    "snapshot": "experiments/ntt-root-decomposition-20261018/native/docs__zkmatrix-poc__ZK60_SPEED_PLAN_20261017.md",
+    "sha256": "acc1b0c5021b00631c1674ea9023a15914c538326f1817155124f7e455d0028a",
+    "bytes": 32234
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_d24_review_20261017/R5_VERDICT.md",
+    "snapshot": "experiments/ntt-root-decomposition-20261018/native/results__zk60_d24_review_20261017__R5_VERDICT.md",
+    "sha256": "35cabbd52c4870bf342ae1a712bcf0bad7c70245da20c9bddd66a5dd808a9997",
+    "bytes": 19500
+  }
+]

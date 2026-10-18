@@ -39,6 +39,10 @@ pub(crate) mod stage_out;
 mod r0_words;
 #[cfg(test)]
 pub(crate) mod tests;
+#[cfg(test)]
+mod r2_tests;
+#[cfg(test)]
+mod r3_tests;
 
 /// **THE TOKEN-I/O RUN PROFILES THIS BUILD REGISTERS, with their block shape**
 /// (test only): the one list the profile-registry censuses (s24 / s25 / s33)
@@ -47,8 +51,39 @@ pub(crate) mod tests;
 /// profile does (s24 item 4 measures it; review finding TR-7 recorded).
 #[cfg(test)]
 pub(crate) fn registered_token_runs() -> Vec<(&'static str, Shape)> {
-    vec![(super::run::RUN_PROFILE_TOKEN_IO_RUNG_TC, Shape::rung_tc(&super::trained_calib_tests::rung_tc_calibration()).expect("the trained-calibration rung"))]
+    vec![
+        (super::run::RUN_PROFILE_TOKEN_IO_RUNG_TC, Shape::rung_tc(&super::trained_calib_tests::rung_tc_calibration()).expect("the trained-calibration rung")),
+        (super::run::RUN_PROFILE_TOKEN_IO_TINYLLAMA_T32, Shape::tinyllama_trained(32, &r2_calibration(), R2_F_E).expect("the trained TinyLlama T32 shape")),
+        (super::run::RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32, Shape::llama3_8b_t32_trained(&r3_calibration(), R3_F_E).expect("the trained Llama-3-8B T32 shape")),
+    ]
 }
+
+/// **R2's block calibration** (test only): the `pg_rot1_b4_T32_cal128`
+/// export's ONE profile calibration (`profile.json` `profile_constants`:
+/// `tn 10`, `Cn_a 3583`, `Cn_m 2873`, `Ceps 74429`, shifts AO 3 / QKV 8 /
+/// score 6 / O 9 / gate 8 / product 14 / down 4). The R2 run itself builds
+/// its shape from the export (`TrainedExport::shape_for`); the censuses and
+/// the counted layout use these values.
+#[cfg(test)]
+pub(crate) fn r2_calibration() -> super::shape::NormCalibration {
+    super::shape::NormCalibration { tn: 10, cn_a: 3583, cn_m: 2873, ceps: 74_429, sh_ao: 3, sh_qkv: 8, sh_s: 6, sh_o: 9, sh_g: 8, sh_h: 14, sh_z: 4 }
+}
+/// the export's softmax table bits (`f_e 9`)
+#[cfg(test)]
+pub(crate) const R2_F_E: u32 = 9;
+
+/// **R3's block calibration** (test only): the `llama3_8b_pg_rot1_T32`
+/// export's ONE profile calibration (`profile_constants`: `tn 9`, `Cn_a
+/// 2266`, `Cn_m 1557`, `Ceps 78617`, shifts AO 3 / QKV 8 / score 6 / O 9 /
+/// gate 8 / product 14 / down 5). The R3 run builds its shape from the
+/// export; the censuses and the counted layout use these values.
+#[cfg(test)]
+pub(crate) fn r3_calibration() -> super::shape::NormCalibration {
+    super::shape::NormCalibration { tn: 9, cn_a: 2266, cn_m: 1557, ceps: 78_617, sh_ao: 3, sh_qkv: 8, sh_s: 6, sh_o: 9, sh_g: 8, sh_h: 14, sh_z: 5 }
+}
+/// the 8B export's softmax table bits (`f_e 9`)
+#[cfg(test)]
+pub(crate) const R3_F_E: u32 = 9;
 
 use super::argument::{build_tables_at, Acc, Cm, Coord, Poly, Priv, Side, SlotProof, Tab, TABLES_PAR_MIN};
 use super::layout::SlotKind;
@@ -93,8 +128,26 @@ pub(crate) struct Tier {
 impl Tier {
     /// The R1 profile's tier: the D27 MVP tier's values as the design fixed
     /// them (stages at 2^12 rate 1/4, 2^-103.69 per opening; token endpoints
-    /// at 2^8 rate 1/8, 2^-106.25; Q = 256; F_p^2 challenges).
+    /// at 2^8 rate 1/8, 2^-106.25; Q = 256; F_p^2 challenges). Review R2-4:
+    /// the "95" in its name is D27's MVP target at the NAMED workload
+    /// (Llama-3-8B T512); what a statement binds and a verifier's policy
+    /// compares is the run's own DERIVED figure (93 bits at the R1 rung, 97
+    /// at R2), never the name.
     pub(crate) const R1_MVP: Tier = Tier { name: "mvp-95-whole-run (D27)", opened_cols: 256, stage_log_n: 12, stage_inv_rate: 4, ep_log_n: 8, ep_inv_rate: 8, lookup_ext_degree: 2 };
+
+    /// **THE REGISTERED TIERS (review TR-1).** A tier is one of these
+    /// constants, name AND levers; a statement naming anything else is
+    /// refused by name at the door, on both sides. A new tier is a new entry
+    /// here (with its floors checked by the door like every other).
+    pub(crate) const REGISTERED: [Tier; 1] = [Tier::R1_MVP];
+
+    /// DESIGN B-1's floors, which every registered tier must meet or beat
+    /// (review TR-1): stage commitments at row width >= 2^12 and at most
+    /// 2^-103 per opening (2^12 rate 1/4 gives 2^-103.69); token endpoints at
+    /// most 2^-106 per opening (2^8 rate 1/8 gives 2^-106.25)
+    pub(crate) const B1_STAGE_LOG_N_MIN: usize = 12;
+    pub(crate) const B1_STAGE_OPENING_LOG2_MAX: f64 = -103.0;
+    pub(crate) const B1_ENDPOINT_OPENING_LOG2_MAX: f64 = -106.0;
 
     /// what this build can prove at; refused by name otherwise
     pub(crate) fn check(&self) -> Result<(), String> {
@@ -113,6 +166,30 @@ impl Tier {
         if self.stage_log_n < 8 {
             return Err(format!("token I/O tier {}: the stage row width is below the byte table's natural size", self.name));
         }
+        // review TR-2: the column-check lever is closed until a run at
+        // Q != MASK_Q is built and tested (the ZK pads of every new row and
+        // the mask commitment's own columns are then sized independently)
+        if self.opened_cols != crate::zk::MASK_Q {
+            return Err(format!("token I/O tier {}: Q = {} column checks; only zk.rs's MASK_Q = {} is built (review TR-2)", self.name, self.opened_cols, crate::zk::MASK_Q));
+        }
+        // review TR-1: DESIGN B-1's floors
+        let (ps, pe) = (self.per_opening_log2(self.stage_log_n, self.stage_inv_rate), self.per_opening_log2(self.ep_log_n, self.ep_inv_rate));
+        if self.stage_log_n < Self::B1_STAGE_LOG_N_MIN {
+            return Err(format!("token I/O tier {}: stage commitments at row width 2^{} are below DESIGN B-1's floor 2^{}", self.name, self.stage_log_n, Self::B1_STAGE_LOG_N_MIN));
+        }
+        if ps > Self::B1_STAGE_OPENING_LOG2_MAX {
+            return Err(format!("token I/O tier {}: a stage opening at 2^{} rate 1/{} misses with 2^{} (rounded), above DESIGN B-1's floor 2^{}", self.name, self.stage_log_n, self.stage_inv_rate, ps.round() as i64, Self::B1_STAGE_OPENING_LOG2_MAX as i64));
+        }
+        if pe > Self::B1_ENDPOINT_OPENING_LOG2_MAX {
+            return Err(format!("token I/O tier {}: a token endpoint opening at 2^{} rate 1/{} misses with 2^{} (rounded), above DESIGN B-1's floor 2^{}", self.name, self.ep_log_n, self.ep_inv_rate, pe.round() as i64, Self::B1_ENDPOINT_OPENING_LOG2_MAX as i64));
+        }
+        // review TR-1: a tier is a REGISTERED constant, name and levers
+        if !Self::REGISTERED.contains(self) {
+            return Err(match Self::REGISTERED.iter().find(|t| t.name == self.name) {
+                Some(_) => format!("token I/O tier {}: these levers are not the registered tier's of that name ({})", self.name, self.describe()),
+                None => format!("token I/O tier {}: not a registered tier ({})", self.name, self.describe()),
+            });
+        }
         Ok(())
     }
     pub(crate) fn stage_n(&self) -> usize {
@@ -127,9 +204,7 @@ impl Tier {
     /// the per-opening miss probability of a commitment at this tier
     /// (column test `(1 - delta/3)^Q`, ZK code `RS(n + Q, n inv_rate)`), log2
     pub(crate) fn per_opening_log2(&self, log_n: usize, inv_rate: usize) -> f64 {
-        let n = (1usize << log_n) as f64;
-        let delta = 1.0 - (n + self.opened_cols as f64) / (n * inv_rate as f64);
-        self.opened_cols as f64 * (1.0 - delta / 3.0).log2()
+        hiding_opening_log2(log_n, inv_rate, self.opened_cols)
     }
     /// the transcript-bound text (integers only: no float formatting reaches
     /// a transcript)
@@ -139,6 +214,33 @@ impl Tier {
             self.name, self.opened_cols, self.stage_log_n, self.stage_inv_rate, self.ep_log_n, self.ep_inv_rate, self.lookup_ext_degree
         )
     }
+}
+
+/// The column test's miss probability for one opening of a code of message
+/// length `msg` and block length `enc` with `q` opened columns,
+/// `(1 - delta / 3)^q`, `delta = 1 - msg / enc` (MEMO_G02 section 2), log2.
+pub(crate) fn column_log2(msg: usize, enc: usize, q: usize) -> f64 {
+    let delta = 1.0 - msg as f64 / enc as f64;
+    q as f64 * (1.0 - delta / 3.0).log2()
+}
+
+/// a hiding commitment at row width `2^log_n`, inverse rate `inv_rate` and
+/// `q` column checks (= `q` ZK pads per row): `RS(n + q, n inv_rate)`
+pub(crate) fn hiding_opening_log2(log_n: usize, inv_rate: usize, q: usize) -> f64 {
+    let n = 1usize << log_n;
+    column_log2(n + q, n * inv_rate, q)
+}
+
+/// the mask commitment `M` (`zk.rs`): `RS(MASK_VEC, MASK_DOM)` with
+/// `MASK_Q` column checks, for every stage and block alike (2^-106.25)
+pub(crate) fn mask_opening_log2() -> f64 {
+    column_log2(MASK_VEC, MASK_DOM, crate::zk::MASK_Q)
+}
+
+/// review R2-6: the run profiles whose receipts are the R1 / R2 evidence,
+/// whose transcript texts are kept byte for byte
+pub(crate) fn legacy_profile_text(run_profile: &str) -> bool {
+    run_profile == super::run::RUN_PROFILE_TOKEN_IO_RUNG_TC || run_profile == super::run::RUN_PROFILE_TOKEN_IO_TINYLLAMA_T32
 }
 
 /// D25 T4 as amended (2026-10-17 20:21 UTC, option (b)): the head's per-row
@@ -159,6 +261,8 @@ pub(crate) const V_MAX: usize = 1 << 17;
 pub(crate) const CN_F_MAX: i64 = 1 << 20;
 pub(crate) const CEPS_F_MAX: i64 = 1 << 40;
 pub(crate) const TN_F_RANGE: std::ops::RangeInclusive<u32> = 1..=16;
+/// the widest stage domain the layout admits (2^17 = V_MAX's padded cube)
+pub(crate) const MAX_DOM_LOG: usize = 17;
 
 fn clog2(v: usize) -> usize {
     assert!(v > 0, "clog2 of zero");
@@ -263,6 +367,11 @@ impl TokenProfile {
         if let Some((j, m)) = tables.mult.iter().enumerate().find(|(_, m)| !(1..=1i64 << MULT_BITS).contains(*m)) {
             return Err(format!("token I/O: head row {j}'s multiplier {m} is outside its declared class [1, 2^{MULT_BITS}] (D25 T4 as amended)"));
         }
+        // review TR-5: the head-word class is DESIGN 3.1's clip, [-127, 127]
+        // (the keyed window is derived with 127^2)
+        if let Some(i) = tables.head.iter().position(|w| *w == i8::MIN) {
+            return Err(format!("token I/O: head word {i} is -128, outside its declared class [-127, 127] (DESIGN 3.1; review TR-5)"));
+        }
         let (emb_digest, head_digest) = (tables.emb_digest(), tables.head_digest());
         if !(2..=V_MAX).contains(&v) {
             return Err(format!("token I/O: V = {v} is outside its declared class 2..=2^17"));
@@ -306,13 +415,48 @@ impl TokenProfile {
         if (1u128 << (8 * limbs)) + (1u128 << window_bits) >= u128::from(P) {
             return Err("token I/O: the keyed difference's limbs and window wrap the field".into());
         }
-        // R1 LAYOUT: every stage domain fits one stage row (DESIGN 6.1); a
-        // wider rung changes the plane rows and is a different layout
-        let sn = tier.stage_n();
-        if v_pad > sn || d_pad > sn || sh.t_pad > sn || sh.t_pad.max(tier.ep_n()) > sn {
-            return Err(format!("token I/O: the R1 layout needs V_pad ({v_pad}), d_pad ({d_pad}) and T_pad ({}) within one stage row of {sn}", sh.t_pad));
+        // THE STAGE LAYOUT (R2, multi-row planes): every stage domain at its
+        // own log, its padded size lifted UP to the stage row width (P-3);
+        // a domain wider than one row spans whole rows. The input token
+        // endpoint's plane must fit the position domain `Ti` it is read on
+        let lt = tier.stage_log_n;
+        let ti_log = clog2(sh.t_pad).max(lt);
+        if clog2(sh.t_pad.max(tier.ep_n())) > ti_log {
+            return Err(format!("token I/O: the input token endpoint ({} words) is wider than the position domain 2^{ti_log}", sh.t_pad.max(tier.ep_n())));
+        }
+        if clog2(d_pad).max(lt) > MAX_DOM_LOG || log_v.max(lt) > MAX_DOM_LOG {
+            return Err(format!("token I/O: a stage domain exceeds 2^{MAX_DOM_LOG} words (d_pad {d_pad}, V_pad {v_pad})"));
         }
         Ok(TokenProfile { v, v_pad, log_v, d, d_pad, tokens: sh.tokens, t_pad: sh.t_pad, bos, norm, wrho, d_max, limbs, window_bits, emb_digest, head_digest, variant, mult_bits: MULT_BITS, tier })
+    }
+
+    // ---- the stage domains (DESIGN 2.3 / 3.1, the counter's domains): each
+    //      at its natural padded size lifted UP to the stage row width (the
+    //      P-3 lift). At R1 every one is the row width (one row per plane);
+    //      at TinyLlama `Voc` and `Vo` are 2^15 (eight rows per plane).
+    /// stage IN's position domain `Ti` (`tok`, `h_q`)
+    pub(crate) fn ti_log(&self) -> usize {
+        clog2(self.t_pad).max(self.tier.stage_log_n)
+    }
+    /// stage IN's vocabulary domain `Voc` (`m`, `h_tab`, the table)
+    pub(crate) fn voc_log(&self) -> usize {
+        self.log_v.max(self.tier.stage_log_n)
+    }
+    /// stage OUT's isqrt limb domain `Lo` (nine sub-planes over `To`'s two entries)
+    pub(crate) fn lo_log(&self) -> usize {
+        clog2(2 * 3 * LIMBS_ISQRT).max(self.tier.stage_log_n)
+    }
+    /// stage OUT's channel domain `Do` (`x`, `y`, the norm limbs)
+    pub(crate) fn do_log(&self) -> usize {
+        clog2(self.d_pad).max(self.tier.stage_log_n)
+    }
+    /// stage OUT's vocabulary domain `Vo` (`e`, the keyed-difference limbs)
+    pub(crate) fn vo_log(&self) -> usize {
+        self.log_v.max(self.tier.stage_log_n)
+    }
+    /// stage OUT's byte-table domain `Tab`
+    pub(crate) fn tab_log(&self) -> usize {
+        clog2(U8_LEN).max(self.tier.stage_log_n)
     }
 
     /// the input token endpoint's plane: `tok` over `max(row width, T_pad)`
@@ -326,10 +470,16 @@ impl TokenProfile {
     }
 
     /// the canonical text, absorbed through the run's parameter line and
-    /// calibration identity
-    pub(crate) fn describe(&self) -> String {
+    /// calibration identity. Review R2-6 / R2-4: the two profiles whose
+    /// receipts are the R1 and R2 evidence keep their text byte for byte
+    /// (it opens with the literal `token-io R1:`); every later profile opens
+    /// with `token-io:` and says what the tier's name refers to.
+    pub(crate) fn describe_under(&self, run_profile: &str) -> String {
+        let legacy = legacy_profile_text(run_profile);
+        let tail = if legacy { "" } else { " (the tier's name refers to the D27 named workload, Llama-3-8B T512; the binding figure is the run statement's derived whole-run figure)" };
         format!(
-            "token-io R1: V={} V_pad={} d={} d_pad={} T={} BOS={} final-norm g0={} cn={} tn={} ceps={} wrho={} dmax={} head-multipliers=[1,2^{}] keyed-window={} byte-limbs={} no-pin embedding={} head={} variant={} mode=next-token {}",
+            "{} V={} V_pad={} d={} d_pad={} T={} BOS={} final-norm g0={} cn={} tn={} ceps={} wrho={} dmax={} head-words=[-127,127] head-multipliers=[1,2^{}] keyed-window={} byte-limbs={} no-pin embedding={} head={} variant={} mode=next-token {}{tail}",
+            if legacy { "token-io R1:" } else { "token-io:" },
             self.v,
             self.v_pad,
             self.d,
@@ -352,10 +502,10 @@ impl TokenProfile {
         )
     }
 
-    pub(crate) fn digest(&self) -> Digest {
+    pub(crate) fn digest_under(&self, run_profile: &str) -> Digest {
         let mut h = blake3::Hasher::new();
         h.update(b"hashline/token-io/profile/v1");
-        let s = self.describe();
+        let s = self.describe_under(run_profile);
         h.update(&(s.len() as u64).to_le_bytes());
         h.update(s.as_bytes());
         *h.finalize().as_bytes()
@@ -413,7 +563,8 @@ impl TokenTables {
     /// `l_j = m_j sum_i y_i W'[j][i]` over the true vocabulary: the RAW
     /// integer accumulators times the row multiplier (no requantization)
     pub(crate) fn logits(&self, y: &[i64]) -> Vec<i64> {
-        (0..self.v).map(|j| self.mult[j] * self.head_row(j).iter().zip(y.iter()).map(|(w, a)| i64::from(*w) * a).sum::<i64>()).collect()
+        use rayon::prelude::*;
+        (0..self.v).into_par_iter().map(|j| self.mult[j] * self.head_row(j).iter().zip(y.iter()).map(|(w, a)| i64::from(*w) * a).sum::<i64>()).collect()
     }
 
     pub(crate) fn emb_row(&self, tok: usize) -> &[i16] {
@@ -426,7 +577,21 @@ impl TokenTables {
 
     /// `E~(v, r)` for every true row: `sum_{i < d} eq(r)[i] E[v][i]` over the
     /// `d_pad` columns (pad columns zero). The verifier's `O(V d)` fold.
+    /// R3: parallel over the embedding rows (525 M words at Llama-3-8B); the
+    /// result is the serial fold's, entry for entry (field addition is exact)
     pub(crate) fn emb_fold(&self, r: &[Fp2]) -> Vec<Fp2> {
+        use rayon::prelude::*;
+        let e = eq_table_msb(r);
+        (0..self.v)
+            .into_par_iter()
+            .map(|v| self.emb_row(v).iter().zip(e.iter()).fold(Fp2::ZERO, |a, (w, c)| if *w == 0 { a } else { a.add(c.mul_base(Fp::from_i64(i64::from(*w)))) }))
+            .collect()
+    }
+
+    /// the serial embedding fold (R2's), kept as the reference of the
+    /// parallel one
+    #[cfg(test)]
+    pub(crate) fn emb_fold_serial(&self, r: &[Fp2]) -> Vec<Fp2> {
         let e = eq_table_msb(r);
         (0..self.v)
             .map(|v| self.emb_row(v).iter().zip(e.iter()).fold(Fp2::ZERO, |a, (w, c)| if *w == 0 { a } else { a.add(c.mul_base(Fp::from_i64(i64::from(*w)))) }))
@@ -435,7 +600,30 @@ impl TokenTables {
 
     /// `Wf[i] = sum_{j < V} w[j] m_j W'[j][i]` over `d_pad` entries (pad
     /// columns zero): the public fold of the per-row-scaled head
+    /// R3: parallel over the head rows, per-thread partial columns summed
+    /// (exact field addition: the serial fold's result)
     pub(crate) fn head_fold(&self, w: &[Fp2], d_pad: usize) -> Vec<Fp2> {
+        use rayon::prelude::*;
+        (0..self.v)
+            .into_par_iter()
+            .fold(
+                || vec![Fp2::ZERO; d_pad],
+                |mut out, j| {
+                    let wj = w[j].mul_base(Fp::from_i64(self.mult[j]));
+                    for (i, x) in self.head_row(j).iter().enumerate() {
+                        if *x != 0 {
+                            out[i] = out[i].add(wj.mul_base(Fp::from_i64(i64::from(*x))));
+                        }
+                    }
+                    out
+                },
+            )
+            .reduce(|| vec![Fp2::ZERO; d_pad], |a, b| a.iter().zip(b.iter()).map(|(x, y)| x.add(*y)).collect())
+    }
+
+    /// the serial head fold (R2's), the reference of the parallel one
+    #[cfg(test)]
+    pub(crate) fn head_fold_serial(&self, w: &[Fp2], d_pad: usize) -> Vec<Fp2> {
         let mut out = vec![Fp2::ZERO; d_pad];
         for j in 0..self.v {
             let wj = w[j].mul_base(Fp::from_i64(self.mult[j]));
@@ -998,9 +1186,12 @@ impl Dim {
     }
 }
 
-pub(crate) const MASK_VEC: usize = 1024;
-pub(crate) const MASK_DOM: usize = 4096;
-pub(crate) const MASK_PATH: usize = 12;
+/// the mask commitment's transport dimensions, DERIVED from `zk.rs` (review
+/// TR-2): `b` and `u` carry `2 * 2^MASK_LOG_MSG` coefficients, the code's
+/// domain is `2^MASK_LOG_DOM`, the path that domain's depth
+pub(crate) const MASK_VEC: usize = 2 << crate::zk::MASK_LOG_MSG;
+pub(crate) const MASK_DOM: usize = 1 << crate::zk::MASK_LOG_DOM;
+pub(crate) const MASK_PATH: usize = crate::zk::MASK_LOG_DOM as usize;
 
 /// The bytes of one NEW stage (IN or OUT): what it commits, its slots, its M
 /// opening, its A and H openings, and the openings of the external / boundary
@@ -1035,10 +1226,22 @@ pub(crate) const SEG_HEADER: usize = 8 + 32 + 8 + 8 + 32;
 pub(crate) const SEG_TRAILER: usize = 32;
 
 impl StageSegGeom<'_> {
+    /// the column checks of this stage's mask opening: `zk.rs`'s `MASK_Q`,
+    /// whatever the stage's own Q (review TR-2: `zk::mask_open` opens
+    /// `MASK_Q` columns for every stage and block alike)
+    pub(crate) fn mask_checks(&self) -> usize {
+        crate::zk::MASK_Q
+    }
+
+    /// the counted byte length of the mask opening
+    pub(crate) fn mask_len(&self) -> usize {
+        2 * MASK_VEC * 16 + self.mask_checks() * (8 + self.lay.m_rows() * 8 + 32 + MASK_PATH * 32)
+    }
+
     pub(crate) fn len(&self) -> usize {
         let bd = Dim::of(&self.lay.params);
         let slots: usize = self.lay.sched.slots.iter().map(|s| (1 + (s.main + s.ext) * (s.degree + 1) + s.terms()) * 16).sum();
-        let mask = 2 * MASK_VEC * 16 + bd.checks * (8 + self.lay.m_rows() * 8 + 32 + MASK_PATH * 32);
+        let mask = self.mask_len();
         SEG_HEADER
             + usize::from(self.has_b_root) * 32
             + 3 * 32
@@ -1068,7 +1271,7 @@ impl StageSegGeom<'_> {
         let m = &s.mask_open;
         if m.q.len() != MASK_VEC
             || m.prox.len() != MASK_VEC
-            || m.columns.len() != bd.checks
+            || m.columns.len() != self.mask_checks()
             || m.columns.iter().any(|(j, c, _, p)| *j >= MASK_DOM || c.len() != lay.m_rows() || p.len() != MASK_PATH)
             || !bd.ok(&s.a_open, self.a_groups, lay.a_rows)
             || !bd.ok(&s.h_open, self.h_groups, lay.h_rows)
@@ -1144,7 +1347,7 @@ impl StageSegGeom<'_> {
         }
         let q = r.fp2_vec(MASK_VEC)?;
         let prox = r.fp2_vec(MASK_VEC)?;
-        let columns = (0..bd.checks).map(|_| r.column(self.lay.m_rows(), MASK_DOM, MASK_PATH)).collect::<Result<Vec<_>, String>>()?;
+        let columns = (0..self.mask_checks()).map(|_| r.column(self.lay.m_rows(), MASK_DOM, MASK_PATH)).collect::<Result<Vec<_>, String>>()?;
         let mask_open = MaskOpening { q, prox, columns };
         let a_open = r.hiding(bd, self.a_groups, self.lay.a_rows)?;
         let h_open = r.hiding(bd, self.h_groups, self.lay.h_rows)?;
@@ -1212,6 +1415,13 @@ pub(crate) struct Decommitment {
     pub data: Vec<Fp>,
     pub pads: Vec<Fp>,
     pub salts: Vec<[u8; 32]>,
+}
+
+impl Decommitment {
+    /// the decommitment of a sealed endpoint (what both stages hand over)
+    pub(crate) fn of(ep: &crate::pcs::CommittedZk) -> Decommitment {
+        Decommitment { data: ep.data.clone(), pads: ep.pads.clone(), salts: ep.salts.clone() }
+    }
 }
 
 /// **`owner_check` (DESIGN 3.4; R0's `owner_check_*` semantics on the real

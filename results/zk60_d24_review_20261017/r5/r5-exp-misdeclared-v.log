@@ -1,0 +1,25 @@
+{"event":"rejected","error":"layer 0: array `wk`: the manifest declares I8 [384, 384], expected one of [(I8, [128, 384])] (refused before it is read: review r4_A)"}
+Command exited with non-zero status 1
+	Command being timed: "/home/victor/IntelligenceRegulation/results/zk60_d24_review_20261017/r5/zk60_trained_block.review-r5.release.bin stack-verify --export /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r5-scratch/review_out/stack2/exp-misdeclared-v --expect-statement 72098637f55f5b49d4729fec487c01090b39b9182173970cbd8b84fe55f496e5 --artifact /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r5-scratch/review_out/stack2/run"
+	User time (seconds): 0.01
+	System time (seconds): 0.10
+	Percent of CPU this job got: 423%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.03
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 7276
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 2241
+	Voluntary context switches: 1955
+	Involuntary context switches: 7716
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

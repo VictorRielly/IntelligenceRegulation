@@ -1,0 +1,76 @@
+{
+ "bundle": "tinyllama-trained-r5b-capture-dense-l22",
+ "controls": [
+  {
+   "control": "TL-4/table-3",
+   "exactly_as_predicted": true,
+   "failing": [
+    [
+     1,
+     19
+    ]
+   ],
+   "fires": true,
+   "ok": true,
+   "perturbation": "stage 1's SC_TAB table 3 replaced by stage 0's (values and digest)",
+   "predicted_failing": [
+    [
+     1,
+     19
+    ]
+   ]
+  },
+  {
+   "control": "TL-4/table-6",
+   "exactly_as_predicted": true,
+   "failing": [
+    [
+     1,
+     19
+    ]
+   ],
+   "fires": true,
+   "ok": true,
+   "perturbation": "stage 1's SC_TAB table 6 replaced by stage 0's (values and digest)",
+   "predicted_failing": [
+    [
+     1,
+     19
+    ]
+   ]
+  },
+  {
+   "control": "TL-4/table-9",
+   "exactly_as_predicted": true,
+   "failing": [
+    [
+     1,
+     19
+    ]
+   ],
+   "fires": true,
+   "ok": true,
+   "perturbation": "stage 1's SC_TAB table 9 replaced by stage 0's (values and digest)",
+   "predicted_failing": [
+    [
+     1,
+     19
+    ]
+   ]
+  }
+ ],
+ "families_run": [
+  "TL-4"
+ ],
+ "fired": 3,
+ "honest": {
+  "ok": true,
+  "slot_checks_equal": 506,
+  "slot_checks_expected": 506
+ },
+ "of": 3,
+ "ok": true,
+ "privacy_property_established": false,
+ "skipped_by_name": [],
+ "what": "[TINYLLAMA PORT, 2026-10-17] Controls on the port's OWN adaptation: the"
+}

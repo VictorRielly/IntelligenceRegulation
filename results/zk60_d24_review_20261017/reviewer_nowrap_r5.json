@@ -1,0 +1,282 @@
+{
+ "Llama-3-8B T32": {
+  "softmax": {
+   "9": {
+    "wrho_s": 14,
+    "limbs": 2,
+    "c2_log2": 24.0,
+    "c3_log2": 15.0,
+    "pv_acc_log2": 21.987,
+    "pv_host_log2": 23.581,
+    "honest_sum_fits_window": true
+   },
+   "10": {
+    "wrho_s": 15,
+    "limbs": 2,
+    "c2_log2": 25.0,
+    "c3_log2": 16.0,
+    "pv_acc_log2": 21.987,
+    "pv_host_log2": 23.581,
+    "honest_sum_fits_window": true
+   },
+   "11": {
+    "wrho_s": 16,
+    "limbs": 2,
+    "c2_log2": 26.0,
+    "c3_log2": 17.0,
+    "pv_acc_log2": 21.987,
+    "pv_host_log2": 23.581,
+    "honest_sum_fits_window": true
+   },
+   "12": {
+    "wrho_s": 17,
+    "limbs": 3,
+    "c2_log2": 27.0,
+    "c3_log2": 18.0,
+    "pv_acc_log2": 21.987,
+    "pv_host_log2": 23.581,
+    "honest_sum_fits_window": true
+   },
+   "13": {
+    "wrho_s": 18,
+    "limbs": 3,
+    "c2_log2": 28.0,
+    "c3_log2": 19.0,
+    "pv_acc_log2": 21.987,
+    "pv_host_log2": 23.581,
+    "honest_sum_fits_window": true
+   },
+   "14": {
+    "wrho_s": 19,
+    "limbs": 3,
+    "c2_log2": 29.0,
+    "c3_log2": 20.0,
+    "pv_acc_log2": 21.987,
+    "pv_host_log2": 23.581,
+    "honest_sum_fits_window": true
+   },
+   "15": {
+    "wrho_s": 20,
+    "limbs": 3,
+    "c2_log2": 30.0,
+    "c3_log2": 21.0,
+    "pv_acc_log2": 21.987,
+    "pv_host_log2": 23.581,
+    "honest_sum_fits_window": true
+   },
+   "16": {
+    "wrho_s": 21,
+    "limbs": 3,
+    "c2_log2": 31.0,
+    "c3_log2": 22.0,
+    "pv_acc_log2": 21.987,
+    "pv_host_log2": 23.581,
+    "honest_sum_fits_window": true
+   }
+  },
+  "hosts": {
+   "score (sum over head_dim, sh_s 1..8)": 21.0,
+   "Q/K/V (sum over d_pad, sh_qkv 1..8)": 25.989,
+   "AO (sum over d_pad, sh_ao 0..8)": 26.16,
+   "gate (sum over d_pad, sh_g 1..8)": 25.989,
+   "h product (sh_h 9..16)": 31.585,
+   "down (sum over f_pad, sh_z 1..8)": 36.0
+  },
+  "domains_log2": {
+   "D": 17.0,
+   "Q": 17.0,
+   "Kv": 15.0,
+   "S": 15.0,
+   "F": 19.0
+  },
+  "lookups_upper_bound_log2": 24.7,
+  "worst_geometry_clause_log2": 36.0
+ },
+ "Llama-3-8B T64": {
+  "softmax": {
+   "9": {
+    "wrho_s": 15,
+    "limbs": 2,
+    "c2_log2": 25.0,
+    "c3_log2": 16.0,
+    "pv_acc_log2": 22.987,
+    "pv_host_log2": 23.994,
+    "honest_sum_fits_window": true
+   },
+   "10": {
+    "wrho_s": 16,
+    "limbs": 2,
+    "c2_log2": 26.0,
+    "c3_log2": 17.0,
+    "pv_acc_log2": 22.987,
+    "pv_host_log2": 23.994,
+    "honest_sum_fits_window": true
+   },
+   "11": {
+    "wrho_s": 17,
+    "limbs": 3,
+    "c2_log2": 27.0,
+    "c3_log2": 18.0,
+    "pv_acc_log2": 22.987,
+    "pv_host_log2": 23.994,
+    "honest_sum_fits_window": true
+   },
+   "12": {
+    "wrho_s": 18,
+    "limbs": 3,
+    "c2_log2": 28.0,
+    "c3_log2": 19.0,
+    "pv_acc_log2": 22.987,
+    "pv_host_log2": 23.994,
+    "honest_sum_fits_window": true
+   },
+   "13": {
+    "wrho_s": 19,
+    "limbs": 3,
+    "c2_log2": 29.0,
+    "c3_log2": 20.0,
+    "pv_acc_log2": 22.987,
+    "pv_host_log2": 23.994,
+    "honest_sum_fits_window": true
+   },
+   "14": {
+    "wrho_s": 20,
+    "limbs": 3,
+    "c2_log2": 30.0,
+    "c3_log2": 21.0,
+    "pv_acc_log2": 22.987,
+    "pv_host_log2": 23.994,
+    "honest_sum_fits_window": true
+   },
+   "15": {
+    "wrho_s": 21,
+    "limbs": 3,
+    "c2_log2": 31.0,
+    "c3_log2": 22.0,
+    "pv_acc_log2": 22.987,
+    "pv_host_log2": 23.994,
+    "honest_sum_fits_window": true
+   },
+   "16": {
+    "wrho_s": 22,
+    "limbs": 3,
+    "c2_log2": 32.0,
+    "c3_log2": 23.0,
+    "pv_acc_log2": 22.987,
+    "pv_host_log2": 23.994,
+    "honest_sum_fits_window": true
+   }
+  },
+  "hosts": {
+   "score (sum over head_dim, sh_s 1..8)": 21.0,
+   "Q/K/V (sum over d_pad, sh_qkv 1..8)": 25.989,
+   "AO (sum over d_pad, sh_ao 0..8)": 26.16,
+   "gate (sum over d_pad, sh_g 1..8)": 25.989,
+   "h product (sh_h 9..16)": 31.585,
+   "down (sum over f_pad, sh_z 1..8)": 36.0
+  },
+  "domains_log2": {
+   "D": 18.0,
+   "Q": 18.0,
+   "Kv": 16.0,
+   "S": 17.0,
+   "F": 20.0
+  },
+  "lookups_upper_bound_log2": 25.755,
+  "worst_geometry_clause_log2": 36.0
+ },
+ "Llama-3-8B T128": {
+  "softmax": {
+   "9": {
+    "wrho_s": 16,
+    "limbs": 2,
+    "c2_log2": 26.0,
+    "c3_log2": 17.0,
+    "pv_acc_log2": 23.987,
+    "pv_host_log2": 24.576,
+    "honest_sum_fits_window": true
+   },
+   "10": {
+    "wrho_s": 17,
+    "limbs": 3,
+    "c2_log2": 27.0,
+    "c3_log2": 18.0,
+    "pv_acc_log2": 23.987,
+    "pv_host_log2": 24.576,
+    "honest_sum_fits_window": true
+   },
+   "11": {
+    "wrho_s": 18,
+    "limbs": 3,
+    "c2_log2": 28.0,
+    "c3_log2": 19.0,
+    "pv_acc_log2": 23.987,
+    "pv_host_log2": 24.576,
+    "honest_sum_fits_window": true
+   },
+   "12": {
+    "wrho_s": 19,
+    "limbs": 3,
+    "c2_log2": 29.0,
+    "c3_log2": 20.0,
+    "pv_acc_log2": 23.987,
+    "pv_host_log2": 24.576,
+    "honest_sum_fits_window": true
+   },
+   "13": {
+    "wrho_s": 20,
+    "limbs": 3,
+    "c2_log2": 30.0,
+    "c3_log2": 21.0,
+    "pv_acc_log2": 23.987,
+    "pv_host_log2": 24.576,
+    "honest_sum_fits_window": true
+   },
+   "14": {
+    "wrho_s": 21,
+    "limbs": 3,
+    "c2_log2": 31.0,
+    "c3_log2": 22.0,
+    "pv_acc_log2": 23.987,
+    "pv_host_log2": 24.576,
+    "honest_sum_fits_window": true
+   },
+   "15": {
+    "wrho_s": 22,
+    "limbs": 3,
+    "c2_log2": 32.0,
+    "c3_log2": 23.0,
+    "pv_acc_log2": 23.987,
+    "pv_host_log2": 24.576,
+    "honest_sum_fits_window": true
+   },
+   "16": {
+    "wrho_s": 23,
+    "limbs": 3,
+    "c2_log2": 33.0,
+    "c3_log2": 24.0,
+    "pv_acc_log2": 23.987,
+    "pv_host_log2": 24.576,
+    "honest_sum_fits_window": true
+   }
+  },
+  "hosts": {
+   "score (sum over head_dim, sh_s 1..8)": 21.0,
+   "Q/K/V (sum over d_pad, sh_qkv 1..8)": 25.989,
+   "AO (sum over d_pad, sh_ao 0..8)": 26.16,
+   "gate (sum over d_pad, sh_g 1..8)": 25.989,
+   "h product (sh_h 9..16)": 31.585,
+   "down (sum over f_pad, sh_z 1..8)": 36.0
+  },
+  "domains_log2": {
+   "D": 19.0,
+   "Q": 19.0,
+   "Kv": 17.0,
+   "S": 19.0,
+   "F": 21.0
+  },
+  "lookups_upper_bound_log2": 26.858,
+  "worst_geometry_clause_log2": 36.0
+ },
+ "norm (width 4096, T-independent)": "see reviewer_nowrap_r3.json (C0 2^48.039 < p/2; tn <= 9; window 32)"
+}

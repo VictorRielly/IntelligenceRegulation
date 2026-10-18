@@ -1,0 +1,72 @@
+[
+  {
+    "path": "experiments/pending-fold-weighted-round-20261018/result.json",
+    "sha256": "2365a0e6090d34280bacab83838389a77693c947554897d7f4d42d030872b964",
+    "keys": [
+      "status",
+      "cycle",
+      "run_id",
+      "seed",
+      "counts",
+      "negative_controls",
+      "wall_seconds",
+      "peak_rss_kib",
+      "compiler_peak_rss_kib",
+      "compiler_argv",
+      "fixture_sha256",
+      "threads",
+      "cpu_affinity",
+      "limits",
+      "scope",
+      "completed_at_utc"
+    ]
+  },
+  {
+    "path": "experiments/factorized-public-equality-20261017/result.json",
+    "sha256": "f0c527bb6f4e202255330b5c5fd48cc1baf5d9265ddf1315412fe6ff44ce7f9d",
+    "keys": [
+      "status",
+      "cycle",
+      "run_id",
+      "seed",
+      "counts",
+      "negative_controls",
+      "wall_seconds",
+      "peak_rss_kib",
+      "compiler_peak_rss_kib",
+      "compiler_argv",
+      "threads",
+      "cpu_affinity",
+      "nice",
+      "estimated_memory_mib",
+      "limits",
+      "fixture_sha256",
+      "scope",
+      "completed_at_utc"
+    ]
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/result.json",
+    "sha256": "0ac46003570ef510fb04953a6cbd2b9d89b169975932a331feb6449f63ff0221",
+    "keys": [
+      "status",
+      "cycle",
+      "run_id",
+      "seed",
+      "counts",
+      "negative_controls",
+      "wall_seconds",
+      "peak_rss_kib",
+      "compiler_peak_rss_kib",
+      "compiler_argv",
+      "threads",
+      "cpu_affinity",
+      "nice",
+      "estimated_memory_mib",
+      "limits",
+      "fixture_sha256",
+      "scope",
+      "completed_at_utc"
+    ]
+  }
+]

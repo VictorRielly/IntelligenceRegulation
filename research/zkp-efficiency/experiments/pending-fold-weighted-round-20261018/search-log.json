@@ -1,0 +1,17 @@
+{
+  "tool": "native LIVE web__run",
+  "access_date": "2026-10-18",
+  "queries": [
+    "GPU NTT memory traffic Stockham radix fused polynomial commitments 2026 ICICLE release",
+    "sumcheck fold next round accumulation previous challenge fusion memory traffic implementation",
+    "site.github.com Plonky3 fused fold measure_round 2026",
+    "site.github.com ingonyama-zk icicle releases 2026 v4",
+    "NTT GPU on the fly twiddle register pressure 2025 2026 paper",
+    "measure_round Hand this round Plonky3",
+    "site.github.com/Plonky3/Plonky3 pending fold sumcheck",
+    "site:arxiv.org GPU NTT 2026 memory bandwidth Goldilocks"
+  ],
+  "records_file": "source-records.json",
+  "foreign_code_executed": false,
+  "limits": "Only primary sources assessed; unsupported dates left null. Failed fetches recorded individually."
+}

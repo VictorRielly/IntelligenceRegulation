@@ -1,0 +1,10 @@
+[zk60-guard 16:58:50] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 16:59:50] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 17:00:50] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 17:01:50] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 17:02:50] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 17:03:50] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 17:04:50] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 17:05:50] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 17:06:32] START t14-r2-trained class=gpu need=4.5G cap=7G enforce=cgroup+watchdog waited=462s run=85474911c7ba
+[zk60-guard 17:11:49] END t14-r2-trained exit=0 child_wall=317s peak_rss=2.22G min_avail=11.78G peak_vram=3173MiB

@@ -1,0 +1,1 @@
+{"event":"rejected","error":"/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r6-scratch/verifier-8b-b7-T128-shs9/layer_01/manifest.json: layer 1's own sh_s: trained calibration: a per-layer sh_s 9 is outside its structure-preserving window 1..=8"}

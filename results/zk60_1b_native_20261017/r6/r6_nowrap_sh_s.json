@@ -1,0 +1,103 @@
+{
+ "field_half_log2": 63.0,
+ "rows": [
+  {
+   "model": "TinyLlama-1.1B (head_dim 64)",
+   "sh_s": 1,
+   "max_abs": 1048833,
+   "log2": 20.0
+  },
+  {
+   "model": "TinyLlama-1.1B (head_dim 64)",
+   "sh_s": 2,
+   "max_abs": 1049090,
+   "log2": 20.001
+  },
+  {
+   "model": "TinyLlama-1.1B (head_dim 64)",
+   "sh_s": 3,
+   "max_abs": 1049604,
+   "log2": 20.001
+  },
+  {
+   "model": "TinyLlama-1.1B (head_dim 64)",
+   "sh_s": 4,
+   "max_abs": 1050632,
+   "log2": 20.003
+  },
+  {
+   "model": "TinyLlama-1.1B (head_dim 64)",
+   "sh_s": 5,
+   "max_abs": 1052688,
+   "log2": 20.006
+  },
+  {
+   "model": "TinyLlama-1.1B (head_dim 64)",
+   "sh_s": 6,
+   "max_abs": 1056800,
+   "log2": 20.011
+  },
+  {
+   "model": "TinyLlama-1.1B (head_dim 64)",
+   "sh_s": 7,
+   "max_abs": 1065024,
+   "log2": 20.022
+  },
+  {
+   "model": "TinyLlama-1.1B (head_dim 64)",
+   "sh_s": 8,
+   "max_abs": 1081472,
+   "log2": 20.045
+  },
+  {
+   "model": "Llama-3-8B (head_dim 128)",
+   "sh_s": 1,
+   "max_abs": 2097409,
+   "log2": 21.0
+  },
+  {
+   "model": "Llama-3-8B (head_dim 128)",
+   "sh_s": 2,
+   "max_abs": 2097666,
+   "log2": 21.0
+  },
+  {
+   "model": "Llama-3-8B (head_dim 128)",
+   "sh_s": 3,
+   "max_abs": 2098180,
+   "log2": 21.001
+  },
+  {
+   "model": "Llama-3-8B (head_dim 128)",
+   "sh_s": 4,
+   "max_abs": 2099208,
+   "log2": 21.001
+  },
+  {
+   "model": "Llama-3-8B (head_dim 128)",
+   "sh_s": 5,
+   "max_abs": 2101264,
+   "log2": 21.003
+  },
+  {
+   "model": "Llama-3-8B (head_dim 128)",
+   "sh_s": 6,
+   "max_abs": 2105376,
+   "log2": 21.006
+  },
+  {
+   "model": "Llama-3-8B (head_dim 128)",
+   "sh_s": 7,
+   "max_abs": 2113600,
+   "log2": 21.011
+  },
+  {
+   "model": "Llama-3-8B (head_dim 128)",
+   "sh_s": 8,
+   "max_abs": 2130048,
+   "log2": 21.022
+  }
+ ],
+ "worst_log2": 21.022,
+ "verdict": "below p/2 at every sh_s in 1..=8 and both trained head widths (margin about 2^41)"
+}

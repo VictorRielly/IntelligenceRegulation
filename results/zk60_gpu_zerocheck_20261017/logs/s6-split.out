@@ -1,0 +1,11 @@
+[zk60-guard 17:29:40] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 17:30:40] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 17:31:40] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 17:32:40] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 17:33:40] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 17:34:20] START gzc-stack-s6-split class=gpu need=4.5G cap=7G enforce=cgroup+watchdog waited=280s run=6e65831876ae
+[zk60-guard 17:37:13] END gzc-stack-s6-split exit=0 child_wall=173s peak_rss=1.66G min_avail=11.72G peak_vram=3137MiB
+stack s6-split exit 0
+[zk60-guard 17:37:13] START gzc-verify-s6-split class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=53f2c6dcb56f
+[zk60-guard 17:37:34] END gzc-verify-s6-split exit=0 child_wall=21s peak_rss=1.46G min_avail=12.07G
+verify s6-split exit 0

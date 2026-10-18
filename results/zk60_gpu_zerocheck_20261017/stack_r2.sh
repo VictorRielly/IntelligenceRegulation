@@ -18,5 +18,5 @@ R=$D/stack-$TAG
 mkdir -p "$R"
 python3 $G run --class gpu --need-gib ${NEED:-4.5} --cap-gib ${CAP:-7} --label "gzc-stack-$TAG" --wait-secs 14400 --max-secs 1800 \
   --log "$R/prove.log" --done "$R/prove.done" --result-json "$R/prove.guard.json" \
-  -- /usr/bin/env HL_PB_TIMING=1 HL_GPU=1 HL_GPU_REQUIRED=1 HL_GPU_ZEROCHECK=$Z RAYON_NUM_THREADS=16 LD_LIBRARY_PATH=$LD "$@" $B stack-prove --export "$E" --seq ho00 --out "$R/run"
+  -- /usr/bin/env HL_PB_TIMING=1 HL_GPU=1 HL_GPU_REQUIRED=1 HL_GPU_ZEROCHECK=$Z RAYON_NUM_THREADS=16 HL_GZC_CACHE_DIR=$D/gzc_module_cache LD_LIBRARY_PATH=$LD "$@" $B stack-prove --export "$E" --seq ho00 --out "$R/run"
 echo "stack $TAG exit $?"

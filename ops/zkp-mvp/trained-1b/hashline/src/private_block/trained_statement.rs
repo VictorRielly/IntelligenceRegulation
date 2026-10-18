@@ -360,6 +360,13 @@ pub(crate) struct LayerRecord {
     /// table's score exponent `e_s`
     pub silu_member: (i32, i32),
     pub exp_e_s: i32,
+    /// **NATIVE R6: this layer's OWN softmax score shift**, when it is not
+    /// the run's (`calibration.sh_s`): `None` for every layer of a run-wide
+    /// export (so its encoding, and every identity made before R6, does not
+    /// move), `Some(v)` with `v != calibration.sh_s` and `v` in the one-limb
+    /// window for a per-layer export. The run proves that block's stage at
+    /// `Shape::with_score_shift(v)`.
+    pub sh_s: Option<u32>,
 }
 
 fn sha(bytes: &[u8]) -> [u8; 32] {
@@ -380,7 +387,7 @@ impl LayerRecord {
     /// ROUND 5 (R5-2): the record of a proving-pass RELOAD, which keeps only
     /// the block (its digest is compared with the digest pass's record)
     pub(crate) fn unhashed(index: u32) -> LayerRecord {
-        LayerRecord { index, block_digest: [0; 32], word_sha256: [[0; 32]; 9], table_sha256: [[0; 32]; 3], source_tensors: vec![], manifest_sha256: [0; 32], silu_member: (0, 0), exp_e_s: 0 }
+        LayerRecord { index, block_digest: [0; 32], word_sha256: [[0; 32]; 9], table_sha256: [[0; 32]; 3], source_tensors: vec![], manifest_sha256: [0; 32], silu_member: (0, 0), exp_e_s: 0, sh_s: None }
     }
 
     pub(crate) fn of_block(index: u32, blk: &BlockPublic, source_tensors: Vec<(String, [u8; 32])>) -> LayerRecord {
@@ -400,7 +407,7 @@ impl LayerRecord {
         // a recipe block's tables are the frozen SiLU member (-3, -11) and
         // `exp_member(0, ..)` (`dense_tests::statement_of_words`); the export
         // loader overwrites both with the manifest's members
-        LayerRecord { index, block_digest: blk.digest(), word_sha256, table_sha256, source_tensors, manifest_sha256: [0; 32], silu_member: (-3, -11), exp_e_s: 0 }
+        LayerRecord { index, block_digest: blk.digest(), word_sha256, table_sha256, source_tensors, manifest_sha256: [0; 32], silu_member: (-3, -11), exp_e_s: 0, sh_s: None }
     }
 }
 
@@ -541,6 +548,17 @@ impl TrainedModelStatement {
         // value through each block digest, and the loader checks them against
         // these generator members)
         for r in &self.layers {
+            // NATIVE R6: a per-layer score shift is canonical (never equal to
+            // the run's, which would be a second encoding of one statement)
+            // and inside the one-limb window
+            if let Some(v) = r.sh_s {
+                if v == self.calibration.sh_s {
+                    return Err(format!("trained statement: layer {}'s own sh_s {v} equals the run's; a run-wide value is recorded once, in the calibration", r.index));
+                }
+                if !super::shape::ONE_LIMB_SHIFT.contains(&v) {
+                    return Err(format!("trained statement: layer {}'s sh_s {v} is outside its structure-preserving window {:?}", r.index, super::shape::ONE_LIMB_SHIFT));
+                }
+            }
             if !super::shape::TRAINED_EXP_E_S_RANGE.contains(&r.exp_e_s) {
                 return Err(format!("trained statement: layer {}'s exp e_s {} is outside its declared class {:?}", r.index, r.exp_e_s, super::shape::TRAINED_EXP_E_S_RANGE));
             }
@@ -617,6 +635,11 @@ impl TrainedModelStatement {
             e.i64("silu-member-e-in", i64::from(r.silu_member.0));
             e.i64("silu-member-e-out", i64::from(r.silu_member.1));
             e.i64("exp-e-s", i64::from(r.exp_e_s));
+            // NATIVE R6: present ONLY for a layer whose score shift is its
+            // own, so a run-wide statement's bytes are what they were
+            if let Some(v) = r.sh_s {
+                e.u64("sh-score-layer", u64::from(v));
+            }
             for (k, d) in r.word_sha256.iter().enumerate() {
                 e.field(&format!("word-{k}-sha256"), d);
             }

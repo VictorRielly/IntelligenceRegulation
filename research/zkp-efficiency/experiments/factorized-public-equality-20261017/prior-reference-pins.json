@@ -1,0 +1,26 @@
+[
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/field-only.rs",
+    "sha256": "f787ef8ccc83b5f494039b958fa4261fb720f497e04f3b75b74d3c600fb77873"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/captured-mask.rs",
+    "sha256": "744c062733ac65106d157070204921112f79dcc73f29d6f4b4ffa911322664e8"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/ragged.rs",
+    "sha256": "bc4b0800cac96a5e08b146c9bf96d8bbf70e393b22170377c10da50a59df77a7"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/fixtures.json",
+    "sha256": "f538f3093683bc17d5258fed0af43b91ec9ab8c5463458c8dc8bd1933945132b"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/result.json",
+    "sha256": "0ac46003570ef510fb04953a6cbd2b9d89b169975932a331feb6449f63ff0221"
+  },
+  {
+    "path": "experiments/ragged-logup-rounds-20261017/audit-result.json",
+    "sha256": "9082a7cbfdd13233af47118dcce28ca8f6de6afd83b64de60af590b1165691e3"
+  }
+]

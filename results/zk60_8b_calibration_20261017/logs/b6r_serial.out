@@ -66,3 +66,4 @@
 [zk60-guard 16:00:59] END b5-b6_l1_scr_sh7o16 exit=0 child_wall=211s peak_rss=3.06G min_avail=8.92G
 [b5_run 23:03:08Z] hold #2 released for b5-b6_l1_sh7_T128 (need 3.5 / cap 4.5)
 [zk60-guard 16:03:08] START b5-b6_l1_sh7_T128 class=light need=3.5G cap=4.5G enforce=cgroup+watchdog waited=0s run=0a16b0ad3a32
+[zk60-guard 16:43:12] END b5-b6_l1_sh7_T128 exit=0 child_wall=2403s peak_rss=3.32G min_avail=4.29G

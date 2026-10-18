@@ -29,6 +29,8 @@ be ok with nothing suspended.
   PC-8  PC-6 with sumcheck/rounds.rs moved   -> 7, 8, 10 held, ok false
   PC-9  a pre-G-2 writer pinning ONE G-2 file -> the other two refused
         (the two sumcheck files: 7, 8, 10 held)
+  PC-10 [v6] an R5b-writer pin set (G-2 + N-r4-d, every digest read) -> ok
+  PC-11 [v6] PC-10 without src/gpu/mod.rs -> 3, 4, 5, 7, 9 held
 
 NOTHING HERE IS A PRIVACY STATEMENT.
 """
@@ -48,6 +50,7 @@ if HERE not in sys.path:
 
 import zk60_native_rg_m125 as M  # noqa: E402
 from zk60_native_rg_tinyllama_r5_pins import RUN_LAYER_PINS as R5, SHARED_G2_PINS  # noqa: E402
+from zk60_native_rg_tinyllama_r5b_pins import RUN_LAYER_PINS as R5B, SHARED_NR4D_PINS  # noqa: E402
 
 STAGES = ["load", "replay", "hash", "terminals", "commitments", "boundary",
           "preimage", "channels"]
@@ -80,6 +83,16 @@ def _r5_writer(pins):
         _set(pins, f, SHARED_G2_PINS[f]["sha256"])
 
 
+def _r5b_writer(pins):
+    """[v6] an R5b-writer pin set: R5b's run-layer digests, G-2 and N-r4-d"""
+    _set(pins, "src/private_block/run.rs", next(iter(R5B["src/private_block/run.rs"])))
+    _set(pins, "src/private_block/run_capture.rs", next(iter(R5B["src/private_block/run_capture.rs"])))
+    for f in G2:
+        _set(pins, f, SHARED_G2_PINS[f]["sha256"])
+    for f, e in SHARED_NR4D_PINS.items():
+        _set(pins, f, e["sha256"])
+
+
 CONTROLS = [
     ("PC-0", "honest", lambda p: None, (), True),
     ("PC-1", "run.rs at an unread digest",
@@ -108,6 +121,13 @@ CONTROLS = [
      lambda p: _set(p, G2[0], SHARED_G2_PINS[G2[0]]["sha256"]),
      ("stage7_channels", "stage8_plane_index_and_terminals",
       "stage10_bilinear_group_factor"), False),
+    # [v6, round 5] the R5b writer: honest, and without one N-r4-d pin
+    ("PC-10", "an R5b-writer pin set (G-2 and N-r4-d), every digest read",
+     _r5b_writer, (), True),
+    ("PC-11", "the R5b-writer pin set without src/gpu/mod.rs",
+     lambda p: (_r5b_writer(p), _drop(p, "src/gpu/mod.rs")),
+     ("stage3_per_commitment", "stage4_the_boundary", "stage5_zero_data_preimage",
+      "stage7_channels", "stage9_hash_layer"), False),
 ]
 
 

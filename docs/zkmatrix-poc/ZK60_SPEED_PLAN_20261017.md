@@ -23,6 +23,27 @@ Every Python run was one thread and took under 1 s.
   estimated 33–42% [MODEL]. The laptop's in-stack 2.7% is its clock ramp after
   idle, which a GPU-resident prover avoids. Report:
   `results/zk60_gpu_zerocheck_20261017/REPORT.md`.
+- **2026-10-18 02:26 UTC — task 2, kernel round 3 (exact arithmetic cuts +
+  cross-process module cache):** slot-18 body 28.3–29.8 ms isolated (29.0 ms in
+  the stack, warm) = **16.8–17.7% of 256 GB/s** [MEASURED], still byte-identical
+  (1,080 synthetic bodies, 54 trained equalities, seeded proof bytes at four
+  shapes, two fresh-verified 22-block stacks). In the stack, cold, the slot-18
+  phase is 5.49 s vs 17.54 s on the CPU; the module cache removes a 3.6 s
+  compile per process. Every number was taken with the laptop GPU capped at
+  ~1.1 GHz (reason 0x20). At ~2.1 GHz sustained the compute-bound rounds would
+  roughly halve: ~18 ms, ~28% [MODEL]. One more lever round (direct build from
+  resident rows, flag polling, host tail) is estimated at ~22% at today's
+  clock [MODEL]; then the lane pauses for the clock cap or the 5090.
+- **2026-10-18 00:42 UTC — task 2, kernel round 2 (K1–K4):** the term-group
+  split kernel removes every register spill (80 registers, 24 warps/SM) and
+  stays byte-identical at all four shapes; slot-18 body 42.7 -> **34.7 ms =
+  14.4% of 256 GB/s** isolated (13.8–14.2% in the stack, warm) [MEASURED].
+  Still the 10–25% band. The large rounds are now integer-arithmetic-bound at
+  the clock this laptop allows: the RTX 4070 Laptop is held at P4 (SM
+  1,065 MHz of 3,105) with clock-limit reason "SW thermal slowdown" at
+  60–65 °C and 37 W. Next: lift the laptop's power/thermal profile (Victor),
+  exact arithmetic cuts (25–35% fewer instructions [MODEL]), a cross-process
+  module cache. A 5090 desktop measurement must record its clock state.
 - **2026-10-17 — task 1 (run hygiene) DONE:** 8B T32 stack 171.6 s total
   (targets met: digest 15.3 s, loads 16.0 s, total <= 180 s); identity and
   segment lengths unchanged (`results/zk60_1b_native_20261017/r5/`).

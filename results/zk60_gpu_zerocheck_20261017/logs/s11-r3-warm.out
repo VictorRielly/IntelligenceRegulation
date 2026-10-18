@@ -1,0 +1,24 @@
+[zk60-guard 18:22:46] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 18:23:46] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 18:24:46] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 18:25:46] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 18:26:46] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 18:27:46] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 18:28:46] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 18:29:46] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 18:30:46] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 18:31:46] waiting for /tmp/zk-heavy.lock (541s)
+[zk60-guard 18:32:46] waiting for /tmp/zk-heavy.lock (601s)
+[zk60-guard 18:33:46] waiting for /tmp/zk-heavy.lock (661s)
+[zk60-guard 18:34:46] waiting for /tmp/zk-heavy.lock (721s)
+[zk60-guard 18:35:47] waiting for /tmp/zk-heavy.lock (781s)
+[zk60-guard 18:36:47] waiting for /tmp/zk-heavy.lock (841s)
+[zk60-guard 18:37:47] waiting for /tmp/zk-heavy.lock (901s)
+[zk60-guard 18:38:47] waiting for /tmp/zk-heavy.lock (961s)
+[zk60-guard 18:39:47] waiting for /tmp/zk-heavy.lock (1021s)
+[zk60-guard 18:40:31] START gzc-stack-s11-r3-warm class=gpu need=4.5G cap=7G enforce=cgroup+watchdog waited=1065s run=c697e0428835
+[zk60-guard 18:44:08] END gzc-stack-s11-r3-warm exit=0 child_wall=217s peak_rss=1.63G min_avail=9.34G peak_vram=3137MiB
+stack s11-r3-warm exit 0
+[zk60-guard 18:44:08] START gzc-verify-s11-r3-warm class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=9370a6d7118b
+[zk60-guard 18:44:34] END gzc-verify-s11-r3-warm exit=0 child_wall=26s peak_rss=1.46G min_avail=9.41G
+verify s11-r3-warm exit 0

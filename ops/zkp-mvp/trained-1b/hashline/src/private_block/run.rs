@@ -265,6 +265,12 @@ pub(crate) struct RunStatement {
     /// `k + 1`'s declared input scale. There is no second place to declare it.
     boundary_scales: Vec<i32>,
     calibration: Digest,
+    /// **NATIVE R6: each stage's softmax score shift** — the run shape's
+    /// `sh_s` for every stage of a run-wide calibration, and a trained
+    /// layer's own value where its record carries one (`LayerRecord::sh_s`,
+    /// bound by the trained identity the header absorbs). Stage `k` is
+    /// proved and verified at [`RunStatement::stage_shape`]`(k)`.
+    stage_sh_s: Vec<u32>,
 }
 
 impl RunStatement {
@@ -332,7 +338,17 @@ impl RunStatement {
         model.check_against(&rs.sh, rs.profile, &digests, block_scales)?;
         let approved = model.calibration.block_scales;
         let n = digests.len();
-        Self::new_with_calibration(rs, context, expected, digests, n, block_scales, model.identity(), approved)
+        let mut st = Self::new_with_calibration(rs, context, expected, digests, n, block_scales, model.identity(), approved)?;
+        // NATIVE R6: a layer's own score shift, each validated at the trained
+        // door (`Shape::with_score_shift`: the one-limb window, CS-8's
+        // rebuild, the trained class)
+        for (k, r) in model.layers.iter().enumerate() {
+            if let Some(v) = r.sh_s {
+                st.rs.sh.with_score_shift(v).map_err(|e| format!("private run: layer {}'s own score shift: {e}", r.index))?;
+                st.stage_sh_s[k] = v;
+            }
+        }
+        Ok(st)
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -385,7 +401,8 @@ impl RunStatement {
             }
         }
         let boundary_scales: Vec<i32> = (0..rs.l - 1).map(|k| block_scales[k].1).collect();
-        let st = RunStatement { rs, expected, block_digests, context, boundary_scales, calibration };
+        let stage_sh_s = vec![rs.sh.sh_s; rs.l];
+        let st = RunStatement { rs, expected, block_digests, context, boundary_scales, calibration, stage_sh_s };
         // **STAGE 16, ruling T-3.** `Layout::for_shape` has already checked
         // `A`, `H`, `M` and the external endpoint against the BLOCK's set of
         // hash-input lengths. A run absorbs one word no block does — its own
@@ -483,6 +500,22 @@ impl RunStatement {
             if k + 1 == l { ", then the external output endpoint" } else { "" },
         ))
         .map(|s: String| format!("{s}; data rows {d}"))
+        // NATIVE R6: a stage whose layer has its own score shift says so in
+        // its schedule line (and so in the schedule digest the header
+        // absorbs); a run-wide run's lines are what they were
+        .map(|s| if self.stage_sh_s[k] != self.rs.sh.sh_s { format!("{s}; score shift {} (the layer's own; the run's is {})", self.stage_sh_s[k], self.rs.sh.sh_s) } else { s })
+    }
+
+    /// **NATIVE R6: the shape stage `k` is proved and verified at** — the run
+    /// shape, or (a layer with its own score shift) the same shape with that
+    /// `sh_s`, rebuilt through the trained door
+    pub(crate) fn stage_shape(&self, k: usize) -> Result<Shape, String> {
+        let v = *self.stage_sh_s.get(k).ok_or_else(|| format!("private run: no stage {k}"))?;
+        if v == self.rs.sh.sh_s {
+            Ok(self.rs.sh.clone())
+        } else {
+            self.rs.sh.with_score_shift(v)
+        }
     }
 
     /// the reserved pair slot 21 (the INCOMING claim) uses in stage `k`
@@ -609,7 +642,7 @@ impl RunStatement {
     /// the stage layout: the block's, with the two IO tabs pointed at the
     /// reserved pairs this stage's schedule gives them
     fn stage_layout(&self, k: usize) -> Result<Layout, String> {
-        Ok(Layout::for_shape(&self.rs.sh)?.with_io_mask_rows([self.in_site(k)?, self.out_site(k)?]))
+        Ok(Layout::for_shape(&self.stage_shape(k)?)?.with_io_mask_rows([self.in_site(k)?, self.out_site(k)?]))
     }
 }
 
@@ -930,7 +963,9 @@ pub(crate) fn prove_run_with(st: &RunStatement, blocks: &mut dyn BlockSource, sr
                 None => &eout.as_ref().ok_or("private run: the output endpoint was already consumed")?.data,
             };
             let blk = blocks.block(k)?;
-            protocol::prove_core(sh, &lay, &blk, wit, [in_data, out_data], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick)?
+            // NATIVE R6: the stage's own shape (its layer's score shift)
+            let ssh = st.stage_shape(k)?;
+            protocol::prove_core(&ssh, &lay, &blk, wit, [in_data, out_data], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick)?
         };
         let [ic, oc] = core.io_claims;
         // the incoming commitment's claim list is complete NOW, and not before
@@ -1075,7 +1110,9 @@ impl<'a> RunVerifier<'a> {
             h_open: &seg.h_open,
         };
         let blk = self.blocks.block(k)?;
-        let ([ic, oc], _) = protocol::verify_core(sh, &lay, &blk, view, &self.ntt, &mut self.tr, &mut ph)?;
+        // NATIVE R6: the stage's own shape (its layer's score shift)
+        let ssh = st.stage_shape(k)?;
+        let ([ic, oc], _) = protocol::verify_core(&ssh, &lay, &blk, view, &self.ntt, &mut self.tr, &mut ph)?;
         drop(blk);
         match self.prev.take() {
             Some((spec, root)) => {
@@ -1252,11 +1289,22 @@ pub(crate) fn verify_run_from_dir(st: &RunStatement, blocks: &[BlockPublic], dir
 /// [`verify_run_from_dir`] with the blocks from a [`BlockSource`] (ROUND 4):
 /// ONE segment and ONE block resident
 pub(crate) fn verify_run_from_dir_with(st: &RunStatement, blocks: &mut dyn BlockSource, dir: &std::path::Path) -> Result<(), String> {
+    verify_run_from_dir_hashed_with(st, blocks, dir).map(|_| ())
+}
+
+/// **NATIVE R6 (review r5 finding r5_A).** [`verify_run_from_dir_with`],
+/// returning the length and SHA-256 (lower-case hex) of EXACTLY the bytes
+/// each segment's verification step consumed, hashed from the same buffer in
+/// the same iteration. A statement published after the verification binds
+/// these, never a later re-read of the files (which a writer of the run
+/// directory could have swapped in between).
+pub(crate) fn verify_run_from_dir_hashed_with(st: &RunStatement, blocks: &mut dyn BlockSource, dir: &std::path::Path) -> Result<Vec<(u64, String)>, String> {
     let l = st.rs.l;
     // RULING CS-6: the count and the digests (in `start`) before the
     // directory is listed or any segment file is read
     let mut v = RunVerifier::start(st, blocks)?;
     let paths = run_sink::segment_paths(dir, l)?;
+    let mut seen = Vec::with_capacity(l);
     for (k, p) in paths.iter().enumerate() {
         // ONE segment's bytes are resident: read here, dropped at the end of
         // this iteration, before the next file is opened. REVIEW r3_6: read
@@ -1264,8 +1312,10 @@ pub(crate) fn verify_run_from_dir_with(st: &RunStatement, blocks: &mut dyn Block
         // checked from metadata before the file is opened)
         let bytes = read_segment_bounded(st, k, p)?;
         v.step(k, &bytes)?;
+        seen.push((bytes.len() as u64, run_sink::digest_hex(&bytes)));
     }
-    v.finish()
+    v.finish()?;
+    Ok(seen)
 }
 
 /// `O_NOFOLLOW | O_NONBLOCK` on x86-64 Linux (the open flags differ by

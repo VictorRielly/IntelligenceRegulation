@@ -1,0 +1,10 @@
+
+running 1 test
+test private_block::run_capture_tests::capture_a_tinyllama_trained_run ... CAPTURE TinyLlama-trained L=1 layers 0..1 dense: witness=the export's hidden input (generic, parity bit-exact), public tables=values, parity words 65536, prove+verify+record 4.07 s, high-water mark 0.81 GiB
+CAPTURE TinyLlama-trained L=1 layers 0..1 dense: run.json 34208 B, stage files [4299602] B; arrays.bin 20745832 B over 587 distinct arrays, 589 references (2 deduplicated), 770 inline
+CAPTURE TinyLlama-trained L=1 layers 0..1 dense: segments 11627288 B (pinned by digest)
+CAPTURE TinyLlama-trained L=1 layers 0..1 dense RESULT: 25083358 B (25.1 MB) at /home/victor/zk60-artifacts/tinyllama-trained-r5b-capture-dense-l1, self-consistent, every key on the allow-list — a CAPTURE, not a privacy result
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 581 filtered out; finished in 4.27s
+

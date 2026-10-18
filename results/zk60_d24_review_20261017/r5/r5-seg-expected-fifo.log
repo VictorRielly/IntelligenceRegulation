@@ -1,0 +1,25 @@
+{"event":"rejected","error":"/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r5-scratch/review_out/stack2/run-expected-fifo/statement/expected.bin: not a regular file (a symbolic link, FIFO, device or directory is refused before it is opened)"}
+Command exited with non-zero status 1
+	Command being timed: "/home/victor/IntelligenceRegulation/results/zk60_d24_review_20261017/r5/zk60_trained_block.review-r5.release.bin stack-verify --export /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r5-scratch/review_out/stack2/rev-stack2-v --expect-statement 72098637f55f5b49d4729fec487c01090b39b9182173970cbd8b84fe55f496e5 --artifact /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r5-scratch/review_out/stack2/run-expected-fifo"
+	User time (seconds): 0.05
+	System time (seconds): 0.15
+	Percent of CPU this job got: 543%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.03
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 10380
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 3946
+	Voluntary context switches: 3714
+	Involuntary context switches: 9758
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

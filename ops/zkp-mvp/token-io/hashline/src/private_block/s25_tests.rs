@@ -353,7 +353,7 @@ fn kinds_of_token(st: &super::token_io::run::TokenRunStatement, model: &super::t
     use super::token_io::{stage_in, stage_out};
     let sh = st.sh();
     let (l, tp) = (st.l(), &st.tp);
-    let profile = super::run::RUN_PROFILE_TOKEN_IO_RUNG_TC;
+    let profile = st.profile();
     assert!(!sh.hashes_under_the_legacy_rule(), "a token-I/O run is tagged");
     let (transcript_f, column_f, leaf_f, node_f) = ("F_T", "F_C", "F_L", "F_N");
     let lay = Layout::for_shape(sh).unwrap_or_else(|e| panic!("{}: layout: {e}", sh.name));
@@ -431,7 +431,7 @@ fn kinds_of_token(st: &super::token_io::run::TokenRunStatement, model: &super::t
     push("the generalised endpoint's spec digest (D6, the two token endpoints)".to_string(), "F_U", 142);
     push("an internal boundary's spec digest (D7, B_in / B_out / interior)".to_string(), "F_U", 151);
     push("the trained-model statement identity (D9)".to_string(), "F_U", 47 + model.encode().len());
-    push("the token profile digest (TK1)".to_string(), "F_U", 28 + 8 + tp.describe().len());
+    push("the token profile digest (TK1)".to_string(), "F_U", 28 + 8 + tp.describe_under(st.profile()).len());
     push("the embedding table digest (TK2)".to_string(), "F_U", 36 + 16 + 2 * tables.v * tables.d);
     push("the head digest with its multipliers (TK3)".to_string(), "F_U", 50 + 16 + tables.v * tables.d + 8 * tables.v);
     push(format!("the token-I/O run's public statement digest over {l} blocks (TK4)"), "F_U", 31 + 32 * l + 64);
@@ -566,9 +566,9 @@ fn every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length(
     // TinyLlama stack's 22 would be another profile (R2), not this one
     let mut all: Vec<(String, Shape, Vec<Kind>)> = profiles.iter().map(|(p, sh, run)| (p.clone(), sh.clone(), kinds_of(sh, run.as_ref().map(|(p, l, st)| (*p, *l, st))))).collect();
     for (p, sh) in super::token_io::registered_token_runs() {
-        let (st, model) = super::token_io::tests::census_statement(2);
+        let (st, model, tables) = super::token_io::tests::census_statement(p, super::token_io::tests::census_l(p));
         assert_eq!(st.sh(), &sh, "the census token statement is not at its profile's registered block shape");
-        all.push((p.to_string(), sh, kinds_of_token(&st, &model, &super::token_io::tests::census_tables())));
+        all.push((p.to_string(), sh, kinds_of_token(&st, &model, tables)));
     }
     let mut measured: Vec<String> = all.iter().map(|(p, _, _)| p.clone()).collect();
     measured.sort();
@@ -1648,8 +1648,10 @@ fn the_generator_is_never_cloned_and_each_prover_constructs_exactly_one() {
         // `BlockSource`), which is where the run's ONE generator is made
         ("src/private_block/run.rs", "pub(crate) fn prove_run_with(", "prove_run_with"),
         ("src/private_block/protocol.rs", "pub(crate) fn prove_inner_at(", "prove_inner_at"),
-        // TOKEN I/O R1 LANE: the token-I/O run prover, ONE stream for all its stages
-        ("src/private_block/token_io/run.rs", "pub(crate) fn prove_token_run(", "prove_token_run"),
+        // TOKEN I/O R1 LANE: the token-I/O run prover, ONE stream for all its
+        // stages; R3: `prove_token_run` delegates to `prove_token_run_with`
+        // (the blocks from a `TokenBlocks` source), where the ONE generator is made
+        ("src/private_block/token_io/run.rs", "pub(crate) fn prove_token_run_with(", "prove_token_run_with"),
     ] {
         let src = source(path);
         let start = src.find(signature).unwrap_or_else(|| panic!("{path}: `{signature}` is gone"));

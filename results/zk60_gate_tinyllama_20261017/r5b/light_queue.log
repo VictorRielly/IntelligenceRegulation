@@ -1,0 +1,68 @@
+[zk60-guard 17:22:40] START tl-v6-equivalence-k4 class=light need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=ca7cfaeb9b0c
+[zk60-guard 17:23:55] END tl-v6-equivalence-k4 exit=0 child_wall=76s peak_rss=0.28G min_avail=11.21G
+[zk60-guard 17:23:55] START tl-predict-dense class=light need=1G cap=1.5G enforce=cgroup+watchdog waited=0s run=b793dd6d6c15
+[zk60-guard 17:23:56] END tl-predict-dense exit=1 child_wall=1s peak_rss=0.08G min_avail=11.42G
+[zk60-guard 17:23:56] START tl-predict-zero class=light need=1G cap=1.5G enforce=cgroup+watchdog waited=0s run=fb1e468625fc
+[zk60-guard 17:23:57] END tl-predict-zero exit=1 child_wall=1s peak_rss=0.07G min_avail=11.39G
+[zk60-guard 17:23:57] START tl-r5b-l2-dense-a class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=c2dbe40f5559
+[zk60-guard 17:24:31] END tl-r5b-l2-dense-a exit=0 child_wall=34s peak_rss=0.18G min_avail=11.34G
+[zk60-guard 17:24:32] START tl-r5b-l2-zero-a class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=d83db22b48ee
+[zk60-guard 17:24:58] END tl-r5b-l2-zero-a exit=0 child_wall=27s peak_rss=0.18G min_avail=12.72G
+[zk60-guard 17:24:58] START tl-r5b-tl-controls-l2-dense class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=c1e55e8f71f4
+[zk60-guard 17:25:48] END tl-r5b-tl-controls-l2-dense exit=0 child_wall=50s peak_rss=0.16G min_avail=12.07G
+[zk60-guard 17:25:48] START tl-r5b-tl-controls-l2-zero class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=00da17e5ea94
+[zk60-guard 17:26:38] END tl-r5b-tl-controls-l2-zero exit=0 child_wall=50s peak_rss=0.16G min_avail=12.02G
+[zk60-guard 17:26:38] START tl-r5b-witcmp-l2 class=light need=1G cap=1.5G enforce=cgroup+watchdog waited=0s run=a182c74c6070
+[zk60-guard 17:26:39] END tl-r5b-witcmp-l2 exit=0 child_wall=0s peak_rss=0.00G min_avail=12.45G
+[zk60-guard 17:26:39] START tl-r5b-g10-l2 class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=1e1946877b47
+[zk60-guard 17:26:41] END tl-r5b-g10-l2 exit=0 child_wall=2s peak_rss=0.19G min_avail=12.26G
+[zk60-guard 17:26:41] START tl-predict-dense class=light need=1G cap=1.5G enforce=cgroup+watchdog waited=0s run=be2550d73da9
+[zk60-guard 17:26:41] END tl-predict-dense exit=1 child_wall=0s peak_rss=0.00G min_avail=12.27G
+[zk60-guard 17:26:41] START tl-predict-zero class=light need=1G cap=1.5G enforce=cgroup+watchdog waited=0s run=9e5bf52c6c03
+[zk60-guard 17:26:41] END tl-predict-zero exit=1 child_wall=0s peak_rss=0.00G min_avail=12.28G
+[zk60-guard 17:26:42] START tl-r5b-l1-dense-a class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=e3fdab92846b
+[zk60-guard 17:27:04] END tl-r5b-l1-dense-a exit=0 child_wall=23s peak_rss=0.11G min_avail=12.02G
+[zk60-guard 17:27:04] START tl-r5b-l1-zero-a class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=15c940a244b3
+[zk60-guard 17:27:35] END tl-r5b-l1-zero-a exit=0 child_wall=30s peak_rss=0.11G min_avail=12.40G
+[zk60-guard 17:27:35] START tl-r5b-tl-controls-l1-dense class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=05d4d14ec84e
+[zk60-guard 17:28:01] END tl-r5b-tl-controls-l1-dense exit=0 child_wall=26s peak_rss=0.14G min_avail=12.79G
+[zk60-guard 17:28:01] START tl-r5b-g10-l1 class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=601ec8dfcd55
+[zk60-guard 17:28:03] END tl-r5b-g10-l1 exit=0 child_wall=1s peak_rss=0.13G min_avail=13.06G
+[zk60-guard 17:28:03] START tl-r5b-pincontrols-l1 class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=c24001461c68
+[zk60-guard 17:31:07] END tl-r5b-pincontrols-l1 exit=1 child_wall=185s peak_rss=0.15G min_avail=11.30G
+[zk60-guard 17:31:08] START tl-r5b-l1-dense-everything class=light need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=88bd4ceaaf27
+[zk60-guard 17:45:48] END tl-r5b-l1-dense-everything exit=1 child_wall=880s peak_rss=0.70G min_avail=11.78G
+[zk60-guard 17:45:48] START tl-r5b-l2-dense-everything class=light need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=ec036996d9bc
+[zk60-guard 18:04:07] END tl-r5b-l2-dense-everything exit=1 child_wall=1099s peak_rss=0.76G min_avail=8.33G
+[zk60-guard 18:04:08] START tl-r5b-l2-zero-everything class=light need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=0e95c864ca52
+[zk60-guard 18:26:12] END tl-r5b-l2-zero-everything exit=1 child_wall=1324s peak_rss=0.75G min_avail=7.83G
+[zk60-guard 18:26:12] START tl-predict-dense class=light need=1G cap=1.5G enforce=cgroup+watchdog waited=0s run=60a5754b8a66
+[zk60-guard 18:26:18] END tl-predict-dense exit=1 child_wall=7s peak_rss=0.55G min_avail=8.94G
+[zk60-guard 18:26:18] START tl-predict-zero class=light need=1G cap=1.5G enforce=cgroup+watchdog waited=0s run=f298800b08e0
+[zk60-guard 18:26:24] END tl-predict-zero exit=1 child_wall=6s peak_rss=0.54G min_avail=9.55G
+[zk60-guard 18:26:24] START tl-r5b-schema class=light need=1.5G cap=2.5G enforce=cgroup+watchdog waited=0s run=f17412e63251
+[zk60-guard 18:27:36] END tl-r5b-schema exit=0 child_wall=71s peak_rss=0.82G min_avail=9.40G
+[zk60-guard 18:27:36] START tl-r5b-g10-l22 class=light need=3G cap=4G enforce=cgroup+watchdog waited=0s run=0a8689333d5a
+[zk60-guard 18:27:59] END tl-r5b-g10-l22 exit=0 child_wall=22s peak_rss=1.35G min_avail=9.95G
+[zk60-guard 18:27:59] START tl-r5b-tl4-l22 class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=f7f23adc0f29
+[zk60-guard 18:31:11] END tl-r5b-tl4-l22 exit=0 child_wall=192s peak_rss=0.65G min_avail=9.74G
+[zk60-guard 18:31:11] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [tio-s3-suite(cpu,5G), b5-b7_T128(light,3.5G)]
+[zk60-guard 18:32:11] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [tio-s3-suite(cpu,5G), b5-b7_T128(light,3.5G)]
+[zk60-guard 18:33:11] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [tio-s3-suite(cpu,5G), b5-b7_T128(light,3.5G)]
+[zk60-guard 18:34:11] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [tio-s3-suite(cpu,5G), b5-b7_T128(light,3.5G)]
+[zk60-guard 18:35:12] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [tio-s3-suite(cpu,5G), b5-b7_T128(light,3.5G)]
+[zk60-guard 18:36:12] admission waiting: budget: 8.5+6 GiB > 11.9 GiB with live [tio-s3-suite(cpu,5G), b5-b7_T128(light,3.5G)]
+[zk60-guard 18:37:12] admission waiting: budget: 7.5+6 GiB > 11.9 GiB with live [b7-verify-llama3_8b_pg_rot1_b7_T128(light,2.5G), tio-s3-suite(cpu,5G)]
+[zk60-guard 18:38:12] admission waiting: budget: 7.5+6 GiB > 11.9 GiB with live [b7-verify-llama3_8b_pg_rot1_b7_T128(light,2.5G), tio-s3-suite(cpu,5G)]
+[zk60-guard 18:39:13] admission waiting: budget: 7.5+6 GiB > 11.9 GiB with live [b7-verify-llama3_8b_pg_rot1_b7_T128(light,2.5G), tio-s3-suite(cpu,5G)]
+[zk60-guard 18:40:13] admission waiting: budget: 7.5+6 GiB > 11.9 GiB with live [b7-verify-llama3_8b_pg_rot1_b7_T128(light,2.5G), tio-s3-suite(cpu,5G)]
+[zk60-guard 18:41:13] admission waiting: budget: 7+6 GiB > 11.9 GiB with live [b7-verify-llama3_8b_pg_rot1_b7_T128(light,2.5G), gzc-stack-s11-r3-warm(gpu,4.5G)]
+[zk60-guard 18:42:13] admission waiting: budget: 8+6 GiB > 11.9 GiB with live [b5-b7_T64(light,3.5G), gzc-stack-s11-r3-warm(gpu,4.5G)]
+[zk60-guard 18:43:14] admission waiting: budget: 8+6 GiB > 11.9 GiB with live [b5-b7_T64(light,3.5G), gzc-stack-s11-r3-warm(gpu,4.5G)]
+[zk60-guard 18:44:09] START tl-r5b-l22-dense-t class=light need=6G cap=7G enforce=cgroup+watchdog waited=778s run=0656e02291be
+[zk60-guard 19:18:23] END tl-r5b-l22-dense-t exit=1 child_wall=2054s peak_rss=5.46G min_avail=6.38G
+[zk60-guard 19:18:23] START tl-r5b-l22-zero-a class=light need=6G cap=7G enforce=cgroup+watchdog waited=0s run=176d3e846529
+[zk60-guard 19:29:54] END tl-r5b-l22-zero-a exit=0 child_wall=690s peak_rss=5.52G min_avail=8.03G
+[zk60-guard 19:29:54] START tl-r5b-l22-dense-f class=light need=6G cap=7G enforce=cgroup+watchdog waited=0s run=79eee165c644
+[zk60-guard 20:38:27] END tl-r5b-l22-dense-f exit=0 child_wall=4113s peak_rss=5.48G min_avail=7.32G
+[zk60-guard 20:38:27] START tl-r5b-l22-zero-f class=light need=6G cap=7G enforce=cgroup+watchdog waited=0s run=77d5666bcce4

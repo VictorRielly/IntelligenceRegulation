@@ -1,0 +1,165 @@
+{
+ "all_fire": true,
+ "applicable": 8,
+ "blocks": 1,
+ "bundle": "tinyllama-trained-r5b-capture-dense-l1",
+ "controls": [
+  {
+   "control": "G10-1_stage0_input_opening_root_flipped",
+   "fires": true,
+   "perturbed": {
+    "v3_first_finding": "<none>",
+    "v3_integrity_ok": true,
+    "v4_findings_naming_G10": [
+     "stage-00.json Input: the opened external-endpoint root is not run.json's external_endpoints input_root (finding G-10)"
+    ],
+    "v4_findings_total": 1,
+    "v4_first_finding": "stage-00.json Input: the opened external-endpoint root is not run.json's external_endpoints input_root (finding G-10)",
+    "v4_integrity_ok": false
+   },
+   "what": "stage-00.json Input: the opened root's first byte flipped; run.json's input_root untouched"
+  },
+  {
+   "control": "G10-2_last_stage_output_opening_root_flipped",
+   "fires": true,
+   "perturbed": {
+    "v3_first_finding": "<none>",
+    "v3_integrity_ok": true,
+    "v4_findings_naming_G10": [
+     "stage-00.json Output: the opened external-endpoint root is not run.json's external_endpoints output_root (finding G-10)"
+    ],
+    "v4_findings_total": 1,
+    "v4_first_finding": "stage-00.json Output: the opened external-endpoint root is not run.json's external_endpoints output_root (finding G-10)",
+    "v4_integrity_ok": false
+   },
+   "what": "stage-00.json Output: the opened root's first byte flipped; run.json's output_root untouched"
+  },
+  {
+   "control": "G10-3_declared_input_root_flipped",
+   "fires": true,
+   "perturbed": {
+    "v3_first_finding": "<none>",
+    "v3_integrity_ok": true,
+    "v4_findings_naming_G10": [
+     "stage-00.json Input: the opened external-endpoint root is not run.json's external_endpoints input_root (finding G-10)",
+     "run.json: the policy's roots are not external_endpoints' roots (finding G-10)"
+    ],
+    "v4_findings_total": 2,
+    "v4_first_finding": "stage-00.json Input: the opened external-endpoint root is not run.json's external_endpoints input_root (finding G-10)",
+    "v4_integrity_ok": false
+   },
+   "what": "run.json's external_endpoints.input_root: first byte flipped; the stage's opening and the policy bytes untouched"
+  },
+  {
+   "control": "G10-5_declared_data_rows_moved",
+   "fires": true,
+   "perturbed": {
+    "v3_first_finding": "<none>",
+    "v3_integrity_ok": true,
+    "v4_findings_naming_G10": [
+     "stage-00.json Input: endpoint data rows 16 != external_endpoints data_rows 17 (finding G-10)",
+     "stage-00.json Output: endpoint data rows 16 != external_endpoints data_rows 17 (finding G-10)"
+    ],
+    "v4_findings_total": 2,
+    "v4_first_finding": "stage-00.json Input: endpoint data rows 16 != external_endpoints data_rows 17 (finding G-10)",
+    "v4_integrity_ok": false
+   },
+   "what": "run.json's external_endpoints.data_rows moved by one"
+  },
+  {
+   "control": "G10-6_declared_scales_not_zero",
+   "fires": true,
+   "perturbed": {
+    "v3_first_finding": "<none>",
+    "v3_integrity_ok": true,
+    "v4_findings_naming_G10": [
+     "run.json: external_endpoints scales (1, 0) are not the approved (0, 0) (finding G-10)",
+     "run.json: the policy's scales are not external_endpoints' scales (finding G-10)"
+    ],
+    "v4_findings_total": 2,
+    "v4_first_finding": "run.json: external_endpoints scales (1, 0) are not the approved (0, 0) (finding G-10)",
+    "v4_integrity_ok": false
+   },
+   "what": "run.json's external_endpoints.input_scale set to 1"
+  },
+  {
+   "control": "G10-7_declared_log_n_moved",
+   "fires": true,
+   "perturbed": {
+    "v3_first_finding": "<none>",
+    "v3_integrity_ok": true,
+    "v4_findings_naming_G10": [
+     "run.json: external_endpoints log_n / inv_rate are not the shape's endpoint geometry (finding G-10)",
+     "stage-00.json Input: the opening's PCS parameters are not external_endpoints' log_n / inv_rate (finding G-10)",
+     "stage-00.json Output: the opening's PCS parameters are not external_endpoints' log_n / inv_rate (finding G-10)"
+    ],
+    "v4_findings_total": 3,
+    "v4_first_finding": "run.json: external_endpoints log_n / inv_rate are not the shape's endpoint geometry (finding G-10)",
+    "v4_integrity_ok": false
+   },
+   "what": "run.json's external_endpoints.log_n moved by one"
+  },
+  {
+   "control": "G10-8_declared_rows_member_missing",
+   "fires": true,
+   "perturbed": {
+    "v3_first_finding": "<none>",
+    "v3_integrity_ok": true,
+    "v4_findings_naming_G10": [
+     "run.json: external_endpoints lacks ['rows'] (finding G-10)"
+    ],
+    "v4_findings_total": 1,
+    "v4_first_finding": "run.json: external_endpoints lacks ['rows'] (finding G-10)",
+    "v4_integrity_ok": false
+   },
+   "what": "run.json's external_endpoints without its rows member: refused by NAME, not by an exception"
+  },
+  {
+   "control": "G10-4_stage0_swapped_for_the_other_runs_stage0",
+   "fires": true,
+   "perturbed": {
+    "v3_first_finding": "<none>",
+    "v3_integrity_ok": true,
+    "v4_findings_naming_G10": [
+     "stage-00.json Input: the opened external-endpoint root is not run.json's external_endpoints input_root (finding G-10)",
+     "stage-00.json Output: the opened external-endpoint root is not run.json's external_endpoints output_root (finding G-10)"
+    ],
+    "v4_findings_total": 2,
+    "v4_first_finding": "stage-00.json Input: the opened external-endpoint root is not run.json's external_endpoints input_root (finding G-10)",
+    "v4_integrity_ok": false
+   },
+   "what": "stage 0 of tinyllama-trained-r5b-capture-dense-l1 replaced by stage 0 of tinyllama-trained-r5b-capture-zero-l1 (control C5's swap, on the stage that opens the Input endpoint)"
+  }
+ ],
+ "every_perturbation_undone": true,
+ "honest": {
+  "v3_first_finding": "<none>",
+  "v3_integrity_ok": true,
+  "v4_findings_naming_G10": [],
+  "v4_findings_total": 0,
+  "v4_first_finding": "<none>",
+  "v4_integrity_ok": true
+ },
+ "honest_accepted_without_a_G10_finding": true,
+ "legacy_integrity_sha256": "663a517748eb9438939b1dda622bd5264a33b472cc1358b09687f6f15d04f3fd",
+ "nothing_written": "every perturbation is in memory; no captured byte is touched",
+ "ok": true,
+ "other_bundle": "tinyllama-trained-r5b-capture-zero-l1",
+ "privacy_acceptance": false,
+ "privacy_property_established": false,
+ "tool_sha256": {
+  "zk60_native_rg_bundle.py": "1bb93a90dde772cd6314317b7c746269cb8fe4a4e0e664709aa834564f4d454c",
+  "zk60_native_rg_g10controls.py": "662244f8fa4bfa3b610b804db05fea0f420d6aedbb2d209e6b0591d1827e4f3c"
+ },
+ "v3_accepted": [
+  "G10-1_stage0_input_opening_root_flipped",
+  "G10-2_last_stage_output_opening_root_flipped",
+  "G10-3_declared_input_root_flipped",
+  "G10-5_declared_data_rows_moved",
+  "G10-6_declared_scales_not_zero",
+  "G10-7_declared_log_n_moved",
+  "G10-8_declared_rows_member_missing",
+  "G10-4_stage0_swapped_for_the_other_runs_stage0"
+ ],
+ "what": "negative controls of the run integrity pass's external-endpoint check (finding G-10, tools v4)"
+}

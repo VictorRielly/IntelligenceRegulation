@@ -88,3 +88,141 @@ this directory. Test-only addition; no prover or verifier relation changes.
   suites. The zero-input job, already queued as `cpu`, is left to run (not
   killed); the boundary test will be launched as class `light` (need 2,
   cap 3.5), one job at a time, after it finishes.
+- 2026-10-17T23:22Z — session resumed after a pause (~23:10). No reboot
+  (boot id unchanged). Ledger and files intact (no partial edit: the test
+  module and the patch are as at 22:10). Zero-input guard (pid 184235,
+  class cpu) still alive and queued for the heavy lock (not killed, per the
+  caller); watcher re-armed on `gr4-block-zero.wrapper.done`.
+- 2026-10-17T23:24Z — ZERO-INPUT block test PASS, exit 0 (log
+  `gr4-block-zero.log`). Queue wait 2817 s; run 9.1 s; peak RSS 0.84 GiB
+  (cgroup 0.89) [MEASURED, shared box, n=1].
+- 2026-10-17T23:25Z — boundary test launched as class `light` (need 2,
+  cap 3.5).
+- 2026-10-17T23:34Z — BOUNDARY test PASS, exit 0 (log `gr4-boundary.log`).
+  Queue wait 582 s; run 1.3 s; peak RSS 0.32 GiB (cgroup 0.41) [MEASURED,
+  shared box, n=1]. All four launched jobs have their `.done` markers
+  (build, dense, zero, boundary: all 0). NOTHING IS PENDING.
+
+## Result (2026-10-17T23:35Z)
+
+**The ported G-R4 root-rebuild check PASSED at the trained TinyLlama T32
+shape**, on the trained export `pg_rot1_export_T32` (read-only), for layer 0
+with the export's held-out sequence ho00 (the DENSE, generic witness; native
+output parity bit-exact against the export, 65,536 words) and with the
+ALL-ZERO input, and for the internal boundary B_0 of a two-block (layers
+0 | 1) trained run with the dense plane and the all-zero plane.
+**This is not a privacy acceptance**; it machine-checks one owed condition
+(G-R4's value-level half, review §2.2 / P-12) on these witnesses only.
+
+### What each test asserts, and the result lines
+
+`gr4_trained_t32_block_{dense_ho00,zero}_commits_exactly_the_predicted_stream`
+(both PASS, identical result lines):
+
+| assertion | dense ho00 | all-zero |
+|---|---|---|
+| single-block receipt refused at the trained profile (why the adaptation is needed) | true | true |
+| run header rebuilt from the statement's public words = run binding | true | true |
+| seeded one-block bound run, stage 0 replicated, segment 11,627,288 B, verified by the PRODUCTION run verifier `run::verify_run` from its bytes | true | true |
+| A root rebuilt (witness rows + histograms, seg 1 mask rows, seg 2 pads, seg 3 salts) | true | true |
+| M root rebuilt (seg 4 alphas, seg 5 pads, seg 6 b/u with `b[m] := -b[0]` only, seg 7 salts) | true | true |
+| H root rebuilt (LogUp rows from replayed challenges, seg 8 mask rows, seg 9 zero-sum rows, seg 10 pads, seg 11 salts) | true | true |
+| replay stream ends where the prover's did (next-draw probe) | true | true |
+| prover consumed exactly the predicted 38,455,872 bytes (fresh generator advanced by the count gives the prover's probe) | true | true |
+| probe non-vacuity (a 16-byte shift differs) | true | true |
+| H zero-sum rows below the segment-8 region (no discarded draw) | true | true |
+| endpoint owners in situ: 51,712 drawn field values and 32,768 salts, all distinct | true | true |
+| non-vacuity: AProxZero moves A / CopyAIntoH moves H / AlphaCopy moves M | true / true / true | true / true / true |
+
+Layout at the trained shape [COUNTED, printed by the test]: A 1,729 rows (mask
+region 242), H 1,798 rows (mask region 100), M 50 base rows, row width 2^12,
+rate 4. The 38,455,872 predicted bytes decompose as A 15,859,712 + 7,081,984 +
+524,288, M 31,328 (= 979 Fp2 alphas, matching the review's recount of
+Σ L_s = 979) + 188,416 + 65,536 + 131,072, H 6,553,600 + 131,040 + 7,364,608 +
+524,288 [COUNTED].
+
+`gr4_trained_t32_boundary_commits_exactly_the_predicted_stream` (PASS), at the
+run's own `boundary_spec(0)` of a two-block bound statement: geometry 22 rows =
+16 data + 2x2 sites + 2, row width 2^12, rate 4, keyed (D19) tag, for both
+planes (dense = block 0's native padded output on ho00, parity bit-exact, which
+is what `prove_run` commits at B_0; and all-zero): root rebuilt = true; replay
+ends where the preparer's did = true; preparer consumed exactly the predicted
+1,007,616 bytes = true; probe non-vacuity = true; non-vacuity (site 1's first
+reserved word := site 0's) moves the root = true.
+
+### What was ported, what was adapted and why
+
+- Ported from the 125M stage-47 file: the eleven-segment prediction (A, M, H
+  rebuilt with `encode_row_zk` / `hash_columns_keyed` / `salt_leaf_keyed` /
+  `build_keyed`, never through `commit_zk_owned_tagged` — whose host path in
+  this tree is the new `encode_buffer::encode_rows`, so that path is
+  cross-checked too — nor `mask_commit_tagged`), the three non-vacuity
+  perturbations, the in-situ endpoint distinctness check, the seeded boundary
+  rebuild. Per-row encoding in the rebuild runs rows in parallel (rows are
+  independent; nothing is drawn there).
+- Adapted: (1) the block is proved as a ONE-BLOCK BOUND RUN built with the
+  production constructors (`TrainedExport::*`, `IoSpec::new_shaped`,
+  `prepare_endpoints`, `RunStatement::new_bound`), because the trained
+  profile refuses single-block receipts (R2-4). (2) The run header is rebuilt
+  from `RunStatement::capture_header()` (test-only accessor) and checked equal
+  to `binding()`; stage 0 of `prove_run_with` is replicated line for line
+  (`run.rs:884-967` at L = 1), because `transcript()` / `stage_layout()` /
+  `seg_geom()` / `position_tag()` are private to run.rs; the segment is
+  encoded with `wire::encode_segment` and the production `run::verify_run`
+  accepting it is the check that the replication is the run prover's.
+  (3) `consumed_bytes()` does not exist in this tree's zkp-core and cannot be
+  added test-only; replaced by the next-draw probe plus a fresh generator
+  advanced by the counted bytes, with a shifted-generator non-vacuity check.
+  (4) Comparisons use `assert!(a == b)`, never `assert_eq!`, so no root or
+  probe can be printed even on failure (capture rule). (5) A boundary
+  non-vacuity perturbation was added (the 125M boundary test had none).
+- The seeded receipt is held in memory only and never written (under a public
+  seed its openings are not hiding).
+
+### What it does not cover
+
+(a) Uses of drawn values outside the three commitments (the slot argument's
+reads of alpha and of the reserved pairs) — bound by the verifier, which
+accepted; soundness, not this check. (b) The endpoint generators (`from_os`):
+in situ and order-blind only. (c) A run of L >= 2: `prove_run_with`'s stage
+loop (B_k drawn from the run stream before A_k; the B_{k-1} opening) is not
+replayed; the boundary preparer is checked alone on a seeded stream. (d) The
+production entry `prove_run` (OS randomness) is not called; stage 0 is
+replicated and verified. (e) Verification is from bytes but in the same
+process, not a fresh process. (f) One layer (0) for the block, layers 0 | 1
+for the boundary, one sequence (ho00) plus the all-zero input. (g) CPU host
+path only (no `gpu-cuda` feature; the CUDA keyed commit offer is not
+exercised). (h) The R5 tree (d67fae7e...); R5b must re-apply the patch and
+re-run (the patch is test-only and touches no file the R5b CLI fix touches,
+unless R5b edits `private_block.rs`'s module list).
+
+### Re-applying to R5b
+
+`patch -p0`-style application is awkward because the patch carries absolute
+paths; simplest: copy `hashline/src/private_block/gr4_trained_tests.rs` from
+`ops/zkp-mvp/trained-1b-gate-gr4/` and add the 4-line `mod` block after
+`mod zero_witness_tests;` in `hashline/src/private_block.rs` (see the patch's
+second hunk). Then build the lib test binary and run the three tests with
+`--ignored --exact private_block::gr4_trained_tests::<name> --nocapture
+--test-threads 1` (class `light`, need 2, cap 3.5 is enough: peak 0.85 GiB).
+
+### Costs [MEASURED, shared box, n=1]
+
+| job | class | queue wait | run | peak RSS |
+|---|---|---|---|---|
+| test-binary build | build | 580.6 s | 235.4 s | 1.78 GiB |
+| dense block test | cpu | 1,857 s | 8.5 s (prove stage 3.45, run verify 0.42, one rebuild 1.09) | 0.85 GiB |
+| zero block test | cpu | 2,817 s | 9.1 s (prove stage 4.14, run verify 0.34, one rebuild 0.97) | 0.84 GiB |
+| boundary test | light | 582 s | 1.3 s | 0.32 GiB |
+
+### Evidence (this directory)
+
+`trained-1b-gate-gr4-vs-frozen-r5.patch` (diff -ruN --exclude=target against
+`results/zk60_1b_native_20261017/r5/frozen-tree/`), `sources_manifest.json`
+(218 files, copy tree sha256
+3f99de80db94dd809a368f22b77afe7f578d275098d4e1a6c94cc2cb661778af; changed
+`hashline/src/private_block.rs`, added
+`hashline/src/private_block/gr4_trained_tests.rs`), `binaries_and_patch.sha256`
+(test binary 642b9e08..., patch 21869af5...), and for each of `gr4-build`,
+`gr4-block-dense`, `gr4-block-zero`, `gr4-boundary`: `.log`, `.done`,
+`.wrapper.done`, `.guard.json`. Nothing failed.

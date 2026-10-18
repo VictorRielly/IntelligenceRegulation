@@ -52,10 +52,117 @@ pub(crate) struct TokenRunStatement {
     out_root: Digest,
     /// the one boundary scale (M-4), the trained calibration's
     scale: i32,
+    /// the derived whole-run figure (D27; review TR-1), bound through the
+    /// parameter line; PRIVATE (review R2-3): the constructor is its only
+    /// source, read through [`TokenRunStatement::whole_run`]
+    whole_run: WholeRun,
+}
+
+/// **THE DERIVED WHOLE-RUN FIGURE (D27; review TR-1).** A union bound over
+/// the run (MEMO_G02 section 2):
+/// * the column test of every commitment the run opens (each opened once);
+/// * the LogUp identity of every lookup argument, in the DERIVED convention
+///   `(N + 3 R - 1) / |F_p^2|` for the byte / exp / act tables (`N` queries,
+///   `R` distinct rows; D27's "derived lookup bound"), and, for stage IN's
+///   embedding lookup, whose table is compressed with the challenge-dependent
+///   column point `r_emb` (review R2-2), `(N + R (2 + log2 d_pad) + T log2
+///   d_pad) / |F_p^2|`: a row collision is a polynomial of degree
+///   `1 + log2 d_pad` in `(beta, r_emb)`, plus the `B_in` binding term;
+/// * **the PCS field terms and the sumchecks, bounded EXPLICITLY (review
+///   R2-1)** before the floor: MEMO_G02's per-unit figures at its largest
+///   geometry (Llama-3-8B T512, row width 2^15, which every registered
+///   token run is at or below in rows, claims and rounds): 2^-113 per opening
+///   (proximity combination and claim batching) and 2^-117.2 per stage (the
+///   zero-check sumchecks), i.e. `openings * 2^-113 + (L + 2) * 2^-117.2`.
+/// The total is FLOORED to whole bits; floats never reach a transcript, only
+/// the whole-bit floor does.
+#[derive(Clone, Debug, PartialEq)]
+pub(crate) struct WholeRun {
+    pub openings: usize,
+    pub column_log2: f64,
+    pub logup_log2: f64,
+    /// the explicit bound of the PCS field and sumcheck terms (review R2-1)
+    pub omitted_log2: f64,
+    pub total_log2: f64,
+    pub floor_bits: u32,
+}
+
+/// MEMO_G02's per-opening PCS field term and per-stage sumcheck term, log2
+/// (review R2-1: the bound added before the floor)
+pub(crate) const PCS_FIELD_PER_OPENING_LOG2: f64 = -113.0;
+pub(crate) const SUMCHECK_PER_STAGE_LOG2: f64 = -117.2;
+
+/// one block's LogUp size: the `U8` lookups of every lookup domain over its
+/// padded (lifted) extent, plus the exponential pair over `S` and the
+/// activation pair over `F`; three 256-row tables (MEMO_G02 section 2)
+pub(crate) fn block_logup_size(sh: &Shape) -> (u128, u128) {
+    use super::super::layout::{Dom, LOOKUP_DOMS};
+    let u8: u128 = LOOKUP_DOMS.iter().map(|d| sh.lookups_per_position(*d) as u128 * sh.size(*d) as u128).sum();
+    (u8 + sh.size(Dom::S) as u128 + sh.size(Dom::F) as u128, 3 * U8_LEN as u128)
+}
+
+/// the whole-run figure of a token run of `L` blocks of `sh` under `tp`
+pub(crate) fn whole_run_of(sh: &Shape, l: usize, tp: &TokenProfile) -> WholeRun {
+    let t = tp.tier;
+    let mut col: Vec<f64> = Vec::new();
+    // stage IN and stage OUT: A and H at the tier's stage geometry, then M
+    for _ in 0..2 {
+        col.push(t.per_opening_log2(t.stage_log_n, t.stage_inv_rate));
+        col.push(t.per_opening_log2(t.stage_log_n, t.stage_inv_rate));
+        col.push(mask_opening_log2());
+    }
+    // the two token endpoints at the tier's endpoint geometry
+    for _ in 0..2 {
+        col.push(t.per_opening_log2(t.ep_log_n, t.ep_inv_rate));
+    }
+    // the L blocks: A and H at the block shape's geometry, then M
+    for _ in 0..l {
+        col.push(hiding_opening_log2(sh.log_cols, sh.inv_rate, sh.opened_cols));
+        col.push(hiding_opening_log2(sh.log_cols, sh.inv_rate, sh.opened_cols));
+        col.push(mask_opening_log2());
+    }
+    // the L + 1 boundaries B_in, B_1 .. B_out
+    for _ in 0..=l {
+        col.push(hiding_opening_log2(sh.endpoint_log_n, sh.endpoint_inv_rate, sh.opened_cols));
+    }
+    // the byte / exp / act lookup arguments: stage OUT and the L blocks
+    let mut lk = vec![stage_out::logup_size(&stage_out::layout(sh, tp), tp)];
+    let blk = block_logup_size(sh);
+    lk.extend(vec![blk; l]);
+    let field_log2 = 2.0 * (P as f64).log2();
+    let column: f64 = col.iter().map(|x| x.exp2()).sum();
+    let mut num: f64 = lk.iter().map(|(n, r)| (*n + 3 * *r - 1) as f64).sum::<f64>();
+    // stage IN's compressed-row embedding lookup (review R2-2)
+    let (n_in, r_in) = stage_in::logup_size(&stage_in::layout(sh, tp), tp);
+    let lg = clog2(tp.d_pad) as u128;
+    num += (n_in + r_in * (2 + lg) + tp.tokens as u128 * lg) as f64;
+    let logup = num * (-field_log2).exp2();
+    let omitted = col.len() as f64 * PCS_FIELD_PER_OPENING_LOG2.exp2() + (l + 2) as f64 * SUMCHECK_PER_STAGE_LOG2.exp2();
+    let total_log2 = (column + logup + omitted).log2();
+    WholeRun { openings: col.len(), column_log2: column.log2(), logup_log2: logup.log2(), omitted_log2: omitted.log2(), total_log2, floor_bits: (-total_log2).floor() as u32 }
+}
+
+/// **THE VERIFIER'S POLICY (D27; review TR-1):** the minimum derived
+/// whole-run figure, in whole bits; a statement below it is refused by name
+/// before any segment is read.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct VerifierPolicy {
+    pub min_whole_run_bits: u32,
+}
+
+/// review TR-3 (D26 C-a): only the public-row variant is built; P and F (the
+/// sealed selector, D26's two-site endpoint) are refused by name by the
+/// endpoint specs, the statement, the prover and the verifier
+pub(crate) fn variant_is_built(tp: &TokenProfile) -> Result<(), String> {
+    if tp.variant != SelectorVariant::PublicRow {
+        return Err(format!("token I/O run: the {} variant is not built (D26's two-site endpoint is the next rung; review TR-3)", tp.variant.tag()));
+    }
+    Ok(())
 }
 
 /// the two token endpoints' statements at a profile (public inputs only)
 pub(crate) fn endpoint_specs(sh: &Shape, context: Digest, tp: &TokenProfile) -> Result<(EndpointSpecG, EndpointSpecG), String> {
+    variant_is_built(tp)?;
     let t = tp.tier;
     let tag = sh.hash_tag();
     let i = EndpointSpecG::new_with_tag(context, 1, tp.in_ep_words(), 0, IN_EP_SLOTS.0, IN_EP_SLOTS.1, t.ep_log_n, t.ep_inv_rate, t.opened_cols, &tag)?;
@@ -78,7 +185,7 @@ impl TokenRunStatement {
         tier: Tier,
         roots: (Digest, Digest),
     ) -> Result<TokenRunStatement, String> {
-        if rs.profile() != super::super::run::RUN_PROFILE_TOKEN_IO_RUNG_TC {
+        if !super::super::run::TOKEN_IO_RUN_PROFILES.contains(&rs.profile()) {
             return Err(format!("token I/O run: {} is not a token-I/O run profile", rs.profile()));
         }
         if context == [0; 32] {
@@ -95,12 +202,22 @@ impl TokenRunStatement {
         }
         model.check_against(sh, rs.profile(), &block_digests, &vec![scales; l])?;
         let tp = TokenProfile::new(sh, tables, bos, norm, variant, tier)?;
+        variant_is_built(&tp)?;
         let (in_spec, out_spec) = endpoint_specs(sh, context, &tp)?;
-        Ok(TokenRunStatement { rs, context, block_digests, model_identity: model.identity(), tp, in_spec, out_spec, in_root: roots.0, out_root: roots.1, scale: scales.0 })
+        let whole_run = whole_run_of(sh, l, &tp);
+        Ok(TokenRunStatement { rs, context, block_digests, model_identity: model.identity(), tp, in_spec, out_spec, in_root: roots.0, out_root: roots.1, scale: scales.0, whole_run })
     }
 
     pub(crate) fn sh(&self) -> &Shape {
         self.rs.sh()
+    }
+    /// the run profile this statement is under (one of the token-I/O profiles)
+    pub(crate) fn profile(&self) -> &'static str {
+        self.rs.profile()
+    }
+    /// the statement's derived whole-run figure (review R2-3: read-only)
+    pub(crate) fn whole_run(&self) -> &WholeRun {
+        &self.whole_run
     }
     pub(crate) fn l(&self) -> usize {
         self.rs.l()
@@ -144,7 +261,7 @@ impl TokenRunStatement {
         let mut h = blake3::Hasher::new();
         h.update(b"hashline/token-io-calibration/v1");
         h.update(&self.model_identity);
-        h.update(&self.tp.digest());
+        h.update(&self.tp.digest_under(self.profile()));
         *h.finalize().as_bytes()
     }
 
@@ -152,9 +269,16 @@ impl TokenRunStatement {
         let sh = self.sh();
         let b = self.boundary_spec(0)?;
         let t = self.tp.tier;
+        // review R2-6: inside a token run the block's two IO roles are
+        // internal boundaries, and the figure carries the explicit bound of
+        // review R2-1; the R1 / R2 profiles keep their texts byte for byte
+        // (their floors are unchanged by the bound)
+        let legacy = legacy_profile_text(self.profile());
+        let block_line = if legacy { protocol::parameter_line(sh) } else { protocol::parameter_line(sh).replace("/two-private-endpoints/", "/two-internal-boundaries/") };
+        let figure = if legacy { "column-plus-logup-derived" } else { "column-plus-logup-derived-plus-pcs-field-and-sumcheck-bound" };
         Ok(format!(
-            "{}/L{}/boundaries-B_in-B_out-and-interior-log_n{}-rate{}-pad{}-rows{}-sites2/token-endpoints-log_n{}-rate{}-pad{}-in-words{}-in-rows{}-out-words{}-out-rows{}-sites1/stages-log_n{}-rate{}-pad{}/{}/one-run-one-transcript",
-            protocol::parameter_line(sh),
+            "{}/L{}/boundaries-B_in-B_out-and-interior-log_n{}-rate{}-pad{}-rows{}-sites2/token-endpoints-log_n{}-rate{}-pad{}-in-words{}-in-rows{}-out-words{}-out-rows{}-sites1/stages-log_n{}-rate{}-pad{}/{}/whole-run-floor-{}-bits-{}-openings-{figure}/one-run-one-transcript",
+            block_line,
             self.l(),
             sh.endpoint_log_n,
             sh.endpoint_inv_rate,
@@ -170,7 +294,9 @@ impl TokenRunStatement {
             t.stage_log_n,
             t.stage_inv_rate,
             t.opened_cols,
-            self.tp.describe()
+            self.tp.describe_under(self.profile()),
+            self.whole_run.floor_bits,
+            self.whole_run.openings
         ))
     }
 
@@ -341,11 +467,12 @@ pub(crate) fn seal_endpoints(in_spec: &EndpointSpecG, out_spec: &EndpointSpecG, 
 pub(crate) trait TokenRunSource {
     /// `A_in`'s planes and the `B_in` plane
     fn stage_in(&mut self) -> Result<(StageInWitness, Vec<i16>), String>;
-    /// block `k`'s integer witness
-    fn witness(&mut self, k: usize) -> Result<Witness, String>;
+    /// block `k`'s integer witness (`blk` is the stage's block, handed by the
+    /// prover after its shape and digest checks: one load per stage)
+    fn witness(&mut self, k: usize, blk: &BlockPublic) -> Result<Witness, String>;
     /// the padded plane after block `k` (boundary `k + 1`; `B_out` at `L - 1`)
     fn boundary_plane(&mut self, k: usize) -> Result<Vec<i16>, String>;
-    /// `A_out`'s planes
+    /// `A_out`'s planes (asked FIRST, before any segment exists: review R2-5)
     fn stage_out(&mut self) -> Result<StageOutWitness, String>;
 }
 
@@ -362,11 +489,59 @@ pub(crate) struct OwnerHandoff {
     pub output: Decommitment,
 }
 
-/// **THE TOKEN-I/O RUN PROVER.** One transcript, one OS stream, `L + 2`
-/// segments, each handed to `sink` and dropped (M-3).
+/// **THE RUN'S PUBLIC BLOCKS, ONE STAGE AT A TIME (R3).** Thirty-two
+/// Llama-3-8B blocks (about 7.8 GB) cannot all be resident, so the prover and
+/// the verifier ask for block `k` at its own stage; each block handed is
+/// checked against the run's shape (CS-1 / CS-4) and against the statement's
+/// digest for that position (CS-6) BEFORE anything of its stage is absorbed.
+/// R1 and R2 hand a resident slice.
+pub(crate) trait TokenBlocks {
+    /// how many blocks the source holds
+    fn count(&self) -> usize;
+    /// block `k` (borrowed from a slice, or shared out of a one-block cache)
+    fn block(&mut self, k: usize) -> Result<super::super::run::BlockRef<'_>, String>;
+}
+
+/// a resident slice of blocks (R1, R2)
+pub(crate) struct ResidentBlocks<'a>(pub &'a [BlockPublic]);
+
+impl TokenBlocks for ResidentBlocks<'_> {
+    fn count(&self) -> usize {
+        self.0.len()
+    }
+    fn block(&mut self, k: usize) -> Result<super::super::run::BlockRef<'_>, String> {
+        self.0.get(k).map(super::super::run::BlockRef::Borrowed).ok_or_else(|| format!("token I/O run: no block {k}"))
+    }
+}
+
+/// RULINGS CS-1 / CS-4 / CS-6 for the block of stage `k`, before the stage
+/// absorbs anything (the cheating prover of the tamper controls skips CS-6)
+fn stage_block_is_the_statements(st: &TokenRunStatement, k: usize, blk: &BlockPublic, cs6: bool) -> Result<(), String> {
+    blk.check_for_shape(st.sh()).map_err(|e| format!("token I/O run: block {k}: {e}"))?;
+    if cs6 && blk.digest() != st.block_digests[k] {
+        return Err(format!("token I/O run: ruling CS-6 — block {k} is not the block the statement names"));
+    }
+    Ok(())
+}
+
+/// **THE TOKEN-I/O RUN PROVER** over a resident slice of blocks.
 pub(crate) fn prove_token_run(
     st: &TokenRunStatement,
     blocks: &[BlockPublic],
+    tables: &TokenTables,
+    src: &mut dyn TokenRunSource,
+    owners: TokenOwners,
+    sink: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>,
+) -> Result<(TokenRunStats, OwnerHandoff), String> {
+    prove_token_run_with(st, &mut ResidentBlocks(blocks), tables, src, owners, sink)
+}
+
+/// **THE TOKEN-I/O RUN PROVER.** One transcript, one OS stream, `L + 2`
+/// segments, each handed to `sink` and dropped (M-3); block `k` asked for
+/// at its own stage (R3 streaming).
+pub(crate) fn prove_token_run_with(
+    st: &TokenRunStatement,
+    blocks: &mut dyn TokenBlocks,
     tables: &TokenTables,
     src: &mut dyn TokenRunSource,
     owners: TokenOwners,
@@ -378,24 +553,25 @@ pub(crate) fn prove_token_run(
     let cheating = protocol::cheating_prover_is_on();
     #[cfg(not(test))]
     let cheating = false;
-    if tp.variant != SelectorVariant::PublicRow {
-        return Err(format!("token I/O run: the {} variant is not built at R1 (D26's two-site endpoint is the next rung)", tp.variant.tag()));
-    }
-    if blocks.len() != l {
-        return Err(format!("token I/O run: the statement names {l} blocks and {} were handed", blocks.len()));
+    variant_is_built(tp)?;
+    if blocks.count() != l {
+        return Err(format!("token I/O run: the statement names {l} blocks and {} were handed", blocks.count()));
     }
     protocol::fits_the_ntt_tables(sh)?;
-    for (k, b) in blocks.iter().enumerate() {
-        b.check_for_shape(sh).map_err(|e| format!("token I/O run: block {k}: {e}"))?;
-        if !cheating && b.digest() != st.block_digests[k] {
-            return Err(format!("token I/O run: ruling CS-6 — block {k} is not the block the statement names"));
-        }
-    }
     if tables.emb_digest() != tp.emb_digest || tables.head_digest() != tp.head_digest {
         return Err("token I/O run: the tables handed are not the ones the statement names".into());
     }
     if owners.input.commitment().root != st.in_root || owners.output.commitment().root != st.out_root || owners.input.cm.rows != st.in_spec.commitment_rows() || owners.output.cm.rows != st.out_spec.commitment_rows() {
         return Err("token I/O run: the token endpoint owners are not the statement's".into());
+    }
+    // review R2-5: the stage-OUT witness is taken, and its byte-lookup
+    // refusal run, BEFORE the first segment reaches the sink, so a refused
+    // witness publishes nothing. (D20's final-norm refusals already fire in
+    // the honest pipeline, before any header.) A sink must still treat what
+    // it receives as unpublished until this function returns Ok.
+    let wout = src.stage_out()?;
+    if !cheating && stage_out::byte_misses(&stage_out::layout(sh, tp), tp, &wout)? > 0 {
+        return Err("token I/O stage OUT: the witness looks up a value that is not a byte (the class of the miss only)".into());
     }
     let mut rng = ZkRng::from_os(&super::super::hash_domain::run_seed_domain(st.rs.profile())).map_err(|e| format!("token I/O run randomness: {e}"))?;
     let tag = sh.hash_tag();
@@ -431,6 +607,8 @@ pub(crate) fn prove_token_run(
         let start = position_tag(&tr);
         tr.absorb_u64(b"pb-run-stage", (k + 1) as u64);
         tr.absorb(b"pb-run-block", &st.block_digests[k]);
+        let blk = blocks.block(k)?;
+        stage_block_is_the_statements(st, k, &blk, !cheating)?;
         let spec = st.boundary_spec(k + 1)?;
         let plane = src.boundary_plane(k)?;
         if plane.len() != spec.len() {
@@ -440,8 +618,8 @@ pub(crate) fn prove_token_run(
         let cur = boundary::prepare(&spec, &words, &ntt, &mut rng, &tag)?;
         protocol::absorb_root(&mut tr, b"B", &cur.root(), spec.commitment_rows(), spec.log_n());
         let lay = st.block_layout(k)?;
-        let wit = src.witness(k)?;
-        let core = protocol::prove_core(sh, &lay, &blocks[k], wit, [prev.1.data(), cur.data()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick)?;
+        let wit = src.witness(k, &blk)?;
+        let core = protocol::prove_core(sh, &lay, &blk, wit, [prev.1.data(), cur.data()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick)?;
         let [ic, oc] = core.io_claims;
         let mut claims = std::mem::take(&mut pending);
         claims.extend(ic);
@@ -455,6 +633,7 @@ pub(crate) fn prove_token_run(
         stats.segment_bytes.push(bytes.len());
         sink(k + 1, bytes)?;
         prev = (spec, cur);
+        drop(blk);
         stats.prove_s.push(t0.elapsed().as_secs_f64());
         stats.hwm_mib.push(super::super::run::peak_rss_mib());
     }
@@ -462,7 +641,6 @@ pub(crate) fn prove_token_run(
     // ---- stage OUT
     let t0 = Instant::now();
     let start = position_tag(&tr);
-    let wout = src.stage_out()?;
     let out_lay = stage_out::layout(sh, tp);
     let (bspec, bowner) = prev;
     let outp = stage_out::prove(&out_lay, tp, tables, wout, &bspec, bowner, pending, out_ep, (l + 1) as u64, &ntt, &mut rng, &mut tr, &tag)?;
@@ -477,18 +655,28 @@ pub(crate) fn prove_token_run(
 
 /// **THE TOKEN-I/O RUN VERIFIER.** Exactly `L + 2` segments, `L` being its
 /// own; every geometry, opening place and claim from its own statement.
-pub(crate) fn verify_token_run(st: &TokenRunStatement, blocks: &[BlockPublic], tables: &TokenTables, segments: &[Vec<u8>]) -> Result<(), String> {
+pub(crate) fn verify_token_run(st: &TokenRunStatement, blocks: &[BlockPublic], tables: &TokenTables, segments: &[Vec<u8>], policy: VerifierPolicy) -> Result<(), String> {
+    verify_token_run_with(st, &mut ResidentBlocks(blocks), tables, segments, policy)
+}
+
+/// **THE TOKEN-I/O RUN VERIFIER**, block `k` asked for at its own stage
+/// (R3 streaming), checked (CS-1 / CS-4 / CS-6) before its stage absorbs.
+pub(crate) fn verify_token_run_with(st: &TokenRunStatement, blocks: &mut dyn TokenBlocks, tables: &TokenTables, segments: &[Vec<u8>], policy: VerifierPolicy) -> Result<(), String> {
     let (sh, l, tp) = (st.sh(), st.l(), &st.tp);
-    if blocks.len() != l || segments.len() != l + 2 {
-        return Err(format!("token I/O run: {} blocks and {} segments were offered, this run has {l} blocks and {} segments", blocks.len(), segments.len(), l + 2));
+    // review TR-3 and TR-1 (D27): the statement's variant and its derived
+    // whole-run figure, before any segment is read
+    variant_is_built(tp)?;
+    tp.tier.check()?;
+    if st.whole_run.floor_bits < policy.min_whole_run_bits {
+        return Err(format!(
+            "token I/O run: the statement's derived whole-run figure ({} bits, tier {}) is below the verifier's minimum of {} bits (D27 policy)",
+            st.whole_run.floor_bits, tp.tier.name, policy.min_whole_run_bits
+        ));
+    }
+    if blocks.count() != l || segments.len() != l + 2 {
+        return Err(format!("token I/O run: {} blocks and {} segments were offered, this run has {l} blocks and {} segments", blocks.count(), segments.len(), l + 2));
     }
     protocol::fits_the_ntt_tables(sh)?;
-    for (k, b) in blocks.iter().enumerate() {
-        b.check_for_shape(sh).map_err(|e| format!("token I/O run: block {k}: {e}"))?;
-        if b.digest() != st.block_digests[k] {
-            return Err(format!("token I/O run: ruling CS-6 — block {k} is not the block the statement names"));
-        }
-    }
     if tables.emb_digest() != tp.emb_digest || tables.head_digest() != tp.head_digest {
         return Err("token I/O run: the tables handed are not the ones the statement names".into());
     }
@@ -510,6 +698,8 @@ pub(crate) fn verify_token_run(st: &TokenRunStatement, blocks: &[BlockPublic], t
 
     // ---- the blocks
     for k in 0..l {
+        let blk = blocks.block(k)?;
+        stage_block_is_the_statements(st, k, &blk, true)?;
         let mut ph = timing::Phases::start();
         let lay = st.block_layout(k)?;
         let start = position_tag(&tr);
@@ -521,7 +711,8 @@ pub(crate) fn verify_token_run(st: &TokenRunStatement, blocks: &[BlockPublic], t
         let root = seg.b_root.ok_or_else(|| format!("token I/O run: block segment {k} carries no boundary root"))?;
         protocol::absorb_root(&mut tr, b"B", &root, spec.commitment_rows(), spec.log_n());
         let view = CoreView { a_root: seg.a_root, h_root: seg.h_root, mask_root: seg.mask_root, slots: &seg.slots, mask_open: &seg.mask_open, a_open: &seg.a_open, h_open: &seg.h_open };
-        let ([ic, oc], _) = protocol::verify_core(sh, &lay, &blocks[k], view, &ntt, &mut tr, &mut ph).map_err(|e| format!("block {k}: {e}"))?;
+        let ([ic, oc], _) = protocol::verify_core(sh, &lay, &blk, view, &ntt, &mut tr, &mut ph).map_err(|e| format!("block {k}: {e}"))?;
+        drop(blk);
         let mut claims = std::mem::take(&mut pending);
         claims.extend(ic);
         let (pspec, proot) = prev;
@@ -545,6 +736,57 @@ pub(crate) fn verify_token_run(st: &TokenRunStatement, blocks: &[BlockPublic], t
         return Err("token I/O run: stage OUT's trailer is not the verifier's own transcript position".into());
     }
     Ok(())
+}
+
+// ---------------------------------------------------------------- the owner checks
+
+/// **THE INPUT OWNER'S CHECK (DESIGN 3.4, D26 C-d; review TR-4)**, under the
+/// VERIFIED statement: the decommitment rebuilds the input token endpoint's
+/// root, and the plane is the public-row variant's: the owner's own prompt
+/// (`T` ids, BOS at 0, every id in the vocabulary) and zero pad words.
+pub(crate) fn owner_check_input(st: &TokenRunStatement, dec: &Decommitment, prompt: &[u64]) -> Result<(), String> {
+    let tp = &st.tp;
+    variant_is_built(tp)?;
+    let words = owner_rebuild_root(&st.in_spec, &st.in_root, dec, &st.sh().hash_tag())?;
+    if prompt.len() != tp.tokens {
+        return Err(format!("owner check: the owner's prompt has {} ids; the public-row variant seals exactly T = {}", prompt.len(), tp.tokens));
+    }
+    if words.len() != tp.in_ep_words() {
+        return Err("owner check: the input plane is not of the statement's length".into());
+    }
+    if words[0] != Fp::new(tp.bos) {
+        return Err("owner check: the sealed position 0 is not the profile's BOS".into());
+    }
+    if words[..tp.tokens].iter().any(|w| w.0 >= tp.v as u64) {
+        return Err("owner check: a sealed input id is outside the vocabulary".into());
+    }
+    if words[tp.tokens..].iter().any(|w| !w.is_zero()) {
+        return Err("owner check: a sealed input pad word is not zero".into());
+    }
+    if words[..tp.tokens].iter().zip(prompt.iter()).any(|(w, t)| w.0 != *t) {
+        return Err("owner check: the sealed input plane is not the owner's prompt".into());
+    }
+    Ok(())
+}
+
+/// **THE OUTPUT OWNER'S CHECK (DESIGN 3.4, D26 C-d; review TR-4)**, under
+/// the VERIFIED statement: the decommitment rebuilds the output token
+/// endpoint's root, word 0 is an id below `V` and every other word is zero.
+/// Returns the next token.
+pub(crate) fn owner_check_output(st: &TokenRunStatement, dec: &Decommitment) -> Result<usize, String> {
+    let tp = &st.tp;
+    variant_is_built(tp)?;
+    let words = owner_rebuild_root(&st.out_spec, &st.out_root, dec, &st.sh().hash_tag())?;
+    if words.len() != tp.out_ep_words() {
+        return Err("owner check: the output plane is not of the statement's length".into());
+    }
+    if words[0].0 >= tp.v as u64 {
+        return Err("owner check: the sealed next token is outside the vocabulary".into());
+    }
+    if words[1..].iter().any(|w| !w.is_zero()) {
+        return Err("owner check: a sealed output pad word is not zero".into());
+    }
+    Ok(words[0].0 as usize)
 }
 
 // ---------------------------------------------------------------- the honest pipeline
@@ -606,7 +848,7 @@ impl TokenRunSource for PipelineSource<'_> {
     fn stage_in(&mut self) -> Result<(StageInWitness, Vec<i16>), String> {
         Ok((self.0.stage_in.clone(), self.0.b_in.clone()))
     }
-    fn witness(&mut self, k: usize) -> Result<Witness, String> {
+    fn witness(&mut self, k: usize, _blk: &BlockPublic) -> Result<Witness, String> {
         self.0.witnesses.get_mut(k).and_then(|w| w.take()).ok_or_else(|| format!("token I/O pipeline: block {k}'s witness was already consumed"))
     }
     fn boundary_plane(&mut self, k: usize) -> Result<Vec<i16>, String> {

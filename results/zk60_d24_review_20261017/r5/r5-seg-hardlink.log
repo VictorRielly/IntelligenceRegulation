@@ -1,0 +1,24 @@
+{"event":"verified","blocks":2,"receipt_bytes":15012880,"load_seconds":0.043,"verify_seconds":0.473,"of_which_block_load_seconds":0.079,"vmhwm_mib":31,"statement_identity":"72098637f55f5b49d4729fec487c01090b39b9182173970cbd8b84fe55f496e5","scope":"ALL the listed trained blocks of the export's model (TinyLlama-1.1B-Chat or Llama-3-8B) as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"}
+	Command being timed: "/home/victor/IntelligenceRegulation/results/zk60_d24_review_20261017/r5/zk60_trained_block.review-r5.release.bin stack-verify --export /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r5-scratch/review_out/stack2/rev-stack2-v --expect-statement 72098637f55f5b49d4729fec487c01090b39b9182173970cbd8b84fe55f496e5 --artifact /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r5-scratch/review_out/stack2/run-hardlink"
+	User time (seconds): 1.25
+	System time (seconds): 1.06
+	Percent of CPU this job got: 446%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.51
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 31664
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 13126
+	Voluntary context switches: 36934
+	Involuntary context switches: 81676
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

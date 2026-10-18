@@ -20,7 +20,6 @@
 1e2f53c2eb1490486a604fd9dfb3bdac939642afdc43cb7fc748012596f6441e  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/zk_ffn_fresh_poc_tests.rs
 1eb9c81924959b2c2e4126fc5ba3cc8fd8fe87fd88a90681d0146aa33748e76b  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/e32_tests.rs
 20e5a14b8dd523bf0e98ef13ac9ccb38bf7071585c335e745d1da2918cb2ae4b  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/tests/cli_claims.rs
-2475e3a222e32aa26969182b5ab7228756d633fa67bdde1f9520818ef7a2bb0e  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/argument.rs
 24fb1de3953c017d54113014882b05c4c52b941f900ef50f3c2554f06523fc7b  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/Cargo.lock
 250a57fea234469c78fed1f5d4358d3f5885bafa167d86901e33944481d6740d  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/private-block-kernel-shaped/Cargo.toml
 26280a01440bfb605a57d676acfd37c2743c2037d5d2a74752c668dc246154e7  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/dense_tests.rs
@@ -37,7 +36,6 @@
 2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_seam.rs
 2f99ae965d0efb5a12579b4668573798c3d1b109f3b38d13cceeea624b0ba9e0  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/public_block_receipt.rs
 329c5e4257e5f4504b41a2b7306681f1ffd1006b59ba94622961c4335b893407  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/wcache_atomic_tests.rs
-32d8eab32aa5ced5ca1c881035dfcaaf60de614857947f7ebc4e62d838733a0c  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/trained_block.rs
 333ed4ff92628702992f8b34b622d2f4d7aaf54a32e732f355b75ffa622f5484  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/tests/zk60_fable_arith.rs
 3343620eefa848421633971210305a356c183848ac15f566a503244ef2283a25  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_attention/argument.rs
 359fdcf6a02087d346848dc4459d180fc38c55d906a69182faf8e42746925375  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/zk_ffn_fresh_wire.rs
@@ -79,6 +77,7 @@
 6e3691d0bfa1c1fb1f66b9be8ae5438597492c62dc00451d6f25dbff90ab84ce  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/endpoint_g.rs
 6e63ae85d28a3db968dddc57f2659dbeb0134acd2fc43ad33c15b63edff95997  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/sumcheck/grouped/tests.rs
 6e7817bd767a883985bfcd62b7a387d0c5f4c361010c4c5db37f5087d965744a  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/merkle.rs
+7109e9cbba958876db03f538715258d07d2976c12b3959a293d2371c64bf356e  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/fzc_kernels.cu
 71b3b38ed24e35d0e2de91a7552ccbc01d5892983f75ab22d796ea34291086fd  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/zero_witness_tests.rs
 71bf33150a296c2ce4da49d189c6d84a9f741b9ada1ef2488711938cffd6b651  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/hashtag.rs
 722437e6295d83d4478ac7d0f1758053516058098db7d64fb11448fb70c2b372  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/Cargo.lock
@@ -86,7 +85,6 @@
 749475b1585ab6ac624db637acdd84372ca1e2dd8992b5ffa392110097285060  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/examples/zk60_kernel_fixture.rs
 74f82e1c9a9d003b2e817cb46b69225c7e7f525278159aba05d3faa7fdfdc719  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/ffn_v3/proof.rs
 758bd3401cc726dd621ff0b04b9d7b09a50decc773f03f4a21ddbc031921d85a  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/causal_oracle.rs
-76a924aaa2b7c4d05cffde566a9250e759f92d9f904ca54a8b68c64c3db9ee64  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/cuda.rs
 76bb4cbb9fb60c6d3b01729abd5a96e93a5fdc335f49b0f36b8821e4fbdd0332  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/field/verifier_hardening_tests.rs
 7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/sumcheck/grouped.rs
 7827c8fae82ed99435cea31b9d8ab4a5377ea0df188c5b7285341723e467adca  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/w14_tests.rs
@@ -95,9 +93,7 @@
 7b00b2ee2ed076e66fee22249375323c9c747cabc76376fab94478ad29a6cb90  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/stable_weight_material_tests.rs
 7b89ac672bb81978a05a1a6571a1a15b59f76d718e0be36da3bb6d4cb347f205  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/witness.rs
 7fef7fae6c98c11b07c9714107c3e02a49dc8d523f0c6d88f7d4539934d1e2e9  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/private-block-kernel/src/tests.rs
-84d0ce7e45527292e2178a732882193cfa5cf5d19e017492a12f6dda3ab6d937  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/fzc_kernels.cu
 869f1d9151f11179f0d81cde2dabb1b41e5768b8485df3cfcc6f75b47c4c1294  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/export.rs
-874fcd459834a31c2ebc2a32a2442d34cfc848721d14204de3bf0861e6a35181  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/fzc.rs
 8abfcb3684d7d9fcbd83ebc3096c3b4051f6d1df0a0670772eb1130add766ecb  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/private-block-kernel-shaped/Cargo.lock
 8b14096b66f6597e3cdfe239a7359457dd17dfd475c2a5d0f4e112a41342127f  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/pcs.rs
 8bd4da4ec5098cdbe3424e8c9c184f2a3d6634fe415a5db7575a65adc8d8294a  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block.rs
@@ -109,6 +105,7 @@
 97572d4f242637d21a089388abad4b5b39136c62036faa17ae94b3ba6f170890  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/ntt.rs
 9b6948473f4750c72ecc5940badda96ad4b86dcfd0b1c6889008c0996e4c44d8  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/phase_profile.rs
 9d324ad0871f8932c5e872f74f6aa01e6e4120b8d23cea6771cddccd2e9c4daa  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/run.rs
+9e70bbe558d7771b16f2a6f7f526ad3e548895d32ed0f6b897b85d0dd48b29b5  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/argument.rs
 9e7c9bff10790c643ab26dcd6335991a016e62d9cc19ae217a92de60e27d4cf6  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/private-block-kernel/src/lib.rs
 9eb2c16e1ade57de2f51a105eb5ac5548bfc619303e68886f6dbb2bf000c79e3  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/run_statement_file.rs
 9f63c59fe408a7eb7ad1b93e627e5c0fc641652975107ff27553589febf28031  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/lane_c_tinyllama_tests.rs
@@ -122,11 +119,11 @@ a7598d0ac02fe3de45075c7f82e0a447e6376a381690dd3fd695e890d8c04fcf  /home/victor/I
 a7b3e75e88673071705a4a1c76abc66d0a3afa556ae364c0240da80d4ab73e92  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_attention/tests.rs
 a7f7ac0b838747c4de59e8226213500a41c047356ddd8bcdb3ab906818843c7c  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/ntt.rs
 a90911aba10a3a6b1c9341936cfd46eb30ce9206672be379b39eb8af647eeb95  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/tests.rs
-a96f4ad153c5a59a4bfd7322b06d67437a8b58583741a507f21240b1f2218873  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/mod.rs
 a9ce02e90675d68af85a37c4e1f5a716f0f99d284d7d32b4a6d4bb4c91132721  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/examples/zk60_trained_block.rs
 ab41d87f356d715af913870d89ebf77795fa8dbb63e867928e4f477f78d62f91  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/tests/zk60_pending_layout.rs
 ac1929dc9d35af2fd48c87baf151452873c6a8e5a546c16c914bab148b7d624a  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/examples/zk60_seam_receipt.rs
 add1b8b721bb36c45b237d9eb0dc3c27214e77ab1d8b1070713b1fc4d2e01910  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/s33_tests.rs
+af3cd6ac97f85347ed95ebac732c920a18ab921013be3ec31657e28cfb35ecc1  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/fzc.rs
 af3f24c3559e3d778402445a6bca4762ff1074258d6cd6b3577f51bbad9eb63e  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/norm_alias.rs
 af7bb2c99ef47c1f97329b503724e75bfa9105530bc11725ad585424a645b0ad  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/stable_weight_registration_tests.rs
 afc28d8654f563ad9ad0892485a88b8e30ea5c7a58cd79e915d1f5ca9bdb9532  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/r4_tests.rs
@@ -161,6 +158,7 @@ d3cfa2c86494fde30081613473ef3ad3bba4f3d683d9e5fa50a02304018fda1c  /home/victor/I
 d47635c2991f1be306385fdb5a7673530ccb12dd758aa85d6932297e8e1dbb10  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/k4_tests.rs
 d7a731e5382cbfb9462ca14e8671423ab63b53440ab99dae2df343c9ce3f46bf  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/s28_tests.rs
 da61c1d97ca1cd6d35071e3917cfdb900a2039c5abd213cdfe2f0ccc251ed3cd  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/hash_domain.rs
+dcc0e4bcd76c009827d30d8b1547e043118619948f59e63e75b132c5e6a38629  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/cuda.rs
 dd6a902a91edf5ba878c9ad987e6c6750c46e2b919238487f17f65621e807180  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/chain.rs
 de86a47b067f950ff780c93e85b3dba28292603f8db581ec9c9c77bbd24f70ba  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/zk_ffn_fresh_poc.rs
 df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/field.rs
@@ -182,8 +180,10 @@ e81427c6079c11faadc3f6299ab8e02363f2af9db7c35eb13fe242925a8ea581  /home/victor/I
 e90791a4c8014e67915386e3fe2e5eccf863f3ef3b228855066437a847006a18  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/tests/zk60_private_block.rs
 edf8368b19ee3e6e315f2e59b68c5037820fdc0080911c3867a9a6fc295083bd  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/rulings_tests.rs
 ee45a49cda7816c5c64290c69386cec46ff70eec64c7f4457465488aa045fefd  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/zk_cfs_safety_tests.rs
-f01c3d769bf178bb7a558cf3a4cac1bb2416745036f9438f8439eb408ac2bf2b  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/gpu_zc_tests.rs
+efd7bf1f4294e0eeeac9715462d21ddc14951b2f65364f8acacb2a2ab32b477b  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/gpu_zc_tests.rs
+efde9f0a6640486138d3f67aba6655a7d41334bbfefc3d9758f2fd837c315ae9  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/trained_block.rs
 f097dd71fab7888e95e61a29ab035b13153313d068e7547d91acbfd20c7bc566  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/sumcheck.rs
+f14964ed2103f3281c18456d9b61fb953e4100ec531106224d37cbe7082266f1  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/mod.rs
 f205f864065f951be732ae1778e84bfcfda1e1d6bafedf5bd93fbf80f849eaed  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/stable_weight_registration.rs
 f26125f2c8b0902aa53c22b91a4d9684ea1155acb2b5ae6772b9847408016609  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/trained_calib_tests.rs
 f3d0befdaa09310914e14976ba6366a275b5d9ffd50b895794d93c27a1556feb  /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/timing.rs

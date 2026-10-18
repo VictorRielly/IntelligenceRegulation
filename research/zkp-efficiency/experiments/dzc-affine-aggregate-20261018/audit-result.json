@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "seed": 2026101875,
+  "checks": {
+    "fixtures": 24,
+    "native_basis_coefficients": 1536,
+    "native_four_product_coefficients": 96,
+    "release_round_sums": 396,
+    "original_native_terminal_values": 24,
+    "degree_bound_differences": 24,
+    "synthetic_boundary_values": 888
+  },
+  "negative_controls": {
+    "swap_two_coefficients": true,
+    "omit_constant": true,
+    "whole_clause_MLE_offcube": true,
+    "reversed_MSB": true,
+    "wrong_initial_claim": true,
+    "stale_coefficients": true,
+    "missing_final_fold": true
+  },
+  "synthetic_sha256": "64a6eb6b72fa1bc732c69df73e2d0a7ddcd569bc2b38ebc5f13e8b000869e94a",
+  "wall_seconds": 0.4985992400033865,
+  "rss_kib": 16104,
+  "threads": 1,
+  "cpu_affinity": [
+    0
+  ],
+  "nice": 19,
+  "scope": "Native-basis affine/bilinear coefficients, full enclosing round sums at declared degree4/5, claim recovery and direct original-cube finals. Synthetic bindings only; no full proof/privacy/device result."
+}

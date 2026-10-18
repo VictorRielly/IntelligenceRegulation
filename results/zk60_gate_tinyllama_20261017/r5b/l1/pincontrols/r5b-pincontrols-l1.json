@@ -1,0 +1,329 @@
+{
+ "bundle": "tinyllama-trained-r5b-capture-dense-l1",
+ "controls": [
+  {
+   "control": "PC-0",
+   "exactly_the_predicted_stages": true,
+   "honest_as_predicted": true,
+   "pins_ok": true,
+   "predicted_not_run": [],
+   "record_ok": true,
+   "stages_not_run": [],
+   "stages_run": [
+    "stage10_bilinear_group_factor",
+    "stage1_integrity",
+    "stage2_transcript_replay",
+    "stage3_per_commitment",
+    "stage4_the_boundary",
+    "stage5_zero_data_preimage",
+    "stage7_channels",
+    "stage8_plane_index_and_terminals",
+    "stage9_hash_layer"
+   ],
+   "status": "PASS",
+   "what": "honest"
+  },
+  {
+   "control": "PC-1",
+   "exactly_the_predicted_stages": true,
+   "fires": true,
+   "pins_ok": false,
+   "predicted_not_run": [
+    "stage10_bilinear_group_factor",
+    "stage1_integrity",
+    "stage2_transcript_replay",
+    "stage3_per_commitment",
+    "stage4_the_boundary",
+    "stage5_zero_data_preimage",
+    "stage7_channels",
+    "stage8_plane_index_and_terminals",
+    "stage9_hash_layer"
+   ],
+   "record_ok": false,
+   "stages_not_run": [
+    "stage10_bilinear_group_factor",
+    "stage1_integrity",
+    "stage2_transcript_replay",
+    "stage3_per_commitment",
+    "stage4_the_boundary",
+    "stage5_zero_data_preimage",
+    "stage7_channels",
+    "stage8_plane_index_and_terminals",
+    "stage9_hash_layer"
+   ],
+   "stages_run": [],
+   "status": "NOT-OK",
+   "what": "run.rs at an unread digest"
+  },
+  {
+   "control": "PC-2",
+   "exactly_the_predicted_stages": true,
+   "fires": true,
+   "pins_ok": false,
+   "predicted_not_run": [
+    "stage1_integrity",
+    "stage3_per_commitment",
+    "stage4_the_boundary",
+    "stage5_zero_data_preimage",
+    "stage7_channels"
+   ],
+   "record_ok": false,
+   "stages_not_run": [
+    "stage1_integrity",
+    "stage3_per_commitment",
+    "stage4_the_boundary",
+    "stage5_zero_data_preimage",
+    "stage7_channels"
+   ],
+   "stages_run": [
+    "stage10_bilinear_group_factor",
+    "stage2_transcript_replay",
+    "stage8_plane_index_and_terminals",
+    "stage9_hash_layer"
+   ],
+   "status": "NOT-OK",
+   "what": "boundary.rs at an unread digest"
+  },
+  {
+   "control": "PC-3",
+   "exactly_the_predicted_stages": true,
+   "fires": true,
+   "pins_ok": false,
+   "predicted_not_run": [
+    "stage3_per_commitment",
+    "stage4_the_boundary",
+    "stage5_zero_data_preimage",
+    "stage7_channels",
+    "stage9_hash_layer"
+   ],
+   "record_ok": false,
+   "stages_not_run": [
+    "stage3_per_commitment",
+    "stage4_the_boundary",
+    "stage5_zero_data_preimage",
+    "stage7_channels",
+    "stage9_hash_layer"
+   ],
+   "stages_run": [
+    "stage10_bilinear_group_factor",
+    "stage1_integrity",
+    "stage2_transcript_replay",
+    "stage8_plane_index_and_terminals"
+   ],
+   "status": "NOT-OK",
+   "what": "zkp-core/src/pcs.rs (a port depends on it) at an unread digest"
+  },
+  {
+   "control": "PC-4",
+   "exactly_the_predicted_stages": true,
+   "fires": true,
+   "pins_ok": false,
+   "predicted_not_run": [],
+   "record_ok": false,
+   "stages_not_run": [],
+   "stages_run": [
+    "stage10_bilinear_group_factor",
+    "stage1_integrity",
+    "stage2_transcript_replay",
+    "stage3_per_commitment",
+    "stage4_the_boundary",
+    "stage5_zero_data_preimage",
+    "stage7_channels",
+    "stage8_plane_index_and_terminals",
+    "stage9_hash_layer"
+   ],
+   "status": "NOT-OK",
+   "what": "src/mle.rs (no port depends on it) at an unread digest"
+  },
+  {
+   "control": "PC-5",
+   "exactly_the_predicted_stages": true,
+   "fires": true,
+   "pins_ok": false,
+   "predicted_not_run": [],
+   "record_ok": false,
+   "stages_not_run": [],
+   "stages_run": [
+    "stage10_bilinear_group_factor",
+    "stage1_integrity",
+    "stage2_transcript_replay",
+    "stage3_per_commitment",
+    "stage4_the_boundary",
+    "stage5_zero_data_preimage",
+    "stage7_channels",
+    "stage8_plane_index_and_terminals",
+    "stage9_hash_layer"
+   ],
+   "status": "NOT-OK",
+   "what": "src/mle.rs dropped from the bundle's pins"
+  },
+  {
+   "control": "PC-6",
+   "exactly_the_predicted_stages": true,
+   "honest_as_predicted": true,
+   "pins_ok": true,
+   "predicted_not_run": [],
+   "record_ok": true,
+   "stages_not_run": [],
+   "stages_run": [
+    "stage10_bilinear_group_factor",
+    "stage1_integrity",
+    "stage2_transcript_replay",
+    "stage3_per_commitment",
+    "stage4_the_boundary",
+    "stage5_zero_data_preimage",
+    "stage7_channels",
+    "stage8_plane_index_and_terminals",
+    "stage9_hash_layer"
+   ],
+   "status": "PASS",
+   "what": "an R5-writer pin set, every digest read"
+  },
+  {
+   "control": "PC-7",
+   "exactly_the_predicted_stages": true,
+   "fires": true,
+   "pins_ok": false,
+   "predicted_not_run": [
+    "stage5_zero_data_preimage",
+    "stage7_channels"
+   ],
+   "record_ok": false,
+   "stages_not_run": [
+    "stage5_zero_data_preimage",
+    "stage7_channels"
+   ],
+   "stages_run": [
+    "stage10_bilinear_group_factor",
+    "stage1_integrity",
+    "stage2_transcript_replay",
+    "stage3_per_commitment",
+    "stage4_the_boundary",
+    "stage8_plane_index_and_terminals",
+    "stage9_hash_layer"
+   ],
+   "status": "NOT-OK",
+   "what": "the R5-writer pin set without zkp-core pcs/encode_buffer.rs"
+  },
+  {
+   "control": "PC-8",
+   "exactly_the_predicted_stages": true,
+   "fires": true,
+   "pins_ok": false,
+   "predicted_not_run": [
+    "stage10_bilinear_group_factor",
+    "stage7_channels",
+    "stage8_plane_index_and_terminals"
+   ],
+   "record_ok": false,
+   "stages_not_run": [
+    "stage10_bilinear_group_factor",
+    "stage7_channels",
+    "stage8_plane_index_and_terminals"
+   ],
+   "stages_run": [
+    "stage1_integrity",
+    "stage2_transcript_replay",
+    "stage3_per_commitment",
+    "stage4_the_boundary",
+    "stage5_zero_data_preimage",
+    "stage9_hash_layer"
+   ],
+   "status": "NOT-OK",
+   "what": "the R5-writer pin set with zkp-core sumcheck/rounds.rs moved"
+  },
+  {
+   "control": "PC-9",
+   "exactly_the_predicted_stages": false,
+   "fires": false,
+   "pins_ok": true,
+   "predicted_not_run": [
+    "stage10_bilinear_group_factor",
+    "stage7_channels",
+    "stage8_plane_index_and_terminals"
+   ],
+   "record_ok": true,
+   "stages_not_run": [],
+   "stages_run": [
+    "stage10_bilinear_group_factor",
+    "stage1_integrity",
+    "stage2_transcript_replay",
+    "stage3_per_commitment",
+    "stage4_the_boundary",
+    "stage5_zero_data_preimage",
+    "stage7_channels",
+    "stage8_plane_index_and_terminals",
+    "stage9_hash_layer"
+   ],
+   "status": "PASS",
+   "what": "a pre-G-2 writer that pins ONE of the three G-2 files"
+  },
+  {
+   "control": "PC-10",
+   "exactly_the_predicted_stages": true,
+   "honest_as_predicted": true,
+   "pins_ok": true,
+   "predicted_not_run": [],
+   "record_ok": true,
+   "stages_not_run": [],
+   "stages_run": [
+    "stage10_bilinear_group_factor",
+    "stage1_integrity",
+    "stage2_transcript_replay",
+    "stage3_per_commitment",
+    "stage4_the_boundary",
+    "stage5_zero_data_preimage",
+    "stage7_channels",
+    "stage8_plane_index_and_terminals",
+    "stage9_hash_layer"
+   ],
+   "status": "PASS",
+   "what": "an R5b-writer pin set (G-2 and N-r4-d), every digest read"
+  },
+  {
+   "control": "PC-11",
+   "exactly_the_predicted_stages": true,
+   "fires": true,
+   "pins_ok": false,
+   "predicted_not_run": [
+    "stage3_per_commitment",
+    "stage4_the_boundary",
+    "stage5_zero_data_preimage",
+    "stage7_channels",
+    "stage9_hash_layer"
+   ],
+   "record_ok": false,
+   "stages_not_run": [
+    "stage3_per_commitment",
+    "stage4_the_boundary",
+    "stage5_zero_data_preimage",
+    "stage7_channels",
+    "stage9_hash_layer"
+   ],
+   "stages_run": [
+    "stage10_bilinear_group_factor",
+    "stage1_integrity",
+    "stage2_transcript_replay",
+    "stage8_plane_index_and_terminals"
+   ],
+   "status": "NOT-OK",
+   "what": "the R5b-writer pin set without src/gpu/mod.rs"
+  }
+ ],
+ "nothing_written_to_the_bundle": true,
+ "ok": false,
+ "privacy_acceptance": false,
+ "privacy_property_established": false,
+ "stages": [
+  "load",
+  "replay",
+  "hash",
+  "terminals",
+  "commitments",
+  "boundary",
+  "preimage",
+  "channels"
+ ],
+ "tool_sha256": "5733f48d776b42bbced496ceb8ada544cc5836cb311592eb0705314ec0f81244",
+ "what": "negative controls of the source-pin enforcement (review P-2)"
+}

@@ -1,0 +1,12 @@
+{
+  "commands": [
+    "python3 experiments/fzc-derived-cost-audit-20261018/run.py",
+    "python3 experiments/fzc-derived-cost-audit-20261018/audit.py",
+    "python3 experiments/fzc-derived-cost-audit-20261018/owner_audit.py"
+  ],
+  "limits": "Each experiment one Python/compiled scalar thread,59sCPU/wall alarm,512MiB AS; scalar compile included in main0.439s. No Cargo/CUDA compilation/device work.",
+  "seed": 2026101873,
+  "audit_seed": 2026101874,
+  "hardware": "IntelCoreUltra9 185H, WSL2Linux6.18.54.1,CPU0,nice19;GPU none",
+  "dimensions": "n1/2/4/6, N2..64 main; n1/2/3/6 audit; K20/21 plus1/2derived;padw0/1/3/11;base and extension;hugeNs counted only"
+}

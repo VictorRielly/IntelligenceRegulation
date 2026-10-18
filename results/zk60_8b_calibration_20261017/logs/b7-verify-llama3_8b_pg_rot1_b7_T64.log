@@ -1,0 +1,16 @@
+{
+ "export": "/home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_b7_T64",
+ "layers": 32,
+ "sequences": {
+  "seq_ho00": {
+   "layers_bit_exact": 32,
+   "tokens": 64
+  },
+  "seq_ho09": {
+   "layers_bit_exact": 32,
+   "tokens": 64
+  }
+ },
+ "errors": [],
+ "ok": true
+}

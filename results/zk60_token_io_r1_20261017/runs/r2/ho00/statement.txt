@@ -1,0 +1,17 @@
+profile hashline-zk-mr1/private-token-io-run-tinyllama-1.1b-t32-trained-statement-public-row/1
+L 22
+seq ho00
+context ddc5a772be444c753767c1c27cdcd1617ad02304ac89649238fc8bd20ef3debd
+input_root 44f06c0ab0129cd8cd1387c9b69314d1f011744df836aebdfe12d6873e971333
+output_root 2dadc91bfdc8d456ffea743d99bee23c93d57c3f31d9c270bb60a1b4a507a7ff
+trained_statement_identity 78ccaba56b145aefb18987738b9fe0329c06bdd727bcd3336db524edcd13c514
+segment_bytes [1267576, 11391800, 11391800, 11391800, 11391800, 11391800, 11391800, 11391800, 11391800, 11391800, 11391800, 11391800, 11391800, 11391800, 11391800, 11391800, 11391800, 11391800, 11391800, 11391800, 11391800, 11391800, 11391800, 3371640]
+total_bytes 255258816
+prove_seconds 85.336
+stage_seconds [0.514, 3.514, 3.464, 3.434, 3.588, 3.636, 3.621, 3.875, 3.714, 3.805, 3.736, 3.795, 3.527, 3.89, 3.476, 3.718, 3.645, 4.022, 4.103, 3.728, 3.516, 3.69, 3.815, 0.904]
+of_which_witness_seconds 4.312
+vmhwm_mib [1913.0, 2447.0, 2449.0, 2455.0, 2459.0, 2460.0, 2460.0, 2460.0, 2461.0, 2465.0, 2465.0, 2466.0, 2466.0, 2468.0, 2472.0, 2474.0, 2476.0, 2476.0, 2476.0, 2476.0, 2476.0, 2476.0, 2476.0, 2476.0]
+load_seconds 3.870
+pipeline_seconds 4.686
+whole_run openings 97 column_log2 -97.457 logup_log2 -100.957 total_log2 -97.335 floor_bits 97
+parameter_line T32/d2048/f5632/H32/KV4/dh64/log_cols12/inv_rate4/Q256/P1/sh-g8-u0-h14-z4/two-private-endpoints/one-proof-one-transcript/endpoint-log_n12-rate4-pad256-rows21/L22/boundaries-B_in-B_out-and-interior-log_n12-rate4-pad256-rows22-sites2/token-endpoints-log_n8-rate8-pad256-in-words256-in-rows6-out-words256-out-rows6-sites1/stages-log_n12-rate4-pad256/token-io R1: V=32000 V_pad=32768 d=2048 d_pad=2048 T=32 BOS=1 final-norm g0=127 cn=5664 tn=10 ceps=74429 wrho=32 dmax=1482910 head-words=[-127,127] head-multipliers=[1,2^12] keyed-window=53 byte-limbs=7 no-pin embedding=fa499c31ba8aba5b1646c6d151e19e775b0988fc7279d05d3fafed32b922ca02 head=9a28595c90550d74321d354563497d49f60ca7ca542a97aa835265045a0a8189 variant=public-row mode=next-token tier mvp-95-whole-run (D27): Q=256 stage-row 2^12 rate 1/4 token-endpoint-row 2^8 rate 1/8 lookup-field F_p^2/whole-run-floor-97-bits-97-openings-column-plus-logup-derived/one-run-one-transcript

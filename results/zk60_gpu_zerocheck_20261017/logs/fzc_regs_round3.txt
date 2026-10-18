@@ -1,0 +1,38 @@
+== variant split (D 5, gate 1, lean 0, split 1): NVRTC rc 0
+   k_fzc_derive: ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+   k_fzc_derive: Used 42 registers, 376 bytes cmem[0]
+   k_fzc_fold_round_r: ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+   k_fzc_fold_round_r: Used 80 registers, 24996 bytes smem, 424 bytes cmem[0], 24 bytes cmem[2]
+   k_fzc_fold_round: ptxas         .     8 bytes stack frame, 8 bytes spill stores, 32 bytes spill loads
+   k_fzc_fold_round: Used 80 registers, 24996 bytes smem, 424 bytes cmem[0], 24 bytes cmem[2]
+   k_fzc_round_rb: ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+   k_fzc_round_rb: Used 80 registers, 24996 bytes smem, 408 bytes cmem[0], 24 bytes cmem[2]
+   k_fzc_round_b: ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+   k_fzc_round_b: Used 80 registers, 24996 bytes smem, 408 bytes cmem[0], 24 bytes cmem[2]
+   k_fzc_round_r: ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+   k_fzc_round_r: Used 80 registers, 24996 bytes smem, 408 bytes cmem[0], 24 bytes cmem[2]
+   k_fzc_round: ptxas         .     8 bytes stack frame, 4 bytes spill stores, 4 bytes spill loads
+   k_fzc_round: Used 80 registers, 24996 bytes smem, 408 bytes cmem[0], 24 bytes cmem[2]
+   k_fzc_spin: ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+   k_fzc_spin: Used 16 registers, 364 bytes cmem[0]
+   k_fzc_pack: ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+   k_fzc_pack: Used 16 registers, 392 bytes cmem[0]
+== variant splitd4 (D 4, gate 0, lean 0, split 1): NVRTC rc 0
+   k_fzc_derive: ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+   k_fzc_derive: Used 44 registers, 376 bytes cmem[0]
+   k_fzc_fold_round_r: ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+   k_fzc_fold_round_r: Used 79 registers, 22740 bytes smem, 424 bytes cmem[0], 24 bytes cmem[2]
+   k_fzc_fold_round: ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+   k_fzc_fold_round: Used 80 registers, 22740 bytes smem, 424 bytes cmem[0], 24 bytes cmem[2]
+   k_fzc_round_rb: ptxas         .     16 bytes stack frame, 12 bytes spill stores, 12 bytes spill loads
+   k_fzc_round_rb: Used 80 registers, 22740 bytes smem, 408 bytes cmem[0], 24 bytes cmem[2]
+   k_fzc_round_b: ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+   k_fzc_round_b: Used 80 registers, 22740 bytes smem, 408 bytes cmem[0], 24 bytes cmem[2]
+   k_fzc_round_r: ptxas         .     16 bytes stack frame, 16 bytes spill stores, 48 bytes spill loads
+   k_fzc_round_r: Used 80 registers, 22740 bytes smem, 408 bytes cmem[0], 24 bytes cmem[2]
+   k_fzc_round: ptxas         .     16 bytes stack frame, 12 bytes spill stores, 12 bytes spill loads
+   k_fzc_round: Used 80 registers, 22740 bytes smem, 408 bytes cmem[0], 24 bytes cmem[2]
+   k_fzc_spin: ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+   k_fzc_spin: Used 16 registers, 364 bytes cmem[0]
+   k_fzc_pack: ptxas         .     0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+   k_fzc_pack: Used 16 registers, 392 bytes cmem[0]

@@ -1,0 +1,5 @@
+verified marker /home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/logs/b7-verify-llama3_8b_pg_rot1_b7_T128.done
+ready at 01:41:24
+Traceback (most recent call last):
+  File "<stdin>", line 6, in <module>
+TypeError: 'list' object cannot be interpreted as an integer

@@ -312,3 +312,106 @@ Calibration data, not a proof, not a privacy claim.
   chain 0.800, no refusal (native T128 export on the same sequences: 0.768 /
   0.670 / 0.733). B6_REPORT.md drafted (all sections; sh7-T128 whole-model
   numbers pending).
+- 23:10-23:21 UTC: session stopped (coordinator resumed 23:21); the detached
+  sh7-T128 job kept running.
+- 23:43 UTC: `b6_l1_sh7_T128` DONE (`logs/b5-b6_l1_sh7_T128.*`, run
+  `runs/llama3_8b_pg_rot1_b6l1sh7_T128`; 2403 s, peak RSS 3.32 GiB, shared
+  box n=1; other layers' words identical to the T128 export). Against the
+  T128 export (same calibration, same held-out seqs): FineWeb 6 seqs top-1
+  0.651 -> 0.673, ppl 17.97 -> 15.48 (float 9.72), KL 0.607 -> 0.496;
+  licence 9 seqs 0.633 -> 0.663, ppl 9.59 -> 8.94 (float 3.71), KL 0.968 ->
+  0.879; 0 refused.
+- 23:43 UTC: B6 COMPLETE. `B6_REPORT.md` final (plain words, exports, layer-1
+  diagnosis + options + native costs, recommendation = per-layer SH_S for
+  layer 1 (SH_S 7), T=512 laptop-vs-Mac arithmetic). `runs/b6_l1_summary.json`
+  refreshed. Every chain marker present (b6r_serial, b6-sink, b6_s0m_chain,
+  b6_screens_chain, b6-sink2, b6_sh7T128_chain); guard status lists no job of
+  mine. NEXT: native lane decides whether `sh_s` can become a per-block key;
+  if yes, re-export T32/T64/T128 with layer 1 at SH_S 7 (+ verifiers).
+
+## B7 (coordinator: native R6 supports per-layer sh_s), from 2026-10-18 00:5x UTC
+
+- Brief: exports `llama3_8b_pg_rot1_b7_T128` FIRST, then `_b7_T64`, `_b7_T32`:
+  b6 calibration + profile decisions (B5 T=128 statistics), layer 1 at SH_S 7
+  (l1-mode sh7), all other layers 6. Format: profile_constants.sh_s null;
+  per_layer_constants_differ ["exp_e_s", "sh_s", "silu_member"]; each layer
+  manifest constants.sh_s (layer 1 = 7, others 6); manifest sha256s
+  recomputed; x_out from the integer chain with layer 1 at SH_S 7. The driver
+  produces exactly this with `--l1-mode sh7 --export` (layer_constants
+  carries sh_s; the profile nulls keys that differ and lists them sorted;
+  manifest sha256 taken from the written manifest). Added
+  `b7_check_format.py` (asserts the three format rules + uniform keys;
+  negative-tested on b6_T128: 3 errors as expected).
+- 00:54 UTC: launched `logs/b7_serial.sh` detached (stdout
+  `logs/b7_serial.out`, marker `logs/b7_serial.done`): b7_T128 export
+  (need 3.5 / cap 4.5; --link-from b6_T128 for byte-identical files only;
+  --check-against b6_T128) -> verifier + format check -> marker
+  `logs/b7_T128_stage.done` -> b7_T64 (calib 128, link from b7_T128) ->
+  verify -> b7_T32 (calib 128) -> verify. b7_T128 started 00:54:09.
+- 01:41 UTC: b7_T128 DONE and VERIFIED. `export/llama3_8b_pg_rot1_b7_T128`,
+  profile.json sha256 040eb5cfa3e21634e8e13c9a00a108b301231af456bd3c539ac725c7f6269a6e
+  (run `runs/llama3_8b_pg_rot1_b7_T128`, `logs/b5-b7_T128.*`; 2572 s, peak
+  RSS 3.28 GiB, shared box n=1). Format check ok (`logs/b7-format-*.json`:
+  sh_s 7 at layer 1, 6 elsewhere; sh_s null in profile_constants; differ list
+  exact). Verifier: 32/32 layers bit-exact on seq_ho00 and seq_ho09, 0 errors
+  (255 s, 2.00 GiB). Every other layer's words identical to b6_T128.
+  442 files hard-linked (byte-identical to b6: 31 layers x 14 incl. RoPE
+  tables and identical manifests, + 8 layer-1 files); layer 1's own new
+  files: wq, wk, wv, wo, gamma_a, manifest. Held-out: FineWeb top-1 0.673,
+  ppl 9.72 -> 15.48, KL 0.496; licence 0.663, 3.71 -> 8.94, KL 0.879;
+  0 refused. Coordinator messaged. b7_T64 started 01:41:16.
+- 01:43 UTC: COORDINATOR HOLD #3 (arrived after T64 had started): hold b7
+  T64/T32 until the privacy gate's L22 chain finishes
+  (`results/zk60_gate_tinyllama_20261017/r5b/light_queue.finished` exists and
+  no `tl-r5b-l22-*` live) or 05:30 UTC. T64 is in flight (cannot be stopped:
+  kill refused, guards never killed); its verifier runs straight from the
+  queue after it (no hook). T32 and every later job go through the again
+  atomically replaced `logs/b5_run.sh`, which polls `logs/b7_hold3.py`
+  every 60 s (tested: held). Coordinator told.
+- 01:43 UTC: NEW TASK queued after b7 T64/T32 and the hold: 8B token I/O
+  artifacts (R3 rung) for b7_T32 and b7_T128 under `export/<name>/token_io/`:
+  int16 embedding table (rotated, at s_in, checked against every x_in_L00),
+  folded head lm_head diag(norm) R^T with per-row int8 + 12-bit multipliers
+  (D25 T4 as amended), final-norm Cn/Ceps (tn 9), F2 fidelity (integer vs
+  float head; overall, top-2 margin >= 0.3, ties, max logit bits vs 56).
+  Reading the TinyLlama R2 format and the fidelity lane's s4_head first.
+- 01:50 UTC (smoke end 01:50:56): wrote `b8_token_io.py` (modes build / reuse): (1) embedding
+  table = TOKEN_IO_SPEC steps 1-3 at the export's s_in, checked against every
+  exported seq's x_in_L00 (and its x_out_L31 == the run's chain) and the run's
+  whole held-out x_L00 chain (ids regenerated, digests checked against the
+  run's metadata); (2) W' = lm_head diag(norm) R^T float64, per-row int8,
+  m_j = max(1, floor(2^12 s_j / max s + 0.5)); final norm by the calibration
+  rule (norm_site c = 1 on the rotated xhat maxima of the calibration set's
+  final residual, float forward in the rotated basis, margin 0.5, tn 9, Ceps
+  asserted = profile; cached under runs/); refusal-free Cn = 2^tn beside it;
+  (3) F2 vs the TOKEN_IO_SPEC float head on the same integer stack output
+  (overall / margin >= 0.3 / domain / last position, refusals, ties, raw and
+  scaled logit bits, keyed delta vs the 56-bit window [COUNTED: bits(2^17 x
+  2 x 4096 x 127^2 x 2^12 + V - 1) = 56]). Files under
+  `export/<name>/token_io/`: embedding_int16.bin, head_int8_perrow.bin,
+  head_mult12.bin, calib_final_xhat_rot_absmax.bin, token_io.json,
+  head_manifest.json, f2_fidelity.json, SHA256SUMS (README added after).
+  Unguarded smoke on a 16,384-row vocab subset (49 s, peak RSS 1.25 GB;
+  scratchpad b8_smoke.py): table formula = run x_L00 on all 1,629 positions
+  with ids < 16384; head subset 0 clipped, 0 -128; Ceps 78617 = profile;
+  final_norm == i_norm; F2 machinery ok (window 56).
+- 01:51 UTC: launched `logs/b8_queue.sh` detached (stdout `logs/b8_queue.out`,
+  marker `logs/b8_queue.done`): waits for `logs/b7_serial.done`, then hold #3,
+  then guarded `b8-tio-b7_T128` (build; need 4 / cap 5), hold #3 again, then
+  `b8-tio-b7_T32` (reuse: hard links of the byte-identical shared files;
+  need 3 / cap 4).
+- 02:15 UTC: b7_T64 DONE and VERIFIED. `export/llama3_8b_pg_rot1_b7_T64`,
+  profile.json sha256 02261f3b4b318f56f9918255a36442948f273b5f17b4e29ba7f7d59210763f2a
+  (`logs/b5-b7_T64.*`; 1864 s, peak RSS 2.99 GiB, shared box n=1; other
+  layers' words identical to b6). Format check ok (sh_s 7 at layer 1 only).
+  Verifier: 32/32 bit-exact on seq_ho00 and seq_ho09, 0 errors (177 s,
+  1.69 GiB). Held-out: FineWeb top-1 0.680, ppl 12.59 -> 19.01, KL 0.433
+  (b6 T64: 0.630 / 23.21 / 0.581); licence 0.656, 5.84 -> 13.08, KL 0.819
+  (b6: 0.628 / 13.46 / 0.911); 0 refused. b7_T32 now held by hold #3 (the
+  gate's tl-r5b-l22-dense-t is live).
+- ~03:17-04:21 UTC: session stopped (usage limit) while holding; resumed
+  04:21. Checked 04:23: both detached queues alive (one-shot `ps` by elapsed
+  time): `b7_serial.sh` (etimes 12,540 s) inside `b5_run.sh b7_T32`'s hold-3
+  poll (7,672 s), `b8_queue.sh` (9,103 s) waiting for `b7_serial.done`.
+  Nothing restarted. Gate's last pass `tl-r5b-l22-zero-f` live since 03:38;
+  release at its end (light_queue.finished + no tl-r5b-l22-* live) or 05:30.

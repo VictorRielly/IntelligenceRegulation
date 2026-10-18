@@ -28,7 +28,9 @@ step and UTC time: `PROGRESS.md` (B6 resume section).
   the KL divergence to float down about a quarter (0.71 -> 0.52).
 * **Recommendation: let layer 1 use its own score shift (SH_S 7 instead of
   the run-wide 6).** This is the cheapest route that holds at every context
-  length. It needs no new table, no layout change and no new committed
+  length. Measured at T=128 against the T=128 export: top-1 agreement
+  65.1% -> 67.3% (FineWeb) and 63.3% -> 66.3% (licence), KL down 18% / 9%,
+  no refusal. It needs no new table, no layout change and no new committed
   planes. The native prover would have to accept SH_S as a per-layer
   constant; today it is one value for the whole run. At T=32 only, a route
   with zero native change exists (e_s 1 chosen without the score margin), but
@@ -141,7 +143,20 @@ Whole model, held-out FineWeb [MEASURED]:
 | m2zero (DIAGNOSTIC: all refused, values clamped) | 36 | 0.685 | 29.87 (float 18.85) | 0.549 | 0.854 |
 | sh7 | not run at T=32 whole-model; layer 1 equals s0m to 3 decimals, so expected ~ s0m [MODEL] | | | | |
 
-SH7_T128_PLACEHOLDER
+**sh7 at the export length, T=128** (`runs/llama3_8b_pg_rot1_b6l1sh7_T128`;
+B5's T=128 statistics and profile; the same held-out sequences as the T=128
+export; every layer other than 1 byte-identical to
+`export/llama3_8b_pg_rot1_b6_T128`) [MEASURED, 2403 s, peak RSS 3.32 GiB,
+shared box n=1]:
+
+| T=128 | layer-1 iso cos / delta-cos / chain | FineWeb 6 seqs: top-1, ppl (float 9.72), KL | licence 9 seqs: top-1, ppl (float 3.71), KL | refused |
+|---|---|---|---|---|
+| native (the T=128 export) | 0.768 / 0.670 / 0.733 | 0.651, 17.97, 0.607 | 0.633, 9.59, 0.968 | 0 |
+| sh7 (layer 1 SH_S 7) | 0.841 / 0.753 / 0.800 | 0.673, 15.48, 0.496 | 0.663, 8.94, 0.879 | 0 |
+
+So the per-layer SH_S fix carries over to T=128, where `s0m` is
+infeasible: +2-3 points of top-1 agreement and 9-18% less KL on both
+domains, with no refusal.
 
 Notes:
 * The baseline's one refused sequence (FineWeb #10, layer 24 V) refuses in
@@ -196,7 +211,8 @@ confined to layer 1 is 1/32 of that.
 1. **Adopt a per-layer SH_S for layer 1 (SH_S 7; e_s 2 and all margins
    unchanged).** It reaches the best measured layer-1 fidelity (the same as
    int16 scores) and is feasible at T=32 and T=128 (layer 1's Q/K need
-   2^-5.73 / 2^-5.64 <= 2^-5). Layer 1's own free-shift choice was 7 in both
+   2^-5.73 / 2^-5.64 <= 2^-5). Measured at T=128 (section 2.2): top-1
+   +2.2 / +3.0 points, KL -18% / -9% (FineWeb / licence), 0 refused. Layer 1's own free-shift choice was 7 in both
    pre-passes; only the run-level median imposed 6. Native work: make `sh_s`
    a per-block key. No new table, no layout change, no new planes. Next
    concrete step: the native lane says whether `sh_s` can move to the

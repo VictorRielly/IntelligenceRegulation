@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "checks": {
+    "source_prefix_preserved": true,
+    "source_count_389": true,
+    "six_source_ids_unique": true,
+    "findings_prefix_preserved": true,
+    "main_pass": true,
+    "audit_pass": true,
+    "owner_fresh_verifies": true,
+    "tested_snapshot_hashes": true,
+    "owner_movement_pinned": true,
+    "status_snapshot_sanitized": true,
+    "all_reports_exist": true
+  },
+  "audited_at_utc": "2026-10-18T02:33:50.630444+00:00",
+  "scope": "Artifact/pin/aggregate consistency only; no local native proof/verification. Concurrent owner source movement retained separately; handoff requires rebase. Original status body not retained."
+}

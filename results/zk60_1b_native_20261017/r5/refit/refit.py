@@ -167,8 +167,10 @@ def main():
     # the GPU arm, when its logs exist
     gpu = {}
     for t, lc in ((64, 13), (128, 14)):
-        path = os.path.join(R5, f"ladder8b-T{t}-gpu", "prove.log")
-        if os.path.exists(path):
+        # the chunked-commit GPU arm (<= 4 GiB VRAM); the resident T64 arm
+        # went over the lane's VRAM limit and the resident T128 arm never ran
+        path = os.path.join(R5, f"ladder8b-T{t}-gpu-chunked", "prove.log")
+        if os.path.exists(path) and "LADDER8B {" in open(path, errors="replace").read():
             p = ph_of(path)
             sh = llama3_8b(t, lc)
             s = sh.summary()

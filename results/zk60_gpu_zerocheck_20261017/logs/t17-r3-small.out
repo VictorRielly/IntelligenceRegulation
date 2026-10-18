@@ -1,0 +1,5 @@
+[zk60-guard 17:49:41] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 17:50:41] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 17:51:41] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 17:52:13] START t17-r3-small class=gpu need=4G cap=6G enforce=cgroup+watchdog waited=151s run=709675763b53
+[zk60-guard 17:56:40] END t17-r3-small exit=0 child_wall=268s peak_rss=1.66G min_avail=10.12G peak_vram=447MiB

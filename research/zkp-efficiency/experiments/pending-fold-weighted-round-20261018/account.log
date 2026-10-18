@@ -1,0 +1,49 @@
+{
+  "status": "PASS",
+  "aggregate_core_row_census": {
+    "row_old_reads": 46857908,
+    "row_new_reads": 35143514,
+    "row_writes_unchanged": 11714477,
+    "row_reads_saved": 11714394,
+    "row_logical_bytes_saved": 187430304,
+    "extra_column_reads": 660,
+    "extra_column_subs": 330,
+    "suffix_nodes_unchanged": 11713106,
+    "suffix_weight_muls_unchanged": 23426212,
+    "row_read_reduction_fraction": 0.24999822868746083,
+    "row_read_write_reduction_fraction": 0.19999858294996867,
+    "row_logical_bytes_saved_MiB": 178.74746704101562,
+    "ideal_core_row_byte_only_ratio": 1.249997785863248
+  },
+  "direct_H_phase_deletion_bound": {
+    "phase_names": [
+      "H: LogUp helper inverses (six lookup domains)",
+      "H: exp + activation helper inverses",
+      "H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call)",
+      "open H (schedule audit + pcs::open_zk)"
+    ],
+    "phase_seconds": {
+      "H: LogUp helper inverses (six lookup domains)": 21.031,
+      "H: exp + activation helper inverses": 4.465999999999999,
+      "H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call)": 59.322,
+      "open H (schedule audit + pcs::open_zk)": 11.063000000000002
+    },
+    "cost_s": 95.882,
+    "free_deletion_speedup": 1.1877403488435843,
+    "free_deletion_diagnostic_rate": 0.2506285293587826,
+    "scope": "Only zero-cost deletion of four direct H families, all other time fixed. Not a bound for complete new lookup architecture or this arithmetic adapter; added work lowers this phase-set bound."
+  },
+  "local_payload": "Same C*N Fp2 working V allocation, per-column points/prefix and O(logN) DFS stack. No expanded E/S/index, no private-value-based scheduling; input witness remains live.",
+  "limits": [
+    "Counts are logical field accesses, not measured DRAM or kernel time",
+    "Four-group census uses prior8B T32 domains; carried native clocks are T128. Do not multiply them together",
+    "Counts exclude input-copy/materialization, common tail setup, output, masks/GKR/PCS/links and original-witness reads",
+    "Prototype capsN32768,NC2^20 refuse larger groups; no model-shape arrays executed",
+    "Extra column reads and subs arise because measure and bind are separate calls; counted explicitly",
+    "Known row folding arithmetic and suffix generation remain; no native end-to-end speedup inferred"
+  ],
+  "wall_seconds": 0.022547935997863533,
+  "peak_rss_kib": 17940,
+  "threads": 1,
+  "completed_at_utc": "2026-10-18T00:26:22.817362+00:00"
+}

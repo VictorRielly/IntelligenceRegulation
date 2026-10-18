@@ -1,0 +1,6 @@
+{
+  "status": "FAIL",
+  "where": "audit.py field-only exact extraction assertion",
+  "observed": "All arithmetic checks completed. Extraction audit forgot that retained field-only.rs changes inner doc comments from //! to // (eight comment-only lines). Exact extraction comparison corrected with that explicit transformation; no arithmetic changed.",
+  "exit_code": 1
+}

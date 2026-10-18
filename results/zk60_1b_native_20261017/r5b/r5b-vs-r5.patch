@@ -405,6 +405,81 @@ diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation
 +    }
 +    Ok(bytes)
 +}
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/run_capture.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5b/frozen-tree/hashline/src/private_block/run_capture.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/run_capture.rs	2026-10-17 07:09:51.001419156 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5b/frozen-tree/hashline/src/private_block/run_capture.rs	2026-10-17 16:38:20.059915747 -0700
+@@ -127,7 +127,7 @@
+ /// `hash_domain.rs` — so no bundle could be tied to them however a port grew,
+ /// and the round recorded that as a Rust-lane ask. This list is now the whole
+ /// of the run's own path, enumerated from the modules the run prover and the
+-/// run verifier reach (see [`NOT_ON_THE_RUNS_PATH`] for the two production
++/// run verifier reach (see [`NOT_ON_THE_RUNS_PATH`] for the production
+ /// modules that are deliberately NOT here, each with its reason, and
+ /// `s24_tests::the_capture_writer_pins_every_run_layer_source_it_depends_on`
+ /// for the test that the two lists partition the module list).
+@@ -165,7 +165,7 @@
+ /// is a list of `(file, sha256)` objects; adding entries renames nothing,
+ /// reorders nothing a loader reads by name and removes nothing. Bundles
+ /// already committed keep the shorter list their own manifests pin.
+-pub(super) const SHARED_SOURCE_FILES: [&str; 26] = [
++pub(super) const SHARED_SOURCE_FILES: [&str; 29] = [
+     // hashline's own shared modules on the run's path
+     "src/zk.rs",
+     "src/tables_attn.rs",
+@@ -201,9 +201,22 @@
+     "../zkp-core/src/pcs/encode_buffer.rs",
+     "../zkp-core/src/sumcheck/rounds.rs",
+     "../zkp-core/src/sumcheck/grouped.rs",
++    // NATIVE LANE R5b (review r4 note N-r4-d; the privacy-gate lane's draft
++    // section 5a): `gpu/mod.rs` sits on the CPU path too (the decline
++    // routing, `gpu::label()` recorded in a trained statement, the backend
++    // switch every commitment goes through); `tables_v3.rs` and zkp-core's
++    // `tables.rs` are the SiLU / activation table registry the trained
++    // loader checks every exported `act` table against. Deliberately NOT
++    // pinned: `gpu/cuda.rs` and `gpu/kernels.cu` (compiled only with the
++    // `gpu-cuda` feature, which a CPU-only deployment binary does not carry),
++    // and `layer.rs` / `wcache.rs` (the older FFN provers; the private block
++    // and the run do not reach them).
++    "src/gpu/mod.rs",
++    "src/tables_v3.rs",
++    "../zkp-core/src/tables.rs",
+ ];
+ 
+-pub(super) const OWN_SOURCE_FILES: [&str; 16] = [
++pub(super) const OWN_SOURCE_FILES: [&str; 17] = [
+     "src/private_block/run_capture.rs",
+     "src/private_block/run.rs",
+     "src/private_block/boundary.rs",
+@@ -242,19 +255,22 @@
+     // NATIVE LANE (2026-10-17): the trained-model statement, whose identity a
+     // bound run absorbs as its `"calibration"` word (`RunStatement::new_bound`)
+     "src/private_block/trained_statement.rs",
++    // NATIVE LANE R5b (review r4 note N-r4-d; the privacy-gate lane): the
++    // trained export reader and CLI bridge. It adds no protocol code, but it
++    // decides the public statement a trained run binds (the padded words,
++    // the SiLU-registry and exp / RoPE table checks, the sealing pass, the
++    // context label and the statement files), so a trained capture pins it.
++    // It was excused in `NOT_ON_THE_RUNS_PATH` until R5b.
++    "src/private_block/trained_block.rs",
+ ];
+ 
+ /// **The production modules of `private_block` that are NOT source pins, with
+ /// the reason** (stage 24). [`OWN_SOURCE_FILES`] plus this list is the whole module
+ /// list, and a test asserts that partition, so a new production module cannot
+ /// be added without a decision about it being recorded here.
+-pub(super) const NOT_ON_THE_RUNS_PATH: [(&str, &str); 3] = [
+-    // NATIVE LANE: the trained-block export reader and CLI bridge, a CALLER
+-    // of the run exactly as the MVP driver is
+-    (
+-        "src/private_block/trained_block.rs",
+-        "the trained-block export reader and CLI bridge: it builds the public statement and the trained-model statement from a calibration export and calls `run::prove_run` / `run::verify_run`; it adds no protocol code",
+-    ),
++pub(super) const NOT_ON_THE_RUNS_PATH: [(&str, &str); 2] = [
++    // (NATIVE LANE R5b: `trained_block.rs`, excused here until R5b, is now a
++    // source pin in `OWN_SOURCE_FILES` — review r4 note N-r4-d.)
+     (
+         "src/private_block/timing.rs",
+         "the phase clock: WRITE-ONLY on the run's path (`protocol.rs:13-16` says so of `ph`), every call returns on its first line unless HL_PB_TIMING is set, and it decides no byte of a receipt or of a bundle",
 diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/run_tests.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5b/frozen-tree/hashline/src/private_block/run_tests.rs
 --- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/run_tests.rs	2026-10-17 11:40:29.801494542 -0700
 +++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5b/frozen-tree/hashline/src/private_block/run_tests.rs	2026-10-17 15:00:33.402655311 -0700
@@ -449,6 +524,30 @@ diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation
  /// A run never writes into a directory that does not exist or already holds
  /// something: a half-run's segments must not be mistakable for this run's.
  #[test]
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/s24_tests.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5b/frozen-tree/hashline/src/private_block/s24_tests.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/s24_tests.rs	2026-10-16 19:23:15.178334921 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5b/frozen-tree/hashline/src/private_block/s24_tests.rs	2026-10-17 16:38:30.474616431 -0700
+@@ -484,6 +484,20 @@
+     for f in ["src/private_block/run_capture.rs", "src/private_block/plane_index.rs"] {
+         assert!(pinned.contains(&f), "{f} writes a bundle and is not pinned");
+     }
++    // (d2) NATIVE R5b (review r4 note N-r4-d, the privacy-gate lane): the
++    // trained loader and its table registries are pinned, and the GPU-only
++    // and older-prover files are deliberately NOT, each with its reason in
++    // the list's comment
++    for f in ["src/private_block/trained_block.rs", "src/gpu/mod.rs", "src/tables_v3.rs", "../zkp-core/src/tables.rs"] {
++        assert!(pinned.contains(&f), "{f} — N-r4-d — is not a source pin");
++    }
++    let rc = source("src/private_block/run_capture.rs");
++    for f in ["src/gpu/cuda.rs", "src/gpu/kernels.cu", "src/layer.rs", "src/wcache.rs"] {
++        assert!(!pinned.contains(&f), "{f} is pinned; N-r4-d keeps it off the list");
++    }
++    for why in ["`gpu/cuda.rs` and `gpu/kernels.cu`", "`gpu-cuda` feature", "`layer.rs` / `wcache.rs`"] {
++        assert!(rc.contains(why), "run_capture.rs no longer gives the reason for an N-r4-d exclusion ({why})");
++    }
+     // (e) no duplicates, and every pin resolves to a file with a digest
+     let mut sorted = pinned.clone();
+     sorted.sort();
 diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/shape.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5b/frozen-tree/hashline/src/private_block/shape.rs
 --- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/frozen-tree/hashline/src/private_block/shape.rs	2026-10-17 07:09:21.585637947 -0700
 +++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5b/frozen-tree/hashline/src/private_block/shape.rs	2026-10-17 13:11:16.540285867 -0700

@@ -1,0 +1,17 @@
+[02:44:01Z] queue start
+[03:16:34Z] r6-cli-build exit 0
+[03:16:34Z] cli copied: 46a949f612b56a2f
+[03:16:35Z] r6-runwide-prove exit 0
+[03:16:35Z] run-wide identity printed: "statement_identity":"72098637f55f5b49d4729fec487c01090b39b9182173970cbd8b84fe55f496e5" (round 3: 72098637f55f5b49d4729fec487c01090b39b9182173970cbd8b84fe55f496e5)
+[03:16:35Z] r6-runwide-verify exit 0
+[03:16:35Z] r6-runwide-recheck exit 0
+[03:17:22Z] r6-8b-b6-under-r6 exit 1
+[03:17:34Z] r6-8b-b7-identity exit 1
+[03:17:34Z] b7 stack not landed (no published statement at /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r6/stack-llama3_8b_pg_rot1_b7_T128-ho00-cpu/run); not verified here
+[03:20:11Z] r6-test-build exit 0
+[03:20:11Z] lib test binary: target/release/deps/hashline-4245fb3bacd135b5
+[03:20:24Z] r6-fast exit 0
+[03:20:45Z] r6-author-subset exit 0
+[03:20:45Z] queue end
+[04:25:08Z] r6-8b-b7-flat exit 0
+[04:25:09Z] r6-8b-b7-shs9 exit 0

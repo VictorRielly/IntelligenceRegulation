@@ -1,0 +1,403 @@
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: unused variable: `envu`
+    --> src/gpu/cuda.rs:1252:9
+     |
+1252 |     let envu = |k: &str, d: usize| std::env::var(k).ok().and_then(|v| v.parse().ok()).unwrap_or(d);
+     |         ^^^^ help: if this is intentional, prefix it with an underscore: `_envu`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:830:13
+    |
+830 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `force_check` is never used
+  --> src/gpu/fzc.rs:60:15
+   |
+60 | pub(crate) fn force_check(v: Option<bool>) {
+   |               ^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:972:4
+    |
+972 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:477:5
+    |
+470 | struct Rec {
+    |        --- field in this struct
+...
+477 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:579:15
+    |
+579 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: calls to `std::mem::drop` with a value that implements `Copy` does nothing
+    --> src/gpu/cuda.rs:1112:9
+     |
+1112 |         drop(d_pack.0.take().map(pool_put));
+     |         ^^^^^-----------------------------^
+     |              |
+     |              argument has type `Option<()>`
+     |
+     = note: `#[warn(dropping_copy_types)]` on by default
+help: use `let _ = ...` to ignore the expression or result
+     |
+1112 -         drop(d_pack.0.take().map(pool_put));
+1112 +         let _ = d_pack.0.take().map(pool_put);
+     |
+
+warning: `hashline` (lib test) generated 18 warnings (run `cargo fix --lib -p hashline --tests` to apply 11 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.07s
+     Running unittests src/lib.rs (/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/target-gpu/release/deps/hashline-5af71eb9341564fc)
+
+running 1 test
+test private_block::gpu_zc_tests::gzc_device_bench_cube_ladder ... PB-GZC-WARM slot 18 | 300.9 ms, 237 spin launches | first 3228 us | mean of first 5 1644 us | mean of last 5 1276 us | min 1209 us
+PB-GZC-WARM slot 18 | 300.2 ms, 240 spin launches | first 1538 us | mean of first 5 1307 us | mean of last 5 1250 us | min 1206 us
+PB-GZC-MEM slot 18 start | device free 6858 MiB of 8187 MiB | pool holds 1 idle buffers (184 MiB)
+PB-GZC-WARM slot 18 | 300.4 ms, 242 spin launches | first 1522 us | mean of first 5 1277 us | mean of last 5 1256 us | min 1200 us
+PB-GZC slot 18 [gzs_d5s fused tail 5 base mapped] | sumchecks 1 | n 19 k 21 D 5 | total 114.351 ms | build 102.950 ms (1.1 GB/s; H2D 176160768 B) | rounds 3.521 ms (54.8 GB/s) | fused fold+round 7.558 ms (76.6 GB/s) | folds 0.027 ms (1.3 GB/s) | reduce+D2H+host 0.003 ms | finals 0.000 ms | counted device bytes 880768512 (7.7 GB/s over the total) | pairs 524287 | P evals 2883579 | host tail 5 rounds 0.152 ms (D2H 10752 B) | public-table hits 0
+PB-GZC-ROUND 0 | round | entering len 524288 | kernel 3521.2 us | reduce+D2H+host 0.8 us
+PB-GZC-ROUND 1 | fused fold+round | entering len 524288 | kernel 3330.0 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 2 | fused fold+round | entering len 262144 | kernel 1680.6 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 3 | fused fold+round | entering len 131072 | kernel 952.4 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 4 | fused fold+round | entering len 65536 | kernel 506.3 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 5 | fused fold+round | entering len 32768 | kernel 312.9 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 6 | fused fold+round | entering len 16384 | kernel 184.4 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 7 | fused fold+round | entering len 8192 | kernel 119.8 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 8 | fused fold+round | entering len 4096 | kernel 73.3 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 9 | fused fold+round | entering len 2048 | kernel 119.2 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 10 | fused fold+round | entering len 1024 | kernel 65.2 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 11 | fused fold+round | entering len 512 | kernel 66.5 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 12 | fused fold+round | entering len 256 | kernel 70.0 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 13 | fused fold+round | entering len 128 | kernel 78.0 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 14 | fold | entering len 64 | kernel 27.4 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 15 | host tail | entering len 32 | kernel 34.4 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 16 | host tail | entering len 16 | kernel 15.1 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 17 | host tail | entering len 8 | kernel 7.6 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 18 | host tail | entering len 4 | kernel 3.8 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 19 | host tail | entering len 2 | kernel 1.9 us | reduce+D2H+host 0.0 us
+GZC ladder n 19 split (2^19 = 524288 entries, k 21, D 5): CPU body 0.395 s (16 threads), device body best of 2 414.71 ms incl. H2D of the host tables (168 MB); plan figure 72 B x 2^n x 17 = 0.642 GB -> 1.5 GB/s = 0.6% of 256 GB/s; speed-up 1.0x
+PB-GZC-WARM slot 18 | 300.4 ms, 242 spin launches | first 1516 us | mean of first 5 1288 us | mean of last 5 1244 us | min 1207 us
+PB-GZC-WARM slot 18 | 300.6 ms, 243 spin launches | first 1545 us | mean of first 5 1305 us | mean of last 5 1231 us | min 1201 us
+PB-GZC-MEM slot 18 start | device free 6858 MiB of 8187 MiB | pool holds 1 idle buffers (184 MiB)
+PB-GZC-WARM slot 18 | 300.9 ms, 242 spin launches | first 1530 us | mean of first 5 1294 us | mean of last 5 1250 us | min 1208 us
+PB-GZC slot 18 [gzs_d5s fused tail 5 base] | sumchecks 1 | n 19 k 21 D 5 | total 110.243 ms | build 98.757 ms (1.1 GB/s; H2D 176160768 B) | rounds 3.379 ms (57.1 GB/s) | fused fold+round 7.202 ms (80.4 GB/s) | folds 0.031 ms (1.1 GB/s) | reduce+D2H+host 0.531 ms | finals 0.000 ms | counted device bytes 880768512 (8.0 GB/s over the total) | pairs 524287 | P evals 2883579 | host tail 5 rounds 0.160 ms (D2H 10752 B) | public-table hits 0
+PB-GZC-ROUND 0 | round | entering len 524288 | kernel 3379.3 us | reduce+D2H+host 71.4 us
+PB-GZC-ROUND 1 | fused fold+round | entering len 524288 | kernel 3187.1 us | reduce+D2H+host 71.7 us
+PB-GZC-ROUND 2 | fused fold+round | entering len 262144 | kernel 1639.7 us | reduce+D2H+host 79.4 us
+PB-GZC-ROUND 3 | fused fold+round | entering len 131072 | kernel 885.2 us | reduce+D2H+host 48.5 us
+PB-GZC-ROUND 4 | fused fold+round | entering len 65536 | kernel 510.2 us | reduce+D2H+host 39.5 us
+PB-GZC-ROUND 5 | fused fold+round | entering len 32768 | kernel 303.9 us | reduce+D2H+host 27.9 us
+PB-GZC-ROUND 6 | fused fold+round | entering len 16384 | kernel 175.4 us | reduce+D2H+host 23.7 us
+PB-GZC-ROUND 7 | fused fold+round | entering len 8192 | kernel 95.1 us | reduce+D2H+host 23.1 us
+PB-GZC-ROUND 8 | fused fold+round | entering len 4096 | kernel 75.9 us | reduce+D2H+host 24.9 us
+PB-GZC-ROUND 9 | fused fold+round | entering len 2048 | kernel 74.1 us | reduce+D2H+host 22.1 us
+PB-GZC-ROUND 10 | fused fold+round | entering len 1024 | kernel 63.0 us | reduce+D2H+host 21.9 us
+PB-GZC-ROUND 11 | fused fold+round | entering len 512 | kernel 65.5 us | reduce+D2H+host 22.0 us
+PB-GZC-ROUND 12 | fused fold+round | entering len 256 | kernel 64.0 us | reduce+D2H+host 32.7 us
+PB-GZC-ROUND 13 | fused fold+round | entering len 128 | kernel 64.1 us | reduce+D2H+host 21.8 us
+PB-GZC-ROUND 14 | fold | entering len 64 | kernel 30.9 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 15 | host tail | entering len 32 | kernel 46.3 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 16 | host tail | entering len 16 | kernel 20.5 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 17 | host tail | entering len 8 | kernel 9.6 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 18 | host tail | entering len 4 | kernel 5.1 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 19 | host tail | entering len 2 | kernel 2.6 us | reduce+D2H+host 0.0 us
+GZC ladder n 19 split-nomap (2^19 = 524288 entries, k 21, D 5): CPU body 0.395 s (16 threads), device body best of 2 413.19 ms incl. H2D of the host tables (168 MB); plan figure 72 B x 2^n x 17 = 0.642 GB -> 1.6 GB/s = 0.6% of 256 GB/s; speed-up 1.0x
+PB-GZC-WARM slot 18 | 301.2 ms, 243 spin launches | first 1528 us | mean of first 5 1293 us | mean of last 5 1224 us | min 1194 us
+PB-GZC-WARM slot 18 | 300.9 ms, 242 spin launches | first 1528 us | mean of first 5 1284 us | mean of last 5 1255 us | min 1206 us
+PB-GZC-MEM slot 18 start | device free 6858 MiB of 8187 MiB | pool holds 1 idle buffers (184 MiB)
+PB-GZC-WARM slot 18 | 300.7 ms, 242 spin launches | first 1518 us | mean of first 5 1293 us | mean of last 5 1242 us | min 1204 us
+PB-GZC slot 18 [gzs_d5s fused tail 0 base mapped] | sumchecks 1 | n 19 k 21 D 5 | total 130.400 ms | build 118.633 ms (0.9 GB/s; H2D 176160768 B) | rounds 3.599 ms (53.6 GB/s) | fused fold+round 7.922 ms (73.1 GB/s) | folds 0.034 ms (0.0 GB/s) | reduce+D2H+host 0.005 ms | finals 0.079 ms | counted device bytes 880802736 (6.8 GB/s over the total) | pairs 524287 | P evals 2883579 | host tail 0 rounds 0.000 ms (D2H 0 B) | public-table hits 0
+PB-GZC-ROUND 0 | round | entering len 524288 | kernel 3599.7 us | reduce+D2H+host 1.0 us
+PB-GZC-ROUND 1 | fused fold+round | entering len 524288 | kernel 3228.3 us | reduce+D2H+host 0.6 us
+PB-GZC-ROUND 2 | fused fold+round | entering len 262144 | kernel 1674.4 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 3 | fused fold+round | entering len 131072 | kernel 968.7 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 4 | fused fold+round | entering len 65536 | kernel 539.4 us | reduce+D2H+host 0.3 us
+PB-GZC-ROUND 5 | fused fold+round | entering len 32768 | kernel 310.0 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 6 | fused fold+round | entering len 16384 | kernel 199.2 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 7 | fused fold+round | entering len 8192 | kernel 115.8 us | reduce+D2H+host 0.3 us
+PB-GZC-ROUND 8 | fused fold+round | entering len 4096 | kernel 91.8 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 9 | fused fold+round | entering len 2048 | kernel 89.4 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 10 | fused fold+round | entering len 1024 | kernel 98.2 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 11 | fused fold+round | entering len 512 | kernel 68.3 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 12 | fused fold+round | entering len 256 | kernel 79.5 us | reduce+D2H+host 0.3 us
+PB-GZC-ROUND 13 | fused fold+round | entering len 128 | kernel 73.6 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 14 | fused fold+round | entering len 64 | kernel 77.8 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 15 | fused fold+round | entering len 32 | kernel 72.1 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 16 | fused fold+round | entering len 16 | kernel 68.5 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 17 | fused fold+round | entering len 8 | kernel 84.2 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 18 | fused fold+round | entering len 4 | kernel 83.8 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 19 | fold | entering len 2 | kernel 34.0 us | reduce+D2H+host 0.0 us
+GZC ladder n 19 split-t0 (2^19 = 524288 entries, k 21, D 5): CPU body 0.395 s (16 threads), device body best of 2 414.07 ms incl. H2D of the host tables (168 MB); plan figure 72 B x 2^n x 17 = 0.642 GB -> 1.5 GB/s = 0.6% of 256 GB/s; speed-up 1.0x
+GZC VRAM after ladder n 19: 1329 MiB in use with 1 pooled buffers; drained 1; 1137 MiB in use after the drain
+PB-GZC-WARM slot 18 | 301.2 ms, 238 spin launches | first 3116 us | mean of first 5 1618 us | mean of last 5 1244 us | min 1206 us
+PB-GZC-WARM slot 18 | 301.2 ms, 239 spin launches | first 1566 us | mean of first 5 1306 us | mean of last 5 1301 us | min 1210 us
+PB-GZC-MEM slot 18 start | device free 6666 MiB of 8187 MiB | pool holds 1 idle buffers (368 MiB)
+PB-GZC-WARM slot 18 | 301.1 ms, 241 spin launches | first 1575 us | mean of first 5 1318 us | mean of last 5 1257 us | min 1205 us
+PB-GZC slot 18 [gzs_d5s fused tail 5 base mapped] | sumchecks 1 | n 20 k 21 D 5 | total 183.632 ms | build 162.794 ms (1.3 GB/s; H2D 352321536 B) | rounds 6.773 ms (57.0 GB/s) | fused fold+round 13.667 ms (84.7 GB/s) | folds 0.036 ms (1.0 GB/s) | reduce+D2H+host 0.009 ms | finals 0.000 ms | counted device bytes 1761572352 (9.6 GB/s over the total) | pairs 1048575 | P evals 5767163 | host tail 5 rounds 0.177 ms (D2H 10752 B) | public-table hits 0
+PB-GZC-ROUND 0 | round | entering len 1048576 | kernel 6774.3 us | reduce+D2H+host 1.8 us
+PB-GZC-ROUND 1 | fused fold+round | entering len 1048576 | kernel 6220.2 us | reduce+D2H+host 1.9 us
+PB-GZC-ROUND 2 | fused fold+round | entering len 524288 | kernel 3190.1 us | reduce+D2H+host 1.2 us
+PB-GZC-ROUND 3 | fused fold+round | entering len 262144 | kernel 1708.9 us | reduce+D2H+host 1.1 us
+PB-GZC-ROUND 4 | fused fold+round | entering len 131072 | kernel 957.9 us | reduce+D2H+host 0.3 us
+PB-GZC-ROUND 5 | fused fold+round | entering len 65536 | kernel 498.3 us | reduce+D2H+host 0.3 us
+PB-GZC-ROUND 6 | fused fold+round | entering len 32768 | kernel 320.3 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 7 | fused fold+round | entering len 16384 | kernel 184.3 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 8 | fused fold+round | entering len 8192 | kernel 101.1 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 9 | fused fold+round | entering len 4096 | kernel 97.1 us | reduce+D2H+host 1.2 us
+PB-GZC-ROUND 10 | fused fold+round | entering len 2048 | kernel 114.0 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 11 | fused fold+round | entering len 1024 | kernel 70.5 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 12 | fused fold+round | entering len 512 | kernel 71.0 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 13 | fused fold+round | entering len 256 | kernel 67.3 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 14 | fused fold+round | entering len 128 | kernel 68.2 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 15 | fold | entering len 64 | kernel 36.3 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 16 | host tail | entering len 32 | kernel 34.4 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 17 | host tail | entering len 16 | kernel 15.2 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 18 | host tail | entering len 8 | kernel 7.7 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 19 | host tail | entering len 4 | kernel 3.9 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 20 | host tail | entering len 2 | kernel 1.9 us | reduce+D2H+host 0.0 us
+GZC ladder n 20 split (2^20 = 1048576 entries, k 21, D 5): CPU body 0.617 s (16 threads), device body best of 2 486.86 ms incl. H2D of the host tables (336 MB); plan figure 72 B x 2^n x 17 = 1.283 GB -> 2.6 GB/s = 1.0% of 256 GB/s; speed-up 1.3x
+PB-GZC-WARM slot 18 | 300.6 ms, 241 spin launches | first 1220 us | mean of first 5 1228 us | mean of last 5 1246 us | min 1204 us
+PB-GZC-WARM slot 18 | 300.1 ms, 244 spin launches | first 1212 us | mean of first 5 1213 us | mean of last 5 1234 us | min 1202 us
+PB-GZC-MEM slot 18 start | device free 6666 MiB of 8187 MiB | pool holds 1 idle buffers (368 MiB)
+PB-GZC-WARM slot 18 | 300.7 ms, 243 spin launches | first 1214 us | mean of first 5 1233 us | mean of last 5 1234 us | min 1205 us
+PB-GZC slot 18 [gzs_d5s fused tail 5 base] | sumchecks 1 | n 20 k 21 D 5 | total 185.248 ms | build 163.984 ms (1.3 GB/s; H2D 352321536 B) | rounds 6.978 ms (55.3 GB/s) | fused fold+round 13.300 ms (87.0 GB/s) | folds 0.036 ms (1.0 GB/s) | reduce+D2H+host 0.591 ms | finals 0.000 ms | counted device bytes 1761572352 (9.5 GB/s over the total) | pairs 1048575 | P evals 5767163 | host tail 5 rounds 0.158 ms (D2H 10752 B) | public-table hits 0
+PB-GZC-ROUND 0 | round | entering len 1048576 | kernel 6977.7 us | reduce+D2H+host 64.2 us
+PB-GZC-ROUND 1 | fused fold+round | entering len 1048576 | kernel 6192.7 us | reduce+D2H+host 72.7 us
+PB-GZC-ROUND 2 | fused fold+round | entering len 524288 | kernel 3220.9 us | reduce+D2H+host 62.8 us
+PB-GZC-ROUND 3 | fused fold+round | entering len 262144 | kernel 1599.3 us | reduce+D2H+host 90.2 us
+PB-GZC-ROUND 4 | fused fold+round | entering len 131072 | kernel 848.2 us | reduce+D2H+host 65.0 us
+PB-GZC-ROUND 5 | fused fold+round | entering len 65536 | kernel 477.4 us | reduce+D2H+host 38.1 us
+PB-GZC-ROUND 6 | fused fold+round | entering len 32768 | kernel 295.9 us | reduce+D2H+host 24.1 us
+PB-GZC-ROUND 7 | fused fold+round | entering len 16384 | kernel 168.7 us | reduce+D2H+host 21.4 us
+PB-GZC-ROUND 8 | fused fold+round | entering len 8192 | kernel 97.8 us | reduce+D2H+host 22.8 us
+PB-GZC-ROUND 9 | fused fold+round | entering len 4096 | kernel 74.0 us | reduce+D2H+host 21.7 us
+PB-GZC-ROUND 10 | fused fold+round | entering len 2048 | kernel 73.3 us | reduce+D2H+host 22.7 us
+PB-GZC-ROUND 11 | fused fold+round | entering len 1024 | kernel 62.4 us | reduce+D2H+host 20.6 us
+PB-GZC-ROUND 12 | fused fold+round | entering len 512 | kernel 62.9 us | reduce+D2H+host 20.5 us
+PB-GZC-ROUND 13 | fused fold+round | entering len 256 | kernel 62.8 us | reduce+D2H+host 20.8 us
+PB-GZC-ROUND 14 | fused fold+round | entering len 128 | kernel 65.2 us | reduce+D2H+host 23.0 us
+PB-GZC-ROUND 15 | fold | entering len 64 | kernel 35.8 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 16 | host tail | entering len 32 | kernel 46.0 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 17 | host tail | entering len 16 | kernel 20.5 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 18 | host tail | entering len 8 | kernel 10.2 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 19 | host tail | entering len 4 | kernel 5.1 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 20 | host tail | entering len 2 | kernel 2.6 us | reduce+D2H+host 0.0 us
+GZC ladder n 20 split-nomap (2^20 = 1048576 entries, k 21, D 5): CPU body 0.617 s (16 threads), device body best of 2 483.06 ms incl. H2D of the host tables (336 MB); plan figure 72 B x 2^n x 17 = 1.283 GB -> 2.7 GB/s = 1.0% of 256 GB/s; speed-up 1.3x
+PB-GZC-WARM slot 18 | 301.1 ms, 244 spin launches | first 1216 us | mean of first 5 1226 us | mean of last 5 1235 us | min 1200 us
+PB-GZC-WARM slot 18 | 300.6 ms, 241 spin launches | first 1232 us | mean of first 5 1240 us | mean of last 5 1250 us | min 1205 us
+PB-GZC-MEM slot 18 start | device free 6666 MiB of 8187 MiB | pool holds 1 idle buffers (368 MiB)
+PB-GZC-WARM slot 18 | 300.1 ms, 241 spin launches | first 1525 us | mean of first 5 1287 us | mean of last 5 1286 us | min 1208 us
+PB-GZC slot 18 [gzs_d5s fused tail 0 base mapped] | sumchecks 1 | n 20 k 21 D 5 | total 180.290 ms | build 159.255 ms (1.4 GB/s; H2D 352321536 B) | rounds 6.792 ms (56.8 GB/s) | fused fold+round 13.984 ms (82.8 GB/s) | folds 0.028 ms (0.0 GB/s) | reduce+D2H+host 0.007 ms | finals 0.078 ms | counted device bytes 1761606576 (9.8 GB/s over the total) | pairs 1048575 | P evals 5767163 | host tail 0 rounds 0.000 ms (D2H 0 B) | public-table hits 0
+PB-GZC-ROUND 0 | round | entering len 1048576 | kernel 6792.4 us | reduce+D2H+host 1.8 us
+PB-GZC-ROUND 1 | fused fold+round | entering len 1048576 | kernel 6189.9 us | reduce+D2H+host 0.9 us
+PB-GZC-ROUND 2 | fused fold+round | entering len 524288 | kernel 3130.2 us | reduce+D2H+host 0.4 us
+PB-GZC-ROUND 3 | fused fold+round | entering len 262144 | kernel 1812.8 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 4 | fused fold+round | entering len 131072 | kernel 904.4 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 5 | fused fold+round | entering len 65536 | kernel 484.4 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 6 | fused fold+round | entering len 32768 | kernel 331.3 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 7 | fused fold+round | entering len 16384 | kernel 181.9 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 8 | fused fold+round | entering len 8192 | kernel 101.7 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 9 | fused fold+round | entering len 4096 | kernel 88.9 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 10 | fused fold+round | entering len 2048 | kernel 87.7 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 11 | fused fold+round | entering len 1024 | kernel 76.5 us | reduce+D2H+host 0.7 us
+PB-GZC-ROUND 12 | fused fold+round | entering len 512 | kernel 78.2 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 13 | fused fold+round | entering len 256 | kernel 67.8 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 14 | fused fold+round | entering len 128 | kernel 68.0 us | reduce+D2H+host 0.4 us
+PB-GZC-ROUND 15 | fused fold+round | entering len 64 | kernel 77.1 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 16 | fused fold+round | entering len 32 | kernel 72.3 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 17 | fused fold+round | entering len 16 | kernel 75.9 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 18 | fused fold+round | entering len 8 | kernel 80.9 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 19 | fused fold+round | entering len 4 | kernel 75.4 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 20 | fold | entering len 2 | kernel 28.4 us | reduce+D2H+host 0.0 us
+GZC ladder n 20 split-t0 (2^20 = 1048576 entries, k 21, D 5): CPU body 0.617 s (16 threads), device body best of 2 476.90 ms incl. H2D of the host tables (336 MB); plan figure 72 B x 2^n x 17 = 1.283 GB -> 2.7 GB/s = 1.1% of 256 GB/s; speed-up 1.3x
+GZC VRAM after ladder n 20: 1521 MiB in use with 1 pooled buffers; drained 1; 1137 MiB in use after the drain
+PB-GZC-WARM slot 18 | 300.8 ms, 237 spin launches | first 3005 us | mean of first 5 1604 us | mean of last 5 1262 us | min 1202 us
+PB-GZC-WARM slot 18 | 300.5 ms, 241 spin launches | first 1530 us | mean of first 5 1304 us | mean of last 5 1266 us | min 1204 us
+PB-GZC-MEM slot 18 start | device free 6282 MiB of 8187 MiB | pool holds 1 idle buffers (736 MiB)
+PB-GZC-WARM slot 18 | 300.4 ms, 242 spin launches | first 1528 us | mean of first 5 1299 us | mean of last 5 1243 us | min 1204 us
+PB-GZC slot 18 [gzs_d5s fused tail 5 base mapped] | sumchecks 1 | n 21 k 21 D 5 | total 503.706 ms | build 464.318 ms (0.9 GB/s; H2D 704643072 B) | rounds 13.233 ms (58.3 GB/s) | fused fold+round 25.724 ms (90.0 GB/s) | folds 0.039 ms (0.9 GB/s) | reduce+D2H+host 0.007 ms | finals 0.000 ms | counted device bytes 3523180032 (7.0 GB/s over the total) | pairs 2097151 | P evals 11534331 | host tail 5 rounds 0.218 ms (D2H 10752 B) | public-table hits 0
+PB-GZC-ROUND 0 | round | entering len 2097152 | kernel 13233.2 us | reduce+D2H+host 2.0 us
+PB-GZC-ROUND 1 | fused fold+round | entering len 2097152 | kernel 12178.9 us | reduce+D2H+host 1.5 us
+PB-GZC-ROUND 2 | fused fold+round | entering len 1048576 | kernel 6210.4 us | reduce+D2H+host 0.8 us
+PB-GZC-ROUND 3 | fused fold+round | entering len 524288 | kernel 3110.2 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 4 | fused fold+round | entering len 262144 | kernel 1708.0 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 5 | fused fold+round | entering len 131072 | kernel 910.6 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 6 | fused fold+round | entering len 65536 | kernel 549.0 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 7 | fused fold+round | entering len 32768 | kernel 316.1 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 8 | fused fold+round | entering len 16384 | kernel 182.2 us | reduce+D2H+host 0.4 us
+PB-GZC-ROUND 9 | fused fold+round | entering len 8192 | kernel 102.7 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 10 | fused fold+round | entering len 4096 | kernel 80.0 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 11 | fused fold+round | entering len 2048 | kernel 81.1 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 12 | fused fold+round | entering len 1024 | kernel 68.8 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 13 | fused fold+round | entering len 512 | kernel 69.4 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 14 | fused fold+round | entering len 256 | kernel 83.2 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 15 | fused fold+round | entering len 128 | kernel 75.1 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 16 | fold | entering len 64 | kernel 39.0 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 17 | host tail | entering len 32 | kernel 34.7 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 18 | host tail | entering len 16 | kernel 15.2 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 19 | host tail | entering len 8 | kernel 7.6 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 20 | host tail | entering len 4 | kernel 3.9 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 21 | host tail | entering len 2 | kernel 1.9 us | reduce+D2H+host 0.0 us
+GZC ladder n 21 split (2^21 = 2097152 entries, k 21, D 5): CPU body 0.857 s (16 threads), device body best of 2 818.47 ms incl. H2D of the host tables (672 MB); plan figure 72 B x 2^n x 17 = 2.567 GB -> 3.1 GB/s = 1.2% of 256 GB/s; speed-up 1.0x
+PB-GZC-WARM slot 18 | 301.1 ms, 241 spin launches | first 1560 us | mean of first 5 1309 us | mean of last 5 1230 us | min 1203 us
+PB-GZC-WARM slot 18 | 300.0 ms, 242 spin launches | first 1520 us | mean of first 5 1299 us | mean of last 5 1247 us | min 1205 us
+PB-GZC-MEM slot 18 start | device free 6282 MiB of 8187 MiB | pool holds 1 idle buffers (736 MiB)
+PB-GZC-WARM slot 18 | 300.8 ms, 242 spin launches | first 1529 us | mean of first 5 1283 us | mean of last 5 1250 us | min 1198 us
+PB-GZC slot 18 [gzs_d5s fused tail 5 base] | sumchecks 1 | n 21 k 21 D 5 | total 485.549 ms | build 445.460 ms (1.0 GB/s; H2D 704643072 B) | rounds 13.346 ms (57.8 GB/s) | fused fold+round 25.639 ms (90.3 GB/s) | folds 0.043 ms (0.8 GB/s) | reduce+D2H+host 0.753 ms | finals 0.000 ms | counted device bytes 3523180032 (7.3 GB/s over the total) | pairs 2097151 | P evals 11534331 | host tail 5 rounds 0.152 ms (D2H 10752 B) | public-table hits 0
+PB-GZC-ROUND 0 | round | entering len 2097152 | kernel 13346.1 us | reduce+D2H+host 100.9 us
+PB-GZC-ROUND 1 | fused fold+round | entering len 2097152 | kernel 12161.7 us | reduce+D2H+host 101.1 us
+PB-GZC-ROUND 2 | fused fold+round | entering len 1048576 | kernel 6154.2 us | reduce+D2H+host 102.4 us
+PB-GZC-ROUND 3 | fused fold+round | entering len 524288 | kernel 3170.0 us | reduce+D2H+host 57.4 us
+PB-GZC-ROUND 4 | fused fold+round | entering len 262144 | kernel 1701.9 us | reduce+D2H+host 77.3 us
+PB-GZC-ROUND 5 | fused fold+round | entering len 131072 | kernel 913.6 us | reduce+D2H+host 41.1 us
+PB-GZC-ROUND 6 | fused fold+round | entering len 65536 | kernel 470.7 us | reduce+D2H+host 32.4 us
+PB-GZC-ROUND 7 | fused fold+round | entering len 32768 | kernel 304.9 us | reduce+D2H+host 26.6 us
+PB-GZC-ROUND 8 | fused fold+round | entering len 16384 | kernel 197.6 us | reduce+D2H+host 26.3 us
+PB-GZC-ROUND 9 | fused fold+round | entering len 8192 | kernel 106.0 us | reduce+D2H+host 25.9 us
+PB-GZC-ROUND 10 | fused fold+round | entering len 4096 | kernel 85.2 us | reduce+D2H+host 26.8 us
+PB-GZC-ROUND 11 | fused fold+round | entering len 2048 | kernel 84.2 us | reduce+D2H+host 26.4 us
+PB-GZC-ROUND 12 | fused fold+round | entering len 1024 | kernel 74.6 us | reduce+D2H+host 28.3 us
+PB-GZC-ROUND 13 | fused fold+round | entering len 512 | kernel 70.5 us | reduce+D2H+host 27.0 us
+PB-GZC-ROUND 14 | fused fold+round | entering len 256 | kernel 75.1 us | reduce+D2H+host 26.7 us
+PB-GZC-ROUND 15 | fused fold+round | entering len 128 | kernel 69.4 us | reduce+D2H+host 26.2 us
+PB-GZC-ROUND 16 | fold | entering len 64 | kernel 42.8 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 17 | host tail | entering len 32 | kernel 34.5 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 18 | host tail | entering len 16 | kernel 15.5 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 19 | host tail | entering len 8 | kernel 7.8 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 20 | host tail | entering len 4 | kernel 3.9 us | reduce+D2H+host 0.0 us
+PB-GZC-ROUND 21 | host tail | entering len 2 | kernel 2.0 us | reduce+D2H+host 0.0 us
+GZC ladder n 21 split-nomap (2^21 = 2097152 entries, k 21, D 5): CPU body 0.857 s (16 threads), device body best of 2 790.53 ms incl. H2D of the host tables (672 MB); plan figure 72 B x 2^n x 17 = 2.567 GB -> 3.2 GB/s = 1.3% of 256 GB/s; speed-up 1.1x
+PB-GZC-WARM slot 18 | 300.7 ms, 244 spin launches | first 1240 us | mean of first 5 1221 us | mean of last 5 1223 us | min 1204 us
+PB-GZC-WARM slot 18 | 300.9 ms, 244 spin launches | first 1533 us | mean of first 5 1280 us | mean of last 5 1263 us | min 1197 us
+PB-GZC-MEM slot 18 start | device free 6282 MiB of 8187 MiB | pool holds 1 idle buffers (736 MiB)
+PB-GZC-WARM slot 18 | 300.1 ms, 240 spin launches | first 1555 us | mean of first 5 1312 us | mean of last 5 1247 us | min 1195 us
+PB-GZC slot 18 [gzs_d5s fused tail 0 base mapped] | sumchecks 1 | n 21 k 21 D 5 | total 488.990 ms | build 448.432 ms (1.0 GB/s; H2D 704643072 B) | rounds 13.295 ms (58.0 GB/s) | fused fold+round 26.337 ms (87.9 GB/s) | folds 0.033 ms (0.0 GB/s) | reduce+D2H+host 0.038 ms | finals 0.176 ms | counted device bytes 3523214256 (7.2 GB/s over the total) | pairs 2097151 | P evals 11534331 | host tail 0 rounds 0.000 ms (D2H 0 B) | public-table hits 0
+PB-GZC-ROUND 0 | round | entering len 2097152 | kernel 13295.6 us | reduce+D2H+host 0.8 us
+PB-GZC-ROUND 1 | fused fold+round | entering len 2097152 | kernel 12100.2 us | reduce+D2H+host 1.3 us
+PB-GZC-ROUND 2 | fused fold+round | entering len 1048576 | kernel 6501.6 us | reduce+D2H+host 0.5 us
+PB-GZC-ROUND 3 | fused fold+round | entering len 524288 | kernel 3209.1 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 4 | fused fold+round | entering len 262144 | kernel 1687.0 us | reduce+D2H+host 31.5 us
+PB-GZC-ROUND 5 | fused fold+round | entering len 131072 | kernel 897.8 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 6 | fused fold+round | entering len 65536 | kernel 504.7 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 7 | fused fold+round | entering len 32768 | kernel 314.3 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 8 | fused fold+round | entering len 16384 | kernel 197.9 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 9 | fused fold+round | entering len 8192 | kernel 104.8 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 10 | fused fold+round | entering len 4096 | kernel 82.6 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 11 | fused fold+round | entering len 2048 | kernel 81.5 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 12 | fused fold+round | entering len 1024 | kernel 70.8 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 13 | fused fold+round | entering len 512 | kernel 71.0 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 14 | fused fold+round | entering len 256 | kernel 69.2 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 15 | fused fold+round | entering len 128 | kernel 69.5 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 16 | fused fold+round | entering len 64 | kernel 69.5 us | reduce+D2H+host 0.3 us
+PB-GZC-ROUND 17 | fused fold+round | entering len 32 | kernel 91.0 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 18 | fused fold+round | entering len 16 | kernel 74.7 us | reduce+D2H+host 0.3 us
+PB-GZC-ROUND 19 | fused fold+round | entering len 8 | kernel 73.3 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 20 | fused fold+round | entering len 4 | kernel 68.7 us | reduce+D2H+host 0.2 us
+PB-GZC-ROUND 21 | fold | entering len 2 | kernel 32.6 us | reduce+D2H+host 0.0 us
+GZC ladder n 21 split-t0 (2^21 = 2097152 entries, k 21, D 5): CPU body 0.857 s (16 threads), device body best of 2 779.36 ms incl. H2D of the host tables (672 MB); plan figure 72 B x 2^n x 17 = 2.567 GB -> 3.3 GB/s = 1.3% of 256 GB/s; speed-up 1.1x
+GZC VRAM after ladder n 21: 1905 MiB in use with 1 pooled buffers; drained 1; 1137 MiB in use after the drain
+GZC ladder totals: ladder | sumchecks 27 | n 21 k 21 D 5 | total 7190.923 ms | build 6535.097 ms (1.1 GB/s; H2D 11098128384 B) | rounds 71.496 ms (170.0 GB/s) | fused fold+round 144.896 ms (251.7 GB/s) | folds 0.520 ms (1.2 GB/s) | reduce+D2H+host 428.725 ms | finals 1.023 ms | counted device bytes 55489996080 (7.7 GB/s over the total) | pairs 33030117 | P evals 181665657 | host tail 90 rounds 3.324 ms (D2H 193536 B) | public-table hits 0
+GZC slot-18 module compile (NVRTC + load, once per process): 0.02 s
+GZC streaming reference: device-to-device copy of 512 MiB at 167.1 GB/s (read + write counted) = 65.3% of 256 GB/s
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 573 filtered out; finished in 23.19s
+

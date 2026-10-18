@@ -1,0 +1,12 @@
+{
+ "binding_reproduced": true,
+ "bundle": "tinyllama-trained-r5b-capture-dense-l1",
+ "challenges": 4511,
+ "failures": [],
+ "final_counter": 4831,
+ "integrity_findings": [],
+ "integrity_ok": true,
+ "positions": 127,
+ "replay_ok": true,
+ "tools": "frozen v5"
+}

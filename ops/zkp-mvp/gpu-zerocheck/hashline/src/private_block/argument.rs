@@ -474,7 +474,13 @@ pub(super) fn device_fzc(def: &SlotDef, pd: &ProverData, tables: &[Vec<Fp2>], n:
         .enumerate()
         .map(|(t, tab)| match tab {
             Tab::Eq { point, start } => Ok(FzcSrc::Eq { point: point.as_slice(), start: *start }),
-            Tab::Pub(v) if v.len() == 1usize << n => Ok(FzcSrc::Host(v.as_slice())),
+            // [round 2, K2] a public table is a pure function of the shape, the
+            // slot, its index and the cube size (`B::supp`), so that is its
+            // device-cache key: resident once per process, not re-uploaded
+            Tab::Pub(v) if v.len() == 1usize << n => Ok(FzcSrc::Public {
+                v: v.as_slice(),
+                key: *blake3::hash(format!("zk60-gzc-public-table|{:?}|slot {}|table {t}|n {n}", def.sh, def.slot).as_bytes()).as_bytes(),
+            }),
             Tab::Pub(_) => tables.get(t).map(|v| FzcSrc::Host(v.as_slice())).ok_or_else(|| format!("table {t}: a moved public table and no host copy")),
             Tab::Priv(p) => {
                 let identity = p.log == n && p.coords.iter().enumerate().all(|(j, c)| matches!(c, Coord::Rho(k) if *k == j));

@@ -1,0 +1,196 @@
+--- tested-round3/gpu__fzc_kernels.cu
++++ observed-round4/gpu__fzc_kernels.cu
+@@ -729,6 +729,65 @@
+     }
+ }
+ 
++// [round 4] RAW SOURCES. In round 0 and in the fused round 1 a table may be
++// read straight from the device-resident commitment rows instead of a
++// widened copy: srcd[3 t] = mode (0: the Fp2 table in `tabs`, 1: a base
++// plane, srcd[3 t + 1] its u64 words, 2: a helper pair, srcd[3 t + 1] /
++// srcd[3 t + 2] the re / im words). Round 1's fold writes the folded halves
++// into `tabs`, which every later round reads. Same values as the widened
++// copies (a base plane widens to (a, 0), a pair to (re, im)).
++__device__ __forceinline__ f2 fzs_ld(const u64* tabs, long long L, const u64* srcd, int raw, int t, size_t idx) {
++    if (raw) {
++        const u64 mode = srcd[3 * t];
++        if (mode == 1ULL) {
++            f2 r;
++            r.c0 = ((const u64*)srcd[3 * t + 1])[idx];
++            r.c1 = 0ULL;
++            return r;
++        }
++        if (mode == 2ULL) {
++            f2 r;
++            r.c0 = ((const u64*)srcd[3 * t + 1])[idx];
++            r.c1 = ((const u64*)srcd[3 * t + 2])[idx];
++            return r;
++        }
++    }
++    return ld_f2(tabs, (size_t)t * (size_t)L + idx);
++}
++
++// [round 4] the derived tables INSIDE round 0, from the A values the block
++// just staged (lane x; `hi` = the pair's second entry, value + difference):
++// T_GL (which = 0) or T_PL (which = 1), the same expressions as k_fzc_derive
++__device__ __forceinline__ f2 fzs_a(const u64* sv, const u64* sd, int j, int x, bool hi) {
++    f2 v, dv;
++    fzs_get(sv, sd, 3 + j, x, v, dv);
++    return hi ? f2_add(v, dv) : v;
++}
++__device__ __forceinline__ f2 fzs_derived_at(const u64* sv, const u64* sd, int x, bool hi, int which, const u64* s) {
++    if (which == 0) {
++        const u64 p1 = s[FZ_P1];
++        const f2 h16 = fzs_a(sv, sd, 6, x, hi);
++        f2 f0l = f2_add(fz_neg(f2_mul_base(h16, s[FZ_KH])), f2_base(s[FZ_KHH]));
++        f0l = f2_sub(f0l, fzs_a(sv, sd, 9, x, hi));
++        f0l = f2_sub(f0l, f2_mul_base(fzs_a(sv, sd, 10, x, hi), p1));
++        f2 f1 = f2_add(fzs_a(sv, sd, 3, x, hi), f2_base(32768ULL));
++        f1 = f2_sub(f1, fzs_a(sv, sd, 4, x, hi));
++        f1 = f2_sub(f1, f2_mul_base(fzs_a(sv, sd, 5, x, hi), p1));
++        f2 fh = f2_add(h16, f2_base(32768ULL));
++        fh = f2_sub(fh, fzs_a(sv, sd, 7, x, hi));
++        fh = f2_sub(fh, f2_mul_base(fzs_a(sv, sd, 8, x, hi), p1));
++        return f2_add(f2_add(fz_mulk(prm_f2(s, FZ_MU + 0), f0l), fz_mulk(prm_f2(s, FZ_MU + 2), f1)), fz_mulk(prm_f2(s, FZ_MU + 4), fh));
++    }
++    f2 pl = f2_zero();
++    #pragma unroll
++    for (int j = 0; j < 11; j++) {
++        const f2 w = prm_f2(s, FZ_PADW + 2 * j);
++        if ((w.c0 | w.c1) == 0ULL) continue;
++        pl = f2_add(pl, fz_mulk(w, fzs_a(sv, sd, j, x, hi)));
++    }
++    return fz_mulk(prm_f2(s, FZ_MUPAD), pl);
++}
++
+ // One round (FOLD = false: round 0, pairs (i, i + half)) or one fused fold +
+ // next round (FOLD = true: fold every table at r over the pre-fold half hp,
+ // in place, then the round on the folded tables' pairs (i, i + q), q = hp/2).
+@@ -736,7 +795,7 @@
+ // writes only i and i + q of its own pairs, and reads of i + hp, i + q + hp
+ // are never written in this launch; phase 2 reads shared memory only.
+ template <int D, bool SUPP, bool FOLD, bool ONE, bool BASE>
+-__device__ __forceinline__ void fzs_impl(u64* tabs, int hn, long long L, u64 r0, u64 r1, const u64* __restrict__ prm, u64* __restrict__ partial, unsigned int* cnt, u64* __restrict__ sums) {
++__device__ __forceinline__ void fzs_impl(u64* tabs, int hn, long long L, u64 r0, u64 r1, const u64* __restrict__ prm, u64* __restrict__ partial, unsigned int* cnt, u64* __restrict__ sums, const u64* __restrict__ srcd, int raw, u64 mapped, u64 seq) {
+     constexpr int K = FZS_KD(SUPP); // the slot's tables + the derived ones
+     constexpr int NG = SUPP ? 8 : 7;
+     constexpr int NT = 32 * NG;
+@@ -745,9 +804,15 @@
+     __shared__ u64 sv[K * FZS_PAIRS * 2];
+     __shared__ u64 sd[K * FZS_PAIRS * 2];
+     __shared__ u64 red[NG * NV * 2];
++    __shared__ u64 ssrc[FZS_K0(SUPP) * 3];
+     __shared__ int am_last;
++    constexpr int K0 = FZS_K0(SUPP);
+     const int tid = threadIdx.y * 32 + threadIdx.x;
+     for (int i = tid; i < FZ_LEN; i += NT) sp[i] = prm[i];
++    if (raw) for (int i = tid; i < K0 * 3; i += NT) ssrc[i] = srcd[i];
++    // round 0 from raw sources stages the slot's K0 tables and then derives
++    // T_GL / T_PL in place (phase 1b); every other launch stages all K
++    const int kstage = (raw && !FOLD) ? K0 : K;
+     const int npairs = FOLD ? (hn >> 1) : hn;
+     f2 r; r.c0 = r0; r.c1 = r1;
+     f2 acc[NV];
+@@ -759,30 +824,54 @@
+     for (int c = blockIdx.x; c < nchunks; c += gridDim.x) {
+         const int base = c * FZS_PAIRS;
+         __syncthreads(); // the previous chunk's readers are done (and sp is loaded)
+-        for (int it = tid; it < K * FZS_PAIRS; it += NT) {
++        for (int it = tid; it < kstage * FZS_PAIRS; it += NT) {
+             const int t = it / FZS_PAIRS, lane = it % FZS_PAIRS, i = base + lane;
+             const int o = (t * FZS_PAIRS + lane) * 2;
++            // raw sources exist for the slot's own tables only (the derived
++            // ones live in `tabs`, written by round 0)
++            const int rawt = (raw && t < K0) ? 1 : 0;
+             f2 lo = f2_zero(), dif = f2_zero();
+             if (i < npairs) {
+                 const size_t tb = (size_t)t * (size_t)L;
+                 if (FOLD) {
+                     const int hp = hn, q = npairs;
+-                    const f2 a0 = ld_f2(tabs, tb + i), a1 = ld_f2(tabs, tb + i + hp);
+-                    const f2 b0 = ld_f2(tabs, tb + i + q), b1 = ld_f2(tabs, tb + i + q + hp);
++                    const f2 a0 = fzs_ld(tabs, L, ssrc, rawt, t, (size_t)i), a1 = fzs_ld(tabs, L, ssrc, rawt, t, (size_t)(i + hp));
++                    const f2 b0 = fzs_ld(tabs, L, ssrc, rawt, t, (size_t)(i + q)), b1 = fzs_ld(tabs, L, ssrc, rawt, t, (size_t)(i + q + hp));
+                     lo = f2_add(a0, fz_mulk(r, f2_sub(a1, a0)));
+                     const f2 hi = f2_add(b0, fz_mulk(r, f2_sub(b1, b0)));
+                     st_f2(tabs, tb + i, lo);
+                     st_f2(tabs, tb + i + q, hi);
+                     dif = f2_sub(hi, lo);
+                 } else {
+-                    lo = ld_f2(tabs, tb + i);
+-                    dif = f2_sub(ld_f2(tabs, tb + i + npairs), lo);
++                    lo = fzs_ld(tabs, L, ssrc, rawt, t, (size_t)i);
++                    dif = f2_sub(fzs_ld(tabs, L, ssrc, rawt, t, (size_t)(i + npairs)), lo);
+                 }
+             }
+             sv[o] = lo.c0; sv[o + 1] = lo.c1;
+             sd[o] = dif.c0; sd[o + 1] = dif.c1;
+         }
+         __syncthreads();
++        if (raw && !FOLD) {
++            // phase 1b (round 0 from raw sources): the derived tables, written
++            // to `tabs` at full length (round 1 folds them) and staged
++            const int nder = SUPP ? 2 : 1;
++            if (tid < 32 * nder) {
++                const int lane = tid & 31, which = tid >> 5, i = base + lane, t = K0 + which;
++                const int o = (t * FZS_PAIRS + lane) * 2;
++                f2 lo = f2_zero(), dif = f2_zero();
++                if (i < npairs) {
++                    lo = fzs_derived_at(sv, sd, lane, false, which, sp);
++                    const f2 hi = fzs_derived_at(sv, sd, lane, true, which, sp);
++                    dif = f2_sub(hi, lo);
++                    const size_t tb = (size_t)t * (size_t)L;
++                    st_f2(tabs, tb + i, lo);
++                    st_f2(tabs, tb + i + npairs, hi);
++                }
++                sv[o] = lo.c0; sv[o + 1] = lo.c1;
++                sd[o] = dif.c0; sd[o + 1] = dif.c1;
++            }
++            __syncthreads();
++        }
+         if (base + (int)threadIdx.x < npairs) fzs_group<D, SUPP, ONE, BASE>(g, sv, sd, threadIdx.x, sp, acc);
+     }
+     // the block's partial: warp shuffles, then one value per warp in shared
+@@ -812,8 +901,16 @@
+             u64 v = 0ULL;
+             for (int b = 0; b < (int)gridDim.x; b++) v = gl_add(v, __ldcg(&partial[(size_t)b * NV * 2 + tid]));
+             sums[tid] = v;
++            // [round 4] the mapped page-locked result: the words, then (after
++            // a system fence) the sequence flag the host polls
++            if (mapped) ((volatile u64*)mapped)[tid] = v;
+         }
+         if (tid == 0) *cnt = 0u; // ready for the next launch (stream order)
++        if (mapped) {
++            __threadfence_system();
++            __syncthreads();
++            if (tid == 0) ((volatile u64*)mapped)[NV * 2] = seq;
++        }
+     }
+ }
+ 
+@@ -849,18 +946,18 @@
+ // `_r` = the recovery rounds (s(1) not evaluated), the others evaluate s(1);
+ // `_b` = round 0 with base-field A planes and S (the host's BASE flag)
+ #define FZS_ROUND(NAME, ONE, BASE) \
+-extern "C" __global__ __launch_bounds__(FZS_NT, 3) void NAME(u64* tabs, int half, long long L, const u64* __restrict__ prm, u64* __restrict__ partial, unsigned int* cnt, u64* __restrict__ sums) { \
+-    fzs_impl<FZ_D, (FZ_SUPP != 0), false, ONE, BASE>(tabs, half, L, 0ULL, 0ULL, prm, partial, cnt, sums); \
++extern "C" __global__ __launch_bounds__(FZS_NT, 3) void NAME(u64* tabs, int half, long long L, const u64* __restrict__ prm, u64* __restrict__ partial, unsigned int* cnt, u64* __restrict__ sums, const u64* __restrict__ srcd, int raw, u64 mapped, u64 seq) { \
++    fzs_impl<FZ_D, (FZ_SUPP != 0), false, ONE, BASE>(tabs, half, L, 0ULL, 0ULL, prm, partial, cnt, sums, srcd, raw, mapped, seq); \
+ }
+ FZS_ROUND(k_fzc_round, true, false)
+ FZS_ROUND(k_fzc_round_r, false, false)
+ FZS_ROUND(k_fzc_round_b, true, true)
+ FZS_ROUND(k_fzc_round_rb, false, true)
+-extern "C" __global__ __launch_bounds__(FZS_NT, 3) void k_fzc_fold_round(u64* tabs, int hp, long long L, u64 r0, u64 r1, const u64* __restrict__ prm, u64* __restrict__ partial, unsigned int* cnt, u64* __restrict__ sums) {
+-    fzs_impl<FZ_D, (FZ_SUPP != 0), true, true, false>(tabs, hp, L, r0, r1, prm, partial, cnt, sums);
+-}
+-extern "C" __global__ __launch_bounds__(FZS_NT, 3) void k_fzc_fold_round_r(u64* tabs, int hp, long long L, u64 r0, u64 r1, const u64* __restrict__ prm, u64* __restrict__ partial, unsigned int* cnt, u64* __restrict__ sums) {
+-    fzs_impl<FZ_D, (FZ_SUPP != 0), true, false, false>(tabs, hp, L, r0, r1, prm, partial, cnt, sums);
++extern "C" __global__ __launch_bounds__(FZS_NT, 3) void k_fzc_fold_round(u64* tabs, int hp, long long L, u64 r0, u64 r1, const u64* __restrict__ prm, u64* __restrict__ partial, unsigned int* cnt, u64* __restrict__ sums, const u64* __restrict__ srcd, int raw, u64 mapped, u64 seq) {
++    fzs_impl<FZ_D, (FZ_SUPP != 0), true, true, false>(tabs, hp, L, r0, r1, prm, partial, cnt, sums, srcd, raw, mapped, seq);
++}
++extern "C" __global__ __launch_bounds__(FZS_NT, 3) void k_fzc_fold_round_r(u64* tabs, int hp, long long L, u64 r0, u64 r1, const u64* __restrict__ prm, u64* __restrict__ partial, unsigned int* cnt, u64* __restrict__ sums, const u64* __restrict__ srcd, int raw, u64 mapped, u64 seq) {
++    fzs_impl<FZ_D, (FZ_SUPP != 0), true, false, false>(tabs, hp, L, r0, r1, prm, partial, cnt, sums, srcd, raw, mapped, seq);
+ }
+ extern "C" __global__ void k_fzc_derive(u64* tabs, long long L, const u64* __restrict__ prm) {
+     fzs_derive_impl<(FZ_SUPP != 0)>(tabs, L, prm);

@@ -1,0 +1,78 @@
+
+running 73 tests
+test private_block::cs_port_tests::cs4_an_attention_half_or_a_policy_from_another_shape_is_refused ... ok
+test private_block::cs_port_tests::cs7_a_run_profile_names_exactly_one_block_shape ... ok
+test private_block::cs_port_tests::cs1_and_s38_f1a_the_feed_forward_statement_is_checked_against_the_shape_it_is_proved_at ... ok
+test private_block::cs_port_tests::cs9_a_block_profile_string_names_exactly_one_shape ... ok
+test private_block::ladder8b_tests::native_ladder8b_generic_block_proves_verifies_and_every_control_refuses ... ignored, native lane heavy: one width-4096 Llama-3-8B-geometry block proof at T64/T128 (release, guarded)
+test private_block::ladder8b_tests::native_ladder8b_verify_the_saved_segment_in_a_fresh_process ... ignored, native lane heavy: verifies a saved width-4096 T64/T128 segment in a fresh process
+test private_block::ladder8b_tests::the_llama3_8b_t64_and_t128_counted_layouts ... ok
+test private_block::ladder8b_tests::the_t_dependent_nowrap_clauses_hold_at_the_8b_t64_and_t128_shapes ... ok
+test private_block::r4_tests::native_r4_2_generic_llama3_8b_block_proves_verifies_and_every_control_refuses ... ignored, native lane heavy: one width-4096 Llama-3-8B-geometry block proof (release, guarded)
+test private_block::r4_tests::native_r4_2_verify_the_saved_8b_segment_in_a_fresh_process ... ignored, native lane heavy: verifies a saved width-4096 segment in a fresh process
+test private_block::r4_tests::the_8b_table_generators_match_the_calibration_lanes_digests ... ok
+test private_block::r4_tests::the_llama3_8b_counted_layouts ... ok
+test private_block::r4_tests::the_rope_base_and_the_checkpoint_are_pinned_per_profile ... ok
+test private_block::r4_tests::the_validator_derives_tn_9_at_width_4096 ... ok
+test private_block::review_d24_tests::review_a_the_trained_door_admits_f_e_9_to_16_and_nothing_else ... ok
+test private_block::review_d24_tests::review_b_an_unbound_run_at_a_trained_shape_is_refused ... ok
+test private_block::review_d24_tests::review_c_new_bound_refuses_a_frozen_profile_and_the_trained_profile_takes_the_pin_only ... ok
+test private_block::cs_port_tests::cs8_written_fields_are_refused_at_the_entries ... ok
+test private_block::review_d24_tests::review_e_the_f_e_50_forgery_is_refused_at_the_door_on_both_sides ... ok
+test private_block::review_d24_tests::review_d_the_statement_identity_does_not_depend_on_the_directory_name ... ok
+test private_block::review_d24_tests::review_f_the_naive_quotient_forgery_is_rejected_at_slot_17_at_the_trained_tinyllama_profile ... ignored, heavy: one TinyLlama-geometry witness and one bound one-block proof (release)
+test private_block::cs_port_tests::cs3_a_lookup_miss_is_refused_by_the_honest_prover_and_rejected_by_the_verifier ... ok
+test private_block::review_d24_tests::review_h_layout_re_checks_the_whole_class_of_a_trained_shape ... ok
+test private_block::review_d24_tests::review_r2_1_a_non_door_shape_under_a_trained_profile_string_is_refused ... ok
+test private_block::review_d24_tests::review_r2_b_the_pinned_checkpoint_rule_is_enforced_in_test_builds ... ok
+test private_block::review_d24_tests::the_reader_maps_t_to_the_registered_tinyllama_profiles ... ok
+test private_block::cs_port_tests::cs6_the_run_prover_and_verifiers_refuse_blocks_that_are_not_the_statements ... ok
+test private_block::run_tests::review_r4_b_the_bounded_file_reader_refuses_before_opening_or_reading ... ok
+test private_block::review_d24_tests::review_f_the_naive_quotient_forgery_is_rejected_at_slot_17_at_the_rung ... ok
+test private_block::s24_tests::a_shape_whose_mask_leaves_no_room_for_the_pads_is_refused_by_name ... ok
+test private_block::run_tests::review_r3_6_a_symlink_fifo_or_overlong_segment_file_is_refused_before_it_is_read ... ok
+test private_block::s24_tests::every_registered_profile_is_covered_and_every_tagged_ones_keys_are_pairwise_distinct ... ok
+test private_block::s24_tests::every_slot_hosts_exactly_what_the_host_table_says_at_every_shape ... ok
+test private_block::s24_tests::no_registered_profiles_constructor_input_has_the_squeeze_length ... ok
+test private_block::s24_tests::the_capture_writer_pins_every_run_layer_source_it_depends_on ... ok
+test private_block::s24_tests::a_segments_end_tag_is_the_next_segments_start_tag_in_a_rung_k4_run ... ok
+test private_block::s24_tests::the_mask_budget_holds_at_every_shape ... ok
+test private_block::s24_tests::an_inadmissible_chain_is_refused_before_the_run_directory_exists ... ok
+test private_block::s24_tests::the_closure_vanishes_on_every_extension_round_vector_at_every_shape ... ok
+test private_block::s25_tests::every_hash_call_site_in_the_lanes_own_sources_is_classified ... ok
+test private_block::s24_tests::the_s3_refusal_also_separates_the_two_rotary_claims_of_slots_15_and_16 ... ok
+test private_block::s25_tests::a_runs_imposed_set_carries_the_runs_own_statement_class ... ok
+test private_block::s25_tests::stage_24s_twelve_key_test_still_covers_every_tagged_profile ... ok
+test private_block::s25_tests::no_profile_on_this_path_can_obtain_a_generator_other_than_from_the_operating_system ... ok
+test private_block::s25_tests::the_draw_accounting_assertions_are_still_blocked_on_the_generators_accessor ... ok
+test private_block::s25_tests::the_generator_is_never_cloned_and_each_prover_constructs_exactly_one ... ok
+test private_block::s25_tests::the_legacy_length_guard_now_carries_the_statement_digests_and_the_seed_derivations ... ok
+test private_block::s25_tests::the_memos_length_table_is_re_derived_from_the_code ... ok
+test private_block::s25_tests::the_block_public_digest_input_length_formula_is_the_codes ... ok
+test private_block::s25_tests::the_refusal_replay_re_issues_the_live_chains_next_points_and_leaves_it_untouched ... ok
+test private_block::s25_tests::the_statement_class_lengths_are_the_ones_the_code_hashes ... ok
+test private_block::trained_block_tests::every_malformed_export_is_refused_by_name ... ok
+test private_block::trained_block_tests::native_t5_a_real_exports_layers_load_and_its_trained_weights_prove ... ignored, native lane heavy: reads a real export (env ZK60_NATIVE_EXPORT_DIR)
+test private_block::trained_block_tests::parity_refuses_a_mismatch_without_a_count_a_position_or_a_value ... ok
+test private_block::trained_block_tests::review_r4_a_an_oversized_or_misdeclared_array_is_refused_before_it_is_read ... ok
+test private_block::review_d24_tests::review_g_the_class_corner_proves_and_its_neighbours_refuse ... ok
+test private_block::trained_block_tests::the_reader_round_trips_a_tiny_export_and_binds_its_digests ... ok
+test private_block::trained_calib_tests::a_bound_run_at_the_trained_rung_binds_its_constants ... ok
+test private_block::s25_tests::the_per_slot_terminal_absorb_lengths_are_printed_and_recorded_at_every_shape ... ok
+test private_block::trained_calib_tests::every_committed_value_under_a_non_unit_coefficient_is_range_proved_at_the_trained_shapes ... ok
+test private_block::trained_calib_tests::every_trained_constant_moves_the_schedule_digest ... ok
+test private_block::trained_calib_tests::native_probe_the_trained_dense_bands ... ignored, native lane probe: many width-2048 witnesses
+test private_block::trained_calib_tests::native_t3_generic_trained_tinyllama_block_proves_and_verifies ... ignored, native lane heavy: one width-2048 TinyLlama block proof
+test private_block::trained_calib_tests::native_t3_verify_the_saved_receipt_in_a_fresh_process ... ignored, native lane heavy: verifies a saved width-2048 receipt in a fresh process
+test private_block::trained_calib_tests::the_frozen_profiles_print_the_frozen_calibration_line ... ok
+test private_block::trained_calib_tests::the_trained_door_refuses_every_frozen_profile ... ok
+test private_block::trained_calib_tests::the_trained_tinyllama_counted_layout_ladder ... ok
+test private_block::trained_calib_tests::the_trained_tinyllama_shape_has_the_derived_window_and_the_dev_counts ... ok
+test private_block::trained_calib_tests::the_validator_computes_tn_from_the_width_and_refuses_outside_the_class ... ok
+test private_block::trained_block_tests::the_cli_proves_and_verifies_the_tiny_export_with_every_control ... ok
+test private_block::trained_calib_tests::a_generic_trained_rung_block_proves_verifies_and_every_control_refuses ... ok
+test private_block::s25_tests::every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length ... ok
+test private_block::trained_stack_tests::the_stack_cli_proves_three_chained_layers_as_one_bound_run_and_every_control_refuses ... ok
+
+test result: ok. 64 passed; 0 failed; 9 ignored; 0 measured; 508 filtered out; finished in 19.72s
+

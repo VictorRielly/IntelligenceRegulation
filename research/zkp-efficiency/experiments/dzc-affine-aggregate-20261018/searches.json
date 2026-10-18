@@ -1,0 +1,16 @@
+{
+  "native_live_search_queries": [
+    "site.eprint.iacr.org 2026 softmax lookup sumcheck zero knowledge attention GPU",
+    "site.github.com sumcheck affine linear combination precompute GPU 2026",
+    "site.eprint.iacr.org 2026 \"softmax\" \"lookup\"",
+    "site.github.com zkllm releases 2026 lookup softmax",
+    "sumcheck \"affine\" precomputation GPU 2026 linear combination",
+    "site.github.com \"sumcheck\" \"releases\" \"Oct\" \"2026\""
+  ],
+  "considered_but_not_promoted": [
+    "TensorZKP establishedcycle30 full-product/offcube filter retained; proceedingsAug2026, no new result",
+    "Longfellow dyne documentation opened, authorship/provenance not established for technical reliance",
+    "Unrelated inference projects/search hits rejected"
+  ],
+  "sources": 6
+}

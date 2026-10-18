@@ -85,7 +85,7 @@ fn the_rope_base_and_the_checkpoint_are_pinned_per_profile() {
     let sh = llama3_8b();
     let rp = super::run::RUN_PROFILE_LLAMA3_8B_T32_TRAINED;
     let mut prov = Provenance::recipe("r4/pin", 5.57e-4, [1; 32], [2; 32]);
-    let rec = vec![LayerRecord { index: 0, block_digest: [1; 32], word_sha256: [[2; 32]; 9], table_sha256: [[3; 32]; 3], source_tensors: vec![], manifest_sha256: [4; 32], silu_member: (-3, -11), exp_e_s: 1 }];
+    let rec = vec![LayerRecord { index: 0, block_digest: [1; 32], word_sha256: [[2; 32]; 9], table_sha256: [[3; 32]; 3], source_tensors: vec![], manifest_sha256: [4; 32], silu_member: (-3, -11), exp_e_s: 1, sh_s: None }];
     // the TinyLlama base at the 8B profile is refused, the 8B base accepted
     let e = TrainedModelStatement::new(&sh, rp, pin.clone(), IntegerCalibration::as_the_code_proves(&sh, &prov), rec.clone()).unwrap_err();
     assert!(e.contains("RoPE base"), "{e}");

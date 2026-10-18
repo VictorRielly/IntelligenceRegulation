@@ -9,14 +9,14 @@ compute_89 PTX through the driver; same ptxas back end family, so these are
 the numbers to expect, not a measurement of the driver's JIT.)
 
 usage: python3 -I fzc_regs.py <hashline/src/gpu dir> [variant ...]
-variants: v2 (direct, D5, gate) lean (D5, gate) v2d4 leand4
+variants: v2 (direct, D5, gate) lean (D5, gate) v2d4 leand4 split (v4, D5, gate) splitd4
 """
 import ctypes
 import re
 import sys
 
 LIB = "/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib/libnvrtc.so.12"
-VARIANTS = {"v2": (5, 1, 0), "lean": (5, 1, 1), "v2d4": (4, 0, 0), "leand4": (4, 0, 1)}
+VARIANTS = {"v2": (5, 1, 0, 0), "lean": (5, 1, 1, 0), "v2d4": (4, 0, 0, 0), "leand4": (4, 0, 1, 0), "split": (5, 1, 0, 1), "splitd4": (4, 0, 0, 1)}
 
 
 def compile_one(src: bytes, extra: list) -> tuple:
@@ -45,10 +45,10 @@ def main() -> int:
         return 2
     fsrc = open(f"{gdir}/fzc_kernels.cu").read()
     for name in names:
-        d, supp, lean = VARIANTS[name]
-        src = f"#define FZ_D {d}\n#define FZ_SUPP {supp}\n#define FZ_LEAN {lean}\n{ksrc[:cut]}{fsrc}".encode()
+        d, supp, lean, split = VARIANTS[name]
+        src = f"#define FZ_D {d}\n#define FZ_SUPP {supp}\n#define FZ_LEAN {lean}\n#define FZ_SPLIT {split}\n{ksrc[:cut]}{fsrc}".encode()
         rc, log = compile_one(src, [])
-        print(f"== variant {name} (D {d}, gate {supp}, lean {lean}): NVRTC rc {rc}")
+        print(f"== variant {name} (D {d}, gate {supp}, lean {lean}, split {split}): NVRTC rc {rc}")
         cur = None
         for line in log.splitlines():
             m = re.search(r"Compiling entry function '(\w+)'", line)

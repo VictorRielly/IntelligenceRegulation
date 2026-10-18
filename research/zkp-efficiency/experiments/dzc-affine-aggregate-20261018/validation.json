@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "checked_at_utc": "2026-10-18T03:33:13.607183+00:00",
+  "all_eight_tested_native_snapshots_match_pins": true,
+  "live_source_moved_count": 0,
+  "prior_findings_prefix_unchanged": true,
+  "prior_389_sources_prefix_unchanged": true,
+  "source_records": 395,
+  "artifacts_hashed": 42,
+  "all_three_result_files_PASS": true,
+  "startup_no_actual_token_identifier": true,
+  "final_state_progress_report_handoff_exist": true,
+  "current_artifact_hashes_refreshed": true
+}

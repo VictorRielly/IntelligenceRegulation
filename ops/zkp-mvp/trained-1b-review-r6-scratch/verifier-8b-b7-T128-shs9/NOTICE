@@ -1,0 +1,9 @@
+Meta Llama 3 is licensed under the Meta Llama 3 Community License, Copyright © Meta Platforms, Inc. All Rights Reserved.
+Built with Meta Llama 3.
+
+The int8 words in this export are derived from Meta Llama 3 (NousResearch/Meta-Llama-3-8B, revision
+315b20096dc791d381d514deb5f8bd9c8d6d3061) as calibration data for the zk60 proof project. The licence is the
+repository's LICENSE (sha256 475211637354ce4c14b9c3dacccbefbaba735fe1b0db97d6c4fd11cd1356819f) with the Acceptable
+Use Policy USE_POLICY.md (sha256 003513f595a20b7d63c609dfe80879531acb9caef6376fcc109bf0827471f3d1), both fetched from
+the pinned revision on 2026-10-17 with matching git blobs (results/zk60_mvp_20260929/llama3-8b/
+tokenizer-license-fetch-20261017.json) and copied next to this NOTICE.

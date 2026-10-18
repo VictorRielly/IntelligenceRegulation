@@ -1,0 +1,1 @@
+{"event":"rejected","error":"privacy review P-5: the export directory /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r5-scratch/review_out/stack2/rev-stack2 holds the prover-private entry \"seq_s0\"; a verifier's copy of the export holds the public files only (copy it without seq_*)"}

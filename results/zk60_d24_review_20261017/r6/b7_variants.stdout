@@ -1,0 +1,4 @@
+[zk60-guard 21:24:57] START r6-8b-b7-flat class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=220cface6058
+[zk60-guard 21:25:08] END r6-8b-b7-flat exit=1 child_wall=11s peak_rss=2.01G min_avail=10.61G
+[zk60-guard 21:25:09] START r6-8b-b7-shs9 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=98a07f55cca6
+[zk60-guard 21:25:09] END r6-8b-b7-shs9 exit=1 child_wall=1s peak_rss=0.75G min_avail=11.55G

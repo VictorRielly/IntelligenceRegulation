@@ -1,0 +1,63 @@
+{
+  "status": "PASS",
+  "cycle": "0071",
+  "run_id": "20261018T002105Z-32d7e4fc",
+  "seed": 2026101871,
+  "counts": {
+    "fixtures": 132,
+    "prior_fixtures": 84,
+    "round_values": 3020,
+    "terminal_values": 396,
+    "masked_chain_rounds": 755,
+    "causality_unchanged_rounds": 3031,
+    "causality_sensitive_cases": 753
+  },
+  "negative_controls": {
+    "zero rows refuses": true,
+    "nonpower rows refuses": true,
+    "zero columns refuses": true,
+    "oversized rows refuses": true,
+    "too many columns refuses": true,
+    "wrong value count refuses": true,
+    "wrong point count refuses": true,
+    "wrong column point refuses": true,
+    "wrong challenge count refuses": true,
+    "eight lifecycle refusal/idempotence checks": true,
+    "current challenge unavailable to own message": true,
+    "challenge mutation does change final state": true,
+    "private numeric zeros preserve traffic": true,
+    "zero values retain public E/S terminals": true,
+    "distinct column points cannot be shared": true,
+    "column terminal selector cannot be one": true,
+    "all whole-cube cubic mask samples retained": true,
+    "omitted last pending fold changes terminal": true,
+    "row reversal changes transcript arithmetic": true,
+    "self consistent replacement still needs original witness binding": true,
+    "raw singleton remains revealing": true,
+    "N2 read saving is zero": true,
+    "column-only has no row traffic": true
+  },
+  "wall_seconds": 3.6404221939992567,
+  "peak_rss_kib": 33440,
+  "compiler_peak_rss_kib": 138164,
+  "compiler_argv": [
+    "/home/victor/.rustup/toolchains/1.97.0-x86_64-unknown-linux-gnu/bin/rustc",
+    "--edition=2021",
+    "--crate-type=cdylib",
+    "-C",
+    "opt-level=1",
+    "-C",
+    "codegen-units=1",
+    "isolated.rs",
+    "-o",
+    "isolated.so"
+  ],
+  "fixture_sha256": "29b92a8909466e645c3f64a33bf2be6577f6ec58c58b0498bbe02ee9672298f0",
+  "threads": 1,
+  "cpu_affinity": [
+    0
+  ],
+  "limits": "59s CPU/wall,512MiB AS,single codegen unit",
+  "scope": "Synthetic public-shape E*S*V arithmetic, not a lookup proof/native proof/privacy theorem/GPU or speed result.",
+  "completed_at_utc": "2026-10-18T00:23:44.134143+00:00"
+}

@@ -362,6 +362,20 @@ pub(super) fn verifier_copy(vdir: &Path) -> PathBuf {
     to
 }
 
+/// NATIVE R6: a plain recursive copy of a test export (every entry)
+pub(super) fn copy_tree_for_tests(from: &Path, to: &Path) {
+    std::fs::create_dir_all(to).unwrap();
+    for e in std::fs::read_dir(from).unwrap() {
+        let e = e.unwrap();
+        let (src, dst) = (e.path(), to.join(e.file_name()));
+        if e.file_type().unwrap().is_dir() {
+            copy_tree_for_tests(&src, &dst);
+        } else {
+            std::fs::copy(&src, &dst).unwrap();
+        }
+    }
+}
+
 /// R5b (P-5): a prover-private copy of the export's sequence `s0` OUTSIDE the
 /// export (the raw files only, no manifest), for `--seq-dir`
 pub(super) fn private_seq_copy(vdir: &Path) -> PathBuf {

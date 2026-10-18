@@ -1,5 +1,54 @@
 # Where the MVP stands, in plain words
 
+**2026-10-18 01:42 UTC — first private proof of a trained model's NEXT TOKEN.**
+TinyLlama-1.1B, a 32-token hidden prompt: hidden token ids -> embedding (indexed
+lookup into the public int16 table) -> all 22 trained blocks -> final norm ->
+per-row int8 head with 12-bit multipliers -> greedy choice (lowest-id ties),
+the token sealed in a hidden output fingerprint, all **one proof under one
+transcript**; the verifier sees no prompt, no activation and no token (D25).
+Next token 29914, confirmed four independent ways (in-test reference, the
+Python reference, the fidelity lane's integer head and its float head).
+Receipt 255,258,816 B in 24 segments (equal to the counted lengths); prove
+85.3 s on the laptop CPU, peak 2.45 GiB; fresh-process verify 10.6 s under a
+95-bit minimum policy; a one-bit change refused; 55 of 55 applicable tamper
+controls caught exactly where predicted; whole-run soundness 97 bits (meets
+D27); full suite 708 passed / 0 failed [MEASURED, shared box, n=1;
+`results/zk60_token_io_r1_20261017/runs/r2/ho00/`]. Built on the design that
+passed two adversarial checks and on the tiny rung R1 that passed an
+independent code review; the review of this rung (R2) is running. **Not yet:**
+the hidden-length variant (D26), the privacy gate for the token stages
+(G-1..G-7), and Llama-3-8B (rung R3). Not a privacy acceptance.
+
+**2026-10-18 00:10 UTC — overnight checkpoint.**
+- **First private Llama-3-8B stack at T128:** all 32 blocks, a 128-token
+  hidden prompt, one proof: 607 s total on the laptop CPU with the R5b
+  safeguards (487 s before them; the difference is a second witness build for
+  the refusal-before-header rule), receipt 922,711,264 B, parity bit-exact,
+  fresh-process verify with 11 tamper controls refused (0.21–0.26 proved
+  positions/s) [MEASURED, shared box, n=1]. The T64/T128 profiles are under
+  independent review (round 5).
+- **R5b frozen (2026-10-18 00:06:31Z):** fixes the privacy review's blocker P-1
+  (inadmissible inputs refused before the run header; the public statement is
+  promoted only after a fresh verify), review r4's two verifier-DoS findings,
+  and the gate's operating rules (allow-listed run label, hidden inputs kept
+  out of the verifier's copy, refusal messages without data-derived counts,
+  backend recorded). Suite 692 passed / 0 failed. Privacy gate re-capture and
+  re-gate with tools v5 (pins now enforced) running on it.
+- **GPU go/no-go:** 11.7% of the laptop GPU's bandwidth on the feed-forward
+  zero-check, byte-identical to the CPU: improve kernels before porting more
+  (register spills found; next round estimated 33–42%). Refitting the cost model
+  on the 8B T128 stack confirms the plan: T512 on a 5090 is about 0.6–0.8
+  positions/s with today's code, 6.6–8.6 with the whole prover on the GPU at
+  today's efficiency, 9.4–11.8 with the attention-layout changes; 50 needs
+  kernels near roofline.
+- **Next-token proof:** rung R1 (tiny vocabulary) passes its full suite after
+  census fixes and an independent code review (sound as built); review fixes
+  TR-1..TR-4 and rung R2 (TinyLlama, 22 blocks) in progress.
+- **Fidelity:** 8B T64 and T128 exports verified bit-exact; layer 1's weak spot
+  traced to large negative attention scores setting a coarse scale; a per-layer
+  score shift lifts held-out top-1 at T128 from 0.651 to 0.673 (KL 0.61 -> 0.50)
+  with no layout change — native round R6 is adding it.
+
 **2026-10-17 21:10 UTC — evening checkpoint: 8B stack 2.2x faster end to end,
 security accounting corrected, five rulings recorded, next-token proof
 designed and being built.**

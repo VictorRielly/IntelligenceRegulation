@@ -1,0 +1,5 @@
+/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r6/manifest_r6-check2.json: 219 files, tree 83f1fdcbdcda3687815a76d5dc7714bf6b49d413ccfd9bc5b595bd898406cc33
+[zk60-guard 17:48:15] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 17:48:44] START r6-check2 class=cpu need=4G cap=7G enforce=cgroup+watchdog waited=29s run=8b2d5df652d0
+[zk60-guard 17:52:12] END r6-check2 exit=0 child_wall=209s peak_rss=1.76G min_avail=11.42G
+r6-check2 exit 0

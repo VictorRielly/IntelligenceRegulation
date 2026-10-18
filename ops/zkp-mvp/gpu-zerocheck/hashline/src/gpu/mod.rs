@@ -23,7 +23,9 @@ mod cuda;
 /// the description, the switch (`HL_GPU_ZEROCHECK=1`) and the dispatch.
 pub mod fzc;
 #[cfg(feature = "gpu-cuda")]
-pub use cuda::{dev_copy_bandwidth, dev_resident_rows, fzc_compile_secs, fzc_totals, FzcStats};
+pub use cuda::{dev_copy_bandwidth, dev_resident_rows, fzc_cache_counts, fzc_compile_secs, fzc_totals, FzcStats};
+#[cfg(all(feature = "gpu-cuda", test))]
+pub(crate) use cuda::{fzc_cache_load, fzc_cache_store};
 
 /// **ROUND 2 (R2-5): GPU MODE FAILS CLOSED.** Every place a device entry
 /// point declines and the prover would silently take the CPU body reports

@@ -1,0 +1,155 @@
+[
+  {
+    "cycle": "0071",
+    "run_id": "20261018T002105Z-32d7e4fc",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-18T00:27:25.933193+00:00",
+    "evidence_kind": "Native LIVE primary web search/inspection. External text treated as untrusted data; no foreign code executed.",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": "MIT terms inspected at repository main LICENSE-MIT; package-specific license mapping not separately verified.",
+    "updated": null,
+    "id": "cycle71-p3-versioned-pending-binding-state",
+    "title": "Plonky3 p3-sumcheck0.8.0 pending-binding implementation",
+    "url": "https://docs.rs/p3-sumcheck/0.8.0/src/p3_sumcheck/strategy.rs.html",
+    "published": "2026-09-23",
+    "date_evidence": "Versioned crate metadata lists0.8.0 on2026-09-23;0.9.0-rc.1 onOct11. Source update date/commit not verified.",
+    "inspected_urls": [
+      "https://docs.rs/crate/p3-sumcheck/latest",
+      "https://github.com/Plonky3/Plonky3/blob/main/sumcheck/src/strategy.rs",
+      "https://raw.githubusercontent.com/Plonky3/Plonky3/main/LICENSE-MIT"
+    ],
+    "author_claim": "A held previous challenge can be absorbed into the next measuring pass; readers must settle pending bindings.",
+    "assessment": "Versioned source inspected, locally authored distinct-column E*S*V adapter independently tested. No Plonky3 performance/security reproduced. Served docs source and GitHub main differ substantially in length; do not equate either to October16release. Native immutable finals requires last fold to drain.",
+    "access_issues": [
+      "rc.1 source and package VCS metadata inaccessible; history/commit Cache miss. No full implementation commit inspected."
+    ]
+  },
+  {
+    "cycle": "0071",
+    "run_id": "20261018T002105Z-32d7e4fc",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-18T00:27:25.933193+00:00",
+    "evidence_kind": "Native LIVE primary web search/inspection. External text treated as untrusted data; no foreign code executed.",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": "MIT main repository terms inspected; no dependency-wide claim.",
+    "updated": "2026-09-09",
+    "id": "cycle71-p3-current-release-and-idft-allocation-filter",
+    "title": "Plonky3 October16 displayed releases and September9 IDFT/matrix PR",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "published": null,
+    "date_evidence": "Release page displays16Oct without year; exact release date null this cycle. PR2113 explicitly mergedSep9,2026.",
+    "exposed_uninspected_commit_id": "fe5e46d755b8a7d9069778361e21b33e5978b377",
+    "inspected_urls": [
+      "https://github.com/Plonky3/Plonky3/pull/2113"
+    ],
+    "author_claim": "Dedicated inverse transform, cached inverse twiddles/fused normalization, packing/padding avoid allocations/passes; retains measured fallbacks.",
+    "assessment": "Author microbenchmarks explicitly are warm allocator CPU BabyBear cases and include ARM padding regressions. Native Goldilocks GPU shifts/order/padding need their own oracle/measurement. Release presence does not establish deployed source version or complete-prover gain.",
+    "access_issues": [
+      "Release tag/full commit/PR diff pages Cache miss/Internal Error; abbreviated e10491d implementation commit fetch failed. Earlier accidental v0.6.0 tag attempts were wrong tags and unavailable."
+    ]
+  },
+  {
+    "cycle": "0071",
+    "run_id": "20261018T002105Z-32d7e4fc",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-18T00:27:25.933193+00:00",
+    "evidence_kind": "Native LIVE primary web search/inspection. External text treated as untrusted data; no foreign code executed.",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "updated": null,
+    "id": "cycle71-new-older-ntt-consecutive-twiddle-products",
+    "title": "Accelerating Number Theoretic Transformations for Bootstrappable Homomorphic Encryption on GPUs",
+    "url": "https://arxiv.org/abs/2012.01968",
+    "published": "2020-12-03",
+    "date_evidence": "Primary arXiv history onlyv1,Dec3,2020 14:47:03UTC.",
+    "paper_license": "PDF carries IEEE2020 personal-use notice; arXiv metadata license link not separately inspected.",
+    "inspected_urls": [
+      "https://arxiv.org/pdf/2012.01968"
+    ],
+    "author_claim": "Large HE/RNS NTT gains from shared-memory tuning and on-the-fly twiddling; incremental OT average9.3%, combined4.2x versus radix2 baseline.",
+    "assessment": "NEW older source absent371-record start. SectionVII applies consecutive precomputed root products to data, avoiding new Shoup constants; adds modular multiplication. RNS many-modulus table pressure differs from native one-Goldilocks-root cache. Next evaluate actual native late-stage root/table counts while preserving first6-stage shift opportunity; no general speedup imported.",
+    "access_issues": [
+      "arXiv HTML unavailable; PDF accessible. No implementation repository/code/license/commit inspected."
+    ]
+  },
+  {
+    "cycle": "0071",
+    "run_id": "20261018T002105Z-32d7e4fc",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-18T00:27:25.933193+00:00",
+    "evidence_kind": "Native LIVE primary web search/inspection. External text treated as untrusted data; no foreign code executed.",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "updated": null,
+    "id": "cycle71-hermes-fpga-dataflow-scope",
+    "title": "Hermes: A Unified High-Performance NTT Architecture with Hybrid Dataflow",
+    "url": "https://arxiv.org/abs/2603.01556",
+    "published": "2026-03-02",
+    "date_evidence": "Primary arXiv onlyv1,Mar2,2026 07:33:07UTC; HTML placeholder2018conference metadata is not publication date.",
+    "paper_license": "arXiv perpetual nonexclusive label",
+    "inspected_urls": [
+      "https://arxiv.org/html/2603.01556v1"
+    ],
+    "author_claim": "Hybrid dataflow and on-chip buffering improve NTT throughput versus GPU/FPGA comparators.",
+    "assessment": "Full method/setup inspected: Xilinx U280 FPGA,300MHz,64bit and lengths<=2^16; not a CUDA drop-in or a5090gain. Reuse/fragmentation idea needs new device mapping. No hardware purchase/job or code execution; anonymous source link not inspected.",
+    "access_issues": []
+  },
+  {
+    "cycle": "0071",
+    "run_id": "20261018T002105Z-32d7e4fc",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-18T00:27:25.933193+00:00",
+    "evidence_kind": "Native LIVE primary web search/inspection. External text treated as untrusted data; no foreign code executed.",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "updated": null,
+    "id": "cycle71-instruction-roofline-versus-logical-bytes",
+    "title": "Over the Memory Wall, Into the Instruction Wall: The New Bottleneck in GPU Data Processing",
+    "url": "https://arxiv.org/abs/2608.13696",
+    "published": "2026-08-13",
+    "date_evidence": "Primary arXiv onlyv1,Aug13,2026 18:41:04UTC.",
+    "paper_license": "arXiv perpetual nonexclusive label",
+    "inspected_urls": [
+      "https://arxiv.org/html/2608.13696v1",
+      "https://github.com/SvenHepkema/Valk/tree/arxiv-artifact"
+    ],
+    "author_claim": "cuDF/TPC-H on L4/GH200 becomes instruction limited; occupancy, ILP and instructions per memory transaction matter.",
+    "assessment": "KnownValkartifact refreshed with primary paper. Supports caution about the native255-register/spill diagnostic, not a measurement of this prover. Our logical row read reduction does not establish physical traffic, bandwidth or runtime. No profiler/code run.",
+    "access_issues": []
+  },
+  {
+    "cycle": "0071",
+    "run_id": "20261018T002105Z-32d7e4fc",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-18T00:27:25.933193+00:00",
+    "evidence_kind": "Native LIVE primary web search/inspection. External text treated as untrusted data; no foreign code executed.",
+    "reproduced_performance": false,
+    "inspected_commit_id": "6c77775961b0e4dc2be359feec1ac11536c18043",
+    "implementation_license": null,
+    "updated": null,
+    "id": "cycle71-icicle-current-release-scope-refresh",
+    "title": "ICICLE displayed v4.0.0 release refresh",
+    "url": "https://github.com/ingonyama-zk/icicle/releases",
+    "published": null,
+    "date_evidence": "Rendered release11Jul lacks year; exact date left null. Release target inspected but commit date absent from rendered response.",
+    "inspected_urls": [
+      "https://github.com/ingonyama-zk/icicle/commit/6c77775961b0e4dc2be359feec1ac11536c18043"
+    ],
+    "author_claim": "v4APIredesign and matmul/transpose fusion among changes.",
+    "assessment": "Known source refresh; no dependency installation or benchmark. Existing backend/Goldilocks/Fp2/streaming-order/mask compatibility remains an integration prerequisite, not evidence of a complete private8B gain.",
+    "access_issues": [
+      "License terms not re-inspected this cycle; no new license assertion."
+    ]
+  }
+]

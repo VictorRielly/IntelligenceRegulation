@@ -1,0 +1,62 @@
+[
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/factorized-public-equality-20261017/field-only.rs",
+    "capture": "field-only.rs",
+    "sha256": "f787ef8ccc83b5f494039b958fa4261fb720f497e04f3b75b74d3c600fb77873"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/factorized-public-equality-20261017/ragged.rs",
+    "capture": "ragged.rs",
+    "sha256": "bc4b0800cac96a5e08b146c9bf96d8bbf70e393b22170377c10da50a59df77a7"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/factorized-public-equality-20261017/factorized.rs",
+    "capture": "factorized.rs",
+    "sha256": "053c009a3c50e8ab0e603f1991175bdec727f698b2eb052f9416a0858316d03e"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/factorized-public-equality-20261017/captured-mask.rs",
+    "capture": "captured-mask.rs",
+    "sha256": "744c062733ac65106d157070204921112f79dcc73f29d6f4b4ffa911322664e8"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/factorized-public-equality-20261017/fixtures.json",
+    "capture": "prior-fixtures.json",
+    "sha256": "3e32b2457e6598cfaf84853cf9135d7854fa5689f974be3b4d931011111b9ad7"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/field.rs",
+    "capture": "native/field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/sumcheck.rs",
+    "capture": "native/sumcheck.rs",
+    "sha256": "fc7374bbd5e5cc4ede62e8a21d325eb62acff9b9dcc786d12eae39efbdfdbb95"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/sumcheck/rounds.rs",
+    "capture": "native/rounds.rs",
+    "sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/protocol.rs",
+    "capture": "native/protocol.rs",
+    "sha256": "4612a955a1148ba821e3d8722684ccb1d73304bb34955dcd3be28cafdbdc8e7d"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/argument.rs",
+    "capture": "native/argument.rs",
+    "sha256": "9e70bbe558d7771b16f2a6f7f526ad3e548895d32ed0f6b897b85d0dd48b29b5"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/shape.rs",
+    "capture": "native/shape.rs",
+    "sha256": "e6c7290b5c2d897ccaaa6284c813bbcfea563aaef7594c309b955a5588c1e073"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/layout.rs",
+    "capture": "native/layout.rs",
+    "sha256": "fcf9dda4e507d2a347f786ddc537feff3ac57779abae88cea91ee48d4b34c855"
+  }
+]

@@ -1,0 +1,16 @@
+{
+ "ok": true,
+ "runs": {
+  "generic-ho00": {
+   "r0_next_token": 75883,
+   "decommitted_next_token": 75883,
+   "agree": true,
+   "top2_margin": 38566990,
+   "D": 64474,
+   "max_abs_y": 7,
+   "max_abs_logit": 176249128,
+   "prompt_bos": true
+  }
+ },
+ "reference": "R0 token_io_ref.py (final_norm, head_logits x m_j, first_argmax) on the 8B export's x_out_L31 row T-1"
+}

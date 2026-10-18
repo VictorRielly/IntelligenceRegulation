@@ -1,0 +1,64 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md",
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603,
+    "stored_sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/STATE.md",
+    "sha256": "6c5de5d65d46784fc8f8008be859516b3ea60076eef02c3ccb1348f1b7f9625a",
+    "bytes": 7869,
+    "stored_sha256": "6c5de5d65d46784fc8f8008be859516b3ea60076eef02c3ccb1348f1b7f9625a"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/FINDINGS.md",
+    "sha256": "b674e927f67a8c3bcf6436740049d296b334cfbb8331592d1990bd09d1e8baed",
+    "bytes": 527174,
+    "stored_sha256": "b674e927f67a8c3bcf6436740049d296b334cfbb8331592d1990bd09d1e8baed"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/PROGRESS.md",
+    "sha256": "a30d65fb7e4c0f2bae0300d1729339def397a1247cc8697774025d4c01453dc5",
+    "bytes": 2400,
+    "stored_sha256": "a30d65fb7e4c0f2bae0300d1729339def397a1247cc8697774025d4c01453dc5"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/sources.jsonl",
+    "sha256": "e67bf3d62076dda3715cd4e5a4f1dd3c852f98001df32fac46aed937db8fa3e7",
+    "bytes": 499123,
+    "stored_sha256": "e67bf3d62076dda3715cd4e5a4f1dd3c852f98001df32fac46aed937db8fa3e7"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089,
+    "stored_sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+    "sha256": "b52a2ee0289f4a915eb16bab1886dc19fc55e3ba6cc8a90e1ac7fb3ed40fdddd",
+    "bytes": 72813,
+    "stored_sha256": "e5c233d7f7ff160447c81fd94e9cf5c78cc768aa12af5770c5fc3f35341638f6",
+    "storage_note": "Original source hash retained. MVP stored as aggregate-only summary; decisions omit actual token identifier."
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+    "sha256": "f1cec7390c335c5edcccc2b3e6b568569067864d4d91892491d0a5cb6031432f",
+    "bytes": 80120,
+    "stored_sha256": "07ef923fc44c580f774fc6e2925634bbb735bc2cd659e95dfccc6ddfd36277c5",
+    "storage_note": "Original source hash retained. MVP stored as aggregate-only summary; decisions omit actual token identifier."
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889,
+    "stored_sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941,
+    "stored_sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53"
+  }
+]

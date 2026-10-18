@@ -1,0 +1,320 @@
+   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io/hashline)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+    --> src/private_block/run.rs:1050:13
+     |
+1050 |         let mut tr = st.transcript()?;
+     |             ----^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:865:4
+    |
+865 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `slot` is never used
+   --> src/private_block/timing.rs:258:19
+    |
+215 | impl Phases {
+    | ----------- method in this implementation
+...
+258 |     pub(crate) fn slot(&mut self, s: usize, size: u64, unit: &'static str) {
+    |                   ^^^^
+
+warning: function `run_shape_for` is never used
+   --> src/private_block/trained_calib_tests.rs:451:15
+    |
+451 | pub(super) fn run_shape_for(sh: &Shape, l: usize) -> super::run::RunShape {
+    |               ^^^^^^^^^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:493:5
+    |
+486 | struct Rec {
+    |        --- field in this struct
+...
+493 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:595:15
+    |
+595 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 17 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 2m 54s
+     Running unittests src/lib.rs (/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io/hashline/target/release/deps/hashline-fdfcab3a8ea7fb95)
+
+running 32 tests
+TOKEN-IO-R2 COUNTS stage IN A 17 H 28 M 12 elems 184320 | stage OUT A 182 H 110 M 26 elems 1196032 u8 282624 | window 53 limbs 7 | whole run (L = 22): openings 97 column 2^-97.46 logup 2^-100.96 total 2^-97.33 floor 97 bits [COUNTED]
+test private_block::token_io::r2_tests::r2_the_counted_layout_is_the_counters ... ok
+test private_block::token_io::r2_tests::token_io_r2_prove_to_dir ... ignored
+test private_block::token_io::r2_tests::token_io_r2_verify_from_dir ... ignored
+TOKEN-IO-R1 CONTROL #R2-1 | (#1, second row) e on the padded entry V + 3, tok = V + 3, M = max + 1 | predicted [OutSlot(6)] | actual: stage OUT slot 06 [OUT-06 VZC e(1-e) + head host term on keyed l* + helpers (+pad)]: sumcheck round 0: s(0) + s(1) != claim | AS PREDICTED
+TOKEN-IO-R2 D20 | final-norm int8 overflow at Cn 5,664 | refused before any commitment: token I/O stage OUT: final norm quotient/remainder (refused, D20) | the same row at Cn 1,024: admitted | a spread row (|x| <= 1000): admitted, |y| <= 27
+test private_block::token_io::r2_tests::r2_d20_the_final_norm_int8_overflow_is_a_live_refusal_at_the_calibrated_cn ... ok
+TOKEN-IO-R2 MULTIROW HONEST: V 5000 (V_pad 8192, two rows per vocabulary plane), next token 1323, stage IN A 11 H 16 / stage OUT A 134 H 62 rows, prove 3.28 s, receipt 19084128 B [MEASURED, shared box, n=1, test build]
+test private_block::token_io::r2_tests::r2_multirow_an_honest_run_proves_verifies_and_both_owners_check ... ok
+test private_block::token_io::r3_tests::r3_the_parallel_folds_equal_the_serial_folds ... ok
+test private_block::token_io::r3_tests::r3_the_table_loader_round_trips_and_refuses_a_table_that_is_not_the_recorded_one ... ok
+TOKEN-IO-R3 STREAM | the verifier handed block 1 at stage 0 | refused: token I/O run: ruling CS-6 — block 0 is not the block the statement names
+TOKEN-IO-R3 STREAM | the prover handed block 1 at stage 0 | refused: token I/O run: ruling CS-6 — block 0 is not the block the statement names
+test private_block::token_io::r3_tests::r3_streamed_blocks_prove_and_verify_and_another_block_at_a_stage_is_refused ... ok
+TOKEN-IO-R1 CONTROL #R2-2 | (#2, second row) non-maximal j >= 4096, M = max + 1, deltas in bytes (A6-only) | predicted [OutSlot(7)] | actual: stage OUT slot 07 [OUT-07 RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)]: sumcheck round 0: s(0) + s(1) != claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #R2-3 | (#12b, second row) non-maximal j >= 4096, M = l_j, delta field values in a non-byte 7th limb | predicted [OutLogUp] | actual: stage OUT H (the LogUp sum claim is part of this opening): pcs zk: group 5: <v, c> != combined claim | AS PREDICTED
+TOKEN-IO-R3 VPAD17 HONEST: V 128256 (V_pad 2^17, 32 rows per vocabulary plane), BOS 128000, next token 88603, stage IN A 41 H 76 / stage OUT A 374 H 302 rows, prove 5.59 s, receipt 20252512 B [MEASURED, shared box, n=1, test build]
+test private_block::token_io::r3_tests::r3_vpad17_an_honest_run_proves_verifies_and_both_owners_check ... ok
+test private_block::token_io::r3_tests::token_io_r3_prove_to_dir ... ignored
+test private_block::token_io::r3_tests::token_io_r3_verify_from_dir ... ignored
+TOKEN-IO-R1 CONTROL #R2-4 | (#15, second row) a delta limb that is not a byte at an entry >= 4096 (same delta value) | predicted [OutLogUp] | actual: stage OUT H (the LogUp sum claim is part of this opening): pcs zk: group 5: <v, c> != combined claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #R3-1 | (#1, last row) e on the padded entry V + 5 = 128,261, tok = V + 5, M = max + 1 | predicted [OutSlot(6)] | actual: stage OUT slot 06 [OUT-06 VZC e(1-e) + head host term on keyed l* + helpers (+pad)]: sumcheck round 0: s(0) + s(1) != claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #17d | y outside int8 (hot Cn) with in-window remainders | predicted [OutLogUp] | actual: stage OUT H (the LogUp sum claim is part of this opening): pcs zk: group 5: <v, c> != combined claim | AS PREDICTED
+test private_block::token_io::tests::a_norm_output_outside_int8_is_refused_by_the_sym_lookups ... ok
+TOKEN-IO-R1 CONTROL #R2-5 | a nonzero delta limb on the padded entry V + 7 (second row) | predicted [OutSlot(6)] | actual: stage OUT slot 06 [OUT-06 VZC e(1-e) + head host term on keyed l* + helpers (+pad)]: sumcheck round 0: s(0) + s(1) != claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #R2-6 | stage IN histogram: one count moved from a second-row id to its first-row twin (tok, rows honest) | predicted [InLogUp] | actual: stage IN H (the LogUp sum claim is part of this opening): pcs zk: group 3: <v, c> != combined claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #R2-7 | (#16c, second row) padded token id V + 11, histogram on that pad entry | predicted [InSlot(2)] | actual: stage IN slot 02 [IN-02 table zero-check: h_tab (alpha - tau) = m + pad, fresh mu each]: sumcheck round 0: s(0) + s(1) != claim | AS PREDICTED
+test private_block::token_io::r2_tests::r2_multirow_controls_are_refused_where_predicted ... ok
+TOKEN-IO-R1 CONTROL #13 | tie broken the wrong way (higher id chosen) | predicted [OutSlot(6)] | actual: stage OUT slot 06 [OUT-06 VZC e(1-e) + head host term on keyed l* + helpers (+pad)]: sumcheck round 0: s(0) + s(1) != claim | AS PREDICTED
+test private_block::token_io::tests::a_tie_broken_toward_the_higher_id_is_refused ... ok
+TOKEN-IO-R1 CONTROL #R3-2 | (#2, last row) non-maximal j >= 126,976, M = max + 1, deltas in bytes (A6-only) | predicted [OutSlot(7)] | actual: stage OUT slot 07 [OUT-07 RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)]: sumcheck round 0: s(0) + s(1) != claim | AS PREDICTED
+TOKEN-IO-R1 HONEST generic: next token 116 (reference 116), top-2 logit margin 9781470, prove 3.07 s (stages [0.15, 1.34, 1.27, 0.31]), verify 0.50 s, receipt 19026480 B in 4 segments [1224328, 7421464, 7421464, 2959224] [MEASURED, shared box, n=1, test build]
+test private_block::token_io::tests::an_honest_generic_run_proves_verifies_and_both_owners_check ... ok
+TOKEN-IO-R1 COUNTS stage IN A 10 H 14 M 12 elems 98304 | stage OUT A 121 H 50 M 26 elems 700416 u8 77824 | window 45 limbs 6 | segments [1224328, 7421464, 7421464, 2959224] total 19026480 B | per-opening stage -103.69 endpoint -106.25 block -96.13
+test private_block::token_io::tests::the_counted_layout_is_the_counters ... ok
+TOKEN-IO-R1 D16 | plane  0 D              | coefficients: 2^tn, 2^(tn+1) (DZC c0, c1), 2 (TZC)       | determined: D = l0 + 256 l1 + 65536 l2 (TZC), limbs bytes (LZC)
+TOKEN-IO-R1 D16 | plane  1 Dsq            | coefficients: unit                                       | determined: Dsq = D^2 (TZC)
+TOKEN-IO-R1 D16 | plane  2 tok            | coefficients: -2^-v (VZC l*), c2 (RSEL), -1 (IO-out u0)  | determined: tok = sum i e (A3) with e one-hot (A1 + A2) -> tok in [0, V)
+TOKEN-IO-R1 D16 | plane  3 M              | coefficients: unit in l*                                 | determined: M = l_j (A5 at i = j with delta_j = 0 by A6)
+TOKEN-IO-R1 D16 | plane  4 isqrt limbs    | coefficients: 256, 65536 (TZC)                           | ranged: byte lookups (LZC), pad-zero
+TOKEN-IO-R1 D16 | plane  5 x              | coefficients: 2 g0 Cn (DZC c0), x^2 (SS)                 | ranged: int16 by c2 with two byte limbs; bound to B_out row T-1 (IO-in)
+TOKEN-IO-R1 D16 | plane  6 x limb 0       | coefficients: unit                                       | ranged: byte lookup
+TOKEN-IO-R1 D16 | plane  7 x limb 1       | coefficients: 256 (c2)                                   | ranged: byte lookup
+TOKEN-IO-R1 D16 | plane  8 y              | coefficients: 2^(tn+1) D (c0), W' (HEAD)                 | ranged: sym lookups y + 127, 127 - y in [0, 256)
+TOKEN-IO-R1 D16 | plane  9 rho limb       | coefficients: 256^k                                      | ranged: byte lookup
+TOKEN-IO-R1 D16 | plane 10 rho limb       | coefficients: 256^k                                      | ranged: byte lookup
+TOKEN-IO-R1 D16 | plane 11 rho limb       | coefficients: 256^k                                      | ranged: byte lookup
+TOKEN-IO-R1 D16 | plane 12 rho limb       | coefficients: 256^k                                      | ranged: byte lookup
+TOKEN-IO-R1 D16 | plane 13 sigma limb     | coefficients: 256^k                                      | ranged: byte lookup
+TOKEN-IO-R1 D16 | plane 14 sigma limb     | coefficients: 256^k                                      | ranged: byte lookup
+TOKEN-IO-R1 D16 | plane 15 sigma limb     | coefficients: 256^k                                      | ranged: byte lookup
+TOKEN-IO-R1 D16 | plane 16 sigma limb     | coefficients: 256^k                                      | ranged: byte lookup
+TOKEN-IO-R1 D16 | plane 17 e              | coefficients: c1 + c2 iota + c3 delta (RSEL)             | ranged: booleanity e(1 - e) = 0 (VZC), pad-zero
+TOKEN-IO-R1 D16 | plane 18 delta limb     | coefficients: 256^k 2^-v (l*), 256^k c3 (RSEL)           | ranged: byte lookup
+TOKEN-IO-R1 D16 | plane 19 delta limb     | coefficients: 256^k 2^-v (l*), 256^k c3 (RSEL)           | ranged: byte lookup
+TOKEN-IO-R1 D16 | plane 20 delta limb     | coefficients: 256^k 2^-v (l*), 256^k c3 (RSEL)           | ranged: byte lookup
+TOKEN-IO-R1 D16 | plane 21 delta limb     | coefficients: 256^k 2^-v (l*), 256^k c3 (RSEL)           | ranged: byte lookup
+TOKEN-IO-R1 D16 | plane 22 delta limb     | coefficients: 256^k 2^-v (l*), 256^k c3 (RSEL)           | ranged: byte lookup
+TOKEN-IO-R1 D16 | plane 23 delta limb     | coefficients: 256^k 2^-v (l*), 256^k c3 (RSEL)           | ranged: byte lookup
+TOKEN-IO-R1 D16 | plane 24 U8 histogram   | coefficients: 1 / (alpha - v) (TAB)                      | a LogUp multiplicity: no range needed (residue argument, counts < p)
+TOKEN-IO-R1 D16 | plane  0 tok            | coefficients: beta-free unit in q_t; -BOS clause         | determined: (tok_t, x~(t, r_emb)) is a row of the public table (LogUp) -> tok in [0, V); pad-zero beyond T
+TOKEN-IO-R1 D16 | plane  1 m              | coefficients: 1 / (alpha - tau_v) (table zero-check)     | a LogUp multiplicity: no range needed (residue in [1, T] nonzero since p > T)
+TOKEN-IO-R1 NOWRAP | TZC Dsq = D^2                              | 2^48.00 < p/2 = 2^63
+TOKEN-IO-R1 NOWRAP | TZC Dsq + a1 - Ceps = sum x^2              | 2^48.01 < p/2 = 2^63
+TOKEN-IO-R1 NOWRAP | SS sum x^2 over d int16                    | 2^38.58 < p/2 = 2^63
+TOKEN-IO-R1 NOWRAP | DZC c0 2 g0 Cn |x| (class edge)            | 2^42.99 < p/2 = 2^63
+TOKEN-IO-R1 NOWRAP | DZC c0 2^(tn+1) D |y| (tn 16)              | 2^47.99 < p/2 = 2^63
+TOKEN-IO-R1 NOWRAP | DZC c1 sigma + rho + 1 - 2^(tn+1) D        | 2^41.01 < p/2 = 2^63
+TOKEN-IO-R1 NOWRAP | HEAD |l| = 2^12 d 127^2                    | 2^34.56 < p/2 = 2^63
+TOKEN-IO-R1 NOWRAP | A5 identity 2^v (l_j - l_i) + (i - j)      | 2^45.00 < p/2 = 2^63
+TOKEN-IO-R1 NOWRAP | A4 delta in limbs + identity               | 2^48.17 < p/2 = 2^63
+TOKEN-IO-R1 NOWRAP | RSEL sum e over V_pad                      | 2^9.00 < p/2 = 2^63
+TOKEN-IO-R1 NOWRAP | stage IN multiplicities <= T               | 2^5.00 < p/2 = 2^63
+TOKEN-IO-R1 NOWRAP | stage OUT histogram <= lookups             | 2^16.25 < p/2 = 2^63
+test private_block::token_io::tests::the_d16_rule_5_audit_of_the_new_layouts ... ok
+TOKEN-IO-R1 HONEST r0-model: next token 24 (reference 24), top-2 logit margin 16516, prove 3.20 s (stages [0.17, 1.27, 1.47, 0.29]), verify 0.62 s, receipt 19026480 B in 4 segments [1224328, 7421464, 7421464, 2959224] [MEASURED, shared box, n=1, test build]
+test private_block::token_io::tests::an_honest_run_of_r0s_model_proves_verifies_and_both_owners_check ... ok
+TOKEN-IO-R1 CONTROL #17a | final norm: y off by one (rho, sigma re-derived) | predicted [OutLogUp] | actual: stage OUT H (the LogUp sum claim is part of this opening): pcs zk: group 5: <v, c> != combined claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #23 | a verifier configured with another embedding word | predicted [Binding] | actual: token I/O wire: this segment belongs to another run | AS PREDICTED
+TOKEN-IO-R1 CONTROL #23 | a verifier configured with another head word | predicted [Binding] | actual: token I/O wire: this segment belongs to another run | AS PREDICTED
+TOKEN-IO-R1 CONTROL #23 | a verifier configured with another head multiplier | predicted [Binding] | actual: token I/O wire: this segment belongs to another run | AS PREDICTED
+TOKEN-IO-R1 CONTROL #23d | BOS = V | predicted [the token-I/O door] | actual: token I/O: the BOS constant 300 is outside its class [0, V) with V = 300 (CHECK2 N-2) | AS PREDICTED
+TOKEN-IO-R1 CONTROL #23d | BOS = 128000 under V = 300 | predicted [the token-I/O door] | actual: token I/O: the BOS constant 128000 is outside its class [0, V) with V = 300 (CHECK2 N-2) | AS PREDICTED
+TOKEN-IO-R1 CONTROL #23d | g0 = 128 | predicted [the token-I/O door] | actual: token I/O: the final norm's uniform gain g0 = 128 is outside its class [1, 127] | AS PREDICTED
+TOKEN-IO-R1 CONTROL #23d | g0 = 0 | predicted [the token-I/O door] | actual: token I/O: the final norm's uniform gain g0 = 0 is outside its class [1, 127] | AS PREDICTED
+TOKEN-IO-R1 CONTROL #23d | Cn = 2^20 + 1 | predicted [the token-I/O door] | actual: token I/O: the final norm's Cn = 1048577 is outside its class [1, 2^20] | AS PREDICTED
+TOKEN-IO-R1 CONTROL #23d | Ceps = 0 | predicted [the token-I/O door] | actual: token I/O: the final norm's Ceps = 0 is outside its class [1, 2^40] | AS PREDICTED
+TOKEN-IO-R1 CONTROL #23d | Ceps = 2^40 + 1 | predicted [the token-I/O door] | actual: token I/O: the final norm's Ceps = 1099511627777 is outside its class [1, 2^40] | AS PREDICTED
+TOKEN-IO-R1 CONTROL #23d | tn = 10 (window 31, not 32) | predicted [the token-I/O door] | actual: token I/O: the final norm's remainder window tn + 1 + bits(D_max) = 31 bits; this rung's plane list is pinned at exactly | AS PREDICTED
+TOKEN-IO-R1 CONTROL #23d | tn = 12 (window 33) | predicted [the token-I/O door] | actual: token I/O: the final norm's remainder window tn + 1 + bits(D_max) = 33 bits; this rung's plane list is pinned at exactly | AS PREDICTED
+TOKEN-IO-R1 CONTROL #23d | a head multiplier 0 | predicted [the token-I/O door] | actual: token I/O: head row 0's multiplier 0 is outside its declared class [1, 2^12] (D25 T4 as amended) | AS PREDICTED
+TOKEN-IO-R1 CONTROL #23d | a head multiplier 2^12 + 1 | predicted [the token-I/O door] | actual: token I/O: head row 0's multiplier 4097 is outside its declared class [1, 2^12] (D25 T4 as amended) | AS PREDICTED
+TOKEN-IO-R1 CONTROL #22 | the receipt re-read under variant P-selector-sealed-in-input | predicted [Door] | actual: token I/O run: the P-selector-sealed-in-input variant is not built (D26's two-site endpoint is the next rung; review TR-3) | AS PREDICTED
+TOKEN-IO-R1 CONTROL #22 | the receipt re-read under variant F-selector-sealed-in-output | predicted [Door] | actual: token I/O run: the F-selector-sealed-in-output variant is not built (D26's two-site endpoint is the next rung; review TR-3) | AS PREDICTED
+TOKEN-IO-R1 CONTROL #20 | (public-row analogue) segments out of order | predicted [the run's counted segment geometry] | actual: token I/O wire: segment 0 is 7421464 B, the counted length is 1224328 | AS PREDICTED
+TOKEN-IO-R1 CONTROL #21 | (public-row analogue) endpoint declared with another row count | predicted [the derived geometry] | actual: token I/O wire: segment 0 is 1224328 B, the counted length is 1226376 | AS PREDICTED
+TOKEN-IO-R1 CONTROL #6 #8 #19 | hidden-length variant (SBOOL, IO-s, the sealed selector) | not applicable to the public-row rung R1 (D26's two-site endpoint is the next rung)
+test private_block::token_io::tests::the_run_level_controls_and_the_door_refuse ... ok
+TOKEN-IO-R1 CONTROL #R3-3 | (#12b, last row) non-maximal j >= 126,976, M = l_j, delta field values in a non-byte 7th limb | predicted [OutLogUp] | actual: stage OUT H (the LogUp sum claim is part of this opening): pcs zk: group 5: <v, c> != combined claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #17b+ | final norm: D off by one (isqrt relations kept in the field) | predicted [OutLogUp] | actual: stage OUT H (the LogUp sum claim is part of this opening): pcs zk: group 5: <v, c> != combined claim | AS PREDICTED
+
+thread 'private_block::token_io::r3_tests::r3_the_counted_layout_is_the_counters' (322873) panicked at src/private_block/token_io/tests.rs:241:39:
+the token-I/O run shape: "private run: ruling CS-7 — \"hashline-zk-mr1/private-token-io-run-llama-3-8b-t32-trained-statement-public-row/1\" is not a run profile this build registers, so it names no block shape (\"Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads)\" was given)"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test private_block::token_io::r3_tests::r3_the_counted_layout_is_the_counters ... FAILED
+TOKEN-IO-R1 CONTROL #4 | tok_0 = BOS + 1, h_q(0) = 0, row 0 arbitrary (the CHECK2 N-1 forgery) | predicted [InSlot(1)] | actual: stage IN slot 01 [IN-01 query zero-check: LogUp + BOS (own mu_bos) + pad, fresh mu each]: sumcheck round 0: s(0) + s(1) != claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #17b- | final norm: D off by one (isqrt relations kept in the field) | predicted [OutLogUp] | actual: stage OUT H (the LogUp sum claim is part of this opening): pcs zk: group 5: <v, c> != combined claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #1 | e on a padded vocabulary entry, tok = V, M = max + 1 | predicted [OutSlot(6)] | actual: stage OUT slot 06 [OUT-06 VZC e(1-e) + head host term on keyed l* + helpers (+pad)]: sumcheck round 0: s(0) + s(1) != claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #5 | tok_0 != BOS, otherwise honest | predicted [InSlot(1)] | actual: stage IN slot 01 [IN-01 query zero-check: LogUp + BOS (own mu_bos) + pad, fresh mu each]: sumcheck round 0: s(0) + s(1) != claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #17c-i | D16 half-p alias of D, limbs honest | predicted [OutSlot(2)] | actual: stage OUT slot 02 [OUT-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)]: sumcheck round 0: s(0) + s(1) != claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #2 | non-maximal j, M = max + 1, deltas in bytes (A6-only) | predicted [OutSlot(7)] | actual: stage OUT slot 07 [OUT-07 RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)]: sumcheck round 0: s(0) + s(1) != claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #7 | consistent re-lookup in A_in (tok, row, histogram) under the honest seal | predicted [InSlot(0)] | actual: stage IN slot 00 [IN-00 IO-in: token endpoint = supp_T tok (whole padded plane)]: sumcheck round 0: s(0) + s(1) != claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #R3-4 | (#15, last row) a delta limb that is not a byte at an entry >= 126,976 (same delta value) | predicted [OutLogUp] | actual: stage OUT H (the LogUp sum claim is part of this opening): pcs zk: group 5: <v, c> != combined claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #17c-ii | D16 half-p alias reconstructed by its limbs, relations kept | predicted [OutLogUp] | actual: stage OUT H (the LogUp sum claim is part of this opening): pcs zk: group 5: <v, c> != combined claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #3 | e, delta honest; tok' = j + 1, M = l_j + 2^-v (A3-only) | predicted [OutSlot(7)] | actual: stage OUT slot 07 [OUT-07 RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)]: sumcheck round 0: s(0) + s(1) != claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #10a | nonzero pad word in the input token endpoint | predicted [InSlot(0)] | actual: stage IN slot 00 [IN-00 IO-in: token endpoint = supp_T tok (whole padded plane)]: sumcheck round 0: s(0) + s(1) != claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #17e | x int16 limbs off by one (xl1 + 1) | predicted [OutSlot(5)] | actual: stage OUT slot 05 [OUT-05 DZC final-norm quotient + x limbs + helpers (+pad)]: sumcheck round 0: s(0) + s(1) != claim | AS PREDICTED
+test private_block::token_io::tests::the_final_norm_controls_are_refused_where_the_design_predicts ... ok
+test private_block::token_io::tests::token_io_r1_prove_to_dir ... ignored
+test private_block::token_io::tests::token_io_r1_verify_from_dir ... ignored
+TOKEN-IO-R1 REVIEW TR-1 | token endpoints 2^8 rate 1/4 (the v1 B-1 hole, 2^-67.34) | refused at the tier door: token I/O tier mvp-95-whole-run (D27): a token endpoint opening at 2^8 rate 1/4 misses with 2^-67 (rounded), above DESIGN B-1's floor 2^-106
+TOKEN-IO-R1 REVIEW TR-1 | token endpoints 2^8 rate 1/2 (RS(512, 512), zero distance) | refused at the tier door: token I/O tier mvp-95-whole-run (D27): a token endpoint opening at 2^8 rate 1/2 misses with 2^0 (rounded), above DESIGN B-1's floor 2^-106
+TOKEN-IO-R1 REVIEW TR-1 | stage commitments at 2^9 (2^-86.28) | refused at the tier door: token I/O tier mvp-95-whole-run (D27): stage commitments at row width 2^9 are below DESIGN B-1's floor 2^12
+TOKEN-IO-R1 REVIEW TR-1 | stage commitments at 2^11 rate 1/8 (per opening strong, row width below the floor) | refused at the tier door: token I/O tier mvp-95-whole-run (D27): stage commitments at row width 2^11 are below DESIGN B-1's floor 2^12
+TOKEN-IO-R1 REVIEW TR-1 | Q = 128 | refused at the tier door: token I/O tier mvp-95-whole-run (D27): Q = 128 column checks; only zk.rs's MASK_Q = 256 is built (review TR-2)
+TOKEN-IO-R1 REVIEW TR-1 | Q = 1 | refused at the tier door: token I/O tier mvp-95-whole-run (D27): Q = 1 column checks; only zk.rs's MASK_Q = 256 is built (review TR-2)
+TOKEN-IO-R1 REVIEW TR-1 | a stronger tier under the registered name (endpoints rate 1/16) | refused at the tier door: token I/O tier mvp-95-whole-run (D27): these levers are not the registered tier's of that name (tier mvp-95-whole-run (D27): Q=256 stage-row 2^12 rate 1/4 token-endpoint-row 2^8 rate 1/16 lookup-field F_p^2)
+TOKEN-IO-R1 REVIEW TR-1 | R1_MVP's levers under another name | refused at the tier door: token I/O tier mvp-128 (unregistered): not a registered tier (tier mvp-128 (unregistered): Q=256 stage-row 2^12 rate 1/4 token-endpoint-row 2^8 rate 1/8 lookup-field F_p^2)
+test private_block::token_io::tests::tr1_the_tier_door_refuses_every_tier_below_b1_and_every_unregistered_tier ... ok
+TOKEN-IO-R1 CONTROL #16a | wrong embedding row | predicted [InLogUp] | actual: stage IN H (the LogUp sum claim is part of this opening): pcs zk: group 3: <v, c> != combined claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #11b | wrong output token: A_out tok and endpoint another id, M unchanged | predicted [OutSlot(7), OutSlot(6)] | actual: stage OUT slot 06 [OUT-06 VZC e(1-e) + head host term on keyed l* + helpers (+pad)]: sumcheck round 0: s(0) + s(1) != claim | AS PREDICTED
+TOKEN-IO-R1 REVIEW TR-1 WHOLE-RUN | openings 17 | column 2^-93.32 | logup (derived) 2^-106.63 | total 2^-93.32 | floor 93 bits [COUNTED]
+TOKEN-IO-R1 REVIEW TR-1 POLICY | minimum 94 bits | refused: token I/O run: the statement's derived whole-run figure (93 bits, tier mvp-95-whole-run (D27)) is below the verifier's minimum of 94 bits (D27 policy)
+TOKEN-IO-R1 REVIEW TR-1 POLICY | minimum 95 bits | refused: token I/O run: the statement's derived whole-run figure (93 bits, tier mvp-95-whole-run (D27)) is below the verifier's minimum of 95 bits (D27 policy)
+TOKEN-IO-R1 REVIEW TR-1 POLICY | minimum 100 bits | refused: token I/O run: the statement's derived whole-run figure (93 bits, tier mvp-95-whole-run (D27)) is below the verifier's minimum of 100 bits (D27 policy)
+TOKEN-IO-R1 REVIEW TR-1 POLICY | minimum 128 bits | refused: token I/O run: the statement's derived whole-run figure (93 bits, tier mvp-95-whole-run (D27)) is below the verifier's minimum of 128 bits (D27 policy)
+test private_block::token_io::tests::tr1_the_verifier_refuses_a_statement_below_its_minimum_whole_run_figure ... ok
+test private_block::token_io::tests::tr2_the_mask_opening_is_sized_by_zk_mask_q_not_by_the_tier ... ok
+TOKEN-IO-R1 CONTROL #16b | one changed word of an embedded row | predicted [InLogUp] | actual: stage IN H (the LogUp sum claim is part of this opening): pcs zk: group 3: <v, c> != combined claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #R3-5 | a nonzero delta limb on the padded entry V + 9 (last row) | predicted [OutSlot(6)] | actual: stage OUT slot 06 [OUT-06 VZC e(1-e) + head host term on keyed l* + helpers (+pad)]: sumcheck round 0: s(0) + s(1) != claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #9 | output plane seals another id (A_out honest) | predicted [OutSlot(10)] | actual: stage OUT slot 10 [OUT-10 IO-out: output endpoint = u0 tok (whole 256-word plane)]: sumcheck round 0: s(0) + s(1) != claim | AS PREDICTED
+TOKEN-IO-R1 REVIEW TR-3 | variant P-selector-sealed-in-input | refused by the statement, the endpoint specs and the verifier: token I/O run: the P-selector-sealed-in-input variant is not built (D26's two-site endpoint is the next rung; review TR-3)
+TOKEN-IO-R1 REVIEW TR-3 | variant F-selector-sealed-in-output | refused by the statement, the endpoint specs and the verifier: token I/O run: the F-selector-sealed-in-output variant is not built (D26's two-site endpoint is the next rung; review TR-3)
+test private_block::token_io::tests::tr3_unbuilt_variants_are_refused_by_the_statement_the_endpoints_and_the_verifier ... ok
+TOKEN-IO-R1 CONTROL #16c | padded token id V, histogram on the pad | predicted [InSlot(2)] | actual: stage IN slot 02 [IN-02 table zero-check: h_tab (alpha - tau) = m + pad, fresh mu each]: sumcheck round 0: s(0) + s(1) != claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #10b | nonzero pad word in the output token endpoint | predicted [OutSlot(10)] | actual: stage OUT slot 10 [OUT-10 IO-out: output endpoint = u0 tok (whole 256-word plane)]: sumcheck round 0: s(0) + s(1) != claim | AS PREDICTED
+test private_block::token_io::r3_tests::r3_vpad17_controls_are_refused_where_predicted has been running for over 60 seconds
+TOKEN-IO-R1 CONTROL #16c2 | padded token id V, histogram unchanged | predicted [InLogUp] | actual: stage IN H (the LogUp sum claim is part of this opening): pcs zk: group 3: <v, c> != combined claim | AS PREDICTED
+TOKEN-IO-R1 REVIEW TR-4 | input: position 0 is not BOS (the prompt agrees) | refused by the owner's check: owner check: the sealed position 0 is not the profile's BOS
+TOKEN-IO-R1 REVIEW TR-4 | input: a nonzero pad word | refused by the owner's check: owner check: a sealed input pad word is not zero
+TOKEN-IO-R1 REVIEW TR-4 | input: an id outside the vocabulary (the prompt agrees) | refused by the owner's check: owner check: a sealed input id is outside the vocabulary
+TOKEN-IO-R1 REVIEW TR-4 | output: an id outside the vocabulary | refused by the owner's check: owner check: the sealed next token is outside the vocabulary
+TOKEN-IO-R1 REVIEW TR-4 | output: a nonzero pad word | refused by the owner's check: owner check: a sealed output pad word is not zero
+test private_block::token_io::tests::tr4_the_owner_checks_take_the_verified_statement_and_check_the_plane_rules ... ok
+TOKEN-IO-R1 REVIEW TR-5 | a -128 head word | refused at the door: token I/O: head word 17 is -128, outside its declared class [-127, 127] (DESIGN 3.1; review TR-5)
+test private_block::token_io::tests::tr5_a_head_word_of_minus_128_is_refused_at_the_door ... ok
+TOKEN-IO-R1 CONTROL #12a | non-maximal token, M = l_j, delta field values truncated to bytes | predicted [OutSlot(6)] | actual: stage OUT slot 06 [OUT-06 VZC e(1-e) + head host term on keyed l* + helpers (+pad)]: sumcheck round 0: s(0) + s(1) != claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #R3-6 | stage IN histogram: one count moved from a last-row id (127,500) to its first-row twin (tok, rows honest) | predicted [InLogUp] | actual: stage IN H (the LogUp sum claim is part of this opening): pcs zk: group 3: <v, c> != combined claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #16d | histogram off by one | predicted [InLogUp] | actual: stage IN H (the LogUp sum claim is part of this opening): pcs zk: group 3: <v, c> != combined claim | AS PREDICTED
+test private_block::token_io::tests::the_stage_in_controls_are_refused_where_the_design_predicts ... ok
+TOKEN-IO-R1 CONTROL #12b | non-maximal token, M = l_j, delta field values in a non-byte top limb | predicted [OutLogUp] | actual: stage OUT H (the LogUp sum claim is part of this opening): pcs zk: group 5: <v, c> != combined claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #14a | two-hot selector | predicted [OutSlot(6), OutSlot(7)] | actual: stage OUT slot 07 [OUT-07 RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)]: sumcheck round 0: s(0) + s(1) != claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #R3-7 | (#16c, last row) padded token id V + 13, histogram on that pad entry | predicted [InSlot(2)] | actual: stage IN slot 02 [IN-02 table zero-check: h_tab (alpha - tau) = m + pad, fresh mu each]: sumcheck round 0: s(0) + s(1) != claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #14b | fractional selector (1/2, 1/2) | predicted [OutSlot(6)] | actual: stage OUT slot 06 [OUT-06 VZC e(1-e) + head host term on keyed l* + helpers (+pad)]: sumcheck round 0: s(0) + s(1) != claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #14c | selector (2, -1) | predicted [OutSlot(6), OutSlot(7)] | actual: stage OUT slot 06 [OUT-06 VZC e(1-e) + head host term on keyed l* + helpers (+pad)]: sumcheck round 0: s(0) + s(1) != claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #R3-8 | (#5, Llama-3 BOS) position 0 = 127,999 (not BOS 128,000), otherwise consistent | predicted [InSlot(1)] | actual: stage IN slot 01 [IN-01 query zero-check: LogUp + BOS (own mu_bos) + pad, fresh mu each]: sumcheck round 0: s(0) + s(1) != claim | AS PREDICTED
+test private_block::token_io::r3_tests::r3_vpad17_controls_are_refused_where_predicted ... ok
+TOKEN-IO-R1 CONTROL #15 | a delta limb that is not a byte (same delta value) | predicted [OutLogUp] | actual: stage OUT H (the LogUp sum claim is part of this opening): pcs zk: group 5: <v, c> != combined claim | AS PREDICTED
+TOKEN-IO-R1 CONTROL #18 | public row: stage OUT computes from row T - 2 | predicted [OutSlot(0)] | actual: stage OUT slot 00 [OUT-00 IO-in: x = B_out row T-1 (fixed public row bits)]: sumcheck round 0: s(0) + s(1) != claim | AS PREDICTED
+test private_block::token_io::tests::the_stage_out_controls_are_refused_where_the_design_predicts ... ok
+
+failures:
+
+failures:
+    private_block::token_io::r3_tests::r3_the_counted_layout_is_the_counters
+
+test result: FAILED. 25 passed; 1 failed; 6 ignored; 0 measured; 572 filtered out; finished in 93.63s
+
+error: test failed, to rerun pass `--lib`
+error: 1 target failed:
+    `--lib`

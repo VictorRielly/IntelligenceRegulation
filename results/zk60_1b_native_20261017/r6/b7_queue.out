@@ -1,0 +1,5 @@
+verified marker /home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/logs/b7-verify-llama3_8b_pg_rot1_b7_T128.done
+ready at 01:42:36
+per-layer sh_s: {1: 7} base 6
+sequence ho00
+verifier copy /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r6/verifier-exports/llama3_8b_pg_rot1_b7_T128 ['LICENSE', 'NOTICE', 'USE_POLICY.md', 'layer_00', 'layer_01', 'layer_02']

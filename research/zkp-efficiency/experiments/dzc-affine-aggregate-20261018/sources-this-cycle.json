@@ -1,0 +1,157 @@
+[
+  {
+    "cycle": "0074",
+    "run_id": "20261018T032105Z-8464ee28",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-18T03:28:46.298599+00:00",
+    "evidence_kind": "Native LIVE web search and primary inspection; external text treated as untrusted data; no external source executed.",
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "published": "2026-06-15",
+    "updated": null,
+    "reproduced_performance": false,
+    "id": "cycle74-ntt-sumcheck-unique-table-cost-refresh",
+    "title": "When Proofs Meet Hardware: unique polynomials and SRAM tradeoff",
+    "url": "https://arxiv.org/abs/2606.16146",
+    "inspected_urls": [
+      "https://arxiv.org/html/2606.16146v1",
+      "https://github.com/beekayg15/zerocheck"
+    ],
+    "date_evidence": "Primary arXiv v1 Jun15,2026 03:03:54UTC, no later version shown. Simulator repo update/commit not established.",
+    "author_claim": "ZeroCheck hardware comparisons depend on SRAM, degree and distinct constituent-table count; medium streaming workloads can favor NTT.",
+    "assessment": "Known source refreshed, not a reproduced CUDA result. New local affine table reduces clause arithmetic but adds construction, a table and all folds; original source tables/finals remain. CPU/simulated 255-bit hardware results do not transfer to native Goldilocks/Fp2."
+  },
+  {
+    "cycle": "0074",
+    "run_id": "20261018T032105Z-8464ee28",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-18T03:28:46.298599+00:00",
+    "evidence_kind": "Native LIVE web search and primary inspection; external text treated as untrusted data; no external source executed.",
+    "inspected_commit_id": null,
+    "implementation_license": "Repository labels Apache-2.0 OR MIT; full MIT HTML/raw fetches failed, no new verified terms.",
+    "published": null,
+    "updated": null,
+    "reproduced_performance": false,
+    "id": "cycle74-epfl-claim-recovery-and-final-oracle-refresh",
+    "title": "Efficient Sumcheck current design and displayed history",
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck",
+    "inspected_urls": [
+      "https://github.com/compsec-epfl/efficient-sumcheck/blob/main/docs/design.md",
+      "https://github.com/compsec-epfl/efficient-sumcheck/commits/main/",
+      "https://github.com/compsec-epfl/efficient-sumcheck/blob/main/CHANGELOG.md",
+      "https://github.com/compsec-epfl/efficient-sumcheck/releases"
+    ],
+    "date_evidence": "Rendered history snapshot showsMay19,2026 entry187c56a, while earlier cycles sawJun24. CurrentHEAD/update not established; do not regress previously retained history to this older snapshot.",
+    "exposed_uninspected_commit_id": "187c56a",
+    "access_issues": [
+      "Commit187c56a Internal Error",
+      "MIT HTML Internal Error/raw Cache miss",
+      "Releases Internal Error"
+    ],
+    "author_claim": "EvalsInfty recovers the omitted value and moves detection to caller-owned final oracle; MSB and LSB schedules differ.",
+    "assessment": "Known refresh. Native byte-preserving evaluator must retain its original wire/degree/final checks, not adopt this wire format. New local exact schedule audit uses native ClosureRounds step additions and initial-claim policy."
+  },
+  {
+    "cycle": "0074",
+    "run_id": "20261018T032105Z-8464ee28",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-18T03:28:46.298599+00:00",
+    "evidence_kind": "Native LIVE web search and primary inspection; external text treated as untrusted data; no external source executed.",
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "published": null,
+    "updated": null,
+    "reproduced_performance": false,
+    "id": "cycle74-sage-precompute-full-product-filter-refresh",
+    "title": "Optimized sumcheck Sage reference source",
+    "url": "https://github.com/zksecurity/sumcheck-optimized-sagemath",
+    "inspected_urls": [
+      "https://github.com/zksecurity/sumcheck-optimized-sagemath/blob/main/sumcheck_algo3.sage"
+    ],
+    "date_evidence": "No verified source update date or current commit pin exposed.",
+    "access_issues": [
+      "commits/main Cache miss",
+      "LICENSE Internal Error"
+    ],
+    "author_claim": "Illustrative implementation precomputes and combines original-cube evaluations for round batching.",
+    "assessment": "Known repo; concreteprecompute_optimized routine read. It does not authorize folding a whole nonlinear clause table as its polynomial; local offcube control rejects that shortcut. No Sage dependency/code executed."
+  },
+  {
+    "cycle": "0074",
+    "run_id": "20261018T032105Z-8464ee28",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-18T03:28:46.298599+00:00",
+    "evidence_kind": "Native LIVE web search and primary inspection; external text treated as untrusted data; no external source executed.",
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "published": null,
+    "updated": "2024-07-22",
+    "reproduced_performance": false,
+    "id": "cycle74-new-older-training-recursive-gkr-filter",
+    "title": "Zero-Knowledge Proofs of Training for Deep Neural Networks",
+    "url": "https://eprint.iacr.org/2024/162",
+    "date_evidence": "Primary ePrint receivedFeb4,2024; latest of5revisionsJul22,2024; extendedCCS2024 version.",
+    "paper_license": "Primary page labels CC BY.",
+    "access_issues": [
+      "DirectPDF403Forbidden; search excerpt accessible, no implementation inspected."
+    ],
+    "author_claim": "Optimized gradient-descent GKR, aggregatable commitments and recursive composition make proof size/verifier cost independent of training iterations.",
+    "assessment": "NEW older source absent389-record startup. Useful composition question for repeated proof windows, but it proves a different training relation and adds recursion/PCS commitments. Its nonlinearity approximations and per-iteration figures do not establish exact private8B attention+FFN throughput. No architecture migration or performance reproduced.",
+    "publication_received": "2024-02-04"
+  },
+  {
+    "cycle": "0074",
+    "run_id": "20261018T032105Z-8464ee28",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-18T03:28:46.298599+00:00",
+    "evidence_kind": "Native LIVE web search and primary inspection; external text treated as untrusted data; no external source executed.",
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "published": "2026-09-15",
+    "updated": null,
+    "reproduced_performance": false,
+    "id": "cycle74-new-rosetta-private-inference-not-proof-filter",
+    "title": "ROSETTA hybrid CKKS/TFHE decoding",
+    "url": "https://arxiv.org/abs/2609.16915",
+    "date_evidence": "Primary arXiv v1Sep15,2026 09:51:33UTC; acceptedCCS2026 notice, no later version shown.",
+    "author_claim": "Segmented TFHE lookups and heterogeneous nonlinear-operator selection accelerate encrypted decode.",
+    "assessment": "NEW recent source absent389-record startup. Private inference is not a complete independently verified ZK forward-pass proof. No decoding rate, exactness, privacy acceptance or lookup replacement imported. No implementation inspected."
+  },
+  {
+    "cycle": "0074",
+    "run_id": "20261018T032105Z-8464ee28",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-18T03:28:46.298599+00:00",
+    "evidence_kind": "Native LIVE web search and primary inspection; external text treated as untrusted data; no external source executed.",
+    "inspected_commit_id": null,
+    "implementation_license": "README declares open verifier/core AGPL-3.0-only; mainLICENSE fetchfailed. Full prover-linking exception read; proprietary binary prover terms not inspected. No code adopted.",
+    "published": null,
+    "updated": null,
+    "reproduced_performance": false,
+    "id": "cycle74-hekate-engine-new-release-scope-and-hiding-postmortem",
+    "title": "Hekate engine0.37 release and helper-tree hiding postmortem",
+    "url": "https://github.com/oumuamua-labs/hekate/releases",
+    "inspected_urls": [
+      "https://github.com/oumuamua-labs/hekate",
+      "https://github.com/oumuamua-labs/hekate/blob/main/docs/postmortem-0.37.md",
+      "https://github.com/oumuamua-labs/hekate/blob/main/LICENSE-EXCEPTION"
+    ],
+    "date_evidence": "Release0.37 label07Oct10:40 omitsyear; exactrelease date remainsnull. Postmortem explicitlydates its implementation check6October2026, not its publication date.",
+    "implementation_check_date": "2026-10-06",
+    "exposed_uninspected_commit_id": "45bcbb6",
+    "access_issues": [
+      "Release tagpageInternal Error",
+      "Release commitInternal Error",
+      "LICENSECachemiss",
+      "IncorrectgenericLICENSE-MITpathInternal Error; actuallicensepath subsequentlyidentified"
+    ],
+    "author_claim": "Pooling table commitments shrinks proofs; later release repairs helper-tree guess checking by increasing blinding support. Older release skips unused small-value polynomials and steps characteristic-two evaluations.",
+    "assessment": "Main engine release/postmortem NEW inspections; related hekate-math alreadyknowncycle47. Binaryfield/proprietary prover lacks drop-in nativeGoldilocks compatibility; no supplied speedup reproduced. Helpers and unopened-leaf digests need joint-view privacy analysis; never infer privacy from byte parity. Motivates checking original final dependencies before discarding affine-only working tables."
+  }
+]

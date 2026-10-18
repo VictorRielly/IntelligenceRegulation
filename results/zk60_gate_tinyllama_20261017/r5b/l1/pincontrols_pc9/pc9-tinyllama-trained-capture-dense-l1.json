@@ -1,0 +1,70 @@
+{
+ "bundle": "tinyllama-trained-capture-dense-l1",
+ "controls": [
+  {
+   "control": "PC-0",
+   "exactly_the_predicted_stages": true,
+   "honest_as_predicted": true,
+   "pins_ok": true,
+   "predicted_not_run": [],
+   "record_ok": true,
+   "stages_not_run": [],
+   "stages_run": [
+    "stage10_bilinear_group_factor",
+    "stage1_integrity",
+    "stage2_transcript_replay",
+    "stage3_per_commitment",
+    "stage4_the_boundary",
+    "stage5_zero_data_preimage",
+    "stage7_channels",
+    "stage8_plane_index_and_terminals",
+    "stage9_hash_layer"
+   ],
+   "status": "PASS",
+   "what": "honest"
+  },
+  {
+   "control": "PC-9b",
+   "exactly_the_predicted_stages": true,
+   "fires": true,
+   "pins_ok": false,
+   "predicted_not_run": [
+    "stage10_bilinear_group_factor",
+    "stage7_channels",
+    "stage8_plane_index_and_terminals"
+   ],
+   "record_ok": false,
+   "stages_not_run": [
+    "stage10_bilinear_group_factor",
+    "stage7_channels",
+    "stage8_plane_index_and_terminals"
+   ],
+   "stages_run": [
+    "stage1_integrity",
+    "stage2_transcript_replay",
+    "stage3_per_commitment",
+    "stage4_the_boundary",
+    "stage5_zero_data_preimage",
+    "stage9_hash_layer"
+   ],
+   "status": "NOT-OK",
+   "what": "a pre-G-2 writer (tree A's run_capture.rs digest) pinning ONE of the three G-2 files, the other two dropped"
+  }
+ ],
+ "nothing_written_to_the_bundle": true,
+ "ok": true,
+ "privacy_acceptance": false,
+ "privacy_property_established": false,
+ "stages": [
+  "load",
+  "replay",
+  "hash",
+  "terminals",
+  "commitments",
+  "boundary",
+  "preimage",
+  "channels"
+ ],
+ "tool_sha256": "5733f48d776b42bbced496ceb8ada544cc5836cb311592eb0705314ec0f81244",
+ "what": "negative controls of the source-pin enforcement (review P-2)"
+}

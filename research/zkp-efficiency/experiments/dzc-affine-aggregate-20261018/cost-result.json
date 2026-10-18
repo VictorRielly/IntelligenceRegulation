@@ -1,0 +1,2717 @@
+{
+  "status": "PASS",
+  "scope": "Counted exact fieldAPI/Rust-five-scalar-product model for clause path only. Includes one-time preparation, entire table construction and all added folds; original source tables/finals retained. Schedule uses native step additions. Common helper/pad/host, Eq/PCS/masks, witness, original interpolation/folds, transfers/launches, serialization and verify unchanged/unmodeled. No GPU/runtime/DRAM or peak-memory claim. Debug evaluates (degree+1)*(N-1) points and needs its own count. Base build eligibility is complete public provenance, never a sampled/private-value schedule.",
+  "rows": [
+    {
+      "ln": 4,
+      "logN": 1,
+      "declared_degree": 4,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 5,
+      "baseline_clause_scalar_products_Rust5": 605,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 587,
+      "saved_scalar_products": 18,
+      "baseline_add_sub": [
+        195,
+        75
+      ],
+      "candidate_add_sub": [
+        107,
+        22
+      ],
+      "extra_table_capacity_bytes": 32,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 1088,
+      "extra_fold_logical_bytes": 48,
+      "extra_round_table_source_read_bytes": 32
+    },
+    {
+      "ln": 4,
+      "logN": 1,
+      "declared_degree": 4,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 5,
+      "baseline_clause_scalar_products_Rust5": 605,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 389,
+      "saved_scalar_products": 216,
+      "baseline_add_sub": [
+        195,
+        75
+      ],
+      "candidate_add_sub": [
+        107,
+        22
+      ],
+      "extra_table_capacity_bytes": 32,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 560,
+      "extra_fold_logical_bytes": 48,
+      "extra_round_table_source_read_bytes": 32
+    },
+    {
+      "ln": 4,
+      "logN": 1,
+      "declared_degree": 4,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 4,
+      "baseline_clause_scalar_products_Rust5": 484,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 547,
+      "saved_scalar_products": -63,
+      "baseline_add_sub": [
+        156,
+        60
+      ],
+      "candidate_add_sub": [
+        102,
+        22
+      ],
+      "extra_table_capacity_bytes": 32,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 1088,
+      "extra_fold_logical_bytes": 48,
+      "extra_round_table_source_read_bytes": 32
+    },
+    {
+      "ln": 4,
+      "logN": 1,
+      "declared_degree": 4,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 4,
+      "baseline_clause_scalar_products_Rust5": 484,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 349,
+      "saved_scalar_products": 135,
+      "baseline_add_sub": [
+        156,
+        60
+      ],
+      "candidate_add_sub": [
+        102,
+        22
+      ],
+      "extra_table_capacity_bytes": 32,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 560,
+      "extra_fold_logical_bytes": 48,
+      "extra_round_table_source_read_bytes": 32
+    },
+    {
+      "ln": 4,
+      "logN": 1,
+      "declared_degree": 5,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 6,
+      "baseline_clause_scalar_products_Rust5": 726,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 627,
+      "saved_scalar_products": 99,
+      "baseline_add_sub": [
+        234,
+        90
+      ],
+      "candidate_add_sub": [
+        113,
+        22
+      ],
+      "extra_table_capacity_bytes": 32,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 1088,
+      "extra_fold_logical_bytes": 48,
+      "extra_round_table_source_read_bytes": 32
+    },
+    {
+      "ln": 4,
+      "logN": 1,
+      "declared_degree": 5,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 6,
+      "baseline_clause_scalar_products_Rust5": 726,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 429,
+      "saved_scalar_products": 297,
+      "baseline_add_sub": [
+        234,
+        90
+      ],
+      "candidate_add_sub": [
+        113,
+        22
+      ],
+      "extra_table_capacity_bytes": 32,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 560,
+      "extra_fold_logical_bytes": 48,
+      "extra_round_table_source_read_bytes": 32
+    },
+    {
+      "ln": 4,
+      "logN": 1,
+      "declared_degree": 5,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 5,
+      "baseline_clause_scalar_products_Rust5": 605,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 587,
+      "saved_scalar_products": 18,
+      "baseline_add_sub": [
+        195,
+        75
+      ],
+      "candidate_add_sub": [
+        108,
+        22
+      ],
+      "extra_table_capacity_bytes": 32,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 1088,
+      "extra_fold_logical_bytes": 48,
+      "extra_round_table_source_read_bytes": 32
+    },
+    {
+      "ln": 4,
+      "logN": 1,
+      "declared_degree": 5,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 5,
+      "baseline_clause_scalar_products_Rust5": 605,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 389,
+      "saved_scalar_products": 216,
+      "baseline_add_sub": [
+        195,
+        75
+      ],
+      "candidate_add_sub": [
+        108,
+        22
+      ],
+      "extra_table_capacity_bytes": 32,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 560,
+      "extra_fold_logical_bytes": 48,
+      "extra_round_table_source_read_bytes": 32
+    },
+    {
+      "ln": 4,
+      "logN": 2,
+      "declared_degree": 4,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 14,
+      "baseline_clause_scalar_products_Rust5": 1694,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 1287,
+      "saved_scalar_products": 407,
+      "baseline_add_sub": [
+        546,
+        210
+      ],
+      "candidate_add_sub": [
+        230,
+        26
+      ],
+      "extra_table_capacity_bytes": 64,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 2176,
+      "extra_fold_logical_bytes": 144,
+      "extra_round_table_source_read_bytes": 96
+    },
+    {
+      "ln": 4,
+      "logN": 2,
+      "declared_degree": 4,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 14,
+      "baseline_clause_scalar_products_Rust5": 1694,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 891,
+      "saved_scalar_products": 803,
+      "baseline_add_sub": [
+        546,
+        210
+      ],
+      "candidate_add_sub": [
+        230,
+        26
+      ],
+      "extra_table_capacity_bytes": 64,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 1120,
+      "extra_fold_logical_bytes": 144,
+      "extra_round_table_source_read_bytes": 96
+    },
+    {
+      "ln": 4,
+      "logN": 2,
+      "declared_degree": 4,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 12,
+      "baseline_clause_scalar_products_Rust5": 1452,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 1207,
+      "saved_scalar_products": 245,
+      "baseline_add_sub": [
+        468,
+        180
+      ],
+      "candidate_add_sub": [
+        220,
+        26
+      ],
+      "extra_table_capacity_bytes": 64,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 2176,
+      "extra_fold_logical_bytes": 144,
+      "extra_round_table_source_read_bytes": 96
+    },
+    {
+      "ln": 4,
+      "logN": 2,
+      "declared_degree": 4,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 12,
+      "baseline_clause_scalar_products_Rust5": 1452,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 811,
+      "saved_scalar_products": 641,
+      "baseline_add_sub": [
+        468,
+        180
+      ],
+      "candidate_add_sub": [
+        220,
+        26
+      ],
+      "extra_table_capacity_bytes": 64,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 1120,
+      "extra_fold_logical_bytes": 144,
+      "extra_round_table_source_read_bytes": 96
+    },
+    {
+      "ln": 4,
+      "logN": 2,
+      "declared_degree": 5,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 17,
+      "baseline_clause_scalar_products_Rust5": 2057,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 1407,
+      "saved_scalar_products": 650,
+      "baseline_add_sub": [
+        663,
+        255
+      ],
+      "candidate_add_sub": [
+        248,
+        26
+      ],
+      "extra_table_capacity_bytes": 64,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 2176,
+      "extra_fold_logical_bytes": 144,
+      "extra_round_table_source_read_bytes": 96
+    },
+    {
+      "ln": 4,
+      "logN": 2,
+      "declared_degree": 5,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 17,
+      "baseline_clause_scalar_products_Rust5": 2057,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 1011,
+      "saved_scalar_products": 1046,
+      "baseline_add_sub": [
+        663,
+        255
+      ],
+      "candidate_add_sub": [
+        248,
+        26
+      ],
+      "extra_table_capacity_bytes": 64,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 1120,
+      "extra_fold_logical_bytes": 144,
+      "extra_round_table_source_read_bytes": 96
+    },
+    {
+      "ln": 4,
+      "logN": 2,
+      "declared_degree": 5,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 15,
+      "baseline_clause_scalar_products_Rust5": 1815,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 1327,
+      "saved_scalar_products": 488,
+      "baseline_add_sub": [
+        585,
+        225
+      ],
+      "candidate_add_sub": [
+        238,
+        26
+      ],
+      "extra_table_capacity_bytes": 64,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 2176,
+      "extra_fold_logical_bytes": 144,
+      "extra_round_table_source_read_bytes": 96
+    },
+    {
+      "ln": 4,
+      "logN": 2,
+      "declared_degree": 5,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 15,
+      "baseline_clause_scalar_products_Rust5": 1815,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 931,
+      "saved_scalar_products": 884,
+      "baseline_add_sub": [
+        585,
+        225
+      ],
+      "candidate_add_sub": [
+        238,
+        26
+      ],
+      "extra_table_capacity_bytes": 64,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 1120,
+      "extra_fold_logical_bytes": 144,
+      "extra_round_table_source_read_bytes": 96
+    },
+    {
+      "ln": 4,
+      "logN": 4,
+      "declared_degree": 4,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 68,
+      "baseline_clause_scalar_products_Rust5": 8228,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 5487,
+      "saved_scalar_products": 2741,
+      "baseline_add_sub": [
+        2652,
+        1020
+      ],
+      "candidate_add_sub": [
+        968,
+        50
+      ],
+      "extra_table_capacity_bytes": 256,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 8704,
+      "extra_fold_logical_bytes": 720,
+      "extra_round_table_source_read_bytes": 480
+    },
+    {
+      "ln": 4,
+      "logN": 4,
+      "declared_degree": 4,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 68,
+      "baseline_clause_scalar_products_Rust5": 8228,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 3903,
+      "saved_scalar_products": 4325,
+      "baseline_add_sub": [
+        2652,
+        1020
+      ],
+      "candidate_add_sub": [
+        968,
+        50
+      ],
+      "extra_table_capacity_bytes": 256,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 4480,
+      "extra_fold_logical_bytes": 720,
+      "extra_round_table_source_read_bytes": 480
+    },
+    {
+      "ln": 4,
+      "logN": 4,
+      "declared_degree": 4,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 60,
+      "baseline_clause_scalar_products_Rust5": 7260,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 5167,
+      "saved_scalar_products": 2093,
+      "baseline_add_sub": [
+        2340,
+        900
+      ],
+      "candidate_add_sub": [
+        928,
+        50
+      ],
+      "extra_table_capacity_bytes": 256,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 8704,
+      "extra_fold_logical_bytes": 720,
+      "extra_round_table_source_read_bytes": 480
+    },
+    {
+      "ln": 4,
+      "logN": 4,
+      "declared_degree": 4,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 60,
+      "baseline_clause_scalar_products_Rust5": 7260,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 3583,
+      "saved_scalar_products": 3677,
+      "baseline_add_sub": [
+        2340,
+        900
+      ],
+      "candidate_add_sub": [
+        928,
+        50
+      ],
+      "extra_table_capacity_bytes": 256,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 4480,
+      "extra_fold_logical_bytes": 720,
+      "extra_round_table_source_read_bytes": 480
+    },
+    {
+      "ln": 4,
+      "logN": 4,
+      "declared_degree": 5,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 83,
+      "baseline_clause_scalar_products_Rust5": 10043,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 6087,
+      "saved_scalar_products": 3956,
+      "baseline_add_sub": [
+        3237,
+        1245
+      ],
+      "candidate_add_sub": [
+        1058,
+        50
+      ],
+      "extra_table_capacity_bytes": 256,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 8704,
+      "extra_fold_logical_bytes": 720,
+      "extra_round_table_source_read_bytes": 480
+    },
+    {
+      "ln": 4,
+      "logN": 4,
+      "declared_degree": 5,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 83,
+      "baseline_clause_scalar_products_Rust5": 10043,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 4503,
+      "saved_scalar_products": 5540,
+      "baseline_add_sub": [
+        3237,
+        1245
+      ],
+      "candidate_add_sub": [
+        1058,
+        50
+      ],
+      "extra_table_capacity_bytes": 256,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 4480,
+      "extra_fold_logical_bytes": 720,
+      "extra_round_table_source_read_bytes": 480
+    },
+    {
+      "ln": 4,
+      "logN": 4,
+      "declared_degree": 5,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 75,
+      "baseline_clause_scalar_products_Rust5": 9075,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 5767,
+      "saved_scalar_products": 3308,
+      "baseline_add_sub": [
+        2925,
+        1125
+      ],
+      "candidate_add_sub": [
+        1018,
+        50
+      ],
+      "extra_table_capacity_bytes": 256,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 8704,
+      "extra_fold_logical_bytes": 720,
+      "extra_round_table_source_read_bytes": 480
+    },
+    {
+      "ln": 4,
+      "logN": 4,
+      "declared_degree": 5,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 75,
+      "baseline_clause_scalar_products_Rust5": 9075,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 4183,
+      "saved_scalar_products": 4892,
+      "baseline_add_sub": [
+        2925,
+        1125
+      ],
+      "candidate_add_sub": [
+        1018,
+        50
+      ],
+      "extra_table_capacity_bytes": 256,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 4480,
+      "extra_fold_logical_bytes": 720,
+      "extra_round_table_source_read_bytes": 480
+    },
+    {
+      "ln": 4,
+      "logN": 18,
+      "declared_degree": 4,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 1179644,
+      "baseline_clause_scalar_products_Rust5": 142736924,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 91750287,
+      "saved_scalar_products": 50986637,
+      "baseline_add_sub": [
+        46006116,
+        17694660
+      ],
+      "candidate_add_sub": [
+        16121840,
+        524306
+      ],
+      "extra_table_capacity_bytes": 4194304,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 142606336,
+      "extra_fold_logical_bytes": 12582864,
+      "extra_round_table_source_read_bytes": 8388576
+    },
+    {
+      "ln": 4,
+      "logN": 18,
+      "declared_degree": 4,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 1179644,
+      "baseline_clause_scalar_products_Rust5": 142736924,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 65798031,
+      "saved_scalar_products": 76938893,
+      "baseline_add_sub": [
+        46006116,
+        17694660
+      ],
+      "candidate_add_sub": [
+        16121840,
+        524306
+      ],
+      "extra_table_capacity_bytes": 4194304,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 73400320,
+      "extra_fold_logical_bytes": 12582864,
+      "extra_round_table_source_read_bytes": 8388576
+    },
+    {
+      "ln": 4,
+      "logN": 18,
+      "declared_degree": 4,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 1048572,
+      "baseline_clause_scalar_products_Rust5": 126877212,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 86507407,
+      "saved_scalar_products": 40369805,
+      "baseline_add_sub": [
+        40894308,
+        15728580
+      ],
+      "candidate_add_sub": [
+        15466480,
+        524306
+      ],
+      "extra_table_capacity_bytes": 4194304,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 142606336,
+      "extra_fold_logical_bytes": 12582864,
+      "extra_round_table_source_read_bytes": 8388576
+    },
+    {
+      "ln": 4,
+      "logN": 18,
+      "declared_degree": 4,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 1048572,
+      "baseline_clause_scalar_products_Rust5": 126877212,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 60555151,
+      "saved_scalar_products": 66322061,
+      "baseline_add_sub": [
+        40894308,
+        15728580
+      ],
+      "candidate_add_sub": [
+        15466480,
+        524306
+      ],
+      "extra_table_capacity_bytes": 4194304,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 73400320,
+      "extra_fold_logical_bytes": 12582864,
+      "extra_round_table_source_read_bytes": 8388576
+    },
+    {
+      "ln": 4,
+      "logN": 18,
+      "declared_degree": 5,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 1441787,
+      "baseline_clause_scalar_products_Rust5": 174456227,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 102236007,
+      "saved_scalar_products": 72220220,
+      "baseline_add_sub": [
+        56229693,
+        21626805
+      ],
+      "candidate_add_sub": [
+        17694698,
+        524306
+      ],
+      "extra_table_capacity_bytes": 4194304,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 142606336,
+      "extra_fold_logical_bytes": 12582864,
+      "extra_round_table_source_read_bytes": 8388576
+    },
+    {
+      "ln": 4,
+      "logN": 18,
+      "declared_degree": 5,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 1441787,
+      "baseline_clause_scalar_products_Rust5": 174456227,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 76283751,
+      "saved_scalar_products": 98172476,
+      "baseline_add_sub": [
+        56229693,
+        21626805
+      ],
+      "candidate_add_sub": [
+        17694698,
+        524306
+      ],
+      "extra_table_capacity_bytes": 4194304,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 73400320,
+      "extra_fold_logical_bytes": 12582864,
+      "extra_round_table_source_read_bytes": 8388576
+    },
+    {
+      "ln": 4,
+      "logN": 18,
+      "declared_degree": 5,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 1310715,
+      "baseline_clause_scalar_products_Rust5": 158596515,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 96993127,
+      "saved_scalar_products": 61603388,
+      "baseline_add_sub": [
+        51117885,
+        19660725
+      ],
+      "candidate_add_sub": [
+        17039338,
+        524306
+      ],
+      "extra_table_capacity_bytes": 4194304,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 142606336,
+      "extra_fold_logical_bytes": 12582864,
+      "extra_round_table_source_read_bytes": 8388576
+    },
+    {
+      "ln": 4,
+      "logN": 18,
+      "declared_degree": 5,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 1310715,
+      "baseline_clause_scalar_products_Rust5": 158596515,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 71040871,
+      "saved_scalar_products": 87555644,
+      "baseline_add_sub": [
+        51117885,
+        19660725
+      ],
+      "candidate_add_sub": [
+        17039338,
+        524306
+      ],
+      "extra_table_capacity_bytes": 4194304,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 73400320,
+      "extra_fold_logical_bytes": 12582864,
+      "extra_round_table_source_read_bytes": 8388576
+    },
+    {
+      "ln": 4,
+      "logN": 19,
+      "declared_degree": 4,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 2359292,
+      "baseline_clause_scalar_products_Rust5": 285474332,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 183500687,
+      "saved_scalar_products": 101973645,
+      "baseline_add_sub": [
+        92012388,
+        35389380
+      ],
+      "candidate_add_sub": [
+        32243696,
+        1048594
+      ],
+      "extra_table_capacity_bytes": 8388608,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 285212672,
+      "extra_fold_logical_bytes": 25165776,
+      "extra_round_table_source_read_bytes": 16777184
+    },
+    {
+      "ln": 4,
+      "logN": 19,
+      "declared_degree": 4,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 2359292,
+      "baseline_clause_scalar_products_Rust5": 285474332,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 131596175,
+      "saved_scalar_products": 153878157,
+      "baseline_add_sub": [
+        92012388,
+        35389380
+      ],
+      "candidate_add_sub": [
+        32243696,
+        1048594
+      ],
+      "extra_table_capacity_bytes": 8388608,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 146800640,
+      "extra_fold_logical_bytes": 25165776,
+      "extra_round_table_source_read_bytes": 16777184
+    },
+    {
+      "ln": 4,
+      "logN": 19,
+      "declared_degree": 4,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 2097148,
+      "baseline_clause_scalar_products_Rust5": 253754908,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 173014927,
+      "saved_scalar_products": 80739981,
+      "baseline_add_sub": [
+        81788772,
+        31457220
+      ],
+      "candidate_add_sub": [
+        30932976,
+        1048594
+      ],
+      "extra_table_capacity_bytes": 8388608,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 285212672,
+      "extra_fold_logical_bytes": 25165776,
+      "extra_round_table_source_read_bytes": 16777184
+    },
+    {
+      "ln": 4,
+      "logN": 19,
+      "declared_degree": 4,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 2097148,
+      "baseline_clause_scalar_products_Rust5": 253754908,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 121110415,
+      "saved_scalar_products": 132644493,
+      "baseline_add_sub": [
+        81788772,
+        31457220
+      ],
+      "candidate_add_sub": [
+        30932976,
+        1048594
+      ],
+      "extra_table_capacity_bytes": 8388608,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 146800640,
+      "extra_fold_logical_bytes": 25165776,
+      "extra_round_table_source_read_bytes": 16777184
+    },
+    {
+      "ln": 4,
+      "logN": 19,
+      "declared_degree": 5,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 2883579,
+      "baseline_clause_scalar_products_Rust5": 348913059,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 204472167,
+      "saved_scalar_products": 144440892,
+      "baseline_add_sub": [
+        112459581,
+        43253685
+      ],
+      "candidate_add_sub": [
+        35389418,
+        1048594
+      ],
+      "extra_table_capacity_bytes": 8388608,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 285212672,
+      "extra_fold_logical_bytes": 25165776,
+      "extra_round_table_source_read_bytes": 16777184
+    },
+    {
+      "ln": 4,
+      "logN": 19,
+      "declared_degree": 5,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 2883579,
+      "baseline_clause_scalar_products_Rust5": 348913059,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 152567655,
+      "saved_scalar_products": 196345404,
+      "baseline_add_sub": [
+        112459581,
+        43253685
+      ],
+      "candidate_add_sub": [
+        35389418,
+        1048594
+      ],
+      "extra_table_capacity_bytes": 8388608,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 146800640,
+      "extra_fold_logical_bytes": 25165776,
+      "extra_round_table_source_read_bytes": 16777184
+    },
+    {
+      "ln": 4,
+      "logN": 19,
+      "declared_degree": 5,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 2621435,
+      "baseline_clause_scalar_products_Rust5": 317193635,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 193986407,
+      "saved_scalar_products": 123207228,
+      "baseline_add_sub": [
+        102235965,
+        39321525
+      ],
+      "candidate_add_sub": [
+        34078698,
+        1048594
+      ],
+      "extra_table_capacity_bytes": 8388608,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 285212672,
+      "extra_fold_logical_bytes": 25165776,
+      "extra_round_table_source_read_bytes": 16777184
+    },
+    {
+      "ln": 4,
+      "logN": 19,
+      "declared_degree": 5,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 2621435,
+      "baseline_clause_scalar_products_Rust5": 317193635,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 142081895,
+      "saved_scalar_products": 175111740,
+      "baseline_add_sub": [
+        102235965,
+        39321525
+      ],
+      "candidate_add_sub": [
+        34078698,
+        1048594
+      ],
+      "extra_table_capacity_bytes": 8388608,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 146800640,
+      "extra_fold_logical_bytes": 25165776,
+      "extra_round_table_source_read_bytes": 16777184
+    },
+    {
+      "ln": 4,
+      "logN": 20,
+      "declared_degree": 4,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 4718588,
+      "baseline_clause_scalar_products_Rust5": 570949148,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 367001487,
+      "saved_scalar_products": 203947661,
+      "baseline_add_sub": [
+        184024932,
+        70778820
+      ],
+      "candidate_add_sub": [
+        64487408,
+        2097170
+      ],
+      "extra_table_capacity_bytes": 16777216,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 570425344,
+      "extra_fold_logical_bytes": 50331600,
+      "extra_round_table_source_read_bytes": 33554400
+    },
+    {
+      "ln": 4,
+      "logN": 20,
+      "declared_degree": 4,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 4718588,
+      "baseline_clause_scalar_products_Rust5": 570949148,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 263192463,
+      "saved_scalar_products": 307756685,
+      "baseline_add_sub": [
+        184024932,
+        70778820
+      ],
+      "candidate_add_sub": [
+        64487408,
+        2097170
+      ],
+      "extra_table_capacity_bytes": 16777216,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 293601280,
+      "extra_fold_logical_bytes": 50331600,
+      "extra_round_table_source_read_bytes": 33554400
+    },
+    {
+      "ln": 4,
+      "logN": 20,
+      "declared_degree": 4,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 4194300,
+      "baseline_clause_scalar_products_Rust5": 507510300,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 346029967,
+      "saved_scalar_products": 161480333,
+      "baseline_add_sub": [
+        163577700,
+        62914500
+      ],
+      "candidate_add_sub": [
+        61865968,
+        2097170
+      ],
+      "extra_table_capacity_bytes": 16777216,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 570425344,
+      "extra_fold_logical_bytes": 50331600,
+      "extra_round_table_source_read_bytes": 33554400
+    },
+    {
+      "ln": 4,
+      "logN": 20,
+      "declared_degree": 4,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 4194300,
+      "baseline_clause_scalar_products_Rust5": 507510300,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 242220943,
+      "saved_scalar_products": 265289357,
+      "baseline_add_sub": [
+        163577700,
+        62914500
+      ],
+      "candidate_add_sub": [
+        61865968,
+        2097170
+      ],
+      "extra_table_capacity_bytes": 16777216,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 293601280,
+      "extra_fold_logical_bytes": 50331600,
+      "extra_round_table_source_read_bytes": 33554400
+    },
+    {
+      "ln": 4,
+      "logN": 20,
+      "declared_degree": 5,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 5767163,
+      "baseline_clause_scalar_products_Rust5": 697826723,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 408944487,
+      "saved_scalar_products": 288882236,
+      "baseline_add_sub": [
+        224919357,
+        86507445
+      ],
+      "candidate_add_sub": [
+        70778858,
+        2097170
+      ],
+      "extra_table_capacity_bytes": 16777216,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 570425344,
+      "extra_fold_logical_bytes": 50331600,
+      "extra_round_table_source_read_bytes": 33554400
+    },
+    {
+      "ln": 4,
+      "logN": 20,
+      "declared_degree": 5,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 5767163,
+      "baseline_clause_scalar_products_Rust5": 697826723,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 305135463,
+      "saved_scalar_products": 392691260,
+      "baseline_add_sub": [
+        224919357,
+        86507445
+      ],
+      "candidate_add_sub": [
+        70778858,
+        2097170
+      ],
+      "extra_table_capacity_bytes": 16777216,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 293601280,
+      "extra_fold_logical_bytes": 50331600,
+      "extra_round_table_source_read_bytes": 33554400
+    },
+    {
+      "ln": 4,
+      "logN": 20,
+      "declared_degree": 5,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 5242875,
+      "baseline_clause_scalar_products_Rust5": 634387875,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 387972967,
+      "saved_scalar_products": 246414908,
+      "baseline_add_sub": [
+        204472125,
+        78643125
+      ],
+      "candidate_add_sub": [
+        68157418,
+        2097170
+      ],
+      "extra_table_capacity_bytes": 16777216,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 570425344,
+      "extra_fold_logical_bytes": 50331600,
+      "extra_round_table_source_read_bytes": 33554400
+    },
+    {
+      "ln": 4,
+      "logN": 20,
+      "declared_degree": 5,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 5242875,
+      "baseline_clause_scalar_products_Rust5": 634387875,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 284163943,
+      "saved_scalar_products": 350223932,
+      "baseline_add_sub": [
+        204472125,
+        78643125
+      ],
+      "candidate_add_sub": [
+        68157418,
+        2097170
+      ],
+      "extra_table_capacity_bytes": 16777216,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 293601280,
+      "extra_fold_logical_bytes": 50331600,
+      "extra_round_table_source_read_bytes": 33554400
+    },
+    {
+      "ln": 4,
+      "logN": 21,
+      "declared_degree": 4,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 9437180,
+      "baseline_clause_scalar_products_Rust5": 1141898780,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 734003087,
+      "saved_scalar_products": 407895693,
+      "baseline_add_sub": [
+        368050020,
+        141557700
+      ],
+      "candidate_add_sub": [
+        128974832,
+        4194322
+      ],
+      "extra_table_capacity_bytes": 33554432,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 1140850688,
+      "extra_fold_logical_bytes": 100663248,
+      "extra_round_table_source_read_bytes": 67108832
+    },
+    {
+      "ln": 4,
+      "logN": 21,
+      "declared_degree": 4,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 9437180,
+      "baseline_clause_scalar_products_Rust5": 1141898780,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 526385039,
+      "saved_scalar_products": 615513741,
+      "baseline_add_sub": [
+        368050020,
+        141557700
+      ],
+      "candidate_add_sub": [
+        128974832,
+        4194322
+      ],
+      "extra_table_capacity_bytes": 33554432,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 587202560,
+      "extra_fold_logical_bytes": 100663248,
+      "extra_round_table_source_read_bytes": 67108832
+    },
+    {
+      "ln": 4,
+      "logN": 21,
+      "declared_degree": 4,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 8388604,
+      "baseline_clause_scalar_products_Rust5": 1015021084,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 692060047,
+      "saved_scalar_products": 322961037,
+      "baseline_add_sub": [
+        327155556,
+        125829060
+      ],
+      "candidate_add_sub": [
+        123731952,
+        4194322
+      ],
+      "extra_table_capacity_bytes": 33554432,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 1140850688,
+      "extra_fold_logical_bytes": 100663248,
+      "extra_round_table_source_read_bytes": 67108832
+    },
+    {
+      "ln": 4,
+      "logN": 21,
+      "declared_degree": 4,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 8388604,
+      "baseline_clause_scalar_products_Rust5": 1015021084,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 484441999,
+      "saved_scalar_products": 530579085,
+      "baseline_add_sub": [
+        327155556,
+        125829060
+      ],
+      "candidate_add_sub": [
+        123731952,
+        4194322
+      ],
+      "extra_table_capacity_bytes": 33554432,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 587202560,
+      "extra_fold_logical_bytes": 100663248,
+      "extra_round_table_source_read_bytes": 67108832
+    },
+    {
+      "ln": 4,
+      "logN": 21,
+      "declared_degree": 5,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 11534331,
+      "baseline_clause_scalar_products_Rust5": 1395654051,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 817889127,
+      "saved_scalar_products": 577764924,
+      "baseline_add_sub": [
+        449838909,
+        173014965
+      ],
+      "candidate_add_sub": [
+        141557738,
+        4194322
+      ],
+      "extra_table_capacity_bytes": 33554432,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 1140850688,
+      "extra_fold_logical_bytes": 100663248,
+      "extra_round_table_source_read_bytes": 67108832
+    },
+    {
+      "ln": 4,
+      "logN": 21,
+      "declared_degree": 5,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 11534331,
+      "baseline_clause_scalar_products_Rust5": 1395654051,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 610271079,
+      "saved_scalar_products": 785382972,
+      "baseline_add_sub": [
+        449838909,
+        173014965
+      ],
+      "candidate_add_sub": [
+        141557738,
+        4194322
+      ],
+      "extra_table_capacity_bytes": 33554432,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 587202560,
+      "extra_fold_logical_bytes": 100663248,
+      "extra_round_table_source_read_bytes": 67108832
+    },
+    {
+      "ln": 4,
+      "logN": 21,
+      "declared_degree": 5,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 10485755,
+      "baseline_clause_scalar_products_Rust5": 1268776355,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 775946087,
+      "saved_scalar_products": 492830268,
+      "baseline_add_sub": [
+        408944445,
+        157286325
+      ],
+      "candidate_add_sub": [
+        136314858,
+        4194322
+      ],
+      "extra_table_capacity_bytes": 33554432,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 1140850688,
+      "extra_fold_logical_bytes": 100663248,
+      "extra_round_table_source_read_bytes": 67108832
+    },
+    {
+      "ln": 4,
+      "logN": 21,
+      "declared_degree": 5,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 10485755,
+      "baseline_clause_scalar_products_Rust5": 1268776355,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 568328039,
+      "saved_scalar_products": 700448316,
+      "baseline_add_sub": [
+        408944445,
+        157286325
+      ],
+      "candidate_add_sub": [
+        136314858,
+        4194322
+      ],
+      "extra_table_capacity_bytes": 33554432,
+      "proof_local_coefficients_constant_bilinear_bytes": 608,
+      "build_logical_source_output_bytes": 587202560,
+      "extra_fold_logical_bytes": 100663248,
+      "extra_round_table_source_read_bytes": 67108832
+    },
+    {
+      "ln": 5,
+      "logN": 1,
+      "declared_degree": 4,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 5,
+      "baseline_clause_scalar_products_Rust5": 645,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 635,
+      "saved_scalar_products": 10,
+      "baseline_add_sub": [
+        215,
+        75
+      ],
+      "candidate_add_sub": [
+        115,
+        22
+      ],
+      "extra_table_capacity_bytes": 32,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 1216,
+      "extra_fold_logical_bytes": 48,
+      "extra_round_table_source_read_bytes": 32
+    },
+    {
+      "ln": 5,
+      "logN": 1,
+      "declared_degree": 4,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 5,
+      "baseline_clause_scalar_products_Rust5": 645,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 413,
+      "saved_scalar_products": 232,
+      "baseline_add_sub": [
+        215,
+        75
+      ],
+      "candidate_add_sub": [
+        115,
+        22
+      ],
+      "extra_table_capacity_bytes": 32,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 624,
+      "extra_fold_logical_bytes": 48,
+      "extra_round_table_source_read_bytes": 32
+    },
+    {
+      "ln": 5,
+      "logN": 1,
+      "declared_degree": 4,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 4,
+      "baseline_clause_scalar_products_Rust5": 516,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 595,
+      "saved_scalar_products": -79,
+      "baseline_add_sub": [
+        172,
+        60
+      ],
+      "candidate_add_sub": [
+        110,
+        22
+      ],
+      "extra_table_capacity_bytes": 32,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 1216,
+      "extra_fold_logical_bytes": 48,
+      "extra_round_table_source_read_bytes": 32
+    },
+    {
+      "ln": 5,
+      "logN": 1,
+      "declared_degree": 4,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 4,
+      "baseline_clause_scalar_products_Rust5": 516,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 373,
+      "saved_scalar_products": 143,
+      "baseline_add_sub": [
+        172,
+        60
+      ],
+      "candidate_add_sub": [
+        110,
+        22
+      ],
+      "extra_table_capacity_bytes": 32,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 624,
+      "extra_fold_logical_bytes": 48,
+      "extra_round_table_source_read_bytes": 32
+    },
+    {
+      "ln": 5,
+      "logN": 1,
+      "declared_degree": 5,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 6,
+      "baseline_clause_scalar_products_Rust5": 774,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 675,
+      "saved_scalar_products": 99,
+      "baseline_add_sub": [
+        258,
+        90
+      ],
+      "candidate_add_sub": [
+        121,
+        22
+      ],
+      "extra_table_capacity_bytes": 32,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 1216,
+      "extra_fold_logical_bytes": 48,
+      "extra_round_table_source_read_bytes": 32
+    },
+    {
+      "ln": 5,
+      "logN": 1,
+      "declared_degree": 5,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 6,
+      "baseline_clause_scalar_products_Rust5": 774,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 453,
+      "saved_scalar_products": 321,
+      "baseline_add_sub": [
+        258,
+        90
+      ],
+      "candidate_add_sub": [
+        121,
+        22
+      ],
+      "extra_table_capacity_bytes": 32,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 624,
+      "extra_fold_logical_bytes": 48,
+      "extra_round_table_source_read_bytes": 32
+    },
+    {
+      "ln": 5,
+      "logN": 1,
+      "declared_degree": 5,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 5,
+      "baseline_clause_scalar_products_Rust5": 645,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 635,
+      "saved_scalar_products": 10,
+      "baseline_add_sub": [
+        215,
+        75
+      ],
+      "candidate_add_sub": [
+        116,
+        22
+      ],
+      "extra_table_capacity_bytes": 32,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 1216,
+      "extra_fold_logical_bytes": 48,
+      "extra_round_table_source_read_bytes": 32
+    },
+    {
+      "ln": 5,
+      "logN": 1,
+      "declared_degree": 5,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 5,
+      "baseline_clause_scalar_products_Rust5": 645,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 413,
+      "saved_scalar_products": 232,
+      "baseline_add_sub": [
+        215,
+        75
+      ],
+      "candidate_add_sub": [
+        116,
+        22
+      ],
+      "extra_table_capacity_bytes": 32,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 624,
+      "extra_fold_logical_bytes": 48,
+      "extra_round_table_source_read_bytes": 32
+    },
+    {
+      "ln": 5,
+      "logN": 2,
+      "declared_degree": 4,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 14,
+      "baseline_clause_scalar_products_Rust5": 1806,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 1375,
+      "saved_scalar_products": 431,
+      "baseline_add_sub": [
+        602,
+        210
+      ],
+      "candidate_add_sub": [
+        246,
+        26
+      ],
+      "extra_table_capacity_bytes": 64,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 2432,
+      "extra_fold_logical_bytes": 144,
+      "extra_round_table_source_read_bytes": 96
+    },
+    {
+      "ln": 5,
+      "logN": 2,
+      "declared_degree": 4,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 14,
+      "baseline_clause_scalar_products_Rust5": 1806,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 931,
+      "saved_scalar_products": 875,
+      "baseline_add_sub": [
+        602,
+        210
+      ],
+      "candidate_add_sub": [
+        246,
+        26
+      ],
+      "extra_table_capacity_bytes": 64,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 1248,
+      "extra_fold_logical_bytes": 144,
+      "extra_round_table_source_read_bytes": 96
+    },
+    {
+      "ln": 5,
+      "logN": 2,
+      "declared_degree": 4,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 12,
+      "baseline_clause_scalar_products_Rust5": 1548,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 1295,
+      "saved_scalar_products": 253,
+      "baseline_add_sub": [
+        516,
+        180
+      ],
+      "candidate_add_sub": [
+        236,
+        26
+      ],
+      "extra_table_capacity_bytes": 64,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 2432,
+      "extra_fold_logical_bytes": 144,
+      "extra_round_table_source_read_bytes": 96
+    },
+    {
+      "ln": 5,
+      "logN": 2,
+      "declared_degree": 4,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 12,
+      "baseline_clause_scalar_products_Rust5": 1548,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 851,
+      "saved_scalar_products": 697,
+      "baseline_add_sub": [
+        516,
+        180
+      ],
+      "candidate_add_sub": [
+        236,
+        26
+      ],
+      "extra_table_capacity_bytes": 64,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 1248,
+      "extra_fold_logical_bytes": 144,
+      "extra_round_table_source_read_bytes": 96
+    },
+    {
+      "ln": 5,
+      "logN": 2,
+      "declared_degree": 5,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 17,
+      "baseline_clause_scalar_products_Rust5": 2193,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 1495,
+      "saved_scalar_products": 698,
+      "baseline_add_sub": [
+        731,
+        255
+      ],
+      "candidate_add_sub": [
+        264,
+        26
+      ],
+      "extra_table_capacity_bytes": 64,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 2432,
+      "extra_fold_logical_bytes": 144,
+      "extra_round_table_source_read_bytes": 96
+    },
+    {
+      "ln": 5,
+      "logN": 2,
+      "declared_degree": 5,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 17,
+      "baseline_clause_scalar_products_Rust5": 2193,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 1051,
+      "saved_scalar_products": 1142,
+      "baseline_add_sub": [
+        731,
+        255
+      ],
+      "candidate_add_sub": [
+        264,
+        26
+      ],
+      "extra_table_capacity_bytes": 64,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 1248,
+      "extra_fold_logical_bytes": 144,
+      "extra_round_table_source_read_bytes": 96
+    },
+    {
+      "ln": 5,
+      "logN": 2,
+      "declared_degree": 5,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 15,
+      "baseline_clause_scalar_products_Rust5": 1935,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 1415,
+      "saved_scalar_products": 520,
+      "baseline_add_sub": [
+        645,
+        225
+      ],
+      "candidate_add_sub": [
+        254,
+        26
+      ],
+      "extra_table_capacity_bytes": 64,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 2432,
+      "extra_fold_logical_bytes": 144,
+      "extra_round_table_source_read_bytes": 96
+    },
+    {
+      "ln": 5,
+      "logN": 2,
+      "declared_degree": 5,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 15,
+      "baseline_clause_scalar_products_Rust5": 1935,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 971,
+      "saved_scalar_products": 964,
+      "baseline_add_sub": [
+        645,
+        225
+      ],
+      "candidate_add_sub": [
+        254,
+        26
+      ],
+      "extra_table_capacity_bytes": 64,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 1248,
+      "extra_fold_logical_bytes": 144,
+      "extra_round_table_source_read_bytes": 96
+    },
+    {
+      "ln": 5,
+      "logN": 4,
+      "declared_degree": 4,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 68,
+      "baseline_clause_scalar_products_Rust5": 8772,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 5815,
+      "saved_scalar_products": 2957,
+      "baseline_add_sub": [
+        2924,
+        1020
+      ],
+      "candidate_add_sub": [
+        1032,
+        50
+      ],
+      "extra_table_capacity_bytes": 256,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 9728,
+      "extra_fold_logical_bytes": 720,
+      "extra_round_table_source_read_bytes": 480
+    },
+    {
+      "ln": 5,
+      "logN": 4,
+      "declared_degree": 4,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 68,
+      "baseline_clause_scalar_products_Rust5": 8772,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 4039,
+      "saved_scalar_products": 4733,
+      "baseline_add_sub": [
+        2924,
+        1020
+      ],
+      "candidate_add_sub": [
+        1032,
+        50
+      ],
+      "extra_table_capacity_bytes": 256,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 4992,
+      "extra_fold_logical_bytes": 720,
+      "extra_round_table_source_read_bytes": 480
+    },
+    {
+      "ln": 5,
+      "logN": 4,
+      "declared_degree": 4,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 60,
+      "baseline_clause_scalar_products_Rust5": 7740,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 5495,
+      "saved_scalar_products": 2245,
+      "baseline_add_sub": [
+        2580,
+        900
+      ],
+      "candidate_add_sub": [
+        992,
+        50
+      ],
+      "extra_table_capacity_bytes": 256,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 9728,
+      "extra_fold_logical_bytes": 720,
+      "extra_round_table_source_read_bytes": 480
+    },
+    {
+      "ln": 5,
+      "logN": 4,
+      "declared_degree": 4,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 60,
+      "baseline_clause_scalar_products_Rust5": 7740,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 3719,
+      "saved_scalar_products": 4021,
+      "baseline_add_sub": [
+        2580,
+        900
+      ],
+      "candidate_add_sub": [
+        992,
+        50
+      ],
+      "extra_table_capacity_bytes": 256,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 4992,
+      "extra_fold_logical_bytes": 720,
+      "extra_round_table_source_read_bytes": 480
+    },
+    {
+      "ln": 5,
+      "logN": 4,
+      "declared_degree": 5,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 83,
+      "baseline_clause_scalar_products_Rust5": 10707,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 6415,
+      "saved_scalar_products": 4292,
+      "baseline_add_sub": [
+        3569,
+        1245
+      ],
+      "candidate_add_sub": [
+        1122,
+        50
+      ],
+      "extra_table_capacity_bytes": 256,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 9728,
+      "extra_fold_logical_bytes": 720,
+      "extra_round_table_source_read_bytes": 480
+    },
+    {
+      "ln": 5,
+      "logN": 4,
+      "declared_degree": 5,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 83,
+      "baseline_clause_scalar_products_Rust5": 10707,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 4639,
+      "saved_scalar_products": 6068,
+      "baseline_add_sub": [
+        3569,
+        1245
+      ],
+      "candidate_add_sub": [
+        1122,
+        50
+      ],
+      "extra_table_capacity_bytes": 256,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 4992,
+      "extra_fold_logical_bytes": 720,
+      "extra_round_table_source_read_bytes": 480
+    },
+    {
+      "ln": 5,
+      "logN": 4,
+      "declared_degree": 5,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 75,
+      "baseline_clause_scalar_products_Rust5": 9675,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 6095,
+      "saved_scalar_products": 3580,
+      "baseline_add_sub": [
+        3225,
+        1125
+      ],
+      "candidate_add_sub": [
+        1082,
+        50
+      ],
+      "extra_table_capacity_bytes": 256,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 9728,
+      "extra_fold_logical_bytes": 720,
+      "extra_round_table_source_read_bytes": 480
+    },
+    {
+      "ln": 5,
+      "logN": 4,
+      "declared_degree": 5,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 75,
+      "baseline_clause_scalar_products_Rust5": 9675,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 4319,
+      "saved_scalar_products": 5356,
+      "baseline_add_sub": [
+        3225,
+        1125
+      ],
+      "candidate_add_sub": [
+        1082,
+        50
+      ],
+      "extra_table_capacity_bytes": 256,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 4992,
+      "extra_fold_logical_bytes": 720,
+      "extra_round_table_source_read_bytes": 480
+    },
+    {
+      "ln": 5,
+      "logN": 18,
+      "declared_degree": 4,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 1179644,
+      "baseline_clause_scalar_products_Rust5": 152174076,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 96993175,
+      "saved_scalar_products": 55180901,
+      "baseline_add_sub": [
+        50724692,
+        17694660
+      ],
+      "candidate_add_sub": [
+        17170416,
+        524306
+      ],
+      "extra_table_capacity_bytes": 4194304,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 159383552,
+      "extra_fold_logical_bytes": 12582864,
+      "extra_round_table_source_read_bytes": 8388576
+    },
+    {
+      "ln": 5,
+      "logN": 18,
+      "declared_degree": 4,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 1179644,
+      "baseline_clause_scalar_products_Rust5": 152174076,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 67895191,
+      "saved_scalar_products": 84278885,
+      "baseline_add_sub": [
+        50724692,
+        17694660
+      ],
+      "candidate_add_sub": [
+        17170416,
+        524306
+      ],
+      "extra_table_capacity_bytes": 4194304,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 81788928,
+      "extra_fold_logical_bytes": 12582864,
+      "extra_round_table_source_read_bytes": 8388576
+    },
+    {
+      "ln": 5,
+      "logN": 18,
+      "declared_degree": 4,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 1048572,
+      "baseline_clause_scalar_products_Rust5": 135265788,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 91750295,
+      "saved_scalar_products": 43515493,
+      "baseline_add_sub": [
+        45088596,
+        15728580
+      ],
+      "candidate_add_sub": [
+        16515056,
+        524306
+      ],
+      "extra_table_capacity_bytes": 4194304,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 159383552,
+      "extra_fold_logical_bytes": 12582864,
+      "extra_round_table_source_read_bytes": 8388576
+    },
+    {
+      "ln": 5,
+      "logN": 18,
+      "declared_degree": 4,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 1048572,
+      "baseline_clause_scalar_products_Rust5": 135265788,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 62652311,
+      "saved_scalar_products": 72613477,
+      "baseline_add_sub": [
+        45088596,
+        15728580
+      ],
+      "candidate_add_sub": [
+        16515056,
+        524306
+      ],
+      "extra_table_capacity_bytes": 4194304,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 81788928,
+      "extra_fold_logical_bytes": 12582864,
+      "extra_round_table_source_read_bytes": 8388576
+    },
+    {
+      "ln": 5,
+      "logN": 18,
+      "declared_degree": 5,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 1441787,
+      "baseline_clause_scalar_products_Rust5": 185990523,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 107478895,
+      "saved_scalar_products": 78511628,
+      "baseline_add_sub": [
+        61996841,
+        21626805
+      ],
+      "candidate_add_sub": [
+        18743274,
+        524306
+      ],
+      "extra_table_capacity_bytes": 4194304,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 159383552,
+      "extra_fold_logical_bytes": 12582864,
+      "extra_round_table_source_read_bytes": 8388576
+    },
+    {
+      "ln": 5,
+      "logN": 18,
+      "declared_degree": 5,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 1441787,
+      "baseline_clause_scalar_products_Rust5": 185990523,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 78380911,
+      "saved_scalar_products": 107609612,
+      "baseline_add_sub": [
+        61996841,
+        21626805
+      ],
+      "candidate_add_sub": [
+        18743274,
+        524306
+      ],
+      "extra_table_capacity_bytes": 4194304,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 81788928,
+      "extra_fold_logical_bytes": 12582864,
+      "extra_round_table_source_read_bytes": 8388576
+    },
+    {
+      "ln": 5,
+      "logN": 18,
+      "declared_degree": 5,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 1310715,
+      "baseline_clause_scalar_products_Rust5": 169082235,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 102236015,
+      "saved_scalar_products": 66846220,
+      "baseline_add_sub": [
+        56360745,
+        19660725
+      ],
+      "candidate_add_sub": [
+        18087914,
+        524306
+      ],
+      "extra_table_capacity_bytes": 4194304,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 159383552,
+      "extra_fold_logical_bytes": 12582864,
+      "extra_round_table_source_read_bytes": 8388576
+    },
+    {
+      "ln": 5,
+      "logN": 18,
+      "declared_degree": 5,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 1310715,
+      "baseline_clause_scalar_products_Rust5": 169082235,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 73138031,
+      "saved_scalar_products": 95944204,
+      "baseline_add_sub": [
+        56360745,
+        19660725
+      ],
+      "candidate_add_sub": [
+        18087914,
+        524306
+      ],
+      "extra_table_capacity_bytes": 4194304,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 81788928,
+      "extra_fold_logical_bytes": 12582864,
+      "extra_round_table_source_read_bytes": 8388576
+    },
+    {
+      "ln": 5,
+      "logN": 19,
+      "declared_degree": 4,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 2359292,
+      "baseline_clause_scalar_products_Rust5": 304348668,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 193986455,
+      "saved_scalar_products": 110362213,
+      "baseline_add_sub": [
+        101449556,
+        35389380
+      ],
+      "candidate_add_sub": [
+        34340848,
+        1048594
+      ],
+      "extra_table_capacity_bytes": 8388608,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 318767104,
+      "extra_fold_logical_bytes": 25165776,
+      "extra_round_table_source_read_bytes": 16777184
+    },
+    {
+      "ln": 5,
+      "logN": 19,
+      "declared_degree": 4,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 2359292,
+      "baseline_clause_scalar_products_Rust5": 304348668,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 135790487,
+      "saved_scalar_products": 168558181,
+      "baseline_add_sub": [
+        101449556,
+        35389380
+      ],
+      "candidate_add_sub": [
+        34340848,
+        1048594
+      ],
+      "extra_table_capacity_bytes": 8388608,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 163577856,
+      "extra_fold_logical_bytes": 25165776,
+      "extra_round_table_source_read_bytes": 16777184
+    },
+    {
+      "ln": 5,
+      "logN": 19,
+      "declared_degree": 4,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 2097148,
+      "baseline_clause_scalar_products_Rust5": 270532092,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 183500695,
+      "saved_scalar_products": 87031397,
+      "baseline_add_sub": [
+        90177364,
+        31457220
+      ],
+      "candidate_add_sub": [
+        33030128,
+        1048594
+      ],
+      "extra_table_capacity_bytes": 8388608,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 318767104,
+      "extra_fold_logical_bytes": 25165776,
+      "extra_round_table_source_read_bytes": 16777184
+    },
+    {
+      "ln": 5,
+      "logN": 19,
+      "declared_degree": 4,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 2097148,
+      "baseline_clause_scalar_products_Rust5": 270532092,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 125304727,
+      "saved_scalar_products": 145227365,
+      "baseline_add_sub": [
+        90177364,
+        31457220
+      ],
+      "candidate_add_sub": [
+        33030128,
+        1048594
+      ],
+      "extra_table_capacity_bytes": 8388608,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 163577856,
+      "extra_fold_logical_bytes": 25165776,
+      "extra_round_table_source_read_bytes": 16777184
+    },
+    {
+      "ln": 5,
+      "logN": 19,
+      "declared_degree": 5,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 2883579,
+      "baseline_clause_scalar_products_Rust5": 371981691,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 214957935,
+      "saved_scalar_products": 157023756,
+      "baseline_add_sub": [
+        123993897,
+        43253685
+      ],
+      "candidate_add_sub": [
+        37486570,
+        1048594
+      ],
+      "extra_table_capacity_bytes": 8388608,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 318767104,
+      "extra_fold_logical_bytes": 25165776,
+      "extra_round_table_source_read_bytes": 16777184
+    },
+    {
+      "ln": 5,
+      "logN": 19,
+      "declared_degree": 5,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 2883579,
+      "baseline_clause_scalar_products_Rust5": 371981691,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 156761967,
+      "saved_scalar_products": 215219724,
+      "baseline_add_sub": [
+        123993897,
+        43253685
+      ],
+      "candidate_add_sub": [
+        37486570,
+        1048594
+      ],
+      "extra_table_capacity_bytes": 8388608,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 163577856,
+      "extra_fold_logical_bytes": 25165776,
+      "extra_round_table_source_read_bytes": 16777184
+    },
+    {
+      "ln": 5,
+      "logN": 19,
+      "declared_degree": 5,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 2621435,
+      "baseline_clause_scalar_products_Rust5": 338165115,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 204472175,
+      "saved_scalar_products": 133692940,
+      "baseline_add_sub": [
+        112721705,
+        39321525
+      ],
+      "candidate_add_sub": [
+        36175850,
+        1048594
+      ],
+      "extra_table_capacity_bytes": 8388608,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 318767104,
+      "extra_fold_logical_bytes": 25165776,
+      "extra_round_table_source_read_bytes": 16777184
+    },
+    {
+      "ln": 5,
+      "logN": 19,
+      "declared_degree": 5,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 2621435,
+      "baseline_clause_scalar_products_Rust5": 338165115,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 146276207,
+      "saved_scalar_products": 191888908,
+      "baseline_add_sub": [
+        112721705,
+        39321525
+      ],
+      "candidate_add_sub": [
+        36175850,
+        1048594
+      ],
+      "extra_table_capacity_bytes": 8388608,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 163577856,
+      "extra_fold_logical_bytes": 25165776,
+      "extra_round_table_source_read_bytes": 16777184
+    },
+    {
+      "ln": 5,
+      "logN": 20,
+      "declared_degree": 4,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 4718588,
+      "baseline_clause_scalar_products_Rust5": 608697852,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 387973015,
+      "saved_scalar_products": 220724837,
+      "baseline_add_sub": [
+        202899284,
+        70778820
+      ],
+      "candidate_add_sub": [
+        68681712,
+        2097170
+      ],
+      "extra_table_capacity_bytes": 16777216,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 637534208,
+      "extra_fold_logical_bytes": 50331600,
+      "extra_round_table_source_read_bytes": 33554400
+    },
+    {
+      "ln": 5,
+      "logN": 20,
+      "declared_degree": 4,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 4718588,
+      "baseline_clause_scalar_products_Rust5": 608697852,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 271581079,
+      "saved_scalar_products": 337116773,
+      "baseline_add_sub": [
+        202899284,
+        70778820
+      ],
+      "candidate_add_sub": [
+        68681712,
+        2097170
+      ],
+      "extra_table_capacity_bytes": 16777216,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 327155712,
+      "extra_fold_logical_bytes": 50331600,
+      "extra_round_table_source_read_bytes": 33554400
+    },
+    {
+      "ln": 5,
+      "logN": 20,
+      "declared_degree": 4,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 4194300,
+      "baseline_clause_scalar_products_Rust5": 541064700,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 367001495,
+      "saved_scalar_products": 174063205,
+      "baseline_add_sub": [
+        180354900,
+        62914500
+      ],
+      "candidate_add_sub": [
+        66060272,
+        2097170
+      ],
+      "extra_table_capacity_bytes": 16777216,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 637534208,
+      "extra_fold_logical_bytes": 50331600,
+      "extra_round_table_source_read_bytes": 33554400
+    },
+    {
+      "ln": 5,
+      "logN": 20,
+      "declared_degree": 4,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 4194300,
+      "baseline_clause_scalar_products_Rust5": 541064700,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 250609559,
+      "saved_scalar_products": 290455141,
+      "baseline_add_sub": [
+        180354900,
+        62914500
+      ],
+      "candidate_add_sub": [
+        66060272,
+        2097170
+      ],
+      "extra_table_capacity_bytes": 16777216,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 327155712,
+      "extra_fold_logical_bytes": 50331600,
+      "extra_round_table_source_read_bytes": 33554400
+    },
+    {
+      "ln": 5,
+      "logN": 20,
+      "declared_degree": 5,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 5767163,
+      "baseline_clause_scalar_products_Rust5": 743964027,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 429916015,
+      "saved_scalar_products": 314048012,
+      "baseline_add_sub": [
+        247988009,
+        86507445
+      ],
+      "candidate_add_sub": [
+        74973162,
+        2097170
+      ],
+      "extra_table_capacity_bytes": 16777216,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 637534208,
+      "extra_fold_logical_bytes": 50331600,
+      "extra_round_table_source_read_bytes": 33554400
+    },
+    {
+      "ln": 5,
+      "logN": 20,
+      "declared_degree": 5,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 5767163,
+      "baseline_clause_scalar_products_Rust5": 743964027,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 313524079,
+      "saved_scalar_products": 430439948,
+      "baseline_add_sub": [
+        247988009,
+        86507445
+      ],
+      "candidate_add_sub": [
+        74973162,
+        2097170
+      ],
+      "extra_table_capacity_bytes": 16777216,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 327155712,
+      "extra_fold_logical_bytes": 50331600,
+      "extra_round_table_source_read_bytes": 33554400
+    },
+    {
+      "ln": 5,
+      "logN": 20,
+      "declared_degree": 5,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 5242875,
+      "baseline_clause_scalar_products_Rust5": 676330875,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 408944495,
+      "saved_scalar_products": 267386380,
+      "baseline_add_sub": [
+        225443625,
+        78643125
+      ],
+      "candidate_add_sub": [
+        72351722,
+        2097170
+      ],
+      "extra_table_capacity_bytes": 16777216,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 637534208,
+      "extra_fold_logical_bytes": 50331600,
+      "extra_round_table_source_read_bytes": 33554400
+    },
+    {
+      "ln": 5,
+      "logN": 20,
+      "declared_degree": 5,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 5242875,
+      "baseline_clause_scalar_products_Rust5": 676330875,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 292552559,
+      "saved_scalar_products": 383778316,
+      "baseline_add_sub": [
+        225443625,
+        78643125
+      ],
+      "candidate_add_sub": [
+        72351722,
+        2097170
+      ],
+      "extra_table_capacity_bytes": 16777216,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 327155712,
+      "extra_fold_logical_bytes": 50331600,
+      "extra_round_table_source_read_bytes": 33554400
+    },
+    {
+      "ln": 5,
+      "logN": 21,
+      "declared_degree": 4,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 9437180,
+      "baseline_clause_scalar_products_Rust5": 1217396220,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 775946135,
+      "saved_scalar_products": 441450085,
+      "baseline_add_sub": [
+        405798740,
+        141557700
+      ],
+      "candidate_add_sub": [
+        137363440,
+        4194322
+      ],
+      "extra_table_capacity_bytes": 33554432,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 1275068416,
+      "extra_fold_logical_bytes": 100663248,
+      "extra_round_table_source_read_bytes": 67108832
+    },
+    {
+      "ln": 5,
+      "logN": 21,
+      "declared_degree": 4,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 9437180,
+      "baseline_clause_scalar_products_Rust5": 1217396220,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 543162263,
+      "saved_scalar_products": 674233957,
+      "baseline_add_sub": [
+        405798740,
+        141557700
+      ],
+      "candidate_add_sub": [
+        137363440,
+        4194322
+      ],
+      "extra_table_capacity_bytes": 33554432,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 654311424,
+      "extra_fold_logical_bytes": 100663248,
+      "extra_round_table_source_read_bytes": 67108832
+    },
+    {
+      "ln": 5,
+      "logN": 21,
+      "declared_degree": 4,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 8388604,
+      "baseline_clause_scalar_products_Rust5": 1082129916,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 734003095,
+      "saved_scalar_products": 348126821,
+      "baseline_add_sub": [
+        360709972,
+        125829060
+      ],
+      "candidate_add_sub": [
+        132120560,
+        4194322
+      ],
+      "extra_table_capacity_bytes": 33554432,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 1275068416,
+      "extra_fold_logical_bytes": 100663248,
+      "extra_round_table_source_read_bytes": 67108832
+    },
+    {
+      "ln": 5,
+      "logN": 21,
+      "declared_degree": 4,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 8388604,
+      "baseline_clause_scalar_products_Rust5": 1082129916,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 501219223,
+      "saved_scalar_products": 580910693,
+      "baseline_add_sub": [
+        360709972,
+        125829060
+      ],
+      "candidate_add_sub": [
+        132120560,
+        4194322
+      ],
+      "extra_table_capacity_bytes": 33554432,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 654311424,
+      "extra_fold_logical_bytes": 100663248,
+      "extra_round_table_source_read_bytes": 67108832
+    },
+    {
+      "ln": 5,
+      "logN": 21,
+      "declared_degree": 5,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 11534331,
+      "baseline_clause_scalar_products_Rust5": 1487928699,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 859832175,
+      "saved_scalar_products": 628096524,
+      "baseline_add_sub": [
+        495976233,
+        173014965
+      ],
+      "candidate_add_sub": [
+        149946346,
+        4194322
+      ],
+      "extra_table_capacity_bytes": 33554432,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 1275068416,
+      "extra_fold_logical_bytes": 100663248,
+      "extra_round_table_source_read_bytes": 67108832
+    },
+    {
+      "ln": 5,
+      "logN": 21,
+      "declared_degree": 5,
+      "initial_claim_known": false,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 11534331,
+      "baseline_clause_scalar_products_Rust5": 1487928699,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 627048303,
+      "saved_scalar_products": 860880396,
+      "baseline_add_sub": [
+        495976233,
+        173014965
+      ],
+      "candidate_add_sub": [
+        149946346,
+        4194322
+      ],
+      "extra_table_capacity_bytes": 33554432,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 654311424,
+      "extra_fold_logical_bytes": 100663248,
+      "extra_round_table_source_read_bytes": 67108832
+    },
+    {
+      "ln": 5,
+      "logN": 21,
+      "declared_degree": 5,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": false,
+      "poly_evaluations": 10485755,
+      "baseline_clause_scalar_products_Rust5": 1352662395,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 817889135,
+      "saved_scalar_products": 534773260,
+      "baseline_add_sub": [
+        450887465,
+        157286325
+      ],
+      "candidate_add_sub": [
+        144703466,
+        4194322
+      ],
+      "extra_table_capacity_bytes": 33554432,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 1275068416,
+      "extra_fold_logical_bytes": 100663248,
+      "extra_round_table_source_read_bytes": 67108832
+    },
+    {
+      "ln": 5,
+      "logN": 21,
+      "declared_degree": 5,
+      "initial_claim_known": true,
+      "sources_base_at_initial_build": true,
+      "poly_evaluations": 10485755,
+      "baseline_clause_scalar_products_Rust5": 1352662395,
+      "candidate_scalar_products_Rust5_including_prep_build_folds": 585105263,
+      "saved_scalar_products": 767557132,
+      "baseline_add_sub": [
+        450887465,
+        157286325
+      ],
+      "candidate_add_sub": [
+        144703466,
+        4194322
+      ],
+      "extra_table_capacity_bytes": 33554432,
+      "proof_local_coefficients_constant_bilinear_bytes": 672,
+      "build_logical_source_output_bytes": 654311424,
+      "extra_fold_logical_bytes": 100663248,
+      "extra_round_table_source_read_bytes": 67108832
+    }
+  ],
+  "whole_D_phase_deletion_bound_1b_n1": {
+    "context": 128,
+    "blocks": 22,
+    "passes": 1,
+    "app_s": 174.052,
+    "D_slot_s": 26.691,
+    "fraction": 0.15335072277250478,
+    "delete_all_D_app_s": 147.361,
+    "delete_all_D_diagnostic_positions_per_s": 0.8686151695496095,
+    "speedup_upper_bound": 1.18112662101913,
+    "target8B_ceiling": null
+  },
+  "controls": {
+    "closed_form_matches_round_sum": true,
+    "generic_N2_none_claim_with_native_steps_saves": true,
+    "generic_N2_known_claim_can_lose": true
+  },
+  "wall_seconds": 0.0005966349999653175,
+  "rss_kib": 13920,
+  "threads": 1,
+  "cpu_affinity": [
+    0
+  ]
+}

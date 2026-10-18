@@ -1,0 +1,6 @@
+[zk60-guard 19:32:00] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 19:33:00] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 19:34:00] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 19:35:00] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 19:35:45] START t21-r4-small class=gpu need=4G cap=6G enforce=cgroup+watchdog waited=225s run=ce0241a6d20a
+[zk60-guard 19:39:52] END t21-r4-small exit=0 child_wall=248s peak_rss=1.66G min_avail=9.96G peak_vram=449MiB

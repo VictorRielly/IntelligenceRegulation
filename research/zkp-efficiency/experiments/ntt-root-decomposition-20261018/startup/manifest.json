@@ -1,0 +1,50 @@
+{
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md": {
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603
+  },
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/STATE.md": {
+    "sha256": "dee8235eb42b3cfbd17b5ed6f0823780bb0a0bd7bfeca9c4408945662d7aaeaa",
+    "bytes": 6711
+  },
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/FINDINGS.md": {
+    "sha256": "3819cd0ac14de931ee7860379d0684f9152c6909df84cac5054a3fdd3e80daa9",
+    "bytes": 514512
+  },
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/sources.jsonl": {
+    "sha256": "b4ae9144f7af5426d93ce891331dafc73140e2b63686a725bd58e983c9e0e15b",
+    "bytes": 481629
+  },
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/PROGRESS.md": {
+    "sha256": "ecd4d96d3b7398165e68d99a01544ce0420d06f0ffda39b228e0cb9dd50ea1c9",
+    "bytes": 2002
+  },
+  "/home/victor/IntelligenceRegulation/CLAUDE.md": {
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089
+  },
+  "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/START_HERE.md": {
+    "sha256": "89f6732a39f4294f2f1b7b68add8fdcbb76b86006e21041f52c0f40d9e39df9d",
+    "bytes": 42025
+  },
+  "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md": {
+    "sha256": "689d68680a55e427a3761df4f365179e50102998dfebc27d31a72a29f6130ecc",
+    "bytes": 71465
+  },
+  "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md": {
+    "sha256": "41c49834da68d4ef77786f0368c9b269b292045c63db613171a52d23aa9306d4",
+    "bytes": 79106
+  },
+  "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md": {
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889
+  },
+  "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md": {
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941
+  },
+  "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_PRIVACY_REQUIREMENTS.md": {
+    "sha256": "77037699ed0a89471d72795e112812276bdca1850078fbdd24abee26d7ff04a3",
+    "bytes": 2264
+  }
+}

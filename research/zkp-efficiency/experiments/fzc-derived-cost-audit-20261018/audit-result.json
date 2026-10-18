@@ -1,0 +1,27 @@
+{
+  "status": "PASS",
+  "seed": 2026101874,
+  "checks": {
+    "fixtures": 32,
+    "full_round_polynomial_values": 2960,
+    "original_cube_terminal_values": 720,
+    "all_prefix_rederived_values": 2072,
+    "cost_small_N": 1
+  },
+  "negative_controls": {
+    "reverse_MSB_binding_detected": true,
+    "omit_terminal_fold_detected": true,
+    "stale_pad_coefficients_detected": true,
+    "generic_N2_pad_prep_can_lose": true,
+    "whole_row_product_precompute_invalid_offcube": true
+  },
+  "synthetic_sha256": "3b1db8eb1d9b24f1b0724a33a20d357f9cce12ef18f4a8aaf12a56469475bdb1",
+  "wall_seconds": 0.4646334899989597,
+  "rss_kib": 15944,
+  "threads": 1,
+  "cpu_affinity": [
+    0
+  ],
+  "nice": 19,
+  "scope": "Independent original full F-polynomial, direct original-cube Lagrange terminal and every fold prefix; synthetic scalar CPU only, no native proof/device/privacy result."
+}

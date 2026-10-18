@@ -1,0 +1,61 @@
+{
+ "model": {
+  "d": 4096,
+  "V": 128256,
+  "V_pad": 131072,
+  "L": 32,
+  "T": 32,
+  "stage_log": 12,
+  "block_log_cols_T32": 13
+ },
+ "stage_in": {
+  "A_rows": 41,
+  "H_rows": 76,
+  "M_rows": 12,
+  "elems": 479232,
+  "a_sites": 3,
+  "h_sites": 3,
+  "slots": 4,
+  "fold": 536870912,
+  "receipt": 1415040,
+  "endpoints": {
+   "input token endpoint": {
+    "plane": 256,
+    "sites": 1,
+    "rows": 6
+   }
+  }
+ },
+ "stage_out": {
+  "A_rows": 374,
+  "H_rows": 302,
+  "M_rows": 26,
+  "elems": 2768896,
+  "a_sites": 49,
+  "h_sites": 13,
+  "slots": 11,
+  "u8": 970752,
+  "fold": 536870912,
+  "receipt": 3222400,
+  "endpoints": {
+   "output token endpoint": {
+    "plane": 256,
+    "sites": 1,
+    "rows": 6
+   }
+  }
+ },
+ "argmax": {
+  "window_bits": 56,
+  "limbs": 7,
+  "pin": 0,
+  "lookups_per_vocab_entry": 7,
+  "vocab_planes": 8
+ },
+ "tables": {
+  "embedding_int16_bytes": 1050673152,
+  "head_int8_bytes": 525336576,
+  "multipliers_int64_bytes": 1026048,
+  "fold_weights_each": 525336576
+ }
+}

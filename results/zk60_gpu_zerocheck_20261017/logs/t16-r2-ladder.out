@@ -1,0 +1,15 @@
+[zk60-guard 16:59:08] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 17:00:08] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 17:01:08] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 17:02:09] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 17:03:09] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 17:04:09] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 17:05:09] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 17:06:09] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 17:07:09] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 17:08:09] waiting for /tmp/zk-heavy.lock (541s)
+[zk60-guard 17:09:09] waiting for /tmp/zk-heavy.lock (601s)
+[zk60-guard 17:10:09] waiting for /tmp/zk-heavy.lock (661s)
+[zk60-guard 17:11:09] waiting for /tmp/zk-heavy.lock (721s)
+[zk60-guard 17:11:49] START t16-r2-ladder class=gpu need=4G cap=6G enforce=cgroup+watchdog waited=761s run=3d488ba4acfa
+[zk60-guard 17:12:46] END t16-r2-ladder exit=0 child_wall=57s peak_rss=1.62G min_avail=12.27G peak_vram=885MiB

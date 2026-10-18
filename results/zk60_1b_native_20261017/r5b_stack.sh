@@ -12,7 +12,7 @@ D=/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017
 G=/home/victor/IntelligenceRegulation/scripts/zk60_resource_guard.py
 X=$D/r5b/zk60_trained_block.release.bin
 E=$1; S=$2; NEED=$3; CAP=$4; WC=${5:-4}
-V=$(basename "$E"); R=$D/r5b/stack-$V-$S-cpu
+V=$(basename "$E"); R=$D/r5b/stack-$V-$S-cpu${TAG:-}
 VE=$D/r5b/verifier-exports/$V
 [ -d "$VE" ] || { echo "no verifier copy $VE"; exit 1; }
 mkdir -p "$R"

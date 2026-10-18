@@ -1,0 +1,405 @@
+diff -ruN -x __pycache__ frozen_v5/scripts/zk60_native_rg_mask.py scripts/zk60_native_rg_mask.py
+--- frozen_v5/scripts/zk60_native_rg_mask.py	2026-10-17 14:13:32.798669201 -0700
++++ scripts/zk60_native_rg_mask.py	2026-10-17 17:12:01.764905147 -0700
+@@ -550,6 +550,10 @@
+ from zk60_native_rg_tinyllama_r5_pins import (  # noqa: E402
+     MASK_LAYER_PINS as _R5_MLP)
+ _tl_merge2(MASK_LAYER_PINS, _R5_MLP, "MASK_LAYER_PINS")
++# [TINYLLAMA PORT v6, round 5] the R5b tree's shape.rs
++from zk60_native_rg_tinyllama_r5b_pins import (  # noqa: E402
++    MASK_LAYER_PINS as _R5B_MLP)
++_tl_merge2(MASK_LAYER_PINS, _R5B_MLP, "MASK_LAYER_PINS")
+ 
+ # Files the mask port transcribes that NO bundle pins, so that nothing in
+ # this module can check them.  The digests were read at the capture commits
+diff -ruN -x __pycache__ frozen_v5/scripts/zk60_native_rg_pincontrols.py scripts/zk60_native_rg_pincontrols.py
+--- frozen_v5/scripts/zk60_native_rg_pincontrols.py	2026-10-17 14:50:02.426793685 -0700
++++ scripts/zk60_native_rg_pincontrols.py	2026-10-17 17:12:45.349929845 -0700
+@@ -29,6 +29,8 @@
+   PC-8  PC-6 with sumcheck/rounds.rs moved   -> 7, 8, 10 held, ok false
+   PC-9  a pre-G-2 writer pinning ONE G-2 file -> the other two refused
+         (the two sumcheck files: 7, 8, 10 held)
++  PC-10 [v6] an R5b-writer pin set (G-2 + N-r4-d, every digest read) -> ok
++  PC-11 [v6] PC-10 without src/gpu/mod.rs -> 3, 4, 5, 7, 9 held
+ 
+ NOTHING HERE IS A PRIVACY STATEMENT.
+ """
+@@ -48,6 +50,7 @@
+ 
+ import zk60_native_rg_m125 as M  # noqa: E402
+ from zk60_native_rg_tinyllama_r5_pins import RUN_LAYER_PINS as R5, SHARED_G2_PINS  # noqa: E402
++from zk60_native_rg_tinyllama_r5b_pins import RUN_LAYER_PINS as R5B, SHARED_NR4D_PINS  # noqa: E402
+ 
+ STAGES = ["load", "replay", "hash", "terminals", "commitments", "boundary",
+           "preimage", "channels"]
+@@ -80,6 +83,16 @@
+         _set(pins, f, SHARED_G2_PINS[f]["sha256"])
+ 
+ 
++def _r5b_writer(pins):
++    """[v6] an R5b-writer pin set: R5b's run-layer digests, G-2 and N-r4-d"""
++    _set(pins, "src/private_block/run.rs", next(iter(R5B["src/private_block/run.rs"])))
++    _set(pins, "src/private_block/run_capture.rs", next(iter(R5B["src/private_block/run_capture.rs"])))
++    for f in G2:
++        _set(pins, f, SHARED_G2_PINS[f]["sha256"])
++    for f, e in SHARED_NR4D_PINS.items():
++        _set(pins, f, e["sha256"])
++
++
+ CONTROLS = [
+     ("PC-0", "honest", lambda p: None, (), True),
+     ("PC-1", "run.rs at an unread digest",
+@@ -108,6 +121,13 @@
+      lambda p: _set(p, G2[0], SHARED_G2_PINS[G2[0]]["sha256"]),
+      ("stage7_channels", "stage8_plane_index_and_terminals",
+       "stage10_bilinear_group_factor"), False),
++    # [v6, round 5] the R5b writer: honest, and without one N-r4-d pin
++    ("PC-10", "an R5b-writer pin set (G-2 and N-r4-d), every digest read",
++     _r5b_writer, (), True),
++    ("PC-11", "the R5b-writer pin set without src/gpu/mod.rs",
++     lambda p: (_r5b_writer(p), _drop(p, "src/gpu/mod.rs")),
++     ("stage3_per_commitment", "stage4_the_boundary", "stage5_zero_data_preimage",
++      "stage7_channels", "stage9_hash_layer"), False),
+ ]
+ 
+ 
+diff -ruN -x __pycache__ frozen_v5/scripts/zk60_native_rg_runpins.py scripts/zk60_native_rg_runpins.py
+--- frozen_v5/scripts/zk60_native_rg_runpins.py	2026-10-17 14:39:55.092840667 -0700
++++ scripts/zk60_native_rg_runpins.py	2026-10-17 17:12:01.764024242 -0700
+@@ -968,6 +968,13 @@
+     SHARED_G2_PINS)
+ _tl_merge2(RUN_LAYER_PINS, _R5_RLP, "RUN_LAYER_PINS")
+ _tl_merge1(READINGS, _R5_READINGS, "READINGS")
++# [TINYLLAMA PORT v6, round 5] the R5b tree's run-layer digests and readings,
++# and review r4's N-r4-d shared files (`zk60_native_rg_tinyllama_r5b_pins`)
++from zk60_native_rg_tinyllama_r5b_pins import (  # noqa: E402
++    READINGS as _R5B_READINGS, RUN_LAYER_PINS as _R5B_RLP,
++    SHARED_NR4D_PINS)
++_tl_merge2(RUN_LAYER_PINS, _R5B_RLP, "RUN_LAYER_PINS")
++_tl_merge1(READINGS, _R5B_READINGS, "READINGS")
+ 
+ # --------------------------------------------------------------------------
+ # 4.  WHICH STAGES A MOVED PIN SUSPENDS
+@@ -1079,6 +1086,20 @@
+          "stage10_bilinear_group_factor", "stage12_mask_and_cfs",
+          "stage13_joint_run_preimage"),
+         "slot 17's grouped evaluator behind its published rounds"),
++    # [v6] review r4's N-r4-d files (draft section 5a)
++    "src/gpu/mod.rs": (
++        ("stage3_per_commitment", "stage4_the_boundary",
++         "stage5_zero_data_preimage", "stage7_channels", "stage9_hash_layer",
++         "stage11_full_preimage", "stage13_joint_run_preimage"),
++        "the backend switch every commitment's columns go through"),
++    "src/tables_v3.rs": (
++        ("stage7_channels", "stage8_plane_index_and_terminals",
++         "stage10_bilinear_group_factor"),
++        "the activation-table registry the door admits tables from"),
++    "../zkp-core/src/tables.rs": (
++        ("stage7_channels", "stage8_plane_index_and_terminals",
++         "stage10_bilinear_group_factor"),
++        "the activation-table registry the door admits tables from"),
+ }
+ 
+ 
+@@ -1150,21 +1171,32 @@
+     # one at another digest is refused.
+     rc = pins.get("src/private_block/run_capture.rs")
+     rc_entry = RUN_LAYER_PINS.get("src/private_block/run_capture.rs", {}).get(rc) or {}
+-    g2_aware = bool(rc_entry.get("pins_g2"))
+-    g2 = [f for f in sorted(SHARED_G2_PINS) if f in pins]
+-    g2_detail = []
+-    for f in sorted(SHARED_G2_PINS):
+-        want = SHARED_G2_PINS[f]
+-        if f not in pins:
+-            if g2_aware or g2:
+-                moved.append(f"{f}: the writer pins the three G-2 files and "
+-                             "this bundle declares no digest for this one")
+-            continue
+-        if pins[f] != want["sha256"]:
+-            moved.append(f"{f}: the bundle pins {pins[f][:12]}, this gate read "
+-                         f"{want['sha256'][:12]} -- {want['depended_on_by']}")
+-        g2_detail.append({"file": f, "declared": pins[f],
+-                          "read": pins[f] == want["sha256"], **want})
++    # [v6] the same rule for each REQUIRED GROUP of extra shared pins: G-2's
++    # three prover files (flag `pins_g2`) and review r4's N-r4-d three (flag
++    # `pins_nr4d`).  A record of a bundle whose writer pins neither group
++    # gains no leaf.
++    group_detail = {}
++    group_seen = {}
++    for table, flag, key, what in (
++            (SHARED_G2_PINS, "pins_g2", "g2_prover_path_files", "G-2"),
++            (SHARED_NR4D_PINS, "pins_nr4d", "nr4d_files", "N-r4-d")):
++        aware = bool(rc_entry.get(flag))
++        seen = [f for f in sorted(table) if f in pins]
++        group_seen[key] = aware or bool(seen)
++        detail = []
++        for f in sorted(table):
++            want = table[f]
++            if f not in pins:
++                if aware or seen:
++                    moved.append(f"{f}: the writer pins the three {what} files "
++                                 "and this bundle declares no digest for this one")
++                continue
++            if pins[f] != want["sha256"]:
++                moved.append(f"{f}: the bundle pins {pins[f][:12]}, this gate read "
++                             f"{want['sha256'][:12]} -- {want['depended_on_by']}")
++            detail.append({"file": f, "declared": pins[f],
++                           "read": pins[f] == want["sha256"], **want})
++        group_detail[key] = detail
+ 
+     def _entry(f):
+         e = {"file": f, "declared": pins[f], **SHARED_LAYER_PINS[f]}
+@@ -1201,10 +1233,11 @@
+         # [ROUND 9i] present only when a second digest is in play, for the
+         # same reason as `accepted_second_digest` above
+         out["pins_at_an_accepted_second_digest"] = sorted(second)
+-    if g2 or g2_aware:
+-        # [TINYLLAMA PORT v5] present only when the bundle (or its writer)
+-        # pins them, so no earlier record gains a leaf
+-        out["g2_prover_path_files"] = g2_detail
++    for key, detail in group_detail.items():
++        if group_seen[key]:
++            # present only when the bundle (or its writer) pins that group, so
++            # no earlier record gains a leaf
++            out[key] = detail
+     if moved:
+         # [TINYLLAMA PORT v5; review P-2] what a refused shared pin affects,
+         # present only on a refusal (an honest record gains no leaf)
+diff -ruN -x __pycache__ frozen_v5/scripts/zk60_native_rg_terminals.py scripts/zk60_native_rg_terminals.py
+--- frozen_v5/scripts/zk60_native_rg_terminals.py	2026-10-17 14:13:32.706665100 -0700
++++ scripts/zk60_native_rg_terminals.py	2026-10-17 17:12:01.764524187 -0700
+@@ -570,6 +570,11 @@
+     TERMINALS_PINNED_IF_PRESENT as _R5_PIP)
+ _tl_merge2(ALSO_ACCEPTED, _R5_AA, "ALSO_ACCEPTED")
+ _tl_merge2(PINNED_IF_PRESENT, _R5_PIP, "PINNED_IF_PRESENT")
++# [TINYLLAMA PORT v6, round 5] the R5b tree's shape.rs (layout.rs, protocol.rs
++# are R5's bytes) (`zk60_native_rg_tinyllama_r5b_pins`)
++from zk60_native_rg_tinyllama_r5b_pins import (  # noqa: E402
++    TERMINALS_PINNED_IF_PRESENT as _R5B_PIP)
++_tl_merge2(PINNED_IF_PRESENT, _R5B_PIP, "PINNED_IF_PRESENT")
+ 
+ # **ROUND 4 (2026-09-20), finding S19-F1.**  `argument.rs` is the file that
+ # decides what a slot's polynomial IS, and its stage-20 digest carries a
+diff -ruN -x __pycache__ frozen_v5/scripts/zk60_native_rg_tinyllama_r5b_pins.py scripts/zk60_native_rg_tinyllama_r5b_pins.py
+--- frozen_v5/scripts/zk60_native_rg_tinyllama_r5b_pins.py	1969-12-31 16:00:00.000000000 -0800
++++ scripts/zk60_native_rg_tinyllama_r5b_pins.py	2026-10-17 17:12:01.763471977 -0700
+@@ -0,0 +1,207 @@
++#!/usr/bin/env python3
++"""[TINYLLAMA PORT, tools v6, 2026-10-18 round 5] The READINGS behind every
++source pin of the bundles captured from the native lane's frozen R5b tree
++that round 4's R5 readings (`zk60_native_rg_tinyllama_r5_pins`) do not
++already cover, merged at the same definition sites, one marked line each,
++after round 4's.  No existing digest or reading is changed; the merge
++refuses a digest already present.
++
++HOW EACH FILE WAS READ.  The R5b bundles are written from
++`ops/zkp-mvp/trained-1b-gate-r5b/`: an rsync of
++`results/zk60_1b_native_20261017/r5b/frozen-tree/` (frozen
++2026-10-18T00:06:31Z, tree 44013397..., all 218 files equal to
++`r5b/manifest_frozen.json`) plus this lane's test-only capture code and the
++P-12 stage-47 module (mounted under the unpinned `run_capture_tests.rs`;
++sources manifest `results/zk60_gate_tinyllama_20261017/r5b/
++trained-1b-gate-r5b.sources.v1.sha256`).  Against R5 (whose readings stand),
++the pinned files that changed are read as the plain `diff -u` against the R5
++digest; the four files R5b pins for the first time (review r4 note N-r4-d,
++draft section 5a) are read whole for what the CPU path takes from them.  Of
++the files a port transcribes, `layout.rs`, `protocol.rs` and `argument.rs`
++are byte-identical to R5 (their R5 readings apply); `shape.rs` changed.
++
++WHAT A READING DOES NOT SAY.  That the Rust is right.
++
++NOTHING HERE IS A PRIVACY STATEMENT.
++"""
++
++from __future__ import annotations
++
++TREE = ("uncommitted:ops/zkp-mvp/trained-1b-gate-r5b "
++        "(the native lane's frozen R5b tree 44013397 + the privacy-gate lane's "
++        "test-only capture code and stage-47 module; sources manifest 444b948f)",)
++R5B_BUNDLES = ("tinyllama-trained-r5b-capture-dense-l2",
++               "tinyllama-trained-r5b-capture-zero-l2",
++               "tinyllama-trained-r5b-capture-dense-l1",
++               "tinyllama-trained-r5b-capture-zero-l1",
++               "tinyllama-trained-r5b-capture-dense-l22",
++               "tinyllama-trained-r5b-capture-zero-l22")
++
++RUN_LAYER_PINS = {
++    "src/private_block/run.rs": {
++        "c192fd33d41e1d3244ad9e076f7e450145dad29168038991319124309e1e35ad": {
++            "blob": "f0c89230a2bb5834a860c045d27c050a6fecc93f",
++            "commits": TREE,
++            "bundles": R5B_BUNDLES,
++            "bytes": 73795,
++        },
++    },
++    "src/private_block/run_capture.rs": {
++        "31557a2722997d900bcf21e67f3aa312b9bf7f70ea81a0212470c32602c5be6f": {
++            "blob": "e3f3e223d90db0851a1b6f77c9069f5622101878",
++            "commits": TREE,
++            "bundles": R5B_BUNDLES,
++            "bytes": 90312,
++            # this writer pins finding G-2's three files AND review r4's
++            # N-r4-d three, so a bundle it wrote must pin all six
++            "pins_g2": True,
++            "pins_nr4d": True,
++        },
++    },
++}
++
++READINGS = {
++    ("src/private_block/run.rs",
++     "c192fd33d41e1d3244ad9e076f7e450145dad29168038991319124309e1e35ad"):
++        "[TINYLLAMA PORT v6, round 5] read against `05302591` (R5, read in "
++        "round 4): `diff -u` is +52 / -1, five hunks.  (1) the run-profile "
++        "constants of the trained Llama-3-8B shapes at T64 and T128 and their "
++        "two entries in the CS-7 registry and in `tinyllama_trained`'s "
++        "dispatch; (2) the trained-profile list of `new_with_calibration`'s "
++        "refusal gains the two strings; (3) review r4's r4_B: "
++        "`read_regular_file_bounded`, a bounded reader for the files the CLI "
++        "and the MVP driver read by path (refuses a non-regular file and an "
++        "over-long one before the open).  **Outside every hunk**: the six "
++        "header absorbs, `position_tag`, the per-stage absorbs, "
++        "`prove_run_with` / `RunVerifier` and the boundary rules; at the "
++        "TinyLlama T32 profile no byte of a run moves",
++    ("src/private_block/run_capture.rs",
++     "31557a2722997d900bcf21e67f3aa312b9bf7f70ea81a0212470c32602c5be6f"):
++        "[TINYLLAMA PORT v6, round 5] read against `9c5f844b` (R5 + this "
++        "lane's capture additions): +26 / -10, four hunks, all review r4's "
++        "N-r4-d: `SHARED_SOURCE_FILES` 26 -> 29 (`src/gpu/mod.rs`, "
++        "`src/tables_v3.rs`, `../zkp-core/src/tables.rs`, appended LAST), "
++        "`OWN_SOURCE_FILES` 16 -> 17 (`src/private_block/trained_block.rs`, "
++        "appended LAST), `NOT_ON_THE_RUNS_PATH` 3 -> 2 (trained_block.rs "
++        "leaves it), and a doc comment.  This lane's additions (the trained "
++        "shape keys, their allow-list entries, the README sentence) are "
++        "byte-identical; no field, kind, label or order a loader reads moved",
++}
++
++# zk60_native_rg_runpins: review r4's N-r4-d files (draft section 5a).
++# Required from a writer whose run_capture.rs digest is read as `pins_nr4d`.
++SHARED_NR4D_PINS = {
++    "src/gpu/mod.rs": {
++        "sha256": "d651be2ccf8f19ff75fe6bca5ad42f4b773b569d0ae2017306f0bf819c51b283",
++        "depended_on_by": "no port transcribes it; it decides which backend "
++        "every commitment's columns go through",
++        "reading": "[TINYLLAMA PORT v6, round 5; N-r4-d] read whole for the "
++        "CPU build: without `gpu-cuda` the module is the constant-false stub "
++        "-- `mod cuda` is `#[cfg(feature = \"gpu-cuda\")]` (:19-20), the "
++        "non-feature `seam::backend()` returns `zkp_core::pcs::Cpu` (never "
++        "takes over) and `DevStore` is `NoExternal`, `enabled()` is the "
++        "constant false and `label()` the fixed off string a trained "
++        "statement records (P-7).  `required` / `declines` / `declined` / "
++        "`require_live` count and refuse GPU CLAIMS only (fail closed); none "
++        "touches a field value.  The CUDA bodies (`cuda.rs`, `kernels.cu`) "
++        "are not compiled into a CPU binary and are not pinned (section 5a)",
++    },
++    "src/tables_v3.rs": {
++        "sha256": "726c9355f9e663ef1a43dc9efe17cb2c85aa3583977d0c794dad4cf21a24715d",
++        "depended_on_by": "no port; the trained door's SiLU registry check",
++        "reading": "[TINYLLAMA PORT v6, round 5; N-r4-d] three lines: a "
++        "compatibility adapter, `pub use zkp_core::tables::*;`",
++    },
++    "../zkp-core/src/tables.rs": {
++        "sha256": "8cc95bc8b576907a99f24755cd9d16ea8904cd9ccc514f32f471a95ca8f13e50",
++        "depended_on_by": "no port; the trained door admits only an `act` equal "
++        "to a member of this registry (review P-15's enforcement claim)",
++        "reading": "[TINYLLAMA PORT v6, round 5; N-r4-d] read whole: the frozen "
++        "int16-out activation families (`silu-int16out-table-v3`, 9 members; "
++        "gelu, 6), each 256 rows over g = -128..=127, S[g] = "
++        "clamp(round_half_up(f(g 2^e_in) / 2^e_out)), regenerated from that "
++        "formula and CHECKED against frozen spec digests before use (a "
++        "platform libm drift is a hard stop).  Row 128 is g = 0 and "
++        "silu(0) = 0, so every SiLU member has act[128] = 0 -- the fact P-15's "
++        "GS-12 enforcement rests on.  The gate measures act[128] per stage "
++        "(E4) independently",
++    },
++}
++
++TERMINALS_PINNED_IF_PRESENT = {
++    "src/private_block/shape.rs": {
++        "6c262f59877aee3f7eebd42c7338be2b3bc9ea8d6fa340531f8208df58d3a6ef":
++            "[TINYLLAMA PORT v6, round 5] read against `38d32443` (R5): +58 / "
++            "-2, five hunks, all the trained Llama-3-8B shapes at T64 and "
++            "T128: two profile strings and their list, "
++            "`TRAINED_CALIBRATION_PROFILES` 5 -> 7, `llama3_8b_log_cols`, the "
++            "RoPE base of the 8B list, two `trained_geometry` entries and "
++            "`Shape::llama3_8b_trained` (+ a cfg(test) counted-layout "
++            "constructor).  The TinyLlama T32 entry of `trained_geometry`, "
++            "`Shape::slots`, `pads`, `true_size`, `hash_tag`, the calibration "
++            "and every refusal at the T32 profile are outside every hunk",
++    },
++}
++
++MASK_LAYER_PINS = {
++    "src/private_block/shape.rs": {
++        "6c262f59877aee3f7eebd42c7338be2b3bc9ea8d6fa340531f8208df58d3a6ef": {
++            "commits": TREE,
++            "bundles": R5B_BUNDLES,
++            "reading": "[TINYLLAMA PORT v6, round 5] `Shape::slots` and ruling "
++            "C-4 are outside all five hunks (the 8B T64 / T128 shapes)",
++        },
++    },
++}
++
++REPORT_ONLY_OWN_FILES = {
++    "src/private_block.rs": (
++        "e1847bf0445532bb21255580623524b8a435916e140483f90bb5304f004101c0",
++        "against `1c282586` (R5): +5 / -0, one cfg(test) module declaration "
++        "(`ladder8b_tests`).  `ExpectedIo::to_bytes` and every statement check "
++        "are byte-identical"),
++    "src/private_block/trained_statement.rs": (
++        "ecd7459eaa1e6bfd71b49ad0e9b4c73943f1dada9c85fd78c094f9ddc6d93f29",
++        "against `cab092a0` (R5): +1 / -1, `pinned_for_profile` covers every "
++        "Llama-3-8B profile.  The encoding and the identity are unchanged"),
++    "src/private_block/trained_block.rs": (
++        "46d4c5d44e0f1bceca2c9a5804b85aed27892b1152665dff03b4f550e79b70f6",
++        "NEW pin (N-r4-d): the trained export reader and CLI.  Against R5 "
++        "(+488 / -194, 40 hunks), read for the review's fixes: P-1 -- the "
++        "chain is sealed by the witness builder's own pass with its refusals "
++        "and the parity check BEFORE the run header (`PARITY_REFUSAL` before "
++        "the header), an incomplete run directory is removed and a failed "
++        "removal is reported loudly, and an unverified run's statement goes to "
++        "`<out>.unverified-statement/`, promoted only by `stack-verify` after "
++        "a fresh-process verification; P-5 -- `--seq-dir` reads the hidden "
++        "input from a prover-private directory, and a verifier refuses an "
++        "export directory holding `seq_*`; P-6 -- one parity refusal text with "
++        "no count, position or value, and the sequence-file refusal prints no "
++        "digest, size or value; C-R4 -- `--label` is allow-listed; P-7 -- "
++        "`statement.json` records `backend`; review r4's r4_A -- each array's "
++        "dtype and shape checked before it is read.  The capture harness the "
++        "bundles come from builds blocks through `load_layer` (the door's "
++        "SiLU-registry and table checks) and does not call the CLI"),
++}
++
++
++def merge_two_level(into: dict, add: dict, table: str) -> dict:
++    """Merge `{path: {digest: entry}}` WITHOUT changing an existing entry."""
++    for path, digests in add.items():
++        slot = into.setdefault(path, {})
++        for d, entry in digests.items():
++            if d in slot:
++                raise ValueError(f"{table}: {path} {d[:12]} is already read; "
++                                 "the R5b pins do not replace a reading")
++            slot[d] = entry
++    return into
++
++
++def merge_one_level(into: dict, add: dict, table: str) -> dict:
++    """Merge `{key: value}` without replacing an existing key."""
++    for key, value in add.items():
++        if key in into:
++            raise ValueError(f"{table}: {key!r} is already present; the R5b "
++                             "pins do not replace a reading")
++        into[key] = value
++    return into
+diff -ruN -x __pycache__ frozen_v5/scripts/zk60_native_run_gate.py scripts/zk60_native_run_gate.py
+--- frozen_v5/scripts/zk60_native_run_gate.py	2026-10-17 14:56:30.906713940 -0700
++++ scripts/zk60_native_run_gate.py	2026-10-17 17:12:01.765097029 -0700
+@@ -183,6 +183,8 @@
+     "zk60_native_rg_pincontrols.py",
+     "zk60_native_rg_exportcheck.py",
+     "zk60_native_rg_schema.py",
++    # [v6, round 5] the readings of the R5b tree's digests
++    "zk60_native_rg_tinyllama_r5b_pins.py",
+ ]
+ 
+ EXPECTED_DISCLOSED = {

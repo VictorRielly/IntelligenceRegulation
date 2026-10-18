@@ -74,7 +74,7 @@
   "hashline/src/private_block/review_tests.rs": "008c2205175f050ca6fa3d7582d2ebdd230be82324bdd170a1c20e3cd6be9b62",
   "hashline/src/private_block/rulings_tests.rs": "edf8368b19ee3e6e315f2e59b68c5037820fdc0080911c3867a9a6fc295083bd",
   "hashline/src/private_block/run.rs": "c192fd33d41e1d3244ad9e076f7e450145dad29168038991319124309e1e35ad",
-  "hashline/src/private_block/run_capture.rs": "95a4c4e988f0939d7a6544a0e13dc403aac241bb27cb3c097b5d023bf6c09b75",
+  "hashline/src/private_block/run_capture.rs": "1d43d68c5f48b203cc3001dd6accf5612713a3b4a0277166daeafe14f266a503",
   "hashline/src/private_block/run_capture_tests.rs": "51de864a19efc43d66f6c1bc9bf3430d8361aff5b93e5c3dc0d86e949606cf29",
   "hashline/src/private_block/run_sink.rs": "005bac239d8dd616a46573f948c30ce1e2c540e02cf97035d3c457717c32921d",
   "hashline/src/private_block/run_statement_file.rs": "896d5e017514c2e0794d4ee2cde6596c6e2a90df0028fbb420648af77b41c5f2",
@@ -82,7 +82,7 @@
   "hashline/src/private_block/rung_tests.rs": "9cef0c87685fe5cf493e9629129f2d6cadced8b7245764d70570052504d9b034",
   "hashline/src/private_block/s20_review_tests.rs": "5747345aa91fec538edcf135ba5b6e70a1f7ade0f3d7cc2beb636737596dd6c6",
   "hashline/src/private_block/s23_tests.rs": "3a45f8c1aa9217a6917ad2a09be39119b4a19d056cf27c304e38ba698b2cfbd8",
-  "hashline/src/private_block/s24_tests.rs": "e292d6bd7af91ddc0a4f45e3fcc09804ae35c1bf11309d0b0c697a559ef50443",
+  "hashline/src/private_block/s24_tests.rs": "959308161db8adb7828f0e862e69c3b84ba6781515ee8b5b05145da24d514bd4",
   "hashline/src/private_block/s25_tests.rs": "fc3f0a65affd3baf725d298cc369410041a1f8cec19dcc3c7e2320dcd68654e7",
   "hashline/src/private_block/s26_tests.rs": "3e119dedaf2e4cd5223bd4be55770797e02f97c2372e69c392ff43498717d9f8",
   "hashline/src/private_block/s28_review_tests.rs": "e75ea63e1eb6b301f767c1be4a612426433068e156677f12f58dd83a39d3a13b",
@@ -220,8 +220,8 @@
   "zkp-core/src/transcript.rs": "cc9752d0ef9bcd6d7b20e94e611ff26748593a2ea1a4f55b63d8c221715f1967",
   "zkp-core/tests/endpoint_reuse.rs": "5b1b56593da17bae9a6f718cf92fbd18810077be858670dd3c4407762165ff44"
  },
- "note": "the R5b frozen review copy r5b/frozen-tree/ (2026-10-17T22:30:00Z)",
+ "note": "the R5b frozen review copy r5b/frozen-tree/ (2026-10-18T00:06:31Z; supersedes the 22:30 copy: + the N-r4-d source pins)",
  "root": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5b/frozen-tree",
- "tree_sha256": "0a07d19aa821f20c2d80b9a27168ab84b94ae14dbd8331596085a488c1f2950c",
- "written_utc": "2026-10-17T22:30:00Z"
+ "tree_sha256": "440133975de99fe06d091e4393bb5192f1d726c39f60cbbaef53326498b881d9",
+ "written_utc": "2026-10-18T00:06:31Z"
 }

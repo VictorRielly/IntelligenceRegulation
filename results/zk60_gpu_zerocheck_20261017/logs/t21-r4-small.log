@@ -1,0 +1,302 @@
+   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: unused variable: `envu`
+    --> src/gpu/cuda.rs:1252:9
+     |
+1252 |     let envu = |k: &str, d: usize| std::env::var(k).ok().and_then(|v| v.parse().ok()).unwrap_or(d);
+     |         ^^^^ help: if this is intentional, prefix it with an underscore: `_envu`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:830:13
+    |
+830 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `force_check` is never used
+  --> src/gpu/fzc.rs:60:15
+   |
+60 | pub(crate) fn force_check(v: Option<bool>) {
+   |               ^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:972:4
+    |
+972 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:477:5
+    |
+470 | struct Rec {
+    |        --- field in this struct
+...
+477 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:579:15
+    |
+579 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: calls to `std::mem::drop` with a value that implements `Copy` does nothing
+    --> src/gpu/cuda.rs:1112:9
+     |
+1112 |         drop(d_pack.0.take().map(pool_put));
+     |         ^^^^^-----------------------------^
+     |              |
+     |              argument has type `Option<()>`
+     |
+     = note: `#[warn(dropping_copy_types)]` on by default
+help: use `let _ = ...` to ignore the expression or result
+     |
+1112 -         drop(d_pack.0.take().map(pool_put));
+1112 +         let _ = d_pack.0.take().map(pool_put);
+     |
+
+warning: `hashline` (lib test) generated 18 warnings (run `cargo fix --lib -p hashline --tests` to apply 11 suggestions)
+    Finished `release` profile [optimized] target(s) in 2m 26s
+     Running unittests src/lib.rs (/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/target-gpu/release/deps/hashline-5af71eb9341564fc)
+
+running 6 tests
+test private_block::gpu_zc_tests::gzc_descriptor_equals_the_closure_at_every_small_shape ... GZC descriptor toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head): slot 18 n 9 degree 4 tables 20 supp false pad planes 0 mu 9; FzcDesc::eval == closure at 80 points
+GZC descriptor development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): slot 18 n 13 degree 5 tables 21 supp true pad planes 11 mu 10; FzcDesc::eval == closure at 80 points
+GZC descriptor development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): slot 18 n 13 degree 5 tables 21 supp true pad planes 11 mu 10; FzcDesc::eval == closure at 80 points
+GZC descriptor development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads): slot 18 n 13 degree 5 tables 21 supp true pad planes 11 mu 10; FzcDesc::eval == closure at 80 points
+GZC descriptor development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads): slot 18 n 13 degree 4 tables 20 supp false pad planes 0 mu 9; FzcDesc::eval == closure at 80 points
+GZC descriptor development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads): slot 18 n 14 degree 4 tables 20 supp false pad planes 0 mu 9; FzcDesc::eval == closure at 80 points
+GZC descriptor development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads): slot 18 n 16 degree 4 tables 20 supp false pad planes 0 mu 9; FzcDesc::eval == closure at 80 points
+GZC descriptor development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads): slot 18 n 15 degree 4 tables 20 supp false pad planes 0 mu 9; FzcDesc::eval == closure at 80 points
+ok
+test private_block::gpu_zc_tests::gzc_descriptor_equals_the_closure_at_the_trained_shapes ... GZC descriptor development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads): slot 18 n 14 degree 4 tables 20 supp false pad planes 0 mu 9; FzcDesc::eval == closure at 80 points
+GZC descriptor TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads): slot 18 n 18 degree 5 tables 21 supp true pad planes 11 mu 10; FzcDesc::eval == closure at 80 points
+GZC descriptor TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads): slot 18 n 20 degree 5 tables 21 supp true pad planes 11 mu 10; FzcDesc::eval == closure at 80 points
+GZC descriptor Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads): slot 18 n 19 degree 5 tables 21 supp true pad planes 11 mu 10; FzcDesc::eval == closure at 80 points
+ok
+test private_block::gpu_zc_tests::gzc_device_real_slot18_equals_the_cpu_body_at_every_small_shape ... GZC device == CPU: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) slot 18 (n 9, D 4, k 20, dense random data, host words), variant split, claim none (round 0 evaluated): 9 rounds equal; CPU body 0.001 s, device body (tables built on the device) 10.8752 s
+GZC device == CPU: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) slot 18 (n 9, D 4, k 20, dense random data, host words), variant split-mat, claim none (round 0 evaluated): 9 rounds equal; CPU body 0.001 s, device body (tables built on the device) 0.0066 s
+GZC device == CPU: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) slot 18 (n 9, D 4, k 20, dense random data, host words), variant split-tail10, claim none (round 0 evaluated): 9 rounds equal; CPU body 0.001 s, device body (tables built on the device) 0.0068 s
+GZC device == CPU: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) slot 18 (n 9, D 4, k 20, dense random data, host words), variant lean, claim none (round 0 evaluated): 9 rounds equal; CPU body 0.001 s, device body (tables built on the device) 1.7205 s
+GZC device == CPU: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) slot 18 (n 9, D 4, k 20, dense random data, host words), variant split, claim given: 9 rounds equal; CPU body 0.001 s, device body (tables built on the device) 0.0060 s
+GZC device == CPU: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) slot 18 (n 9, D 4, k 20, dense random data, host words), variant split-mat, claim given: 9 rounds equal; CPU body 0.001 s, device body (tables built on the device) 0.0072 s
+GZC device == CPU: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) slot 18 (n 9, D 4, k 20, dense random data, host words), variant split-tail10, claim given: 9 rounds equal; CPU body 0.001 s, device body (tables built on the device) 0.0090 s
+GZC device == CPU: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) slot 18 (n 9, D 4, k 20, dense random data, host words), variant lean, claim given: 9 rounds equal; CPU body 0.001 s, device body (tables built on the device) 0.0120 s
+GZC device == CPU: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) slot 18 (n 9, D 4, k 20, dense random data, device-resident rows), variant split, claim none (round 0 evaluated): 9 rounds equal; CPU body 0.001 s, device body (tables built on the device) 0.0063 s
+GZC device == CPU: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) slot 18 (n 9, D 4, k 20, dense random data, device-resident rows), variant split-mat, claim none (round 0 evaluated): 9 rounds equal; CPU body 0.001 s, device body (tables built on the device) 0.0043 s
+GZC device == CPU: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) slot 18 (n 9, D 4, k 20, dense random data, device-resident rows), variant split-tail10, claim none (round 0 evaluated): 9 rounds equal; CPU body 0.001 s, device body (tables built on the device) 0.0046 s
+GZC device == CPU: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) slot 18 (n 9, D 4, k 20, dense random data, device-resident rows), variant lean, claim none (round 0 evaluated): 9 rounds equal; CPU body 0.001 s, device body (tables built on the device) 0.0118 s
+GZC device == CPU: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) slot 18 (n 9, D 4, k 20, dense random data, device-resident rows), variant split, claim given: 9 rounds equal; CPU body 0.001 s, device body (tables built on the device) 0.0039 s
+GZC device == CPU: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) slot 18 (n 9, D 4, k 20, dense random data, device-resident rows), variant split-mat, claim given: 9 rounds equal; CPU body 0.001 s, device body (tables built on the device) 0.0069 s
+GZC device == CPU: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) slot 18 (n 9, D 4, k 20, dense random data, device-resident rows), variant split-tail10, claim given: 9 rounds equal; CPU body 0.001 s, device body (tables built on the device) 0.0048 s
+GZC device == CPU: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) slot 18 (n 9, D 4, k 20, dense random data, device-resident rows), variant lean, claim given: 9 rounds equal; CPU body 0.001 s, device body (tables built on the device) 0.0115 s
+GZC device == CPU: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, host words), variant split, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.055 s, device body (tables built on the device) 12.2020 s
+GZC device == CPU: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, host words), variant split-mat, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.055 s, device body (tables built on the device) 0.0099 s
+GZC device == CPU: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, host words), variant split-tail10, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.055 s, device body (tables built on the device) 0.0117 s
+GZC device == CPU: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, host words), variant lean, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.055 s, device body (tables built on the device) 2.6700 s
+GZC device == CPU: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, host words), variant split, claim given: 13 rounds equal; CPU body 0.056 s, device body (tables built on the device) 0.0101 s
+GZC device == CPU: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, host words), variant split-mat, claim given: 13 rounds equal; CPU body 0.056 s, device body (tables built on the device) 0.0119 s
+GZC device == CPU: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, host words), variant split-tail10, claim given: 13 rounds equal; CPU body 0.056 s, device body (tables built on the device) 0.0107 s
+GZC device == CPU: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, host words), variant lean, claim given: 13 rounds equal; CPU body 0.056 s, device body (tables built on the device) 0.0204 s
+GZC device == CPU: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, device-resident rows), variant split, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.052 s, device body (tables built on the device) 0.0085 s
+GZC device == CPU: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, device-resident rows), variant split-mat, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.052 s, device body (tables built on the device) 0.0065 s
+GZC device == CPU: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, device-resident rows), variant split-tail10, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.052 s, device body (tables built on the device) 0.0089 s
+GZC device == CPU: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, device-resident rows), variant lean, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.052 s, device body (tables built on the device) 0.0172 s
+GZC device == CPU: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, device-resident rows), variant split, claim given: 13 rounds equal; CPU body 0.058 s, device body (tables built on the device) 0.0078 s
+GZC device == CPU: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, device-resident rows), variant split-mat, claim given: 13 rounds equal; CPU body 0.058 s, device body (tables built on the device) 0.0065 s
+GZC device == CPU: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, device-resident rows), variant split-tail10, claim given: 13 rounds equal; CPU body 0.058 s, device body (tables built on the device) 0.0084 s
+GZC device == CPU: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, device-resident rows), variant lean, claim given: 13 rounds equal; CPU body 0.058 s, device body (tables built on the device) 0.0185 s
+GZC device == CPU: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, host words), variant split, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.050 s, device body (tables built on the device) 0.0127 s
+GZC device == CPU: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, host words), variant split-mat, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.050 s, device body (tables built on the device) 0.0093 s
+GZC device == CPU: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, host words), variant split-tail10, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.050 s, device body (tables built on the device) 0.0118 s
+GZC device == CPU: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, host words), variant lean, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.050 s, device body (tables built on the device) 0.0202 s
+GZC device == CPU: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, host words), variant split, claim given: 13 rounds equal; CPU body 0.051 s, device body (tables built on the device) 0.0108 s
+GZC device == CPU: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, host words), variant split-mat, claim given: 13 rounds equal; CPU body 0.051 s, device body (tables built on the device) 0.0094 s
+GZC device == CPU: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, host words), variant split-tail10, claim given: 13 rounds equal; CPU body 0.051 s, device body (tables built on the device) 0.0106 s
+GZC device == CPU: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, host words), variant lean, claim given: 13 rounds equal; CPU body 0.051 s, device body (tables built on the device) 0.0201 s
+GZC device == CPU: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, device-resident rows), variant split, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.053 s, device body (tables built on the device) 0.0078 s
+GZC device == CPU: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, device-resident rows), variant split-mat, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.053 s, device body (tables built on the device) 0.0074 s
+GZC device == CPU: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, device-resident rows), variant split-tail10, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.053 s, device body (tables built on the device) 0.0080 s
+GZC device == CPU: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, device-resident rows), variant lean, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.053 s, device body (tables built on the device) 0.0188 s
+GZC device == CPU: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, device-resident rows), variant split, claim given: 13 rounds equal; CPU body 0.051 s, device body (tables built on the device) 0.0083 s
+GZC device == CPU: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, device-resident rows), variant split-mat, claim given: 13 rounds equal; CPU body 0.051 s, device body (tables built on the device) 0.0097 s
+GZC device == CPU: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, device-resident rows), variant split-tail10, claim given: 13 rounds equal; CPU body 0.051 s, device body (tables built on the device) 0.0103 s
+GZC device == CPU: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 (n 13, D 5, k 21, dense random data, device-resident rows), variant lean, claim given: 13 rounds equal; CPU body 0.051 s, device body (tables built on the device) 0.0187 s
+GZC device == CPU: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 5, k 21, dense random data, host words), variant split, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.054 s, device body (tables built on the device) 0.0147 s
+GZC device == CPU: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 5, k 21, dense random data, host words), variant split-mat, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.054 s, device body (tables built on the device) 0.0095 s
+GZC device == CPU: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 5, k 21, dense random data, host words), variant split-tail10, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.054 s, device body (tables built on the device) 0.0119 s
+GZC device == CPU: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 5, k 21, dense random data, host words), variant lean, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.054 s, device body (tables built on the device) 0.0291 s
+GZC device == CPU: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 5, k 21, dense random data, host words), variant split, claim given: 13 rounds equal; CPU body 0.049 s, device body (tables built on the device) 0.0096 s
+GZC device == CPU: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 5, k 21, dense random data, host words), variant split-mat, claim given: 13 rounds equal; CPU body 0.049 s, device body (tables built on the device) 0.0091 s
+GZC device == CPU: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 5, k 21, dense random data, host words), variant split-tail10, claim given: 13 rounds equal; CPU body 0.049 s, device body (tables built on the device) 0.0112 s
+GZC device == CPU: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 5, k 21, dense random data, host words), variant lean, claim given: 13 rounds equal; CPU body 0.049 s, device body (tables built on the device) 0.0193 s
+GZC device == CPU: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 5, k 21, dense random data, device-resident rows), variant split, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.055 s, device body (tables built on the device) 0.0077 s
+GZC device == CPU: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 5, k 21, dense random data, device-resident rows), variant split-mat, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.055 s, device body (tables built on the device) 0.0061 s
+GZC device == CPU: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 5, k 21, dense random data, device-resident rows), variant split-tail10, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.055 s, device body (tables built on the device) 0.0089 s
+GZC device == CPU: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 5, k 21, dense random data, device-resident rows), variant lean, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.055 s, device body (tables built on the device) 0.0178 s
+GZC device == CPU: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 5, k 21, dense random data, device-resident rows), variant split, claim given: 13 rounds equal; CPU body 0.052 s, device body (tables built on the device) 0.0070 s
+GZC device == CPU: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 5, k 21, dense random data, device-resident rows), variant split-mat, claim given: 13 rounds equal; CPU body 0.052 s, device body (tables built on the device) 0.0071 s
+GZC device == CPU: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 5, k 21, dense random data, device-resident rows), variant split-tail10, claim given: 13 rounds equal; CPU body 0.052 s, device body (tables built on the device) 0.0074 s
+GZC device == CPU: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 5, k 21, dense random data, device-resident rows), variant lean, claim given: 13 rounds equal; CPU body 0.052 s, device body (tables built on the device) 0.0185 s
+GZC device == CPU: development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 4, k 20, dense random data, host words), variant split, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.047 s, device body (tables built on the device) 0.0088 s
+GZC device == CPU: development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 4, k 20, dense random data, host words), variant split-mat, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.047 s, device body (tables built on the device) 0.0083 s
+GZC device == CPU: development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 4, k 20, dense random data, host words), variant split-tail10, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.047 s, device body (tables built on the device) 0.0101 s
+GZC device == CPU: development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 4, k 20, dense random data, host words), variant lean, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.047 s, device body (tables built on the device) 0.0177 s
+GZC device == CPU: development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 4, k 20, dense random data, host words), variant split, claim given: 13 rounds equal; CPU body 0.045 s, device body (tables built on the device) 0.0363 s
+GZC device == CPU: development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 4, k 20, dense random data, host words), variant split-mat, claim given: 13 rounds equal; CPU body 0.045 s, device body (tables built on the device) 0.0114 s
+GZC device == CPU: development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 4, k 20, dense random data, host words), variant split-tail10, claim given: 13 rounds equal; CPU body 0.045 s, device body (tables built on the device) 0.0115 s
+GZC device == CPU: development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 4, k 20, dense random data, host words), variant lean, claim given: 13 rounds equal; CPU body 0.045 s, device body (tables built on the device) 0.0206 s
+GZC device == CPU: development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 4, k 20, dense random data, device-resident rows), variant split, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.043 s, device body (tables built on the device) 0.0071 s
+GZC device == CPU: development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 4, k 20, dense random data, device-resident rows), variant split-mat, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.043 s, device body (tables built on the device) 0.0060 s
+GZC device == CPU: development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 4, k 20, dense random data, device-resident rows), variant split-tail10, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.043 s, device body (tables built on the device) 0.0063 s
+GZC device == CPU: development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 4, k 20, dense random data, device-resident rows), variant lean, claim none (round 0 evaluated): 13 rounds equal; CPU body 0.043 s, device body (tables built on the device) 0.0150 s
+GZC device == CPU: development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 4, k 20, dense random data, device-resident rows), variant split, claim given: 13 rounds equal; CPU body 0.045 s, device body (tables built on the device) 0.0069 s
+GZC device == CPU: development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 4, k 20, dense random data, device-resident rows), variant split-mat, claim given: 13 rounds equal; CPU body 0.045 s, device body (tables built on the device) 0.0062 s
+GZC device == CPU: development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 4, k 20, dense random data, device-resident rows), variant split-tail10, claim given: 13 rounds equal; CPU body 0.045 s, device body (tables built on the device) 0.0069 s
+GZC device == CPU: development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) slot 18 (n 13, D 4, k 20, dense random data, device-resident rows), variant lean, claim given: 13 rounds equal; CPU body 0.045 s, device body (tables built on the device) 0.0152 s
+GZC device == CPU: development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, dense random data, host words), variant split, claim none (round 0 evaluated): 14 rounds equal; CPU body 0.094 s, device body (tables built on the device) 0.0116 s
+GZC device == CPU: development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, dense random data, host words), variant split-mat, claim none (round 0 evaluated): 14 rounds equal; CPU body 0.094 s, device body (tables built on the device) 0.0115 s
+GZC device == CPU: development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, dense random data, host words), variant split-tail10, claim none (round 0 evaluated): 14 rounds equal; CPU body 0.094 s, device body (tables built on the device) 0.0134 s
+GZC device == CPU: development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, dense random data, host words), variant lean, claim none (round 0 evaluated): 14 rounds equal; CPU body 0.094 s, device body (tables built on the device) 0.0212 s
+GZC device == CPU: development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, dense random data, host words), variant split, claim given: 14 rounds equal; CPU body 0.091 s, device body (tables built on the device) 0.0111 s
+GZC device == CPU: development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, dense random data, host words), variant split-mat, claim given: 14 rounds equal; CPU body 0.091 s, device body (tables built on the device) 0.0151 s
+GZC device == CPU: development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, dense random data, host words), variant split-tail10, claim given: 14 rounds equal; CPU body 0.091 s, device body (tables built on the device) 0.0127 s
+GZC device == CPU: development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, dense random data, host words), variant lean, claim given: 14 rounds equal; CPU body 0.091 s, device body (tables built on the device) 0.0197 s
+GZC device == CPU: development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, dense random data, device-resident rows), variant split, claim none (round 0 evaluated): 14 rounds equal; CPU body 0.096 s, device body (tables built on the device) 0.0088 s
+GZC device == CPU: development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, dense random data, device-resident rows), variant split-mat, claim none (round 0 evaluated): 14 rounds equal; CPU body 0.096 s, device body (tables built on the device) 0.0079 s
+GZC device == CPU: development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, dense random data, device-resident rows), variant split-tail10, claim none (round 0 evaluated): 14 rounds equal; CPU body 0.096 s, device body (tables built on the device) 0.0086 s
+GZC device == CPU: development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, dense random data, device-resident rows), variant lean, claim none (round 0 evaluated): 14 rounds equal; CPU body 0.096 s, device body (tables built on the device) 0.0187 s
+GZC device == CPU: development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, dense random data, device-resident rows), variant split, claim given: 14 rounds equal; CPU body 0.089 s, device body (tables built on the device) 0.0088 s
+GZC device == CPU: development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, dense random data, device-resident rows), variant split-mat, claim given: 14 rounds equal; CPU body 0.089 s, device body (tables built on the device) 0.0079 s
+GZC device == CPU: development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, dense random data, device-resident rows), variant split-tail10, claim given: 14 rounds equal; CPU body 0.089 s, device body (tables built on the device) 0.0087 s
+GZC device == CPU: development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, dense random data, device-resident rows), variant lean, claim given: 14 rounds equal; CPU body 0.089 s, device body (tables built on the device) 0.0200 s
+GZC device == CPU: development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 16, D 4, k 20, dense random data, host words), variant split, claim none (round 0 evaluated): 16 rounds equal; CPU body 0.241 s, device body (tables built on the device) 0.0305 s
+GZC device == CPU: development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 16, D 4, k 20, dense random data, host words), variant split-mat, claim none (round 0 evaluated): 16 rounds equal; CPU body 0.241 s, device body (tables built on the device) 0.0281 s
+GZC device == CPU: development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 16, D 4, k 20, dense random data, host words), variant split-tail10, claim none (round 0 evaluated): 16 rounds equal; CPU body 0.241 s, device body (tables built on the device) 0.0294 s
+GZC device == CPU: development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 16, D 4, k 20, dense random data, host words), variant lean, claim none (round 0 evaluated): 16 rounds equal; CPU body 0.241 s, device body (tables built on the device) 0.0379 s
+GZC device == CPU: development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 16, D 4, k 20, dense random data, host words), variant split, claim given: 16 rounds equal; CPU body 0.167 s, device body (tables built on the device) 0.0292 s
+GZC device == CPU: development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 16, D 4, k 20, dense random data, host words), variant split-mat, claim given: 16 rounds equal; CPU body 0.167 s, device body (tables built on the device) 0.0292 s
+GZC device == CPU: development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 16, D 4, k 20, dense random data, host words), variant split-tail10, claim given: 16 rounds equal; CPU body 0.167 s, device body (tables built on the device) 0.0308 s
+GZC device == CPU: development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 16, D 4, k 20, dense random data, host words), variant lean, claim given: 16 rounds equal; CPU body 0.167 s, device body (tables built on the device) 0.0373 s
+GZC device == CPU: development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 16, D 4, k 20, dense random data, device-resident rows), variant split, claim none (round 0 evaluated): 16 rounds equal; CPU body 0.174 s, device body (tables built on the device) 0.0152 s
+GZC device == CPU: development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 16, D 4, k 20, dense random data, device-resident rows), variant split-mat, claim none (round 0 evaluated): 16 rounds equal; CPU body 0.174 s, device body (tables built on the device) 0.0134 s
+GZC device == CPU: development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 16, D 4, k 20, dense random data, device-resident rows), variant split-tail10, claim none (round 0 evaluated): 16 rounds equal; CPU body 0.174 s, device body (tables built on the device) 0.0332 s
+GZC device == CPU: development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 16, D 4, k 20, dense random data, device-resident rows), variant lean, claim none (round 0 evaluated): 16 rounds equal; CPU body 0.174 s, device body (tables built on the device) 0.0237 s
+GZC device == CPU: development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 16, D 4, k 20, dense random data, device-resident rows), variant split, claim given: 16 rounds equal; CPU body 0.164 s, device body (tables built on the device) 0.0148 s
+GZC device == CPU: development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 16, D 4, k 20, dense random data, device-resident rows), variant split-mat, claim given: 16 rounds equal; CPU body 0.164 s, device body (tables built on the device) 0.0153 s
+GZC device == CPU: development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 16, D 4, k 20, dense random data, device-resident rows), variant split-tail10, claim given: 16 rounds equal; CPU body 0.164 s, device body (tables built on the device) 0.0158 s
+GZC device == CPU: development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 16, D 4, k 20, dense random data, device-resident rows), variant lean, claim given: 16 rounds equal; CPU body 0.164 s, device body (tables built on the device) 0.0234 s
+GZC device == CPU: development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 15, D 4, k 20, dense random data, host words), variant split, claim none (round 0 evaluated): 15 rounds equal; CPU body 0.129 s, device body (tables built on the device) 0.0211 s
+GZC device == CPU: development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 15, D 4, k 20, dense random data, host words), variant split-mat, claim none (round 0 evaluated): 15 rounds equal; CPU body 0.129 s, device body (tables built on the device) 0.0184 s
+GZC device == CPU: development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 15, D 4, k 20, dense random data, host words), variant split-tail10, claim none (round 0 evaluated): 15 rounds equal; CPU body 0.129 s, device body (tables built on the device) 0.0330 s
+GZC device == CPU: development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 15, D 4, k 20, dense random data, host words), variant lean, claim none (round 0 evaluated): 15 rounds equal; CPU body 0.129 s, device body (tables built on the device) 0.0318 s
+GZC device == CPU: development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 15, D 4, k 20, dense random data, host words), variant split, claim given: 15 rounds equal; CPU body 0.165 s, device body (tables built on the device) 0.0201 s
+GZC device == CPU: development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 15, D 4, k 20, dense random data, host words), variant split-mat, claim given: 15 rounds equal; CPU body 0.165 s, device body (tables built on the device) 0.0197 s
+GZC device == CPU: development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 15, D 4, k 20, dense random data, host words), variant split-tail10, claim given: 15 rounds equal; CPU body 0.165 s, device body (tables built on the device) 0.0225 s
+GZC device == CPU: development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 15, D 4, k 20, dense random data, host words), variant lean, claim given: 15 rounds equal; CPU body 0.165 s, device body (tables built on the device) 0.0285 s
+GZC device == CPU: development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 15, D 4, k 20, dense random data, device-resident rows), variant split, claim none (round 0 evaluated): 15 rounds equal; CPU body 0.153 s, device body (tables built on the device) 0.0109 s
+GZC device == CPU: development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 15, D 4, k 20, dense random data, device-resident rows), variant split-mat, claim none (round 0 evaluated): 15 rounds equal; CPU body 0.153 s, device body (tables built on the device) 0.0101 s
+GZC device == CPU: development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 15, D 4, k 20, dense random data, device-resident rows), variant split-tail10, claim none (round 0 evaluated): 15 rounds equal; CPU body 0.153 s, device body (tables built on the device) 0.0118 s
+GZC device == CPU: development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 15, D 4, k 20, dense random data, device-resident rows), variant lean, claim none (round 0 evaluated): 15 rounds equal; CPU body 0.153 s, device body (tables built on the device) 0.0189 s
+GZC device == CPU: development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 15, D 4, k 20, dense random data, device-resident rows), variant split, claim given: 15 rounds equal; CPU body 0.160 s, device body (tables built on the device) 0.0091 s
+GZC device == CPU: development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 15, D 4, k 20, dense random data, device-resident rows), variant split-mat, claim given: 15 rounds equal; CPU body 0.160 s, device body (tables built on the device) 0.0098 s
+GZC device == CPU: development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 15, D 4, k 20, dense random data, device-resident rows), variant split-tail10, claim given: 15 rounds equal; CPU body 0.160 s, device body (tables built on the device) 0.0119 s
+GZC device == CPU: development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 18 (n 15, D 4, k 20, dense random data, device-resident rows), variant lean, claim given: 15 rounds equal; CPU body 0.160 s, device body (tables built on the device) 0.0182 s
+ok
+test private_block::gpu_zc_tests::gzc_device_synthetic_edges_equal_the_cpu_body ... GZC device synthetic: 1440 device bodies equal the CPU body (rounds, challenges, finals, transcript)
+ok
+test private_block::gpu_zc_tests::gzc_layout_check_refuses_a_perturbed_description ... ok
+test private_block::gpu_zc_tests::gzc_module_cache_refuses_stale_and_corrupt_entries ... GZC module cache: valid entry loads; stale key, corrupt body and foreign file refused
+ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 568 filtered out; finished in 100.75s
+

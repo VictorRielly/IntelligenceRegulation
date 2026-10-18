@@ -87,7 +87,8 @@ pub(crate) const LLAMA3_8B_T32_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-
 /// same trained door, declared classes and pinned checkpoint as T32. Row
 /// width: the smallest counted receipt of the admissible widths (T64 2^13,
 /// 21,697,512 B; T128 2^14, 29,300,856 B; `ladder8b_tests`), 37 endpoint
-/// rows. PENDING INDEPENDENT REVIEW of these two profiles.
+/// rows. Both profiles ACCEPTED by the independent review, round 5
+/// (`results/zk60_d24_review_20261017/R5_VERDICT.md`, verdict 2).
 pub(crate) const LLAMA3_8B_T64_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-llama-3-8b-t64-trained/1";
 pub(crate) const LLAMA3_8B_T128_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-llama-3-8b-t128-trained/1";
 /// the trained Llama-3-8B profiles: the pinned checkpoint's, at each
@@ -1473,6 +1474,29 @@ impl Shape {
         Ok(())
     }
 
+    /// **NATIVE R6: the same trained shape with ANOTHER SCORE SHIFT** — the
+    /// shape a run's stage is proved at when its layer declares its own
+    /// `sh_s` (a per-layer export constant, like the exp `e_s` and the SiLU
+    /// member). Only a trained-calibration shape; the value must lie in the
+    /// one-limb window (the plane list and lookup counts do not move inside
+    /// it: only the `scaled(rsl, 2^(8 - sh_s))` coefficient and the score
+    /// host relation's `2^sh_s` / `2^(sh_s - 1)` constants); the result passes
+    /// CS-8's rebuild through the door and the trained class check, so every
+    /// derived window is the door's.
+    pub(crate) fn with_score_shift(&self, sh_s: u32) -> Result<Shape, String> {
+        if !self.trained_calibration {
+            return Err(format!("private block shape: {} is not a trained-calibration shape; its score shift is frozen", self.profile));
+        }
+        if !ONE_LIMB_SHIFT.contains(&sh_s) {
+            return Err(format!("trained calibration: a per-layer sh_s {sh_s} is outside its structure-preserving window {ONE_LIMB_SHIFT:?}"));
+        }
+        let mut s = self.clone();
+        s.sh_s = sh_s;
+        s.check_constructed()?;
+        s.check_trained_class()?;
+        Ok(s)
+    }
+
     /// this shape's calibration, as the five constants
     pub(crate) fn norm_calibration(&self) -> NormCalibration {
         NormCalibration {
@@ -1569,7 +1593,7 @@ impl Shape {
     /// **Task 3 (2026-10-17 evening): the trained Llama-3-8B shape at a
     /// registered context length** (32, 64 or 128), each its own profile;
     /// T32 is exactly [`Shape::llama3_8b_t32_trained`]. Any other T is
-    /// refused by name. T64 / T128 PENDING INDEPENDENT REVIEW.
+    /// refused by name. T64 / T128 accepted by the independent review, round 5.
     pub(crate) fn llama3_8b_trained(tokens: usize, cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
         let profile = match tokens {
             32 => LLAMA3_8B_T32_TRAINED_PROFILE,

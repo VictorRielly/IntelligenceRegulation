@@ -1,0 +1,29 @@
+[zk60-guard 17:09:48] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 17:10:48] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 17:11:48] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 17:12:49] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 17:13:49] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 17:14:49] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 17:15:49] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 17:16:49] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 17:17:27] START tl-r5b-build class=build need=3G cap=5G enforce=cgroup+watchdog waited=459s run=977536fad53c
+[zk60-guard 17:19:58] END tl-r5b-build exit=0 child_wall=151s peak_rss=1.77G min_avail=12.41G
+[zk60-guard 17:19:58] START tl-gr4-block_dense_ho00_commits_exactly_the_predicted_stream class=light need=2G cap=3.5G enforce=cgroup+watchdog waited=0s run=538ae870deea
+[zk60-guard 17:20:05] END tl-gr4-block_dense_ho00_commits_exactly_the_predicted_stream exit=0 child_wall=7s peak_rss=0.85G min_avail=12.92G
+[zk60-guard 17:20:05] START tl-gr4-block_zero_commits_exactly_the_predicted_stream class=light need=2G cap=3.5G enforce=cgroup+watchdog waited=0s run=8f539178eb20
+[zk60-guard 17:20:13] END tl-gr4-block_zero_commits_exactly_the_predicted_stream exit=0 child_wall=7s peak_rss=0.85G min_avail=12.57G
+[zk60-guard 17:20:13] START tl-gr4-boundary_commits_exactly_the_predicted_stream class=light need=2G cap=3.5G enforce=cgroup+watchdog waited=0s run=e100842bf8cf
+[zk60-guard 17:20:13] END tl-gr4-boundary_commits_exactly_the_predicted_stream exit=0 child_wall=1s peak_rss=0.30G min_avail=12.82G
+[zk60-guard 17:20:14] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 17:20:53] START tl-capture-r5b-l2-dense class=cpu need=2G cap=3.5G enforce=cgroup+watchdog waited=39s run=dfc24f0ff886
+[zk60-guard 17:21:01] END tl-capture-r5b-l2-dense exit=0 child_wall=8s peak_rss=0.94G min_avail=13.01G
+[zk60-guard 17:21:01] START tl-capture-r5b-l2-zero class=cpu need=2G cap=3.5G enforce=cgroup+watchdog waited=0s run=cad117d1b625
+[zk60-guard 17:21:09] END tl-capture-r5b-l2-zero exit=0 child_wall=8s peak_rss=0.95G min_avail=12.92G
+[zk60-guard 17:21:09] START tl-capture-r5b-l1-dense class=cpu need=2G cap=3.5G enforce=cgroup+watchdog waited=0s run=c6253206954b
+[zk60-guard 17:21:14] END tl-capture-r5b-l1-dense exit=0 child_wall=4s peak_rss=0.82G min_avail=12.99G
+[zk60-guard 17:21:14] START tl-capture-r5b-l1-zero class=cpu need=2G cap=3.5G enforce=cgroup+watchdog waited=0s run=416426ff835f
+[zk60-guard 17:21:18] END tl-capture-r5b-l1-zero exit=0 child_wall=4s peak_rss=0.79G min_avail=13.03G
+[zk60-guard 17:21:18] START tl-capture-r5b-l22-dense class=cpu need=3G cap=4.5G enforce=cgroup+watchdog waited=0s run=e793ffb5aae9
+[zk60-guard 17:22:52] END tl-capture-r5b-l22-dense exit=0 child_wall=93s peak_rss=2.46G min_avail=11.18G
+[zk60-guard 17:22:52] START tl-capture-r5b-l22-zero class=cpu need=3G cap=4.5G enforce=cgroup+watchdog waited=0s run=ea0450a2ec78
+[zk60-guard 17:24:28] END tl-capture-r5b-l22-zero exit=0 child_wall=96s peak_rss=2.48G min_avail=11.26G

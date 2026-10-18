@@ -1,0 +1,2930 @@
+{
+  "status": "PASS",
+  "fixtures": 132,
+  "delta_rule": "0 Fp2 add, +3*(W-1) Fp2 sub, 0 Fp2 mul. Column-tail differences recomputed by split measure/bind; all row arithmetic counts unchanged.",
+  "instrumentation": "Atomic counters inserted in exactly the three Fp2 API entry points add/sub/mul, not a physical instruction/DRAM model.",
+  "rows": [
+    {
+      "tag": "prior-prior-row_first-N1-C1",
+      "rows": 1,
+      "columns": 1,
+      "operations_add_sub_mul": {
+        "factorized": [
+          0,
+          0,
+          0
+        ],
+        "pending": [
+          0,
+          0,
+          0
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N1-C2",
+      "rows": 1,
+      "columns": 2,
+      "operations_add_sub_mul": {
+        "factorized": [
+          19,
+          4,
+          25
+        ],
+        "pending": [
+          19,
+          7,
+          25
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        3,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N1-C3",
+      "rows": 1,
+      "columns": 3,
+      "operations_add_sub_mul": {
+        "factorized": [
+          57,
+          13,
+          75
+        ],
+        "pending": [
+          57,
+          22,
+          75
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        9,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N1-C5",
+      "rows": 1,
+      "columns": 5,
+      "operations_add_sub_mul": {
+        "factorized": [
+          133,
+          31,
+          176
+        ],
+        "pending": [
+          133,
+          52,
+          176
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N1-C7",
+      "rows": 1,
+      "columns": 7,
+      "operations_add_sub_mul": {
+        "factorized": [
+          133,
+          33,
+          182
+        ],
+        "pending": [
+          133,
+          54,
+          182
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N1-C9",
+      "rows": 1,
+      "columns": 9,
+      "operations_add_sub_mul": {
+        "factorized": [
+          285,
+          68,
+          381
+        ],
+        "pending": [
+          285,
+          113,
+          381
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        45,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N2-C1",
+      "rows": 2,
+      "columns": 1,
+      "operations_add_sub_mul": {
+        "factorized": [
+          16,
+          12,
+          26
+        ],
+        "pending": [
+          16,
+          12,
+          26
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N2-C2",
+      "rows": 2,
+      "columns": 2,
+      "operations_add_sub_mul": {
+        "factorized": [
+          51,
+          28,
+          77
+        ],
+        "pending": [
+          51,
+          31,
+          77
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        3,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N2-C3",
+      "rows": 2,
+      "columns": 3,
+      "operations_add_sub_mul": {
+        "factorized": [
+          105,
+          49,
+          153
+        ],
+        "pending": [
+          105,
+          58,
+          153
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        9,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N2-C5",
+      "rows": 2,
+      "columns": 5,
+      "operations_add_sub_mul": {
+        "factorized": [
+          213,
+          91,
+          306
+        ],
+        "pending": [
+          213,
+          112,
+          306
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N2-C7",
+      "rows": 2,
+      "columns": 7,
+      "operations_add_sub_mul": {
+        "factorized": [
+          245,
+          117,
+          364
+        ],
+        "pending": [
+          245,
+          138,
+          364
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N2-C9",
+      "rows": 2,
+      "columns": 9,
+      "operations_add_sub_mul": {
+        "factorized": [
+          429,
+          176,
+          615
+        ],
+        "pending": [
+          429,
+          221,
+          615
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        45,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N4-C1",
+      "rows": 4,
+      "columns": 1,
+      "operations_add_sub_mul": {
+        "factorized": [
+          35,
+          26,
+          57
+        ],
+        "pending": [
+          35,
+          26,
+          57
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N4-C2",
+      "rows": 4,
+      "columns": 2,
+      "operations_add_sub_mul": {
+        "factorized": [
+          89,
+          56,
+          139
+        ],
+        "pending": [
+          89,
+          59,
+          139
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        3,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N4-C3",
+      "rows": 4,
+      "columns": 3,
+      "operations_add_sub_mul": {
+        "factorized": [
+          162,
+          91,
+          246
+        ],
+        "pending": [
+          162,
+          100,
+          246
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        9,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N4-C5",
+      "rows": 4,
+      "columns": 5,
+      "operations_add_sub_mul": {
+        "factorized": [
+          308,
+          161,
+          461
+        ],
+        "pending": [
+          308,
+          182,
+          461
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N4-C7",
+      "rows": 4,
+      "columns": 7,
+      "operations_add_sub_mul": {
+        "factorized": [
+          378,
+          215,
+          581
+        ],
+        "pending": [
+          378,
+          236,
+          581
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N4-C9",
+      "rows": 4,
+      "columns": 9,
+      "operations_add_sub_mul": {
+        "factorized": [
+          600,
+          302,
+          894
+        ],
+        "pending": [
+          600,
+          347,
+          894
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        45,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N8-C1",
+      "rows": 8,
+      "columns": 1,
+      "operations_add_sub_mul": {
+        "factorized": [
+          60,
+          44,
+          98
+        ],
+        "pending": [
+          60,
+          44,
+          98
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N8-C2",
+      "rows": 8,
+      "columns": 2,
+      "operations_add_sub_mul": {
+        "factorized": [
+          139,
+          92,
+          221
+        ],
+        "pending": [
+          139,
+          95,
+          221
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        3,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N8-C3",
+      "rows": 8,
+      "columns": 3,
+      "operations_add_sub_mul": {
+        "factorized": [
+          237,
+          145,
+          369
+        ],
+        "pending": [
+          237,
+          154,
+          369
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        9,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N8-C5",
+      "rows": 8,
+      "columns": 5,
+      "operations_add_sub_mul": {
+        "factorized": [
+          433,
+          251,
+          666
+        ],
+        "pending": [
+          433,
+          272,
+          666
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N8-C7",
+      "rows": 8,
+      "columns": 7,
+      "operations_add_sub_mul": {
+        "factorized": [
+          553,
+          341,
+          868
+        ],
+        "pending": [
+          553,
+          362,
+          868
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N8-C9",
+      "rows": 8,
+      "columns": 9,
+      "operations_add_sub_mul": {
+        "factorized": [
+          825,
+          464,
+          1263
+        ],
+        "pending": [
+          825,
+          509,
+          1263
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        45,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N16-C1",
+      "rows": 16,
+      "columns": 1,
+      "operations_add_sub_mul": {
+        "factorized": [
+          97,
+          70,
+          159
+        ],
+        "pending": [
+          97,
+          70,
+          159
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N16-C2",
+      "rows": 16,
+      "columns": 2,
+      "operations_add_sub_mul": {
+        "factorized": [
+          213,
+          144,
+          343
+        ],
+        "pending": [
+          213,
+          147,
+          343
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        3,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N16-C3",
+      "rows": 16,
+      "columns": 3,
+      "operations_add_sub_mul": {
+        "factorized": [
+          348,
+          223,
+          552
+        ],
+        "pending": [
+          348,
+          232,
+          552
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        9,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N16-C5",
+      "rows": 16,
+      "columns": 5,
+      "operations_add_sub_mul": {
+        "factorized": [
+          618,
+          381,
+          971
+        ],
+        "pending": [
+          618,
+          402,
+          971
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N16-C7",
+      "rows": 16,
+      "columns": 7,
+      "operations_add_sub_mul": {
+        "factorized": [
+          812,
+          523,
+          1295
+        ],
+        "pending": [
+          812,
+          544,
+          1295
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "prior-prior-row_first-N16-C9",
+      "rows": 16,
+      "columns": 9,
+      "operations_add_sub_mul": {
+        "factorized": [
+          1158,
+          698,
+          1812
+        ],
+        "pending": [
+          1158,
+          743,
+          1812
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        45,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N1-C1",
+      "rows": 1,
+      "columns": 1,
+      "operations_add_sub_mul": {
+        "factorized": [
+          0,
+          0,
+          0
+        ],
+        "pending": [
+          0,
+          0,
+          0
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N1-C2",
+      "rows": 1,
+      "columns": 2,
+      "operations_add_sub_mul": {
+        "factorized": [
+          19,
+          4,
+          25
+        ],
+        "pending": [
+          19,
+          7,
+          25
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        3,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N1-C3",
+      "rows": 1,
+      "columns": 3,
+      "operations_add_sub_mul": {
+        "factorized": [
+          57,
+          13,
+          75
+        ],
+        "pending": [
+          57,
+          22,
+          75
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        9,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N1-C5",
+      "rows": 1,
+      "columns": 5,
+      "operations_add_sub_mul": {
+        "factorized": [
+          133,
+          31,
+          176
+        ],
+        "pending": [
+          133,
+          52,
+          176
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N1-C9",
+      "rows": 1,
+      "columns": 9,
+      "operations_add_sub_mul": {
+        "factorized": [
+          285,
+          68,
+          381
+        ],
+        "pending": [
+          285,
+          113,
+          381
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        45,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N1-C25",
+      "rows": 1,
+      "columns": 25,
+      "operations_add_sub_mul": {
+        "factorized": [
+          589,
+          164,
+          838
+        ],
+        "pending": [
+          589,
+          257,
+          838
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        93,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N1-C47",
+      "rows": 1,
+      "columns": 47,
+      "operations_add_sub_mul": {
+        "factorized": [
+          1197,
+          348,
+          1731
+        ],
+        "pending": [
+          1197,
+          537,
+          1731
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        189,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N1-C83",
+      "rows": 1,
+      "columns": 83,
+      "operations_add_sub_mul": {
+        "factorized": [
+          2413,
+          714,
+          3502
+        ],
+        "pending": [
+          2413,
+          1095,
+          3502
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        381,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N2-C1",
+      "rows": 2,
+      "columns": 1,
+      "operations_add_sub_mul": {
+        "factorized": [
+          16,
+          12,
+          26
+        ],
+        "pending": [
+          16,
+          12,
+          26
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N2-C2",
+      "rows": 2,
+      "columns": 2,
+      "operations_add_sub_mul": {
+        "factorized": [
+          51,
+          28,
+          77
+        ],
+        "pending": [
+          51,
+          31,
+          77
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        3,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N2-C3",
+      "rows": 2,
+      "columns": 3,
+      "operations_add_sub_mul": {
+        "factorized": [
+          105,
+          49,
+          153
+        ],
+        "pending": [
+          105,
+          58,
+          153
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        9,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N2-C5",
+      "rows": 2,
+      "columns": 5,
+      "operations_add_sub_mul": {
+        "factorized": [
+          213,
+          91,
+          306
+        ],
+        "pending": [
+          213,
+          112,
+          306
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N2-C9",
+      "rows": 2,
+      "columns": 9,
+      "operations_add_sub_mul": {
+        "factorized": [
+          429,
+          176,
+          615
+        ],
+        "pending": [
+          429,
+          221,
+          615
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        45,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N2-C25",
+      "rows": 2,
+      "columns": 25,
+      "operations_add_sub_mul": {
+        "factorized": [
+          989,
+          464,
+          1488
+        ],
+        "pending": [
+          989,
+          557,
+          1488
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        93,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N2-C47",
+      "rows": 2,
+      "columns": 47,
+      "operations_add_sub_mul": {
+        "factorized": [
+          1949,
+          912,
+          2953
+        ],
+        "pending": [
+          1949,
+          1101,
+          2953
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        189,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N2-C83",
+      "rows": 2,
+      "columns": 83,
+      "operations_add_sub_mul": {
+        "factorized": [
+          3741,
+          1710,
+          5660
+        ],
+        "pending": [
+          3741,
+          2091,
+          5660
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        381,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N4-C1",
+      "rows": 4,
+      "columns": 1,
+      "operations_add_sub_mul": {
+        "factorized": [
+          35,
+          26,
+          57
+        ],
+        "pending": [
+          35,
+          26,
+          57
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N4-C2",
+      "rows": 4,
+      "columns": 2,
+      "operations_add_sub_mul": {
+        "factorized": [
+          89,
+          56,
+          139
+        ],
+        "pending": [
+          89,
+          59,
+          139
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        3,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N4-C3",
+      "rows": 4,
+      "columns": 3,
+      "operations_add_sub_mul": {
+        "factorized": [
+          162,
+          91,
+          246
+        ],
+        "pending": [
+          162,
+          100,
+          246
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        9,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N4-C5",
+      "rows": 4,
+      "columns": 5,
+      "operations_add_sub_mul": {
+        "factorized": [
+          308,
+          161,
+          461
+        ],
+        "pending": [
+          308,
+          182,
+          461
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N4-C9",
+      "rows": 4,
+      "columns": 9,
+      "operations_add_sub_mul": {
+        "factorized": [
+          600,
+          302,
+          894
+        ],
+        "pending": [
+          600,
+          347,
+          894
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        45,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N4-C25",
+      "rows": 4,
+      "columns": 25,
+      "operations_add_sub_mul": {
+        "factorized": [
+          1464,
+          814,
+          2263
+        ],
+        "pending": [
+          1464,
+          907,
+          2263
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        93,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N4-C47",
+      "rows": 4,
+      "columns": 47,
+      "operations_add_sub_mul": {
+        "factorized": [
+          2842,
+          1570,
+          4410
+        ],
+        "pending": [
+          2842,
+          1759,
+          4410
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        189,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N4-C83",
+      "rows": 4,
+      "columns": 83,
+      "operations_add_sub_mul": {
+        "factorized": [
+          5318,
+          2872,
+          8233
+        ],
+        "pending": [
+          5318,
+          3253,
+          8233
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        381,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N8-C1",
+      "rows": 8,
+      "columns": 1,
+      "operations_add_sub_mul": {
+        "factorized": [
+          60,
+          44,
+          98
+        ],
+        "pending": [
+          60,
+          44,
+          98
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N8-C2",
+      "rows": 8,
+      "columns": 2,
+      "operations_add_sub_mul": {
+        "factorized": [
+          139,
+          92,
+          221
+        ],
+        "pending": [
+          139,
+          95,
+          221
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        3,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N8-C3",
+      "rows": 8,
+      "columns": 3,
+      "operations_add_sub_mul": {
+        "factorized": [
+          237,
+          145,
+          369
+        ],
+        "pending": [
+          237,
+          154,
+          369
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        9,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N8-C5",
+      "rows": 8,
+      "columns": 5,
+      "operations_add_sub_mul": {
+        "factorized": [
+          433,
+          251,
+          666
+        ],
+        "pending": [
+          433,
+          272,
+          666
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N8-C9",
+      "rows": 8,
+      "columns": 9,
+      "operations_add_sub_mul": {
+        "factorized": [
+          825,
+          464,
+          1263
+        ],
+        "pending": [
+          825,
+          509,
+          1263
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        45,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N8-C25",
+      "rows": 8,
+      "columns": 25,
+      "operations_add_sub_mul": {
+        "factorized": [
+          2089,
+          1264,
+          3288
+        ],
+        "pending": [
+          2089,
+          1357,
+          3288
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        93,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N8-C47",
+      "rows": 8,
+      "columns": 47,
+      "operations_add_sub_mul": {
+        "factorized": [
+          4017,
+          2416,
+          6337
+        ],
+        "pending": [
+          4017,
+          2605,
+          6337
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        189,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N8-C83",
+      "rows": 8,
+      "columns": 83,
+      "operations_add_sub_mul": {
+        "factorized": [
+          7393,
+          4366,
+          11636
+        ],
+        "pending": [
+          7393,
+          4747,
+          11636
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        381,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N16-C1",
+      "rows": 16,
+      "columns": 1,
+      "operations_add_sub_mul": {
+        "factorized": [
+          97,
+          70,
+          159
+        ],
+        "pending": [
+          97,
+          70,
+          159
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N16-C2",
+      "rows": 16,
+      "columns": 2,
+      "operations_add_sub_mul": {
+        "factorized": [
+          213,
+          144,
+          343
+        ],
+        "pending": [
+          213,
+          147,
+          343
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        3,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N16-C3",
+      "rows": 16,
+      "columns": 3,
+      "operations_add_sub_mul": {
+        "factorized": [
+          348,
+          223,
+          552
+        ],
+        "pending": [
+          348,
+          232,
+          552
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        9,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N16-C5",
+      "rows": 16,
+      "columns": 5,
+      "operations_add_sub_mul": {
+        "factorized": [
+          618,
+          381,
+          971
+        ],
+        "pending": [
+          618,
+          402,
+          971
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N16-C9",
+      "rows": 16,
+      "columns": 9,
+      "operations_add_sub_mul": {
+        "factorized": [
+          1158,
+          698,
+          1812
+        ],
+        "pending": [
+          1158,
+          743,
+          1812
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        45,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N16-C25",
+      "rows": 16,
+      "columns": 25,
+      "operations_add_sub_mul": {
+        "factorized": [
+          3014,
+          1914,
+          4813
+        ],
+        "pending": [
+          3014,
+          2007,
+          4813
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        93,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N16-C47",
+      "rows": 16,
+      "columns": 47,
+      "operations_add_sub_mul": {
+        "factorized": [
+          5756,
+          3638,
+          9204
+        ],
+        "pending": [
+          5756,
+          3827,
+          9204
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        189,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N16-C83",
+      "rows": 16,
+      "columns": 83,
+      "operations_add_sub_mul": {
+        "factorized": [
+          10464,
+          6524,
+          16699
+        ],
+        "pending": [
+          10464,
+          6905,
+          16699
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        381,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N32-C1",
+      "rows": 32,
+      "columns": 1,
+      "operations_add_sub_mul": {
+        "factorized": [
+          158,
+          112,
+          260
+        ],
+        "pending": [
+          158,
+          112,
+          260
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N32-C2",
+      "rows": 32,
+      "columns": 2,
+      "operations_add_sub_mul": {
+        "factorized": [
+          335,
+          228,
+          545
+        ],
+        "pending": [
+          335,
+          231,
+          545
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        3,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N32-C3",
+      "rows": 32,
+      "columns": 3,
+      "operations_add_sub_mul": {
+        "factorized": [
+          531,
+          349,
+          855
+        ],
+        "pending": [
+          531,
+          358,
+          855
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        9,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N32-C5",
+      "rows": 32,
+      "columns": 5,
+      "operations_add_sub_mul": {
+        "factorized": [
+          923,
+          591,
+          1476
+        ],
+        "pending": [
+          923,
+          612,
+          1476
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N32-C9",
+      "rows": 32,
+      "columns": 9,
+      "operations_add_sub_mul": {
+        "factorized": [
+          1707,
+          1076,
+          2721
+        ],
+        "pending": [
+          1707,
+          1121,
+          2721
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        45,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N32-C25",
+      "rows": 32,
+      "columns": 25,
+      "operations_add_sub_mul": {
+        "factorized": [
+          4539,
+          2964,
+          7338
+        ],
+        "pending": [
+          4539,
+          3057,
+          7338
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        93,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N32-C47",
+      "rows": 32,
+      "columns": 47,
+      "operations_add_sub_mul": {
+        "factorized": [
+          8623,
+          5612,
+          13951
+        ],
+        "pending": [
+          8623,
+          5801,
+          13951
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        189,
+        0
+      ]
+    },
+    {
+      "tag": "prior-new-N32-C83",
+      "rows": 32,
+      "columns": 83,
+      "operations_add_sub_mul": {
+        "factorized": [
+          15527,
+          10010,
+          25082
+        ],
+        "pending": [
+          15527,
+          10391,
+          25082
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        381,
+        0
+      ]
+    },
+    {
+      "tag": "prior-special-(0, 0)",
+      "rows": 8,
+      "columns": 5,
+      "operations_add_sub_mul": {
+        "factorized": [
+          433,
+          251,
+          666
+        ],
+        "pending": [
+          433,
+          272,
+          666
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "prior-special-(1, 0)",
+      "rows": 8,
+      "columns": 5,
+      "operations_add_sub_mul": {
+        "factorized": [
+          433,
+          251,
+          666
+        ],
+        "pending": [
+          433,
+          272,
+          666
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "prior-special-(9223372034707292161, 0)",
+      "rows": 8,
+      "columns": 5,
+      "operations_add_sub_mul": {
+        "factorized": [
+          433,
+          251,
+          666
+        ],
+        "pending": [
+          433,
+          272,
+          666
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "prior-special-(18446744069414584320, 0)",
+      "rows": 8,
+      "columns": 5,
+      "operations_add_sub_mul": {
+        "factorized": [
+          433,
+          251,
+          666
+        ],
+        "pending": [
+          433,
+          272,
+          666
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "prior-special-(0, 1)",
+      "rows": 8,
+      "columns": 5,
+      "operations_add_sub_mul": {
+        "factorized": [
+          433,
+          251,
+          666
+        ],
+        "pending": [
+          433,
+          272,
+          666
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "prior-controls-N4-C3",
+      "rows": 4,
+      "columns": 3,
+      "operations_add_sub_mul": {
+        "factorized": [
+          162,
+          91,
+          246
+        ],
+        "pending": [
+          162,
+          100,
+          246
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        9,
+        0
+      ]
+    },
+    {
+      "tag": "new-N1-C1",
+      "rows": 1,
+      "columns": 1,
+      "operations_add_sub_mul": {
+        "factorized": [
+          0,
+          0,
+          0
+        ],
+        "pending": [
+          0,
+          0,
+          0
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tag": "new-N1-C3",
+      "rows": 1,
+      "columns": 3,
+      "operations_add_sub_mul": {
+        "factorized": [
+          57,
+          13,
+          75
+        ],
+        "pending": [
+          57,
+          22,
+          75
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        9,
+        0
+      ]
+    },
+    {
+      "tag": "new-N1-C5",
+      "rows": 1,
+      "columns": 5,
+      "operations_add_sub_mul": {
+        "factorized": [
+          133,
+          31,
+          176
+        ],
+        "pending": [
+          133,
+          52,
+          176
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "new-N1-C9",
+      "rows": 1,
+      "columns": 9,
+      "operations_add_sub_mul": {
+        "factorized": [
+          285,
+          68,
+          381
+        ],
+        "pending": [
+          285,
+          113,
+          381
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        45,
+        0
+      ]
+    },
+    {
+      "tag": "new-N1-C25",
+      "rows": 1,
+      "columns": 25,
+      "operations_add_sub_mul": {
+        "factorized": [
+          589,
+          164,
+          838
+        ],
+        "pending": [
+          589,
+          257,
+          838
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        93,
+        0
+      ]
+    },
+    {
+      "tag": "new-N1-C47",
+      "rows": 1,
+      "columns": 47,
+      "operations_add_sub_mul": {
+        "factorized": [
+          1197,
+          348,
+          1731
+        ],
+        "pending": [
+          1197,
+          537,
+          1731
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        189,
+        0
+      ]
+    },
+    {
+      "tag": "new-N1-C83",
+      "rows": 1,
+      "columns": 83,
+      "operations_add_sub_mul": {
+        "factorized": [
+          2413,
+          714,
+          3502
+        ],
+        "pending": [
+          2413,
+          1095,
+          3502
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        381,
+        0
+      ]
+    },
+    {
+      "tag": "new-N2-C1",
+      "rows": 2,
+      "columns": 1,
+      "operations_add_sub_mul": {
+        "factorized": [
+          16,
+          12,
+          26
+        ],
+        "pending": [
+          16,
+          12,
+          26
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tag": "new-N2-C3",
+      "rows": 2,
+      "columns": 3,
+      "operations_add_sub_mul": {
+        "factorized": [
+          105,
+          49,
+          153
+        ],
+        "pending": [
+          105,
+          58,
+          153
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        9,
+        0
+      ]
+    },
+    {
+      "tag": "new-N2-C5",
+      "rows": 2,
+      "columns": 5,
+      "operations_add_sub_mul": {
+        "factorized": [
+          213,
+          91,
+          306
+        ],
+        "pending": [
+          213,
+          112,
+          306
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "new-N2-C9",
+      "rows": 2,
+      "columns": 9,
+      "operations_add_sub_mul": {
+        "factorized": [
+          429,
+          176,
+          615
+        ],
+        "pending": [
+          429,
+          221,
+          615
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        45,
+        0
+      ]
+    },
+    {
+      "tag": "new-N2-C25",
+      "rows": 2,
+      "columns": 25,
+      "operations_add_sub_mul": {
+        "factorized": [
+          989,
+          464,
+          1488
+        ],
+        "pending": [
+          989,
+          557,
+          1488
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        93,
+        0
+      ]
+    },
+    {
+      "tag": "new-N2-C47",
+      "rows": 2,
+      "columns": 47,
+      "operations_add_sub_mul": {
+        "factorized": [
+          1949,
+          912,
+          2953
+        ],
+        "pending": [
+          1949,
+          1101,
+          2953
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        189,
+        0
+      ]
+    },
+    {
+      "tag": "new-N2-C83",
+      "rows": 2,
+      "columns": 83,
+      "operations_add_sub_mul": {
+        "factorized": [
+          3741,
+          1710,
+          5660
+        ],
+        "pending": [
+          3741,
+          2091,
+          5660
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        381,
+        0
+      ]
+    },
+    {
+      "tag": "new-N4-C1",
+      "rows": 4,
+      "columns": 1,
+      "operations_add_sub_mul": {
+        "factorized": [
+          35,
+          26,
+          57
+        ],
+        "pending": [
+          35,
+          26,
+          57
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tag": "new-N4-C3",
+      "rows": 4,
+      "columns": 3,
+      "operations_add_sub_mul": {
+        "factorized": [
+          162,
+          91,
+          246
+        ],
+        "pending": [
+          162,
+          100,
+          246
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        9,
+        0
+      ]
+    },
+    {
+      "tag": "new-N4-C5",
+      "rows": 4,
+      "columns": 5,
+      "operations_add_sub_mul": {
+        "factorized": [
+          308,
+          161,
+          461
+        ],
+        "pending": [
+          308,
+          182,
+          461
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "new-N4-C9",
+      "rows": 4,
+      "columns": 9,
+      "operations_add_sub_mul": {
+        "factorized": [
+          600,
+          302,
+          894
+        ],
+        "pending": [
+          600,
+          347,
+          894
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        45,
+        0
+      ]
+    },
+    {
+      "tag": "new-N4-C25",
+      "rows": 4,
+      "columns": 25,
+      "operations_add_sub_mul": {
+        "factorized": [
+          1464,
+          814,
+          2263
+        ],
+        "pending": [
+          1464,
+          907,
+          2263
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        93,
+        0
+      ]
+    },
+    {
+      "tag": "new-N4-C47",
+      "rows": 4,
+      "columns": 47,
+      "operations_add_sub_mul": {
+        "factorized": [
+          2842,
+          1570,
+          4410
+        ],
+        "pending": [
+          2842,
+          1759,
+          4410
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        189,
+        0
+      ]
+    },
+    {
+      "tag": "new-N4-C83",
+      "rows": 4,
+      "columns": 83,
+      "operations_add_sub_mul": {
+        "factorized": [
+          5318,
+          2872,
+          8233
+        ],
+        "pending": [
+          5318,
+          3253,
+          8233
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        381,
+        0
+      ]
+    },
+    {
+      "tag": "new-N8-C1",
+      "rows": 8,
+      "columns": 1,
+      "operations_add_sub_mul": {
+        "factorized": [
+          60,
+          44,
+          98
+        ],
+        "pending": [
+          60,
+          44,
+          98
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tag": "new-N8-C3",
+      "rows": 8,
+      "columns": 3,
+      "operations_add_sub_mul": {
+        "factorized": [
+          237,
+          145,
+          369
+        ],
+        "pending": [
+          237,
+          154,
+          369
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        9,
+        0
+      ]
+    },
+    {
+      "tag": "new-N8-C5",
+      "rows": 8,
+      "columns": 5,
+      "operations_add_sub_mul": {
+        "factorized": [
+          433,
+          251,
+          666
+        ],
+        "pending": [
+          433,
+          272,
+          666
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "new-N8-C9",
+      "rows": 8,
+      "columns": 9,
+      "operations_add_sub_mul": {
+        "factorized": [
+          825,
+          464,
+          1263
+        ],
+        "pending": [
+          825,
+          509,
+          1263
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        45,
+        0
+      ]
+    },
+    {
+      "tag": "new-N8-C25",
+      "rows": 8,
+      "columns": 25,
+      "operations_add_sub_mul": {
+        "factorized": [
+          2089,
+          1264,
+          3288
+        ],
+        "pending": [
+          2089,
+          1357,
+          3288
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        93,
+        0
+      ]
+    },
+    {
+      "tag": "new-N8-C47",
+      "rows": 8,
+      "columns": 47,
+      "operations_add_sub_mul": {
+        "factorized": [
+          4017,
+          2416,
+          6337
+        ],
+        "pending": [
+          4017,
+          2605,
+          6337
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        189,
+        0
+      ]
+    },
+    {
+      "tag": "new-N8-C83",
+      "rows": 8,
+      "columns": 83,
+      "operations_add_sub_mul": {
+        "factorized": [
+          7393,
+          4366,
+          11636
+        ],
+        "pending": [
+          7393,
+          4747,
+          11636
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        381,
+        0
+      ]
+    },
+    {
+      "tag": "new-N16-C1",
+      "rows": 16,
+      "columns": 1,
+      "operations_add_sub_mul": {
+        "factorized": [
+          97,
+          70,
+          159
+        ],
+        "pending": [
+          97,
+          70,
+          159
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tag": "new-N16-C3",
+      "rows": 16,
+      "columns": 3,
+      "operations_add_sub_mul": {
+        "factorized": [
+          348,
+          223,
+          552
+        ],
+        "pending": [
+          348,
+          232,
+          552
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        9,
+        0
+      ]
+    },
+    {
+      "tag": "new-N16-C5",
+      "rows": 16,
+      "columns": 5,
+      "operations_add_sub_mul": {
+        "factorized": [
+          618,
+          381,
+          971
+        ],
+        "pending": [
+          618,
+          402,
+          971
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "new-N16-C9",
+      "rows": 16,
+      "columns": 9,
+      "operations_add_sub_mul": {
+        "factorized": [
+          1158,
+          698,
+          1812
+        ],
+        "pending": [
+          1158,
+          743,
+          1812
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        45,
+        0
+      ]
+    },
+    {
+      "tag": "new-N16-C25",
+      "rows": 16,
+      "columns": 25,
+      "operations_add_sub_mul": {
+        "factorized": [
+          3014,
+          1914,
+          4813
+        ],
+        "pending": [
+          3014,
+          2007,
+          4813
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        93,
+        0
+      ]
+    },
+    {
+      "tag": "new-N16-C47",
+      "rows": 16,
+      "columns": 47,
+      "operations_add_sub_mul": {
+        "factorized": [
+          5756,
+          3638,
+          9204
+        ],
+        "pending": [
+          5756,
+          3827,
+          9204
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        189,
+        0
+      ]
+    },
+    {
+      "tag": "new-N16-C83",
+      "rows": 16,
+      "columns": 83,
+      "operations_add_sub_mul": {
+        "factorized": [
+          10464,
+          6524,
+          16699
+        ],
+        "pending": [
+          10464,
+          6905,
+          16699
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        381,
+        0
+      ]
+    },
+    {
+      "tag": "new-N64-C1",
+      "rows": 64,
+      "columns": 1,
+      "operations_add_sub_mul": {
+        "factorized": [
+          267,
+          186,
+          441
+        ],
+        "pending": [
+          267,
+          186,
+          441
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tag": "new-N64-C3",
+      "rows": 64,
+      "columns": 3,
+      "operations_add_sub_mul": {
+        "factorized": [
+          858,
+          571,
+          1398
+        ],
+        "pending": [
+          858,
+          580,
+          1398
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        9,
+        0
+      ]
+    },
+    {
+      "tag": "new-N64-C5",
+      "rows": 64,
+      "columns": 5,
+      "operations_add_sub_mul": {
+        "factorized": [
+          1468,
+          961,
+          2381
+        ],
+        "pending": [
+          1468,
+          982,
+          2381
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "new-N64-C9",
+      "rows": 64,
+      "columns": 9,
+      "operations_add_sub_mul": {
+        "factorized": [
+          2688,
+          1742,
+          4350
+        ],
+        "pending": [
+          2688,
+          1787,
+          4350
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        45,
+        0
+      ]
+    },
+    {
+      "tag": "new-N64-C25",
+      "rows": 64,
+      "columns": 25,
+      "operations_add_sub_mul": {
+        "factorized": [
+          7264,
+          4814,
+          11863
+        ],
+        "pending": [
+          7264,
+          4907,
+          11863
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        93,
+        0
+      ]
+    },
+    {
+      "tag": "new-N64-C47",
+      "rows": 64,
+      "columns": 47,
+      "operations_add_sub_mul": {
+        "factorized": [
+          13746,
+          9090,
+          22458
+        ],
+        "pending": [
+          13746,
+          9279,
+          22458
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        189,
+        0
+      ]
+    },
+    {
+      "tag": "new-N64-C83",
+      "rows": 64,
+      "columns": 83,
+      "operations_add_sub_mul": {
+        "factorized": [
+          24574,
+          16152,
+          40105
+        ],
+        "pending": [
+          24574,
+          16533,
+          40105
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        381,
+        0
+      ]
+    },
+    {
+      "tag": "special-(0, 0)",
+      "rows": 8,
+      "columns": 5,
+      "operations_add_sub_mul": {
+        "factorized": [
+          433,
+          251,
+          666
+        ],
+        "pending": [
+          433,
+          272,
+          666
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "special-(1, 0)",
+      "rows": 8,
+      "columns": 5,
+      "operations_add_sub_mul": {
+        "factorized": [
+          433,
+          251,
+          666
+        ],
+        "pending": [
+          433,
+          272,
+          666
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "special-(9223372034707292161, 0)",
+      "rows": 8,
+      "columns": 5,
+      "operations_add_sub_mul": {
+        "factorized": [
+          433,
+          251,
+          666
+        ],
+        "pending": [
+          433,
+          272,
+          666
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "special-(18446744069414584320, 0)",
+      "rows": 8,
+      "columns": 5,
+      "operations_add_sub_mul": {
+        "factorized": [
+          433,
+          251,
+          666
+        ],
+        "pending": [
+          433,
+          272,
+          666
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "special-(0, 1)",
+      "rows": 8,
+      "columns": 5,
+      "operations_add_sub_mul": {
+        "factorized": [
+          433,
+          251,
+          666
+        ],
+        "pending": [
+          433,
+          272,
+          666
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        21,
+        0
+      ]
+    },
+    {
+      "tag": "controls-N4-C3",
+      "rows": 4,
+      "columns": 3,
+      "operations_add_sub_mul": {
+        "factorized": [
+          162,
+          91,
+          246
+        ],
+        "pending": [
+          162,
+          100,
+          246
+        ]
+      },
+      "delta_add_sub_mul": [
+        0,
+        9,
+        0
+      ]
+    }
+  ],
+  "wall_seconds": 1.3703111140021065,
+  "peak_rss_kib": 26672,
+  "compiler_peak_rss_kib": 144844,
+  "compiler_argv": [
+    "/home/victor/.rustup/toolchains/1.97.0-x86_64-unknown-linux-gnu/bin/rustc",
+    "--edition=2021",
+    "--crate-type=cdylib",
+    "-C",
+    "opt-level=1",
+    "-C",
+    "codegen-units=1",
+    "counted.rs",
+    "-o",
+    "counted.so"
+  ],
+  "threads": 1,
+  "counted_source_sha256": "7e582256e9eb8192dffcfb581198a8f8a55b07842b95af03050aa12b0bbf96ba",
+  "completed_at_utc": "2026-10-18T00:25:49.626878+00:00"
+}

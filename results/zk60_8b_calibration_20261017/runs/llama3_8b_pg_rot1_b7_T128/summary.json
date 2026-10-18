@@ -1,0 +1,594 @@
+{
+ "args": {
+  "T": 128,
+  "calib_T": null,
+  "calib_per": 2,
+  "check_against": "/home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_b6_T128",
+  "chunk": 8,
+  "export": true,
+  "export_name": "llama3_8b_pg_rot1_b7_T128",
+  "export_seqs": 2,
+  "fw_calib": 12,
+  "fw_heldout": 6,
+  "heldout_per": 1,
+  "iso_seqs": 4,
+  "l1_mode": "sh7",
+  "layers": null,
+  "link_from": "/home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_b6_T128",
+  "profile_from": "/home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/runs/llama3_8b_pg_rot1_T128/prepass.json",
+  "rotate": 1,
+  "site_seqs": 2,
+  "synthetic": false,
+  "tag": "b7",
+  "tokenizer": "/home/victor/IntelligenceRegulation/local-models/zk60-llama3-8b/tokenizer.json",
+  "variant": "pg"
+ },
+ "by_domain": {
+  "fineweb-edu": {
+   "head_accepted": {
+    "kl_float_to_int_mean": 0.49592602606658037,
+    "positions": 762,
+    "ppl_float": 9.716807581953523,
+    "ppl_int": 15.476085462047934,
+    "sequences": 6,
+    "top1_agreement": 0.6732283464566929
+   },
+   "head_all_diagnostic": {
+    "kl_float_to_int_mean": 0.49592602606658037,
+    "positions": 762,
+    "ppl_float": 9.716807581953523,
+    "ppl_int": 15.476085462047934,
+    "sequences": 6,
+    "top1_agreement": 0.6732283464566929
+   },
+   "refused": 0,
+   "sequences": 6
+  },
+  "licence-docstring": {
+   "head_accepted": {
+    "kl_float_to_int_mean": 0.8787750513260599,
+    "positions": 1143,
+    "ppl_float": 3.7146375264852804,
+    "ppl_int": 8.936913005313668,
+    "sequences": 9,
+    "top1_agreement": 0.663167104111986
+   },
+   "head_all_diagnostic": {
+    "kl_float_to_int_mean": 0.8787750513260599,
+    "positions": 1143,
+    "ppl_float": 3.7146375264852804,
+    "ppl_int": 8.936913005313668,
+    "sequences": 9,
+    "top1_agreement": 0.663167104111986
+   },
+   "refused": 0,
+   "sequences": 9
+  }
+ },
+ "calib_sequences": [
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "e36add3a2882f050",
+   "source": "/usr/share/common-licenses/GPL-3"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 3665,
+   "sha256": "381bbb6e83655de8",
+   "source": "/usr/share/common-licenses/GPL-3"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "4a155811e3350438",
+   "source": "/usr/share/common-licenses/GFDL-1.3"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 2391,
+   "sha256": "77997ee53830242b",
+   "source": "/usr/share/common-licenses/GFDL-1.3"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "18ce1acd9c6da253",
+   "source": "/usr/share/common-licenses/MPL-2.0"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1645,
+   "sha256": "3db18c8c74354c5b",
+   "source": "/usr/share/common-licenses/MPL-2.0"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "8172c28cfb22b11b",
+   "source": "python3.10 stdlib docstrings: argparse"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 738,
+   "sha256": "ac0bae28e4181854",
+   "source": "python3.10 stdlib docstrings: argparse"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "92fba411044230fb",
+   "source": "python3.10 stdlib docstrings: collections/__init__"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 644,
+   "sha256": "245c65479249823e",
+   "source": "python3.10 stdlib docstrings: collections/__init__"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "8fd9d4515e210433",
+   "source": "python3.10 stdlib docstrings: textwrap"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 646,
+   "sha256": "bf221bd17674c05c",
+   "source": "python3.10 stdlib docstrings: textwrap"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "92686d46e21ae804",
+   "source": "python3.10 stdlib docstrings: logging/__init__"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1706,
+   "sha256": "1bdb4d3107decc52",
+   "source": "python3.10 stdlib docstrings: logging/__init__"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "e595988d06cf8a51",
+   "source": "python3.10 stdlib docstrings: subprocess"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 982,
+   "sha256": "ec3253f42c3b8887",
+   "source": "python3.10 stdlib docstrings: subprocess"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "94e611fea0d49659",
+   "source": "python3.10 stdlib docstrings: typing"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 2540,
+   "sha256": "e3fd138fe2e4e9c6",
+   "source": "python3.10 stdlib docstrings: typing"
+  },
+  {
+   "doc_id": "<urn:uuid:0d8a309d-25c5-405d-a08a-c11239f0d717>",
+   "domain": "fineweb-edu",
+   "row": 0,
+   "row_group": 0,
+   "sha256": "f62bfc85f17fb61d",
+   "source": "fineweb-edu",
+   "url": "http://austenauthors.net/the-independent-jane"
+  },
+  {
+   "doc_id": "<urn:uuid:316c7af5-14e1-4d0b-9576-753e17ef2cc5>",
+   "domain": "fineweb-edu",
+   "row": 1,
+   "row_group": 0,
+   "sha256": "81f17dbfccd8396b",
+   "source": "fineweb-edu",
+   "url": "http://query.nytimes.com/gst/fullpage.html?res=9404E7DA1339F934A25751C0A96E9C8B63&scp=2&sq=taking%20play%20seriously&st=cse"
+  },
+  {
+   "doc_id": "<urn:uuid:a3e140cd-7f25-48c9-a2f0-a7d0b1954e0d>",
+   "domain": "fineweb-edu",
+   "row": 2,
+   "row_group": 0,
+   "sha256": "1a7d5876e0ffe993",
+   "source": "fineweb-edu",
+   "url": "http://www.childline.org.uk/Explore/SexRelationships/Pages/HIVAIDS.aspx"
+  },
+  {
+   "doc_id": "<urn:uuid:c337bcd8-6aa1-4f2d-8c48-b916442ebbee>",
+   "domain": "fineweb-edu",
+   "row": 3,
+   "row_group": 0,
+   "sha256": "d6ee0e724e8411f1",
+   "source": "fineweb-edu",
+   "url": "http://www.ctt.org/resource_centre/getting_started/learning/understanding_licenses"
+  },
+  {
+   "doc_id": "<urn:uuid:c0b175bb-65fb-420e-a881-a80b91d00ecd>",
+   "domain": "fineweb-edu",
+   "row": 4,
+   "row_group": 0,
+   "sha256": "7ce817ac2a0d1ebd",
+   "source": "fineweb-edu",
+   "url": "http://www.environment.ucla.edu/water/news/article.asp?parentid=6178"
+  },
+  {
+   "doc_id": "<urn:uuid:373cc951-d17e-4d57-b0f5-122effe3a054>",
+   "domain": "fineweb-edu",
+   "row": 5,
+   "row_group": 0,
+   "sha256": "0906435f4bfa120e",
+   "source": "fineweb-edu",
+   "url": "http://bayweekly.com/old-site/year99/issue7_40/kids7_40.html"
+  },
+  {
+   "doc_id": "<urn:uuid:78cbe1bd-1849-4138-b59a-5521e93122a3>",
+   "domain": "fineweb-edu",
+   "row": 6,
+   "row_group": 0,
+   "sha256": "c30bd89dff96152f",
+   "source": "fineweb-edu",
+   "url": "http://phys.org/news4969.html"
+  },
+  {
+   "doc_id": "<urn:uuid:a63f6870-f496-4355-adfd-f3296c1577e5>",
+   "domain": "fineweb-edu",
+   "row": 7,
+   "row_group": 0,
+   "sha256": "c7d413906af64143",
+   "source": "fineweb-edu",
+   "url": "http://www.bbc.co.uk/news/world-latin-america-12292661"
+  },
+  {
+   "doc_id": "<urn:uuid:0428aaca-1b84-4407-9b6f-93b230a692b3>",
+   "domain": "fineweb-edu",
+   "row": 8,
+   "row_group": 0,
+   "sha256": "e63595a210875ad6",
+   "source": "fineweb-edu",
+   "url": "http://www.mc.vanderbilt.edu/lens/article/?id=110&pg=999"
+  },
+  {
+   "doc_id": "<urn:uuid:6665d40b-fee1-4353-8a03-3268af4a76bb>",
+   "domain": "fineweb-edu",
+   "row": 9,
+   "row_group": 0,
+   "sha256": "daa6c6c04e8e35b3",
+   "source": "fineweb-edu",
+   "url": "http://apod.nasa.gov/apod/ap120623.html"
+  },
+  {
+   "doc_id": "<urn:uuid:d55ba202-34fa-4fe6-b6ae-698c282eb244>",
+   "domain": "fineweb-edu",
+   "row": 10,
+   "row_group": 0,
+   "sha256": "93f08c316e5ba884",
+   "source": "fineweb-edu",
+   "url": "http://www.readwritethink.org/about/community-stories/using-think-alouds-inside-36.html"
+  },
+  {
+   "doc_id": "<urn:uuid:be22c535-4fcb-4d7e-9507-2ace71b51909>",
+   "domain": "fineweb-edu",
+   "row": 11,
+   "row_group": 0,
+   "sha256": "54cfd80f28bada3c",
+   "source": "fineweb-edu",
+   "url": "http://www.royalty.nu/Europe/England/Stuart/JamesII.html"
+  }
+ ],
+ "calibration": {
+  "T_cal": 128,
+  "sequences": 30
+ },
+ "check_against": {
+  "export": "/home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_b6_T128",
+  "layers_with_different_words": {}
+ },
+ "checkpoint_identity": {
+  "config_sha256": "2430cee764b6530ff8673cf9ba8561e1d5a33152d503cd0de909ff5718261441",
+  "schema": "zk60-llama-layer-inventory/1",
+  "shard_sha256": {
+   "model-00001-of-00004.safetensors": "f2c144103072514542e327fa8080bd375cb300f2d453fba9ca3aea81d0d4cf33",
+   "model-00002-of-00004.safetensors": "d9eee5f23d94405d90b7e9ff88b9443fee42f8528a658f54214c2aba7530d80c",
+   "model-00003-of-00004.safetensors": "4b8fbc5e113f69768dd8de84661ea20af8a32b734a9976144b4236c447b40ccc",
+   "model-00004-of-00004.safetensors": "5dc34e6bdf2da9e35f0d93b5c333c870f3677dc43dc3a91ea3a8ad28a1fe1acb"
+  },
+  "tensor_count": 291
+ },
+ "export": {
+  "profile_sha256": "040eb5cfa3e21634e8e13c9a00a108b301231af456bd3c539ac725c7f6269a6e",
+  "root": "/home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_b7_T128",
+  "sequences": [
+   "seq_ho00",
+   "seq_ho09"
+  ]
+ },
+ "head_accepted": {
+  "kl_float_to_int_mean": 0.7256354479065901,
+  "positions": 1905,
+  "ppl_float": 5.457067227443063,
+  "ppl_int": 11.132096571264146,
+  "sequences": 15,
+  "top1_agreement": 0.6671916010498687
+ },
+ "head_all_diagnostic": {
+  "kl_float_to_int_mean": 0.7256354479065901,
+  "positions": 1905,
+  "ppl_float": 5.457067227443063,
+  "ppl_int": 11.132096571264146,
+  "sequences": 15,
+  "top1_agreement": 0.6671916010498687
+ },
+ "heldout_first_refusal": [
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null
+ ],
+ "heldout_refused": 0,
+ "heldout_sequences": [
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "fffef836813afc6e",
+   "source": "/usr/share/common-licenses/Apache-2.0"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "00fb9ad2d8b4325e",
+   "source": "/usr/share/common-licenses/LGPL-2.1"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "ea51f27e3e95241e",
+   "source": "/usr/share/common-licenses/Artistic"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "bf16b20e2b338d8e",
+   "source": "python3.10 stdlib docstrings: json/__init__"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "78e91f412c707b29",
+   "source": "python3.10 stdlib docstrings: pathlib"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "6b0a03105a2372fd",
+   "source": "python3.10 stdlib docstrings: functools"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "a8e59d59be229cc7",
+   "source": "python3.10 stdlib docstrings: dataclasses"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "b6ef1e54ca70210d",
+   "source": "python3.10 stdlib docstrings: unittest/case"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "8e87966a6f575f07",
+   "source": "python3.10 stdlib docstrings: shutil"
+  },
+  {
+   "doc_id": "<urn:uuid:9fef0930-8fc0-4e9d-8954-f3740b7e4e53>",
+   "domain": "fineweb-edu",
+   "row": 0,
+   "row_group": 1,
+   "sha256": "00a88bab7c4a38c2",
+   "source": "fineweb-edu",
+   "url": "http://truestarhealth.com/Notes/2828008.html"
+  },
+  {
+   "doc_id": "<urn:uuid:173273e4-382f-474a-b8ea-b1937062a3bb>",
+   "domain": "fineweb-edu",
+   "row": 1,
+   "row_group": 1,
+   "sha256": "bfd762a68aef37a3",
+   "source": "fineweb-edu",
+   "url": "http://www.abc.net.au/science/articles/2011/12/08/3385661.htm?site=science&topic=latest&listaction=unsubscribe"
+  },
+  {
+   "doc_id": "<urn:uuid:a3486fd2-46ef-4111-a3d9-9b592c351b8e>",
+   "domain": "fineweb-edu",
+   "row": 2,
+   "row_group": 1,
+   "sha256": "2ac0cab8c3621980",
+   "source": "fineweb-edu",
+   "url": "http://www.devshed.com/c/a/BrainDump/SQL-Functioning-in-the-Real-World/1/"
+  },
+  {
+   "doc_id": "<urn:uuid:77afc505-9f76-48c5-bf38-4b198f81ca90>",
+   "domain": "fineweb-edu",
+   "row": 3,
+   "row_group": 1,
+   "sha256": "a10d04d1f05ff52b",
+   "source": "fineweb-edu",
+   "url": "http://www.lpi.usra.edu/publications/slidesets/geology/sgeo/slide_16.html"
+  },
+  {
+   "doc_id": "<urn:uuid:ea266eaf-7e12-4233-b523-15c37d3e800b>",
+   "domain": "fineweb-edu",
+   "row": 4,
+   "row_group": 1,
+   "sha256": "9b799a6ebc6c1bf4",
+   "source": "fineweb-edu",
+   "url": "http://www.oxfamamerica.org/articles/feeding-a-nation"
+  },
+  {
+   "doc_id": "<urn:uuid:3fb482ac-1425-4f4f-86d5-2eff0e862e7f>",
+   "domain": "fineweb-edu",
+   "row": 5,
+   "row_group": 1,
+   "sha256": "328f1b6d6921cea7",
+   "source": "fineweb-edu",
+   "url": "http://www.sciencedaily.com/releases/2002/05/020516080752.htm"
+  }
+ ],
+ "l1_mode": "sh7",
+ "model": {
+  "licence": "Meta Llama 3 Community License: LICENSE (sha256 475211637354ce4c...) and USE_POLICY.md (sha256 003513f595a20b7d...) from the pinned revision, copied into each export with NOTICE",
+  "name": "Llama-3-8B (Meta Llama 3)",
+  "repo": "NousResearch/Meta-Llama-3-8B",
+  "revision": "315b20096dc791d381d514deb5f8bd9c8d6d3061",
+  "shards_sha256": {
+   "model-00001-of-00004.safetensors": "f2c144103072514542e327fa8080bd375cb300f2d453fba9ca3aea81d0d4cf33",
+   "model-00002-of-00004.safetensors": "d9eee5f23d94405d90b7e9ff88b9443fee42f8528a658f54214c2aba7530d80c",
+   "model-00003-of-00004.safetensors": "4b8fbc5e113f69768dd8de84661ea20af8a32b734a9976144b4236c447b40ccc",
+   "model-00004-of-00004.safetensors": "5dc34e6bdf2da9e35f0d93b5c333c870f3677dc43dc3a91ea3a8ad28a1fe1acb"
+  }
+ },
+ "profile": {
+  "cn_a": 2092,
+  "cn_m": 1424,
+  "e_s": null,
+  "s_in": [
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  "s_out": [
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  "shifts": {
+   "ao": 3,
+   "g": 8,
+   "h": 14,
+   "o": 9,
+   "qkv": 8,
+   "rope": 7,
+   "s": 6,
+   "u": 0,
+   "z": 4
+  },
+  "silu": null
+ },
+ "profile_from": "/home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/runs/llama3_8b_pg_rot1_T128/prepass.json",
+ "seconds": 2571.7126104831696,
+ "tokenizer": {
+  "bos": 128000,
+  "kind": "tokenizers BPE tokenizer.json",
+  "path": "/home/victor/IntelligenceRegulation/local-models/zk60-llama3-8b/tokenizer.json",
+  "sha256": "e134af98b985517b4f068e3755ae90d4e9cd2d45d328325dc503f1c6b2d06cc7"
+ },
+ "tool_sha256": {
+  "b3_ladder.py": "13675c3b7797bd65b1954b2cee922381333c0ecc323dd3b1be9e8be8e8b16f0b",
+  "b3calib.py": "f000ba5140f628587b83f207a3b08ac562da85ef1e2582de7a06a9db0267313f",
+  "b5_8b.py": "0b918671557a6e3c6f4e0a389e77e5445a244ff0e7f32abe0830c4a1d6f53a4f",
+  "corpus.py": "273e4ef41f8b18fb14b0e3568f9825ba6c0d4c09e08ebfad323c6c77543ba7f6",
+  "corpus4.py": "1b3b08ca070391d76e8b8b91f3a5a7247d567553052085e9dd0f139f7f51da0c",
+  "tlcalib.py": "cb587ac669af50d78e36556bd0f18d9317318de666a072b2fd21a02c89c2466a"
+ },
+ "variant": "llama3_8b_pg_rot1_b7_T128",
+ "variant_options": {
+  "cn_max": 1048576,
+  "f_e": 9,
+  "f_p": 9,
+  "margin": 0.5,
+  "margin_ch": 3.0,
+  "margin_pow2": 0.25,
+  "name": "pg",
+  "norm_cn": "profile",
+  "o16": false,
+  "residual": "global",
+  "rotate": 1,
+  "s16": false,
+  "shapes": [
+   "range",
+   "smooth",
+   "gamma"
+  ],
+  "shifts": "profile",
+  "tables": "layer",
+  "tn": 9
+ }
+}

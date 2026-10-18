@@ -1,0 +1,146 @@
+{
+ "score_host_by_sh_s": {
+  "TinyLlama (head_dim 64)": {
+   "1": 19.978,
+   "2": 19.978,
+   "3": 19.979,
+   "4": 19.98,
+   "5": 19.983,
+   "6": 19.989,
+   "7": 20.0,
+   "8": 20.022
+  },
+  "Llama-3-8B (head_dim 128)": {
+   "1": 20.978,
+   "2": 20.978,
+   "3": 20.978,
+   "4": 20.979,
+   "5": 20.98,
+   "6": 20.983,
+   "7": 20.989,
+   "8": 21.0
+  }
+ },
+ "full_clause_sets": {
+  "TinyLlama T32": {
+   "worst_geometry_clause_log2": 35.0,
+   "softmax_f_e_16": {
+    "wrho_s": 21,
+    "limbs": 3,
+    "c2_log2": 31.0,
+    "c3_log2": 22.0,
+    "pv_acc_log2": 21.987,
+    "pv_host_log2": 23.581,
+    "honest_sum_fits_window": true
+   },
+   "hosts": {
+    "score (sum over head_dim, sh_s 1..8)": 20.022,
+    "Q/K/V (sum over d_pad, sh_qkv 1..8)": 24.99,
+    "AO (sum over d_pad, sh_ao 0..8)": 25.313,
+    "gate (sum over d_pad, sh_g 1..8)": 24.99,
+    "h product (sh_h 9..16)": 31.585,
+    "down (sum over f_pad, sh_z 1..8)": 35.0
+   }
+  },
+  "TinyLlama T64": {
+   "worst_geometry_clause_log2": 35.0,
+   "softmax_f_e_16": {
+    "wrho_s": 22,
+    "limbs": 3,
+    "c2_log2": 32.0,
+    "c3_log2": 23.0,
+    "pv_acc_log2": 22.987,
+    "pv_host_log2": 23.994,
+    "honest_sum_fits_window": true
+   },
+   "hosts": {
+    "score (sum over head_dim, sh_s 1..8)": 20.022,
+    "Q/K/V (sum over d_pad, sh_qkv 1..8)": 24.99,
+    "AO (sum over d_pad, sh_ao 0..8)": 25.313,
+    "gate (sum over d_pad, sh_g 1..8)": 24.99,
+    "h product (sh_h 9..16)": 31.585,
+    "down (sum over f_pad, sh_z 1..8)": 35.0
+   }
+  },
+  "TinyLlama T128": {
+   "worst_geometry_clause_log2": 35.0,
+   "softmax_f_e_16": {
+    "wrho_s": 23,
+    "limbs": 3,
+    "c2_log2": 33.0,
+    "c3_log2": 24.0,
+    "pv_acc_log2": 23.987,
+    "pv_host_log2": 24.576,
+    "honest_sum_fits_window": true
+   },
+   "hosts": {
+    "score (sum over head_dim, sh_s 1..8)": 20.022,
+    "Q/K/V (sum over d_pad, sh_qkv 1..8)": 24.99,
+    "AO (sum over d_pad, sh_ao 0..8)": 25.313,
+    "gate (sum over d_pad, sh_g 1..8)": 24.99,
+    "h product (sh_h 9..16)": 31.585,
+    "down (sum over f_pad, sh_z 1..8)": 35.0
+   }
+  },
+  "Llama-3-8B T32": {
+   "worst_geometry_clause_log2": 36.0,
+   "softmax_f_e_16": {
+    "wrho_s": 21,
+    "limbs": 3,
+    "c2_log2": 31.0,
+    "c3_log2": 22.0,
+    "pv_acc_log2": 21.987,
+    "pv_host_log2": 23.581,
+    "honest_sum_fits_window": true
+   },
+   "hosts": {
+    "score (sum over head_dim, sh_s 1..8)": 21.0,
+    "Q/K/V (sum over d_pad, sh_qkv 1..8)": 25.989,
+    "AO (sum over d_pad, sh_ao 0..8)": 26.16,
+    "gate (sum over d_pad, sh_g 1..8)": 25.989,
+    "h product (sh_h 9..16)": 31.585,
+    "down (sum over f_pad, sh_z 1..8)": 36.0
+   }
+  },
+  "Llama-3-8B T64": {
+   "worst_geometry_clause_log2": 36.0,
+   "softmax_f_e_16": {
+    "wrho_s": 22,
+    "limbs": 3,
+    "c2_log2": 32.0,
+    "c3_log2": 23.0,
+    "pv_acc_log2": 22.987,
+    "pv_host_log2": 23.994,
+    "honest_sum_fits_window": true
+   },
+   "hosts": {
+    "score (sum over head_dim, sh_s 1..8)": 21.0,
+    "Q/K/V (sum over d_pad, sh_qkv 1..8)": 25.989,
+    "AO (sum over d_pad, sh_ao 0..8)": 26.16,
+    "gate (sum over d_pad, sh_g 1..8)": 25.989,
+    "h product (sh_h 9..16)": 31.585,
+    "down (sum over f_pad, sh_z 1..8)": 36.0
+   }
+  },
+  "Llama-3-8B T128": {
+   "worst_geometry_clause_log2": 36.0,
+   "softmax_f_e_16": {
+    "wrho_s": 23,
+    "limbs": 3,
+    "c2_log2": 33.0,
+    "c3_log2": 24.0,
+    "pv_acc_log2": 23.987,
+    "pv_host_log2": 24.576,
+    "honest_sum_fits_window": true
+   },
+   "hosts": {
+    "score (sum over head_dim, sh_s 1..8)": 21.0,
+    "Q/K/V (sum over d_pad, sh_qkv 1..8)": 25.989,
+    "AO (sum over d_pad, sh_ao 0..8)": 26.16,
+    "gate (sum over d_pad, sh_g 1..8)": 25.989,
+    "h product (sh_h 9..16)": 31.585,
+    "down (sum over f_pad, sh_z 1..8)": 36.0
+   }
+  }
+ }
+}

@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "fixtures": 132,
+  "delta_rule": "0 Fp2 add, +3*(W-1) Fp2 sub, 0 Fp2 mul. Column-tail differences recomputed by split measure/bind; all row arithmetic counts unchanged.",
+  "instrumentation": "Atomic counters inserted in exactly the three Fp2 API entry points add/sub/mul, not a physical instruction/DRAM model.",
+  "wall_seconds": 1.3703111140021065,
+  "peak_rss_kib": 26672,
+  "compiler_peak_rss_kib": 144844,
+  "compiler_argv": [
+    "/home/victor/.rustup/toolchains/1.97.0-x86_64-unknown-linux-gnu/bin/rustc",
+    "--edition=2021",
+    "--crate-type=cdylib",
+    "-C",
+    "opt-level=1",
+    "-C",
+    "codegen-units=1",
+    "counted.rs",
+    "-o",
+    "counted.so"
+  ],
+  "threads": 1,
+  "counted_source_sha256": "7e582256e9eb8192dffcfb581198a8f8a55b07842b95af03050aa12b0bbf96ba",
+  "completed_at_utc": "2026-10-18T00:25:49.626878+00:00"
+}

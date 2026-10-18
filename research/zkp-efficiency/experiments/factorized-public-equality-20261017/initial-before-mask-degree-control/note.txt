@@ -1,0 +1,1 @@
+First passing run had 21 controls; later run adds an explicit masked-row degree control. run.py was already extended before archival, so no claim to the original runner hash. Core factorized.rs unchanged.

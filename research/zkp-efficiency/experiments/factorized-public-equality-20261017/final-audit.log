@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "checks": 73,
+  "wall_seconds": 0.012268737998965662,
+  "peak_rss_kib": 16732,
+  "threads": 1,
+  "native_proofs_generated": 0,
+  "target_compliant_positions": 0,
+  "scope": "Artifact/source-prefix/counted-payload/owner-event consistency only; not cryptographic verification.",
+  "completed_at_utc": "2026-10-17T23:34:26.895414+00:00"
+}

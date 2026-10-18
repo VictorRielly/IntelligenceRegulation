@@ -1,0 +1,20 @@
+{
+  "tool": "native LIVE web.run",
+  "access_date": "2026-10-17",
+  "queries": [
+    "GPU sumcheck equality polynomial factorization memory efficient multilinear 2026",
+    "site.github.com succinctlabs sp1 2990 NTT",
+    "sumcheck equality polynomial linear time small memory space 2025 2026",
+    "multilinear lookup LogUp star 2026 GKR paper",
+    "Quarks efficient transparent arguments linear time prover 2019",
+    "sumcheck per column equality different evaluation points batching memory 2024 2025",
+    "Orion zero knowledge proof linear prover time 2022 paper implementation"
+  ],
+  "accepted_primary_records": 6,
+  "excluded": [
+    "IBM result displaysNov16,2026 after current date; not used as a published result",
+    "secondary blogs/reddit not relied upon",
+    "Quarks is already source295, not a newly assessed lead"
+  ],
+  "notes": "Foreign snippets inspected as untrusted data; no installs/scripts or external writes."
+}

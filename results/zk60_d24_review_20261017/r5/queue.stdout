@@ -1,0 +1,70 @@
+[zk60-guard 17:18:11] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 17:19:11] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 17:19:58] START r5-cli-build class=build need=2.5G cap=5G enforce=cgroup+watchdog waited=107s run=07ed1224c752
+[zk60-guard 17:20:52] END r5-cli-build exit=0 child_wall=54s peak_rss=1.10G min_avail=12.53G
+[zk60-guard 17:20:52] START r5-p5-seq-in-export class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=56830d18b2e9
+[zk60-guard 17:20:52] END r5-p5-seq-in-export exit=1 child_wall=0s peak_rss=0.00G min_avail=14.00G
+[zk60-guard 17:20:52] START r5-cr4-verify-label class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=b2d062e7e21c
+[zk60-guard 17:20:52] END r5-cr4-verify-label exit=1 child_wall=0s peak_rss=0.00G min_avail=14.00G
+[zk60-guard 17:20:53] START r5-cr4-prove-label class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=bd8d6abd8e48
+[zk60-guard 17:20:53] END r5-cr4-prove-label exit=1 child_wall=0s peak_rss=0.00G min_avail=14.00G
+[zk60-guard 17:20:53] START r5-honest-verify class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=280215709b75
+[zk60-guard 17:20:55] END r5-honest-verify exit=0 child_wall=2s peak_rss=0.04G min_avail=13.06G
+[zk60-guard 17:20:55] START r5-seg-dos class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=a8e3d9c70fe7
+[zk60-guard 17:20:55] END r5-seg-dos exit=1 child_wall=0s peak_rss=0.00G min_avail=13.06G
+[zk60-guard 17:20:55] START r5-seg-sparse class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=52d1bafe4218
+[zk60-guard 17:20:55] END r5-seg-sparse exit=1 child_wall=0s peak_rss=0.00G min_avail=13.06G
+[zk60-guard 17:20:55] START r5-seg-fifo class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=747b3c2fd56c
+[zk60-guard 17:20:55] END r5-seg-fifo exit=1 child_wall=0s peak_rss=0.00G min_avail=13.06G
+[zk60-guard 17:20:55] START r5-seg-short class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=78269e595638
+[zk60-guard 17:20:55] END r5-seg-short exit=1 child_wall=0s peak_rss=0.00G min_avail=13.06G
+[zk60-guard 17:20:55] START r5-seg-long1 class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=84f5aa39cea3
+[zk60-guard 17:20:56] END r5-seg-long1 exit=1 child_wall=0s peak_rss=0.00G min_avail=13.06G
+[zk60-guard 17:20:56] START r5-seg-dir class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=881b99991c90
+[zk60-guard 17:20:56] END r5-seg-dir exit=1 child_wall=0s peak_rss=0.00G min_avail=13.06G
+[zk60-guard 17:20:56] START r5-seg-devnull class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=5bff622532d3
+[zk60-guard 17:20:56] END r5-seg-devnull exit=1 child_wall=0s peak_rss=0.00G min_avail=13.07G
+[zk60-guard 17:20:56] START r5-seg-symlink-honest class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=b5f417359aa1
+[zk60-guard 17:20:56] END r5-seg-symlink-honest exit=1 child_wall=0s peak_rss=0.00G min_avail=13.06G
+[zk60-guard 17:20:56] START r5-seg-fifo1 class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=abb6615a2bb4
+[zk60-guard 17:20:56] END r5-seg-fifo1 exit=1 child_wall=0s peak_rss=0.00G min_avail=13.06G
+[zk60-guard 17:20:57] START r5-seg-hardlink class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=1c4b7204bd92
+[zk60-guard 17:20:57] END r5-seg-hardlink exit=0 child_wall=1s peak_rss=0.03G min_avail=13.05G
+[zk60-guard 17:20:57] START r5-seg-expected-fifo class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=250951467d73
+[zk60-guard 17:20:57] END r5-seg-expected-fifo exit=1 child_wall=0s peak_rss=0.00G min_avail=13.29G
+[zk60-guard 17:20:57] START r5-seg-fifo1-ctl class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=a85a092a936f
+[zk60-guard 17:20:58] END r5-seg-fifo1-ctl exit=1 child_wall=0s peak_rss=0.00G min_avail=13.24G
+[zk60-guard 17:20:58] START r5-exp-arr-zero-v class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=25653d43b62d
+[zk60-guard 17:20:58] END r5-exp-arr-zero-v exit=1 child_wall=0s peak_rss=0.00G min_avail=13.03G
+[zk60-guard 17:20:58] START r5-exp-arr-fifo-v class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=e2ed6683bcca
+[zk60-guard 17:20:58] END r5-exp-arr-fifo-v exit=1 child_wall=0s peak_rss=0.00G min_avail=13.04G
+[zk60-guard 17:20:58] START r5-exp-arr-big-v class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=a22fced95c04
+[zk60-guard 17:20:58] END r5-exp-arr-big-v exit=1 child_wall=0s peak_rss=0.00G min_avail=13.04G
+[zk60-guard 17:20:58] START r5-exp-profile-fifo-v class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=cd16a4eaa97c
+[zk60-guard 17:20:58] END r5-exp-profile-fifo-v exit=1 child_wall=0s peak_rss=0.00G min_avail=13.03G
+[zk60-guard 17:20:58] START r5-exp-manifest-zero-v class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=c44ea02b5278
+[zk60-guard 17:20:58] END r5-exp-manifest-zero-v exit=1 child_wall=0s peak_rss=0.00G min_avail=13.03G
+[zk60-guard 17:20:59] START r5-exp-misdeclared-v class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=f8277d5b315c
+[zk60-guard 17:20:59] END r5-exp-misdeclared-v exit=1 child_wall=0s peak_rss=0.00G min_avail=13.02G
+[zk60-guard 17:20:59] START r5-exp-fat40-v class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=a0055103e179
+[zk60-guard 17:20:59] END r5-exp-fat40-v exit=1 child_wall=0s peak_rss=0.00G min_avail=13.02G
+[zk60-guard 17:20:59] START r5-exp-fat-v class=light need=1.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=eadb768693d3
+[zk60-guard 17:20:59] END r5-exp-fat-v exit=1 child_wall=0s peak_rss=0.00G min_avail=13.02G
+[zk60-guard 17:20:59] START r5-exp-fat-prove class=light need=1.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=18dc05bc9d83
+[zk60-guard 17:20:59] END r5-exp-fat-prove exit=1 child_wall=0s peak_rss=0.00G min_avail=13.02G
+[zk60-guard 17:20:59] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 17:21:59] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 17:22:59] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 17:23:59] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 17:24:59] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 17:25:59] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 17:26:59] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 17:27:59] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 17:28:07] START r5-8b-T128-verify class=cpu need=1.5G cap=3G enforce=cgroup+watchdog waited=428s run=0e30ffd73ec9
+[zk60-guard 17:30:54] END r5-8b-T128-verify exit=0 child_wall=167s peak_rss=2.23G min_avail=11.31G
+[zk60-guard 17:30:54] START r5-test-build class=build need=3G cap=6G enforce=cgroup+watchdog waited=0s run=480dd739df8b
+[zk60-guard 17:33:43] END r5-test-build exit=0 child_wall=169s peak_rss=1.74G min_avail=11.95G
+[zk60-guard 17:33:44] START r5-fast class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=3b5f8a1a9074
+[zk60-guard 17:34:00] END r5-fast exit=0 child_wall=16s peak_rss=0.20G min_avail=13.30G
+[zk60-guard 17:34:00] START r5-author-subset class=cpu need=4G cap=6G enforce=cgroup+watchdog waited=0s run=6f2b2cf82ae3
+[zk60-guard 17:34:20] END r5-author-subset exit=0 child_wall=20s peak_rss=0.92G min_avail=12.28G

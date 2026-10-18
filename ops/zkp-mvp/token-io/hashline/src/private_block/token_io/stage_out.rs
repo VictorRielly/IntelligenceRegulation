@@ -76,6 +76,8 @@ pub(crate) const H_GROUPS: usize = 6;
 
 pub(crate) fn layout(sh: &Shape, tp: &TokenProfile) -> StageLayout {
     let lt = tp.tier.stage_log_n;
+    // the stage's domains, each at its own (lifted) log: Lo, Do, Vo, Tab
+    let (llo, ldo, lvo, ltab) = (tp.lo_log(), tp.do_log(), tp.vo_log(), tp.tab_log());
     let l = tp.limbs;
     let vplanes = 1 + l;
     let h = hv(l);
@@ -84,14 +86,14 @@ pub(crate) fn layout(sh: &Shape, tp: &TokenProfile) -> StageLayout {
         label: "stage OUT",
         slots: vec![
             SlotSpec { name: "OUT-00 IO-in: x = B_out row T-1 (fixed public row bits)", main: d_bits, ext: 1, degree: 2, kind: SlotKind::Standalone, a_sites: 1, h_sites: 0, io_sites: 1 },
-            SlotSpec { name: "OUT-01 SS final-norm row sum (private, hosted by TZC)", main: lt, ext: 1, degree: 4, kind: SlotKind::Private, a_sites: 1, h_sites: 0, io_sites: 0 },
+            SlotSpec { name: "OUT-01 SS final-norm row sum (private, hosted by TZC)", main: ldo, ext: 1, degree: 4, kind: SlotKind::Private, a_sites: 1, h_sites: 0, io_sites: 0 },
             SlotSpec { name: "OUT-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)", main: TO_LOG, ext: 1, degree: 3, kind: SlotKind::Host, a_sites: 11, h_sites: 0, io_sites: 0 },
-            SlotSpec { name: "OUT-03 LZC limb lookups (+pad)", main: lt, ext: 1, degree: 4, kind: SlotKind::Standalone, a_sites: 1, h_sites: 1, io_sites: 0 },
+            SlotSpec { name: "OUT-03 LZC limb lookups (+pad)", main: llo, ext: 1, degree: 4, kind: SlotKind::Standalone, a_sites: 1, h_sites: 1, io_sites: 0 },
             SlotSpec { name: "OUT-04 HEAD matmul sum_i y(i) W'(r_j, i) (private, hosted by VZC)", main: d_bits, ext: 1, degree: 2, kind: SlotKind::Private, a_sites: 1, h_sites: 0, io_sites: 0 },
-            SlotSpec { name: "OUT-05 DZC final-norm quotient + x limbs + helpers (+pad)", main: lt, ext: 1, degree: 5, kind: SlotKind::Standalone, a_sites: 13, h_sites: H_DO_HELPERS, io_sites: 0 },
-            SlotSpec { name: "OUT-06 VZC e(1-e) + head host term on keyed l* + helpers (+pad)", main: lt, ext: 1, degree: 5, kind: SlotKind::Host, a_sites: vplanes + 2, h_sites: h, io_sites: 0 },
-            SlotSpec { name: "OUT-07 RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)", main: lt, ext: 1, degree: 4, kind: SlotKind::Standalone, a_sites: vplanes + 1, h_sites: 0, io_sites: 0 },
-            SlotSpec { name: "OUT-08 TAB byte-table helper (+pad)", main: lt, ext: 1, degree: 3, kind: SlotKind::Standalone, a_sites: 1, h_sites: 1, io_sites: 0 },
+            SlotSpec { name: "OUT-05 DZC final-norm quotient + x limbs + helpers (+pad)", main: ldo, ext: 1, degree: 5, kind: SlotKind::Standalone, a_sites: 13, h_sites: H_DO_HELPERS, io_sites: 0 },
+            SlotSpec { name: "OUT-06 VZC e(1-e) + head host term on keyed l* + helpers (+pad)", main: lvo, ext: 1, degree: 5, kind: SlotKind::Host, a_sites: vplanes + 2, h_sites: h, io_sites: 0 },
+            SlotSpec { name: "OUT-07 RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)", main: lvo, ext: 1, degree: 4, kind: SlotKind::Standalone, a_sites: vplanes + 1, h_sites: 0, io_sites: 0 },
+            SlotSpec { name: "OUT-08 TAB byte-table helper (+pad)", main: ltab, ext: 1, degree: 3, kind: SlotKind::Standalone, a_sites: 1, h_sites: 1, io_sites: 0 },
             SlotSpec { name: "OUT-09 ZS zero-sum row", main: lt, ext: 1, degree: 2, kind: SlotKind::Standalone, a_sites: 0, h_sites: 1, io_sites: 0 },
             SlotSpec { name: "OUT-10 IO-out: output endpoint = u0 tok (whole 256-word plane)", main: clog2(tp.out_ep_words()), ext: 1, degree: 3, kind: SlotKind::Standalone, a_sites: 1, h_sites: 0, io_sites: 1 },
         ],
@@ -100,14 +102,28 @@ pub(crate) fn layout(sh: &Shape, tp: &TokenProfile) -> StageLayout {
         row_log: [lt, lt, sh.endpoint_log_n, tp.tier.ep_log_n],
     };
     let mut a_log = vec![TO_LOG; 4];
-    a_log.push(lt); // LIMB
-    a_log.extend(vec![lt; 12]); // Do
-    a_log.extend(vec![lt; vplanes]); // Vo
-    a_log.push(lt); // the U8 histogram
+    a_log.push(llo); // LIMB
+    a_log.extend(vec![ldo; 12]); // Do
+    a_log.extend(vec![lvo; vplanes]); // Vo
+    a_log.push(ltab); // the U8 histogram
     let n_h = 1 + H_DO_HELPERS + h + 2;
     let mut h_sign = vec![1i64; n_h];
     h_sign[h_gu8(l)] = -1;
-    StageLayout::new(tp.tier.stage_params(), a_log, vec![lt; n_h], h_sign, h_u(l), sched)
+    // H = [Lo helper, six Do helpers, the Vo helpers, the table helper (Tab), the zero-sum pair u (one row)]
+    let mut h_log = vec![llo];
+    h_log.extend(vec![ldo; H_DO_HELPERS]);
+    h_log.extend(vec![lvo; h]);
+    h_log.push(ltab);
+    h_log.push(lt);
+    StageLayout::new(tp.tier.stage_params(), a_log, h_log, h_sign, h_u(l), sched)
+}
+
+/// The stage's LogUp size for the derived whole-run figure (D27; MEMO_G02):
+/// `(queries, distinct table rows)` = every byte lookup column over its
+/// domain's (lifted) extent, and the 256-row byte table.
+pub(crate) fn logup_size(lay: &StageLayout, tp: &TokenProfile) -> (u128, u128) {
+    let n = |helper: usize, cols: usize| (cols as u128) << lay.h_log[helper];
+    (n(H_LO, lookups_lo().len()) + n(H_D0, lookups_do().len()) + n(H_V0, lookups_vo(tp.limbs).len()), U8_LEN as u128)
 }
 
 /// a byte lookup in PLANE space: `cst + sum coef * plane`
@@ -226,7 +242,7 @@ fn bytes_of(v: i64, n: usize) -> Vec<i64> {
 /// in `limbs` bytes (zero on padded entries).
 pub(crate) fn witness_from_values(tp: &TokenProfile, ov: &OutValues) -> Result<StageOutWitness, String> {
     let l = tp.limbs;
-    let sn = tp.tier.stage_n();
+    let (lo_n, do_n, vo_n) = (1usize << tp.lo_log(), 1usize << tp.do_log(), 1usize << tp.vo_log());
     let mut planes: Vec<Vec<Fp>> = vec![Vec::new(); a_mult(l) + 1];
     let to = |v: i64| -> Vec<Fp> {
         let mut p = vec![Fp::ZERO; 1 << TO_LOG];
@@ -239,16 +255,15 @@ pub(crate) fn witness_from_values(tp: &TokenProfile, ov: &OutValues) -> Result<S
     planes[A_DSQ] = to(ov.d * ov.d);
     planes[A_TOK] = to(j as i64);
     planes[A_M] = to(m);
-    let mut limb = vec![Fp::ZERO; sn];
+    let mut limb = vec![Fp::ZERO; lo_n];
     for (s, v) in [ov.d, ov.a1, ov.a2].iter().enumerate() {
         for (kk, b) in bytes_of(*v, LIMBS_ISQRT).iter().enumerate() {
             limb[2 * (3 * s + kk)] = Fp::from_i64(*b);
         }
     }
     planes[A_LIMB] = limb;
-    let zero = || vec![Fp::ZERO; sn];
     for p in A_X..A_E {
-        planes[p] = zero();
+        planes[p] = vec![Fp::ZERO; do_n];
     }
     for i in 0..tp.d {
         planes[A_X][i] = Fp::from_i64(ov.x[i]);
@@ -263,10 +278,10 @@ pub(crate) fn witness_from_values(tp: &TokenProfile, ov: &OutValues) -> Result<S
             planes[A_SIG0 + kk][i] = Fp::from_i64(*b);
         }
     }
-    planes[A_E] = zero();
+    planes[A_E] = vec![Fp::ZERO; vo_n];
     planes[A_E][j] = Fp::ONE;
     for kk in 0..l {
-        planes[A_LAM0 + kk] = zero();
+        planes[A_LAM0 + kk] = vec![Fp::ZERO; vo_n];
     }
     for i in 0..tp.v {
         let delta = ((m - ov.logits[i]) << tp.log_v) + (i as i64 - j as i64);
@@ -325,8 +340,14 @@ pub(crate) fn define(slot: usize, cx: &OutCtx, pts: &mut OutPoints, tr: &mut Tra
     let l = tp.limbs;
     let d_bits = clog2(tp.d_pad);
     let t_bits = clog2(tp.t_pad);
-    let (sl, sn) = (lay.log_n, lay.n);
-    let lift = sl - d_bits;
+    // each slot on its own domain: Lo (LZC), Do (SS, DZC; IO-in and HEAD read
+    // it at its natural d_pad with the lift bits fixed), Vo (HEAD's r_j, VZC,
+    // RSEL), Tab (TAB)
+    let (llo, lo_n) = (tp.lo_log(), 1usize << tp.lo_log());
+    let (ldo, do_n) = (tp.do_log(), 1usize << tp.do_log());
+    let (lvo, vo_n) = (tp.vo_log(), 1usize << tp.vo_log());
+    let (ltab, tab_n) = (tp.tab_log(), 1usize << tp.tab_log());
+    let lift = ldo - d_bits;
     let (ow, low) = (tp.out_ep_words(), clog2(tp.out_ep_words()));
     let f0 = || vec![Coord::Fixed(Fp2::ZERO); TO_LOG];
     match slot {
@@ -343,7 +364,7 @@ pub(crate) fn define(slot: usize, cx: &OutCtx, pts: &mut OutPoints, tr: &mut Tra
             b.finish(Box::new(move |v: &[Fp2]| v[i_eq].mul(v[i_x].sub(v[i_b]))), vec![])
         }
         SO_SS => {
-            let i_s = b.public(supp(tp.d, sn));
+            let i_s = b.public(supp(tp.d, do_n));
             let i_x = b.a(A_X)?;
             b.finish(Box::new(move |v: &[Fp2]| v[i_s].mul(v[i_x]).mul(v[i_x])), vec![])
         }
@@ -372,11 +393,11 @@ pub(crate) fn define(slot: usize, cx: &OutCtx, pts: &mut OutPoints, tr: &mut Tra
             b.finish(Box::new(poly), vec![(SO_SS, nu)])
         }
         SO_LZC => {
-            let tau = tr.challenge_fp2_vec(sl);
+            let tau = tr.challenge_fp2_vec(llo);
             let mu = nonzero(tr.challenge_fp2_vec(2))?;
             let i_eq = b.eq(&tau, 0);
             // the live limb positions: sub-plane k < 9 at To entry 0 (index 2k)
-            let i_s = b.public((0..sn).map(|z| if z % 2 == 0 && z / 2 < 3 * LIMBS_ISQRT { Fp2::ONE } else { Fp2::ZERO }).collect());
+            let i_s = b.public((0..lo_n).map(|z| if z % 2 == 0 && z / 2 < 3 * LIMBS_ISQRT { Fp2::ONE } else { Fp2::ZERO }).collect());
             let i_l = b.a(A_LIMB)?;
             let i_h = b.h(H_LO)?;
             let lks = resolve(&lookups_lo(), &|_| i_l, g_u8);
@@ -388,7 +409,7 @@ pub(crate) fn define(slot: usize, cx: &OutCtx, pts: &mut OutPoints, tr: &mut Tra
             b.finish(Box::new(poly), vec![])
         }
         SO_HEAD => {
-            pts.r_j = tr.challenge_fp2_vec(sl);
+            pts.r_j = tr.challenge_fp2_vec(lvo);
             let e = eq_table_msb(&pts.r_j);
             let wf = cx.tables.head_fold(&e[..tp.v], tp.d_pad);
             let mut cy = fixed(&vec![Fp2::ZERO; lift]);
@@ -398,11 +419,11 @@ pub(crate) fn define(slot: usize, cx: &OutCtx, pts: &mut OutPoints, tr: &mut Tra
             b.finish(Box::new(move |v: &[Fp2]| v[i_y].mul(v[i_w])), vec![])
         }
         SO_DZC => {
-            let tau = tr.challenge_fp2_vec(sl);
+            let tau = tr.challenge_fp2_vec(ldo);
             let mu = nonzero(tr.challenge_fp2_vec(3 + H_DO_HELPERS + 1))?;
             let zeta = nonzero(tr.challenge_fp2_vec(1))?[0];
             let i_eq = b.eq(&tau, 0);
-            let i_s = b.public(supp(tp.d, sn));
+            let i_s = b.public(supp(tp.d, do_n));
             let first = b.tabs_len();
             for p in A_X..A_E {
                 b.a(p)?;
@@ -433,15 +454,15 @@ pub(crate) fn define(slot: usize, cx: &OutCtx, pts: &mut OutPoints, tr: &mut Tra
             b.finish(Box::new(poly), vec![])
         }
         SO_VZC => {
-            let tau = tr.challenge_fp2_vec(sl);
+            let tau = tr.challenge_fp2_vec(lvo);
             let n_help = hv(l);
             let mu = nonzero(tr.challenge_fp2_vec(1 + n_help + 1))?;
             let nu = nonzero(tr.challenge_fp2_vec(1))?[0];
             let zeta = nonzero(tr.challenge_fp2_vec(1))?[0];
             let i_eq = b.eq(&tau, 0);
             let i_rj = b.eq(&pts.r_j, 0);
-            let i_s = b.public(supp(tp.v, sn));
-            let i_iota = b.public((0..sn).map(|z| k(z as i64)).collect());
+            let i_s = b.public(supp(tp.v, vo_n));
+            let i_iota = b.public((0..vo_n).map(|z| k(z as i64)).collect());
             let i_e = b.a(A_E)?;
             for kk in 0..l {
                 b.a(A_LAM0 + kk)?;
@@ -471,9 +492,9 @@ pub(crate) fn define(slot: usize, cx: &OutCtx, pts: &mut OutPoints, tr: &mut Tra
         // in every monomial (DESIGN 3.1, B-3)
         SO_RSEL => {
             let c = nonzero(tr.challenge_fp2_vec(3))?;
-            let i_s = b.public(supp(tp.v, sn));
-            let i_iota = b.public((0..sn).map(|z| k(z as i64)).collect());
-            let i_u0 = b.public(supp(1, sn));
+            let i_s = b.public(supp(tp.v, vo_n));
+            let i_iota = b.public((0..vo_n).map(|z| k(z as i64)).collect());
+            let i_u0 = b.public(supp(1, vo_n));
             let i_e = b.a(A_E)?;
             for kk in 0..l {
                 b.a(A_LAM0 + kk)?;
@@ -486,14 +507,14 @@ pub(crate) fn define(slot: usize, cx: &OutCtx, pts: &mut OutPoints, tr: &mut Tra
             b.finish(Box::new(poly), vec![])
         }
         SO_TAB => {
-            let tau = tr.challenge_fp2_vec(sl);
+            let tau = tr.challenge_fp2_vec(ltab);
             let mu = nonzero(tr.challenge_fp2_vec(2))?;
             let zeta = nonzero(tr.challenge_fp2_vec(1))?[0];
             let i_eq = b.eq(&tau, 0);
-            let i_s = b.public(supp(U8_LEN, sn));
+            let i_s = b.public(supp(U8_LEN, tab_n));
             // the P-3 lift's first condition: padded table positions repeat
             // an existing entry (`i % 256`)
-            let i_tv = b.public((0..sn).map(|z| k((z % U8_LEN) as i64).add(g_u8)).collect());
+            let i_tv = b.public((0..tab_n).map(|z| k((z % U8_LEN) as i64).add(g_u8)).collect());
             let i_m = b.a(a_mult(l))?;
             let i_h = b.h(h_gu8(l))?;
             let poly = move |v: &[Fp2]| {
@@ -504,7 +525,7 @@ pub(crate) fn define(slot: usize, cx: &OutCtx, pts: &mut OutPoints, tr: &mut Tra
             b.finish(Box::new(poly), vec![])
         }
         SO_ZS => {
-            let i1 = b.public(vec![Fp2::ONE; sn]);
+            let i1 = b.public(vec![Fp2::ONE; 1usize << lay.h_log[h_u(l)]]);
             let iu = b.h(h_u(l))?;
             b.finish(Box::new(move |v: &[Fp2]| v[i1].mul(v[iu])), vec![])
         }
@@ -563,6 +584,19 @@ fn helper_col(a: &[Fp], b: Option<&[Fp]>, alpha: Fp2, g: Fp2) -> Result<Vec<Fp2>
         .collect()
 }
 
+/// How many byte lookups of a stage-OUT witness miss the byte table (review
+/// R2-5: the run prover asks this BEFORE its first segment exists). The
+/// witness's shape is checked first.
+pub(crate) fn byte_misses(lay: &StageLayout, tp: &TokenProfile, wit: &StageOutWitness) -> Result<usize, String> {
+    let mult = a_mult(tp.limbs);
+    if wit.planes.len() != mult + 1 || (0..mult).any(|p| wit.planes[p].len() != 1usize << lay.a_log[p]) {
+        return Err("token I/O stage OUT: witness shape".into());
+    }
+    let l = tp.limbs;
+    let cols: Vec<Vec<Fp>> = [(lookups_lo(), tp.lo_log()), (lookups_do(), tp.do_log()), (lookups_vo(l), tp.vo_log())].iter().flat_map(|(lks, lg)| looked(&wit.planes, lks, 1usize << lg)).collect();
+    Ok(cols.iter().map(|c| c.iter().filter(|v| (v.0 as usize) >= U8_LEN).count()).sum())
+}
+
 pub(crate) struct OutProved {
     pub seg: StageSegment,
     pub decommitment: Decommitment,
@@ -604,7 +638,7 @@ pub(crate) fn prove(
     tr.absorb(b"pb-run-block", &tp.head_digest);
     // the byte histogram over every looked column of the three lookup
     // domains (padded positions counted: the LogUp arm is never gated)
-    let cols: Vec<Vec<Fp>> = [lookups_lo(), lookups_do(), lookups_vo(l)].iter().flat_map(|lks| looked(&wit.planes, lks, n)).collect();
+    let cols: Vec<Vec<Fp>> = [(lookups_lo(), tp.lo_log()), (lookups_do(), tp.do_log()), (lookups_vo(l), tp.vo_log())].iter().flat_map(|(lks, lg)| looked(&wit.planes, lks, 1usize << lg)).collect();
     let mut hist = vec![0u64; U8_LEN];
     let mut misses = 0usize;
     for c in &cols {
@@ -661,7 +695,7 @@ pub(crate) fn prove(
         }
         ci += dom_cols;
     }
-    let tcol: Vec<Fp2> = (0..n)
+    let tcol: Vec<Fp2> = (0..1usize << tp.tab_log())
         .map(|z| {
             let m = if z < U8_LEN { hist[z] } else { 0 };
             if m == 0 {

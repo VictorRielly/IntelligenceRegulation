@@ -1,0 +1,10 @@
+[b5_run 00:54:08Z] hold #2 released for b5-b7_T128 (need 3.5 / cap 4.5)
+[zk60-guard 17:54:09] START b5-b7_T128 class=light need=3.5G cap=4.5G enforce=cgroup+watchdog waited=0s run=c1780abf4f75
+[zk60-guard 18:37:01] END b5-b7_T128 exit=0 child_wall=2572s peak_rss=3.28G min_avail=7.09G
+[zk60-guard 18:37:01] START b7-verify-llama3_8b_pg_rot1_b7_T128 class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=a31efb0b47e0
+[zk60-guard 18:41:15] END b7-verify-llama3_8b_pg_rot1_b7_T128 exit=0 child_wall=255s peak_rss=2.00G min_avail=9.79G
+[b5_run 01:41:15Z] hold #2 released for b5-b7_T64 (need 3.5 / cap 4.5)
+[zk60-guard 18:41:16] START b5-b7_T64 class=light need=3.5G cap=4.5G enforce=cgroup+watchdog waited=0s run=5558b4c55e19
+[zk60-guard 19:12:20] END b5-b7_T64 exit=0 child_wall=1864s peak_rss=2.99G min_avail=6.38G
+[zk60-guard 19:12:20] START b7-verify-llama3_8b_pg_rot1_b7_T64 class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=0df80fa5eca3
+[zk60-guard 19:15:17] END b7-verify-llama3_8b_pg_rot1_b7_T64 exit=0 child_wall=177s peak_rss=1.69G min_avail=10.39G

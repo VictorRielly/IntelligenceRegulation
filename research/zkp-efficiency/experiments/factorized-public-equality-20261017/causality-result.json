@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "fixtures": 84,
+  "unchanged_prior_round_checks": 1699,
+  "past_challenge_sensitivity_controls": 1,
+  "wall_seconds": 0.11161770800026716,
+  "peak_rss_kib": 16732,
+  "threads": 1,
+  "scope": "Offline arithmetic challenge causality only; native interactive adapter/transcript not implemented.",
+  "completed_at_utc": "2026-10-17T23:29:19.445529+00:00"
+}

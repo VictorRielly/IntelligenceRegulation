@@ -1,0 +1,18 @@
+{
+ "ok": true,
+ "sequences": {
+  "ho00": {
+   "r0_next_token": 29914,
+   "decommitted_next_token": 29914,
+   "agree": true,
+   "top2_margin": 191997655,
+   "D": 51671,
+   "max_abs_y": 49,
+   "max_abs_logit": 499704744,
+   "prompt_bos": true,
+   "fidelity_lane_pr_m12_tok_same_position": 29914,
+   "fidelity_lane_float_head_tok_same_position": 29914
+  }
+ },
+ "reference": "R0 token_io_ref.py (final_norm, head_logits x m_j, first_argmax) on the export's x_out_L21 row T-1"
+}

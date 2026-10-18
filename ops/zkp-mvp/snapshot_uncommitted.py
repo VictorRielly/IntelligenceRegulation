@@ -26,7 +26,10 @@ LIMIT = 1 << 20
 
 def git(*args, env=None, input=None):
     r = subprocess.run(["git", "--no-pager", *args], cwd=REPO, env=env,
-                       input=input, capture_output=True, check=True)
+                       input=input, capture_output=True)
+    if r.returncode != 0:
+        sys.exit(f"git {' '.join(args[:3])} failed ({r.returncode}): "
+                 f"{r.stderr.decode('utf-8', 'replace')[:2000]}")
     return r.stdout
 
 
@@ -102,10 +105,14 @@ def main():
     with tempfile.TemporaryDirectory() as td:
         env = dict(os.environ, GIT_INDEX_FILE=os.path.join(td, "index"))
         git("read-tree", "HEAD", env=env)
+        # lanes write and delete scratch files while this runs: re-check
+        # existence right before the add, and ignore files that still vanish
+        small = [p for p in small if os.path.lexists(os.path.join(REPO, p))]
         if small:
-            git("add", "-f", "--pathspec-from-file=-", "--pathspec-file-nul",
-                env=env, input=b"\0".join(p.encode("utf-8", "surrogateescape")
-                                          for p in small))
+            git("add", "-f", "--ignore-errors", "--pathspec-from-file=-",
+                "--pathspec-file-nul", env=env,
+                input=b"\0".join(p.encode("utf-8", "surrogateescape")
+                                 for p in small))
         if remove:
             git("update-index", "--remove", "-z", "--stdin", env=env,
                 input=b"\0".join(p.encode("utf-8", "surrogateescape")

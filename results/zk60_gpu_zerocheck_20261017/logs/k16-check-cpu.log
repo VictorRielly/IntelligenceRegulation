@@ -1,0 +1,74 @@
+src/attention.rs:787:42: warning: unused import: `eval_mle_ext`
+src/private_block/protocol.rs:838:9: warning: variable does not need to be mutable
+src/private_block/run.rs:830:13: warning: variable does not need to be mutable
+src/attention.rs:1046:13: warning: variable does not need to be mutable
+src/attention.rs:1086:13: warning: variable does not need to be mutable
+src/attention.rs:2025:9: warning: variable does not need to be mutable
+src/attention.rs:2077:9: warning: variable does not need to be mutable
+src/attention.rs:2859:9: warning: variable does not need to be mutable
+src/gpu/fzc.rs:106:15: warning: function `note_run` is never used
+src/private_block.rs:1008:19: warning: associated items `to_bytes_at` and `from_bytes_at` are never used
+src/private_block.rs:1028:15: warning: function `verify_bytes_at` is never used
+src/private_block/argument.rs:972:4: warning: function `limbs` is never used
+src/private_block/argument.rs:1109:15: warning: function `causal_mask` is never used
+src/private_block/argument.rs:1169:15: warning: function `rope_tables` is never used
+src/private_block/boundary.rs:108:19: warning: associated items `new`, `index`, and `scale` are never used
+src/private_block/boundary.rs:250:19: warning: method `commitment` is never used
+src/private_block/endpoint_g.rs:126:19: warning: associated function `new` is never used
+src/private_block/hash_domain.rs:192:7: warning: constant `SEED_USE_BOUNDARY` is never used
+src/private_block/hash_domain.rs:226:15: warning: function `boundary_seed_domain` is never used
+src/private_block/hash_domain.rs:270:15: warning: function `boundary_seed_input_len` is never used
+src/private_block/hash_domain.rs:545:15: warning: function `at_shape` is never used
+src/private_block/hash_domain.rs:564:15: warning: function `full_at_shape` is never used
+src/private_block/layout.rs:41:18: warning: constant `D` is never used
+src/private_block/layout.rs:42:18: warning: constant `H` is never used
+src/private_block/layout.rs:44:18: warning: constant `HALF` is never used
+src/private_block/layout.rs:45:18: warning: constant `KV` is never used
+src/private_block/layout.rs:47:18: warning: constant `F` is never used
+src/private_block/layout.rs:65:18: warning: constant `NORM_WRHO` is never used
+src/private_block/layout.rs:74:18: warning: constant `WRHO_S` is never used
+src/private_block/layout.rs:78:18: warning: constant `SH_G` is never used
+src/private_block/layout.rs:79:18: warning: constant `SH_H_PROD` is never used
+src/private_block/layout.rs:80:18: warning: constant `SH_Z` is never used
+src/private_block/layout.rs:265:18: warning: constant `A_PL1` is never used
+src/private_block/layout.rs:267:18: warning: constant `A_SR1` is never used
+src/private_block/layout.rs:308:15: warning: function `is_multiplicity` is never used
+src/private_block/layout.rs:398:19: warning: associated function `toy` is never used
+src/private_block/layout.rs:451:18: warning: constant `H_GU8` is never used
+src/private_block/layout.rs:452:18: warning: constant `H_GEXP` is never used
+src/private_block/layout.rs:453:18: warning: constant `H_GACT` is never used
+src/private_block/layout.rs:455:18: warning: constant `H_U` is never used
+src/private_block/layout.rs:471:15: warning: function `h_is_table` is never used
+src/private_block/layout.rs:677:15: warning: function `lookups` is never used
+src/private_block/layout.rs:787:15: warning: function `helpers` is never used
+src/private_block/layout.rs:947:15: warning: function `slot_terms` is never used
+src/private_block/layout.rs:951:15: warning: function `mask_specs` is never used
+src/private_block/layout.rs:959:15: warning: function `rows_of` is never used
+src/private_block/layout.rs:981:15: warning: function `no_commitment_has_a_node_shaped_column` is never used
+src/private_block/protocol.rs:77:15: warning: function `pcs_params` is never used
+src/private_block/run.rs:52:18: warning: constant `RUN_PROFILE_RUNG_G` is never used
+src/private_block/run.rs:57:18: warning: constant `RUN_PROFILE_RUNG_K4` is never used
+src/private_block/run.rs:63:18: warning: constant `RUN_PROFILE_RUNG_C6` is never used
+src/private_block/run.rs:66:18: warning: constant `RUN_PROFILE_RUNG_W14` is never used
+src/private_block/run.rs:69:18: warning: constant `RUN_PROFILE_RUNG_E32` is never used
+src/private_block/run.rs:111:19: warning: associated functions `rung_g`, `rung_k4`, `rung_c6`, `rung_w14`, `rung_e32`, and `tinyllama_t32_trained` are never used
+src/private_block/run_sink.rs:116:19: warning: struct `MemorySink` is never constructed
+src/private_block/run_sink.rs:121:19: warning: method `segments` is never used
+src/private_block/shape.rs:709:19: warning: multiple associated items are never used
+src/private_block/shape.rs:1983:19: warning: struct `Totals` is never constructed
+src/private_block/timing.rs:396:15: warning: function `timed` is never used
+src/private_block/trained_statement.rs:244:19: warning: associated function `recipe` is never used
+src/attention.rs:1593:8: warning: associated function `of` is never used
+src/attention.rs:1932:8: warning: method `pd` is never used
+warning: `hashline` (lib) generated 62 warnings (run `cargo fix --lib -p hashline` to apply 8 suggestions)
+    Checking hashline v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline)
+src/private_block/review_tests.rs:16:39: warning: unused import: `verify_inner_at`
+src/private_block/s28_review_tests.rs:19:21: warning: unused import: `Dom`
+src/private_block/rung_tests.rs:302:18: warning: unused variable: `hp`: help: if this is intentional, prefix it with an underscore: `_hp`
+src/private_block/gpu_zc_tests.rs:480:31: warning: unreachable expression: unreachable expression
+src/private_block/gpu_zc_tests.rs:481:31: warning: unreachable expression: unreachable expression
+src/gpu/fzc.rs:60:15: warning: function `force_check` is never used
+src/private_block/run_capture.rs:477:5: warning: field `boundaries` is never read
+src/private_block/run_capture.rs:579:15: warning: function `active` is never used
+warning: `hashline` (lib test) generated 19 warnings (11 duplicates) (run `cargo fix --lib -p hashline --tests` to apply 3 suggestions)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.32s

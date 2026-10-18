@@ -1,0 +1,4 @@
+[zk60-guard 17:22:43] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 17:23:43] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 17:24:28] START b11-example-release class=build need=3G cap=5G enforce=cgroup+watchdog waited=105s run=e46e9ea6a830
+[zk60-guard 17:25:34] END b11-example-release exit=0 child_wall=66s peak_rss=1.11G min_avail=11.60G

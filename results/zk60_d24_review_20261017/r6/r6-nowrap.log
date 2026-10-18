@@ -1,0 +1,7 @@
+score host log2 by sh_s: {"TinyLlama (head_dim 64)": {"1": 19.978, "2": 19.978, "3": 19.979, "4": 19.98, "5": 19.983, "6": 19.989, "7": 20.0, "8": 20.022}, "Llama-3-8B (head_dim 128)": {"1": 20.978, "2": 20.978, "3": 20.978, "4": 20.979, "5": 20.98, "6": 20.983, "7": 20.989, "8": 21.0}}
+TinyLlama T32 worst 2^35.0 softmax f_e 16: {'wrho_s': 21, 'c2_log2': 31.0, 'c3_log2': 22.0, 'pv_host_log2': 23.581}
+TinyLlama T64 worst 2^35.0 softmax f_e 16: {'wrho_s': 22, 'c2_log2': 32.0, 'c3_log2': 23.0, 'pv_host_log2': 23.994}
+TinyLlama T128 worst 2^35.0 softmax f_e 16: {'wrho_s': 23, 'c2_log2': 33.0, 'c3_log2': 24.0, 'pv_host_log2': 24.576}
+Llama-3-8B T32 worst 2^36.0 softmax f_e 16: {'wrho_s': 21, 'c2_log2': 31.0, 'c3_log2': 22.0, 'pv_host_log2': 23.581}
+Llama-3-8B T64 worst 2^36.0 softmax f_e 16: {'wrho_s': 22, 'c2_log2': 32.0, 'c3_log2': 23.0, 'pv_host_log2': 23.994}
+Llama-3-8B T128 worst 2^36.0 softmax f_e 16: {'wrho_s': 23, 'c2_log2': 33.0, 'c3_log2': 24.0, 'pv_host_log2': 24.576}

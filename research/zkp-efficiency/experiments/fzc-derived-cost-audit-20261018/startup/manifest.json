@@ -1,0 +1,65 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md",
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603,
+    "lines": 85
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/STATE.md",
+    "sha256": "71c2985d5cd8070e9ddd6ac4ca4bdc4fe70be50b6fe322f78d3c9978cc6e4f31",
+    "bytes": 6050,
+    "lines": 96
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/FINDINGS.md",
+    "sha256": "38c89df64106ee907f03e8303308e0dbca17d4dfe45fc4eba1af589bab5d33fd",
+    "bytes": 520995,
+    "lines": 5178
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/sources.jsonl",
+    "sha256": "839e04fe05e2ffd70ffa25729daa00a12d05766df1dc27d2bd46aeab241134cf",
+    "bytes": 489938,
+    "lines": 383
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/PROGRESS.md",
+    "sha256": "3d3a8590dc0a35ba7240a4b979db040577eb2b6d0b72ec712b92e9688922fdbd",
+    "bytes": 2285,
+    "lines": 38
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089,
+    "lines": 235
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+    "sha256": "b52a2ee0289f4a915eb16bab1886dc19fc55e3ba6cc8a90e1ac7fb3ed40fdddd",
+    "bytes": 72813,
+    "lines": 1027,
+    "snapshot_kind": "sanitized summary; original full content not retained",
+    "snapshot_sha256": "d343c34dff05a2caee67034084ae61bd926c396f004d4b240bd30b800e05c208",
+    "original_source_sha256": "b52a2ee0289f4a915eb16bab1886dc19fc55e3ba6cc8a90e1ac7fb3ed40fdddd"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+    "sha256": "41c49834da68d4ef77786f0368c9b269b292045c63db613171a52d23aa9306d4",
+    "bytes": 79106,
+    "lines": 906
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889,
+    "lines": 995
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941,
+    "lines": 90
+  }
+]

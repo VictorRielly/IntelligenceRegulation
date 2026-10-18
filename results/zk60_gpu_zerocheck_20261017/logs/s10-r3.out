@@ -1,0 +1,65 @@
+[zk60-guard 18:22:43] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 18:23:43] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 18:24:43] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 18:25:43] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 18:26:43] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 18:27:43] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 18:28:43] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 18:29:43] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 18:30:43] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 18:31:43] waiting for /tmp/zk-heavy.lock (541s)
+[zk60-guard 18:32:43] waiting for /tmp/zk-heavy.lock (601s)
+[zk60-guard 18:33:43] waiting for /tmp/zk-heavy.lock (661s)
+[zk60-guard 18:34:43] waiting for /tmp/zk-heavy.lock (721s)
+[zk60-guard 18:35:43] waiting for /tmp/zk-heavy.lock (781s)
+[zk60-guard 18:36:44] waiting for /tmp/zk-heavy.lock (841s)
+[zk60-guard 18:37:44] waiting for /tmp/zk-heavy.lock (901s)
+[zk60-guard 18:38:44] waiting for /tmp/zk-heavy.lock (961s)
+[zk60-guard 18:39:44] waiting for /tmp/zk-heavy.lock (1021s)
+[zk60-guard 18:40:44] waiting for /tmp/zk-heavy.lock (1081s)
+[zk60-guard 18:41:44] waiting for /tmp/zk-heavy.lock (1141s)
+[zk60-guard 18:42:44] waiting for /tmp/zk-heavy.lock (1201s)
+[zk60-guard 18:43:44] waiting for /tmp/zk-heavy.lock (1261s)
+[zk60-guard 18:44:34] admission waiting: budget: 9.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b5-b7_T64(light,3.5G)]
+[zk60-guard 18:45:35] admission waiting: budget: 9.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b5-b7_T64(light,3.5G)]
+[zk60-guard 18:46:36] admission waiting: budget: 9.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b5-b7_T64(light,3.5G)]
+[zk60-guard 18:47:36] admission waiting: budget: 9.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b5-b7_T64(light,3.5G)]
+[zk60-guard 18:48:37] admission waiting: budget: 9.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b5-b7_T64(light,3.5G)]
+[zk60-guard 18:49:38] admission waiting: budget: 9.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b5-b7_T64(light,3.5G)]
+[zk60-guard 18:50:38] admission waiting: budget: 9.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b5-b7_T64(light,3.5G)]
+[zk60-guard 18:51:39] admission waiting: budget: 9.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b5-b7_T64(light,3.5G)]
+[zk60-guard 18:52:40] admission waiting: budget: 9.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b5-b7_T64(light,3.5G)]
+[zk60-guard 18:53:41] admission waiting: budget: 9.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b5-b7_T64(light,3.5G)]
+[zk60-guard 18:54:41] admission waiting: budget: 9.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b5-b7_T64(light,3.5G)]
+[zk60-guard 18:55:42] admission waiting: budget: 9.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b5-b7_T64(light,3.5G)]
+[zk60-guard 18:56:43] admission waiting: budget: 9.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b5-b7_T64(light,3.5G)]
+[zk60-guard 18:57:43] admission waiting: budget: 9.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b5-b7_T64(light,3.5G)]
+[zk60-guard 18:58:44] admission waiting: budget: 9.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b5-b7_T64(light,3.5G)]
+[zk60-guard 18:59:45] admission waiting: budget: 9.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b5-b7_T64(light,3.5G)]
+[zk60-guard 19:00:45] admission waiting: budget: 9.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b5-b7_T64(light,3.5G)]
+[zk60-guard 19:01:46] admission waiting: budget: 9.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b5-b7_T64(light,3.5G)]
+[zk60-guard 19:02:47] admission waiting: budget: 9.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b5-b7_T64(light,3.5G)]
+[zk60-guard 19:03:48] admission waiting: budget: 9.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b5-b7_T64(light,3.5G)]
+[zk60-guard 19:04:48] admission waiting: budget: 9.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b5-b7_T64(light,3.5G)]
+[zk60-guard 19:05:49] admission waiting: budget: 9.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b5-b7_T64(light,3.5G)]
+[zk60-guard 19:06:50] admission waiting: budget: 9.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b5-b7_T64(light,3.5G)]
+[zk60-guard 19:07:50] admission waiting: budget: 9.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b5-b7_T64(light,3.5G)]
+[zk60-guard 19:08:51] admission waiting: budget: 9.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b5-b7_T64(light,3.5G)]
+[zk60-guard 19:09:52] admission waiting: budget: 9.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b5-b7_T64(light,3.5G)]
+[zk60-guard 19:10:53] admission waiting: budget: 9.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b5-b7_T64(light,3.5G)]
+[zk60-guard 19:11:53] admission waiting: budget: 9.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b5-b7_T64(light,3.5G)]
+[zk60-guard 19:12:55] admission waiting: budget: 8.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b7-verify-llama3_8b_pg_rot1_b7_T64(light,2.5G)]
+[zk60-guard 19:13:56] admission waiting: budget: 8.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b7-verify-llama3_8b_pg_rot1_b7_T64(light,2.5G)]
+[zk60-guard 19:14:57] admission waiting: budget: 8.5+4.5 GiB > 11.9 GiB with live [tl-r5b-l22-dense-t(light,6G), b7-verify-llama3_8b_pg_rot1_b7_T64(light,2.5G)]
+[zk60-guard 19:15:17] START gzc-stack-s10-r3 class=gpu need=4.5G cap=7G enforce=cgroup+watchdog waited=3155s run=a871d94757be
+[zk60-guard 19:18:12] END gzc-stack-s10-r3 exit=0 child_wall=174s peak_rss=1.61G min_avail=10.40G peak_vram=3137MiB
+stack s10-r3 exit 0
+[zk60-guard 19:18:12] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 19:19:12] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 19:20:12] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 19:21:12] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 19:22:12] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 19:23:12] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 19:23:49] START gzc-verify-s10-r3 class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=337s run=49290de071f1
+[zk60-guard 19:24:10] END gzc-verify-s10-r3 exit=0 child_wall=20s peak_rss=1.46G min_avail=10.00G
+verify s10-r3 exit 0

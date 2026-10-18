@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "checks": 7795,
+  "fixtures": 132,
+  "original_table_rounds": 755,
+  "direct_mle_round_values": 500,
+  "method": "Original-table prefix sums, power-basis polynomial convolution, independent closed-form mixtures/selector terminals and monomial integration of whole-cube CFS masks.",
+  "wall_seconds": 7.1843176080001285,
+  "peak_rss_kib": 28080,
+  "threads": 1,
+  "scope": "Independent local arithmetic/reference audit, not cryptographic verification.",
+  "completed_at_utc": "2026-10-18T00:25:01.361299+00:00"
+}

@@ -1,0 +1,280 @@
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: unused variable: `envu`
+    --> src/gpu/cuda.rs:1252:9
+     |
+1252 |     let envu = |k: &str, d: usize| std::env::var(k).ok().and_then(|v| v.parse().ok()).unwrap_or(d);
+     |         ^^^^ help: if this is intentional, prefix it with an underscore: `_envu`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:830:13
+    |
+830 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `force_check` is never used
+  --> src/gpu/fzc.rs:60:15
+   |
+60 | pub(crate) fn force_check(v: Option<bool>) {
+   |               ^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:972:4
+    |
+972 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:477:5
+    |
+470 | struct Rec {
+    |        --- field in this struct
+...
+477 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:579:15
+    |
+579 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: calls to `std::mem::drop` with a value that implements `Copy` does nothing
+    --> src/gpu/cuda.rs:1112:9
+     |
+1112 |         drop(d_pack.0.take().map(pool_put));
+     |         ^^^^^-----------------------------^
+     |              |
+     |              argument has type `Option<()>`
+     |
+     = note: `#[warn(dropping_copy_types)]` on by default
+help: use `let _ = ...` to ignore the expression or result
+     |
+1112 -         drop(d_pack.0.take().map(pool_put));
+1112 +         let _ = d_pack.0.take().map(pool_put);
+     |
+
+warning: `hashline` (lib test) generated 18 warnings (run `cargo fix --lib -p hashline --tests` to apply 11 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running unittests src/lib.rs (/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/target-gpu/release/deps/hashline-5af71eb9341564fc)
+
+running 2 tests
+test private_block::gpu_zc_tests::gzc_device_real_slot18_equals_the_cpu_body_at_the_trained_shapes ... GZC device == CPU: development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, dense random data, device-resident rows), variant split, claim none (round 0 evaluated): 14 rounds equal; CPU body 0.094 s, device body (tables built on the device) 0.0218 s
+GZC device == CPU: development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, dense random data, device-resident rows), variant split-mat, claim none (round 0 evaluated): 14 rounds equal; CPU body 0.094 s, device body (tables built on the device) 0.0048 s
+GZC device == CPU: development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, dense random data, device-resident rows), variant split-tail10, claim none (round 0 evaluated): 14 rounds equal; CPU body 0.094 s, device body (tables built on the device) 0.0062 s
+GZC device == CPU: development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, dense random data, device-resident rows), variant lean, claim none (round 0 evaluated): 14 rounds equal; CPU body 0.094 s, device body (tables built on the device) 0.0165 s
+GZC device == CPU: development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, dense random data, device-resident rows), variant split, claim given: 14 rounds equal; CPU body 0.109 s, device body (tables built on the device) 0.0044 s
+GZC device == CPU: development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, dense random data, device-resident rows), variant split-mat, claim given: 14 rounds equal; CPU body 0.109 s, device body (tables built on the device) 0.0040 s
+GZC device == CPU: development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, dense random data, device-resident rows), variant split-tail10, claim given: 14 rounds equal; CPU body 0.109 s, device body (tables built on the device) 0.0054 s
+GZC device == CPU: development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, dense random data, device-resident rows), variant lean, claim given: 14 rounds equal; CPU body 0.109 s, device body (tables built on the device) 0.0060 s
+GZC VRAM after development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) dense random: 1169 MiB in use with 3 pooled buffers; drained 3; 1137 MiB in use after the drain
+NATIVE generic witness at hashline-zk-mr1/private-block-rung-tc-t32-dev/1: built in 0.02 s; max|y_a| 15 max|y_m| 24 max|q8| 8 max|s8| 4 max|g8| 21 max|u16| 5272 max|z16| 646 max|x2| 6389; upper half gate 92.6% act 92.6% nonzero
+GZC device == CPU: development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, honest-witness data, device-resident rows), variant split, claim none (round 0 evaluated): 14 rounds equal; CPU body 0.117 s, device body (tables built on the device) 0.0049 s
+GZC device == CPU: development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, honest-witness data, device-resident rows), variant split-mat, claim none (round 0 evaluated): 14 rounds equal; CPU body 0.117 s, device body (tables built on the device) 0.0050 s
+GZC device == CPU: development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, honest-witness data, device-resident rows), variant split-tail10, claim none (round 0 evaluated): 14 rounds equal; CPU body 0.117 s, device body (tables built on the device) 0.0074 s
+GZC device == CPU: development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, honest-witness data, device-resident rows), variant lean, claim none (round 0 evaluated): 14 rounds equal; CPU body 0.117 s, device body (tables built on the device) 0.0070 s
+GZC device == CPU: development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, honest-witness data, device-resident rows), variant split, claim given: 14 rounds equal; CPU body 0.106 s, device body (tables built on the device) 0.0038 s
+GZC device == CPU: development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, honest-witness data, device-resident rows), variant split-mat, claim given: 14 rounds equal; CPU body 0.106 s, device body (tables built on the device) 0.0040 s
+GZC device == CPU: development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, honest-witness data, device-resident rows), variant split-tail10, claim given: 14 rounds equal; CPU body 0.106 s, device body (tables built on the device) 0.0074 s
+GZC device == CPU: development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, honest-witness data, device-resident rows), variant lean, claim given: 14 rounds equal; CPU body 0.106 s, device body (tables built on the device) 0.0070 s
+NATIVE generic witness at hashline-zk-mr1/private-block-rung-tc-t32-dev/1: built in 0.02 s; max|y_a| 15 max|y_m| 24 max|q8| 8 max|s8| 4 max|g8| 21 max|u16| 5272 max|z16| 646 max|x2| 6389; upper half gate 92.6% act 92.6% nonzero
+GZC device == CPU: development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, honest-witness data, host words), variant split, claim none (round 0 evaluated): 14 rounds equal; CPU body 0.107 s, device body (tables built on the device) 0.0065 s
+GZC device == CPU: development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, honest-witness data, host words), variant split-mat, claim none (round 0 evaluated): 14 rounds equal; CPU body 0.107 s, device body (tables built on the device) 0.0050 s
+GZC device == CPU: development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, honest-witness data, host words), variant split-tail10, claim none (round 0 evaluated): 14 rounds equal; CPU body 0.107 s, device body (tables built on the device) 0.0076 s
+GZC device == CPU: development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, honest-witness data, host words), variant lean, claim none (round 0 evaluated): 14 rounds equal; CPU body 0.107 s, device body (tables built on the device) 0.0107 s
+GZC device == CPU: development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, honest-witness data, host words), variant split, claim given: 14 rounds equal; CPU body 0.122 s, device body (tables built on the device) 0.0078 s
+GZC device == CPU: development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, honest-witness data, host words), variant split-mat, claim given: 14 rounds equal; CPU body 0.122 s, device body (tables built on the device) 0.0075 s
+GZC device == CPU: development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, honest-witness data, host words), variant split-tail10, claim given: 14 rounds equal; CPU body 0.122 s, device body (tables built on the device) 0.0084 s
+GZC device == CPU: development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 18 (n 14, D 4, k 20, honest-witness data, host words), variant lean, claim given: 14 rounds equal; CPU body 0.122 s, device body (tables built on the device) 0.0085 s
+GZC VRAM after development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) honest witness: 1169 MiB in use with 3 pooled buffers; drained 3; 1137 MiB in use after the drain
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 18, D 5, k 21, dense random data, device-resident rows), variant split, claim none (round 0 evaluated): 18 rounds equal; CPU body 0.334 s, device body (tables built on the device) 0.0943 s
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 18, D 5, k 21, dense random data, device-resident rows), variant split-mat, claim none (round 0 evaluated): 18 rounds equal; CPU body 0.334 s, device body (tables built on the device) 0.0705 s
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 18, D 5, k 21, dense random data, device-resident rows), variant split-tail10, claim none (round 0 evaluated): 18 rounds equal; CPU body 0.334 s, device body (tables built on the device) 0.0557 s
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 18, D 5, k 21, dense random data, device-resident rows), variant lean, claim none (round 0 evaluated): 18 rounds equal; CPU body 0.334 s, device body (tables built on the device) 0.1176 s
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 18, D 5, k 21, dense random data, device-resident rows), variant split, claim given: 18 rounds equal; CPU body 0.354 s, device body (tables built on the device) 0.0250 s
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 18, D 5, k 21, dense random data, device-resident rows), variant split-mat, claim given: 18 rounds equal; CPU body 0.354 s, device body (tables built on the device) 0.0312 s
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 18, D 5, k 21, dense random data, device-resident rows), variant split-tail10, claim given: 18 rounds equal; CPU body 0.354 s, device body (tables built on the device) 0.0272 s
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 18, D 5, k 21, dense random data, device-resident rows), variant lean, claim given: 18 rounds equal; CPU body 0.354 s, device body (tables built on the device) 0.0531 s
+GZC VRAM after TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads) dense random: 1365 MiB in use with 3 pooled buffers; drained 3; 1173 MiB in use after the drain
+NATIVE generic witness at hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1: built in 0.18 s; max|y_a| 13 max|y_m| 21 max|q8| 43 max|s8| 42 max|g8| 100 max|u16| 12815 max|z16| 4731 max|x2| 9374; upper half gate 98.2% act 98.2% nonzero
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 18, D 5, k 21, honest-witness data, device-resident rows), variant split, claim none (round 0 evaluated): 18 rounds equal; CPU body 0.426 s, device body (tables built on the device) 0.0656 s
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 18, D 5, k 21, honest-witness data, device-resident rows), variant split-mat, claim none (round 0 evaluated): 18 rounds equal; CPU body 0.426 s, device body (tables built on the device) 0.0819 s
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 18, D 5, k 21, honest-witness data, device-resident rows), variant split-tail10, claim none (round 0 evaluated): 18 rounds equal; CPU body 0.426 s, device body (tables built on the device) 0.0613 s
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 18, D 5, k 21, honest-witness data, device-resident rows), variant lean, claim none (round 0 evaluated): 18 rounds equal; CPU body 0.426 s, device body (tables built on the device) 0.0834 s
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 18, D 5, k 21, honest-witness data, device-resident rows), variant split, claim given: 18 rounds equal; CPU body 0.333 s, device body (tables built on the device) 0.0280 s
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 18, D 5, k 21, honest-witness data, device-resident rows), variant split-mat, claim given: 18 rounds equal; CPU body 0.333 s, device body (tables built on the device) 0.0318 s
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 18, D 5, k 21, honest-witness data, device-resident rows), variant split-tail10, claim given: 18 rounds equal; CPU body 0.333 s, device body (tables built on the device) 0.0297 s
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 18, D 5, k 21, honest-witness data, device-resident rows), variant lean, claim given: 18 rounds equal; CPU body 0.333 s, device body (tables built on the device) 0.0423 s
+GZC VRAM after TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads) honest witness: 1365 MiB in use with 3 pooled buffers; drained 3; 1173 MiB in use after the drain
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, dense random data, device-resident rows), variant split, claim none (round 0 evaluated): 20 rounds equal; CPU body 0.697 s, device body (tables built on the device) 0.1170 s
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, dense random data, device-resident rows), variant split-mat, claim none (round 0 evaluated): 20 rounds equal; CPU body 0.697 s, device body (tables built on the device) 0.1181 s
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, dense random data, device-resident rows), variant split-tail10, claim none (round 0 evaluated): 20 rounds equal; CPU body 0.697 s, device body (tables built on the device) 0.0887 s
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, dense random data, device-resident rows), variant lean, claim none (round 0 evaluated): 20 rounds equal; CPU body 0.697 s, device body (tables built on the device) 0.0509 s
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, dense random data, device-resident rows), variant split, claim given: 20 rounds equal; CPU body 0.689 s, device body (tables built on the device) 0.0267 s
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, dense random data, device-resident rows), variant split-mat, claim given: 20 rounds equal; CPU body 0.689 s, device body (tables built on the device) 0.0262 s
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, dense random data, device-resident rows), variant split-tail10, claim given: 20 rounds equal; CPU body 0.689 s, device body (tables built on the device) 0.0293 s
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, dense random data, device-resident rows), variant lean, claim given: 20 rounds equal; CPU body 0.689 s, device body (tables built on the device) 0.0378 s
+GZC VRAM after TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) dense random: 2101 MiB in use with 3 pooled buffers; drained 3; 1205 MiB in use after the drain
+NATIVE generic witness at hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-block/1: built in 0.75 s; max|y_a| 13 max|y_m| 21 max|q8| 43 max|s8| 55 max|g8| 100 max|u16| 12947 max|z16| 5712 max|x2| 10415; upper half gate 98.1% act 98.1% nonzero
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, honest-witness data, device-resident rows), variant split, claim none (round 0 evaluated): 20 rounds equal; CPU body 0.707 s, device body (tables built on the device) 0.1131 s
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, honest-witness data, device-resident rows), variant split-mat, claim none (round 0 evaluated): 20 rounds equal; CPU body 0.707 s, device body (tables built on the device) 0.1170 s
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, honest-witness data, device-resident rows), variant split-tail10, claim none (round 0 evaluated): 20 rounds equal; CPU body 0.707 s, device body (tables built on the device) 0.0402 s
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, honest-witness data, device-resident rows), variant lean, claim none (round 0 evaluated): 20 rounds equal; CPU body 0.707 s, device body (tables built on the device) 0.0395 s
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, honest-witness data, device-resident rows), variant split, claim given: 20 rounds equal; CPU body 0.676 s, device body (tables built on the device) 0.0267 s
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, honest-witness data, device-resident rows), variant split-mat, claim given: 20 rounds equal; CPU body 0.676 s, device body (tables built on the device) 0.0265 s
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, honest-witness data, device-resident rows), variant split-tail10, claim given: 20 rounds equal; CPU body 0.676 s, device body (tables built on the device) 0.0321 s
+GZC device == CPU: TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) slot 18 (n 20, D 5, k 21, honest-witness data, device-resident rows), variant lean, claim given: 20 rounds equal; CPU body 0.676 s, device body (tables built on the device) 0.0382 s
+GZC VRAM after TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) honest witness: 2101 MiB in use with 3 pooled buffers; drained 3; 1205 MiB in use after the drain
+GZC device == CPU: Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads) slot 18 (n 19, D 5, k 21, dense random data, device-resident rows), variant split, claim none (round 0 evaluated): 19 rounds equal; CPU body 0.409 s, device body (tables built on the device) 0.1277 s
+GZC device == CPU: Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads) slot 18 (n 19, D 5, k 21, dense random data, device-resident rows), variant split-mat, claim none (round 0 evaluated): 19 rounds equal; CPU body 0.409 s, device body (tables built on the device) 0.1367 s
+GZC device == CPU: Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads) slot 18 (n 19, D 5, k 21, dense random data, device-resident rows), variant split-tail10, claim none (round 0 evaluated): 19 rounds equal; CPU body 0.409 s, device body (tables built on the device) 0.0938 s
+GZC device == CPU: Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads) slot 18 (n 19, D 5, k 21, dense random data, device-resident rows), variant lean, claim none (round 0 evaluated): 19 rounds equal; CPU body 0.409 s, device body (tables built on the device) 0.0586 s
+GZC device == CPU: Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads) slot 18 (n 19, D 5, k 21, dense random data, device-resident rows), variant split, claim given: 19 rounds equal; CPU body 0.463 s, device body (tables built on the device) 0.0416 s
+GZC device == CPU: Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads) slot 18 (n 19, D 5, k 21, dense random data, device-resident rows), variant split-mat, claim given: 19 rounds equal; CPU body 0.463 s, device body (tables built on the device) 0.0611 s
+GZC device == CPU: Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads) slot 18 (n 19, D 5, k 21, dense random data, device-resident rows), variant split-tail10, claim given: 19 rounds equal; CPU body 0.463 s, device body (tables built on the device) 0.0472 s
+GZC device == CPU: Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads) slot 18 (n 19, D 5, k 21, dense random data, device-resident rows), variant lean, claim given: 19 rounds equal; CPU body 0.463 s, device body (tables built on the device) 0.0624 s
+GZC VRAM after Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads) dense random: 1621 MiB in use with 3 pooled buffers; drained 3; 1269 MiB in use after the drain
+NATIVE generic witness at hashline-zk-mr1/private-block-llama-3-8b-t32-trained/1: built in 0.72 s; max|y_a| 43 max|y_m| 46 max|q8| 74 max|s8| 93 max|g8| 107 max|u16| 28022 max|z16| 10780 max|x2| 13499; upper half gate 98.2% act 98.2% nonzero
+GZC device == CPU: Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads) slot 18 (n 19, D 5, k 21, honest-witness data, device-resident rows), variant split, claim none (round 0 evaluated): 19 rounds equal; CPU body 0.379 s, device body (tables built on the device) 0.1431 s
+GZC device == CPU: Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads) slot 18 (n 19, D 5, k 21, honest-witness data, device-resident rows), variant split-mat, claim none (round 0 evaluated): 19 rounds equal; CPU body 0.379 s, device body (tables built on the device) 0.1368 s
+GZC device == CPU: Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads) slot 18 (n 19, D 5, k 21, honest-witness data, device-resident rows), variant split-tail10, claim none (round 0 evaluated): 19 rounds equal; CPU body 0.379 s, device body (tables built on the device) 0.0345 s
+GZC device == CPU: Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads) slot 18 (n 19, D 5, k 21, honest-witness data, device-resident rows), variant lean, claim none (round 0 evaluated): 19 rounds equal; CPU body 0.379 s, device body (tables built on the device) 0.0241 s
+GZC device == CPU: Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads) slot 18 (n 19, D 5, k 21, honest-witness data, device-resident rows), variant split, claim given: 19 rounds equal; CPU body 0.420 s, device body (tables built on the device) 0.0238 s
+GZC device == CPU: Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads) slot 18 (n 19, D 5, k 21, honest-witness data, device-resident rows), variant split-mat, claim given: 19 rounds equal; CPU body 0.420 s, device body (tables built on the device) 0.0201 s
+GZC device == CPU: Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads) slot 18 (n 19, D 5, k 21, honest-witness data, device-resident rows), variant split-tail10, claim given: 19 rounds equal; CPU body 0.420 s, device body (tables built on the device) 0.0261 s
+GZC device == CPU: Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads) slot 18 (n 19, D 5, k 21, honest-witness data, device-resident rows), variant lean, claim given: 19 rounds equal; CPU body 0.420 s, device body (tables built on the device) 0.0283 s
+GZC VRAM after Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads) honest witness: 1621 MiB in use with 3 pooled buffers; drained 3; 1269 MiB in use after the drain
+ok
+test private_block::gpu_zc_tests::gzc_device_seeded_receipts_are_byte_identical ... NATIVE generic witness at hashline-zk-mr1/private-block-rung-tc-t32-dev/1: built in 0.01 s; max|y_a| 15 max|y_m| 24 max|q8| 8 max|s8| 4 max|g8| 21 max|u16| 5272 max|z16| 646 max|x2| 6389; upper half gate 92.6% act 92.6% nonzero
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+GZC VRAM after development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) prove_core, slot 18 on the CPU: 1461 MiB in use with 10 pooled buffers; drained 10; 1269 MiB in use after the drain
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+GZC VRAM after development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) prove_core, slot 18 on the device: 1461 MiB in use with 8 pooled buffers; drained 8; 1269 MiB in use after the drain
+GZC seeded proof-byte gate development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads): 7591336 B, blake3 16045127df5e4805 both ways; prove_core wall with slot 18 on the CPU 1.12 s, with slot 18 on the device 1.00 s (the device arm's first body per process includes the NVRTC compile)
+NATIVE generic witness at hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1: built in 0.18 s; max|y_a| 13 max|y_m| 21 max|q8| 43 max|s8| 42 max|g8| 100 max|u16| 12815 max|z16| 4731 max|x2| 9374; upper half gate 98.2% act 98.2% nonzero
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+GZC VRAM after TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads) prove_core, slot 18 on the CPU: 2357 MiB in use with 12 pooled buffers; drained 12; 1269 MiB in use after the drain
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+GZC VRAM after TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads) prove_core, slot 18 on the device: 2357 MiB in use with 8 pooled buffers; drained 8; 1269 MiB in use after the drain
+GZC seeded proof-byte gate TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads): 11627208 B, blake3 df35571c6868694f both ways; prove_core wall with slot 18 on the CPU 2.24 s, with slot 18 on the device 1.60 s (the device arm's first body per process includes the NVRTC compile)
+NATIVE generic witness at hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-block/1: built in 0.59 s; max|y_a| 13 max|y_m| 21 max|q8| 43 max|s8| 55 max|g8| 100 max|u16| 12947 max|z16| 5712 max|x2| 10415; upper half gate 98.1% act 98.1% nonzero
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+GZC VRAM after TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) prove_core, slot 18 on the CPU: 4181 MiB in use with 11 pooled buffers; drained 11; 1301 MiB in use after the drain
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+GZC VRAM after TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads) prove_core, slot 18 on the device: 4181 MiB in use with 7 pooled buffers; drained 7; 1301 MiB in use after the drain
+GZC seeded proof-byte gate TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads): 23049192 B, blake3 8a898f4379569d5d both ways; prove_core wall with slot 18 on the CPU 4.95 s, with slot 18 on the device 4.12 s (the device arm's first body per process includes the NVRTC compile)
+NATIVE generic witness at hashline-zk-mr1/private-block-llama-3-8b-t32-trained/1: built in 0.61 s; max|y_a| 43 max|y_m| 46 max|q8| 74 max|s8| 93 max|g8| 107 max|u16| 28022 max|z16| 10780 max|x2| 13499; upper half gate 98.2% act 98.2% nonzero
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+GZC VRAM after Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads) prove_core, slot 18 on the CPU: 3413 MiB in use with 14 pooled buffers; drained 14; 1301 MiB in use after the drain
+[ZK60] keyed gpu zk commit accepted
+[ZK60] keyed gpu zk commit accepted
+GZC VRAM after Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads) prove_core, slot 18 on the device: 3413 MiB in use with 8 pooled buffers; drained 8; 1301 MiB in use after the drain
+GZC seeded proof-byte gate Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads): 14856216 B, blake3 106495b104e902be both ways; prove_core wall with slot 18 on the CPU 3.41 s, with slot 18 on the device 2.66 s (the device arm's first body per process includes the NVRTC compile)
+ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 572 filtered out; finished in 355.21s
+

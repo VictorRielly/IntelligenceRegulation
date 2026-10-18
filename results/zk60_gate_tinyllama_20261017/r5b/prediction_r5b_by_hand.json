@@ -1,0 +1,9 @@
+{
+ "written_utc": "2026-10-18T00:10Z, before the R5b build or any R5b bundle exists",
+ "what_this_is": "the privacy-gate lane's hand prediction for round 5 (R5b). Not a privacy statement.",
+ "basis": "R5b vs R5 (read 00:08-00:09): run.rs adds the Llama-3-8B T64/T128 run profiles and a bounded file reader (r4_B), prove_run_with unchanged; run_capture.rs adds the N-r4-d pins (SHARED 29, OWN 17); shape.rs / trained_block.rs / trained_statement.rs / private_block.rs change for the 8B profiles, r4_A, C-R4, P-5, P-6, P-7 and P-1. Expected: no transcript change at the TinyLlama T32 profile.",
+ "gr4": "all three stage-47 tests PASS as on R5 (same counts: 38,455,872 bytes per block, 1,007,616 per boundary)",
+ "captures": "parity bit-exact; source_pins 46 per bundle (17 own + 29 shared); manifest files L1 4, L2 5, L22 25; L22 statement identity 68ad19c8... unchanged",
+ "failing_first_probe_with_frozen_v5": "the run-layer pins run.rs and run_capture.rs REFUSE (unread digests), so v5 SUSPENDS every stage (P-2 working as designed); terminals/mask tables lack R5b's shape.rs digest; the three N-r4-d shared files are not in v5's tables (not checked)",
+ "gate_v6": "every figure equal to the tree-A records for the same layers and input apart from the sampled-column class; export, schema, G-10 all ok"
+}

@@ -6,3 +6,8 @@
 ladder8b T64 gpu verify exit 0
 T64 chunked peak VRAM 737 MiB
 [zk60-guard 16:10:03] START r5-ladder8b-T128-gpu-chunked class=gpu need=5G cap=8G enforce=cgroup+watchdog waited=0s run=8cae3b639d53
+[zk60-guard 16:18:38] END r5-ladder8b-T128-gpu-chunked exit=0 child_wall=515s peak_rss=3.66G min_avail=7.92G peak_vram=1345MiB
+[zk60-guard 16:18:38] START r5-ladder8b-verify-T128-gpu-chunked class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=6f3e4cffebc4
+[zk60-guard 16:18:59] END r5-ladder8b-verify-T128-gpu-chunked exit=0 child_wall=21s peak_rss=1.15G min_avail=9.92G
+ladder8b T128 gpu verify exit 0
+T128 chunked done; peak VRAM 1345

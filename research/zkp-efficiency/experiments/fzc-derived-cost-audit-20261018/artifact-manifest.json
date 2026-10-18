@@ -1,0 +1,207 @@
+[
+  {
+    "path": "audit-attempt-source-movement.json",
+    "bytes": 858,
+    "sha256": "ef6134f2571519253e631f81989715ef1809c2773c3dd62f05a8faf2c0471190"
+  },
+  {
+    "path": "audit-result.json",
+    "bytes": 879,
+    "sha256": "6662ba324af005449c4cb09b9bc21f1bc90c8d83d429a907398764c31135cffe"
+  },
+  {
+    "path": "audit.py",
+    "bytes": 5807,
+    "sha256": "ef116bda27c4ebcbda506ba98a02b8e1e39f45267a6d79eac6dd63ed8b05bcef"
+  },
+  {
+    "path": "candidate.hpp",
+    "bytes": 2059,
+    "sha256": "2c587f284b2bab280658bb075807e9113fc4e31fd2ea133caa2f01dc4605033a"
+  },
+  {
+    "path": "captured.hpp",
+    "bytes": 2706,
+    "sha256": "47124ce3967066c5755dd0ee41dda696de2a363a34a5368337ca774821381f82"
+  },
+  {
+    "path": "commands.json",
+    "bytes": 664,
+    "sha256": "662c28df58225b0c20a4fbe22b68b2907d78a26a96ecfc900467ce2ef28f40ef"
+  },
+  {
+    "path": "compile.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "final-audit.json",
+    "bytes": 665,
+    "sha256": "255e6cdf3eaf60bfeccb10fceb9ab0367694590f6351227607d3628f6cc48936"
+  },
+  {
+    "path": "isolated.so",
+    "bytes": 25608,
+    "sha256": "366683a9dfe0a387984517ab00312909afbb1f561f6f68c973121b5e5f586d94"
+  },
+  {
+    "path": "native/gpu__cuda.rs",
+    "bytes": 251530,
+    "sha256": "98b1185af57cbcf92d25604ae8bbf565a0974e6cf2dbda126046edb38c7be911"
+  },
+  {
+    "path": "native/gpu__fzc.rs",
+    "bytes": 15913,
+    "sha256": "af3cd6ac97f85347ed95ebac732c920a18ab921013be3ec31657e28cfb35ecc1"
+  },
+  {
+    "path": "native/gpu__fzc_kernels.cu",
+    "bytes": 45036,
+    "sha256": "2a836db35234934355cef44ec19fbf3d2898b8de7f02ff8add3d525b64c484aa"
+  },
+  {
+    "path": "native/hashline__src__private_block__layout.rs",
+    "bytes": 64489,
+    "sha256": "fcf9dda4e507d2a347f786ddc537feff3ac57779abae88cea91ee48d4b34c855"
+  },
+  {
+    "path": "native/hashline__src__private_block__pad.rs",
+    "bytes": 56654,
+    "sha256": "4f0c11c50503dd8cb4fb38d2b5be5e4f08ec310ee916b83a357f0283ede9eb42"
+  },
+  {
+    "path": "native/private_block__argument.rs",
+    "bytes": 109208,
+    "sha256": "9e70bbe558d7771b16f2a6f7f526ad3e548895d32ed0f6b897b85d0dd48b29b5"
+  },
+  {
+    "path": "owner-metrics.json",
+    "bytes": 16382,
+    "sha256": "d1441ee0491d2bb02cc469bc46bce49d25d703477fbe12186bb8ec71e8ce7d6d"
+  },
+  {
+    "path": "owner-update/gpu__cuda.rs",
+    "bytes": 258588,
+    "sha256": "dcc0e4bcd76c009827d30d8b1547e043118619948f59e63e75b132c5e6a38629"
+  },
+  {
+    "path": "owner-update/gpu__cuda.rs.diff",
+    "bytes": 16757,
+    "sha256": "bc64dad528bf2d4a190faefaba202938fe6753fe0e7569b0bcfefd83bfea96b5"
+  },
+  {
+    "path": "owner-update/gpu__fzc_kernels.cu",
+    "bytes": 50114,
+    "sha256": "7109e9cbba958876db03f538715258d07d2976c12b3959a293d2371c64bf356e"
+  },
+  {
+    "path": "owner-update/gpu__fzc_kernels.cu.diff",
+    "bytes": 11359,
+    "sha256": "16f3e68a706f05c35d63142ac311f8d1f85a1f6d9fe4dd887471db5c5370010e"
+  },
+  {
+    "path": "owner-update/pins.json",
+    "bytes": 966,
+    "sha256": "f3cad35bbfa2c2bb4fec02330eaf1bab002b979ede1066024dac52a78b64069f"
+  },
+  {
+    "path": "owner_audit.py",
+    "bytes": 4897,
+    "sha256": "2b1e4d352cce3a574ea5ef277e2fe052f24e90551849d16563f943e72d455493"
+  },
+  {
+    "path": "reference.py",
+    "bytes": 1963,
+    "sha256": "00860356f87ebe3b55e6dc82a6b2cc4215616c16124ab70995caf1e2b9866427"
+  },
+  {
+    "path": "result.json",
+    "bytes": 7029,
+    "sha256": "03ab2b8275b3cd7959f12d2532c1ede5635b54dc3a5f757381a2f51bea1b105e"
+  },
+  {
+    "path": "run.py",
+    "bytes": 9704,
+    "sha256": "fd8f98c6e6c2b27da4c4a52b551928966978a4c68594cfa8c0052b10ca27da3a"
+  },
+  {
+    "path": "search-log.json",
+    "bytes": 555,
+    "sha256": "7209c22822fbe4f2086abe676bfbd32e08490d39c4c17adfb155b3b15ec9e802"
+  },
+  {
+    "path": "shim.cpp",
+    "bytes": 1590,
+    "sha256": "bd6882d4790ab7c2acdd5e60870ffe5637f16e236bf5bf91459d1579249638e9"
+  },
+  {
+    "path": "source-pins.json",
+    "bytes": 1501,
+    "sha256": "2b6ae43424730d0d917e9700f2d25888721a3e33cd9567aac812031dc060b85a"
+  },
+  {
+    "path": "source-records.json",
+    "bytes": 9878,
+    "sha256": "9ea5733af5a4688d09ad9fedabd90b6b1011e0a835634005bd11432808fa3a92"
+  },
+  {
+    "path": "startup/AGENDA.md",
+    "bytes": 5603,
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139"
+  },
+  {
+    "path": "startup/CLAUDE.md",
+    "bytes": 14089,
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6"
+  },
+  {
+    "path": "startup/FINDINGS.md",
+    "bytes": 520995,
+    "sha256": "38c89df64106ee907f03e8303308e0dbca17d4dfe45fc4eba1af589bab5d33fd"
+  },
+  {
+    "path": "startup/MVP_STATUS.md",
+    "bytes": 646,
+    "sha256": "d343c34dff05a2caee67034084ae61bd926c396f004d4b240bd30b800e05c208"
+  },
+  {
+    "path": "startup/PROGRESS.md",
+    "bytes": 2285,
+    "sha256": "3d3a8590dc0a35ba7240a4b979db040577eb2b6d0b72ec712b92e9688922fdbd"
+  },
+  {
+    "path": "startup/STATE.md",
+    "bytes": 6050,
+    "sha256": "71c2985d5cd8070e9ddd6ac4ca4bdc4fe70be50b6fe322f78d3c9978cc6e4f31"
+  },
+  {
+    "path": "startup/ZK60_CODEX_FABLE_COORDINATION.md",
+    "bytes": 64889,
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f"
+  },
+  {
+    "path": "startup/ZK60_DECISIONS.md",
+    "bytes": 79106,
+    "sha256": "41c49834da68d4ef77786f0368c9b269b292045c63db613171a52d23aa9306d4"
+  },
+  {
+    "path": "startup/ZK60_THROUGHPUT_TARGET.md",
+    "bytes": 4941,
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53"
+  },
+  {
+    "path": "startup/manifest.json",
+    "bytes": 2406,
+    "sha256": "4413ae4f300a5e8733ad4020e84430c8bb8a5cd20ac8f53c35d694b3dfa43897"
+  },
+  {
+    "path": "startup/source-index.json",
+    "bytes": 70082,
+    "sha256": "41fa3df92026e244c836908a20e5001b307e168cac288b30df7b3b7b694a5700"
+  },
+  {
+    "path": "startup/sources.jsonl",
+    "bytes": 489938,
+    "sha256": "839e04fe05e2ffd70ffa25729daa00a12d05766df1dc27d2bd46aeab241134cf"
+  }
+]

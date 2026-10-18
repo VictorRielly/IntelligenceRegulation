@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "checked_at_utc": "2026-10-18T01:31:24.811194+00:00",
+  "source_count": 383,
+  "source_prefix_preserved": true,
+  "findings_prefix_preserved": true,
+  "main_and_audit_pass": true,
+  "run_log_matches_result": true,
+  "native_primitive_extraction_exact": true,
+  "reports_exist": true,
+  "production_modifications_by_lane": false
+}

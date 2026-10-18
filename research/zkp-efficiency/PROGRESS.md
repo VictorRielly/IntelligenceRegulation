@@ -1,30 +1,43 @@
 # ZKP efficiency progress
 
-Cycle 0069 — `20261017T222105Z-d6d7aa4d`, 2026-10-17 UTC.
+Cycle 0074 — `20261018T032105Z-8464ee28`, 2026-10-18 UTC.
 
-**No proving speedup found.** A Rust padding experiment passes 94 fixtures,
-23 controls and an independent 5,185-check audit. Native MSB folding mixes
-padding immediately if column bits come first. Putting row bits first avoids
-34.3% of hypothetical base-round pairs at counted 8B T32 sizes. Both layouts
-match their own dense polynomials; native proof compatibility and a complete
-private lookup protocol remain open. Main 2.038 s including compile/oracles;
-compiler peak 131.4 MiB; one CPU thread, no GPU/proof job.
+**No native proving speedup measured.** An affine table plus four bilinear
+terms matches D zero-check's eleven clauses in 96 synthetic CPU fixtures,
+including 9,840 comparisons with the captured Rust expression. An independent
+check passes 1,536 linear coefficients, 96 bilinear coefficients and 396 full
+round sums. Main experiment: 3.024 seconds; audit: 0.499 seconds; one Core
+Ultra 9 185H CPU thread, no GPU.
 
-Naive index/factor payload sums to 625.625 MiB across four groups before
-scratch; public weights alone sum to 178.75 MiB. These are aggregate counts,
-not peak memory. Masks stay over the whole cube; zero Boolean products do not
-justify skipping factor support. Next: implicit equality/support factors.
-[Unapplied handoff](handoffs/20261017-ragged-logup-rounds.md).
+The candidate saves counted clause arithmetic after charging preparation,
+construction and folds, while adding an 8 MiB table at N=2^19. Original tables
+and final checks remain. A small case with a known initial claim loses 63
+scalar products. Counts establish no runtime improvement. Even deleting the
+entire D phase in the retained 1.1B run would raise diagnostic total throughput
+only from 0.735 to 0.869 positions/s; the 8B effect is unknown.
 
-Carried verified 8B T32 CPU baseline: one cold pass, 171.578 s application /
-171.641 s process, about 0.1865 diagnostic positions/s. Witness 21.376 s within
-156.143 s inclusive proving; serialization unisolated. Partial startup 8.943%.
-Fresh check 26.491 s plus 13.165 s load. Steady rate and trained-shape privacy
-acceptance remain open. Owner R5b changes startup, so older clocks need
-remeasurement; owner whole-prover GPU work remains higher priority.
+The unapplied [handoff](handoffs/20261018-dzc-affine-aggregate.md) targets
+`SC_DZC` and `SumcheckRounds`. Real trained table bindings, native byte/refusal,
+RNG/privacy gates and enclosing timings remain. Next: inspect D's actual
+lookup, host and final-check dependencies to determine whether the extra
+table can avoid any original reads. Owner round 4 device gates pass, but no
+new enclosing stack result was credited here.
 
-New target proofs/passes/positions: **0/0/0**. No resident repeats, long prefill
-or decode. >=50/s private 8B GPU target remains unachieved. Eight LIVE primary
-records added, including October SP1 changes and older accumulation leads.
-[Dated report with clocks, sources and rankings](progress/20261017T222105Z-d6d7aa4d.md).
-Production, runtime and Git untouched. Saved reports do not establish delivery.
+Carried 8B T128 CPU baseline: one cold pass, 32 blocks, 606.598 seconds total,
+diagnostic 0.211 positions/s. Prove 501.126 seconds includes 122.694 seconds
+of rebuilt witnesses. Seal 105.287 seconds overlaps loading and witnesses;
+its 17.357% share is a phase fraction. Startup and serialization are not
+isolated. Fresh verifier: 14.126 seconds load + 43.902 seconds check.
+
+Six LIVE source records cover hardware ZeroCheck, EPFL, Sage, older recursive
+GKR training proofs, ROSETTA and Hekate engine releases/privacy analysis.
+No drop-in full-stack improvement found. Source dates, license scope and
+fetch failures are retained.
+
+New target proofs/passes/positions: **0/0/0**. Target steady/total rates,
+startup fraction and witness/proof/serialization/verification clocks remain
+unmeasured; device none. No long-context prefill, resident series or decode.
+The complete private 8B ≥50-token/s target remains unachieved. Privacy and
+fresh-mask requirements are unchanged.
+
+[Dated report](progress/20261018T032105Z-8464ee28.md). Saved reports do not establish delivery.

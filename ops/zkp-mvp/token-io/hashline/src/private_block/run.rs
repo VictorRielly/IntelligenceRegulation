@@ -95,6 +95,24 @@ pub(crate) const RUN_PROFILE_RUNG_TC: &str = "hashline-zk-mr1/private-run-rung-t
 /// (i), stage IN + L blocks + stage OUT). A NEW profile string under D17 — its
 /// own transcript; a run under it is built by `token_io::run` only.
 pub(crate) const RUN_PROFILE_TOKEN_IO_RUNG_TC: &str = "hashline-zk-mr1/private-token-io-run-rung-tc-t32-public-row-dev/1";
+/// TOKEN I/O R2 (2026-10-17): the token-I/O run over the trained TinyLlama-
+/// 1.1B T32 blocks (DESIGN v3 rung R2: public-row variant, mode (i), V =
+/// 32,000 padded to 2^15, multi-row stage planes). A NEW profile string under
+/// D17; built by `token_io::run` only.
+/// (The string is chosen so that its transcript-constructor input, 98 bytes,
+/// equals the length of no other hash-input kind of the run and is not one
+/// byte from any: stage 25's W-2 census; the first choice, 76 characters,
+/// gave an 88-byte constructor equal to the `schedule` absorb.)
+pub(crate) const RUN_PROFILE_TOKEN_IO_TINYLLAMA_T32: &str = "hashline-zk-mr1/private-token-io-run-tinyllama-1.1b-t32-trained-statement-public-row/1";
+/// TOKEN I/O R3 (2026-10-18): the token-I/O run over the trained Llama-3-8B
+/// T32 blocks (DESIGN v3 rung R3: public-row variant, mode (i), V = 128,256
+/// padded to 2^17, d = 4,096, BOS 128,000). A NEW profile string under D17;
+/// its transcript-constructor input (94 bytes) equals the length of no other
+/// hash-input kind and is one byte from none (stage 25's W-2 census).
+pub(crate) const RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32: &str = "hashline-zk-mr1/private-token-io-run-llama-3-8b-t32-trained-statement-public-row/1";
+/// every token-I/O run profile this build registers (a blocks-only run may
+/// carry none of them)
+pub(crate) const TOKEN_IO_RUN_PROFILES: [&str; 3] = [RUN_PROFILE_TOKEN_IO_RUNG_TC, RUN_PROFILE_TOKEN_IO_TINYLLAMA_T32, RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32];
 
 /// One run's geometry: the per-block shape, how many blocks, and the run's own
 /// profile id. A run is a NEW profile under D17 — its own transcript, its own
@@ -129,6 +147,8 @@ fn registered_block_shape(profile: &str, sh: &Shape) -> Option<Result<Shape, Str
         RUN_PROFILE_M125 => Ok(Shape::m125()),
         RUN_PROFILE_RUNG_TC => Shape::rung_tc(&cal),
         RUN_PROFILE_TOKEN_IO_RUNG_TC => Shape::rung_tc(&cal),
+        RUN_PROFILE_TOKEN_IO_TINYLLAMA_T32 => Shape::tinyllama_trained(32, &cal, sh.f_e),
+        RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32 => Shape::llama3_8b_t32_trained(&cal, sh.f_e),
         RUN_PROFILE_TINYLLAMA_T32_TRAINED => Shape::tinyllama_trained(32, &cal, sh.f_e),
         RUN_PROFILE_TINYLLAMA_T64_TRAINED => Shape::tinyllama_trained(64, &cal, sh.f_e),
         RUN_PROFILE_TINYLLAMA_T128_TRAINED => Shape::tinyllama_trained(128, &cal, sh.f_e),
@@ -327,7 +347,7 @@ impl RunStatement {
         }
         // TOKEN I/O R1 LANE: a token-I/O run profile is built by
         // `token_io::run` only; a blocks-only run may not carry its string
-        if rs.profile == RUN_PROFILE_TOKEN_IO_RUNG_TC {
+        if TOKEN_IO_RUN_PROFILES.contains(&rs.profile) {
             return Err(format!("private run: {} is a token-I/O run profile; a blocks-only run statement may not carry it", rs.profile));
         }
         // RULING CS-4: the endpoint policy against the run's shape

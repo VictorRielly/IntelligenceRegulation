@@ -37,19 +37,29 @@ pub(crate) const H_GROUPS: usize = 4;
 /// `input_b`): every domain at the stage row width (the P-3 lift)
 pub(crate) fn layout(sh: &Shape, tp: &TokenProfile) -> StageLayout {
     let lt = tp.tier.stage_log_n;
+    let (lti, lvoc) = (tp.ti_log(), tp.voc_log());
     let sched = StageSched {
         label: "stage IN",
         slots: vec![
             SlotSpec { name: "IN-00 IO-in: token endpoint = supp_T tok (whole padded plane)", main: clog2(tp.in_ep_words()), ext: 1, degree: 3, kind: SlotKind::Standalone, a_sites: 1, h_sites: 0, io_sites: 1 },
-            SlotSpec { name: "IN-01 query zero-check: LogUp + BOS (own mu_bos) + pad, fresh mu each", main: lt, ext: 1, degree: 4, kind: SlotKind::Standalone, a_sites: 1, h_sites: 1, io_sites: 1 },
-            SlotSpec { name: "IN-02 table zero-check: h_tab (alpha - tau) = m + pad, fresh mu each", main: lt, ext: 1, degree: 4, kind: SlotKind::Standalone, a_sites: 1, h_sites: 1, io_sites: 0 },
+            SlotSpec { name: "IN-01 query zero-check: LogUp + BOS (own mu_bos) + pad, fresh mu each", main: lti, ext: 1, degree: 4, kind: SlotKind::Standalone, a_sites: 1, h_sites: 1, io_sites: 1 },
+            SlotSpec { name: "IN-02 table zero-check: h_tab (alpha - tau) = m + pad, fresh mu each", main: lvoc, ext: 1, degree: 4, kind: SlotKind::Standalone, a_sites: 1, h_sites: 1, io_sites: 0 },
             SlotSpec { name: "IN-03 ZS zero-sum row", main: lt, ext: 1, degree: 2, kind: SlotKind::Standalone, a_sites: 0, h_sites: 1, io_sites: 0 },
         ],
         hosts: vec![],
         // [A, H, In = the input token endpoint, Out = B_in]
         row_log: [lt, lt, tp.tier.ep_log_n, sh.endpoint_log_n],
     };
-    StageLayout::new(tp.tier.stage_params(), vec![lt; 2], vec![lt; 3], vec![1, -1, 1], H_U, sched)
+    // A = [tok on Ti, m on Voc]; H = [h_q on Ti, h_tab on Voc, the zero-sum pair u (one row)]
+    StageLayout::new(tp.tier.stage_params(), vec![lti, lvoc], vec![lti, lvoc, lt], vec![1, -1, 1], H_U, sched)
+}
+
+/// The stage's LogUp size for the derived whole-run figure (D27; MEMO_G02):
+/// `(queries, distinct table rows)` = one query per position of `h_q`'s
+/// (lifted) domain, and the `V` distinct compressed rows (padded table rows
+/// repeat row 0).
+pub(crate) fn logup_size(lay: &StageLayout, tp: &TokenProfile) -> (u128, u128) {
+    (1u128 << lay.h_log[H_Q], tp.v as u128)
 }
 
 /// What the stage IN prover commits on `A_in` (and, for the tamper controls,
@@ -82,14 +92,14 @@ pub(crate) fn honest_inputs(tp: &TokenProfile, tables: &TokenTables, tokens: &[u
             return Err("token I/O stage IN: position 0 is not the profile's BOS (refused before any commitment)".into());
         }
     }
-    let sn = tp.tier.stage_n();
-    let mut tok = vec![Fp::ZERO; sn];
-    let mut mult = vec![Fp::ZERO; sn];
+    let (ti_n, voc_n) = (1usize << tp.ti_log(), 1usize << tp.voc_log());
+    let mut tok = vec![Fp::ZERO; ti_n];
+    let mut mult = vec![Fp::ZERO; voc_n];
     let mut plane = vec![0i16; tp.t_pad * tp.d_pad];
     for (t, id) in tokens.iter().enumerate() {
         tok[t] = Fp::new(*id);
         let v = *id as usize;
-        if v < sn {
+        if v < voc_n {
             mult[v] = mult[v].add(Fp::ONE);
         }
         if v < tp.v {
@@ -133,14 +143,16 @@ fn supp(len: usize, size: usize) -> Vec<Fp2> {
 /// `tau(v)` for every position of the lifted vocabulary cube: true rows
 /// `v + beta E~(v, r) + g`, padded rows repeat row 0 (DESIGN 2.3: `v' = 0`)
 pub(crate) fn tau_table(tp: &TokenProfile, ef: &[Fp2], beta: Fp2, g_emb: Fp2) -> Vec<Fp2> {
-    (0..tp.tier.stage_n()).map(|v| if v < tp.v { k(v as i64).add(beta.mul(ef[v])).add(g_emb) } else { beta.mul(ef[0]).add(g_emb) }).collect()
+    (0..1usize << tp.voc_log()).map(|v| if v < tp.v { k(v as i64).add(beta.mul(ef[v])).add(g_emb) } else { beta.mul(ef[0]).add(g_emb) }).collect()
 }
 
 pub(crate) fn define(slot: usize, cx: &InCtx, tr: &mut Transcript) -> Result<StageSlotDef, String> {
     let (lay, tp) = (cx.lay, cx.tp);
     let mut b = SB::new(lay, slot);
     let (alpha, beta, g_emb) = (cx.alpha, cx.beta, cx.g_emb);
-    let (tl, sn) = (lay.log_n, lay.n);
+    // the position domain Ti (IO-in, QZC), the vocabulary domain Voc (TZC)
+    let (tl, sn) = (tp.ti_log(), 1usize << tp.ti_log());
+    let (lv, vn) = (tp.voc_log(), 1usize << tp.voc_log());
     let t_bits = clog2(tp.t_pad);
     match slot {
         // D17 rule 1: over the endpoint's WHOLE padded plane, with the public
@@ -184,11 +196,11 @@ pub(crate) fn define(slot: usize, cx: &InCtx, tr: &mut Transcript) -> Result<Sta
             b.finish(Box::new(poly), vec![])
         }
         SI_TZC => {
-            let tau = tr.challenge_fp2_vec(tl);
+            let tau = tr.challenge_fp2_vec(lv);
             let mu = nonzero(tr.challenge_fp2_vec(2))?;
             let zeta = nonzero(tr.challenge_fp2_vec(1))?[0];
             let i_eq = b.eq(&tau, 0);
-            let i_supp = b.public(supp(tp.v, sn));
+            let i_supp = b.public(supp(tp.v, vn));
             let i_tau = b.public(cx.tau_tab.clone());
             let i_m = b.a(A_MULT)?;
             let i_h = b.h(H_TAB)?;
@@ -200,7 +212,7 @@ pub(crate) fn define(slot: usize, cx: &InCtx, tr: &mut Transcript) -> Result<Sta
             b.finish(Box::new(poly), vec![])
         }
         SI_ZS => {
-            let i1 = b.public(vec![Fp2::ONE; sn]);
+            let i1 = b.public(vec![Fp2::ONE; 1usize << lay.h_log[H_U]]);
             let iu = b.h(H_U)?;
             b.finish(Box::new(move |v: &[Fp2]| v[i1].mul(v[iu])), vec![])
         }
@@ -271,8 +283,9 @@ pub(crate) fn prove(
     tr: &mut Transcript,
     tag: &zkp_core::hashtag::HashTag,
 ) -> Result<InProved, String> {
-    let (n, sn) = (lay.n, lay.n);
-    if wit.tok.len() != sn || wit.mult.len() != sn {
+    let n = lay.n;
+    let (ti_n, voc_n) = (1usize << tp.ti_log(), 1usize << tp.voc_log());
+    if wit.tok.len() != ti_n || wit.mult.len() != voc_n || lay.a_log != [tp.ti_log(), tp.voc_log()] {
         return Err("token I/O stage IN: witness shape".into());
     }
     if b_plane.len() != b_spec.len() || b_plane.len() != tp.t_pad * tp.d_pad {
@@ -291,8 +304,8 @@ pub(crate) fn prove(
     let params = lay.params;
     let zko = ZkOpts::standard(&params);
     let mut a_data = vec![Fp::ZERO; lay.a_rows * n];
-    a_data[lay.a_off[A_TOK]..lay.a_off[A_TOK] + sn].copy_from_slice(&wit.tok);
-    a_data[lay.a_off[A_MULT]..lay.a_off[A_MULT] + sn].copy_from_slice(&wit.mult);
+    a_data[lay.a_off[A_TOK]..lay.a_off[A_TOK] + ti_n].copy_from_slice(&wit.tok);
+    a_data[lay.a_off[A_MULT]..lay.a_off[A_MULT] + voc_n].copy_from_slice(&wit.mult);
     for x in &mut a_data[lay.a_mask_base * n..] {
         *x = rng.fp();
     }
@@ -310,7 +323,7 @@ pub(crate) fn prove(
     let tau_tab = tau_table(tp, &ef, beta, g_emb);
     // H_in
     let e_r = eq_table_msb(&r_emb);
-    let mut h_q = vec![Fp2::ZERO; sn];
+    let mut h_q = vec![Fp2::ZERO; ti_n];
     for t in 0..tp.tokens {
         if wit.hq_zero.contains(&t) {
             continue;
@@ -320,8 +333,8 @@ pub(crate) fn prove(
         let q = Fp2::from_base(wit.tok[t]).add(beta.mul(xr)).add(g_emb);
         h_q[t] = inv_or_refuse(alpha.sub(q))?;
     }
-    let mut h_tab = vec![Fp2::ZERO; sn];
-    for v in 0..sn {
+    let mut h_tab = vec![Fp2::ZERO; voc_n];
+    for v in 0..voc_n {
         if !wit.mult[v].is_zero() {
             h_tab[v] = inv_or_refuse(alpha.sub(tau_tab[v]))?.mul_base(wit.mult[v]);
         }

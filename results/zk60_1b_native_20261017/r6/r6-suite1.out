@@ -1,0 +1,9 @@
+/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r6/manifest_r6-suite1.json: 219 files, tree 83f1fdcbdcda3687815a76d5dc7714bf6b49d413ccfd9bc5b595bd898406cc33
+[zk60-guard 19:19:20] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 19:20:21] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 19:21:21] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 19:22:21] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 19:23:21] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 19:24:10] START r6-suite1 class=cpu need=4.5G cap=8G enforce=cgroup+watchdog waited=289s run=febd2220faa2
+[zk60-guard 19:35:45] END r6-suite1 exit=0 child_wall=695s peak_rss=4.94G min_avail=8.03G
+suite r6-suite1 exit 0

@@ -23,7 +23,11 @@
 //! through `gpu::declined`, which panics under `HL_GPU_REQUIRED=1`.
 //! `HL_GZC_CHECK=1` additionally runs the CPU body from the same transcript
 //! state and asserts equality (shadow mode). `HL_GZC_PROFILE=1` synchronises
-//! after every kernel and prints a per-sumcheck phase/bytes line.
+//! after every kernel and prints a per-sumcheck phase/bytes line. Kernel
+//! variants (same values): `HL_GZC_SPLIT` (default 1: the term-group split,
+//! round 2), `HL_GZC_LEAN` (default 1 among the per-pair kernels),
+//! `HL_GZC_FUSED` (default 1), `HL_GZC_TAIL_LOG=t` (rounds over at most 2^t
+//! entries on the host; 0 = never).
 //!
 //! Nothing here touches a transcript, a generator or a committed buffer; the
 //! parameters it carries are Fiat-Shamir challenges and shape constants, all
@@ -279,7 +283,8 @@ impl FzcDesc {
         let a = |j: usize| v[T_A + j];
         let base = |c: Fp2| c; // the Fp2 constants with c1 = 0
         let den = |k: usize| self.alpha.sub(self.lk_cst[k].add(a(LK_PLANES[k]).mul_base(self.lk_coef[k])));
-        let d: Vec<Fp2> = (0..9).map(den).collect();
+        // an array, not a Vec: the host tail (K4) calls this per point
+        let d: [Fp2; 9] = std::array::from_fn(den);
         let mu = &self.mu;
         let mut helper = Fp2::ZERO;
         for k in 0..4 {
@@ -328,6 +333,12 @@ pub enum FzcSrc<'a> {
     Eq { point: &'a [Fp2], start: usize },
     /// a host table (a public payload, or an already built table), uploaded
     Host(&'a [Fp2]),
+    /// [round 2, K2] a PUBLIC table that is a pure function of `key` (the
+    /// caller hashes the full shape, the slot, the table index and the cube
+    /// size into it): kept resident on the device per process and copied
+    /// device-to-device on later uses; uploaded again whenever a sample of
+    /// its entries differs from the cached copy's
+    Public { v: &'a [Fp2], key: [u8; 32] },
 }
 
 /// (masked rounds, challenges, finals) — `zk::masked_prove_rounds`'s output
@@ -357,7 +368,7 @@ pub fn prove(
             return Err(format!("fzc: degree {degree} (the kernel has 4 and 5)"));
         }
         let prm = desc.params()?;
-        let mut ev = super::cuda::DevFzcRounds::new(srcs, n, degree, &prm, desc.supp.is_some(), claim)?;
+        let mut ev = super::cuda::DevFzcRounds::new(srcs, n, degree, &prm, desc.supp.is_some(), claim, desc)?;
         let mut tr2 = crate::transcript::Transcript::clone_state(tr);
         let out = crate::zk::masked_prove_rounds(&mut ev, mask, c, &mut tr2);
         if let Some(e) = ev.error() {

@@ -1,0 +1,6 @@
+[zk60-guard 16:24:10] START r5b-stack-llama3_8b_pg_rot1_b6_T128 class=cpu need=7.5G cap=10.5G enforce=cgroup+watchdog waited=0s run=1bbf7a8ed078
+[zk60-guard 16:34:17] END r5b-stack-llama3_8b_pg_rot1_b6_T128 exit=0 child_wall=607s peak_rss=6.55G min_avail=4.27G
+[zk60-guard 16:34:17] START r5b-stack-verify-llama3_8b_pg_rot1_b6_T128 class=cpu need=3G cap=8G enforce=cgroup+watchdog waited=0s run=839fa4a03450
+[zk60-guard 16:37:23] END r5b-stack-verify-llama3_8b_pg_rot1_b6_T128 exit=0 child_wall=186s peak_rss=2.23G min_avail=8.51G
+stack-verify llama3_8b_pg_rot1_b6_T128 exit 0
+8B T128 on R5b done 23:37:23

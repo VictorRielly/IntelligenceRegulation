@@ -106,6 +106,8 @@ def main():
                 continue
             lad = ladder_line(pl)
             rows, wall = first_table(pl, "prove")
+            if not rows or lad is None:
+                continue  # e.g. the T128 resident GPU arm, never run (VRAM limit)
             g = groups(rows, wall) if rows else {}
             vrows, vwall = first_table(os.path.join(r, "verify.log"), "verify") if os.path.exists(os.path.join(r, "verify.log")) else ([], None)
             gp = json.load(open(os.path.join(r, "prove.guard.json"))) if os.path.exists(os.path.join(r, "prove.guard.json")) else {}

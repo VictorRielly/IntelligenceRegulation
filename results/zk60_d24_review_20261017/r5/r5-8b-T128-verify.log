@@ -1,0 +1,36 @@
+{"event":"verified","blocks":32,"receipt_bytes":922711264,"load_seconds":14.684,"verify_seconds":38.467,"of_which_block_load_seconds":17.687,"vmhwm_mib":2059,"statement_identity":"6aba46fbd12d14b053a0ec4afb29ba7b7dbad5ef4fe327213474a737b6e3fe24","scope":"ALL the listed trained blocks of the export's model (TinyLlama-1.1B-Chat or Llama-3-8B) as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"}
+{"event":"control-refused","control":"a statement with blocks 15 and 16 swapped","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"the honest statement with the verifier's block list 15 <-> 16 swapped","error":"trained statement: block 15's public digest is not the statement's layer 15 digest"}
+{"event":"control-refused","control":"a verifier statement with norm_cn_a + 1","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"a verifier statement with sh_z moved by one","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"a verifier statement with sh_qkv moved by one","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"a verifier statement with f_e moved by one","error":"private run wire: segment 0 is 28551400 B, the counted length is 28825880"}
+{"event":"control-refused","control":"a verifier statement with another export profile digest","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"a verifier statement and block list one block shorter","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"segment 16 with one byte flipped","error":"A: pcs zk: Merkle path for column 62840 fails"}
+{"event":"control-refused","control":"segments 15 and 16 swapped","error":"private run wire: segment 15 is not the 32-segment run's segment 15"}
+{"event":"control-refused","control":"the last segment truncated by one byte","error":"private run wire: segment 31 is 29569223 B, the counted length is 29569224"}
+{"event":"stack-controls","refused":11,"honest_still_verifies":true}
+	Command being timed: "/home/victor/IntelligenceRegulation/results/zk60_d24_review_20261017/r5/zk60_trained_block.review-r5.release.bin stack-verify --export /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r5-scratch/verifier-8b-T128 --artifact /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5b/stack-llama3_8b_pg_rot1_b6_T128-ho00-cpu/run --expect-statement 6aba46fbd12d14b053a0ec4afb29ba7b7dbad5ef4fe327213474a737b6e3fe24 --controls"
+	User time (seconds): 533.33
+	System time (seconds): 223.57
+	Percent of CPU this job got: 454%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:46.56
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 2336528
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 41692513
+	Voluntary context switches: 5020622
+	Involuntary context switches: 35043
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

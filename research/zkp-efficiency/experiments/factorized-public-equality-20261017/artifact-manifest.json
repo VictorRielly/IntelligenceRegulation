@@ -1,0 +1,371 @@
+{
+  "run_id": "20261017T232105Z-d713e393",
+  "recorded_at_utc": "2026-10-17T23:35:00.351772+00:00",
+  "files": [
+    {
+      "path": "FINDINGS.md",
+      "bytes": 509075,
+      "sha256": "7e19e672440ee240064300bd1bd337b3cd7eee09f8bab4ca9ca53e29e6d6dc85"
+    },
+    {
+      "path": "PROGRESS.md",
+      "bytes": 2018,
+      "sha256": "b32becaae2c4036e6e7d53abf6943671e46b799e82ce10129e05f8eb2e3f9217"
+    },
+    {
+      "path": "STATE.md",
+      "bytes": 6482,
+      "sha256": "b2ba8888953fd96dac974540915f86f65ba6d2d17952e5d277b0aab9ad0db3f0"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/README.md",
+      "bytes": 7342,
+      "sha256": "655f157fa9034645866cff3a4d954dbf796c6cfab0935cba2d51b8a1aa27ddbd"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/account.log",
+      "bytes": 5655,
+      "sha256": "a60d218f5c3eea4683b092eedaad1eaa7b0ceb21a907fc97fec582585bc1fbc0"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/account.py",
+      "bytes": 4677,
+      "sha256": "717d1e60b006b796af42cb268bf597d142c9c7f318debae6b4388c1b667e6e58"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/accounting.json",
+      "bytes": 5655,
+      "sha256": "a60d218f5c3eea4683b092eedaad1eaa7b0ceb21a907fc97fec582585bc1fbc0"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/audit-result.json",
+      "bytes": 535,
+      "sha256": "e65afd8606448e58649d7de3c1cfe37163b79a7d2aa0749ed358a9107179d079"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/audit.log",
+      "bytes": 535,
+      "sha256": "e65afd8606448e58649d7de3c1cfe37163b79a7d2aa0749ed358a9107179d079"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/audit.py",
+      "bytes": 5444,
+      "sha256": "2704c2df54afcea78a7f4243b51306ef9d3859444eb527a303fe95d8a4b792f7"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/baseline.json",
+      "bytes": 6159,
+      "sha256": "8d5ac37d52866d0e254f5590e69736eec5ed54a1e0b4e6966b8cbcafe7258bd7"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/captured-mask.rs",
+      "bytes": 2802,
+      "sha256": "744c062733ac65106d157070204921112f79dcc73f29d6f4b4ffa911322664e8"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/causality-result.json",
+      "bytes": 377,
+      "sha256": "60e64ba37366cf508d7b71f81f027692b7d917f3dbf15b66046264869ef4d38e"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/causality.log",
+      "bytes": 377,
+      "sha256": "60e64ba37366cf508d7b71f81f027692b7d917f3dbf15b66046264869ef4d38e"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/causality.py",
+      "bytes": 2016,
+      "sha256": "d827bd7c6d88b370095f0660ccd4e08e9ba82f6be647f2556d4548a69644ba2b"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/checkpoint-note.json",
+      "bytes": 567,
+      "sha256": "736317594c985c0f2d67ac6374659f82e5fe9e9d6ed37daccbf8ff11d2309ffb"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/commands.json",
+      "bytes": 1594,
+      "sha256": "90253f87851d1bcd91580bae87cd1b7c5b19f15072b8c0d6c80cb6c808b361ef"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/compile.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/environment.json",
+      "bytes": 241,
+      "sha256": "bf60615afdd3f62c02b39c0ecbc3377637d4eaf17b1ece651b446bb5b9eba285"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/factorized.rs",
+      "bytes": 3935,
+      "sha256": "053c009a3c50e8ab0e603f1991175bdec727f698b2eb052f9416a0858316d03e"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/field-only.rs",
+      "bytes": 7648,
+      "sha256": "f787ef8ccc83b5f494039b958fa4261fb720f497e04f3b75b74d3c600fb77873"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/final-audit.json",
+      "bytes": 360,
+      "sha256": "242e24c44a7218cf646220dd1f32a4a90fa16547520e8b0c07e0f41db7c395e8"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/final-audit.log",
+      "bytes": 360,
+      "sha256": "242e24c44a7218cf646220dd1f32a4a90fa16547520e8b0c07e0f41db7c395e8"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/final_audit.py",
+      "bytes": 4134,
+      "sha256": "9e134463ad45a5327183d67e5f4e33f9caea7d3846ab7595cb9797bea22db837"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/fixtures.json",
+      "bytes": 935247,
+      "sha256": "3e32b2457e6598cfaf84853cf9135d7854fa5689f974be3b4d931011111b9ad7"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/initial-audit-doc-comment-extraction-failure/audit.py",
+      "bytes": 5340,
+      "sha256": "d28cec6302e4069639472e429ca38e7ebef63b6eb8c9ad628a3f0c8f09e98058"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/initial-audit-doc-comment-extraction-failure/failure.json",
+      "bytes": 370,
+      "sha256": "11addb5fb0cccd9c02d12b648dee5b59eafe5e7966510e373b4f2dea4c910c31"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/initial-before-mask-degree-control/fixtures.json",
+      "bytes": 935247,
+      "sha256": "3e32b2457e6598cfaf84853cf9135d7854fa5689f974be3b4d931011111b9ad7"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/initial-before-mask-degree-control/note.txt",
+      "bytes": 205,
+      "sha256": "91cb455288a1d241532d9317cda82096d6981d12551d4536baba092a79d74d78"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/initial-before-mask-degree-control/result.json",
+      "bytes": 2173,
+      "sha256": "ce350fccf9c1c9d775cc99a6560be5e5b9f64cb72a9f9850085a35bb18765f94"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/isolated.rs",
+      "bytes": 14533,
+      "sha256": "cb77f56dc03d148ad8065d07137b52ba59e2707453c490f9c73020f9c3a2230d"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/isolated.so",
+      "bytes": 4355664,
+      "sha256": "fd82581532eb75d0325cbf5aea063dcccaee9144b98f8220e4768c3a172be762"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/native/PHASES_8B_T32_cli3.md",
+      "bytes": 3357,
+      "sha256": "89bf16d4ad2323f9a56235fd20bfbdc71ef6ebf0c3f9e3ddf3b4914073d8aefd"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/native/argument.rs",
+      "bytes": 108798,
+      "sha256": "2475e3a222e32aa26969182b5ab7228756d633fa67bdde1f9520818ef7a2bb0e"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/native/field.rs",
+      "bytes": 11065,
+      "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/native/layout.rs",
+      "bytes": 64489,
+      "sha256": "fcf9dda4e507d2a347f786ddc537feff3ac57779abae88cea91ee48d4b34c855"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/native/owner-gpu-progress.md",
+      "bytes": 20591,
+      "sha256": "890d486373cb477392ce7bb6d1a0d7833d34790caac607cb85b4f1257dcca20e"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/native/owner-native-progress.md",
+      "bytes": 96309,
+      "sha256": "ef6b1d49c6c290a0719bcb2e116048e8550311572389f60d0c670f034d9b249c"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/native/protocol.rs",
+      "bytes": 63656,
+      "sha256": "4612a955a1148ba821e3d8722684ccb1d73304bb34955dcd3be28cafdbdc8e7d"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/native/rounds.rs",
+      "bytes": 7092,
+      "sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/native/shape.rs",
+      "bytes": 102462,
+      "sha256": "e6c7290b5c2d897ccaaa6284c813bbcfea563aaef7594c309b955a5588c1e073"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/native/sumcheck.rs",
+      "bytes": 22023,
+      "sha256": "fc7374bbd5e5cc4ede62e8a21d325eb62acff9b9dcc786d12eae39efbdfdbb95"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/native-pins.json",
+      "bytes": 2587,
+      "sha256": "060d50c0ed492f18e6972ff4a60159a3401486375be20bd2a01593ef51ff679b"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/owner/PROGRESS.md",
+      "bytes": 21537,
+      "sha256": "ece1c9b99bc55a26e2fb0795cab6e595d4c36a0b83277d59f0642fd50af79b51"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/owner/events.json",
+      "bytes": 2335,
+      "sha256": "46bdcff58a95af2e9ec8890922befaabf841328a43f99aef7a186ec569827197"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/owner/manifest_frozen.json",
+      "bytes": 24646,
+      "sha256": "d83b1b02a6f5722417a099fa04b410d369f5552a25e5d6abdeca9054361a904b"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/owner/prove.done",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/owner/prove.guard.json",
+      "bytes": 1578,
+      "sha256": "a600812d3c067b7a4f812abdb5077042ba6be97081379137a6df57e12cbabfc8"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/owner/verify.done",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/owner/verify.guard.json",
+      "bytes": 1696,
+      "sha256": "2af38f837d2f09c6257008b6612b597ed62736e165fb158f868c88d393a85af0"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/owner-pins.json",
+      "bytes": 2228,
+      "sha256": "a96261a78958769c757227f42f4a9b98eed1303ac4d4a7c68434c97dd9021d62"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/prior-reference-pins.json",
+      "bytes": 964,
+      "sha256": "8216d88fe20cf93b34d556866e57f5283bb2f665f5ce6b850ed65fec0bffa274"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/ragged.rs",
+      "bytes": 2950,
+      "sha256": "bc4b0800cac96a5e08b146c9bf96d8bbf70e393b22170377c10da50a59df77a7"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/result.json",
+      "bytes": 2250,
+      "sha256": "f0c527bb6f4e202255330b5c5fd48cc1baf5d9265ddf1315412fe6ff44ce7f9d"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/run.py",
+      "bytes": 10175,
+      "sha256": "45a9abbb84db4966cb84ac9a1f102756019c3c35b2a2c4b989011537ac95d12e"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/search-log.json",
+      "bytes": 940,
+      "sha256": "7dfcd5d30590f664e6888829f45d7a4127ab882d7dd7c53791aef59fa63b583f"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/source-append-audit.json",
+      "bytes": 266,
+      "sha256": "341df1c72f8b9870a19262a633f31dbbe025a23946db16f87a22af9b52621968"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/source-records.json",
+      "bytes": 10068,
+      "sha256": "faa634559cd1d13efd5df4f9670c28c1ca0cf5d3cfb42a0a229d872f2d8932c7"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/startup/AGENDA.md",
+      "bytes": 5603,
+      "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/startup/CLAUDE.md",
+      "bytes": 14089,
+      "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/startup/FINDINGS.md",
+      "bytes": 503044,
+      "sha256": "86480be1770725742da1fdd7a33c7ed48ebbe0489835f45a4c67bd165df78397"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/startup/MVP_STATUS.md",
+      "bytes": 69398,
+      "sha256": "36e5bd608c0148ead448cc5c498328a6f704cedc5ae9c82ad8b6444fcfefcd4f"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/startup/PROGRESS.md",
+      "bytes": 1833,
+      "sha256": "7ecca6c23991fe889750db04b9cb687856af49d85b6ae31d25ea7565878c58eb"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/startup/START_HERE.md",
+      "bytes": 42025,
+      "sha256": "89f6732a39f4294f2f1b7b68add8fdcbb76b86006e21041f52c0f40d9e39df9d"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/startup/STATE.md",
+      "bytes": 6804,
+      "sha256": "76d0f1baed661df598ef421798ebb11e13e9ac6341d9cba1b01e26b92504cdaf"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/startup/ZK60_CODEX_FABLE_COORDINATION.md",
+      "bytes": 64889,
+      "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/startup/ZK60_DECISIONS.md",
+      "bytes": 77429,
+      "sha256": "bec16b7ab83b856967451ed3cfabc59564ea5649f78b20e3e2ab2c500c0f2be0"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/startup/ZK60_THROUGHPUT_TARGET.md",
+      "bytes": 4941,
+      "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/startup/manifest.json",
+      "bytes": 2154,
+      "sha256": "a203fcfb6cf538ea76b38f0ea7987c8574b33e75559f4a4018b6cb0628e6a2a1"
+    },
+    {
+      "path": "experiments/factorized-public-equality-20261017/startup/sources.jsonl",
+      "bytes": 464015,
+      "sha256": "6b321d4d6f90a6daa3933974c172f4dc77c4c7843b9c187722929e2a69709de7"
+    },
+    {
+      "path": "handoffs/20261017-factorized-public-equality.md",
+      "bytes": 3313,
+      "sha256": "e5a8e7a3dd103a888af9b313c7b2fb1a8a5c014cb7238e46b464fe1345a4937f"
+    },
+    {
+      "path": "progress/20261017T232105Z-d713e393.md",
+      "bytes": 10988,
+      "sha256": "c3e76f98810763de4ac9e22155ddc5f6346a7a62c09cda19d4b2c50245a737af"
+    },
+    {
+      "path": "sources.jsonl",
+      "bytes": 473165,
+      "sha256": "6c0efdaedf9d62561f7f8880bb7ef0fc1eb799ff2df8ab36bb6198b1e042cdcc"
+    }
+  ]
+}

@@ -968,6 +968,13 @@ from zk60_native_rg_tinyllama_r5_pins import (  # noqa: E402
     SHARED_G2_PINS)
 _tl_merge2(RUN_LAYER_PINS, _R5_RLP, "RUN_LAYER_PINS")
 _tl_merge1(READINGS, _R5_READINGS, "READINGS")
+# [TINYLLAMA PORT v6, round 5] the R5b tree's run-layer digests and readings,
+# and review r4's N-r4-d shared files (`zk60_native_rg_tinyllama_r5b_pins`)
+from zk60_native_rg_tinyllama_r5b_pins import (  # noqa: E402
+    READINGS as _R5B_READINGS, RUN_LAYER_PINS as _R5B_RLP,
+    SHARED_NR4D_PINS)
+_tl_merge2(RUN_LAYER_PINS, _R5B_RLP, "RUN_LAYER_PINS")
+_tl_merge1(READINGS, _R5B_READINGS, "READINGS")
 
 # --------------------------------------------------------------------------
 # 4.  WHICH STAGES A MOVED PIN SUSPENDS
@@ -1079,6 +1086,20 @@ SHARED_AFFECTED = {
          "stage10_bilinear_group_factor", "stage12_mask_and_cfs",
          "stage13_joint_run_preimage"),
         "slot 17's grouped evaluator behind its published rounds"),
+    # [v6] review r4's N-r4-d files (draft section 5a)
+    "src/gpu/mod.rs": (
+        ("stage3_per_commitment", "stage4_the_boundary",
+         "stage5_zero_data_preimage", "stage7_channels", "stage9_hash_layer",
+         "stage11_full_preimage", "stage13_joint_run_preimage"),
+        "the backend switch every commitment's columns go through"),
+    "src/tables_v3.rs": (
+        ("stage7_channels", "stage8_plane_index_and_terminals",
+         "stage10_bilinear_group_factor"),
+        "the activation-table registry the door admits tables from"),
+    "../zkp-core/src/tables.rs": (
+        ("stage7_channels", "stage8_plane_index_and_terminals",
+         "stage10_bilinear_group_factor"),
+        "the activation-table registry the door admits tables from"),
 }
 
 
@@ -1150,21 +1171,32 @@ def check_shared_pins(bundle) -> dict:
     # one at another digest is refused.
     rc = pins.get("src/private_block/run_capture.rs")
     rc_entry = RUN_LAYER_PINS.get("src/private_block/run_capture.rs", {}).get(rc) or {}
-    g2_aware = bool(rc_entry.get("pins_g2"))
-    g2 = [f for f in sorted(SHARED_G2_PINS) if f in pins]
-    g2_detail = []
-    for f in sorted(SHARED_G2_PINS):
-        want = SHARED_G2_PINS[f]
-        if f not in pins:
-            if g2_aware or g2:
-                moved.append(f"{f}: the writer pins the three G-2 files and "
-                             "this bundle declares no digest for this one")
-            continue
-        if pins[f] != want["sha256"]:
-            moved.append(f"{f}: the bundle pins {pins[f][:12]}, this gate read "
-                         f"{want['sha256'][:12]} -- {want['depended_on_by']}")
-        g2_detail.append({"file": f, "declared": pins[f],
-                          "read": pins[f] == want["sha256"], **want})
+    # [v6] the same rule for each REQUIRED GROUP of extra shared pins: G-2's
+    # three prover files (flag `pins_g2`) and review r4's N-r4-d three (flag
+    # `pins_nr4d`).  A record of a bundle whose writer pins neither group
+    # gains no leaf.
+    group_detail = {}
+    group_seen = {}
+    for table, flag, key, what in (
+            (SHARED_G2_PINS, "pins_g2", "g2_prover_path_files", "G-2"),
+            (SHARED_NR4D_PINS, "pins_nr4d", "nr4d_files", "N-r4-d")):
+        aware = bool(rc_entry.get(flag))
+        seen = [f for f in sorted(table) if f in pins]
+        group_seen[key] = aware or bool(seen)
+        detail = []
+        for f in sorted(table):
+            want = table[f]
+            if f not in pins:
+                if aware or seen:
+                    moved.append(f"{f}: the writer pins the three {what} files "
+                                 "and this bundle declares no digest for this one")
+                continue
+            if pins[f] != want["sha256"]:
+                moved.append(f"{f}: the bundle pins {pins[f][:12]}, this gate read "
+                             f"{want['sha256'][:12]} -- {want['depended_on_by']}")
+            detail.append({"file": f, "declared": pins[f],
+                           "read": pins[f] == want["sha256"], **want})
+        group_detail[key] = detail
 
     def _entry(f):
         e = {"file": f, "declared": pins[f], **SHARED_LAYER_PINS[f]}
@@ -1201,10 +1233,11 @@ def check_shared_pins(bundle) -> dict:
         # [ROUND 9i] present only when a second digest is in play, for the
         # same reason as `accepted_second_digest` above
         out["pins_at_an_accepted_second_digest"] = sorted(second)
-    if g2 or g2_aware:
-        # [TINYLLAMA PORT v5] present only when the bundle (or its writer)
-        # pins them, so no earlier record gains a leaf
-        out["g2_prover_path_files"] = g2_detail
+    for key, detail in group_detail.items():
+        if group_seen[key]:
+            # present only when the bundle (or its writer) pins that group, so
+            # no earlier record gains a leaf
+            out[key] = detail
     if moved:
         # [TINYLLAMA PORT v5; review P-2] what a refused shared pin affects,
         # present only on a refusal (an honest record gains no leaf)

@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "checks": 45,
+  "scope": "Artifact consistency and preserved-history audit only; no cryptographic verification or speed measurement.",
+  "wall_seconds": 0.013977448998048203,
+  "peak_rss_kib": 19128,
+  "threads": 1,
+  "completed_at_utc": "2026-10-18T00:31:03.812816+00:00"
+}

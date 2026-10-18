@@ -1,0 +1,43 @@
+{
+ "classifier_sha256": "0578430f50f03020db26cc7c27b66fcc8b501e602cfec7ad4c9f8ec612376992",
+ "control_families_not_fired_in_this_pass": {},
+ "controls_requested": false,
+ "controls_requested_inferred_from_the_record": null,
+ "explained": {
+  "/ok": "(d) the record's top-level ok"
+ },
+ "false_leaves": [
+  "/ok",
+  "/run_layer_source_pins/ok",
+  "/stage1_integrity/ok",
+  "/stage2_transcript_replay/ok",
+  "/stage3_per_commitment/ok",
+  "/stage7_channels/ok"
+ ],
+ "non_bool_leaves": [],
+ "ok": false,
+ "ok_is_unchanged": "this status never changes `ok`; ok = false stays ok = false",
+ "privacy_acceptance": false,
+ "privacy_property_established": false,
+ "record": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/r5b/probe_before_repin/probe-v5-r5b-l2-dense.json",
+ "record_bundle": "tinyllama-trained-r5b-capture-dense-l2",
+ "record_driver_sha256": "b64799b32e8d5fc3a3fea0d67ab28e49bfc167439d96fd8d561d12ad644f3ce9",
+ "record_sha256": "2a104e0b021ef84cf8a16002c281c8b15b8cd418c93d03b69974ef6ac109ddfa",
+ "record_stages_run": [
+  "stage1_integrity",
+  "stage2_transcript_replay",
+  "stage3_per_commitment",
+  "stage7_channels"
+ ],
+ "stages_that_raised": [],
+ "status": "NOT-OK",
+ "unexplained": [
+  "/run_layer_source_pins/ok",
+  "/stage1_integrity/ok",
+  "/stage2_transcript_replay/ok",
+  "/stage3_per_commitment/ok",
+  "/stage7_channels/ok"
+ ],
+ "what_ARMS_ONLY_means": "every figure of the arms this pass ran closed (recomputed here from the record), and the ONLY reason ok is false is that the pass was run without --controls",
+ "what_it_does_not_mean": "that those controls fired: they did not, in this pass.  An arm counts only where its controls fired on the same tools and shape in another record, which the ledger must cite"
+}

@@ -1,0 +1,6 @@
+[load          ]      4.5 s   peak RSS     860 MB   ok
+[replay        ]      2.7 s   peak RSS     860 MB   ok
+[hash          ]      2.2 s   peak RSS     860 MB   ok
+[commitments   ]     51.0 s   peak RSS    1099 MB   ok
+[boundary      ]    387.8 s   peak RSS    5657 MB   ok
+[preimage      ]      2.0 s   peak RSS    5657 MB   ok
