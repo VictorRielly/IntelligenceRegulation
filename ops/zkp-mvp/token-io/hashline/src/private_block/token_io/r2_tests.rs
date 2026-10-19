@@ -374,10 +374,10 @@ impl TokenRunSource for StreamSource<'_> {
     fn stage_in(&mut self) -> Result<(StageInWitness, Vec<i16>), String> {
         Ok((self.pipe.stage_in.clone(), self.pipe.b_in.clone()))
     }
-    fn witness(&mut self, k: usize, blk: &BlockPublic) -> Result<super::super::witness::Witness, String> {
+    fn witness(&mut self, k: usize, blk: &BlockPublic, ssh: &Shape) -> Result<super::super::witness::Witness, String> {
         let t0 = std::time::Instant::now();
         let x = unpad(self.sh, if k == 0 { &self.pipe.b_in } else { &self.pipe.planes[k - 1] });
-        let w = super::super::witness::build_shaped(self.sh, blk.attention(), blk.feed_forward(), &x);
+        let w = super::super::witness::build_shaped(ssh, blk.attention(), blk.feed_forward(), &x);
         self.witness_s += t0.elapsed().as_secs_f64();
         w
     }

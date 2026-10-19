@@ -3,3 +3,12 @@ ready at 01:42:36
 per-layer sh_s: {1: 7} base 6
 sequence ho00
 verifier copy /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r6/verifier-exports/llama3_8b_pg_rot1_b7_T128 ['LICENSE', 'NOTICE', 'USE_POLICY.md', 'layer_00', 'layer_01', 'layer_02']
+[zk60-guard 21:50:34] START r6-stack-llama3_8b_pg_rot1_b7_T128 class=cpu need=7.5G cap=10.5G enforce=cgroup+watchdog waited=0s run=bc2b7a098d2f
+[zk60-guard 21:58:26] END r6-stack-llama3_8b_pg_rot1_b7_T128 exit=0 child_wall=472s peak_rss=6.43G min_avail=4.88G
+[zk60-guard 21:58:26] START r6-stack-verify-llama3_8b_pg_rot1_b7_T128 class=cpu need=3G cap=8G enforce=cgroup+watchdog waited=0s run=b3944d8d31c2
+[zk60-guard 22:00:53] END r6-stack-verify-llama3_8b_pg_rot1_b7_T128 exit=0 child_wall=146s peak_rss=2.25G min_avail=9.06G
+stack-verify llama3_8b_pg_rot1_b7_T128 exit 0
+[zk60-guard 22:00:53] START r6-stack-recheck-llama3_8b_pg_rot1_b7_T128 class=cpu need=3G cap=8G enforce=cgroup+watchdog waited=0s run=6762e94520e1
+[zk60-guard 22:01:35] END r6-stack-recheck-llama3_8b_pg_rot1_b7_T128 exit=0 child_wall=42s peak_rss=2.02G min_avail=9.21G
+stack-recheck llama3_8b_pg_rot1_b7_T128 exit 0
+b7 stack script exit 0

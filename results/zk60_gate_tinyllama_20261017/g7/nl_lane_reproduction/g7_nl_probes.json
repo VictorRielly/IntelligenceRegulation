@@ -1,0 +1,252 @@
+{
+ "wrapper": {
+  "frozen_nl_check_sha256": "e4db99a251ddde4f432675a53bd7e9149cdeb7c9edd61bbac87f50b87d0727c7",
+  "frozen_nl_field_sha256": "ea8ca39263213d88ef92c3f5d18fb8f86ed73471da027bf57348f94087dbb7e4",
+  "src": "lane",
+  "SRC": {
+   "layout.rs": "/home/victor/wt-zk60-block125m/hashline/src/private_block/layout.rs",
+   "argument.rs": "/home/victor/wt-zk60-block125m/hashline/src/private_block/argument.rs",
+   "shape.rs": "/home/victor/wt-zk60-block125m/hashline/src/private_block/shape.rs",
+   "zk.rs": "/home/victor/wt-zk60-block125m/hashline/src/zk.rs",
+   "sumcheck.rs(zkp-core)": "/home/victor/wt-zk60-block125m/zkp-core/src/sumcheck.rs",
+   "slot_ir.rs": "/home/victor/wt-zk60-block125m/hashline/src/private_block/slot_ir.rs"
+  },
+  "extra_ir": {}
+ },
+ "S2_source_parse": {
+  "lane": {
+   "kinds": [
+    "Private",
+    "Private",
+    "Host",
+    "Standalone",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Host",
+    "Host",
+    "Host",
+    "Host",
+    "Host",
+    "Standalone",
+    "Standalone",
+    "Standalone",
+    "Standalone"
+   ],
+   "hosts": [
+    [
+     2,
+     [
+      0,
+      1
+     ]
+    ],
+    [
+     14,
+     [
+      10,
+      13
+     ]
+    ],
+    [
+     15,
+     [
+      5,
+      9
+     ]
+    ],
+    [
+     16,
+     [
+      6,
+      7
+     ]
+    ],
+    [
+     17,
+     [
+      4,
+      8
+     ]
+    ],
+    [
+     18,
+     [
+      11,
+      12
+     ]
+    ]
+   ],
+   "ext_assign": {
+    "8": [
+     0,
+     1
+    ],
+    "9": [
+     0,
+     1
+    ]
+   },
+   "nonzero_ext_pushes": [
+    [
+     "SC_SCORE",
+     "1"
+    ],
+    [
+     "SC_PV",
+     "1"
+    ]
+   ],
+   "pushes": 13,
+   "helpers_found": [
+    "a_range -> a_at(.., 0)",
+    "endpoint(): ext_round 0",
+    "h(): ext_round 0"
+   ]
+  },
+  "g7": {
+   "kinds": [
+    "Private",
+    "Private",
+    "Host",
+    "Standalone",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Host",
+    "Host",
+    "Host",
+    "Host",
+    "Host",
+    "Standalone",
+    "Standalone",
+    "Standalone",
+    "Standalone"
+   ],
+   "hosts": [
+    [
+     2,
+     [
+      0,
+      1
+     ]
+    ],
+    [
+     14,
+     [
+      10,
+      13
+     ]
+    ],
+    [
+     15,
+     [
+      5,
+      9
+     ]
+    ],
+    [
+     16,
+     [
+      6,
+      7
+     ]
+    ],
+    [
+     17,
+     [
+      4,
+      8
+     ]
+    ],
+    [
+     18,
+     [
+      11,
+      12
+     ]
+    ]
+   ],
+   "ext_assign": {
+    "8": [
+     0,
+     1
+    ],
+    "9": [
+     0,
+     1
+    ]
+   },
+   "nonzero_ext_pushes": [
+    [
+     "SC_SCORE",
+     "1"
+    ],
+    [
+     "SC_PV",
+     "1"
+    ]
+   ],
+   "pushes": 13,
+   "helpers_found": [
+    "a_range -> a_at(.., 0)",
+    "endpoint(): ext_round 0",
+    "h(): ext_round 0"
+   ]
+  },
+  "equal_except_line_numbers": true
+ },
+ "duplicate_structure": {},
+ "duplicate_structure_lane": {
+  "m125": {
+   "slots_with_identical_denominator_pairs": [],
+   "slots_with_repeated_terminal_coordinate": []
+  },
+  "rung": {
+   "slots_with_identical_denominator_pairs": [],
+   "slots_with_repeated_terminal_coordinate": []
+  },
+  "rung_c6": {
+   "slots_with_identical_denominator_pairs": [],
+   "slots_with_repeated_terminal_coordinate": []
+  },
+  "rung_e32": {
+   "slots_with_identical_denominator_pairs": [],
+   "slots_with_repeated_terminal_coordinate": []
+  },
+  "rung_g": {
+   "slots_with_identical_denominator_pairs": [],
+   "slots_with_repeated_terminal_coordinate": []
+  },
+  "rung_k4": {
+   "slots_with_identical_denominator_pairs": [],
+   "slots_with_repeated_terminal_coordinate": []
+  },
+  "rung_p2": {
+   "slots_with_identical_denominator_pairs": [],
+   "slots_with_repeated_terminal_coordinate": []
+  },
+  "rung_w14": {
+   "slots_with_identical_denominator_pairs": [],
+   "slots_with_repeated_terminal_coordinate": []
+  },
+  "toy": {
+   "slots_with_identical_denominator_pairs": [],
+   "slots_with_repeated_terminal_coordinate": []
+  }
+ }
+}

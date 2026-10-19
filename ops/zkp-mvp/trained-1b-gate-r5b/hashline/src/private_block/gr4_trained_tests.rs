@@ -302,12 +302,23 @@ struct Rebuilt {
 /// (after the run header and the two locality words), rebuilt from public
 /// words; only the three LogUp challenges are read from it.
 fn rebuild(sh: &Shape, lay: &Layout, blk: &BlockPublic, stage_tr: &Transcript, wit: &Witness, ntt: &NttTables, pert: Pert) -> Rebuilt {
+    let mut rp = Draws::new();
+    let (a_root, m_root, h_root) = rebuild_on(&mut rp, sh, lay, blk, stage_tr, wit, ntt, pert);
+    let bytes = rp.bytes;
+    Rebuilt { a_root, m_root, h_root, bytes, probe: probe(&mut rp.rng) }
+}
+
+/// [ROUND 6, review round 2 Q-6] THE PREDICTION of one stage on a CALLER's
+/// replay stream, so that a run's boundary and its stages are drawn from ONE
+/// stream in the predicted order (`replay_trained_run_l2`). `rebuild` above is
+/// this on a fresh stream; its body is unchanged apart from taking `rp`.
+#[allow(clippy::too_many_arguments)]
+fn rebuild_on(rp: &mut Draws, sh: &Shape, lay: &Layout, blk: &BlockPublic, stage_tr: &Transcript, wit: &Witness, ntt: &NttTables, pert: Pert) -> (Digest, Digest, Digest) {
     let (public, ff) = (blk.attention(), blk.feed_forward());
     let (ids, hids, n) = (lay.ids(), lay.hids(), lay.n());
     let params = protocol::pcs_params_at(sh);
     assert!(params.cols() == n, "the PCS row width is not the layout's");
     let tag = sh.hash_tag();
-    let mut rp = Draws::new();
 
     // ---- A's witness rows: `prove_core`'s own construction, restated ----
     let committed: Vec<usize> = lay.a_planes().into_iter().filter(|p| !ids.is_multiplicity(*p)).collect();
@@ -345,7 +356,7 @@ fn rebuild(sh: &Shape, lay: &Layout, blk: &BlockPublic, stage_tr: &Transcript, w
         a[lay.a_prox * n] = Fp::ZERO;
     }
     // ---- segments 2, 3: A's pads, then A's salts ----
-    let a_root = zk_root(&params, &a, lay.a_rows, &mut rp, ntt, &tag);
+    let a_root = zk_root(&params, &a, lay.a_rows, rp, ntt, &tag);
 
     // ---- segments 4-7: M, every word of it ----
     let specs = lay.mask_specs();
@@ -451,9 +462,8 @@ fn rebuild(sh: &Shape, lay: &Layout, blk: &BlockPublic, stage_tr: &Transcript, w
         h[r * n + n - 1] = sum.neg();
     }
     // ---- segments 10, 11: H's pads, then H's salts ----
-    let h_root = zk_root(&params, &h, lay.h_rows, &mut rp, ntt, &tag);
-    let bytes = rp.bytes;
-    Rebuilt { a_root, m_root, h_root, bytes, probe: probe(&mut rp.rng) }
+    let h_root = zk_root(&params, &h, lay.h_rows, rp, ntt, &tag);
+    (a_root, m_root, h_root)
 }
 
 /// every drawn field value one REAL endpoint owner holds (the mask rows above
@@ -728,4 +738,299 @@ fn gr4_trained_t32_boundary_commits_exactly_the_predicted_stream() {
         t_all.elapsed().as_secs_f64(),
         run::peak_rss_mib() / 1024.0
     );
+}
+
+// =========================================================================
+// [PRIVACY GATE LANE, ROUND 6, 2026-10-19] REVIEW ROUND 2, FINDING Q-6: the
+// seeded value-level replay extended from one stage to a RUN OF L = 2.
+//
+// What the one-block test above does not replay (its "(c)"): `prove_run_with`'s
+// stage loop -- B_k drawn from the run stream BEFORE A_k, stage k+1 drawn on
+// the stream AFTER stage k, and the B_{k-1} opening. Here a two-block trained
+// run (layers 0 | 1) is proved stage by stage on ONE seeded stream, with
+// stage 0 and stage 1 replicated line for line from `run.rs:895-981` (R5b):
+//   stage 0: position tag; locality; B_0 := boundary::prepare(spec_0, block 0's
+//            padded output, the RUN stream); absorb B; prove_core(block 0,
+//            [input endpoint, B_0]); open the input endpoint; slot 22's claims
+//            wait for B_0; end tag; segment (b_root = B_0)
+//   stage 1: position tag; locality; prove_core(block 1, [B_0, output
+//            endpoint]) on the SAME stream; open B_0 with the waiting claims
+//            plus slot 21's (`PreparedBoundary::into_opening`); open the
+//            output endpoint; end tag; segment (no b_root)
+// Both segments are encoded with `wire::encode_segment` and VERIFIED BY THE
+// PRODUCTION RUN VERIFIER `run::verify_run` from their bytes, which re-derives
+// the stage layouts and segment geometry from the statement and replays the
+// whole two-stage Fiat-Shamir chain -- so an inexact replication (a wrong
+// stage layout, a wrong order, a wrong site) would be refused.
+//
+// THE PREDICTION: ONE replay stream, cut in the predicted order -- B_0's mask
+// rows, pads and salts; stage 0's eleven segments; stage 1's eleven segments --
+// rebuilds all SEVEN roots (B_0, A_0, M_0, H_0, A_1, M_1, H_1), which must
+// equal the prover's, and the replay must end where the prover's generator
+// did (next-draw probe, plus the counted-bytes probe and its 16-byte
+// non-vacuity, as above).
+//
+// NON-VACUITY OF THE CROSS-STAGE CLAIMS (each must move the named root):
+//   * stage 1 predicted on a FRESH stream (a stream reset between stages, the
+//     cross-stage reuse the review names): A_1 moves;
+//   * B_0 predicted AFTER stage 0's block draws (the B-before-A order
+//     reversed): B_0 and A_0 move;
+//   * the per-commitment perturbations m1 / m2 / alpha applied to STAGE 1:
+//     A_1 / H_1 / M_1 move.
+//
+// The restated private items, each checked by the production verifier's
+// acceptance: `RunStatement::in_site / out_site` (stage 0 = [data rows,
+// B_0 site 0], stage 1 = [B_0 site 1, data rows]) and `RunStatement::seg_geom`.
+//
+// STILL NOT COVERED: the production entry `prove_run` on OS randomness (the
+// stages are replicated, the verifier's acceptance is the evidence the
+// replication is the run prover's); L >= 3 (stage k >= 2 repeats stage 1's
+// pattern with B_{k-1} incoming and B_k outgoing -- the code path is the
+// same loop body, but it is not replayed here); the endpoint generators
+// (in situ only, as above); the GPU path.
+//
+// THE CAPTURE RULE of this file applies: booleans, counts, labels, seconds.
+// =========================================================================
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum L2Pert {
+    None,
+    /// stage 1 predicted on a fresh stream (a stream reset between stages)
+    ResetBeforeStage1,
+    /// B_0 predicted after stage 0's block draws (B-before-A reversed)
+    BoundaryAfterBlock,
+    /// a per-commitment perturbation applied to stage 1
+    Stage1(Pert),
+}
+
+/// `boundary::prepare`'s root on a CALLER's replay stream (the boundary test's
+/// prediction, restated): the plane, then the mask rows, pads and salts
+fn boundary_root_on(rp: &mut Draws, spec: &crate::private_block::boundary::BoundarySpec, vals: &[Fp], ntt: &NttTables, tag: &HashTag) -> Digest {
+    let (rows, data, n) = (spec.commitment_rows(), spec.data_rows(), 1usize << spec.log_n());
+    let mut d = vec![Fp::ZERO; rows * n];
+    d[..vals.len()].copy_from_slice(vals);
+    for x in d[data * n..].iter_mut() {
+        *x = rp.fp();
+    }
+    zk_root(&spec.params(), &d, rows, rp, ntt, tag)
+}
+
+struct L2Roots {
+    b0: Digest,
+    a: [Digest; 2],
+    m: [Digest; 2],
+    h: [Digest; 2],
+    bytes: u64,
+    probe: [u64; 4],
+}
+
+fn replay_trained_run_l2(dense: bool) {
+    let label = if dense { "TinyLlama-trained T32 run of layers 0|1, dense ho00 (generic witness)" } else { "TinyLlama-trained T32 run of layers 0|1, all-zero input (degenerate partner)" };
+    let t_all = Instant::now();
+    let ex = TrainedExport::load(&export_dir()).unwrap_or_else(|e| panic!("the export: {e}"));
+    let layers = [0u32, 1];
+    let c = ex.run_constants(&layers).expect("the run-level constants");
+    let sh = ex.shape_for(&c).expect("the trained shape (through the door)");
+    assert!(sh.trained_calibration, "the export did not build a trained-calibration shape");
+    let mut blocks = Vec::with_capacity(2);
+    let mut records = Vec::with_capacity(2);
+    for &l in &layers {
+        let t = ex.load_layer(&sh, &c, l, false).unwrap_or_else(|e| panic!("layer {l}: {e}"));
+        records.push(t.record);
+        blocks.push(t.blk);
+    }
+    let model = ex.statement_of_records(&sh, &c, records).expect("the trained-model statement");
+    let ids = Ids::new(&sh).expect("the trained shape has a plane map");
+
+    // ---- the run's own chain: block 0 on x0, block 1 on block 0's output ----
+    let x0 = if dense { ex.load_seq(&sh, SEQ, 0).expect("the export's hidden input").0 } else { vec![0i16; sh.tokens * sh.width] };
+    let w0 = witness::build_shaped(&sh, blocks[0].attention(), blocks[0].feed_forward(), &x0).expect("block 0's honest trained witness");
+    let (x_in, b0) = (padded(&w0, ids.at(A_X)), padded(&w0, ids.at(A_X2)));
+    let x1 = true_input(&sh, &b0);
+    let w1 = witness::build_shaped(&sh, blocks[1].attention(), blocks[1].feed_forward(), &x1).expect("block 1's honest trained witness");
+    let x_out = padded(&w1, ids.at(A_X2));
+    let chain_ok = padded(&w1, ids.at(A_X)) == b0;
+    assert!(chain_ok, "{label}: block 1's padded input plane is not block 0's padded output plane (the B_0 plane)");
+    let mut parity_words = 0usize;
+    if dense {
+        for (l, plane) in [(0u32, &b0), (1u32, &x_out)] {
+            let (_, want) = ex.load_seq(&sh, SEQ, l).expect("the export's reference output");
+            let got = true_input(&sh, plane);
+            let differ = got.iter().zip(want.iter()).filter(|(a, b)| a != b).count();
+            assert!(got.len() == want.len() && differ == 0, "parity: layer {l}'s native output differs from the export's x_out in {differ} of {} words (no value printed)", got.len());
+            parity_words += got.len();
+        }
+    }
+
+    // ---- the bound TWO-block run statement, through the production constructors ----
+    let spec_io = IoSpec::new_shaped(&sh, context(), 0, 0).expect("the run's endpoint spec");
+    let (expected, owners) = prepare_endpoints(spec_io, &x_in, &x_out).expect("the run's external endpoint owners");
+    let rs = ex.geometry.run_shape(&sh, 2).expect("the trained run shape");
+    let st = RunStatement::new_bound(rs, context(), expected.clone(), &blocks, &[(0, 0), (0, 0)], &model).expect("the bound two-block run statement");
+    let data_rows = st.rs().data_rows();
+    let bspec = st.boundary_spec(0).expect("the run's boundary B_0 statement");
+    let (s0, s1) = (bspec.mask_row(0).expect("B_0 site 0"), bspec.mask_row(1).expect("B_0 site 1"));
+    // `RunStatement::in_site / out_site` (private), restated for L = 2
+    let lay0 = Layout::for_shape(&sh).expect("the shape has a layout").with_io_mask_rows([data_rows, s0]);
+    let lay1 = Layout::for_shape(&sh).expect("the shape has a layout").with_io_mask_rows([s1, data_rows]);
+    // `RunStatement::seg_geom` (private), restated
+    let geom = |k: usize| SegGeom { l: 2, k, boundary_rows: bspec.commitment_rows(), sites: run::BOUNDARY_SITES };
+    let [ein, eout] = protocol::check_endpoints(&sh, &expected, owners).expect("the endpoint owners match the statement");
+
+    // ---- the run header, rebuilt from public words, must be the binding ----
+    let binding = st.binding().expect("the run binding");
+    let mut tr = rebuilt_header(&st);
+    let header_ok = tr.state() == binding;
+    assert!(header_ok, "{label}: the run header rebuilt from the statement's public words is not the run's binding");
+
+    let tag = sh.hash_tag();
+    let ntt = NttTables::new(run_ntt_log(&sh));
+    let mut rng = ZkRng::new(SEED, DOMAIN);
+    let mut ph = crate::private_block::timing::Phases::start();
+    let mut phases: Vec<(&'static str, f64)> = Vec::new();
+    let mut tick = Instant::now();
+    let t_prove = Instant::now();
+
+    // ---- STAGE 0 (run.rs: k = 0, k + 1 < l) ----
+    let start0 = position_tag(&tr);
+    tr.absorb_u64(b"pb-run-stage", 0);
+    tr.absorb(b"pb-run-block", &st.block_digests()[0]);
+    let b0_words = words(&b0);
+    let pb = crate::private_block::boundary::prepare(&bspec, &b0_words, &ntt, &mut rng, &tag).expect("the boundary B_0 commits on the run stream");
+    let b_root = pb.root();
+    protocol::absorb_root(&mut tr, b"B", &b_root, bspec.commitment_rows(), bspec.log_n());
+    let stage0_tr = Transcript::clone_state(&tr);
+    let core0 = protocol::prove_core(&sh, &lay0, &blocks[0], Witness { planes: w0.planes.clone() }, [ein.data.as_slice(), pb.data()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick).expect("stage 0's core prover on the seeded run stream");
+    let [ic0, oc0] = core0.io_claims;
+    protocol::check_endpoint_opening(&ic0, &sh, &tr).expect("the input endpoint opening passes its refusal checks");
+    let in_open0 = pcs::open_zk(&ein, &ic0, &mut tr);
+    drop(ein);
+    let mut pending = oc0;
+    let end0 = position_tag(&tr);
+    let (a0, m0, h0) = (core0.a_root, core0.mask_root, core0.h_root);
+    let seg0 = Segment { b_root: Some(b_root), a_root: a0, h_root: h0, mask_root: m0, slots: core0.slots, mask_open: core0.mask_open, a_open: core0.a_open, h_open: core0.h_open, in_open: in_open0, out_open: None };
+    let bytes0 = wire::encode_segment(&seg0, &lay0, geom(0), &binding, &start0, &end0).expect("stage 0's seeded segment encodes");
+    drop(seg0);
+
+    // ---- STAGE 1 (run.rs: k = 1 = l - 1) on the SAME stream ----
+    let start1 = position_tag(&tr);
+    tr.absorb_u64(b"pb-run-stage", 1);
+    tr.absorb(b"pb-run-block", &st.block_digests()[1]);
+    let stage1_tr = Transcript::clone_state(&tr);
+    let core1 = protocol::prove_core(&sh, &lay1, &blocks[1], Witness { planes: w1.planes.clone() }, [pb.data(), eout.data.as_slice()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick).expect("stage 1's core prover on the seeded run stream");
+    let [ic1, oc1] = core1.io_claims;
+    pending.extend(ic1);
+    let in_open1 = pb.into_opening(&bspec, &pending, &mut tr).expect("B_0's one opening");
+    protocol::check_endpoint_opening(&oc1, &sh, &tr).expect("the output endpoint opening passes its refusal checks");
+    let out_open1 = pcs::open_zk(&eout, &oc1, &mut tr);
+    drop(eout);
+    let end1 = position_tag(&tr);
+    let prove_s = t_prove.elapsed().as_secs_f64();
+    // nothing after the output endpoint opening draws: the probe is the
+    // stream position at the end of the run
+    let prover_probe = probe(&mut rng);
+    let (a1, m1, h1) = (core1.a_root, core1.mask_root, core1.h_root);
+    let seg1 = Segment { b_root: None, a_root: a1, h_root: h1, mask_root: m1, slots: core1.slots, mask_open: core1.mask_open, a_open: core1.a_open, h_open: core1.h_open, in_open: in_open1, out_open: Some(out_open1) };
+    let bytes1 = wire::encode_segment(&seg1, &lay1, geom(1), &binding, &start1, &end1).expect("stage 1's seeded segment encodes");
+    drop(seg1);
+    let seg_lens = (bytes0.len(), bytes1.len());
+    let t_verify = Instant::now();
+    // THE PRODUCTION RUN VERIFIER, from the two segments' bytes (in memory
+    // only: the seeded receipt is never written anywhere)
+    let verified = run::verify_run(&st, &blocks, &[bytes0, bytes1]);
+    let verify_s = t_verify.elapsed().as_secs_f64();
+
+    // ---- THE PREDICTION: one replay stream, the predicted order ----
+    let predict = |pert: L2Pert| -> L2Roots {
+        let mut rp = Draws::new();
+        let (b, a0, m0, h0) = if pert == L2Pert::BoundaryAfterBlock {
+            let (a, m, h) = rebuild_on(&mut rp, &sh, &lay0, &blocks[0], &stage0_tr, &w0, &ntt, Pert::None);
+            (boundary_root_on(&mut rp, &bspec, &b0_words, &ntt, &tag), a, m, h)
+        } else {
+            let b = boundary_root_on(&mut rp, &bspec, &b0_words, &ntt, &tag);
+            let (a, m, h) = rebuild_on(&mut rp, &sh, &lay0, &blocks[0], &stage0_tr, &w0, &ntt, Pert::None);
+            (b, a, m, h)
+        };
+        if pert == L2Pert::ResetBeforeStage1 {
+            rp = Draws::new();
+        }
+        let p1 = match pert {
+            L2Pert::Stage1(p) => p,
+            _ => Pert::None,
+        };
+        let (a1, m1, h1) = rebuild_on(&mut rp, &sh, &lay1, &blocks[1], &stage1_tr, &w1, &ntt, p1);
+        let bytes = rp.bytes;
+        L2Roots { b0: b, a: [a0, a1], m: [m0, m1], h: [h0, h1], bytes, probe: probe(&mut rp.rng) }
+    };
+    let t_rebuild = Instant::now();
+    let r = predict(L2Pert::None);
+    let rebuild_s = t_rebuild.elapsed().as_secs_f64();
+    let b_ok = r.b0 == b_root;
+    let (a0_ok, m0_ok, h0_ok) = (r.a[0] == a0, r.m[0] == m0, r.h[0] == h0);
+    let (a1_ok, m1_ok, h1_ok) = (r.a[1] == a1, r.m[1] == m1, r.h[1] == h1);
+    let ends_ok = r.probe == prover_probe;
+    let counted_ok = probe_at(r.bytes) == prover_probe;
+    let shifted_differs = probe_at(r.bytes + 16) != prover_probe;
+    eprintln!(
+        "GR4 trained run replay L=2 [{label}]: run header rebuilt from public words = binding: {header_ok}; block chain B_0 plane = block 1's input: {chain_ok}; parity words {parity_words}; stage layouts [{data_rows}, {s0}] | [{s1}, {data_rows}]; boundary {} rows; segments {} B + {} B, verified by the production run verifier = {}",
+        bspec.commitment_rows(),
+        seg_lens.0,
+        seg_lens.1,
+        verified.is_ok()
+    );
+    eprintln!(
+        "GR4 trained run replay L=2 [{label}]: B_0 root rebuilt = {b_ok}; stage 0 A/M/H roots rebuilt = {a0_ok}/{m0_ok}/{h0_ok}; stage 1 A/M/H roots rebuilt = {a1_ok}/{m1_ok}/{h1_ok}; replay stream ends where the prover's did (next-draw probe) = {ends_ok}; prover consumed exactly the predicted {} bytes = {counted_ok}; probe non-vacuity (16 bytes further differs) = {shifted_differs}",
+        r.bytes
+    );
+    assert!(b_ok, "{label}: B_0's root is not (block 0's output plane, then B_0's mask rows, pads and salts drawn FIRST in stage 0 from the run stream)");
+    assert!(a0_ok && m0_ok && h0_ok, "{label}: a stage-0 root is not the prediction on the run stream after B_0");
+    assert!(a1_ok && m1_ok && h1_ok, "{label}: a stage-1 root is not the prediction on the run stream after stage 0");
+    assert!(ends_ok, "{label}: the replay did not end where the prover's generator did");
+    assert!(counted_ok, "{label}: the prover's generator did not consume exactly the predicted byte count");
+    assert!(shifted_differs, "{label}: the next-draw probe cannot tell a 16-byte shift; the position comparison is vacuous");
+    verified.expect("the seeded two-block trained run verifies");
+
+    // ---- NON-VACUITY of the cross-stage claims and of stage 1's comparisons ----
+    let checks: [(L2Pert, &str); 5] = [
+        (L2Pert::ResetBeforeStage1, "A_1"),
+        (L2Pert::BoundaryAfterBlock, "B_0 and A_0"),
+        (L2Pert::Stage1(Pert::AProxZero), "A_1"),
+        (L2Pert::Stage1(Pert::CopyAIntoH), "H_1"),
+        (L2Pert::Stage1(Pert::AlphaCopy), "M_1"),
+    ];
+    for (pert, what) in checks {
+        let p = predict(pert);
+        let moved = match pert {
+            L2Pert::ResetBeforeStage1 => p.a[1] != a1,
+            L2Pert::BoundaryAfterBlock => p.b0 != b_root && p.a[0] != a0,
+            L2Pert::Stage1(Pert::AProxZero) => p.a[1] != a1,
+            L2Pert::Stage1(Pert::CopyAIntoH) => p.h[1] != h1,
+            L2Pert::Stage1(_) => p.m[1] != m1,
+            L2Pert::None => false,
+        };
+        eprintln!("GR4 trained run replay L=2 [{label}]: non-vacuity {pert:?} moves the {what} root(s) = {moved}");
+        assert!(moved, "{label}: the perturbation {pert:?} did not move the {what} root(s); the comparison is blind to it");
+    }
+    eprintln!(
+        "GR4 trained run replay L=2 [{label}]: PASS. seconds: seeded prove of both stages {prove_s:.2}, production run verify {verify_s:.2}, one prediction {rebuild_s:.2}, whole test {:.2}; process high-water mark {:.2} GiB [MEASURED, shared box, n=1]. Not a privacy result.",
+        t_all.elapsed().as_secs_f64(),
+        run::peak_rss_mib() / 1024.0
+    );
+}
+
+/// **[Q-6] A TWO-BLOCK TRAINED RUN, DENSE** (ho00 through layers 0 and 1,
+/// parity bit-exact against the export at both layers): B_0, then stage 0,
+/// then stage 1, every drawn word where the schedule says, on ONE stream.
+#[test]
+#[ignore = "Q-6 G-R4 run-scope replay: reads the trained export (two layers) and proves a two-block trained run on a seeded stream; run with --ignored --exact under the resource guard"]
+fn gr4_trained_t32_run_l2_dense_ho00_commits_exactly_the_predicted_stream() {
+    replay_trained_run_l2(true);
+}
+
+/// **[Q-6] A TWO-BLOCK TRAINED RUN, ALL-ZERO INPUT** (the fixed input the
+/// privacy case is stated at).
+#[test]
+#[ignore = "Q-6 G-R4 run-scope replay: reads the trained export (two layers) and proves a two-block trained run on a seeded stream; run with --ignored --exact under the resource guard"]
+fn gr4_trained_t32_run_l2_zero_commits_exactly_the_predicted_stream() {
+    replay_trained_run_l2(false);
 }

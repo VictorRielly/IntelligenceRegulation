@@ -33,7 +33,24 @@ P = (1 << 64) - (1 << 32) + 1      # Goldilocks
 BOS_TINYLLAMA = 1                  # TinyLlama SentencePiece BOS (TOKEN_IO_SPEC.md)
 BOS_LLAMA3_8B = 128000             # Llama-3 <|begin_of_text|> (zk60_8b_calibration_20261017)
 BOS = BOS_TINYLLAMA                # the synthetic R0 profile's BOS (its V = 300 admits id 1)
-DELTA_LIMBS = 6                    # six byte limbs, no top-limb pin (DESIGN v2 C-4)
+DELTA_LIMBS = 6                    # the R0 synthetic profile's limb count (no top-limb pin, DESIGN v2 C-4);
+                                   # the stored vectors keep it fixed; the rule itself is `limbs_for` (TF-1)
+MULT_BITS_D25_T4 = 12              # D25 T4 as amended: per-row multipliers m_j in [1, 2^12]
+
+
+def keyed_window_bits(d: int, V: int, mult_bits: int = MULT_BITS_D25_T4, wmax: int = 127) -> int:
+    """the honest keyed difference's worst case over the declared class (d, V, head multipliers):
+    bits(2^v * 2 * d * 127 * wmax * 2^mult_bits + V - 1), v = log2(V_pad)."""
+    v = clog2(npow2(V))
+    return ((((2 * d * 127 * wmax) << mult_bits) << v) + (V - 1)).bit_length()
+
+
+def limbs_for(d: int, V: int, mult_bits: int = MULT_BITS_D25_T4, limb_bits: int = 8):
+    """TF-1: the limb count is DERIVED, ceil(window / limb_bits), never a fixed six; returns
+    (limbs, window, no_wrap) with no_wrap the C-4 / door condition 2^(limb_bits * L) + 2^window < p."""
+    w = keyed_window_bits(d, V, mult_bits)
+    n = -(-w // limb_bits)
+    return n, w, (1 << (limb_bits * n)) + (1 << w) < P
 D_LIMB_BOUND = 1 << 24             # D, a1, a2: three byte limbs each (D16 rule 1)
 
 

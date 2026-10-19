@@ -1,0 +1,10 @@
+09:42:05 unittests exit 0
+09:43:44 v7-l1-dense-t exit 0
+09:46:23 v7-l2-dense-t exit 0
+09:48:45 v7-l2-zero-t exit 0
+09:48:45 leafdiff l1-dense exit 0
+09:48:45 leafdiff l2-dense exit 0
+09:48:45 leafdiff l2-zero exit 0
+09:52:05 v7-pincontrols-r5b-l1 exit 0
+09:55:41 v7-pincontrols-treea-l1 exit 0
+09:55:43 v7-g10-l1 exit 0

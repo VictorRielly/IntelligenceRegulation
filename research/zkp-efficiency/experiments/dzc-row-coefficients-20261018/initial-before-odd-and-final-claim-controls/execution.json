@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "python3",
+    "experiments/dzc-row-coefficients-20261018/run.py"
+  ],
+  "started_at_utc": "2026-10-18T05:24:54.238832+00:00",
+  "elapsed_seconds": 1.9364376029989216,
+  "exit_code": 0,
+  "threads": 1,
+  "timeout_seconds": 60,
+  "memory_cap_bytes": 536870912
+}

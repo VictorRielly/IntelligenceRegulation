@@ -1,0 +1,217 @@
+{
+  "web8": {
+    "query": {
+      "find": [
+        {
+          "ref_id": "turn5view1",
+          "pattern": "Jun"
+        },
+        {
+          "ref_id": "turn5view1",
+          "pattern": "May"
+        },
+        {
+          "ref_id": "turn7view2",
+          "pattern": "Commits on"
+        },
+        {
+          "ref_id": "turn1view2",
+          "pattern": "p3-sumcheck-v0.9.0-rc.2"
+        }
+      ],
+      "open": [
+        {
+          "ref_id": "https://raw.githubusercontent.com/microsoft/Spartan/master/LICENSE.md"
+        },
+        {
+          "ref_id": "https://raw.githubusercontent.com/compsec-epfl/efficient-sumcheck/main/LICENSE-MIT"
+        }
+      ],
+      "response_length": "long"
+    },
+    "response_sha256": "18cf88642b7c3ab5f3598f1834aca3320c05b0bd9ed4a8972a4f328d1f5edd0d",
+    "response_bytes": 24367,
+    "source_summaries": [
+      {
+        "title_and_metadata": [
+          "Internal Error ()",
+          "\ue200cite\ue202turn8view0\ue201"
+        ],
+        "access_errors": [
+          "Internal Error ()"
+        ]
+      },
+      {
+        "title_and_metadata": [
+          "Internal Error ()",
+          "\ue200cite\ue202turn8view1\ue201"
+        ],
+        "access_errors": [
+          "Internal Error ()"
+        ]
+      },
+      {
+        "title_and_metadata": [
+          "Commits \u00b7 compsec-epfl/efficient-sumcheck \u00b7 GitHub (https://github.com/compsec-epfl/efficient-sumcheck/commits/main/)",
+          "\ue200cite\ue202turn8view2\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Commits \u00b7 compsec-epfl/efficient-sumcheck \u00b7 GitHub (https://github.com/compsec-epfl/efficient-sumcheck/commits/main/)",
+          "\ue200cite\ue202turn8view3\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Commits \u00b7 microsoft/Spartan \u00b7 GitHub (https://github.com/microsoft/Spartan/commits/master/)",
+          "\ue200cite\ue202turn8view4\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Releases \u00b7 Plonky3/Plonky3 \u00b7 GitHub (https://github.com/Plonky3/Plonky3/releases)",
+          "\ue200cite\ue202turn8view5\ue201"
+        ],
+        "access_errors": []
+      }
+    ],
+    "note": "Full primary text inspected as untrusted data; raw page contents not retained. Exact URLs/dates/license scope and assessments recorded in source-records.json."
+  },
+  "web9": {
+    "query": {
+      "click": [
+        {
+          "ref_id": "turn7view2",
+          "id": 72
+        },
+        {
+          "ref_id": "turn5view1",
+          "id": 70
+        }
+      ],
+      "open": [
+        {
+          "ref_id": "https://github.com/microsoft/Spartan/blob/master/LICENSE"
+        },
+        {
+          "ref_id": "https://github.com/microsoft/Spartan/blob/master/Cargo.toml"
+        },
+        {
+          "ref_id": "https://github.com/Plonky3/Plonky3/commit/fe5e46d"
+        }
+      ],
+      "response_length": "long"
+    },
+    "response_sha256": "fae96ac178d9a94dc5b6566a96924c81ef0426dd282eb9a1139b51cb40dbb0aa",
+    "response_bytes": 25863,
+    "source_summaries": [
+      {
+        "title_and_metadata": [
+          "Spartan/LICENSE at master \u00b7 microsoft/Spartan \u00b7 GitHub (https://github.com/microsoft/Spartan/blob/master/LICENSE)",
+          "\ue200cite\ue202turn9view0\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Spartan/Cargo.toml at master \u00b7 microsoft/Spartan \u00b7 GitHub (https://github.com/microsoft/Spartan/blob/master/Cargo.toml)",
+          "\ue200cite\ue202turn9view1\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Internal Error ()",
+          "\ue200cite\ue202turn9view2\ue201"
+        ],
+        "access_errors": [
+          "Internal Error ()",
+          "L0: Failed to fetch https://github.com/Plonky3/Plonky3/commit/fe5e46d: Cache miss"
+        ]
+      },
+      {
+        "title_and_metadata": [
+          "fix: Align blinds_vec length with IPP rounds (lg_n pairs) (#89) \u00b7 microsoft/Spartan@3a2c097 \u00b7 GitHub (https://github.com/microsoft/Spartan/commit/3a2c097cab39ffa191560f445440a41ed40db5b3)",
+          "\ue200cite\ue202turn9view3\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Internal Error ()",
+          "\ue200cite\ue202turn9view4\ue201"
+        ],
+        "access_errors": [
+          "Internal Error ()"
+        ]
+      }
+    ],
+    "note": "Full primary text inspected as untrusted data; raw page contents not retained. Exact URLs/dates/license scope and assessments recorded in source-records.json."
+  },
+  "web10": {
+    "query": {
+      "open": [
+        {
+          "ref_id": "turn9view3",
+          "lineno": 190
+        },
+        {
+          "ref_id": "https://raw.githubusercontent.com/microsoft/Spartan/3a2c097cab39ffa191560f445440a41ed40db5b3/src/sumcheck.rs"
+        },
+        {
+          "ref_id": "https://github.com/compsec-epfl/efficient-sumcheck/commit/9e55dc3"
+        },
+        {
+          "ref_id": "https://docs.rs/crate/p3-sumcheck/0.9.0-rc.2"
+        }
+      ],
+      "response_length": "long"
+    },
+    "response_sha256": "cba4dd0369b42b5d57e797f9cd04978460f988332b1fb7587dcfec747a9ba4ea",
+    "response_bytes": 10581,
+    "source_summaries": [
+      {
+        "title_and_metadata": [
+          "fix: Align blinds_vec length with IPP rounds (lg_n pairs) (#89) \u00b7 microsoft/Spartan@3a2c097 \u00b7 GitHub (https://github.com/microsoft/Spartan/commit/3a2c097cab39ffa191560f445440a41ed40db5b3)",
+          "\ue200cite\ue202turn10view0\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Internal Error ()",
+          "\ue200cite\ue202turn10view1\ue201"
+        ],
+        "access_errors": [
+          "Internal Error ()",
+          "L0: Failed to fetch https://raw.githubusercontent.com/microsoft/Spartan/3a2c097cab39ffa191560f445440a41ed40db5b3/src/sumcheck.rs: Cache miss"
+        ]
+      },
+      {
+        "title_and_metadata": [
+          "Internal Error ()",
+          "\ue200cite\ue202turn10view2\ue201"
+        ],
+        "access_errors": [
+          "Internal Error ()",
+          "L0: Failed to fetch https://github.com/compsec-epfl/efficient-sumcheck/commit/9e55dc3: Cache miss"
+        ]
+      },
+      {
+        "title_and_metadata": [
+          "Internal Error ()",
+          "\ue200cite\ue202turn10view3\ue201"
+        ],
+        "access_errors": [
+          "Internal Error ()",
+          "L0: URL https://docs.rs/crate/p3-sumcheck/0.9.0-rc.2 is not accessible via this tool."
+        ]
+      }
+    ],
+    "note": "Full primary text inspected as untrusted data; raw page contents not retained. Exact URLs/dates/license scope and assessments recorded in source-records.json."
+  }
+}

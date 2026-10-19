@@ -34,6 +34,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -212,16 +213,93 @@ def m9_2_a_moved_opened_column_entry(bundle) -> dict:
 
 
 # ------------------------------------------------------------------ M9-3
+# [v7, finding G-4] `pad::indicator_slots` (R5b `pad.rs:225-238`, READ): the
+# slots whose definition reads a domain's support indicator.  Ht is lifted
+# over the trailing axis of the S cube, so it shares S's host slot.
+INDICATOR_SLOTS = {
+    "D": {0, 1, 14}, "Q": {15}, "S": {4, 17}, "Ht": {17}, "Kv": {16},
+    "F": {18}, "L": {3}, "Tab": {19}, "T": {2},
+}
+
+# [v7, review round 2 Q-8] the two refusals that name the host slot's
+# indicator mechanism, matched EXACTLY (the texts of
+# `zk60_native_rg_terminals.TerminalGate.build_public` and
+# `SlotCtx.pad_draws`).  Any other refusal -- by name or not -- does not count.
+_TABLE_COUNT = re.compile(
+    r"^slot (\d+): the port declares (\d+) public tables, the capture has (\d+)$")
+_DRAW_COUNT = re.compile(
+    r"^slot (\d+): this slot consumes (\d+) definition draws \(.*\) and the "
+    r"capture declares (\d+)$")
+# a domain made to look padded adds ONE support table to its host slot, and
+# TWO definition draws (the pad mu and zeta) to it
+_EXTRA = {"public-table count": 1, "definition-draw count": 2}
+
+
+def _stopped_slots(rec) -> set:
+    """the slots that are not checked or do not match, over every stage"""
+    out = set()
+    for row in rec["per_stage"]:
+        out |= set(row["checked"]) - set(row["equal"])
+        out |= {e["slot"] for e in row["not_checked"]}
+    return out
+
+
+def refusal_mechanism(host: int, said: list):
+    """Which indicator mechanism the host slot's first refusal names, and its
+    two numbers (the port's, the capture's); (None, None) for anything else."""
+    if not said:
+        return None, None
+    for mech, rx in (("public-table count", _TABLE_COUNT),
+                     ("definition-draw count", _DRAW_COUNT)):
+        m = rx.match(said[0])
+        if m and int(m[1]) == host:
+            return mech, (int(m[2]), int(m[3]))
+    return None, None
+
+
+def g4_criterion(dom: str, host: int, arm: str, stopped: set, said: list) -> dict:
+    """[v7, finding G-4, tightened per review round 2 Q-8] one arm's verdict
+    for one domain.
+
+    arm "indicator": the domain's pad state forced true everywhere (the
+      pre-v7 perturbation).  The host slot must refuse by one of the two
+      indicator mechanisms -- recorded -- with exactly the expected surplus,
+      and exactly the slots `pad::indicator_slots` lists must stop.
+    arm "draw-count": only the host slot's `pad_on` forced true (its support
+      tables untouched), so the public-table count agrees and the slot reaches
+      the definition-draw count.  It must refuse by THAT mechanism, the port
+      consuming exactly two draws more than the capture declares, and only the
+      host slot may stop.  This is the refusal M9-3's criterion always
+      expected; before v7 no perturbation reached it."""
+    mech, nums = refusal_mechanism(host, said)
+    if arm == "indicator":
+        want_slots = set(INDICATOR_SLOTS[dom])
+        allowed = ("public-table count", "definition-draw count")
+    elif arm == "draw-count":
+        want_slots = {host}
+        allowed = ("definition-draw count",)
+    else:
+        raise ValueError(f"unknown M9-3 arm {arm!r}")
+    surplus = nums[0] - nums[1] if nums else None
+    mech_ok = mech in allowed and surplus == _EXTRA[mech]
+    exact = stopped == want_slots
+    return {"arm": arm, "refusal_mechanism": mech,
+            "port_and_capture_numbers": list(nums) if nums else None,
+            "mechanism_and_surplus_as_expected": mech_ok,
+            "expected_slots_to_stop": sorted(want_slots),
+            "exactly_the_expected_slots": exact,
+            "ok": bool(said) and mech_ok and exact}
+
+
 def m9_3_the_unpadded_domains(bundle, index, replay) -> dict:
     """Finding M-F1's own control.
 
-    The three domains that do not pad at 125M are made to LOOK padded to
-    the port -- `Shape::pads` forced true for one of them at a time -- and
-    the slot that hosts it must refuse by name, saying how many definition
-    draws it would consume and how many the capture declares.  Before round
-    9 this case raised an `IndexError` that the per-slot arm reported as
-    'not checked: list index out of range'."""
-    from zk60_native_rg_terminals import PadGeometry, check_terminals
+    The domains that do not pad at this shape are made to LOOK padded to
+    the port, one at a time, and the slot that hosts each must refuse by
+    the mechanism the perturbation reaches.  Before round 9 this case
+    raised an `IndexError` that the per-slot arm reported as 'not checked:
+    list index out of range'.  [v7] Two arms per domain (`g4_criterion`)."""
+    from zk60_native_rg_terminals import PadGeometry, SlotCtx, check_terminals
 
     honest = check_terminals(bundle, index, replay=replay)
     hosts = {"T": (2, "SC_TZC"), "Kv": (16, "SC_KVZC"), "F": (18, "SC_FZC"),
@@ -248,37 +326,63 @@ def m9_3_the_unpadded_domains(bundle, index, replay) -> dict:
             geom_doms[dom] = None
             pad_errors[dom] = f"{type(e).__name__}: {e}"[:200]
     unpadded = sorted(d for d, v in geom_doms.items() if v is False)
+    honest_stopped = _stopped_slots(honest)
+
+    def one_arm(dom, slot, arm):
+        if arm == "indicator":
+            owner, attr = PadGeometry, "pads"
+            real = PadGeometry.pads
+
+            def patched(self, d, _dom=dom, _r=real):
+                return True if d == _dom else _r(self, d)
+        else:
+            owner, attr = SlotCtx, "pad_on"
+            real = SlotCtx.pad_on
+
+            def patched(self, *doms, _dom=dom, _r=real):
+                return True if _dom in doms else _r(self, *doms)
+        setattr(owner, attr, patched)
+        try:
+            bad = check_terminals(bundle, index, replay=replay)
+        finally:
+            setattr(owner, attr, real)
+        said = [f["why"] for s in bad["per_stage"]
+                for f in s["not_checked"] if f["slot"] == slot]
+        stopped = _stopped_slots(bad) - honest_stopped
+        crit = g4_criterion(dom, slot, arm, stopped, said)
+        return {"refusal": said[0] if said else None,
+                "slots_that_stopped_being_checked": sorted(stopped),
+                "fires": bool(said), **crit}
+
     per = []
     for dom in unpadded:
         slot, name = hosts[dom]
-        real = PadGeometry.pads
-
-        def looks_padded(self, d, _dom=dom, _r=real):
-            return True if d == _dom else _r(self, d)
-
-        PadGeometry.pads = looks_padded
-        try:
-            bad = check_terminals(bundle, index, replay=replay)
-            said = [f["why"] for s in bad["per_stage"]
-                    for f in s["not_checked"] if f["slot"] == slot]
-        finally:
-            PadGeometry.pads = real
+        arms = {a: one_arm(dom, slot, a) for a in ("indicator", "draw-count")}
+        ind = arms["indicator"]
         per.append({
             "domain": dom, "slot": slot, "name": name,
-            "refusal": said[0] if said else None,
+            "refusal": ind["refusal"],
+            # kept for the record; NOT criteria since v7 (finding G-4)
             "the_refusal_names_the_two_numbers":
-                bool(said) and "definition draws" in said[0]
-                and "the capture declares" in said[0],
+                bool(ind["refusal"]) and "definition draws" in ind["refusal"]
+                and "the capture declares" in ind["refusal"],
             "only_this_slot_stopped_being_checked":
-                bad["slot_checks_equal"]
-                == honest["slot_checks_equal"] - bundle.blocks,
-            "fires": bool(said),
+                ind["slots_that_stopped_being_checked"] == [slot],
+            # [v7, finding G-4 / review Q-8]
+            "the_indicator_slots_of_the_domain": sorted(INDICATOR_SLOTS[dom]),
+            "arms": arms,
+            "fires": all(a["fires"] for a in arms.values()),
+            "ok": all(a["ok"] for a in arms.values()),
         })
     return {
         "control": "M9-3",
         "what": "each domain that does NOT pad at this shape, made to look "
-        "padded to the port one at a time; its host slot must refuse by "
-        "name (finding M-F1)",
+        "padded to the port one at a time, in two arms: everywhere (its host "
+        "slot must refuse by an indicator mechanism and exactly the slots "
+        "pad::indicator_slots lists must stop) and at the host slot's draw "
+        "count only (it must refuse by the definition-draw count, two draws "
+        "over the capture's, and only the host slot may stop) -- finding "
+        "M-F1; v7 = finding G-4 / review round 2 Q-8",
         "pads_by_domain": geom_doms,
         "domains_that_do_not_pad": unpadded,
         "honest_slot_checks_equal": honest["slot_checks_equal"],
@@ -290,8 +394,11 @@ def m9_3_the_unpadded_domains(bundle, index, replay) -> dict:
         # [v5, review P-11] with no domain left, ok only when that is the
         # named every-domain-pads case and no domain's pad state errored
         "pad_state_errors": pad_errors,
-        "ok": (all(p["fires"] and p["the_refusal_names_the_two_numbers"]
-                   for p in per) if per else True) and not pad_errors,
+        # [v7] per domain, both arms ok.  Before v7 the criterion asked that
+        # the indicator arm's refusal name the two definition-draw counts
+        # (false at every shape: the public-table count refusal fires first)
+        # and that exactly ONE slot stop (false for D and S).
+        "ok": (all(p["ok"] for p in per) if per else True) and not pad_errors,
     }
 
 

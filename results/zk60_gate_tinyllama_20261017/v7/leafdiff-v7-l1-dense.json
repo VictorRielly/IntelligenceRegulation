@@ -1,0 +1,224 @@
+{
+ "aggregate_differences": [
+  {
+   "leaf": "/ok",
+   "v6": false,
+   "v7": true
+  },
+  {
+   "leaf": "/stage6_negative_controls/ok",
+   "v6": false,
+   "v7": true
+  },
+  {
+   "leaf": "/stage6_negative_controls/round_9_controls/ok",
+   "v6": false,
+   "v7": true
+  }
+ ],
+ "by_class": {
+  "aggregates": 3,
+  "m9_3": 2,
+  "other": 0,
+  "volatile": 28
+ },
+ "leaves_shared": 3328,
+ "leaves_v6": 5686,
+ "leaves_v7": 3457,
+ "ok": true,
+ "other_differences": [],
+ "privacy_acceptance": false,
+ "shared_leaves_that_differ": 33,
+ "v6_ok": false,
+ "v6_record": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/r5b/l1/r5b-l1-dense-everything.json",
+ "v7_m9_3": {
+  "fires": true,
+  "ok": true,
+  "per_domain": [
+   {
+    "arms": {
+     "draw-count": {
+      "expected_slots_to_stop": [
+       14
+      ],
+      "ok": true,
+      "port_and_capture_numbers": [
+       48,
+       46
+      ],
+      "refusal_mechanism": "definition-draw count",
+      "slots_that_stopped_being_checked": [
+       14
+      ]
+     },
+     "indicator": {
+      "expected_slots_to_stop": [
+       0,
+       1,
+       14
+      ],
+      "ok": true,
+      "port_and_capture_numbers": [
+       3,
+       2
+      ],
+      "refusal_mechanism": "public-table count",
+      "slots_that_stopped_being_checked": [
+       0,
+       1,
+       14
+      ]
+     }
+    },
+    "domain": "D",
+    "ok": true,
+    "slot": 14
+   },
+   {
+    "arms": {
+     "draw-count": {
+      "expected_slots_to_stop": [
+       16
+      ],
+      "ok": true,
+      "port_and_capture_numbers": [
+       24,
+       22
+      ],
+      "refusal_mechanism": "definition-draw count",
+      "slots_that_stopped_being_checked": [
+       16
+      ]
+     },
+     "indicator": {
+      "expected_slots_to_stop": [
+       16
+      ],
+      "ok": true,
+      "port_and_capture_numbers": [
+       3,
+       2
+      ],
+      "refusal_mechanism": "public-table count",
+      "slots_that_stopped_being_checked": [
+       16
+      ]
+     }
+    },
+    "domain": "Kv",
+    "ok": true,
+    "slot": 16
+   },
+   {
+    "arms": {
+     "draw-count": {
+      "expected_slots_to_stop": [
+       15
+      ],
+      "ok": true,
+      "port_and_capture_numbers": [
+       28,
+       26
+      ],
+      "refusal_mechanism": "definition-draw count",
+      "slots_that_stopped_being_checked": [
+       15
+      ]
+     },
+     "indicator": {
+      "expected_slots_to_stop": [
+       15
+      ],
+      "ok": true,
+      "port_and_capture_numbers": [
+       3,
+       2
+      ],
+      "refusal_mechanism": "public-table count",
+      "slots_that_stopped_being_checked": [
+       15
+      ]
+     }
+    },
+    "domain": "Q",
+    "ok": true,
+    "slot": 15
+   },
+   {
+    "arms": {
+     "draw-count": {
+      "expected_slots_to_stop": [
+       17
+      ],
+      "ok": true,
+      "port_and_capture_numbers": [
+       32,
+       30
+      ],
+      "refusal_mechanism": "definition-draw count",
+      "slots_that_stopped_being_checked": [
+       17
+      ]
+     },
+     "indicator": {
+      "expected_slots_to_stop": [
+       4,
+       17
+      ],
+      "ok": true,
+      "port_and_capture_numbers": [
+       2,
+       1
+      ],
+      "refusal_mechanism": "public-table count",
+      "slots_that_stopped_being_checked": [
+       4,
+       17
+      ]
+     }
+    },
+    "domain": "S",
+    "ok": true,
+    "slot": 17
+   },
+   {
+    "arms": {
+     "draw-count": {
+      "expected_slots_to_stop": [
+       2
+      ],
+      "ok": true,
+      "port_and_capture_numbers": [
+       15,
+       13
+      ],
+      "refusal_mechanism": "definition-draw count",
+      "slots_that_stopped_being_checked": [
+       2
+      ]
+     },
+     "indicator": {
+      "expected_slots_to_stop": [
+       2
+      ],
+      "ok": true,
+      "port_and_capture_numbers": [
+       1,
+       0
+      ],
+      "refusal_mechanism": "public-table count",
+      "slots_that_stopped_being_checked": [
+       2
+      ]
+     }
+    },
+    "domain": "T",
+    "ok": true,
+    "slot": 2
+   }
+  ]
+ },
+ "v7_ok": true,
+ "v7_record": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/v7/v7-l1-dense-t.json",
+ "what": "TOOLS v7 RE-RUN AGAINST THE v6 RECORD OF THE SAME BUNDLE (round 6): every"
+}

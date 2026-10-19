@@ -1,0 +1,824 @@
+{
+  "search0": {
+    "query": {
+      "search_query": [
+        {
+          "q": "sumcheck coefficient computation GPU 2026 polynomial round coefficients batching implementation"
+        },
+        {
+          "q": "sumcheck optimized coefficient basis evaluation form github linear factors 2024 2025"
+        },
+        {
+          "q": "GPU sumcheck October 2026 release Goldilocks GitHub"
+        }
+      ],
+      "response_length": "long"
+    },
+    "response_sha256": "832c5c56ae80b1675a5b36133e26438f0d7994cbfac58780f2a675279ba1a0ef",
+    "response_bytes": 31020,
+    "source_summaries": [
+      {
+        "title_and_metadata": [
+          "GPU Acceleration of the Sum-Check Protocol Over (https://tanvirarafin.github.io/assets/pdf/DATE_2026.pdf)",
+          "\ue200cite\ue202turn0search12\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "CMU CSD PhD Blog - Algorithms for the Sum-check Protocol (https://www.cs.cmu.edu/~csd-phd-blog/2026/sumcheck-proving/)",
+          "\ue200cite\ue202turn0search0\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "GitHub - compsec-epfl/efficient-sumcheck \u00b7 GitHub (https://github.com/compsec-epfl/efficient-sumcheck)",
+          "\ue200cite\ue202turn0search1\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Building Faster Cryptography with Carryless Multiplication in NVIDIA CUDA 13.3 | NVIDIA Technical Blog (https://developer.nvidia.com/blog/?p=119649)",
+          "\ue200cite\ue202turn0search2\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "GitHub - quangvdao/monomial-sumcheck-benchmarks \u00b7 GitHub (https://github.com/quangvdao/monomial-sumcheck-benchmarks)",
+          "\ue200cite\ue202turn0search3\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "sumcheck-optimized-sagemath/sumcheck_algo3.sage at main \u00b7 zksecurity/sumcheck-optimized-sagemath \u00b7 GitHub (https://github.com/zksecurity/sumcheck-optimized-sagemath/blob/main/sumcheck_algo3.sage)",
+          "\ue200cite\ue202turn0search4\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Releases \u00b7 stfc/goldilocks \u00b7 GitHub (https://github.com/stfc/goldilocks/releases)",
+          "\ue200cite\ue202turn0search5\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "sumcheck/README.md at main \u00b7 ls-rm-rf/sumcheck \u00b7 GitHub (https://github.com/ls-rm-rf/sumcheck/blob/main/README.md)",
+          "\ue200cite\ue202turn0search6\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "strategy.rs - source (https://docs.rs/p3-sumcheck/latest/src/p3_sumcheck/strategy.rs.html)",
+          "\ue200cite\ue202turn0search7\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Sumcheck API Documentation | ICICLE Docs (https://dev.ingonyama.com/3.5.0/icicle/primitives/sumcheck)",
+          "\ue200cite\ue202turn0search8\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "mle-pcs/final-report.md at main \u00b7 sec-bit/mle-pcs \u00b7 GitHub (https://github.com/sec-bit/mle-pcs/blob/main/final-report.md)",
+          "\ue200cite\ue202turn0search9\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Sumcheck Arguments and their Applications (https://eprint.iacr.org/2021/333.pdf)",
+          "\ue200cite\ue202turn0search13\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Protocol 24 (Sumcheck). It proceeds in \u2113 rounds. (https://www2.eecs.berkeley.edu/Pubs/TechRpts/2025/EECS-2025-20.pdf)",
+          "\ue200cite\ue202turn0search14\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "The multivariate sumcheck protocol - Alin Tomescu (https://alinush.github.io/sumcheck)",
+          "\ue200cite\ue202turn0search10\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Multilinear extensions and sum-check - Akita Book (https://layerzero-labs.github.io/akita/foundations/multilinear-sumcheck.html)",
+          "\ue200cite\ue202turn0search11\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "A divide-and-conquer sumcheck protocol (https://arxiv.org/abs/2504.00693)",
+          "\ue200cite\ue202turn0academia15\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Efficient Verifiable Computation Made Easy (https://chenxuhao.github.io/docs/MIT_MEng_Thesis_2025-Chengyuan-Ma.pdf)",
+          "\ue200cite\ue202turn0search16\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "ECCCElectronic Colloquium on Computational Complexity, Revision 2 of Report No. 96 (2024)Constant-Round Arguments for Batch-Verification and (https://eccc.weizmann.ac.il/report/2024/096/revision/2/download)",
+          "\ue200cite\ue202turn0search17\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Sum-check protocol (https://en.wikipedia.org/wiki/Sum-check_protocol)",
+          "\ue200cite\ue202turn0search18\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Packed Sumcheck over Fields of Small (https://eprint.iacr.org/2025/719.pdf)",
+          "\ue200cite\ue202turn0search19\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "A Zero Knowledge Sumcheck and its Applications (https://arxiv.org/abs/1704.02086)",
+          "\ue200cite\ue202turn0academia20\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Sumcheck-based delegation of quantum computing to rational server (https://arxiv.org/abs/1911.04734)",
+          "\ue200cite\ue202turn0academia21\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "NullMoth 2.0: NVIDIA driver for macOS 15 and 26, with every fix from the security report (https://www.reddit.com/r/u_null-moth/comments/1x6f41u/nullmoth_20_nvidia_driver_for_macos_15_and_26/)",
+          "\ue200cite\ue202turn0reddit22\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Modify and load custom VBIOS on Windows and Linux, on Blackwell 2.0 (RTX 50 Series)/Ada(RTX 40 Series)/Ampere (RTX 30 Series) without flashing (and which cards were tested) (https://www.reddit.com/r/nvidia/comments/1x8caca/modify_and_load_custom_vbios_on_windows_and_linux/)",
+          "\ue200cite\ue202turn0reddit23\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "I've been tracking every known issue from NVIDIA's driver release notes since 526.47. Here's what 88 drivers and 507 bugs look like (https://www.reddit.com/r/nvidia/comments/1wu88kf/ive_been_tracking_every_known_issue_from_nvidias/)",
+          "\ue200cite\ue202turn0reddit24\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "NvidiaWatch redesign - v2 (https://www.reddit.com/r/nvidia/comments/1wygmo7/nvidiawatch_redesign_v2/)",
+          "\ue200cite\ue202turn0reddit25\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Penny Royal 3.0 \u2014 Qwen3.8 on RTX PRO 6000: 262 tok/s mean coding, peaks over 500, and 524K context (https://www.reddit.com/r/BlackwellPerformance/comments/1x2nhj7/penny_royal_30_qwen38_on_rtx_pro_6000_262_toks/)",
+          "\ue200cite\ue202turn0reddit26\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "This GitHub repo is trending no.1 recently. Will this make an impact on game decomps/decomps situation? (https://www.reddit.com/r/decomps/comments/1x1i2rc/this_github_repo_is_trending_no1_recently_will/)",
+          "\ue200cite\ue202turn0reddit27\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Summation algorithm (https://en.wikipedia.org/wiki/Summation_algorithm)",
+          "\ue200cite\ue202turn0search28\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Finite difference coefficient (https://en.wikipedia.org/wiki/Finite_difference_coefficient)",
+          "\ue200cite\ue202turn0search29\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Accelerating Polynomial Multiplication for Homomorphic Encryption on GPUs (https://arxiv.org/abs/2209.01290)",
+          "\ue200cite\ue202turn0academia30\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "** Mac OS Nvidia Driver Out Now ** (https://www.reddit.com/r/hackintosh/comments/1wzr28z/mac_os_nvidia_driver_out_now/)",
+          "\ue200cite\ue202turn0reddit31\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Algebraic normal form (https://en.wikipedia.org/wiki/Algebraic_normal_form)",
+          "\ue200cite\ue202turn0search32\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "ROCm/HIP running a full open-source STARK proving backend on RX 7900 XTX (https://www.reddit.com/r/ROCm/comments/1ushn9l/rocmhip_running_a_full_opensource_stark_proving/)",
+          "\ue200cite\ue202turn0reddit33\ue201"
+        ],
+        "access_errors": []
+      }
+    ],
+    "note": "Full primary text inspected as untrusted data; raw page contents not retained. Exact URLs/dates/license scope and assessments recorded in source-records.json."
+  },
+  "web1": {
+    "query": {
+      "open": [
+        {
+          "ref_id": "https://github.com/compsec-epfl/efficient-sumcheck/blob/main/src/provers/coefficient.rs"
+        },
+        {
+          "ref_id": "https://github.com/quangvdao/monomial-sumcheck-benchmarks"
+        },
+        {
+          "ref_id": "https://github.com/Plonky3/Plonky3/releases"
+        }
+      ],
+      "response_length": "long"
+    },
+    "response_sha256": "3e85be85a1c62d4ef619135a5be3f944231b814a883cca504047c2f0b6fb65ed",
+    "response_bytes": 27752,
+    "source_summaries": [
+      {
+        "title_and_metadata": [
+          "Internal Error ()",
+          "\ue200cite\ue202turn1view0\ue201"
+        ],
+        "access_errors": [
+          "Internal Error ()",
+          "L0: Failed to fetch https://github.com/compsec-epfl/efficient-sumcheck/blob/main/src/provers/coefficient.rs: Cache miss"
+        ]
+      },
+      {
+        "title_and_metadata": [
+          "GitHub - quangvdao/monomial-sumcheck-benchmarks \u00b7 GitHub (https://github.com/quangvdao/monomial-sumcheck-benchmarks)",
+          "\ue200cite\ue202turn1view1\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Releases \u00b7 Plonky3/Plonky3 \u00b7 GitHub (https://github.com/Plonky3/Plonky3/releases)",
+          "\ue200cite\ue202turn1view2\ue201"
+        ],
+        "access_errors": []
+      }
+    ],
+    "note": "Full primary text inspected as untrusted data; raw page contents not retained. Exact URLs/dates/license scope and assessments recorded in source-records.json."
+  },
+  "web2": {
+    "query": {
+      "open": [
+        {
+          "ref_id": "https://raw.githubusercontent.com/compsec-epfl/efficient-sumcheck/main/src/provers/coefficient.rs"
+        },
+        {
+          "ref_id": "https://eprint.iacr.org/2021/333"
+        },
+        {
+          "ref_id": "https://github.com/Plonky3/Plonky3/releases/tag/p3-sumcheck-v0.9.0-rc.2"
+        },
+        {
+          "ref_id": "https://github.com/compsec-epfl/efficient-sumcheck/blob/main/LICENSE-MIT"
+        }
+      ],
+      "response_length": "long"
+    },
+    "response_sha256": "e3f6ccbfab056e8cf2b74669bb10312c5395a8e95f497c962eeb67da124c31b7",
+    "response_bytes": 16276,
+    "source_summaries": [
+      {
+        "title_and_metadata": [
+          "raw.githubusercontent.com (https://raw.githubusercontent.com/compsec-epfl/efficient-sumcheck/main/src/provers/coefficient.rs)",
+          "\ue200cite\ue202turn2view0\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Sumcheck Arguments and their Applications (https://eprint.iacr.org/2021/333)",
+          "\ue200cite\ue202turn2view1\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Internal Error ()",
+          "\ue200cite\ue202turn2view2\ue201"
+        ],
+        "access_errors": [
+          "Internal Error ()",
+          "L0: Failed to fetch https://github.com/Plonky3/Plonky3/releases/tag/p3-sumcheck-v0.9.0-rc.2: Cache miss"
+        ]
+      },
+      {
+        "title_and_metadata": [
+          "Internal Error ()",
+          "\ue200cite\ue202turn2view3\ue201"
+        ],
+        "access_errors": [
+          "Internal Error ()",
+          "L0: Failed to fetch https://github.com/compsec-epfl/efficient-sumcheck/blob/main/LICENSE-MIT: Cache miss"
+        ]
+      }
+    ],
+    "note": "Full primary text inspected as untrusted data; raw page contents not retained. Exact URLs/dates/license scope and assessments recorded in source-records.json."
+  },
+  "web3": {
+    "query": {
+      "search_query": [
+        {
+          "q": "sumcheck polynomial coefficients prover GPU \"2026\" \"October\" optimization"
+        },
+        {
+          "q": "sumcheck \"round polynomial\" \"coefficients\" \"Karatsuba\" 2025 2024"
+        },
+        {
+          "q": "\"sumcheck\" \"lookup\" \"2026/25\""
+        }
+      ],
+      "response_length": "long"
+    },
+    "response_sha256": "f625cfa871c6e5caea1a8aa7cb1d2533f99e100882e0ce35e06e6a707c7967ac",
+    "response_bytes": 32315,
+    "source_summaries": [
+      {
+        "title_and_metadata": [
+          "Pico 3.0: Real-Time Ethereum Proving with Just 4 GPUs (https://blog.brevis.network/2026/09/30/pico-3-0-real-time-ethereum-proving-on-4-gpus-with-100-bit-provable-security/)",
+          "\ue200cite\ue202turn3search0\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Unfaithful Claims: Breaking 6 zkVMs / deuterium's blog (https://deut-erium.github.io/2026/03/03/unfaithful-claims-breaking-6-zkvms.html)",
+          "\ue200cite\ue202turn3search1\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Towards a higher roofline for matrix-vector multiplication in matrix-free HOSFEM - ScienceDirect (https://www.sciencedirect.com/science/article/abs/pii/S0743731526000870)",
+          "\ue200cite\ue202turn3search2\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "HyperPlonk white paper | Blockchain Lab (https://blockchainlab.com/whitepaper/hyperplonk)",
+          "\ue200cite\ue202turn3search3\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Fiat-Shamir Transformation (https://ftp.otenet.gr/doc/internet-drafts/draft-irtf-cfrg-fiat-shamir-03.html)",
+          "\ue200cite\ue202turn3search4\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "(PDF) Basefold in the List Decoding Regime (https://www.researchgate.net/publication/387601318_Basefold_in_the_List_Decoding_Regime)",
+          "\ue200cite\ue202turn3search5\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Accelerating ZK-SNARK Proving: GPU-Parallel FFTs and Memory-Aware Commitments in PLONK | runlevel 1 Institute (https://unix-jim.com/zk-prover)",
+          "\ue200cite\ue202turn3search6\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "HyperPlonk: Efficient Proof System Upgrade | PDF | Applied Mathematics | Mathematics (https://www.scribd.com/document/818798787/HyperPlonk)",
+          "\ue200cite\ue202turn3search7\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "European Conference on (https://conference3-standby.aau.at/event/122/contributions/contributions.pdf)",
+          "\ue200cite\ue202turn3search12\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "(PDF) Flock: Fast Proving for Batch Boolean Computations (https://www.researchgate.net/publication/411032527_Flock_Fast_Proving_for_Batch_Boolean_Computations)",
+          "\ue200cite\ue202turn3search8\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Bitlayer Research: Binius STARKs principle analysis and optimization thinking | Bitget News (https://www.bitgetapp.com/news/detail/12560604294017)",
+          "\ue200cite\ue202turn3search9\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "U.S. Patent for Calculation verification for approximate calculation Patent (Patent # 12,724,844 issued September 1, 2026) - Justia Patents Search (https://patents.justia.com/patent/12724844)",
+          "\ue200cite\ue202turn3search10\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "FP16 GEMM Optimization on AMD RDNA\u2122 3 and RDNA\u2122 4 Architectures \u2014 ROCm Blogs (https://rocm.blogs.amd.com/software-tools-optimization/rdna-fp16-gemm/README.html)",
+          "\ue200cite\ue202turn3search11\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "SMMC P1 (https://www.reddit.com/r/GeorgiesPodium/comments/1x27a6y/smmc_p1/)",
+          "\ue200cite\ue202turn3reddit13\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "$\\exists \\mathbb{R} \\subseteq \\textsf{CH}$ (https://arxiv.org/abs/2610.10514)",
+          "\ue200cite\ue202turn3academia14\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "All the complexity improvements released by OpenAI today (https://www.reddit.com/r/compsci/comments/1wzpvbq/all_the_complexity_improvements_released_by/)",
+          "\ue200cite\ue202turn3reddit15\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Polynomial Separation of a Shared Tensor Leg and Matrix Multiplication in Arbitrary Characteristic (https://arxiv.org/abs/2610.18914)",
+          "\ue200cite\ue202turn3academia16\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Alireza Shirzad (https://alireza-shirzad.github.io/assets/pdf/cv.pdf)",
+          "\ue200cite\ue202turn3search17\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "A QUBO-Based Optimization Framework for ATM Cash Replenishment Scheduling (https://arxiv.org/abs/2607.22675)",
+          "\ue200cite\ue202turn3academia18\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "AI Breakthroughs & Research Megathread \u2014 September 2026 (https://www.reddit.com/r/mathematics/comments/1w4jref/ai_breakthroughs_research_megathread_september/)",
+          "\ue200cite\ue202turn3reddit19\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "IEEE TRANSACTIONS ON PARALLEL AND DISTRIBUTED SYSTEMS, VOL. 36, NO. 10, OCTOBER 2025 (https://iris.unito.it/retrieve/dec7520b-58f8-413f-bc08-40fb787a6646/TPDS3591452.pdf)",
+          "\ue200cite\ue202turn3search20\ue201"
+        ],
+        "access_errors": []
+      }
+    ],
+    "note": "Full primary text inspected as untrusted data; raw page contents not retained. Exact URLs/dates/license scope and assessments recorded in source-records.json."
+  },
+  "web4": {
+    "query": {
+      "open": [
+        {
+          "ref_id": "https://blog.brevis.network/2026/09/30/pico-3-0-real-time-ethereum-proving-on-4-gpus-with-100-bit-provable-security/"
+        },
+        {
+          "ref_id": "https://github.com/brevis-network/pico"
+        },
+        {
+          "ref_id": "https://github.com/quangvdao/monomial-sumcheck-benchmarks/commits/main/"
+        }
+      ],
+      "response_length": "long"
+    },
+    "response_sha256": "3773a0cf7ebd62582d68b8e1142a56f99e215d45f460c4a9ac72a322624a9fc4",
+    "response_bytes": 29578,
+    "source_summaries": [
+      {
+        "title_and_metadata": [
+          "Pico 3.0: Real-Time Ethereum Proving with Just 4 GPUs (https://blog.brevis.network/2026/09/30/pico-3-0-real-time-ethereum-proving-on-4-gpus-with-100-bit-provable-security/)",
+          "\ue200cite\ue202turn4view0\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "GitHub - brevis-network/pico \u00b7 GitHub (https://github.com/brevis-network/pico)",
+          "\ue200cite\ue202turn4view1\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Commits \u00b7 quangvdao/monomial-sumcheck-benchmarks \u00b7 GitHub (https://github.com/quangvdao/monomial-sumcheck-benchmarks/commits/main/)",
+          "\ue200cite\ue202turn4view2\ue201"
+        ],
+        "access_errors": []
+      }
+    ],
+    "note": "Full primary text inspected as untrusted data; raw page contents not retained. Exact URLs/dates/license scope and assessments recorded in source-records.json."
+  },
+  "web5": {
+    "query": {
+      "search_query": [
+        {
+          "q": "\"Flock: Fast Proving for Batch Boolean Computations\" eprint"
+        },
+        {
+          "q": "\"sumcheck\" \"barycentric\" \"coefficients\" prover optimization 2024"
+        },
+        {
+          "q": "site:github.com/brevis-network/pico \"sumcheck\" \"2026\""
+        }
+      ],
+      "open": [
+        {
+          "ref_id": "https://raw.githubusercontent.com/brevis-network/pico/main/LICENSE-MIT"
+        },
+        {
+          "ref_id": "https://github.com/compsec-epfl/efficient-sumcheck/commits/main/"
+        }
+      ],
+      "response_length": "long"
+    },
+    "response_sha256": "ec8f27194a5bc579257f28e921645ba897316c613ad74750b9bd2f0389812bf0",
+    "response_bytes": 29532,
+    "source_summaries": [
+      {
+        "title_and_metadata": [
+          "Flock: Fast Proving for Batch Boolean Computations (https://arxiv.org/abs/2607.27491)",
+          "\ue200cite\ue202turn5academia12\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "(PDF) Flock: Fast Proving for Batch Boolean Computations (https://www.researchgate.net/publication/411032527_Flock_Fast_Proving_for_Batch_Boolean_Computations)",
+          "\ue200cite\ue202turn5search0\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "dblp: Flock: Fast Proving for Batch Boolean Computations. (https://dblp1.uni-trier.de/rec/journals/corr/abs-2607-27491.html)",
+          "\ue200cite\ue202turn5search1\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Flock: Fast Proving for Batch Boolean Computations | Article Information | J-GLOBAL (https://jglobal.jst.go.jp/en/detail?JGLOBAL_ID=202602203584869692)",
+          "\ue200cite\ue202turn5search2\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Flock: Fast Proving for Batch Boolean Computations | Emad Heydari Beni (https://www.linkedin.com/posts/emad-heydari-beni-6041306a_flock-fast-proving-for-batch-boolean-computations-activity-7480278987248807936-Fx6n)",
+          "\ue200cite\ue202turn5search3\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "William Wang (https://priv.pub/)",
+          "\ue200cite\ue202turn5search4\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Flock:\u30d0\u30c3\u30c1Boole\u8a08\u7b97\u306e\u305f\u3081\u306e\u9ad8\u901f\u8a3c\u660e\u3016JST\u6a5f\u68b0\u7ffb\u8a33\u3017 | \u6587\u732e\u60c5\u5831 | J-GLOBAL \u79d1\u5b66\u6280\u8853\u7dcf\u5408\u30ea\u30f3\u30af\u30bb\u30f3\u30bf\u30fc (https://jglobal.jst.go.jp/detail?JGLOBAL_ID=202602203584869692)",
+          "\ue200cite\ue202turn5search5\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "TUM Blockchain Conference Day \u00b7 TUM Blockchain Conference 26 (https://conference26.tum-blockchain.com/conference-day)",
+          "\ue200cite\ue202turn5search6\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Ron Rothblum on Fiat-Shamir Attacks, Flock and SNARK.fast (https://podimo.com/mx/shows/zero-knowledge/episode/db10c50e-3aa4-5cd5-9d61-eaeada734637)",
+          "\ue200cite\ue202turn5search7\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "BinarySpartan: Spartan over Binary Fields - HackMD (https://hackmd.io/%40aiv768/BkMwa7zDMe)",
+          "\ue200cite\ue202turn5search8\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "\ue200cite\ue202turn5search9\ue201 [wordlim: 200] Published: last month; Crawled: today; Wang; Flock: Fast Proving for Batch Boolean Computations; Cryptology ePrint Archive, 2026/1329.",
+          "## References"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Flock: Fast Proving for Batch Boolean Computations (https://newx.sg/paper/detail/deedf402-966f-11f1-b84c-00163e10baa7)",
+          "\ue200cite\ue202turn5search10\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Shielded Pool on Ethereum L1 - Off Topic Lounge - Zcash Community Forum (https://forum.zcashcommunity.com/t/shielded-pool-on-ethereum-l1/56400)",
+          "\ue200cite\ue202turn5search11\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Blind zkSNARKs for Private Proof Delegation (https://www.eprint.mirror.cypherpunks.su/2024/1684/1739554086.pdf)",
+          "\ue200cite\ue202turn5search13\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "(https://raw.githubusercontent.com/brevis-network/pico/main/LICENSE-MIT)",
+          "\ue200cite\ue202turn5view0\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Commits \u00b7 compsec-epfl/efficient-sumcheck \u00b7 GitHub (https://github.com/compsec-epfl/efficient-sumcheck/commits/main/)",
+          "\ue200cite\ue202turn5view1\ue201"
+        ],
+        "access_errors": []
+      }
+    ],
+    "note": "Full primary text inspected as untrusted data; raw page contents not retained. Exact URLs/dates/license scope and assessments recorded in source-records.json."
+  },
+  "web6": {
+    "query": {
+      "open": [
+        {
+          "ref_id": "https://arxiv.org/abs/2607.27491"
+        },
+        {
+          "ref_id": "https://arxiv.org/html/2607.27491v2"
+        },
+        {
+          "ref_id": "https://www.microsoft.com/en-us/research/publication/spartan-efficient-and-general-purpose-zksnarks-without-trusted-setup/"
+        },
+        {
+          "ref_id": "https://github.com/brevis-network/pico/commits/main/"
+        }
+      ],
+      "response_length": "long"
+    },
+    "response_sha256": "a2358fd2a107cd4bd26a4b6ba1f4b4c48b469a3c4896efc5dd742f398a1edb9e",
+    "response_bytes": 28053,
+    "source_summaries": [
+      {
+        "title_and_metadata": [
+          "[2607.27491] Flock: Fast Proving for Batch Boolean Computations (https://arxiv.org/abs/2607.27491)",
+          "\ue200cite\ue202turn6view0\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Internal Error ()",
+          "\ue200cite\ue202turn6view1\ue201"
+        ],
+        "access_errors": [
+          "Internal Error ()",
+          "L0: Failed to fetch https://arxiv.org/html/2607.27491v2: Cache miss"
+        ]
+      },
+      {
+        "title_and_metadata": [
+          "Spartan: Efficient and general-purpose zkSNARKs without trusted setup - Microsoft Research (https://www.microsoft.com/en-us/research/publication/spartan-efficient-and-general-purpose-zksnarks-without-trusted-setup/)",
+          "\ue200cite\ue202turn6view2\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Commits \u00b7 brevis-network/pico \u00b7 GitHub (https://github.com/brevis-network/pico/commits/main/)",
+          "\ue200cite\ue202turn6view3\ue201"
+        ],
+        "access_errors": []
+      }
+    ],
+    "note": "Full primary text inspected as untrusted data; raw page contents not retained. Exact URLs/dates/license scope and assessments recorded in source-records.json."
+  },
+  "web7": {
+    "query": {
+      "open": [
+        {
+          "ref_id": "https://raw.githubusercontent.com/microsoft/Spartan/master/src/sumcheck.rs"
+        },
+        {
+          "ref_id": "https://raw.githubusercontent.com/microsoft/Spartan/master/LICENSE"
+        },
+        {
+          "ref_id": "https://github.com/microsoft/Spartan/commits/master/"
+        },
+        {
+          "ref_id": "https://github.com/compsec-epfl/efficient-sumcheck/blob/main/docs/design.md"
+        }
+      ],
+      "response_length": "long"
+    },
+    "response_sha256": "cf341d8f8a1e24a528b03bbe38d5ad3a57d8b5e045aed8ed6172fb94de913440",
+    "response_bytes": 26849,
+    "source_summaries": [
+      {
+        "title_and_metadata": [
+          "(https://raw.githubusercontent.com/microsoft/Spartan/master/src/sumcheck.rs)",
+          "\ue200cite\ue202turn7view0\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "Internal Error ()",
+          "\ue200cite\ue202turn7view1\ue201"
+        ],
+        "access_errors": [
+          "Internal Error ()"
+        ]
+      },
+      {
+        "title_and_metadata": [
+          "Commits \u00b7 microsoft/Spartan \u00b7 GitHub (https://github.com/microsoft/Spartan/commits/master/)",
+          "\ue200cite\ue202turn7view2\ue201"
+        ],
+        "access_errors": []
+      },
+      {
+        "title_and_metadata": [
+          "efficient-sumcheck/docs/design.md at main \u00b7 compsec-epfl/efficient-sumcheck \u00b7 GitHub (https://github.com/compsec-epfl/efficient-sumcheck/blob/main/docs/design.md)",
+          "\ue200cite\ue202turn7view3\ue201"
+        ],
+        "access_errors": []
+      }
+    ],
+    "note": "Full primary text inspected as untrusted data; raw page contents not retained. Exact URLs/dates/license scope and assessments recorded in source-records.json."
+  }
+}

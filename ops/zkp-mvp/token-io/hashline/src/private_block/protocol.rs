@@ -451,6 +451,57 @@ fn refuse_lookup_misses(u8: usize, exp: usize, act: usize) -> Result<(), String>
     ))
 }
 
+/// The exp lookups' histogram over the table's `U8_LEN` entries and the
+/// count of looked pairs that are not a row of the table (ruling CS-3;
+/// a miss is filed in entry 0, exactly as before). Shared by `prove_core`
+/// and [`check_lookup_misses`].
+fn exp_histogram(deltas: &[i64], e_plane: &[i64], exp: &[i64]) -> (Vec<u64>, usize) {
+    let mut m = vec![0u64; U8_LEN];
+    let mut missed = 0usize;
+    for (x, d) in deltas.iter().enumerate() {
+        let hit = (0..U8_LEN as i64).contains(d) && exp[*d as usize] == e_plane[x];
+        missed += usize::from(!hit);
+        m[if hit { *d as usize } else { 0 }] += 1;
+    }
+    (m, missed)
+}
+
+/// The activation lookups' histogram and miss count (ruling CS-3), as
+/// [`exp_histogram`].
+fn act_histogram(idx: &[i64], a16_plane: &[i64], act: &[i16]) -> (Vec<u64>, usize) {
+    let mut m = vec![0u64; U8_LEN];
+    let mut missed = 0usize;
+    for (x, i) in idx.iter().enumerate() {
+        let hit = (0..U8_LEN as i64).contains(i) && i64::from(act[*i as usize]) == a16_plane[x];
+        missed += usize::from(!hit);
+        m[if hit { *i as usize } else { 0 }] += 1;
+    }
+    (m, missed)
+}
+
+/// **NATIVE R6 (review r5 note N-r5-a): ruling CS-3's lookup-miss refusal,
+/// run on a witness BEFORE any proof exists.** The trained stack's sealing
+/// pass calls it on every sealed witness, so "every refusal of an
+/// inadmissible chain happens before the run header" (ruling H-1) is a
+/// fact of the code rather than an argument about the witness builder's
+/// range checks. The same counts `prove_core` computes (the looked byte
+/// columns, the exp and activation pairs) and the same named refusal (the
+/// class of the miss only, never a count; a cheating prover skips it in
+/// test builds exactly as in `prove_core`).
+pub(crate) fn check_lookup_misses(sh: &Shape, lay: &Layout, blk: &BlockPublic, wit: &Witness) -> Result<(), String> {
+    lay.check_is_for_shape(sh)?;
+    blk.check_for_shape(sh)?;
+    let ids = lay.ids();
+    if wit.planes.len() != ids.n_a() {
+        return Err("private block: witness shape".into());
+    }
+    let looked: Vec<(Dom, Vec<Vec<i64>>)> = lay.lookup_doms().iter().map(|d| (*d, lookup_values(lay, wit, *d))).collect();
+    let lookup_words: u64 = looked.iter().map(|(d, cols)| (cols.len() * sh.size(*d)) as u64).sum();
+    let (_, exp_missed) = exp_histogram(&exp_deltas(lay, wit), &wit.planes[ids.at(A_E)], &blk.attention().exp);
+    let (_, act_missed) = act_histogram(&act_indices(lay, wit), &wit.planes[ids.at(A_A16)], &blk.feed_forward().act);
+    refuse_lookup_misses(u8_misses_of(&looked, lookup_words), exp_missed, act_missed)
+}
+
 // **RULING CS-3's test-only switch: the soundness tests' CHEATING PROVER.**
 #[cfg(test)]
 thread_local! {
@@ -924,22 +975,10 @@ pub(crate) fn prove_core(
     let lookup_words: u64 = looked.iter().map(|(d, cols)| (cols.len() * sh.size(*d)) as u64).sum();
     let mut m_u8 = byte_histogram_at(&looked, lookup_words, HISTOGRAM_PAR_MIN);
     ph.mark(Half::Commit, "A: lookup values + the byte histogram", lookup_words, "words");
-    let deltas = exp_deltas(&lay, &wit);
-    let mut m_exp = vec![0u64; U8_LEN];
-    let mut exp_missed = 0usize;
-    for (x, d) in deltas.iter().enumerate() {
-        let hit = (0..U8_LEN as i64).contains(d) && public.exp[*d as usize] == wit.planes[ids.at(A_E)][x];
-        exp_missed += usize::from(!hit);
-        m_exp[if hit { *d as usize } else { 0 }] += 1;
-    }
-    let act_idx = act_indices(&lay, &wit);
-    let mut m_act = vec![0u64; U8_LEN];
-    let mut act_missed = 0usize;
-    for (x, i) in act_idx.iter().enumerate() {
-        let hit = (0..U8_LEN as i64).contains(i) && i64::from(ff.act[*i as usize]) == wit.planes[ids.at(A_A16)][x];
-        act_missed += usize::from(!hit);
-        m_act[if hit { *i as usize } else { 0 }] += 1;
-    }
+    let deltas = exp_deltas(lay, &wit);
+    let (mut m_exp, exp_missed) = exp_histogram(&deltas, &wit.planes[ids.at(A_E)], &public.exp);
+    let act_idx = act_indices(lay, &wit);
+    let (mut m_act, act_missed) = act_histogram(&act_idx, &wit.planes[ids.at(A_A16)], &ff.act);
     // RULING CS-3 (ported from the 125M lane's stage 40, text per errata
     // K-1 / K-2 of its stage 44): the three bucket-0 paths above are ONE
     // named refusal HERE — after the three histograms, from values this

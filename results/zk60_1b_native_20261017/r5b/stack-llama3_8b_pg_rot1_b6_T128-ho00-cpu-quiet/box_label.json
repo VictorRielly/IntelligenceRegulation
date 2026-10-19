@@ -1,0 +1,18 @@
+{
+ "run": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5b/stack-llama3_8b_pg_rot1_b6_T128-ho00-cpu-quiet",
+ "prove_start": "2026-10-18T05:10:19.367956Z",
+ "prove_end": "2026-10-18T05:17:32Z",
+ "label": "quiet box",
+ "overlapping": [],
+ "boundary_ties": [
+  {
+   "label": "r5b-stack-verify-llama3_8b_pg_rot1_b6_T128",
+   "cls": "cpu",
+   "start": "2026-10-18T05:17:31.554142Z",
+   "end": "2026-10-18T05:19:56Z",
+   "overlap_s": 0.45
+  }
+ ],
+ "tolerance_s": 1.5,
+ "note": "guarded jobs only (unguarded processes are not in the history); jobs still running at the time of this scan are not in the history yet; re-run the scan later to be sure"
+}

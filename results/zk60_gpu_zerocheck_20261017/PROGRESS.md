@@ -632,3 +632,4 @@ laptop's clock cap is lifted or the 5090 is reachable.
   the 5090, clock settings to record/pin, the L3 outline on the split
   template, open items).
 - 04:27Z LANE PAUSED (coordinator): no job of this lane running or queued.
+- 04:30Z coordinator: close the gap before pausing. Queued `s12-r4` (r6 CLI, round-4 defaults, HL_GPU_REQUIRED=1, need 4.5 GiB) + `verify.sh` (frozen review-r3 CPU binary, expects 53a5667d...), sampler2 beside it.

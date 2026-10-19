@@ -1,0 +1,6 @@
+R7 tree frozen for review at 2026-10-19T09:58:29Z
+tree sha256 36a8aed17ea1ec9ca2dec89155edebcb19048f3a63789ded6ab74cc275c43520
+manifest /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/manifest_frozen.json
+copy /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/
+CLIs r7/zk60_trained_block.release.bin and .gpu.release.bin (r7/binaries.sha256), built from this tree
+R7 = R6 + review r6 note N-r6-b (stale statement.writing-<pid>) + privacy review round 2 Q-2 (prover_reported.backend allow-list); R6 (r6/frozen-tree/, tree 83f1fdcb...) stays frozen

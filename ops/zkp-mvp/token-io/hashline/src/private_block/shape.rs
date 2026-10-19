@@ -82,9 +82,21 @@ pub(crate) const TINYLLAMA_TRAINED_PROFILES: [&str; 3] = [TINYLLAMA_T32_TRAINED_
 /// same declared classes as TinyLlama; at width 4096 the validator derives
 /// `tn <= 9`. Its own profile (D17).
 pub(crate) const LLAMA3_8B_T32_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-llama-3-8b-t32-trained/1";
+/// **NATIVE LANE, speed plan task 3 (2026-10-17 evening): the Llama-3-8B
+/// geometry at T = 64 and T = 128**, each its OWN profile string (D17), the
+/// same trained door, declared classes and pinned checkpoint as T32. Row
+/// width: the smallest counted receipt of the admissible widths (T64 2^13,
+/// 21,697,512 B; T128 2^14, 29,300,856 B; `ladder8b_tests`), 37 endpoint
+/// rows. Both profiles ACCEPTED by the independent review, round 5
+/// (`results/zk60_d24_review_20261017/R5_VERDICT.md`, verdict 2).
+pub(crate) const LLAMA3_8B_T64_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-llama-3-8b-t64-trained/1";
+pub(crate) const LLAMA3_8B_T128_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-llama-3-8b-t128-trained/1";
+/// the trained Llama-3-8B profiles: the pinned checkpoint's, at each
+/// registered context length
+pub(crate) const LLAMA3_8B_TRAINED_PROFILES: [&str; 3] = [LLAMA3_8B_T32_TRAINED_PROFILE, LLAMA3_8B_T64_TRAINED_PROFILE, LLAMA3_8B_T128_TRAINED_PROFILE];
 /// the profiles [`Shape::with_trained_calibration`] may give a non-frozen
 /// calibration to; every other profile's calibration is frozen
-pub(crate) const TRAINED_CALIBRATION_PROFILES: [&str; 5] = [TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIB_RUNG_PROFILE, TINYLLAMA_T64_TRAINED_PROFILE, TINYLLAMA_T128_TRAINED_PROFILE, LLAMA3_8B_T32_TRAINED_PROFILE];
+pub(crate) const TRAINED_CALIBRATION_PROFILES: [&str; 7] = [TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIB_RUNG_PROFILE, TINYLLAMA_T64_TRAINED_PROFILE, TINYLLAMA_T128_TRAINED_PROFILE, LLAMA3_8B_T32_TRAINED_PROFILE, LLAMA3_8B_T64_TRAINED_PROFILE, LLAMA3_8B_T128_TRAINED_PROFILE];
 const INT16_MAX: i128 = 32_767;
 /// the absolute endpoint of signed int16 (`-32768`), used by the TRAINED
 /// calibration rule only; every frozen profile keeps the historical 32767
@@ -150,13 +162,23 @@ pub(crate) const LLAMA3_8B_ROPE_THETA: f64 = 500_000.0;
 /// TinyLlama rung); the counted alternatives are in
 /// `r4_tests::the_llama3_8b_counted_layouts`
 pub(crate) const LLAMA3_8B_LOG_COLS: usize = 13;
+/// the 8B row width at each registered context length (task 3: the
+/// smallest counted receipt; T32 is [`LLAMA3_8B_LOG_COLS`])
+pub(crate) fn llama3_8b_log_cols(tokens: usize) -> Option<usize> {
+    match tokens {
+        32 => Some(LLAMA3_8B_LOG_COLS),
+        64 => Some(13),
+        128 => Some(14),
+        _ => None,
+    }
+}
 
 /// **The RoPE base pinned PER PROFILE** (round 4): 10000 for the TinyLlama
 /// profiles and the development rung, 500000 for Llama-3-8B; `None` for a
 /// profile with no trained calibration. An export or statement naming any
 /// other base is refused.
 pub(crate) fn trained_rope_theta(profile: &str) -> Option<f64> {
-    if profile == LLAMA3_8B_T32_TRAINED_PROFILE {
+    if LLAMA3_8B_TRAINED_PROFILES.contains(&profile) {
         Some(LLAMA3_8B_ROPE_THETA)
     } else if TRAINED_CALIBRATION_PROFILES.contains(&profile) {
         Some(TRAINED_ROPE_THETA)
@@ -345,6 +367,10 @@ fn registered_block_shape(profile: &str, f_e: u32) -> Option<Result<Shape, Strin
 fn trained_geometry(profile: &str, f_e: u32) -> Option<Result<Shape, String>> {
     let mask = super::endpoint_g::MASK_ROWS;
     let tl = |name: &'static str, p: &'static str, tokens: usize, lc: usize| Shape::build(name, p, tokens, 2048, 5632, 32, 64, 4, lc, 4, f_e, ((tokens * 2048) >> lc) + mask, None, None, None, None);
+    let l8 = |name: &'static str, p: &'static str, tokens: usize| {
+        let lc = llama3_8b_log_cols(tokens).expect("a registered 8B context length");
+        Shape::build(name, p, tokens, 4096, 14336, 32, 128, 8, lc, 4, f_e, ((tokens * 4096) >> lc) + mask, None, None, None, None)
+    };
     Some(match profile {
         TINYLLAMA_T32_TRAINED_PROFILE => tl("TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads)", TINYLLAMA_T32_TRAINED_PROFILE, 32, 12),
         TINYLLAMA_T64_TRAINED_PROFILE => tl("TinyLlama-1.1B block geometry, trained calibration (T64 / d2048 / f5632, 32 heads of 64 over 4 KV heads)", TINYLLAMA_T64_TRAINED_PROFILE, 64, 13),
@@ -367,6 +393,9 @@ fn trained_geometry(profile: &str, f_e: u32) -> Option<Result<Shape, String>> {
             None,
             None,
         ),
+        // task 3 (2026-10-17 evening): T64 and T128, PENDING REVIEW
+        LLAMA3_8B_T64_TRAINED_PROFILE => l8("Llama-3-8B block geometry, trained calibration (T64 / d4096 / f14336, 32 heads of 128 over 8 KV heads)", LLAMA3_8B_T64_TRAINED_PROFILE, 64),
+        LLAMA3_8B_T128_TRAINED_PROFILE => l8("Llama-3-8B block geometry, trained calibration (T128 / d4096 / f14336, 32 heads of 128 over 8 KV heads)", LLAMA3_8B_T128_TRAINED_PROFILE, 128),
         TRAINED_CALIB_RUNG_PROFILE => Shape::build("development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)", TRAINED_CALIB_RUNG_PROFILE, 32, 384, 512, 12, 32, 4, 10, 4, 12, 21, None, None, None, None),
         _ => return None,
     })
@@ -1445,6 +1474,29 @@ impl Shape {
         Ok(())
     }
 
+    /// **NATIVE R6: the same trained shape with ANOTHER SCORE SHIFT** — the
+    /// shape a run's stage is proved at when its layer declares its own
+    /// `sh_s` (a per-layer export constant, like the exp `e_s` and the SiLU
+    /// member). Only a trained-calibration shape; the value must lie in the
+    /// one-limb window (the plane list and lookup counts do not move inside
+    /// it: only the `scaled(rsl, 2^(8 - sh_s))` coefficient and the score
+    /// host relation's `2^sh_s` / `2^(sh_s - 1)` constants); the result passes
+    /// CS-8's rebuild through the door and the trained class check, so every
+    /// derived window is the door's.
+    pub(crate) fn with_score_shift(&self, sh_s: u32) -> Result<Shape, String> {
+        if !self.trained_calibration {
+            return Err(format!("private block shape: {} is not a trained-calibration shape; its score shift is frozen", self.profile));
+        }
+        if !ONE_LIMB_SHIFT.contains(&sh_s) {
+            return Err(format!("trained calibration: a per-layer sh_s {sh_s} is outside its structure-preserving window {ONE_LIMB_SHIFT:?}"));
+        }
+        let mut s = self.clone();
+        s.sh_s = sh_s;
+        s.check_constructed()?;
+        s.check_trained_class()?;
+        Ok(s)
+    }
+
     /// this shape's calibration, as the five constants
     pub(crate) fn norm_calibration(&self) -> NormCalibration {
         NormCalibration {
@@ -1536,6 +1588,36 @@ impl Shape {
     pub(crate) fn llama3_8b_t32_trained(cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
         Shape::check_f_e_class(32, f_e)?;
         trained_geometry(LLAMA3_8B_T32_TRAINED_PROFILE, f_e).ok_or("private block shape: an unregistered trained profile")??.with_trained_calibration(cal)
+    }
+
+    /// **Task 3 (2026-10-17 evening): the trained Llama-3-8B shape at a
+    /// registered context length** (32, 64 or 128), each its own profile;
+    /// T32 is exactly [`Shape::llama3_8b_t32_trained`]. Any other T is
+    /// refused by name. T64 / T128 accepted by the independent review, round 5.
+    pub(crate) fn llama3_8b_trained(tokens: usize, cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
+        let profile = match tokens {
+            32 => LLAMA3_8B_T32_TRAINED_PROFILE,
+            64 => LLAMA3_8B_T64_TRAINED_PROFILE,
+            128 => LLAMA3_8B_T128_TRAINED_PROFILE,
+            _ => return Err(format!("private block shape: no trained Llama-3-8B profile is registered at T = {tokens} (32, 64 and 128 are)")),
+        };
+        Shape::check_f_e_class(tokens, f_e)?;
+        trained_geometry(profile, f_e).ok_or("private block shape: an unregistered trained profile")??.with_trained_calibration(cal)
+    }
+
+    /// **TEST ONLY: the 8B geometry at another T and row width, for the
+    /// counted layouts** (builds past ruling CS-9: COUNTED, never proved).
+    #[cfg(test)]
+    pub(crate) fn llama3_8b_at(tokens: usize, log_cols: usize, cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
+        let profile = match tokens {
+            32 => LLAMA3_8B_T32_TRAINED_PROFILE,
+            64 => LLAMA3_8B_T64_TRAINED_PROFILE,
+            128 => LLAMA3_8B_T128_TRAINED_PROFILE,
+            _ => return Err(format!("no 8B profile at T = {tokens}")),
+        };
+        Shape::check_f_e_class(tokens, f_e)?;
+        let rows = ((tokens.next_power_of_two() * 4096) >> log_cols) + super::endpoint_g::MASK_ROWS;
+        Shape::build("Llama-3-8B block geometry, trained calibration, counted-layout ladder", profile, tokens, 4096, 14336, 32, 128, 8, log_cols, 4, f_e, rows, None, None, None, None)?.with_trained_calibration(cal)
     }
 
     /// **TEST ONLY: the same geometry at another row width, for the counted

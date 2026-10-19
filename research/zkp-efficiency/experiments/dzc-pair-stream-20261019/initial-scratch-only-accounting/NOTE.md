@@ -1,0 +1,1 @@
+Initial scratch and fixed-retained-endpoint accounting is correct for those named scopes, but does not apply last-use release to the original endpoint bank. The final audit adds that necessary scope and finds only 130 ->129 Fp2 words (including accumulator) at current unpadded T128 catalogs. Preserve the negative and do not claim 30.2% overall/register/memory gain.

@@ -1,8 +1,10 @@
 # Token I/O for the private run — design, counted costs, test-first plan
 
-Lane: TOKEN I/O DESIGN, 2026-10-17. **Version 3** (after the second adversarial
-check `check/CHECK2.md`, the security owner's D26 and the D15 correction; version 2
-followed the first check `check/CHECK.md`). **Paper only**: nothing here was built, proved or measured. No
+Lane: TOKEN I/O DESIGN, 2026-10-17/18. **Version 4** (after rungs R1 and R2 were
+built and independently reviewed and R3 was built and counted,
+`results/zk60_token_io_r1_20261017/`, `results/zk60_token_io_review_r1_20261017/`;
+version 3 followed the second adversarial check `check/CHECK2.md`, D26 and the D15
+correction; version 2 the first check `check/CHECK.md`). **Paper only**: nothing here was built, proved or measured. No
 privacy property is accepted by this document and no ruling is made; rulings are
 Victor's (`docs/zkmatrix-poc/ZK60_DECISIONS.md`). D13 stands: the hidden blocks
 are the first MVP, token generation is the next milestone, and this is a design
@@ -15,12 +17,32 @@ fitted cost model (`cost_model.py`, laptop Core Ultra 9 185H phase run, shared
 box) or one of its stated band factors. No number here is [MEASURED].
 Reproduce every table with
 `python3 results/zk60_token_io_design_20261017/token_io_count.py`
-(v3; one thread, under one second; output `token_io_count.json`). Version 1 of
-the counter and its output are kept as `token_io_count_v1.py` / `_v1.json`.
+(v4; one thread, under one second; output `token_io_count.json`; its `main()`
+first asserts that its public-row segments equal the code's counted receipt
+lengths at both models). Versions 1 and 3 of the counter and their outputs are
+kept as `token_io_count_v1.py` / `_v1.json` and `_v3.py` / `_v3.json`.
 
 ---
 
-## 0. Changes in version 3 (2026-10-17, UTC 19:51–20:00)
+## 0. Changes in version 4 (2026-10-18, UTC 04:25–04:45)
+
+Three implementation notes from the rung lane (`results/zk60_token_io_r1_20261017/`:
+R1 and R2 built, R3 built and counted) and its two independent reviews, plus the
+rulings and measurements that landed between v3 and now. Paper only; the
+construction itself is the lane's.
+
+| item | source | what changed |
+|---|---|---|
+| V4-1 | **TF-1** (lane; D24 F-1 rule) | The keyed-argmax limb count is **derived**, `L = ceil(window / 8)`, never a fixed six. The window is derived over the declared class of `d`, `V` and the head multipliers (V4-3): `bits(2^v * 2 d 127^2 * 2^12 + V - 1)` = 45 at the R1 rung (6 limbs), **53 at TinyLlama and 56 at Llama-3-8B (7 limbs)**; no top-limb pin; no-wrap needs `2^(8L) + 2^window < p` (the door checks it). §3.1 (A4), §3.2, §4.4. R0 gains `limbs_for` and a test; its stored vectors keep the synthetic profile's fixed six (which covers that profile's 28-bit window). |
+| V4-2 | **TR-7** (review, INFO; lane decision 22:58 UTC) | The run **keeps its block shape's hash-tag key set**, the measured rule for every run profile; transcripts are separated by the run profile string as the domain. §4.1's D17 bullet amended (v3 said "its own hash-tag key set"). |
+| V4-3 | **D25 T4 amended** (Victor, 2026-10-17 20:21 UTC, option (b)) and the fidelity REPORT | The per-tensor head missed the 99 % threshold (98.45 %; per-row 98.91 %; every miss a float near-tie). Ruled: **per-row int8 head with public integer multipliers `m_j in [1, 2^12]`**, `l_j = m_j (y . W'_j)`, accepted on the margin-conditioned criterion (100 % where the float top-2 margin is >= 0.3 logits); the 16-bit final-norm alternative (99.57 %) declined. §3.1 item 3 and the logit bound `2^12 d 127^2` everywhere. **C-7 resolved by the numbers**: the refusal-free `Cn` leaves `max |y|` at 11–12 (logits nondegenerate but coarse), so the calibrated form is used (`Cn` 5,664 at TinyLlama, 512 at 8B) and the final-norm int8 overflow sits in D20's input-dependent class, refused at the door before any commitment (R2 test "D20 at Cn 5,664"). |
+| V4-4 | **TF-6 / TF-2 / TI-1** (lane) | The counter's receipt estimate now **equals the code's counted segment lengths** (`token_io.rs::StageSegGeom::len`, `wire.rs::segment_len`), rows / sites / elements unchanged: an 88-byte stage header, the `B_in` root in stage IN, a 32-byte trailer; **stage OUT closes `B_out`** (its second site's stage opens the boundary, D12a: one two-group opening of `data + 6` rows at the block geometry, 583,680 B at the 8B 2^13 boundary); the stage-OUT `A` opening has the code's **18** column-weight groups (H 6; stage IN 3 / 4); IO-in runs over `d_pad`, TZC's one-row `To` over 2 entries; a block segment inside a token run is the single-block estimate + 112 B with its two endpoint openings replaced by one two-group boundary opening. Self-check (asserted): **R2 1,267,576 + 22 x 11,391,800 + 3,371,640 = 255,258,816 B; R3 1,415,192 + 32 x 14,547,080 + 4,363,320 = 471,285,072 B**, the code's counted and measured lengths [COUNTED]. |
+| V4-5 | counter run | **16-bit limbs are inadmissible under the 12-bit multiplier class**: the 53 / 56-bit windows need four 16-bit limbs = 2^64, and `2^64 + 2^53 >= p`. §3.1's (U16) alternative is withdrawn; the counter marks those variants inadmissible. |
+| V4-6 | **D27** (2026-10-17) | The soundness target is a whole-run figure per workload: MVP about 95 bits whole-run accepted as a recorded deviation, 100 next, 128 product. The tier levers (Q, stage width floor and rate, endpoint width and rate, lookup field) live in the run profile's `Tier` and the parameter line; the statement carries its derived whole-run floor and a verifier policy refuses below it. §4.4, §6. |
+| V4-7 | lane + reviews | **R1 and R2 are built and independently reviewed; R3 is built and counted** (§6.5): round 1 (`REVIEW.md`) found R1 sound as built with one MEDIUM (TR-1, tier door), one LOW-MEDIUM (TR-2), two LOW (TR-3, TR-4) and three INFO findings, all fixed test-first; round 2 (`REVIEW2.md`): TR-1..TR-5 closed, R2 sound as built, **no HIGH or MEDIUM finding**, the lane's TinyLlama receipt verifies with the reviewer's own binary in a fresh process. R3 at Llama-3-8B: 137 openings, whole run 2^-97.58, **floor 97 bits at L = 32** [COUNTED]; the lane's generic 8B next-token proof (471,285,072 B, 34 segments) verified in a fresh process under a 95-bit policy [MEASURED by that lane, shared box, n = 1]. |
+| V4-8 | numbers | Mode (i) totals with 7 limbs and the per-row head: **8B T32 3.25 M committed elements (+0.36 %), 3.2 s laptop, receipt +5.8 MB; TinyLlama 1.38 M, 1.4 s, +4.6 MB**; 8B T512 mode (ii) U8 keyed 1,133 M elements (+5.3 %), step 932 M. Soundness terms unchanged (same openings). §1, §3.5, §5. |
+
+## 0a. Changes in version 3 (2026-10-17, UTC 19:51–20:00)
 
 The second adversarial pass (`check/CHECK2.md`, probes `check/check2_probes.py`)
 found B-1 to B-3 closed and the pin drop safe, and one new hole that version 2's
@@ -92,20 +114,23 @@ stage OUT 0.819 M -> 1.073 M. 8B T512 mode (ii), byte limbs: 1,066 M -> 932 M.
    through one lookup per position on a random compression of the row
    (0.18 M committed elements for TinyLlama, 0.48 M for Llama-3-8B, at every T
    [COUNTED]).
-6. **Output side**: the head's integer logits feed a *keyed* argmax — a 0/1
-   selector over the vocabulary plus one non-negative difference per entry in six
-   byte limbs — which forces numpy's first-maximum tie rule with no separate
-   comparison.
-7. **Cost at Llama-3-8B, mode (i)**: 2.83 M committed elements (0.31 % of the T32
+6. **Output side**: the head's integer logits (per-row int8 head with public
+   12-bit multipliers, D25 T4 as amended) feed a *keyed* argmax — a 0/1 selector
+   over the vocabulary plus one non-negative difference per entry in `L =
+   ceil(window / 8)` byte limbs (7 at both models) — which forces numpy's
+   first-maximum tie rule with no separate comparison.
+7. **Cost at Llama-3-8B, mode (i)**: 3.25 M committed elements (0.36 % of the T32
    stack) [COUNTED]; 3.2 s on the laptop CPU (3.0 % of the T32 stack), 0.43 s on
-   one 5090 with the whole prover resident [MODEL]. The verifier pays +1.6 s per
-   pass to fold the two 525 M-entry public tables (embedding, head): +12 % at T32,
-   +0.8 % at T512 [MODEL]. Soundness (the register's D15 accounting): the commitment
-   term moves from 2^-98.19 to 2^-98.04 and the whole run from 2^-96.77 to 2^-96.71
-   [COUNTED].
-8. **Mode (ii)** costs +4 % to +11 % of the 8B stack depending on T and measure
-   (932 M committed elements at T512 with byte limbs, 596 M with 16-bit limbs
-   [COUNTED]) and is what lets one prefill-shaped proof count every generated token.
+   one 5090 with the whole prover resident [MODEL]; receipt +5.8 MB, equal to the
+   code's counted lengths [COUNTED]. The verifier pays +1.6 s per pass to fold the
+   two 525 M-entry public tables (embedding, head): +12 % at T32, +0.8 % at T512
+   [MODEL]. Soundness (the register's D15 accounting): the commitment term moves
+   from 2^-98.19 to 2^-98.04 and the whole run from 2^-96.77 to 2^-96.71 [COUNTED];
+   the built R3 statement carries a 97-bit floor against D27's 95-bit MVP policy.
+8. **Mode (ii)** costs +5 % to +12 % of the 8B stack depending on T and measure
+   (1,133 M committed elements at T512 with the keyed rule, 932 M with the step
+   rule [COUNTED]; 16-bit limbs are inadmissible, V4-5) and is what lets one
+   prefill-shaped proof count every generated token.
 9. **The owner learns the token** from the prover, with the output endpoint's
    decommitment (rows, pads, salts), over a private channel, and checks it against
    the receipt's root; that hand-off is never published (D21) and no root is ever
@@ -322,22 +347,35 @@ two-site boundary. What is new: a table whose values depend on a challenge
    `y` in `[-127, 127]` by the `sym` lookups — with D24's per-profile `tn` (10 at
    width 2048, 9 at 4096), so the remainder window is exactly 32 bits and D16
    rules 1–4 hold (check table 3.2: every clause below `p/2`). `x`'s int16 range is
-   re-proved in the stage, as every block re-proves its input. The calibration of
-   `Cn` follows C-7.
+   re-proved in the stage, as every block re-proves its input. `Cn` is the
+   **calibrated** value (`norm_site` with `c = 1`: 5,664 at TinyLlama, 512 at 8B);
+   the refusal-free alternative was measured too coarse (`max |y|` 11–12), so the
+   int8 overflow is an input-dependent refusal of D20's class, refused at the
+   door before any commitment (C-7 resolved, V4-3).
 3. **Head matmul**, the block's matmul slot over the inner index `d`:
    `l~(p) = sum_i y~(p_t, i) W'~(p_j, i)` with
-   `W' = round(lm_head diag(norm_weight) R^T / s_w)` int8, one per-tensor scale
-   (the calibration's `qw`, clipped to `[-127, 127]`; the fidelity lane's s4 builds
-   exactly this). The logits `l` are the **raw integer accumulators** (no
-   requantization; the zkVM token kernel's `head_logits` semantics), `|l| <= d *
-   127^2` = 33,032,192 (TinyLlama) / 66,064,384 (8B) [COUNTED]. Like every
-   accumulator in the block, `l` is **virtual**, never a plane of its own.
+   `W' = round(lm_head diag(norm_weight) R^T / s_j)` int8 **per row** (D25 T4 as
+   amended, 2026-10-17 20:21 UTC: the per-tensor head reached 98.45 % top-1
+   agreement, the per-row head 98.91 %, every miss a float near-tie; accepted on
+   the margin-conditioned criterion, 100 % where the float top-2 margin is >= 0.3
+   logits), each row multiplied by a **public integer multiplier** `m_j =
+   max(1, round(2^12 s_j / max_j s_j))` in the declared class `[1, 2^12]`:
+   `l_j = m_j (y . W'_j)`, folded into the matmul slot's public factor. The logits
+   `l` are the **raw integer accumulators** (no requantization; the zkVM token
+   kernel's `head_logits` semantics), `|l| <= 2^12 d 127^2` = 2^36.98 (TinyLlama)
+   / 2^37.98 (8B) [COUNTED]; `-128` head words are refused at the door (review
+   TR-5). Like every accumulator in the block, `l` is **virtual**, never a plane of
+   its own.
 4. **Keyed greedy argmax.** With `V_pad = 2^v`, define the key
    `kappa_i = 2^v l_i + (2^v - 1 - i)`: larger logit first, then smaller index.
    The first maximum of `l` is the **unique** maximum of `kappa`. Commit, per
-   output position `t`: a selector `e[t, .]` over the vocabulary, six byte limbs
-   `lambda_k[t, .]` of a difference `delta`, and per-position scalars `tok[t]`,
-   `M[t]`. Prove:
+   output position `t`: a selector `e[t, .]` over the vocabulary, **`L` byte
+   limbs** `lambda_k[t, .]` of a difference `delta`, and per-position scalars
+   `tok[t]`, `M[t]`. **`L` is derived (TF-1), never a fixed six**: `L = ceil(window
+   / 8)` with `window = bits(2^v * 2 d 127^2 * 2^12 + V - 1)` over the declared
+   class of `d`, `V` and the multipliers — 45 bits (6 limbs) at the R1 rung, 53
+   (7) at TinyLlama, 56 (7) at Llama-3-8B; the door checks `2^(8L) + 2^window < p`.
+   Prove:
    * (A1) `e(1 - e) = 0`; `e = 0` and `lambda = 0` on padded vocabulary entries
      (P-1 pad-zero);
    * (A2) `sum_i e[t, i] = 1`; (A3) `tok[t] = sum_i i e[t, i]`;
@@ -346,8 +384,8 @@ two-site boundary. What is new: a table whose values depend on a challenge
      `sum eq(r, t) [ supp_V e (c1 + c2 iota + c3 delta) - u0 (c1 supp_T + c2 tok) ] = 0`,
      `u0` the public indicator of vocabulary entry 0, and `c1, c2, c3` **fresh
      challenges** drawn after `A_out` (so A2, A3 and A6 hold separately);
-   * (A4) `delta = sum_{k<6} 256^k lambda_k`, every limb a byte, so
-     `delta in [0, 2^48)` — **no top-limb pin** (C-4);
+   * (A4) `delta = sum_{k<L} 256^k lambda_k`, every limb a byte, so
+     `delta in [0, 2^(8L))` — **no top-limb pin** (C-4);
    * (A5) the head claim lands on the **virtual logits**
      `l*[t, i] = supp_V(i) (M[t] + 2^-v (i - tok[t] - delta[t, i]))` — the host
      term of the vocabulary zero-check, linear in committed planes.
@@ -357,9 +395,10 @@ one-hot at some `j < V` (roots of `e(1 - e)` are only 0 and 1, and the sum of at
 most `V_pad T_out < p` ones is 1); (A3): `tok = j`; (A6): `delta_j = 0`. (A5) at
 `i = j`: `2^v (M - l_j) = 0`, so `M = l_j` — neither under- nor over-stated. Hence
 for every `i < V`, `delta_i = 2^v (l_j - l_i) + (i - j)` in the field. The right
-side is an integer of absolute value below `2^v * 2 d 127^2 + V < 2^45`; (A4) says
-`delta_i` is an integer in `[0, 2^48)`; since `2^48 + 2^45 < p`, the two integers
-are equal, so `2^v (l_j - l_i) + (i - j) >= 0`. If `l_i > l_j` the left side is at
+side is an integer of absolute value below `2^window` (2^53 / 2^56); (A4) says
+`delta_i` is an integer in `[0, 2^(8L))` (2^56 at both models); since `2^(8L) +
+2^window < p` (2^57 < p), the two integers are equal, so `2^v (l_j - l_i) + (i -
+j) >= 0`. If `l_i > l_j` the left side is at
 most `-2^v + (2^v - 1) < 0`: impossible. If `l_i = l_j` then `i >= j`. So `j` is the
 lowest index among the maxima — numpy's first-maximum rule — and `l` is the true
 integer product `y W'^T` (matmul slot at a random point drawn after `A_out`; every
@@ -387,13 +426,14 @@ with fixed coefficients lets one clause absorb another (CHECK2 N-1 is the instan
 that happened).
 
 **Recorded alternatives.** (S) *Step tie rule*: `delta' = M - l_i - [i < tok]`
-needs 26 / 27 bits (four limbs) but a committed step vector `s_lt` and a slot
-`s_lt = LT * e` with a public prefix matrix: a new slot type for 22 % fewer
-committed words at mode (ii) (table below). (U16) *16-bit limbs*: three limbs; the
-stage's row width must be at least 2^16 (the stage-23 invariant `log(Tab) == row
-width`, `layout.rs::domain_log_at`). (R) *Per-row head scales*, only if the
-fidelity check fails with one per-tensor scale: each row multiplied by a public
-integer multiplier, widening `delta` by its bit length.
+needs 38 / 39 bits (five limbs) but a committed step vector `s_lt` and a slot
+`s_lt = LT * e` with a public prefix matrix: a new slot type for about 18 % fewer
+committed words at mode (ii) (table below). (U16) *16-bit limbs* — **withdrawn in
+v4**: under the 12-bit multiplier class the 53 / 56-bit windows need four 16-bit
+limbs = 2^64, and `2^64 + 2^53 >= p`, so the no-wrap condition fails (V4-5); it
+also needed a 2^16 row width. (R) *Per-row head scales* — **adopted** (D25 T4 as
+amended; item 3 above): the public 12-bit multipliers widen the window by 12
+bits, from 41 / 44 to 53 / 56.
 
 ### 3.2 Planes and slots of stage OUT (U8, keyed, no pin; `T_out` output rows)
 
@@ -402,7 +442,7 @@ integer multiplier, widening `delta` by its bit length.
 | To (`T_out`) | `D`, `Dsq`, `tok`, `M` | — | — |
 | Lo (16 `T_out`, lifted) | isqrt limb plane | 1 | 1 |
 | Do (`T_out x d`, lifted) | `x`, `xl0`, `xl1`, `y`, `rho x4`, `sigma x4` | 12 | 6 |
-| Vo (`T_out x V_pad`, lifted) | `e`, `lambda_0..5` | 6 | 3 |
+| Vo (`T_out x V_pad`, lifted) | `e`, `lambda_0..6` (`L = 7`; TF-1) | 7 | 4 |
 | Tab | U8 multiplicities | — | table helper + `u` |
 | Ts (hidden length only) | `s` | — | — |
 
@@ -411,9 +451,10 @@ or SEL + SBOOL + IO-s for the hidden length — SS (private, hosted by TZC), TZC
 LZC, HEAD (private, hosted by VZC), DZC (norm quotient, `x` limbs, helpers, pad),
 VZC (`e(1-e)`, the head's host term on `l*`, helpers, pad), RSEL, TAB, ZS, IO-out
 (over the output endpoint's whole 256-word plane: `end(z) = u0(z) tok`). Claim
-sites [COUNTED]: 47 on `A_out` (50 hidden length: SEL claims `s` and `x`, SBOOL
-and IO-s claim `s`, in place of IO-in's one; v3, CHECK2 N-7), 12 on `H_out`;
-`M_out` 26 rows (30 hidden length); `B_out` one site (plus block `L-1`'s); the output endpoint one.
+sites [COUNTED]: 49 on `A_out` (52 hidden length: SEL claims `s` and `x`, SBOOL
+and IO-s claim `s`, in place of IO-in's one; v3, CHECK2 N-7), 13 on `H_out`;
+`M_out` 26 rows (30 hidden length); the code's R2 / R3 layouts are exactly these
+(stage OUT A 182 / H 110 at TinyLlama, 374 / 302 at 8B); `B_out` one site (plus block `L-1`'s); the output endpoint one.
 
 ### 3.3 Output endpoint and the two modes
 
@@ -474,26 +515,29 @@ all mode-(i) rows (every opening 2^-103.69).
 
 | model | variant | A / H rows | elements | byte lookups | max zc | laptop s | 5090 S0 / S3 s | verifier s | receipt MB |
 |---|---|---|---:|---:|---|---:|---:|---:|---:|
-| TinyLlama | mode (i), public row | 170 / 92 | 1.073 M | 0.250 M | 2^15 | 0.97 | 0.63 / 0.19 | 0.13 | 2.37 |
-| TinyLlama | mode (i), hidden length (input-sealed) | 177 / 92 | 1.102 M | 0.250 M | 2^15 | 1.06 | 0.67 / 0.19 | 0.13 | 2.40 |
-| 8B | mode (i), public row | 338 / 236 | 2.351 M | 0.840 M | 2^17 | 1.94 | 1.10 / 0.23 | 0.82 | 3.01 |
-| 8B | mode (i), hidden length (input-sealed) | 345 / 236 | 2.380 M | 0.840 M | 2^17 | 2.02 | 1.14 / 0.23 | 0.82 | 3.04 |
-| 8B | mode (i), public row, with pin (v1) | 338 / 302 | 2.621 M | 0.971 M | 2^17 | 1.96 | 1.10 / 0.23 | 0.82 | 3.15 |
+| TinyLlama | mode (i), public row (= the built R2 stage) | 182 / 110 | 1.196 M | 0.283 M | 2^15 | 0.99 | 0.63 / 0.19 | 0.13 | 3.37 (= code) |
+| TinyLlama | mode (i), hidden length (input-sealed) | 189 / 110 | 1.225 M | 0.283 M | 2^15 | 1.07 | 0.67 / 0.20 | 0.13 | 3.40 |
+| 8B | mode (i), public row (= the built R3 stage) | 374 / 302 | 2.769 M | 0.971 M | 2^17 | 1.98 | 1.11 / 0.23 | 0.82 | 4.36 (= code) |
+| 8B | mode (i), hidden length (input-sealed) | 381 / 302 | 2.798 M | 0.971 M | 2^17 | 2.06 | 1.15 / 0.24 | 0.82 | 4.39 |
+
+(The receipt column includes the stage's framing and, in stage OUT, the `B_out`
+opening; v3's "with pin" row is gone — at 56 = 7 x 8 bits there is no top limb to
+pin.)
 
 Mode (ii), `T_out = T`, Llama-3-8B (stage OUT at its receipt-optimal width):
 
 | T | variant | n | elements | byte lookups | max zc | VZC slot tables | laptop s | 5090 S0 / S3 s | receipt MB |
 |---|---|---|---:|---:|---|---:|---:|---:|---:|
-| 32 | U8 keyed | 2^14 | 59.9 M | 26.8 M | 2^22 | 0.9 GiB | 9.9 | 4.46 / 0.55 | 12.9 |
-| 128 | U8 keyed | 2^15 | 235.1 M | 107.0 M | 2^24 | 3.8 GiB | 33.5 | 14.4 / 1.51 | 24.9 |
-| 512 | U8 keyed | 2^16 | 931.7 M | 427.9 M | 2^26 | 15 GiB | 127.1 | 53.9 / 5.32 | 48.7 |
-| 512 | U8 step | 2^16 | 730.2 M | 293.7 M | 2^26 | 13 GiB | 106.3 | 45.6 / 4.47 | 42.4 |
-| 512 | U16 keyed | 2^16 | 595.5 M | 226.6 M | 2^26 | 11 GiB | 83.6 | 35.7 / 3.55 | 38.2 |
+| 32 | U8 keyed (7 limbs) | 2^14 | 72.6 M | 30.9 M | 2^22 | 1.1 GiB | 11.1 | 4.95 / 0.60 | 17.2 |
+| 128 | U8 keyed | 2^15 | 285.7 M | 123.8 M | 2^24 | 4.3 GiB | 38.5 | 16.4 / 1.72 | 33.3 |
+| 512 | U8 keyed | 2^16 | 1,133.4 M | 495.0 M | 2^26 | 17 GiB | 147.0 | 61.8 / 6.14 | 65.3 |
+| 512 | U8 step (5 limbs) | 2^16 | 931.9 M | 360.8 M | 2^26 | 15 GiB | 126.2 | 53.5 / 5.29 | 59.0 |
+| 512 | U16 keyed | — | **inadmissible** (four 16-bit limbs = 2^64; `2^64 + 2^56 >= p`, V4-5) | | | | | | |
 
-TinyLlama mode (ii) U8 keyed: 16.3 M / 63.0 M / 247.7 M elements at T32 / T128 /
-T512 [COUNTED], 3.1 / 9.4 / 33.9 s laptop [MODEL]. The slot-table column (16 bytes
+TinyLlama mode (ii) U8 keyed: 19.5 M / 75.7 M / 298.3 M elements at T32 / T128 /
+T512 [COUNTED], 3.4 / 10.6 / 38.9 s laptop [MODEL]. The slot-table column (16 bytes
 x (tables + 3) x domain, the speed plan's VRAM rule) flags a scaling risk: at 8B
-T512 the vocabulary zero-check alone needs 11–15 GiB against 3.4 GiB for the
+T512 the vocabulary zero-check alone needs 15–17 GiB against 3.4 GiB for the
 largest block slot; mode (ii) at `T >= 512` on one GPU needs the vocabulary cube
 split into chunks (one VZC instance per chunk: a few more claim sites, no new
 relation) or a streaming prover.
@@ -528,10 +572,12 @@ relation) or a streaming prover.
   C-a).
 * **D12b(1)(2).** The run statement is written only after the whole run,
   including both new stages, verifies; one generator per run.
-* **D17.** A token-I/O run is a new run profile (its own string, transcript and
-  hash-tag key set); every block profile, every existing run profile and the D22
-  toy keep their bytes. Every IO slot covers its endpoint's whole padded plane
-  (rule 1; C-3).
+* **D17.** A token-I/O run is a new run profile (its own string and transcript);
+  **it keeps its block shape's hash-tag key set**, the measured rule for every run
+  profile, the transcripts being separated by the run profile string as the
+  domain (TR-7, v4; v3 wrongly said "its own key set"). Every block profile, every
+  existing run profile and the D22 toy keep their bytes. Every IO slot covers its
+  endpoint's whole padded plane (rule 1; C-3).
 * **D18.** The prover seals both token endpoints. **D21 / D23 / D19b**: section 3.4.
 * **D24's F-1 rule.** Every constant an export can choose for the new stages
   (`g0`, `Cn_f`, `tn_f`, `Ceps_f`, `V`, the head and embedding digests; the limb
@@ -597,9 +643,9 @@ Every relation read over the integers must have all terms far below `p/2`:
 
 | clause | bound [COUNTED] |
 |---|---|
-| N-1 head accumulator `|l|` | `d * 127 * 127` < 2^25.98 (8B); with -128 admitted, `d * 127 * 128` |
-| N-2 keyed difference `delta` | `[0, 2^48)` by six byte limbs (no pin); honest `< 2^44` (8B) / `2^41` (TinyLlama) |
-| N-3 the identity `delta_i = 2^v (l_j - l_i) + (i - j)` | `< 2^45`; `2^48 + 2^45 < p` |
+| N-1 head accumulator `|l_j| = m_j |y . W'_j|` | `2^12 * d * 127 * 127` < 2^37.98 (8B), 2^36.98 (TinyLlama); -128 head words refused at the door |
+| N-2 keyed difference `delta` | `[0, 2^(8L))` by `L = ceil(window / 8)` byte limbs (no pin; TF-1): 2^56 at both models; honest `< 2^56` (8B) / `2^53` (TinyLlama) |
+| N-3 the identity `delta_i = 2^v (l_j - l_i) + (i - j)` | `< 2^window`; `2^(8L) + 2^window < p` (2^57 < p); 16-bit limbs would need 2^64 and fail (V4-5) |
 | N-4 `tok = sum i e` | exactly `j < V` (field identity with one-hot `e`) |
 | N-5 byte-lookup multiplicities, stage OUT | at most the stage's lookup count, 0.428 G `< 2^29` (8B T512 mode ii) |
 | N-6 LogUp multiplicities, stage IN | `m_v <= T`; no range needed (residues `< p`) |
@@ -640,7 +686,12 @@ figures [COUNTED]:
 
 Token I/O costs at most 0.3 bit of the commitment term and under 0.1 bit of the
 whole run at the registered shapes; from T64 up the stack's lookup term, not the
-commitments, sets the whole-run figure (D15 correction). The LogUp and
+commitments, sets the whole-run figure (D15 correction). **As built**: the
+statement derives its own whole-run figure (column term over its openings plus
+the derived LogUp term) and binds its floor into the parameter line — R2
+(TinyLlama T32, 97 openings) 2^-97.33, R3 (Llama-3-8B T32, 137 openings) 2^-97.58,
+**floor 97 bits** at both [COUNTED by the code's test]; the verifier refuses any
+statement below its policy, and D27's MVP level is 95 bits whole-run. The LogUp and
 Schwartz–Zippel terms of section 2.3 are at most about 2^-102. Mode (ii) at 8B T512
 adds about 4 % to the byte lookups (0.43 G on about 9.8 G). The hidden-length and
 public-row variants have the same terms (the two-site endpoint is still one
@@ -667,31 +718,36 @@ with the number of output rows, not with the weights.
 | head fold, verifier | 0.78 s [MODEL] (1.46 ns / entry) |
 | embedding fold, prover / verifier | 536.9 M entries, 0.90 s / 0.78 s [MODEL] |
 | stage IN committed | 0.479 M elements [COUNTED] |
-| stage OUT committed, mode (i) | 2.351 M elements [COUNTED] (a T32 block: 28.3 M) |
-| stage OUT committed, mode (ii) T512, U8 / U16 | 932 M / 596 M elements [COUNTED] (a T512 block: 663 M) |
+| stage OUT committed, mode (i) | 2.769 M elements [COUNTED] (a T32 block: 28.3 M) |
+| stage OUT committed, mode (ii) T512, keyed / step | 1,133 M / 932 M elements [COUNTED] (a T512 block: 663 M) |
 
 Totals of token I/O (stage IN option b + stage OUT, public row; the hidden-length
 variant adds 0.03 M elements and about 0.08 s laptop) against the 32-block stack:
 
 | T | mode | elements | laptop CPU s | 5090 S0 s | 5090 S3 s | verifier s | receipt MB |
 |---|---|---:|---:|---:|---:|---:|---:|
-| 32 | (i) | 2.83 M (+0.31 %) | 3.18 (+3.0 %) | 1.86 (+3.8 %) | 0.43 (+4.7 %) | +1.63 (+12.4 %) | +4.4 (+0.9 %) |
-| 128 | (i) | 2.83 M (+0.08 %) | 3.18 (+0.9 %) | 1.86 (+1.4 %) | 0.43 (+2.3 %) | +1.63 (+6.6 %) | +4.4 (+0.5 %) |
-| 512 | (i) | 2.83 M (+0.01 %) | 3.18 (+0.2 %) | 1.86 (+0.3 %) | 0.43 (+0.6 %) | +1.63 (+0.8 %) | +4.4 (+0.2 %) |
-| 32 | (ii) U8 | 60.4 M (+6.7 %) | 11.1 (+10.4 %) | 5.22 (+10.7 %) | 0.75 (+8.2 %) | +1.63 | +14.3 |
-| 128 | (ii) U8 | 235.6 M (+6.2 %) | 34.7 (+10.2 %) | 15.2 (+11.3 %) | 1.72 (+9.1 %) | +1.63 | +26.3 |
-| 512 | (ii) U8 | 932.1 M (+4.4 %) | 128.3 (+7.7 %) | 54.7 (+8.9 %) | 5.52 (+7.5 %) | +1.63 | +50.2 |
-| 512 | (ii) U16 | 596.0 M (+2.8 %) | 84.8 (+5.1 %) | 36.4 (+5.9 %) | 3.75 (+5.1 %) | +1.63 | +39.7 |
+| 32 | (i) | 3.25 M (+0.36 %) | 3.22 (+3.0 %) | 1.88 (+3.9 %) | 0.43 (+4.7 %) | +1.63 (+12.4 %) | +5.8 (+1.2 %, = code) |
+| 128 | (i) | 3.25 M (+0.09 %) | 3.22 (+1.0 %) | 1.88 (+1.4 %) | 0.43 (+2.3 %) | +1.63 (+6.6 %) | +6.2 (+0.7 %) |
+| 512 | (i) | 3.25 M (+0.02 %) | 3.22 (+0.2 %) | 1.88 (+0.3 %) | 0.43 (+0.6 %) | +1.63 (+0.8 %) | +7.1 (+0.3 %) |
+| 32 | (ii) keyed | 73.1 M (+8.1 %) | 12.4 (+11.6 %) | 5.72 (+11.7 %) | 0.81 (+8.7 %) | +1.63 | +18.6 |
+| 128 | (ii) keyed | 286.2 M (+7.6 %) | 39.8 (+11.7 %) | 17.2 (+12.7 %) | 1.92 (+10.2 %) | +1.63 | +34.7 |
+| 512 | (ii) keyed | 1,133.9 M (+5.3 %) | 148.3 (+8.9 %) | 62.5 (+10.2 %) | 6.34 (+8.6 %) | +1.63 | +66.8 |
+| 512 | (ii) step | 932.4 M (+4.4 %) | 127.5 (+7.7 %) | 54.2 (+8.8 %) | 5.49 (+7.5 %) | +1.63 | +60.5 |
 
 Elements and receipt bytes [COUNTED]; seconds [MODEL] (stack figures from the
 same cost model: 8B stack laptop 106.8 / 339.2 / 1,663 s, S3 9.2 / 18.8 / 73.3 s at
-T32 / T128 / T512). TinyLlama mode (i): +1.26 M elements, +1.40 s laptop, +0.26 s
-verifier at every T (+3.6 % / +1.0 % / +0.17 % of the 22-block stack's laptop time).
+T32 / T128 / T512). TinyLlama mode (i): +1.38 M elements, +1.42 s laptop, +0.26 s
+verifier at every T (+3.6 % / +1.0 % / +0.17 % of the 22-block stack's laptop
+time); receipt +4.6 MB at T32, equal to the code's R2 lengths. **Measured by the
+rung lane** (shared box, n = 1, not this lane): R2 TinyLlama T32 proved in 85.3 s
+(stage IN 0.51 s, stage OUT 0.90 s, blocks 3.4–4.1 s each; peak RSS 2.45 GiB);
+R3 Llama-3-8B T32 proved in 188.7 s with the 32 blocks streamed (peak RSS 3.39
+GiB) and verified in a fresh process in 47.0 s.
 
 **For the speed plan.** Mode (i) is a constant per pass: about 0.4 s on a 5090
 with the whole prover resident, which vanishes at throughput-sized passes. Mode
-(ii) behaves like adding 1.4 (elements) to 2.4 (S3 time) blocks to the 32-block
-stack at T512 (0.9–1.6 blocks with U16 limbs): plan for +5 % to +9 % and for the
+(ii) behaves like adding 1.7 (elements) to 2.7 (S3 time) blocks to the 32-block
+stack at T512 (1.4–2.3 with the step tie rule): plan for +5 % to +12 % and for the
 vocabulary-chunked zero-check. The verifier's +1.6 s per pass is the largest
 relative item at short T; the lever that would remove it — and the 7.8 G-entry
 weight folds of the blocks themselves — is a preprocessed commitment to the public
@@ -715,7 +771,7 @@ through the resource guard.
 
 **R0 — reference semantics (no proof). Done (section 6.4).**
 
-**R1 — tiny-vocabulary rung (seconds per proof).** The trained-calibration
+**R1 — tiny-vocabulary rung (seconds per proof). BUILT AND REVIEWED (§6.5).** The trained-calibration
 development geometry (`rung_tc`: T32, d384, block row width 2^10), `L = 2`
 blocks, a synthetic vocabulary `V = 300` (pads to 512, exercising the pad rule),
 dense int16 embedding with distinct rows, dense int8 head, the profile's BOS
@@ -766,16 +822,18 @@ failing-first, with the catching slot predicted before it runs.
 | 22 | a receipt re-read under another variant (public row / P / F) | the run statement's parameter and stage lines (D26 C-a) | — |
 | 23 | wrong embedding / head digest; a final-norm constant or the BOS constant outside its class | the trained door, both sides | V24 |
 
-**R2 — TinyLlama, mode (i).** The real `embedding_int16.bin` (32,000 x 2,048) and
-the fidelity lane's `W'`; 22 blocks; T32 then T128. Acceptance: R1's controls at
+**R2 — TinyLlama, mode (i). BUILT AND REVIEWED (§6.5).** The real
+`embedding_int16.bin` (32,000 x 2,048) and the fidelity lane's per-row `W'` with
+12-bit multipliers; 22 blocks; T32 (T128 not yet). Acceptance: R1's controls at
 this shape; the decommitted next token equals R0 on held-out sequences of both
 domains; counted layout equals `token_io_count.py`'s numbers (rows, sites,
 receipt bytes); phase timings recorded against section 3.5's [MODEL] figures.
 
-**R3 — Llama-3-8B, mode (i).** 128,256 x 4,096 tables, 32 blocks at T32 (memory:
-the int16 embedding is 1.05 GB, `W'` 0.54 GB, loaded per stage like a block).
-Acceptance: as R2, plus the fresh-process verifier time against section 5's
-+1.6 s.
+**R3 — Llama-3-8B, mode (i). BUILT AND COUNTED (§6.5; review not reported to
+this lane).** 128,256 x 4,096 tables, 32 blocks at T32 (memory: the int16
+embedding is 1.05 GB, `W'` 0.54 GB, loaded per stage like a block; the lane
+streams the blocks one at a time). Acceptance: as R2, plus the fresh-process
+verifier time against section 5's +1.6 s.
 
 **R4 — mode (ii).** SHIFT slot, two-site input endpoint (R9), vocabulary-chunked
 VZC, factored public tables on the `T x V` cube and a stated digest-caching
@@ -800,8 +858,12 @@ holds).
 
 * **F1** build the integer head: final-norm constants for a uniform gain (the
   `norm_site` solver with `c = 1`), plus the refusal-free `g0 Cn = 127 * 2^tn`
-  (C-7); `W' = qw(lm_head diag(norm_weight) R^T, s_w)` with one per-tensor scale;
-  record clipped weights.
+  (C-7); `W' = qw(lm_head diag(norm_weight) R^T, s_w)` with one per-tensor scale
+  **and**, as amended by D25 T4, per-row scales with 12-bit integer multipliers;
+  record clipped weights. **Done on TinyLlama** (REPORT.md: per-tensor 98.45 %,
+  per-row 98.91 %, 100 % where the float top-2 margin is >= 0.3 logits; 0
+  final-norm refusals; max |logit| 17.5 bits; keyed difference 33 bits inside the
+  41-bit per-tensor window; no exact ties).
 * **F2** on the held-out sequences of both domains, at every position and at the
   last position: top-1 agreement of the **integer head vs the float head** on the
   same integer-stack output, and of integer head on integer stack vs the float
@@ -881,7 +943,12 @@ thread; the whole suite runs in under a second):
   under a second; the v3 tests pin V13–V24, the honest vectors' IO relations, and
   a property test of the helper-level model on random sequences (honest accepted;
   the N-1 forgery accepted unweighted and rejected with fresh coefficients; a
-  nonzero helper on a lifted pad position rejected). The v2 tests: the vectors regenerate
+  nonzero helper on a lifted pad position rejected). **v4** adds `keyed_window_bits`
+  and `limbs_for(d, V, mult_bits, limb_bits)` (TF-1: the derived limb count with
+  its no-wrap flag) and a test pinning 6 limbs at the R1 rung, 7 at TinyLlama / 8B
+  under the 12-bit class, 6 under the per-tensor head, and the inadmissibility of
+  16-bit limbs; the stored vectors keep the synthetic profile's fixed six (21 tests,
+  `vectors.json` byte-identical to v3). The v2 tests: the vectors regenerate
   identically and meet their expected outcomes; a randomised exhaustive test over
   every candidate index (extremes at the 8B logit bound, forced ties, near ties,
   all equal; over 500 index trials) accepts a witness exactly at numpy's first
@@ -906,6 +973,30 @@ a measurement or a privacy claim.
 
 ---
 
+### 6.5 What is built (2026-10-17/18): R1 and R2 reviewed, R3 counted
+
+Recorded from the rung lane's ledger and report
+(`results/zk60_token_io_r1_20261017/PROGRESS.md`, `REPORT.md`) and the two
+independent reviews (`results/zk60_token_io_review_r1_20261017/REVIEW.md`,
+`REVIEW2.md`). Labels are those lanes'; nothing here was run by this lane.
+
+| rung | status | layout vs this design | receipt | soundness | acceptance evidence |
+|---|---|---|---|---|---|
+| **R1** (rung_tc: T32, d384, V 300, L = 2, public row, tier `R1_MVP`) | **built and reviewed** | counted layout = the counter (stage IN A 10 / H 14, stage OUT A 121 / H 50, 6 limbs at the 45-bit window) | 19,026,480 B in 4 segments = the counted lengths [MEASURED] | stages 2^-103.69, endpoints and M 2^-106.25; the rung's own 2^10 blocks set a 93-bit floor (development fixture) | 10 tests; all 49 sub-controls of the §6.1 table refused at the predicted slot (`logs/controls.md`); two honest witnesses (R0's model and a generic one) give the reference token; fresh-process verify; D16 rule-5 audit. **Review round 1**: sound as built; TR-1 MEDIUM (tier door below B-1, no policy), TR-2 LOW-MEDIUM (Q only at 256), TR-3 / TR-4 LOW, TR-5..TR-7 INFO; 33 reviewer controls refused; **all fixed test-first** (six failing-first tests, 71 passed after). |
+| **R2** (TinyLlama-1.1B, 22 trained blocks, T32, real tables, per-row head with 12-bit multipliers, calibrated `Cn` 5,664) | **built and reviewed** | = the counter at 7 limbs (stage IN A 17 / H 28, stage OUT A 182 / H 110, 1,196,032 elements, 282,624 byte lookups) | **255,258,816 B in 24 segments** = the counted lengths (stage IN 1,267,576; 22 x 11,391,800; stage OUT 3,371,640) [MEASURED] | 97 openings, column 2^-97.46, LogUp 2^-100.96, total 2^-97.33, **floor 97 bits** [COUNTED by the code] | next token 29914 = the independent reference (R0's functions in numpy on the export's `x_out_L21`), owners' checks pass, parity bit-exact at all 22 boundaries; prove 85.3 s, peak RSS 2.45 GiB [MEASURED, shared box, n = 1]. **Review round 2**: TR-1..TR-5 closed; **no HIGH or MEDIUM finding**; 12 reviewer forgeries at two trained layers and 2 at the full 22 refused at the predicted slots; the lane's receipt verifies with the reviewer's own binary in a fresh process under a 95-bit policy (8.9 s); ten probes on that receipt refused. |
+| **R3** (Llama-3-8B, 32 trained blocks streamed, T32, V 128,256, BOS 128,000, `Cn` 512) | **built and counted**; review not reported to this lane | = the counter at 7 limbs (stage IN A 41 / H 76, stage OUT A 374 / H 302, 2,768,896 elements) | **471,285,072 B in 34 segments** = the counted lengths (stage IN 1,415,192; 32 x 14,547,080; stage OUT 4,363,320) | **137 openings**, column 2^-98.04, LogUp 2^-99.45, total 2^-97.58, **floor 97 bits at L = 32** [COUNTED] | the generic 8B next-token proof: token 75883 = the reference, parity bit-exact at all 32 layers; prove 188.7 s (peak RSS 3.39 GiB), fresh-process verify 47.0 s under a 95-bit policy, a one-bit change refused [MEASURED by that lane, shared box, n = 1]; eight multi-row controls R3-1..R3-8 as predicted. |
+
+Implementation notes the design absorbed in v4: TF-1 (derived limbs), TF-2 /
+TI-1 (slot rounds), TF-6 (receipt composition), TR-7 (key set), TR-5 (-128
+head words refused), TF-4 (the multiplier class is `[1, 2^12]`, since 12-bit
+rounding reaches 4096), TF-3 (the "x not int16" control cannot be expressed at
+run level — `x` is `B_out`, range-proved by block L-1 — so the stage's `c2`
+limbs were tested instead; §6.1 control 17 amended accordingly), TF-5 / TR-2
+(the mask commitment's Q is the shared `zk.rs` constant, not a tier lever).
+Not built: the hidden-length variant (D26), mode (ii), the G-1..G-7 rank / CFS
+gate tooling, T128 at TinyLlama. **No privacy property is claimed by any of
+this**; the joint-view gate is owed before any figure is quoted.
+
 ## 7. Rulings
 
 ### 7.1 Ruled by Victor: D25 T1–T8 (2026-10-17 19:28 UTC)
@@ -921,11 +1012,19 @@ not a privacy acceptance.
 | R1 output mode | **D25 T1** | mode (i) — one hidden next token per run — first; mode (ii) later |
 | R2 prompt length | **D25 T2** | the prompt length stays hidden in mode (i) **and is sealed inside the input endpoint** so the owner can check it (C-2, check B-2); this needs the security owner's R9 (section 8) before the hidden-length variant is built; until then only the public-row variant may be built |
 | R3 tie rule | **D25 T3** | lowest token id among equal maxima (numpy first maximum) |
-| R4 integer head | **D25 T4** | accepted if its token equals the float head's on >= 99 % of held-out positions on the same stack output, otherwise per-row head scales; the same threshold decides C-7 (refusal-free final-norm constants if they meet it) |
+| R4 integer head | **D25 T4, amended 2026-10-17 20:21 UTC (option b)** | the >= 99 % overall threshold was missed (per-tensor 98.45 %, per-row 98.91 %, every miss a float near-tie); ruled: per-row int8 head with 12-bit integer multipliers, accepted on the margin-conditioned criterion (100 % where the float top-2 margin is >= 0.3 logits); the 16-bit final-norm alternative (99.57 %) declined; C-7 resolved to the calibrated `Cn` with the overflow refusal in D20's class (V4-3) |
 | R5 owner hand-off | **D25 T5**, with **D23** and **D19b** accepted | the prover hands each owner the token and the endpoint decommitment (rows, pads, salts) privately; roots never chained or registered |
 | R6 several tokens | **D25 T6** | repeated one-token runs are not a proved token stream, and every claim says so |
 | R7 model identity | **D25 T7** | the receipt names the embedding and head by export digest, not proved to come from the checkpoint |
 | R8 BOS | **D25 T8** | the proof forces the profile's BOS id at position 0: a clause `mu_bos [t = 0] (tok - BOS)` in stage IN's query zero-check **with its own fresh coefficient** (v3, CHECK2 N-1), `BOS` a per-profile statement constant in `[0, V)` (1 TinyLlama, 128000 Llama-3-8B; N-2); nothing leaks |
+
+**D27 (Victor, 2026-10-17): the custom line's soundness target.** Stated per
+run at a named workload as a whole-run union bound; MVP about 95 bits whole-run
+accepted as a recorded deviation, 100 bits the next milestone, 128 the product;
+near-free levers (more column checks) may be taken. The token-I/O run profiles
+carry their tier levers and derived whole-run floor in the statement and the
+verifier refuses below its policy (R1: 93-bit policy for the development rung;
+R2 / R3 statements: floor 97, verified under 95).
 
 ### 7.2 Security-owner items: both settled
 
@@ -1085,9 +1184,17 @@ term unchanged. TinyLlama: the same within rounding.
 
 ## Appendix: files and reproduction
 
-* `token_io_count.py` (v2) — the counter (imports the unchanged copies `layout.py`,
+* `token_io_count.py` (v4) — the counter (imports the unchanged copies `layout.py`,
   `cost_model.py` from `results/zk60_speed_plan_20261017/`); writes
-  `token_io_count.json`. v1: `token_io_count_v1.py`, `token_io_count_v1.json`.
+  `token_io_count.json`; asserts the code's counted receipt lengths first. Earlier
+  versions kept: `token_io_count_v1.py` / `_v1.json`, `token_io_count_v3.py` /
+  `_v3.json`.
+* Rungs R1–R3: `results/zk60_token_io_r1_20261017/` (ledger, `REPORT.md`,
+  `counts/`, `runs/`, `logs/`); reviews: `results/zk60_token_io_review_r1_20261017/`
+  (`REVIEW.md`, `REVIEW2.md`); the construction itself:
+  `ops/zkp-mvp/token-io/hashline/src/private_block/token_io.rs` and
+  `token_io/{stage_in,stage_out,run}.rs` (read-only here).
+* Head fidelity: `results/zk60_token_io_fidelity_20261017/REPORT.md`.
 * `check/` — the two adversarial passes (another lane's; read-only here):
   `CHECK.md` + `check_arith.py`, `CHECK2.md` + `check2_probes.py`.
 * `r0/` — rung R0's reference, its 24 test vectors and 20 tests (section 6.4).

@@ -1,0 +1,5722 @@
+{
+  "status": "PASS",
+  "checks": 237,
+  "costs": [
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": false,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 1,
+      "baseline_scalar_points": 5,
+      "baseline_calls": [
+        899,
+        458,
+        434,
+        295
+      ],
+      "coefficient_calls": [
+        428,
+        322,
+        390,
+        114
+      ],
+      "schoolbook_calls": [
+        405,
+        276,
+        413,
+        114
+      ],
+      "baseline_scalar_products": 2760,
+      "coefficient_scalar_products": 2178,
+      "product_reduction_fraction": 0.2108695652173913,
+      "baseline_fp2_add_sub": 1357,
+      "coefficient_fp2_add_sub": 750,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 59,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": false,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 1,
+      "baseline_scalar_points": 4,
+      "baseline_calls": [
+        785,
+        391,
+        359,
+        236
+      ],
+      "coefficient_calls": [
+        424,
+        323,
+        390,
+        114
+      ],
+      "schoolbook_calls": [
+        401,
+        277,
+        413,
+        114
+      ],
+      "baseline_scalar_products": 2267,
+      "coefficient_scalar_products": 2178,
+      "product_reduction_fraction": 0.03925893250992496,
+      "baseline_fp2_add_sub": 1176,
+      "coefficient_fp2_add_sub": 747,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 59,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": false,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 1,
+      "baseline_scalar_points": 5,
+      "baseline_calls": [
+        899,
+        458,
+        434,
+        295
+      ],
+      "coefficient_calls": [
+        428,
+        322,
+        390,
+        114
+      ],
+      "schoolbook_calls": [
+        405,
+        276,
+        413,
+        114
+      ],
+      "baseline_scalar_products": 2760,
+      "coefficient_scalar_products": 2178,
+      "product_reduction_fraction": 0.2108695652173913,
+      "baseline_fp2_add_sub": 1357,
+      "coefficient_fp2_add_sub": 750,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 59,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": false,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 7,
+      "baseline_scalar_points": 32,
+      "baseline_calls": [
+        5747,
+        3004,
+        2813,
+        1888
+      ],
+      "coefficient_calls": [
+        2468,
+        1932,
+        2730,
+        570
+      ],
+      "schoolbook_calls": [
+        2307,
+        1610,
+        2891,
+        570
+      ],
+      "baseline_scalar_products": 17841,
+      "coefficient_scalar_products": 14790,
+      "product_reduction_fraction": 0.1710105935765932,
+      "baseline_fp2_add_sub": 8751,
+      "coefficient_fp2_add_sub": 4400,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 413,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": false,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 7,
+      "baseline_scalar_points": 28,
+      "baseline_calls": [
+        5291,
+        2733,
+        2513,
+        1652
+      ],
+      "coefficient_calls": [
+        2464,
+        1933,
+        2730,
+        570
+      ],
+      "schoolbook_calls": [
+        2303,
+        1611,
+        2891,
+        570
+      ],
+      "baseline_scalar_products": 15869,
+      "coefficient_scalar_products": 14790,
+      "product_reduction_fraction": 0.06799420253324095,
+      "baseline_fp2_add_sub": 8024,
+      "coefficient_fp2_add_sub": 4397,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 413,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": false,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 7,
+      "baseline_scalar_points": 35,
+      "baseline_calls": [
+        6089,
+        3206,
+        3038,
+        2065
+      ],
+      "coefficient_calls": [
+        2476,
+        1930,
+        2730,
+        570
+      ],
+      "schoolbook_calls": [
+        2315,
+        1608,
+        2891,
+        570
+      ],
+      "baseline_scalar_products": 19320,
+      "coefficient_scalar_products": 14790,
+      "product_reduction_fraction": 0.23447204968944102,
+      "baseline_fp2_add_sub": 9295,
+      "coefficient_fp2_add_sub": 4406,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 413,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": false,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 31,
+      "baseline_scalar_points": 140,
+      "baseline_calls": [
+        25139,
+        13182,
+        12329,
+        8260
+      ],
+      "coefficient_calls": [
+        10556,
+        8366,
+        12090,
+        2322
+      ],
+      "schoolbook_calls": [
+        9843,
+        6940,
+        12803,
+        2322
+      ],
+      "baseline_scalar_products": 78165,
+      "coefficient_scalar_products": 65094,
+      "product_reduction_fraction": 0.16722318173095374,
+      "baseline_fp2_add_sub": 38321,
+      "coefficient_fp2_add_sub": 18922,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 1829,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": false,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 31,
+      "baseline_scalar_points": 124,
+      "baseline_calls": [
+        23315,
+        12095,
+        11129,
+        7316
+      ],
+      "coefficient_calls": [
+        10552,
+        8367,
+        12090,
+        2322
+      ],
+      "schoolbook_calls": [
+        9839,
+        6941,
+        12803,
+        2322
+      ],
+      "baseline_scalar_products": 70277,
+      "coefficient_scalar_products": 65094,
+      "product_reduction_fraction": 0.07375101384521254,
+      "baseline_fp2_add_sub": 35410,
+      "coefficient_fp2_add_sub": 18919,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 1829,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": false,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 31,
+      "baseline_scalar_points": 155,
+      "baseline_calls": [
+        26849,
+        14198,
+        13454,
+        9145
+      ],
+      "coefficient_calls": [
+        10572,
+        8362,
+        12090,
+        2322
+      ],
+      "schoolbook_calls": [
+        9859,
+        6936,
+        12803,
+        2322
+      ],
+      "baseline_scalar_products": 85560,
+      "coefficient_scalar_products": 65094,
+      "product_reduction_fraction": 0.23920056100981768,
+      "baseline_fp2_add_sub": 41047,
+      "coefficient_fp2_add_sub": 18934,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 1829,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": false,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1179644,
+      "baseline_calls": [
+        211811635,
+        111148683,
+        103939737,
+        69598996
+      ],
+      "coefficient_calls": [
+        88080344,
+        70254395,
+        102235770,
+        18874542
+      ],
+      "schoolbook_calls": [
+        82051055,
+        58195817,
+        108265059,
+        18874542
+      ],
+      "baseline_scalar_products": 658896677,
+      "coefficient_scalar_products": 548927934,
+      "product_reduction_fraction": 0.1668983117363635,
+      "baseline_fp2_add_sub": 322960318,
+      "coefficient_fp2_add_sub": 158334739,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 15466437,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": false,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1048572,
+      "baseline_calls": [
+        196869427,
+        102235788,
+        94109337,
+        61865748
+      ],
+      "coefficient_calls": [
+        88080340,
+        70254396,
+        102235770,
+        18874542
+      ],
+      "schoolbook_calls": [
+        82051051,
+        58195818,
+        108265059,
+        18874542
+      ],
+      "baseline_scalar_products": 594278181,
+      "coefficient_scalar_products": 548927934,
+      "product_reduction_fraction": 0.07631147911856451,
+      "baseline_fp2_add_sub": 299105215,
+      "coefficient_fp2_add_sub": 158334736,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 15466437,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": false,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1310715,
+      "baseline_calls": [
+        226753729,
+        120061494,
+        113770062,
+        77332185
+      ],
+      "coefficient_calls": [
+        88080412,
+        70254378,
+        102235770,
+        18874542
+      ],
+      "schoolbook_calls": [
+        82051123,
+        58195800,
+        108265059,
+        18874542
+      ],
+      "baseline_scalar_products": 723514680,
+      "coefficient_scalar_products": 548927934,
+      "product_reduction_fraction": 0.24130366781224122,
+      "baseline_fp2_add_sub": 346815223,
+      "coefficient_fp2_add_sub": 158334790,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 15466437,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": false,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 2359292,
+      "baseline_calls": [
+        423623987,
+        222297740,
+        207879833,
+        139198228
+      ],
+      "coefficient_calls": [
+        176160740,
+        140508988,
+        204471930,
+        37748922
+      ],
+      "schoolbook_calls": [
+        164102139,
+        116391786,
+        216530531,
+        37748922
+      ],
+      "baseline_scalar_products": 1317795621,
+      "coefficient_scalar_products": 1097857494,
+      "product_reduction_fraction": 0.1668985110400515,
+      "baseline_fp2_add_sub": 645921727,
+      "coefficient_fp2_add_sub": 316669728,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 30932933,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": false,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 2097148,
+      "baseline_calls": [
+        393739571,
+        204471949,
+        188219033,
+        123731732
+      ],
+      "coefficient_calls": [
+        176160736,
+        140508989,
+        204471930,
+        37748922
+      ],
+      "schoolbook_calls": [
+        164102135,
+        116391787,
+        216530531,
+        37748922
+      ],
+      "baseline_scalar_products": 1188558629,
+      "coefficient_scalar_products": 1097857494,
+      "product_reduction_fraction": 0.0763118728743839,
+      "baseline_fp2_add_sub": 598211520,
+      "coefficient_fp2_add_sub": 316669725,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 30932933,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": false,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 2621435,
+      "baseline_calls": [
+        453508289,
+        240123446,
+        227540558,
+        154664665
+      ],
+      "coefficient_calls": [
+        176160812,
+        140508970,
+        204471930,
+        37748922
+      ],
+      "schoolbook_calls": [
+        164102211,
+        116391768,
+        216530531,
+        37748922
+      ],
+      "baseline_scalar_products": 1447032120,
+      "coefficient_scalar_products": 1097857494,
+      "product_reduction_fraction": 0.2413039912341407,
+      "baseline_fp2_add_sub": 693631735,
+      "coefficient_fp2_add_sub": 316669782,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 30932933,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": true,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 1,
+      "baseline_scalar_points": 6,
+      "baseline_calls": [
+        1294,
+        534,
+        761,
+        354
+      ],
+      "coefficient_calls": [
+        517,
+        328,
+        522,
+        118
+      ],
+      "schoolbook_calls": [
+        493,
+        280,
+        546,
+        118
+      ],
+      "baseline_scalar_products": 4513,
+      "coefficient_scalar_products": 2846,
+      "product_reduction_fraction": 0.3693773543097718,
+      "baseline_fp2_add_sub": 1828,
+      "coefficient_fp2_add_sub": 845,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 60,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": true,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 1,
+      "baseline_scalar_points": 5,
+      "baseline_calls": [
+        1144,
+        466,
+        650,
+        295
+      ],
+      "coefficient_calls": [
+        513,
+        329,
+        522,
+        118
+      ],
+      "schoolbook_calls": [
+        489,
+        281,
+        546,
+        118
+      ],
+      "baseline_scalar_products": 3840,
+      "coefficient_scalar_products": 2846,
+      "product_reduction_fraction": 0.2588541666666667,
+      "baseline_fp2_add_sub": 1610,
+      "coefficient_fp2_add_sub": 842,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 60,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": true,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 1,
+      "baseline_scalar_points": 6,
+      "baseline_calls": [
+        1294,
+        534,
+        761,
+        354
+      ],
+      "coefficient_calls": [
+        517,
+        328,
+        522,
+        118
+      ],
+      "schoolbook_calls": [
+        493,
+        280,
+        546,
+        118
+      ],
+      "baseline_scalar_products": 4513,
+      "coefficient_scalar_products": 2846,
+      "product_reduction_fraction": 0.3693773543097718,
+      "baseline_fp2_add_sub": 1828,
+      "coefficient_fp2_add_sub": 845,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 60,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": true,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 7,
+      "baseline_scalar_points": 39,
+      "baseline_calls": [
+        8404,
+        3533,
+        4784,
+        2301
+      ],
+      "coefficient_calls": [
+        3075,
+        1974,
+        3444,
+        582
+      ],
+      "schoolbook_calls": [
+        2907,
+        1638,
+        3612,
+        582
+      ],
+      "baseline_scalar_products": 28522,
+      "coefficient_scalar_products": 18384,
+      "product_reduction_fraction": 0.35544491971110015,
+      "baseline_fp2_add_sub": 11937,
+      "coefficient_fp2_add_sub": 5049,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 420,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": true,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 7,
+      "baseline_scalar_points": 35,
+      "baseline_calls": [
+        7804,
+        3258,
+        4340,
+        2065
+      ],
+      "coefficient_calls": [
+        3071,
+        1975,
+        3444,
+        582
+      ],
+      "schoolbook_calls": [
+        2903,
+        1639,
+        3612,
+        582
+      ],
+      "baseline_scalar_products": 25830,
+      "coefficient_scalar_products": 18384,
+      "product_reduction_fraction": 0.28826945412311267,
+      "baseline_fp2_add_sub": 11062,
+      "coefficient_fp2_add_sub": 5046,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 420,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": true,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 7,
+      "baseline_scalar_points": 42,
+      "baseline_calls": [
+        8854,
+        3738,
+        5117,
+        2478
+      ],
+      "coefficient_calls": [
+        3083,
+        1972,
+        3444,
+        582
+      ],
+      "schoolbook_calls": [
+        2915,
+        1636,
+        3612,
+        582
+      ],
+      "baseline_scalar_products": 30541,
+      "coefficient_scalar_products": 18384,
+      "product_reduction_fraction": 0.3980550735077437,
+      "baseline_fp2_add_sub": 12592,
+      "coefficient_fp2_add_sub": 5055,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 420,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": true,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 31,
+      "baseline_scalar_points": 171,
+      "baseline_calls": [
+        36844,
+        15523,
+        20876,
+        10089
+      ],
+      "coefficient_calls": [
+        13211,
+        8552,
+        15132,
+        2342
+      ],
+      "schoolbook_calls": [
+        12467,
+        7064,
+        15876,
+        2342
+      ],
+      "baseline_scalar_products": 124558,
+      "coefficient_scalar_products": 80344,
+      "product_reduction_fraction": 0.3549671638915204,
+      "baseline_fp2_add_sub": 52367,
+      "coefficient_fp2_add_sub": 21763,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 1860,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": true,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 31,
+      "baseline_scalar_points": 155,
+      "baseline_calls": [
+        34444,
+        14420,
+        19100,
+        9145
+      ],
+      "coefficient_calls": [
+        13207,
+        8553,
+        15132,
+        2342
+      ],
+      "schoolbook_calls": [
+        12463,
+        7065,
+        15876,
+        2342
+      ],
+      "baseline_scalar_products": 113790,
+      "coefficient_scalar_products": 80344,
+      "product_reduction_fraction": 0.2939274101414887,
+      "baseline_fp2_add_sub": 48864,
+      "coefficient_fp2_add_sub": 21760,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 1860,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": true,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 31,
+      "baseline_scalar_points": 186,
+      "baseline_calls": [
+        39094,
+        16554,
+        22541,
+        10974
+      ],
+      "coefficient_calls": [
+        13227,
+        8548,
+        15132,
+        2342
+      ],
+      "schoolbook_calls": [
+        12483,
+        7060,
+        15876,
+        2342
+      ],
+      "baseline_scalar_products": 134653,
+      "coefficient_scalar_products": 80344,
+      "product_reduction_fraction": 0.40332558502224236,
+      "baseline_fp2_add_sub": 55648,
+      "coefficient_fp2_add_sub": 21775,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 1860,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": true,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1441787,
+      "baseline_calls": [
+        310639564,
+        130940480,
+        175766972,
+        85065433
+      ],
+      "coefficient_calls": [
+        110362571,
+        71827253,
+        127663676,
+        18874614
+      ],
+      "schoolbook_calls": [
+        104071139,
+        59244389,
+        133955108,
+        18874614
+      ],
+      "baseline_scalar_products": 1048965726,
+      "coefficient_scalar_products": 676067608,
+      "product_reduction_fraction": 0.3554912317506931,
+      "baseline_fp2_add_sub": 441580044,
+      "coefficient_fp2_add_sub": 182189824,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 15728580,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": true,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1310715,
+      "baseline_calls": [
+        290978764,
+        121896513,
+        161217980,
+        77332185
+      ],
+      "coefficient_calls": [
+        110362567,
+        71827254,
+        127663676,
+        18874614
+      ],
+      "schoolbook_calls": [
+        104071135,
+        59244390,
+        133955108,
+        18874614
+      ],
+      "baseline_scalar_products": 960754270,
+      "coefficient_scalar_products": 676067608,
+      "product_reduction_fraction": 0.29631579154990384,
+      "baseline_fp2_add_sub": 412875277,
+      "coefficient_fp2_add_sub": 182189821,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 15728580,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": true,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1572858,
+      "baseline_calls": [
+        330300214,
+        139984362,
+        190315853,
+        92798622
+      ],
+      "coefficient_calls": [
+        110362639,
+        71827236,
+        127663676,
+        18874614
+      ],
+      "schoolbook_calls": [
+        104071207,
+        59244372,
+        133955108,
+        18874614
+      ],
+      "baseline_scalar_products": 1137176509,
+      "coefficient_scalar_products": 676067608,
+      "product_reduction_fraction": 0.40548577758213256,
+      "baseline_fp2_add_sub": 470284576,
+      "coefficient_fp2_add_sub": 182189875,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 15728580,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": true,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 2883579,
+      "baseline_calls": [
+        621280204,
+        261881409,
+        351534524,
+        170131161
+      ],
+      "coefficient_calls": [
+        220725211,
+        143654710,
+        255327804,
+        37748998
+      ],
+      "schoolbook_calls": [
+        208142323,
+        118488934,
+        267910692,
+        37748998
+      ],
+      "baseline_scalar_products": 2097934942,
+      "coefficient_scalar_products": 1352137016,
+      "product_reduction_fraction": 0.3554914459306432,
+      "baseline_fp2_add_sub": 883161613,
+      "coefficient_fp2_add_sub": 364379921,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 31457220,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": true,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 2621435,
+      "baseline_calls": [
+        581958604,
+        243793474,
+        322436540,
+        154664665
+      ],
+      "coefficient_calls": [
+        220725207,
+        143654711,
+        255327804,
+        37748998
+      ],
+      "schoolbook_calls": [
+        208142319,
+        118488935,
+        267910692,
+        37748998
+      ],
+      "baseline_scalar_products": 1921512030,
+      "coefficient_scalar_products": 1352137016,
+      "product_reduction_fraction": 0.2963161328737557,
+      "baseline_fp2_add_sub": 825752078,
+      "coefficient_fp2_add_sub": 364379918,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 31457220,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": true,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 3145722,
+      "baseline_calls": [
+        660601654,
+        279969258,
+        380632397,
+        185597598
+      ],
+      "coefficient_calls": [
+        220725283,
+        143654692,
+        255327804,
+        37748998
+      ],
+      "schoolbook_calls": [
+        208142395,
+        118488916,
+        267910692,
+        37748998
+      ],
+      "baseline_scalar_products": 2274357181,
+      "coefficient_scalar_products": 1352137016,
+      "product_reduction_fraction": 0.4054860743528921,
+      "baseline_fp2_add_sub": 940570912,
+      "coefficient_fp2_add_sub": 364379975,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 31457220,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": false,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 1,
+      "baseline_scalar_points": 5,
+      "baseline_calls": [
+        899,
+        458,
+        434,
+        295
+      ],
+      "coefficient_calls": [
+        428,
+        322,
+        390,
+        114
+      ],
+      "schoolbook_calls": [
+        405,
+        276,
+        413,
+        114
+      ],
+      "baseline_scalar_products": 2760,
+      "coefficient_scalar_products": 2178,
+      "product_reduction_fraction": 0.2108695652173913,
+      "baseline_fp2_add_sub": 1357,
+      "coefficient_fp2_add_sub": 750,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 59,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": false,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 1,
+      "baseline_scalar_points": 4,
+      "baseline_calls": [
+        785,
+        391,
+        359,
+        236
+      ],
+      "coefficient_calls": [
+        424,
+        323,
+        390,
+        114
+      ],
+      "schoolbook_calls": [
+        401,
+        277,
+        413,
+        114
+      ],
+      "baseline_scalar_products": 2267,
+      "coefficient_scalar_products": 2178,
+      "product_reduction_fraction": 0.03925893250992496,
+      "baseline_fp2_add_sub": 1176,
+      "coefficient_fp2_add_sub": 747,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 59,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": false,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 1,
+      "baseline_scalar_points": 5,
+      "baseline_calls": [
+        899,
+        458,
+        434,
+        295
+      ],
+      "coefficient_calls": [
+        428,
+        322,
+        390,
+        114
+      ],
+      "schoolbook_calls": [
+        405,
+        276,
+        413,
+        114
+      ],
+      "baseline_scalar_products": 2760,
+      "coefficient_scalar_products": 2178,
+      "product_reduction_fraction": 0.2108695652173913,
+      "baseline_fp2_add_sub": 1357,
+      "coefficient_fp2_add_sub": 750,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 59,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": false,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 7,
+      "baseline_scalar_points": 32,
+      "baseline_calls": [
+        5747,
+        3004,
+        2813,
+        1888
+      ],
+      "coefficient_calls": [
+        2468,
+        1932,
+        2730,
+        570
+      ],
+      "schoolbook_calls": [
+        2307,
+        1610,
+        2891,
+        570
+      ],
+      "baseline_scalar_products": 17841,
+      "coefficient_scalar_products": 14790,
+      "product_reduction_fraction": 0.1710105935765932,
+      "baseline_fp2_add_sub": 8751,
+      "coefficient_fp2_add_sub": 4400,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 413,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": false,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 7,
+      "baseline_scalar_points": 28,
+      "baseline_calls": [
+        5291,
+        2733,
+        2513,
+        1652
+      ],
+      "coefficient_calls": [
+        2464,
+        1933,
+        2730,
+        570
+      ],
+      "schoolbook_calls": [
+        2303,
+        1611,
+        2891,
+        570
+      ],
+      "baseline_scalar_products": 15869,
+      "coefficient_scalar_products": 14790,
+      "product_reduction_fraction": 0.06799420253324095,
+      "baseline_fp2_add_sub": 8024,
+      "coefficient_fp2_add_sub": 4397,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 413,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": false,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 7,
+      "baseline_scalar_points": 35,
+      "baseline_calls": [
+        6089,
+        3206,
+        3038,
+        2065
+      ],
+      "coefficient_calls": [
+        2476,
+        1930,
+        2730,
+        570
+      ],
+      "schoolbook_calls": [
+        2315,
+        1608,
+        2891,
+        570
+      ],
+      "baseline_scalar_products": 19320,
+      "coefficient_scalar_products": 14790,
+      "product_reduction_fraction": 0.23447204968944102,
+      "baseline_fp2_add_sub": 9295,
+      "coefficient_fp2_add_sub": 4406,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 413,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": false,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 31,
+      "baseline_scalar_points": 140,
+      "baseline_calls": [
+        25139,
+        13182,
+        12329,
+        8260
+      ],
+      "coefficient_calls": [
+        10556,
+        8366,
+        12090,
+        2322
+      ],
+      "schoolbook_calls": [
+        9843,
+        6940,
+        12803,
+        2322
+      ],
+      "baseline_scalar_products": 78165,
+      "coefficient_scalar_products": 65094,
+      "product_reduction_fraction": 0.16722318173095374,
+      "baseline_fp2_add_sub": 38321,
+      "coefficient_fp2_add_sub": 18922,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 1829,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": false,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 31,
+      "baseline_scalar_points": 124,
+      "baseline_calls": [
+        23315,
+        12095,
+        11129,
+        7316
+      ],
+      "coefficient_calls": [
+        10552,
+        8367,
+        12090,
+        2322
+      ],
+      "schoolbook_calls": [
+        9839,
+        6941,
+        12803,
+        2322
+      ],
+      "baseline_scalar_products": 70277,
+      "coefficient_scalar_products": 65094,
+      "product_reduction_fraction": 0.07375101384521254,
+      "baseline_fp2_add_sub": 35410,
+      "coefficient_fp2_add_sub": 18919,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 1829,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": false,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 31,
+      "baseline_scalar_points": 155,
+      "baseline_calls": [
+        26849,
+        14198,
+        13454,
+        9145
+      ],
+      "coefficient_calls": [
+        10572,
+        8362,
+        12090,
+        2322
+      ],
+      "schoolbook_calls": [
+        9859,
+        6936,
+        12803,
+        2322
+      ],
+      "baseline_scalar_products": 85560,
+      "coefficient_scalar_products": 65094,
+      "product_reduction_fraction": 0.23920056100981768,
+      "baseline_fp2_add_sub": 41047,
+      "coefficient_fp2_add_sub": 18934,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 1829,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": false,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1179644,
+      "baseline_calls": [
+        211811635,
+        111148683,
+        103939737,
+        69598996
+      ],
+      "coefficient_calls": [
+        88080344,
+        70254395,
+        102235770,
+        18874542
+      ],
+      "schoolbook_calls": [
+        82051055,
+        58195817,
+        108265059,
+        18874542
+      ],
+      "baseline_scalar_products": 658896677,
+      "coefficient_scalar_products": 548927934,
+      "product_reduction_fraction": 0.1668983117363635,
+      "baseline_fp2_add_sub": 322960318,
+      "coefficient_fp2_add_sub": 158334739,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 15466437,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": false,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1048572,
+      "baseline_calls": [
+        196869427,
+        102235788,
+        94109337,
+        61865748
+      ],
+      "coefficient_calls": [
+        88080340,
+        70254396,
+        102235770,
+        18874542
+      ],
+      "schoolbook_calls": [
+        82051051,
+        58195818,
+        108265059,
+        18874542
+      ],
+      "baseline_scalar_products": 594278181,
+      "coefficient_scalar_products": 548927934,
+      "product_reduction_fraction": 0.07631147911856451,
+      "baseline_fp2_add_sub": 299105215,
+      "coefficient_fp2_add_sub": 158334736,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 15466437,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": false,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1310715,
+      "baseline_calls": [
+        226753729,
+        120061494,
+        113770062,
+        77332185
+      ],
+      "coefficient_calls": [
+        88080412,
+        70254378,
+        102235770,
+        18874542
+      ],
+      "schoolbook_calls": [
+        82051123,
+        58195800,
+        108265059,
+        18874542
+      ],
+      "baseline_scalar_products": 723514680,
+      "coefficient_scalar_products": 548927934,
+      "product_reduction_fraction": 0.24130366781224122,
+      "baseline_fp2_add_sub": 346815223,
+      "coefficient_fp2_add_sub": 158334790,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 15466437,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": false,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 2359292,
+      "baseline_calls": [
+        423623987,
+        222297740,
+        207879833,
+        139198228
+      ],
+      "coefficient_calls": [
+        176160740,
+        140508988,
+        204471930,
+        37748922
+      ],
+      "schoolbook_calls": [
+        164102139,
+        116391786,
+        216530531,
+        37748922
+      ],
+      "baseline_scalar_products": 1317795621,
+      "coefficient_scalar_products": 1097857494,
+      "product_reduction_fraction": 0.1668985110400515,
+      "baseline_fp2_add_sub": 645921727,
+      "coefficient_fp2_add_sub": 316669728,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 30932933,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": false,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 2097148,
+      "baseline_calls": [
+        393739571,
+        204471949,
+        188219033,
+        123731732
+      ],
+      "coefficient_calls": [
+        176160736,
+        140508989,
+        204471930,
+        37748922
+      ],
+      "schoolbook_calls": [
+        164102135,
+        116391787,
+        216530531,
+        37748922
+      ],
+      "baseline_scalar_products": 1188558629,
+      "coefficient_scalar_products": 1097857494,
+      "product_reduction_fraction": 0.0763118728743839,
+      "baseline_fp2_add_sub": 598211520,
+      "coefficient_fp2_add_sub": 316669725,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 30932933,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": false,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 2621435,
+      "baseline_calls": [
+        453508289,
+        240123446,
+        227540558,
+        154664665
+      ],
+      "coefficient_calls": [
+        176160812,
+        140508970,
+        204471930,
+        37748922
+      ],
+      "schoolbook_calls": [
+        164102211,
+        116391768,
+        216530531,
+        37748922
+      ],
+      "baseline_scalar_products": 1447032120,
+      "coefficient_scalar_products": 1097857494,
+      "product_reduction_fraction": 0.2413039912341407,
+      "baseline_fp2_add_sub": 693631735,
+      "coefficient_fp2_add_sub": 316669782,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 30932933,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": true,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 1,
+      "baseline_scalar_points": 6,
+      "baseline_calls": [
+        1294,
+        534,
+        761,
+        354
+      ],
+      "coefficient_calls": [
+        517,
+        328,
+        522,
+        118
+      ],
+      "schoolbook_calls": [
+        493,
+        280,
+        546,
+        118
+      ],
+      "baseline_scalar_products": 4513,
+      "coefficient_scalar_products": 2846,
+      "product_reduction_fraction": 0.3693773543097718,
+      "baseline_fp2_add_sub": 1828,
+      "coefficient_fp2_add_sub": 845,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 60,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": true,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 1,
+      "baseline_scalar_points": 5,
+      "baseline_calls": [
+        1144,
+        466,
+        650,
+        295
+      ],
+      "coefficient_calls": [
+        513,
+        329,
+        522,
+        118
+      ],
+      "schoolbook_calls": [
+        489,
+        281,
+        546,
+        118
+      ],
+      "baseline_scalar_products": 3840,
+      "coefficient_scalar_products": 2846,
+      "product_reduction_fraction": 0.2588541666666667,
+      "baseline_fp2_add_sub": 1610,
+      "coefficient_fp2_add_sub": 842,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 60,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": true,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 1,
+      "baseline_scalar_points": 6,
+      "baseline_calls": [
+        1294,
+        534,
+        761,
+        354
+      ],
+      "coefficient_calls": [
+        517,
+        328,
+        522,
+        118
+      ],
+      "schoolbook_calls": [
+        493,
+        280,
+        546,
+        118
+      ],
+      "baseline_scalar_products": 4513,
+      "coefficient_scalar_products": 2846,
+      "product_reduction_fraction": 0.3693773543097718,
+      "baseline_fp2_add_sub": 1828,
+      "coefficient_fp2_add_sub": 845,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 60,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": true,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 7,
+      "baseline_scalar_points": 39,
+      "baseline_calls": [
+        8404,
+        3533,
+        4784,
+        2301
+      ],
+      "coefficient_calls": [
+        3075,
+        1974,
+        3444,
+        582
+      ],
+      "schoolbook_calls": [
+        2907,
+        1638,
+        3612,
+        582
+      ],
+      "baseline_scalar_products": 28522,
+      "coefficient_scalar_products": 18384,
+      "product_reduction_fraction": 0.35544491971110015,
+      "baseline_fp2_add_sub": 11937,
+      "coefficient_fp2_add_sub": 5049,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 420,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": true,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 7,
+      "baseline_scalar_points": 35,
+      "baseline_calls": [
+        7804,
+        3258,
+        4340,
+        2065
+      ],
+      "coefficient_calls": [
+        3071,
+        1975,
+        3444,
+        582
+      ],
+      "schoolbook_calls": [
+        2903,
+        1639,
+        3612,
+        582
+      ],
+      "baseline_scalar_products": 25830,
+      "coefficient_scalar_products": 18384,
+      "product_reduction_fraction": 0.28826945412311267,
+      "baseline_fp2_add_sub": 11062,
+      "coefficient_fp2_add_sub": 5046,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 420,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": true,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 7,
+      "baseline_scalar_points": 42,
+      "baseline_calls": [
+        8854,
+        3738,
+        5117,
+        2478
+      ],
+      "coefficient_calls": [
+        3083,
+        1972,
+        3444,
+        582
+      ],
+      "schoolbook_calls": [
+        2915,
+        1636,
+        3612,
+        582
+      ],
+      "baseline_scalar_products": 30541,
+      "coefficient_scalar_products": 18384,
+      "product_reduction_fraction": 0.3980550735077437,
+      "baseline_fp2_add_sub": 12592,
+      "coefficient_fp2_add_sub": 5055,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 420,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": true,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 31,
+      "baseline_scalar_points": 171,
+      "baseline_calls": [
+        36844,
+        15523,
+        20876,
+        10089
+      ],
+      "coefficient_calls": [
+        13211,
+        8552,
+        15132,
+        2342
+      ],
+      "schoolbook_calls": [
+        12467,
+        7064,
+        15876,
+        2342
+      ],
+      "baseline_scalar_products": 124558,
+      "coefficient_scalar_products": 80344,
+      "product_reduction_fraction": 0.3549671638915204,
+      "baseline_fp2_add_sub": 52367,
+      "coefficient_fp2_add_sub": 21763,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 1860,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": true,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 31,
+      "baseline_scalar_points": 155,
+      "baseline_calls": [
+        34444,
+        14420,
+        19100,
+        9145
+      ],
+      "coefficient_calls": [
+        13207,
+        8553,
+        15132,
+        2342
+      ],
+      "schoolbook_calls": [
+        12463,
+        7065,
+        15876,
+        2342
+      ],
+      "baseline_scalar_products": 113790,
+      "coefficient_scalar_products": 80344,
+      "product_reduction_fraction": 0.2939274101414887,
+      "baseline_fp2_add_sub": 48864,
+      "coefficient_fp2_add_sub": 21760,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 1860,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": true,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 31,
+      "baseline_scalar_points": 186,
+      "baseline_calls": [
+        39094,
+        16554,
+        22541,
+        10974
+      ],
+      "coefficient_calls": [
+        13227,
+        8548,
+        15132,
+        2342
+      ],
+      "schoolbook_calls": [
+        12483,
+        7060,
+        15876,
+        2342
+      ],
+      "baseline_scalar_products": 134653,
+      "coefficient_scalar_products": 80344,
+      "product_reduction_fraction": 0.40332558502224236,
+      "baseline_fp2_add_sub": 55648,
+      "coefficient_fp2_add_sub": 21775,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 1860,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": true,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1441787,
+      "baseline_calls": [
+        310639564,
+        130940480,
+        175766972,
+        85065433
+      ],
+      "coefficient_calls": [
+        110362571,
+        71827253,
+        127663676,
+        18874614
+      ],
+      "schoolbook_calls": [
+        104071139,
+        59244389,
+        133955108,
+        18874614
+      ],
+      "baseline_scalar_products": 1048965726,
+      "coefficient_scalar_products": 676067608,
+      "product_reduction_fraction": 0.3554912317506931,
+      "baseline_fp2_add_sub": 441580044,
+      "coefficient_fp2_add_sub": 182189824,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 15728580,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": true,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1310715,
+      "baseline_calls": [
+        290978764,
+        121896513,
+        161217980,
+        77332185
+      ],
+      "coefficient_calls": [
+        110362567,
+        71827254,
+        127663676,
+        18874614
+      ],
+      "schoolbook_calls": [
+        104071135,
+        59244390,
+        133955108,
+        18874614
+      ],
+      "baseline_scalar_products": 960754270,
+      "coefficient_scalar_products": 676067608,
+      "product_reduction_fraction": 0.29631579154990384,
+      "baseline_fp2_add_sub": 412875277,
+      "coefficient_fp2_add_sub": 182189821,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 15728580,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": true,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1572858,
+      "baseline_calls": [
+        330300214,
+        139984362,
+        190315853,
+        92798622
+      ],
+      "coefficient_calls": [
+        110362639,
+        71827236,
+        127663676,
+        18874614
+      ],
+      "schoolbook_calls": [
+        104071207,
+        59244372,
+        133955108,
+        18874614
+      ],
+      "baseline_scalar_products": 1137176509,
+      "coefficient_scalar_products": 676067608,
+      "product_reduction_fraction": 0.40548577758213256,
+      "baseline_fp2_add_sub": 470284576,
+      "coefficient_fp2_add_sub": 182189875,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 15728580,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": true,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 2883579,
+      "baseline_calls": [
+        621280204,
+        261881409,
+        351534524,
+        170131161
+      ],
+      "coefficient_calls": [
+        220725211,
+        143654710,
+        255327804,
+        37748998
+      ],
+      "schoolbook_calls": [
+        208142323,
+        118488934,
+        267910692,
+        37748998
+      ],
+      "baseline_scalar_products": 2097934942,
+      "coefficient_scalar_products": 1352137016,
+      "product_reduction_fraction": 0.3554914459306432,
+      "baseline_fp2_add_sub": 883161613,
+      "coefficient_fp2_add_sub": 364379921,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 31457220,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": true,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 2621435,
+      "baseline_calls": [
+        581958604,
+        243793474,
+        322436540,
+        154664665
+      ],
+      "coefficient_calls": [
+        220725207,
+        143654711,
+        255327804,
+        37748998
+      ],
+      "schoolbook_calls": [
+        208142319,
+        118488935,
+        267910692,
+        37748998
+      ],
+      "baseline_scalar_products": 1921512030,
+      "coefficient_scalar_products": 1352137016,
+      "product_reduction_fraction": 0.2963161328737557,
+      "baseline_fp2_add_sub": 825752078,
+      "coefficient_fp2_add_sub": 364379918,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 31457220,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": true,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 3145722,
+      "baseline_calls": [
+        660601654,
+        279969258,
+        380632397,
+        185597598
+      ],
+      "coefficient_calls": [
+        220725283,
+        143654692,
+        255327804,
+        37748998
+      ],
+      "schoolbook_calls": [
+        208142395,
+        118488916,
+        267910692,
+        37748998
+      ],
+      "baseline_scalar_products": 2274357181,
+      "coefficient_scalar_products": 1352137016,
+      "product_reduction_fraction": 0.4054860743528921,
+      "baseline_fp2_add_sub": 940570912,
+      "coefficient_fp2_add_sub": 364379975,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 31457220,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": false,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 1,
+      "baseline_scalar_points": 5,
+      "baseline_calls": [
+        953,
+        492,
+        466,
+        315
+      ],
+      "coefficient_calls": [
+        454,
+        346,
+        418,
+        122
+      ],
+      "schoolbook_calls": [
+        429,
+        296,
+        443,
+        122
+      ],
+      "baseline_scalar_products": 2960,
+      "coefficient_scalar_products": 2334,
+      "product_reduction_fraction": 0.2114864864864865,
+      "baseline_fp2_add_sub": 1445,
+      "coefficient_fp2_add_sub": 800,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 61,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": false,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 1,
+      "baseline_scalar_points": 4,
+      "baseline_calls": [
+        831,
+        419,
+        385,
+        252
+      ],
+      "coefficient_calls": [
+        450,
+        347,
+        418,
+        122
+      ],
+      "schoolbook_calls": [
+        425,
+        297,
+        443,
+        122
+      ],
+      "baseline_scalar_products": 2429,
+      "coefficient_scalar_products": 2334,
+      "product_reduction_fraction": 0.039110745162618366,
+      "baseline_fp2_add_sub": 1250,
+      "coefficient_fp2_add_sub": 797,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 61,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": false,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 1,
+      "baseline_scalar_points": 5,
+      "baseline_calls": [
+        953,
+        492,
+        466,
+        315
+      ],
+      "coefficient_calls": [
+        454,
+        346,
+        418,
+        122
+      ],
+      "schoolbook_calls": [
+        429,
+        296,
+        443,
+        122
+      ],
+      "baseline_scalar_products": 2960,
+      "coefficient_scalar_products": 2334,
+      "product_reduction_fraction": 0.2114864864864865,
+      "baseline_fp2_add_sub": 1445,
+      "coefficient_fp2_add_sub": 800,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 61,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": false,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 7,
+      "baseline_scalar_points": 32,
+      "baseline_calls": [
+        6077,
+        3224,
+        3019,
+        2016
+      ],
+      "coefficient_calls": [
+        2626,
+        2076,
+        2926,
+        626
+      ],
+      "schoolbook_calls": [
+        2451,
+        1726,
+        3101,
+        626
+      ],
+      "baseline_scalar_products": 19127,
+      "coefficient_scalar_products": 15882,
+      "product_reduction_fraction": 0.16965546086683747,
+      "baseline_fp2_add_sub": 9301,
+      "coefficient_fp2_add_sub": 4702,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 427,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": false,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 7,
+      "baseline_scalar_points": 28,
+      "baseline_calls": [
+        5589,
+        2929,
+        2695,
+        1764
+      ],
+      "coefficient_calls": [
+        2622,
+        2077,
+        2926,
+        626
+      ],
+      "schoolbook_calls": [
+        2447,
+        1727,
+        3101,
+        626
+      ],
+      "baseline_scalar_products": 17003,
+      "coefficient_scalar_products": 15882,
+      "product_reduction_fraction": 0.06592954184555666,
+      "baseline_fp2_add_sub": 8518,
+      "coefficient_fp2_add_sub": 4699,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 427,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": false,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 7,
+      "baseline_scalar_points": 35,
+      "baseline_calls": [
+        6443,
+        3444,
+        3262,
+        2205
+      ],
+      "coefficient_calls": [
+        2634,
+        2074,
+        2926,
+        626
+      ],
+      "schoolbook_calls": [
+        2459,
+        1724,
+        3101,
+        626
+      ],
+      "baseline_scalar_products": 20720,
+      "coefficient_scalar_products": 15882,
+      "product_reduction_fraction": 0.23349420849420854,
+      "baseline_fp2_add_sub": 9887,
+      "coefficient_fp2_add_sub": 4708,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 427,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": false,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 31,
+      "baseline_scalar_points": 140,
+      "baseline_calls": [
+        26573,
+        14146,
+        13231,
+        8820
+      ],
+      "coefficient_calls": [
+        11242,
+        8990,
+        12958,
+        2570
+      ],
+      "schoolbook_calls": [
+        10467,
+        7440,
+        13733,
+        2570
+      ],
+      "baseline_scalar_products": 83795,
+      "coefficient_scalar_products": 69930,
+      "product_reduction_fraction": 0.16546333313443518,
+      "baseline_fp2_add_sub": 40719,
+      "coefficient_fp2_add_sub": 20232,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 1891,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": false,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 31,
+      "baseline_scalar_points": 124,
+      "baseline_calls": [
+        24621,
+        12963,
+        11935,
+        7812
+      ],
+      "coefficient_calls": [
+        11238,
+        8991,
+        12958,
+        2570
+      ],
+      "schoolbook_calls": [
+        10463,
+        7441,
+        13733,
+        2570
+      ],
+      "baseline_scalar_products": 75299,
+      "coefficient_scalar_products": 69930,
+      "product_reduction_fraction": 0.07130240773449847,
+      "baseline_fp2_add_sub": 37584,
+      "coefficient_fp2_add_sub": 20229,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 1891,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": false,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 31,
+      "baseline_scalar_points": 155,
+      "baseline_calls": [
+        28403,
+        15252,
+        14446,
+        9765
+      ],
+      "coefficient_calls": [
+        11258,
+        8986,
+        12958,
+        2570
+      ],
+      "schoolbook_calls": [
+        10483,
+        7436,
+        13733,
+        2570
+      ],
+      "baseline_scalar_products": 91760,
+      "coefficient_scalar_products": 69930,
+      "product_reduction_fraction": 0.23790322580645162,
+      "baseline_fp2_add_sub": 43655,
+      "coefficient_fp2_add_sub": 20244,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 1891,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": false,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1179644,
+      "baseline_calls": [
+        223870221,
+        119275119,
+        111541887,
+        74317572
+      ],
+      "coefficient_calls": [
+        93847494,
+        75497259,
+        109575774,
+        20971686
+      ],
+      "schoolbook_calls": [
+        87293919,
+        62390109,
+        116129349,
+        20971686
+      ],
+      "baseline_scalar_products": 706344579,
+      "coefficient_scalar_products": 589822242,
+      "product_reduction_fraction": 0.16496528813877964,
+      "baseline_fp2_add_sub": 343145340,
+      "coefficient_fp2_add_sub": 169344753,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 15990723,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": false,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1048572,
+      "baseline_calls": [
+        207879437,
+        109575792,
+        100925055,
+        66060036
+      ],
+      "coefficient_calls": [
+        93847490,
+        75497260,
+        109575774,
+        20971686
+      ],
+      "schoolbook_calls": [
+        87293915,
+        62390110,
+        116129349,
+        20971686
+      ],
+      "baseline_scalar_products": 636745347,
+      "coefficient_scalar_products": 589822242,
+      "product_reduction_fraction": 0.07369210504807977,
+      "baseline_fp2_add_sub": 317455229,
+      "coefficient_fp2_add_sub": 169344750,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 15990723,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": false,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1310715,
+      "baseline_calls": [
+        239860883,
+        128974356,
+        122158638,
+        82575045
+      ],
+      "coefficient_calls": [
+        93847562,
+        75497242,
+        109575774,
+        20971686
+      ],
+      "schoolbook_calls": [
+        87293987,
+        62390092,
+        116129349,
+        20971686
+      ],
+      "baseline_scalar_products": 775943280,
+      "coefficient_scalar_products": 589822242,
+      "product_reduction_fraction": 0.23986423079790054,
+      "baseline_fp2_add_sub": 368835239,
+      "coefficient_fp2_add_sub": 169344804,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 15990723,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": false,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 2359292,
+      "baseline_calls": [
+        447741197,
+        238550640,
+        223084159,
+        148635396
+      ],
+      "coefficient_calls": [
+        187695058,
+        150994732,
+        219151966,
+        41943218
+      ],
+      "schoolbook_calls": [
+        174587883,
+        124780382,
+        232259141,
+        41943218
+      ],
+      "baseline_scalar_products": 1412691587,
+      "coefficient_scalar_products": 1179646266,
+      "product_reduction_fraction": 0.16496546248632826,
+      "baseline_fp2_add_sub": 686291837,
+      "coefficient_fp2_add_sub": 338689790,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 31981507,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": false,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 2097148,
+      "baseline_calls": [
+        415759629,
+        219151985,
+        201850495,
+        132120324
+      ],
+      "coefficient_calls": [
+        187695054,
+        150994733,
+        219151966,
+        41943218
+      ],
+      "schoolbook_calls": [
+        174587879,
+        124780383,
+        232259141,
+        41943218
+      ],
+      "baseline_scalar_products": 1273493123,
+      "coefficient_scalar_products": 1179646266,
+      "product_reduction_fraction": 0.07369247254270406,
+      "baseline_fp2_add_sub": 634911614,
+      "coefficient_fp2_add_sub": 338689787,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 31981507,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": false,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 2621435,
+      "baseline_calls": [
+        479722643,
+        257949204,
+        244317742,
+        165150405
+      ],
+      "coefficient_calls": [
+        187695130,
+        150994714,
+        219151966,
+        41943218
+      ],
+      "schoolbook_calls": [
+        174587955,
+        124780364,
+        232259141,
+        41943218
+      ],
+      "baseline_scalar_products": 1551889520,
+      "coefficient_scalar_products": 1179646266,
+      "product_reduction_fraction": 0.23986453236696903,
+      "baseline_fp2_add_sub": 737671847,
+      "coefficient_fp2_add_sub": 338689844,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 31981507,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": true,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 1,
+      "baseline_scalar_points": 6,
+      "baseline_calls": [
+        1358,
+        574,
+        799,
+        378
+      ],
+      "coefficient_calls": [
+        543,
+        352,
+        550,
+        126
+      ],
+      "schoolbook_calls": [
+        517,
+        300,
+        576,
+        126
+      ],
+      "baseline_scalar_products": 4751,
+      "coefficient_scalar_products": 3002,
+      "product_reduction_fraction": 0.3681330246263944,
+      "baseline_fp2_add_sub": 1932,
+      "coefficient_fp2_add_sub": 895,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 62,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": true,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 1,
+      "baseline_scalar_points": 5,
+      "baseline_calls": [
+        1200,
+        500,
+        682,
+        315
+      ],
+      "coefficient_calls": [
+        539,
+        353,
+        550,
+        126
+      ],
+      "schoolbook_calls": [
+        513,
+        301,
+        576,
+        126
+      ],
+      "baseline_scalar_products": 4040,
+      "coefficient_scalar_products": 3002,
+      "product_reduction_fraction": 0.25693069306930694,
+      "baseline_fp2_add_sub": 1700,
+      "coefficient_fp2_add_sub": 892,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 62,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": true,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 1,
+      "baseline_scalar_points": 6,
+      "baseline_calls": [
+        1358,
+        574,
+        799,
+        378
+      ],
+      "coefficient_calls": [
+        543,
+        352,
+        550,
+        126
+      ],
+      "schoolbook_calls": [
+        517,
+        300,
+        576,
+        126
+      ],
+      "baseline_scalar_products": 4751,
+      "coefficient_scalar_products": 3002,
+      "product_reduction_fraction": 0.3681330246263944,
+      "baseline_fp2_add_sub": 1932,
+      "coefficient_fp2_add_sub": 895,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 62,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": true,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 7,
+      "baseline_scalar_points": 39,
+      "baseline_calls": [
+        8804,
+        3795,
+        5032,
+        2457
+      ],
+      "coefficient_calls": [
+        3233,
+        2118,
+        3640,
+        638
+      ],
+      "schoolbook_calls": [
+        3051,
+        1754,
+        3822,
+        638
+      ],
+      "baseline_scalar_products": 30074,
+      "coefficient_scalar_products": 19476,
+      "product_reduction_fraction": 0.35239741969807803,
+      "baseline_fp2_add_sub": 12599,
+      "coefficient_fp2_add_sub": 5351,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 434,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": true,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 7,
+      "baseline_scalar_points": 35,
+      "baseline_calls": [
+        8172,
+        3496,
+        4564,
+        2205
+      ],
+      "coefficient_calls": [
+        3229,
+        2119,
+        3640,
+        638
+      ],
+      "schoolbook_calls": [
+        3047,
+        1755,
+        3822,
+        638
+      ],
+      "baseline_scalar_products": 27230,
+      "coefficient_scalar_products": 19476,
+      "product_reduction_fraction": 0.28475945648182155,
+      "baseline_fp2_add_sub": 11668,
+      "coefficient_fp2_add_sub": 5348,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 434,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": true,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 7,
+      "baseline_scalar_points": 42,
+      "baseline_calls": [
+        9278,
+        4018,
+        5383,
+        2646
+      ],
+      "coefficient_calls": [
+        3241,
+        2116,
+        3640,
+        638
+      ],
+      "schoolbook_calls": [
+        3059,
+        1752,
+        3822,
+        638
+      ],
+      "baseline_scalar_products": 32207,
+      "coefficient_scalar_products": 19476,
+      "product_reduction_fraction": 0.39528673890769084,
+      "baseline_fp2_add_sub": 13296,
+      "coefficient_fp2_add_sub": 5357,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 434,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": true,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 31,
+      "baseline_scalar_points": 171,
+      "baseline_calls": [
+        38588,
+        16673,
+        21964,
+        10773
+      ],
+      "coefficient_calls": [
+        13897,
+        9176,
+        16000,
+        2590
+      ],
+      "schoolbook_calls": [
+        13091,
+        7564,
+        16806,
+        2590
+      ],
+      "baseline_scalar_products": 131366,
+      "coefficient_scalar_products": 85180,
+      "product_reduction_fraction": 0.35158260128191465,
+      "baseline_fp2_add_sub": 55261,
+      "coefficient_fp2_add_sub": 23073,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 1922,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": true,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 31,
+      "baseline_scalar_points": 155,
+      "baseline_calls": [
+        36060,
+        15474,
+        20092,
+        9765
+      ],
+      "coefficient_calls": [
+        13893,
+        9177,
+        16000,
+        2590
+      ],
+      "schoolbook_calls": [
+        13087,
+        7565,
+        16806,
+        2590
+      ],
+      "baseline_scalar_products": 119990,
+      "coefficient_scalar_products": 85180,
+      "product_reduction_fraction": 0.2901075089590799,
+      "baseline_fp2_add_sub": 51534,
+      "coefficient_fp2_add_sub": 23070,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 1922,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": true,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 31,
+      "baseline_scalar_points": 186,
+      "baseline_calls": [
+        40958,
+        17794,
+        23719,
+        11718
+      ],
+      "coefficient_calls": [
+        13913,
+        9172,
+        16000,
+        2590
+      ],
+      "schoolbook_calls": [
+        13107,
+        7560,
+        16806,
+        2590
+      ],
+      "baseline_scalar_products": 142031,
+      "coefficient_scalar_products": 85180,
+      "product_reduction_fraction": 0.40027177165548367,
+      "baseline_fp2_add_sub": 58752,
+      "coefficient_fp2_add_sub": 23085,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 1922,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": true,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1441787,
+      "baseline_calls": [
+        325319580,
+        140639774,
+        184941980,
+        90832581
+      ],
+      "coefficient_calls": [
+        116129721,
+        77070117,
+        135003680,
+        20971758
+      ],
+      "schoolbook_calls": [
+        109314003,
+        63438681,
+        141819398,
+        20971758
+      ],
+      "baseline_scalar_products": 1106375062,
+      "coefficient_scalar_products": 716961916,
+      "product_reduction_fraction": 0.35197209280554087,
+      "baseline_fp2_add_sub": 465959354,
+      "coefficient_fp2_add_sub": 193199838,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 16252866,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": true,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1310715,
+      "baseline_calls": [
+        304610204,
+        130809375,
+        169606556,
+        82575045
+      ],
+      "coefficient_calls": [
+        116129717,
+        77070118,
+        135003680,
+        20971758
+      ],
+      "schoolbook_calls": [
+        109313999,
+        63438682,
+        141819398,
+        20971758
+      ],
+      "baseline_scalar_products": 1013182870,
+      "coefficient_scalar_products": 716961916,
+      "product_reduction_fraction": 0.2923667215179033,
+      "baseline_fp2_add_sub": 435419579,
+      "coefficient_fp2_add_sub": 193199835,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 16252866,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": true,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1572858,
+      "baseline_calls": [
+        346028798,
+        150470082,
+        200277287,
+        99090054
+      ],
+      "coefficient_calls": [
+        116129789,
+        77070100,
+        135003680,
+        20971758
+      ],
+      "schoolbook_calls": [
+        109314071,
+        63438664,
+        141819398,
+        20971758
+      ],
+      "baseline_scalar_products": 1199566543,
+      "coefficient_scalar_products": 716961916,
+      "product_reduction_fraction": 0.40231584468257386,
+      "baseline_fp2_add_sub": 496498880,
+      "coefficient_fp2_add_sub": 193199889,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 16252866,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": true,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 2883579,
+      "baseline_calls": [
+        650640284,
+        281280031,
+        369884572,
+        181665477
+      ],
+      "coefficient_calls": [
+        232259529,
+        154140454,
+        270007840,
+        41943294
+      ],
+      "schoolbook_calls": [
+        218628067,
+        126877530,
+        283639302,
+        41943294
+      ],
+      "baseline_scalar_products": 2212753814,
+      "coefficient_scalar_products": 1433925788,
+      "product_reduction_fraction": 0.35197228949392745,
+      "baseline_fp2_add_sub": 931920315,
+      "coefficient_fp2_add_sub": 386399983,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 32505794,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": true,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 2621435,
+      "baseline_calls": [
+        609221532,
+        261619232,
+        339213724,
+        165150405
+      ],
+      "coefficient_calls": [
+        232259525,
+        154140455,
+        270007840,
+        41943294
+      ],
+      "schoolbook_calls": [
+        218628063,
+        126877531,
+        283639302,
+        41943294
+      ],
+      "baseline_scalar_products": 2026369430,
+      "coefficient_scalar_products": 1433925788,
+      "product_reduction_fraction": 0.29236704483841325,
+      "baseline_fp2_add_sub": 870840764,
+      "coefficient_fp2_add_sub": 386399980,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 32505794,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": true,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 3145722,
+      "baseline_calls": [
+        692058878,
+        300940738,
+        400555303,
+        198180486
+      ],
+      "coefficient_calls": [
+        232259601,
+        154140436,
+        270007840,
+        41943294
+      ],
+      "schoolbook_calls": [
+        218628139,
+        126877512,
+        283639302,
+        41943294
+      ],
+      "baseline_scalar_products": 2399137487,
+      "coefficient_scalar_products": 1433925788,
+      "product_reduction_fraction": 0.402316125786917,
+      "baseline_fp2_add_sub": 992999616,
+      "coefficient_fp2_add_sub": 386400037,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 32505794,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": false,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 1,
+      "baseline_scalar_points": 5,
+      "baseline_calls": [
+        1047,
+        534,
+        502,
+        355
+      ],
+      "coefficient_calls": [
+        496,
+        378,
+        458,
+        134
+      ],
+      "schoolbook_calls": [
+        469,
+        324,
+        485,
+        134
+      ],
+      "baseline_scalar_products": 3220,
+      "coefficient_scalar_products": 2558,
+      "product_reduction_fraction": 0.2055900621118012,
+      "baseline_fp2_add_sub": 1581,
+      "coefficient_fp2_add_sub": 874,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 67,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": false,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 1,
+      "baseline_scalar_points": 4,
+      "baseline_calls": [
+        913,
+        455,
+        415,
+        284
+      ],
+      "coefficient_calls": [
+        492,
+        379,
+        458,
+        134
+      ],
+      "schoolbook_calls": [
+        465,
+        325,
+        485,
+        134
+      ],
+      "baseline_scalar_products": 2643,
+      "coefficient_scalar_products": 2558,
+      "product_reduction_fraction": 0.0321604237608778,
+      "baseline_fp2_add_sub": 1368,
+      "coefficient_fp2_add_sub": 871,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 67,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": false,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 1,
+      "baseline_scalar_points": 5,
+      "baseline_calls": [
+        1047,
+        534,
+        502,
+        355
+      ],
+      "coefficient_calls": [
+        496,
+        378,
+        458,
+        134
+      ],
+      "schoolbook_calls": [
+        469,
+        324,
+        485,
+        134
+      ],
+      "baseline_scalar_products": 3220,
+      "coefficient_scalar_products": 2558,
+      "product_reduction_fraction": 0.2055900621118012,
+      "baseline_fp2_add_sub": 1581,
+      "coefficient_fp2_add_sub": 874,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 67,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": false,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 7,
+      "baseline_scalar_points": 32,
+      "baseline_calls": [
+        6675,
+        3500,
+        3253,
+        2272
+      ],
+      "coefficient_calls": [
+        2872,
+        2276,
+        3206,
+        686
+      ],
+      "schoolbook_calls": [
+        2683,
+        1898,
+        3395,
+        686
+      ],
+      "baseline_scalar_products": 20809,
+      "coefficient_scalar_products": 17402,
+      "product_reduction_fraction": 0.16372723340862128,
+      "baseline_fp2_add_sub": 10175,
+      "coefficient_fp2_add_sub": 5148,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 469,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": false,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 7,
+      "baseline_scalar_points": 28,
+      "baseline_calls": [
+        6139,
+        3181,
+        2905,
+        1988
+      ],
+      "coefficient_calls": [
+        2868,
+        2277,
+        3206,
+        686
+      ],
+      "schoolbook_calls": [
+        2679,
+        1899,
+        3395,
+        686
+      ],
+      "baseline_scalar_products": 18501,
+      "coefficient_scalar_products": 17402,
+      "product_reduction_fraction": 0.05940219447597428,
+      "baseline_fp2_add_sub": 9320,
+      "coefficient_fp2_add_sub": 5145,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 469,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": false,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 7,
+      "baseline_scalar_points": 35,
+      "baseline_calls": [
+        7077,
+        3738,
+        3514,
+        2485
+      ],
+      "coefficient_calls": [
+        2880,
+        2274,
+        3206,
+        686
+      ],
+      "schoolbook_calls": [
+        2691,
+        1896,
+        3395,
+        686
+      ],
+      "baseline_scalar_products": 22540,
+      "coefficient_scalar_products": 17402,
+      "product_reduction_fraction": 0.22795031055900616,
+      "baseline_fp2_add_sub": 10815,
+      "coefficient_fp2_add_sub": 5154,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 469,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": false,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 31,
+      "baseline_scalar_points": 140,
+      "baseline_calls": [
+        29187,
+        15358,
+        14257,
+        9940
+      ],
+      "coefficient_calls": [
+        12304,
+        9862,
+        14198,
+        2822
+      ],
+      "schoolbook_calls": [
+        11467,
+        8188,
+        15035,
+        2822
+      ],
+      "baseline_scalar_products": 91165,
+      "coefficient_scalar_products": 76634,
+      "product_reduction_fraction": 0.15939231064553283,
+      "baseline_fp2_add_sub": 44545,
+      "coefficient_fp2_add_sub": 22166,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 2077,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": false,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 31,
+      "baseline_scalar_points": 124,
+      "baseline_calls": [
+        27043,
+        14079,
+        12865,
+        8804
+      ],
+      "coefficient_calls": [
+        12300,
+        9863,
+        14198,
+        2822
+      ],
+      "schoolbook_calls": [
+        11463,
+        8189,
+        15035,
+        2822
+      ],
+      "baseline_scalar_products": 81933,
+      "coefficient_scalar_products": 76634,
+      "product_reduction_fraction": 0.06467479525954134,
+      "baseline_fp2_add_sub": 41122,
+      "coefficient_fp2_add_sub": 22163,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 2077,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": false,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 31,
+      "baseline_scalar_points": 155,
+      "baseline_calls": [
+        31197,
+        16554,
+        15562,
+        11005
+      ],
+      "coefficient_calls": [
+        12320,
+        9858,
+        14198,
+        2822
+      ],
+      "schoolbook_calls": [
+        11483,
+        8184,
+        15035,
+        2822
+      ],
+      "baseline_scalar_products": 99820,
+      "coefficient_scalar_products": 76634,
+      "product_reduction_fraction": 0.23227810058104592,
+      "baseline_fp2_add_sub": 47751,
+      "coefficient_fp2_add_sub": 22178,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 2077,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": false,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1179644,
+      "baseline_calls": [
+        245890243,
+        129498699,
+        120192609,
+        83754724
+      ],
+      "coefficient_calls": [
+        102760364,
+        82837267,
+        120061494,
+        23068834
+      ],
+      "schoolbook_calls": [
+        95682503,
+        68681545,
+        127139355,
+        23068834
+      ],
+      "baseline_scalar_products": 768472493,
+      "coefficient_scalar_products": 646445138,
+      "product_reduction_fraction": 0.1587920922499434,
+      "baseline_fp2_add_sub": 375388942,
+      "coefficient_fp2_add_sub": 185597631,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 17563581,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": false,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1048572,
+      "baseline_calls": [
+        228326595,
+        119012940,
+        108789345,
+        74448612
+      ],
+      "coefficient_calls": [
+        102760360,
+        82837268,
+        120061494,
+        23068834
+      ],
+      "schoolbook_calls": [
+        95682499,
+        68681546,
+        127139355,
+        23068834
+      ],
+      "baseline_scalar_products": 692843949,
+      "coefficient_scalar_products": 646445138,
+      "product_reduction_fraction": 0.06696863134471853,
+      "baseline_fp2_add_sub": 347339535,
+      "coefficient_fp2_add_sub": 185597628,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 17563581,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": false,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1310715,
+      "baseline_calls": [
+        263453757,
+        139984362,
+        131595786,
+        93060765
+      ],
+      "coefficient_calls": [
+        102760432,
+        82837250,
+        120061494,
+        23068834
+      ],
+      "schoolbook_calls": [
+        95682571,
+        68681528,
+        127139355,
+        23068834
+      ],
+      "baseline_scalar_products": 844100460,
+      "coefficient_scalar_products": 646445138,
+      "product_reduction_fraction": 0.2341608983366743,
+      "baseline_fp2_add_sub": 403438119,
+      "coefficient_fp2_add_sub": 185597682,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 17563581,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": false,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 2359292,
+      "baseline_calls": [
+        491781315,
+        258997836,
+        240385633,
+        167509732
+      ],
+      "coefficient_calls": [
+        205520824,
+        165674772,
+        240123446,
+        46137518
+      ],
+      "schoolbook_calls": [
+        191365075,
+        137363274,
+        254279195,
+        46137518
+      ],
+      "baseline_scalar_products": 1536947629,
+      "coefficient_scalar_products": 1292892266,
+      "product_reduction_fraction": 0.1587922440524484,
+      "baseline_fp2_add_sub": 750779151,
+      "coefficient_fp2_add_sub": 371195596,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 35127229,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": false,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 2097148,
+      "baseline_calls": [
+        456654019,
+        238026317,
+        217579105,
+        148897508
+      ],
+      "coefficient_calls": [
+        205520820,
+        165674773,
+        240123446,
+        46137518
+      ],
+      "schoolbook_calls": [
+        191365071,
+        137363275,
+        254279195,
+        46137518
+      ],
+      "baseline_scalar_products": 1385690541,
+      "coefficient_scalar_products": 1292892266,
+      "product_reduction_fraction": 0.06696897485713582,
+      "baseline_fp2_add_sub": 694680336,
+      "coefficient_fp2_add_sub": 371195593,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 35127229,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": false,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 2621435,
+      "baseline_calls": [
+        526908477,
+        279969258,
+        263192074,
+        186121885
+      ],
+      "coefficient_calls": [
+        205520896,
+        165674754,
+        240123446,
+        46137518
+      ],
+      "schoolbook_calls": [
+        191365147,
+        137363256,
+        254279195,
+        46137518
+      ],
+      "baseline_scalar_products": 1688204140,
+      "coefficient_scalar_products": 1292892266,
+      "product_reduction_fraction": 0.23416118029422672,
+      "baseline_fp2_add_sub": 806877735,
+      "coefficient_fp2_add_sub": 371195650,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 35127229,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": true,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 1,
+      "baseline_scalar_points": 6,
+      "baseline_calls": [
+        1494,
+        622,
+        869,
+        426
+      ],
+      "coefficient_calls": [
+        593,
+        384,
+        602,
+        138
+      ],
+      "schoolbook_calls": [
+        565,
+        328,
+        630,
+        138
+      ],
+      "baseline_scalar_products": 5197,
+      "coefficient_scalar_products": 3286,
+      "product_reduction_fraction": 0.3677121416201655,
+      "baseline_fp2_add_sub": 2116,
+      "coefficient_fp2_add_sub": 977,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 68,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": true,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 1,
+      "baseline_scalar_points": 5,
+      "baseline_calls": [
+        1320,
+        542,
+        742,
+        355
+      ],
+      "coefficient_calls": [
+        589,
+        385,
+        602,
+        138
+      ],
+      "schoolbook_calls": [
+        561,
+        329,
+        630,
+        138
+      ],
+      "baseline_scalar_products": 4420,
+      "coefficient_scalar_products": 3286,
+      "product_reduction_fraction": 0.25656108597285066,
+      "baseline_fp2_add_sub": 1862,
+      "coefficient_fp2_add_sub": 974,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 68,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": true,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 1,
+      "baseline_scalar_points": 6,
+      "baseline_calls": [
+        1494,
+        622,
+        869,
+        426
+      ],
+      "coefficient_calls": [
+        593,
+        384,
+        602,
+        138
+      ],
+      "schoolbook_calls": [
+        565,
+        328,
+        630,
+        138
+      ],
+      "baseline_scalar_products": 5197,
+      "coefficient_scalar_products": 3286,
+      "product_reduction_fraction": 0.3677121416201655,
+      "baseline_fp2_add_sub": 2116,
+      "coefficient_fp2_add_sub": 977,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 68,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": true,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 7,
+      "baseline_scalar_points": 39,
+      "baseline_calls": [
+        9684,
+        4113,
+        5468,
+        2769
+      ],
+      "coefficient_calls": [
+        3535,
+        2318,
+        3980,
+        698
+      ],
+      "schoolbook_calls": [
+        3339,
+        1926,
+        4176,
+        698
+      ],
+      "baseline_scalar_products": 32878,
+      "coefficient_scalar_products": 21296,
+      "product_reduction_fraction": 0.3522720360119229,
+      "baseline_fp2_add_sub": 13797,
+      "coefficient_fp2_add_sub": 5853,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 476,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": true,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 7,
+      "baseline_scalar_points": 35,
+      "baseline_calls": [
+        8988,
+        3790,
+        4960,
+        2485
+      ],
+      "coefficient_calls": [
+        3531,
+        2319,
+        3980,
+        698
+      ],
+      "schoolbook_calls": [
+        3335,
+        1927,
+        4176,
+        698
+      ],
+      "baseline_scalar_products": 29770,
+      "coefficient_scalar_products": 21296,
+      "product_reduction_fraction": 0.28464897547866985,
+      "baseline_fp2_add_sub": 12778,
+      "coefficient_fp2_add_sub": 5850,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 476,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": true,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 7,
+      "baseline_scalar_points": 42,
+      "baseline_calls": [
+        10206,
+        4354,
+        5849,
+        2982
+      ],
+      "coefficient_calls": [
+        3543,
+        2316,
+        3980,
+        698
+      ],
+      "schoolbook_calls": [
+        3347,
+        1924,
+        4176,
+        698
+      ],
+      "baseline_scalar_products": 35209,
+      "coefficient_scalar_products": 21296,
+      "product_reduction_fraction": 0.39515464795932853,
+      "baseline_fp2_add_sub": 14560,
+      "coefficient_fp2_add_sub": 5859,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 476,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": true,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 31,
+      "baseline_scalar_points": 171,
+      "baseline_calls": [
+        42444,
+        18071,
+        23864,
+        12141
+      ],
+      "coefficient_calls": [
+        15207,
+        10048,
+        17492,
+        2842
+      ],
+      "schoolbook_calls": [
+        14339,
+        8312,
+        18360,
+        2842
+      ],
+      "baseline_scalar_products": 143602,
+      "coefficient_scalar_products": 93144,
+      "product_reduction_fraction": 0.3513739362961519,
+      "baseline_fp2_add_sub": 60515,
+      "coefficient_fp2_add_sub": 25255,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 2108,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": true,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 31,
+      "baseline_scalar_points": 155,
+      "baseline_calls": [
+        39660,
+        16776,
+        21832,
+        11005
+      ],
+      "coefficient_calls": [
+        15203,
+        10049,
+        17492,
+        2842
+      ],
+      "schoolbook_calls": [
+        14335,
+        8313,
+        18360,
+        2842
+      ],
+      "baseline_scalar_products": 131170,
+      "coefficient_scalar_products": 93144,
+      "product_reduction_fraction": 0.28989860486391705,
+      "baseline_fp2_add_sub": 56436,
+      "coefficient_fp2_add_sub": 25252,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 2108,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": true,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 31,
+      "baseline_scalar_points": 186,
+      "baseline_calls": [
+        45054,
+        19282,
+        25769,
+        13206
+      ],
+      "coefficient_calls": [
+        15223,
+        10044,
+        17492,
+        2842
+      ],
+      "schoolbook_calls": [
+        14355,
+        8308,
+        18360,
+        2842
+      ],
+      "baseline_scalar_products": 155257,
+      "coefficient_scalar_products": 93144,
+      "product_reduction_fraction": 0.4000656975208847,
+      "baseline_fp2_add_sub": 64336,
+      "coefficient_fp2_add_sub": 25267,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 2108,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": true,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1441787,
+      "baseline_calls": [
+        357825324,
+        152436212,
+        200932712,
+        102366877
+      ],
+      "coefficient_calls": [
+        127139735,
+        84410125,
+        147586548,
+        23068906
+      ],
+      "schoolbook_calls": [
+        119799731,
+        69730117,
+        154926552,
+        23068906
+      ],
+      "baseline_scalar_products": 1209397314,
+      "coefficient_scalar_products": 784070552,
+      "product_reduction_fraction": 0.35168489054540764,
+      "baseline_fp2_add_sub": 510261536,
+      "coefficient_fp2_add_sub": 211549860,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 17825724,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": true,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1310715,
+      "baseline_calls": [
+        335018796,
+        141819381,
+        184286568,
+        93060765
+      ],
+      "coefficient_calls": [
+        127139731,
+        84410126,
+        147586548,
+        23068906
+      ],
+      "schoolbook_calls": [
+        119799727,
+        69730118,
+        154926552,
+        23068906
+      ],
+      "baseline_scalar_products": 1107554370,
+      "coefficient_scalar_products": 784070552,
+      "product_reduction_fraction": 0.29207037303279293,
+      "baseline_fp2_add_sub": 476838177,
+      "coefficient_fp2_add_sub": 211549857,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 17825724,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": true,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1572858,
+      "baseline_calls": [
+        380631678,
+        163052946,
+        217578729,
+        111672918
+      ],
+      "coefficient_calls": [
+        127139803,
+        84410108,
+        147586548,
+        23068906
+      ],
+      "schoolbook_calls": [
+        119799799,
+        69730100,
+        154926552,
+        23068906
+      ],
+      "baseline_scalar_products": 1311239481,
+      "coefficient_scalar_products": 784070552,
+      "product_reduction_fraction": 0.40203863339895884,
+      "baseline_fp2_add_sub": 543684624,
+      "coefficient_fp2_add_sub": 211549911,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 17825724,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": true,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 2883579,
+      "baseline_calls": [
+        715651884,
+        304872949,
+        401866088,
+        204734109
+      ],
+      "coefficient_calls": [
+        254279591,
+        168820494,
+        295173620,
+        46137594
+      ],
+      "schoolbook_calls": [
+        239599555,
+        139460422,
+        309853656,
+        46137594
+      ],
+      "baseline_scalar_products": 2418798658,
+      "coefficient_scalar_products": 1568143288,
+      "product_reduction_fraction": 0.35168506778624153,
+      "baseline_fp2_add_sub": 1020524833,
+      "coefficient_fp2_add_sub": 423100085,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 35651516,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": true,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 2621435,
+      "baseline_calls": [
+        670038828,
+        283639286,
+        368573800,
+        186121885
+      ],
+      "coefficient_calls": [
+        254279587,
+        168820495,
+        295173620,
+        46137594
+      ],
+      "schoolbook_calls": [
+        239599551,
+        139460423,
+        309853656,
+        46137594
+      ],
+      "baseline_scalar_products": 2215112770,
+      "coefficient_scalar_products": 1568143288,
+      "product_reduction_fraction": 0.2920706750293349,
+      "baseline_fp2_add_sub": 953678114,
+      "coefficient_fp2_add_sub": 423100082,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 35651516,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": true,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 3145722,
+      "baseline_calls": [
+        761264766,
+        326106514,
+        435158249,
+        223346262
+      ],
+      "coefficient_calls": [
+        254279663,
+        168820476,
+        295173620,
+        46137594
+      ],
+      "schoolbook_calls": [
+        239599627,
+        139460404,
+        309853656,
+        46137594
+      ],
+      "baseline_scalar_products": 2622483769,
+      "coefficient_scalar_products": 1568143288,
+      "product_reduction_fraction": 0.4020388966609463,
+      "baseline_fp2_add_sub": 1087371280,
+      "coefficient_fp2_add_sub": 423100139,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 35651516,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": false,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 1,
+      "baseline_scalar_points": 5,
+      "baseline_calls": [
+        888,
+        453,
+        429,
+        290
+      ],
+      "coefficient_calls": [
+        422,
+        318,
+        383,
+        112
+      ],
+      "schoolbook_calls": [
+        399,
+        272,
+        406,
+        112
+      ],
+      "baseline_scalar_products": 2725,
+      "coefficient_scalar_products": 2139,
+      "product_reduction_fraction": 0.21504587155963306,
+      "baseline_fp2_add_sub": 1341,
+      "coefficient_fp2_add_sub": 740,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 59,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": false,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 1,
+      "baseline_scalar_points": 4,
+      "baseline_calls": [
+        776,
+        387,
+        355,
+        232
+      ],
+      "coefficient_calls": [
+        418,
+        319,
+        383,
+        112
+      ],
+      "schoolbook_calls": [
+        395,
+        273,
+        406,
+        112
+      ],
+      "baseline_scalar_products": 2239,
+      "coefficient_scalar_products": 2139,
+      "product_reduction_fraction": 0.04466279589102273,
+      "baseline_fp2_add_sub": 1163,
+      "coefficient_fp2_add_sub": 737,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 59,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": false,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 1,
+      "baseline_scalar_points": 5,
+      "baseline_calls": [
+        888,
+        453,
+        429,
+        290
+      ],
+      "coefficient_calls": [
+        422,
+        318,
+        383,
+        112
+      ],
+      "schoolbook_calls": [
+        399,
+        272,
+        406,
+        112
+      ],
+      "baseline_scalar_products": 2725,
+      "coefficient_scalar_products": 2139,
+      "product_reduction_fraction": 0.21504587155963306,
+      "baseline_fp2_add_sub": 1341,
+      "coefficient_fp2_add_sub": 740,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 59,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": false,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 7,
+      "baseline_scalar_points": 32,
+      "baseline_calls": [
+        5682,
+        2972,
+        2781,
+        1856
+      ],
+      "coefficient_calls": [
+        2432,
+        1910,
+        2681,
+        556
+      ],
+      "schoolbook_calls": [
+        2271,
+        1588,
+        2842,
+        556
+      ],
+      "baseline_scalar_products": 17617,
+      "coefficient_scalar_products": 14517,
+      "product_reduction_fraction": 0.17596639609468123,
+      "baseline_fp2_add_sub": 8654,
+      "coefficient_fp2_add_sub": 4342,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 413,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": false,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 7,
+      "baseline_scalar_points": 28,
+      "baseline_calls": [
+        5234,
+        2705,
+        2485,
+        1624
+      ],
+      "coefficient_calls": [
+        2428,
+        1911,
+        2681,
+        556
+      ],
+      "schoolbook_calls": [
+        2267,
+        1589,
+        2842,
+        556
+      ],
+      "baseline_scalar_products": 15673,
+      "coefficient_scalar_products": 14517,
+      "product_reduction_fraction": 0.07375741721431761,
+      "baseline_fp2_add_sub": 7939,
+      "coefficient_fp2_add_sub": 4339,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 413,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": false,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 7,
+      "baseline_scalar_points": 35,
+      "baseline_calls": [
+        6018,
+        3171,
+        3003,
+        2030
+      ],
+      "coefficient_calls": [
+        2440,
+        1908,
+        2681,
+        556
+      ],
+      "schoolbook_calls": [
+        2279,
+        1586,
+        2842,
+        556
+      ],
+      "baseline_scalar_products": 19075,
+      "coefficient_scalar_products": 14517,
+      "product_reduction_fraction": 0.23895150720838798,
+      "baseline_fp2_add_sub": 9189,
+      "coefficient_fp2_add_sub": 4348,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 413,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": false,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 31,
+      "baseline_scalar_points": 140,
+      "baseline_calls": [
+        24858,
+        13042,
+        12189,
+        8120
+      ],
+      "coefficient_calls": [
+        10400,
+        8272,
+        11873,
+        2260
+      ],
+      "schoolbook_calls": [
+        9687,
+        6846,
+        12586,
+        2260
+      ],
+      "baseline_scalar_products": 77185,
+      "coefficient_scalar_products": 63885,
+      "product_reduction_fraction": 0.1723132733043985,
+      "baseline_fp2_add_sub": 37900,
+      "coefficient_fp2_add_sub": 18672,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 1829,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": false,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 31,
+      "baseline_scalar_points": 124,
+      "baseline_calls": [
+        23066,
+        11971,
+        11005,
+        7192
+      ],
+      "coefficient_calls": [
+        10396,
+        8273,
+        11873,
+        2260
+      ],
+      "schoolbook_calls": [
+        9683,
+        6847,
+        12586,
+        2260
+      ],
+      "baseline_scalar_products": 69409,
+      "coefficient_scalar_products": 63885,
+      "product_reduction_fraction": 0.07958622080709998,
+      "baseline_fp2_add_sub": 35037,
+      "coefficient_fp2_add_sub": 18669,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 1829,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": false,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 31,
+      "baseline_scalar_points": 155,
+      "baseline_calls": [
+        26538,
+        14043,
+        13299,
+        8990
+      ],
+      "coefficient_calls": [
+        10416,
+        8268,
+        11873,
+        2260
+      ],
+      "schoolbook_calls": [
+        9703,
+        6842,
+        12586,
+        2260
+      ],
+      "baseline_scalar_products": 84475,
+      "coefficient_scalar_products": 63885,
+      "product_reduction_fraction": 0.24374075170168685,
+      "baseline_fp2_add_sub": 40581,
+      "coefficient_fp2_add_sub": 18684,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 1829,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": false,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1179644,
+      "baseline_calls": [
+        209452346,
+        109969039,
+        102760093,
+        68419352
+      ],
+      "coefficient_calls": [
+        86769628,
+        69467965,
+        100400769,
+        18350256
+      ],
+      "schoolbook_calls": [
+        80740339,
+        57409387,
+        106430058,
+        18350256
+      ],
+      "baseline_scalar_products": 650639169,
+      "coefficient_scalar_products": 538704357,
+      "product_reduction_fraction": 0.17203823153167708,
+      "baseline_fp2_add_sub": 319421385,
+      "coefficient_fp2_add_sub": 156237593,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 15466437,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": false,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1048572,
+      "baseline_calls": [
+        194772282,
+        101187216,
+        93060765,
+        60817176
+      ],
+      "coefficient_calls": [
+        86769624,
+        69467966,
+        100400769,
+        18350256
+      ],
+      "schoolbook_calls": [
+        80740335,
+        57409388,
+        106430058,
+        18350256
+      ],
+      "baseline_scalar_products": 586938177,
+      "coefficient_scalar_products": 538704357,
+      "product_reduction_fraction": 0.08217870619106105,
+      "baseline_fp2_add_sub": 295959498,
+      "coefficient_fp2_add_sub": 156237590,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 15466437,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": false,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1310715,
+      "baseline_calls": [
+        224132298,
+        118750779,
+        112459347,
+        76021470
+      ],
+      "coefficient_calls": [
+        86769696,
+        69467948,
+        100400769,
+        18350256
+      ],
+      "schoolbook_calls": [
+        80740407,
+        57409370,
+        106430058,
+        18350256
+      ],
+      "baseline_scalar_products": 714339675,
+      "coefficient_scalar_products": 538704357,
+      "product_reduction_fraction": 0.245870870885059,
+      "baseline_fp2_add_sub": 342883077,
+      "coefficient_fp2_add_sub": 156237644,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 15466437,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": false,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 2359292,
+      "baseline_calls": [
+        418905402,
+        219938448,
+        205520541,
+        136838936
+      ],
+      "coefficient_calls": [
+        173539304,
+        138936126,
+        200801921,
+        36700348
+      ],
+      "schoolbook_calls": [
+        161480703,
+        114818924,
+        212860522,
+        36700348
+      ],
+      "baseline_scalar_products": 1301280577,
+      "coefficient_scalar_products": 1077410301,
+      "product_reduction_fraction": 0.17203843656539874,
+      "baseline_fp2_add_sub": 638843850,
+      "coefficient_fp2_add_sub": 312475430,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 30932933,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": false,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 2097148,
+      "baseline_calls": [
+        389545274,
+        202374801,
+        186121885,
+        121634584
+      ],
+      "coefficient_calls": [
+        173539300,
+        138936127,
+        200801921,
+        36700348
+      ],
+      "schoolbook_calls": [
+        161480699,
+        114818925,
+        212860522,
+        36700348
+      ],
+      "baseline_scalar_products": 1173878593,
+      "coefficient_scalar_products": 1077410301,
+      "product_reduction_fraction": 0.08217910487102642,
+      "baseline_fp2_add_sub": 591920075,
+      "coefficient_fp2_add_sub": 312475427,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 30932933,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": false,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 2621435,
+      "baseline_calls": [
+        448265418,
+        237502011,
+        224919123,
+        152043230
+      ],
+      "coefficient_calls": [
+        173539376,
+        138936108,
+        200801921,
+        36700348
+      ],
+      "schoolbook_calls": [
+        161480775,
+        114818906,
+        212860522,
+        36700348
+      ],
+      "baseline_scalar_products": 1428682075,
+      "coefficient_scalar_products": 1077410301,
+      "product_reduction_fraction": 0.24587119846100125,
+      "baseline_fp2_add_sub": 685767429,
+      "coefficient_fp2_add_sub": 312475484,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 30932933,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": true,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 1,
+      "baseline_scalar_points": 6,
+      "baseline_calls": [
+        1281,
+        528,
+        755,
+        348
+      ],
+      "coefficient_calls": [
+        511,
+        324,
+        515,
+        116
+      ],
+      "schoolbook_calls": [
+        487,
+        276,
+        539,
+        116
+      ],
+      "baseline_scalar_products": 4471,
+      "coefficient_scalar_products": 2807,
+      "product_reduction_fraction": 0.37217624692462536,
+      "baseline_fp2_add_sub": 1809,
+      "coefficient_fp2_add_sub": 835,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 60,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": true,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 1,
+      "baseline_scalar_points": 5,
+      "baseline_calls": [
+        1133,
+        461,
+        645,
+        290
+      ],
+      "coefficient_calls": [
+        507,
+        325,
+        515,
+        116
+      ],
+      "schoolbook_calls": [
+        483,
+        277,
+        539,
+        116
+      ],
+      "baseline_scalar_products": 3805,
+      "coefficient_scalar_products": 2807,
+      "product_reduction_fraction": 0.2622864651773982,
+      "baseline_fp2_add_sub": 1594,
+      "coefficient_fp2_add_sub": 832,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 60,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": true,
+      "N": 2,
+      "rounds": 1,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 1,
+      "baseline_scalar_points": 6,
+      "baseline_calls": [
+        1281,
+        528,
+        755,
+        348
+      ],
+      "coefficient_calls": [
+        511,
+        324,
+        515,
+        116
+      ],
+      "schoolbook_calls": [
+        487,
+        276,
+        539,
+        116
+      ],
+      "baseline_scalar_products": 4471,
+      "coefficient_scalar_products": 2807,
+      "product_reduction_fraction": 0.37217624692462536,
+      "baseline_fp2_add_sub": 1809,
+      "coefficient_fp2_add_sub": 835,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 60,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": true,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 7,
+      "baseline_scalar_points": 39,
+      "baseline_calls": [
+        8325,
+        3494,
+        4745,
+        2262
+      ],
+      "coefficient_calls": [
+        3039,
+        1952,
+        3395,
+        568
+      ],
+      "schoolbook_calls": [
+        2871,
+        1616,
+        3563,
+        568
+      ],
+      "baseline_scalar_products": 28249,
+      "coefficient_scalar_products": 18111,
+      "product_reduction_fraction": 0.35887996035257885,
+      "baseline_fp2_add_sub": 11819,
+      "coefficient_fp2_add_sub": 4991,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 420,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": true,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 7,
+      "baseline_scalar_points": 35,
+      "baseline_calls": [
+        7733,
+        3223,
+        4305,
+        2030
+      ],
+      "coefficient_calls": [
+        3035,
+        1953,
+        3395,
+        568
+      ],
+      "schoolbook_calls": [
+        2867,
+        1617,
+        3563,
+        568
+      ],
+      "baseline_scalar_products": 25585,
+      "coefficient_scalar_products": 18111,
+      "product_reduction_fraction": 0.29212429157709596,
+      "baseline_fp2_add_sub": 10956,
+      "coefficient_fp2_add_sub": 4988,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 420,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": true,
+      "N": 8,
+      "rounds": 3,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 7,
+      "baseline_scalar_points": 42,
+      "baseline_calls": [
+        8769,
+        3696,
+        5075,
+        2436
+      ],
+      "coefficient_calls": [
+        3047,
+        1950,
+        3395,
+        568
+      ],
+      "schoolbook_calls": [
+        2879,
+        1614,
+        3563,
+        568
+      ],
+      "baseline_scalar_products": 30247,
+      "coefficient_scalar_products": 18111,
+      "product_reduction_fraction": 0.40122987403709454,
+      "baseline_fp2_add_sub": 12465,
+      "coefficient_fp2_add_sub": 4997,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 420,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": true,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 31,
+      "baseline_scalar_points": 171,
+      "baseline_calls": [
+        36501,
+        15352,
+        20705,
+        9918
+      ],
+      "coefficient_calls": [
+        13055,
+        8458,
+        14915,
+        2280
+      ],
+      "schoolbook_calls": [
+        12311,
+        6970,
+        15659,
+        2280
+      ],
+      "baseline_scalar_products": 123361,
+      "coefficient_scalar_products": 79135,
+      "product_reduction_fraction": 0.3585087669522783,
+      "baseline_fp2_add_sub": 51853,
+      "coefficient_fp2_add_sub": 21513,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 1860,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": true,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 31,
+      "baseline_scalar_points": 155,
+      "baseline_calls": [
+        34133,
+        14265,
+        18945,
+        8990
+      ],
+      "coefficient_calls": [
+        13051,
+        8459,
+        14915,
+        2280
+      ],
+      "schoolbook_calls": [
+        12307,
+        6971,
+        15659,
+        2280
+      ],
+      "baseline_scalar_products": 112705,
+      "coefficient_scalar_products": 79135,
+      "product_reduction_fraction": 0.2978572379220088,
+      "baseline_fp2_add_sub": 48398,
+      "coefficient_fp2_add_sub": 21510,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 1860,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": true,
+      "N": 32,
+      "rounds": 5,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 31,
+      "baseline_scalar_points": 186,
+      "baseline_calls": [
+        38721,
+        16368,
+        22355,
+        10788
+      ],
+      "coefficient_calls": [
+        13071,
+        8454,
+        14915,
+        2280
+      ],
+      "schoolbook_calls": [
+        12327,
+        6966,
+        15659,
+        2280
+      ],
+      "baseline_scalar_products": 133351,
+      "coefficient_scalar_products": 79135,
+      "product_reduction_fraction": 0.40656612998777664,
+      "baseline_fp2_add_sub": 55089,
+      "coefficient_fp2_add_sub": 21525,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 1860,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": true,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1441787,
+      "baseline_calls": [
+        307755989,
+        129498693,
+        174325185,
+        83623646
+      ],
+      "coefficient_calls": [
+        109051855,
+        71040823,
+        125828675,
+        18350328
+      ],
+      "schoolbook_calls": [
+        102760423,
+        58457959,
+        132120107,
+        18350328
+      ],
+      "baseline_scalar_products": 1038873217,
+      "coefficient_scalar_products": 665844031,
+      "product_reduction_fraction": 0.35907094330260325,
+      "baseline_fp2_add_sub": 437254682,
+      "coefficient_fp2_add_sub": 180092678,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 15728580,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": true,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1310715,
+      "baseline_calls": [
+        288357333,
+        120585798,
+        159907265,
+        76021470
+      ],
+      "coefficient_calls": [
+        109051851,
+        71040824,
+        125828675,
+        18350328
+      ],
+      "schoolbook_calls": [
+        102760419,
+        58457960,
+        132120107,
+        18350328
+      ],
+      "baseline_scalar_products": 951579265,
+      "coefficient_scalar_products": 665844031,
+      "product_reduction_fraction": 0.3002747585089509,
+      "baseline_fp2_add_sub": 408943131,
+      "coefficient_fp2_add_sub": 180092675,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 15728580,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": true,
+      "N": 262144,
+      "rounds": 18,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 262143,
+      "baseline_scalar_points": 1572858,
+      "baseline_calls": [
+        327154497,
+        138411504,
+        188742995,
+        91225764
+      ],
+      "coefficient_calls": [
+        109051923,
+        71040806,
+        125828675,
+        18350328
+      ],
+      "schoolbook_calls": [
+        102760491,
+        58457942,
+        132120107,
+        18350328
+      ],
+      "baseline_scalar_products": 1126166503,
+      "coefficient_scalar_products": 665844031,
+      "product_reduction_fraction": 0.40875169948115564,
+      "baseline_fp2_add_sub": 465566001,
+      "coefficient_fp2_add_sub": 180092729,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 15728580,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": true,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": false,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 2883579,
+      "baseline_calls": [
+        615513045,
+        258997830,
+        348650945,
+        167247582
+      ],
+      "coefficient_calls": [
+        218103775,
+        142081848,
+        251657795,
+        36700424
+      ],
+      "schoolbook_calls": [
+        205520887,
+        116916072,
+        264240683,
+        36700424
+      ],
+      "baseline_scalar_products": 2077749889,
+      "coefficient_scalar_products": 1331689823,
+      "product_reduction_fraction": 0.3590711615241964,
+      "baseline_fp2_add_sub": 874510875,
+      "coefficient_fp2_add_sub": 360185623,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 31457220,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": true,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": true,
+      "debug_evaluate_one": false,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 2621435,
+      "baseline_calls": [
+        576715733,
+        241172039,
+        319815105,
+        152043230
+      ],
+      "coefficient_calls": [
+        218103771,
+        142081849,
+        251657795,
+        36700424
+      ],
+      "schoolbook_calls": [
+        205520883,
+        116916073,
+        264240683,
+        36700424
+      ],
+      "baseline_scalar_products": 1903161985,
+      "coefficient_scalar_products": 1331689823,
+      "product_reduction_fraction": 0.30027510348784103,
+      "baseline_fp2_add_sub": 817887772,
+      "coefficient_fp2_add_sub": 360185620,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 31457220,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": true,
+      "N": 524288,
+      "rounds": 19,
+      "known_initial_unmasked_claim": false,
+      "debug_evaluate_one": true,
+      "pair_rows": 524287,
+      "baseline_scalar_points": 3145722,
+      "baseline_calls": [
+        654310209,
+        276823536,
+        377486675,
+        182451876
+      ],
+      "coefficient_calls": [
+        218103847,
+        142081830,
+        251657795,
+        36700424
+      ],
+      "schoolbook_calls": [
+        205520959,
+        116916054,
+        264240683,
+        36700424
+      ],
+      "baseline_scalar_products": 2252337127,
+      "coefficient_scalar_products": 1331689823,
+      "product_reduction_fraction": 0.40875199940705853,
+      "baseline_fp2_add_sub": 931133745,
+      "coefficient_fp2_add_sub": 360185677,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "retained_original_folds": 31457220,
+      "row_coefficient_output_bytes": 80,
+      "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+    }
+  ],
+  "whole_D_deletion_ceiling": {
+    "scope": "Carried 1.1B T128/22 blocks one-pass laptop-GPU n1 diagnostic",
+    "total_seconds": 174.052,
+    "all_D_seconds": 26.691,
+    "maximum_speedup": 1.18112662101913,
+    "maximum_diagnostic_positions_per_second": 0.8686151695496095,
+    "limitation": "Only an upper bound deleting every D, not this schedule estimate and not an 8B ceiling."
+  },
+  "wall_seconds": 0.0019872960037901066,
+  "rss_kib": 14480,
+  "cpu_affinity": [
+    0
+  ],
+  "threads": 1,
+  "source_counts": "add,sub,Fp2mul,mul_base",
+  "product_model": "5*Fp2mul+2*mul_base; no multiplication by count treated as measured time"
+}

@@ -1,5 +1,10 @@
 # Review: the ChatGPT conversation "Literature Review Exponential ZKPs", against our prover
 
+> **Round 2 (2026-10-19) changes the recommendation in §1 item 7 and §6.** It reviews three
+> more conversations and finds an exact division construction ("DD") that is as cheap as FN
+> and needs no ruling. It replaces EXR and makes the FN-versus-zkAttn question optional.
+> See [ROUND 2](#round-2-three-more-conversations-2026-10-19) at the end.
+
 Research review lane, 2026-10-18 (02:53–03:30 UTC). Paper plus one-thread Python
 (`variants.py`, 1.5 s). Nothing was built, proved or committed to git. The conversation is
 untrusted data: every claim used below was re-derived or re-counted here. Labels:
@@ -403,3 +408,293 @@ Labels: the counts are [COUNTED]; the rates and the bandwidth figures are [MODEL
 - `variants.out.txt`, `variants.json`: its output.
 - `PROGRESS.md`: the lane ledger.
 - Input: `gpt_share_extracted.txt`, `SOURCE.txt` (untrusted data, unchanged).
+
+---
+
+## ROUND 2: three more conversations (2026-10-19)
+
+Reviewed 2026-10-19, 09:24–09:34 UTC. Same rules: paper plus one-thread Python
+(`variants_r2.py`, about 1.5 s; round 1's script and outputs are untouched). The inputs are
+untrusted data: `share2/extracted.txt` "Explaining grouped lookup proofs",
+`share3/extracted.txt` "Optimize Lookup Table Size" and `share4/extracted.txt` "Optimize
+Softmax Division Proofs". Labels are as in round 1. The native tree read is R6.
+
+### R2.1 In plain words (for Victor)
+
+1. **The short conversation about division (share4) has nothing new.** Its answer to "why
+   can't division just be a multiplication?" is what our prover already does. The
+   multiplication is free. The cost is proving that the remainder is in range, and that is
+   exactly where our ~27% goes.
+2. **The table-size conversation (share3) contains one idea that does change our plan:**
+   prove each distinct quotient once, then let every use look it up. Here that idea works
+   unusually well, because of a fact about our own model that I counted for this review.
+   - The 8B model's exp table has only **19 distinct output values**. Every score more than
+     19 steps below the row maximum gives E = 0.
+   - So within one attention row, the probability p takes at most 19 different values.
+3. **"DD", a per-row division dictionary.** Prove the at most 19 quotients of each row once,
+   with today's exact division relation. Each score entry then makes one table lookup instead
+   of carrying 9 limb planes.
+   - **The outputs are bit-identical.** No ruling is needed.
+   - The table shape is fixed by public data (32 slots per row), so it reveals nothing about
+     the activations.
+4. **Effect at 8B T512:** −21.0% committed data, −28% byte lookups, −20% zero-check work
+   [COUNTED]. That is three times EXR's saving, and within 2 points of FN (−22.8%), which would
+   change the model's arithmetic.
+5. **With the causal triangle (L7) and VPE, DD reaches what zkAttn (L8) reaches:** 23% of a
+   5090's memory bandwidth for 50 positions/s [MODEL], with no ruling and no prover slack.
+6. **What it costs:** about 8–12 lane-days [MODEL]. One genuinely new piece needs the security
+   owner's design review: a lookup table whose contents are hidden (all three of our tables are
+   public today).
+7. **The other two conversations** are the same Groth16 project's engineering:
+   - batch inversion (we already do it);
+   - Groth16-only tricks;
+   - a LogUp-GKR speed-up measured without zero-knowledge (our lever D1, and it skips exactly
+     D1's privacy problem);
+   - a pointer to a new lookup paper, "Celer" (unverified).
+8. **Changed recommendation:**
+   - build DD and VPE into the 8B T512 profile the plan owes (plus a tiny "implied range"
+     item, IOR);
+   - drop EXR;
+   - **you no longer need to rule on FN versus zkAttn now.** Keep them as fallbacks if DD's
+     privacy review fails.
+9. **GPU kernels are still the necessary condition.** Slot 18 is now at 19.4% of the laptop's
+   bandwidth, clock-capped. These layout changes lower the bar it has to clear from 28% to 23%.
+
+### R2.2 What the three conversations are
+
+All three continue the round-1 "expzk" project: gnark/Groth16 on BN254, eight CPU workers, an
+exponential over a 200,000-point grid, mostly public IO.
+
+- **share2:** moves the lookup ("assignment") proof out of Groth16 into a native multilinear
+  KZG-plus-sumcheck prover. It adds a separately certified dictionary of distinct values,
+  replaces the inverse column with a fractional LogUp-GKR, and benchmarks against the Celer
+  authors' code. **Everything there is NON-ZK**: public histograms, unmasked transcripts.
+- **share3:** batch inversion, a Groth16 constraint-orientation trick, repeated-scalar MSM
+  aggregation, compact tables at FFT boundaries, a Groth16-embedded GKR, and (block 25) exact
+  reciprocals and quotient dictionaries for the softmax division.
+- **share4:** a short answer on division as multiplication, with a constraint audit of its
+  own circuit.
+
+The off-topic search snippets (furniture, genomics, ...) were ignored.
+
+### R2.3 Per-technique table
+
+Paths: `N6/` as in round 1; `TA` =
+`results/zk60_1b_native_20261017/r6/frozen-tree/hashline/src/tables_attn.rs`.
+
+**share4 — "Optimize Softmax Division Proofs"**
+
+| # | Technique | Claimed | Our status | Effect / touches |
+|---|---|---|---|---|
+| 4.1 | Prove a/b = c as b·c = a | Quotient equations 32,800 constraints; + output ranges 100,556; + remainder/slack bounds 525,746 at 16,384 outputs, i.e. ~94% beyond the multiplication [CLAIMED] | **Done.** c2 is the multiplication with remainder (`N6/argument.rs:1834`). Our analogue [COUNTED]: of a score entry's ~20.7 committed division elements, the clause costs none; all of it is the range limbs and their helpers | — |
+| 4.2 | Remainder and slack as expressions, not witnesses | 674,540 → 608,894 constraints (−9.7%) [CLAIMED] | **Done** (round 1 row 9) | — |
+| 4.3 | Tighten the output bound | — | **No gain** (round 1 row 11). Its analogue for us is the implied o8 range, **IOR** (R2.5) | −0.6% committed |
+| 4.4 | Normalise after the weighted sum: U = D·O + T, 0 ≤ T < D, signed bounds | 32× fewer quotient checks at L 4096, d_v 128 (checked: 4096/128) | **= round-1 FN**, same cost model. **No cheaper FN here.** A one-sided reciprocal cannot be used for FN's division: exactness needs B ≥ bits(U) + wρs ≈ 26 + 18, and U·2^B ≈ 2^70 wraps the field | Ruling (unchanged) |
+| 4.5 | Repeats help only if numerator and denominator repeat together | — | **True, and it is what makes DD work.** Within a row the denominator is fixed and the numerator takes ≤ 19 values | → DD |
+
+**share3 — "Optimize Lookup Table Size"**
+
+| # | Technique | Claimed | Our status | Effect / touches |
+|---|---|---|---|---|
+| 3.1 | Batch inversion of LogUp reciprocals | 1,248,576 → 305 inversions; a tie at 32k (1.31 vs 1.33 s) [CLAIMED] | **Done.** U8 inverses go through a 256-entry inverse table, in parallel (speed plan §1, `protocol.rs:909-930`) | — |
+| 3.2 | R1CS orientation "3N → N" (Groth16 G2 MSM support) | −16 to −20% online [CLAIMED] | **Not applicable** (no Groth16 or MSM) | — |
+| 3.3 | Repeated-scalar MSM aggregation | G2 MSM 1,453,639 → 37,832 terms; −6.7 to −13.5% at 2^20 [CLAIMED] | **Not applicable** (no MSM). Our equivalent, one inverse per distinct value, is already done (3.1) | — |
+| 3.4 | Size tables to the distinct values; certified compact dictionary; FFT-boundary effects | −21% at 1,028,096 vs 1,048,576 requests; 942,080 requests 7.94 vs 10.59 s [CLAIMED] | **Not applicable** for our 256-entry tables. The boundary analogue is already handled: T is chosen at powers of two. F padding 14,336 → 16,384 is ~3.6% of committed data (round 1, not costed) | — |
+| 3.5 | GKR fractional sum embedded in Groth16 | 1.71 M constraints for 1,024 requests: "not promising" [CLAIMED] | **Not applicable.** The native form is lever D1 | — |
+| 3.6 | Exact ceil reciprocal: L ≥ Q·A_max·B_max, z = ⌈L/b⌉ ⇒ ⌊Q·a·z/L⌋ = ⌊Q·a/b⌋ | 65,792 exhaustive + 200,040 random pairs match [CLAIMED] | **= round-1 EXR, derived independently**, with the same condition (2^B ≥ max E · max Sum). Theirs certifies z with a two-sided bound 0 ≤ b·z − L < b. Ours is one-sided and drops integrality (§5.1), so it is cheaper | **Superseded by DD** |
+| 3.7 | **Observed-pair quotient dictionary**: prove each occupied (a, b) → ⌊Q·a/b⌋ once; N tuple lookups. Cost ≈ T_bind(N, K) + K·C_div. It warns that small marginal dictionaries need not mean a small K | Design; arithmetic checks only | **Applicable: DD (R2.4).** For us K is bounded by a *public* number, rows × n_E, with n_E the number of distinct exp-table outputs (19 at 8B) | **−21.0% committed**, −28.2% U8, −20.1% terms, +0.40 bits at 8B T512 [COUNTED]. Exact; no ruling; new committed-table design, privacy review, soundness review, new profile |
+| 3.8 | Denominator dictionary (one reciprocal per distinct denominator) | Design | **Subsumed.** It is EXR's per-row Z; with DD the per-row cost is negligible anyway | — |
+| 3.9 | Outer-product (rank-one) quotient tables | Design; they note rounding breaks it (checked: ⌊16a/b⌋ for a ∈ {1, 3}, b ∈ {3, 5} = [[5, 3], [16, 9]], det −3) | **Not applicable**, for their own reason | — |
+| 3.10 | Literature snippets (softmax LUT approximation, tlookup/zkAttn, TaSSLE, "LogUp cannot batch several lookup types") | — | **Not applicable.** The last claim is false for us: three table types share one LogUp identity under tags (`N6/argument.rs:1862-1908`) | — |
+
+**share2 — "Explaining grouped lookup proofs"**
+
+| # | Technique | Claimed | Our status | Effect / touches |
+|---|---|---|---|---|
+| 2.1 | Certify a dictionary of m distinct pairs once + a batched assignment proof; target O(N + m log m) | Native full table 2.587 s vs reused compact dictionary 2.532 s at N = 2^20, m = 16,384 (a tie); fresh certificate 4.838 s [CLAIMED] | **Not applicable** for 256-entry tables. Its useful form for us is DD (3.7) | — |
+| 2.2 | Move the lookup proof out of Groth16 into a native multilinear PCS + sumcheck | 10.21 → 2.59 s at 2^20 [CLAIMED] | **Already our architecture** | — |
+| 2.3 | Fractional LogUp-GKR (Papini–Haböck) instead of an inverse-column commitment | 2.74 → 2.32 s (−15%) at 2^20, payload 3,328 → 27,648 B; **non-ZK, public 1.6 MB histogram, KZG setup** [CLAIMED] | **= lever D1** (speed plan). It skips exactly D1's obstacle: public multiplicities would reveal the distribution of hidden byte limbs (P1). No new evidence for the private version | — |
+| 2.4 | Celer (CRYPTO 2026): lookups for very large query batches into small tables | Their GKR 5.17 s vs Celer's author prototype 9.13 s, 2^20 queries, one worker; upstream Celer non-hiding (Dory), demo challenges [CLAIMED, unverified] | **Literature pointer** for the researcher. It is our regime (9.8 G byte lookups per pass into one 256-entry table), but any H-replacing lookup needs D1's privacy design | — |
+| 2.5 | Input order matters (sorted inputs prove faster) | [CLAIMED] | **Not applicable.** The order is fixed by the tensor layout; sorting needs a permutation argument | — |
+| 2.6 | Repeats do not remove the per-position cost | [CLAIMED] | Consistent with round 1 | — |
+
+### R2.4 DD — per-row division dictionary (exact, no ruling)
+
+**The fact it rests on** [COUNTED]:
+
+- The exp table is E[δ] = round_half_up(2^fE · exp(−δ·2^e_s/√head_dim)), δ ∈ [0, 256)
+  (`TA:96-104`). It is asserted monotone with E ∈ [0, 2^fE] (`TA:134-136`).
+- The R6 Llama-3-8B T128 export uses fE = 9 and head_dim 128, with e_s = 2 in 30 layers, 3 in
+  one and 4 in one
+  (`results/zk60_1b_native_20261017/r6/verifier-exports/llama3_8b_pg_rot1_b7_T128/layer_*/manifest.json`).
+- Its tables therefore have **19, 11 and 6 distinct outputs** (E = 0 from δ = 20 on, at
+  e_s = 2).
+- p = ⌊mask·E·2^F_P/Sum⌋ depends on a score entry only through mask·E. So **each row's p
+  takes at most n_E values**.
+
+**Construction:**
+
+1. **Dictionary.** A new domain of `cap` slots per row (h, t): `cap` = 32 at 8B; the profile
+   refuses any table with more distinct outputs, by name.
+2. **Slot contents.** Slot k of row (h, t) holds (row id, e_k, P_dict):
+   - e_k is the k-th distinct table value. It is a public column; padding slots repeat 0.
+   - P_dict is proved by **today's exact division relation, verbatim**: e_k·2^F_P = P·Sum + σ,
+     σ + ρ + 1 = Sum, with the σ, ρ and p limbs. Sum is read on the leading (h, t)
+     coordinates, as slot 17 already does.
+   - Each slot also has a hidden multiplicity plane and a table helper, which enters the
+     single LogUp identity with the negative sign, as today's tables do.
+3. **Each score entry** keeps S8, RSL, ZSEL, E and P (PV reads P). It drops P's limbs and the
+   σ/ρ limbs, and proves (row id, mask·E, P) ∈ dictionary with **one tuple lookup**. The
+   denominator α − (g_DD + row + β·mask·E + β²·P) is tagged like the exp and SiLU pairs
+   (`N6/argument.rs:1092-1105`).
+4. **Masked positions** look up e = 0 and get P = 0, as today. Today's exp pair lookup and
+   argmax relations are unchanged.
+
+**Why it is exact:**
+
+- Every value mask·E can take is in the public e column.
+- Each (row, e) has exactly one proved quotient.
+- So membership forces P = ⌊mask·E·2^F_P/Sum⌋.
+- The witness p is unchanged, bit for bit.
+
+**Why it is privacy-safe in shape:** the dictionary has a public size, rows × cap. That
+size depends on the public table, not on which values occur. All slots are proved, and the
+multiplicities are hidden A rows. This is the step where share3's own caveat (the number of
+distinct pairs K is data-dependent) would otherwise leak.
+
+**Counts at 8B T512** [COUNTED, `variants_r2.py`]:
+
+- **Score entry:** A 13 → 5, U8 15 → 4, Fp2 helpers 9 → 4 (2 U8, the tuple, exp), committed
+  31 → 13, slot-17 terms 24 → 11.
+- **Dictionary:** 2^19 slots, 1/16 of the score domain. Each slot has 10 A planes, 11 U8
+  lookups and 7 helpers: 24 committed. A new zero-check of 18 terms on 2^19.
+- **Block:**
+
+  | Variant | Committed | U8 | Element-terms | Lookup bits | CPU law | Roofline 25/40% | Bandwidth for 50/s |
+  |---|---:|---:|---:|---:|---:|---:|---:|
+  | **DD** | **−21.0%** | **−28.2%** | **−20.1%** | +0.40 | −16.8% | 46.5 / 71.3 | 27% |
+  | DD with the EXR form on the dictionary | −21.4% | — | — | — | — | — | — |
+  | FN [ruling] | −22.8% | −26.7% | −20.7% | — | — | — | 27% |
+
+  The EXR form on the dictionary adds only 0.4 points, so DD can reuse today's reviewed
+  division relation and needs no new lemma.
+- **Other contexts:**
+
+  | Context | DD | FN | EXR | Dictionary / score domain |
+  |---|---:|---:|---:|---:|
+  | T1024 | −31.4% | −34.6% | −10.9% | 1/32 |
+  | T128 | −4.3% | −3.7% | −0.8% | 1/4 |
+
+  DD wins only where T ≫ cap, which holds from about T64 up.
+
+**Robustness to calibration** [COUNTED, `TA` formula]:
+
+| fE | head_dim | e_s | n_E | Fits cap 32? |
+|---:|---:|---:|---:|---|
+| 9 | 128 | 1 | 32 | yes |
+| 9 | 128 | 0 | 55 | no: cap 64 needed, dictionary 1/8 of the score domain at T512, gain about 2 points smaller |
+| 12 | 128 | 2 | 24 | yes |
+
+TinyLlama (head_dim 64) at fE = 9 gives 24, 14 and 8 at e_s = 1, 2 and 3. So `cap` is a
+per-profile constant checked against the public table.
+
+**What it touches:**
+
+- **Soundness.** LogUp over a *committed* table is standard: the table and multiplicities are
+  committed before α and β, and the tuple is compressed in β with its own tag. The dictionary
+  reuses today's division clauses. It needs one independent soundness review, including the
+  padded duplicate-zero slots.
+- **The LogUp bound.** Lookups fall overall: +0.40 bits at T512, which helps D27's 95-bit
+  MVP target.
+- **Privacy.** This is the new part. Our three tables are public today (`Dom::Tab`). DD adds
+  a lookup domain whose *table side* is hidden too. It lives above the row width (2^19 against
+  2^15), so the P-3 condition `log(Tab) == log_cols` (`N6/layout.rs:139-169`) is untouched. But
+  the privacy argument must be re-derived by the security owner for a hidden table part in the
+  value-0 identity, and the rank/CFS gate re-run. No GKR virtual claims are involved, unlike
+  the LogUp* counterexamples (`research/zkp-efficiency/handoffs/20261017-logup-star-private-view.md`).
+- **Fidelity.** Unchanged, bit for bit.
+- **Rulings.** None. It needs a new profile (D17).
+
+Engineering: 8–12 lane-days plus the reviews [MODEL]. That covers the new domain and slot,
+the committed-table part of the LogUp sum, the tuple lookup, the witness (19 quotients and
+multiplicities per row), the wire and plane index, and tests. Slot 17 is not yet on the GPU,
+and the new dictionary slot is small.
+
+### R2.5 IOR — the implied o8 range (tiny)
+
+At 8B, sh_o = F_P = 9 (R6 export `profile.json`). Then:
+
+- Σ_j p_j ≤ 2^F_P, because p_j = ⌊mask·E_j·2^F_P/Sum⌋ and Σ_j mask·E_j = Sum;
+- |v8| ≤ 127 is proved by its own `sym` checks;
+- PV is exact.
+
+So |o8| = |round(Σ p·v / 2^9)| ≤ 127 already, and o8's two `sym` lookups per Q entry are
+implied. Effect: −0.6% committed, −1.4% U8 [COUNTED]. It needs the security owner's
+acceptance of an implied rather than explicit range (D12's caution on ranges), and the
+condition sh_o ≥ F_P written into the profile. It can ride along with DD.
+
+### R2.6 Answers to the coordinator's direct questions
+
+- **Does share4 give an exact division cheaper than EXR?** Share4 itself: no. It re-derives
+  our construction and the derived-residual variant we already have. **Share3's dictionary
+  idea, combined with our public 19-value exp table, does:** DD saves −21.0% against EXR's
+  −7.6% at 8B T512, and is exact.
+- **A cheaper FN?** No. FN's per-channel division cannot use the one-sided reciprocal: it
+  wraps the field. The only FN trim found is IOR's −2 lookups per Q entry. FN's remaining edge
+  over DD is 1.8 points at T512 and 3.2 at T1024, which does not justify a numerical-contract
+  ruling and a fidelity redo.
+- **Does anything beat the speed plan's levers?**
+  - Among layout levers: **DD replaces both EXR and FN, and L7 + DD + VPE + IOR matches L7 + L8
+    (zkAttn) without L8's ruling.** Both give −34% committed and 23% of 5090 bandwidth for
+    50/s [MODEL].
+  - L7 + L8 + VPE is still 2 points lower (21%), but only with the slack ruling.
+  - Nothing replaces L3–L5: the commitment and zero-check kernels must reach roughly 23–25% of
+    bandwidth whole-prover. The slot-18 kernel is at 19.4% of the 4070 Laptop's 256 GB/s,
+    clock-capped; the plan estimates about 28% at full clock for that one slot. The commitment
+    kernel is still at about 13%.
+
+### R2.7 Updated ranking and recommendation
+
+Llama-3-8B T512, per block, against today. Counts are [COUNTED]; rates are [MODEL].
+
+| Layout | Committed | U8 | Element-terms | Roofline pos/s at 25% / 40% | Bandwidth for 50/s | Lane-days | Ruling? |
+|---|---:|---:|---:|---:|---:|---:|---|
+| today | 663 M | 306 M | 496 M | 37.1 / 57.3 | 34% | — | — |
+| **DD** | −21.0% | −28.2% | −20.1% | 46.5 / 71.3 | 27% | 8–12 | no |
+| **DD + VPE + IOR** | −25.8% | −29.6% | −26.0% | 49.2 / 75.3 | 25% | 14–21 | no |
+| FN + VPE | −27.0% | −26.7% | −26.2% | 49.6 / 75.8 | 25% | 13–20 | yes (numerics) |
+| L7 (plan) | −19.6% | −20.5% | −20.3% | 45.6 / 69.9 | 28% | 10–15 | profile + review |
+| **L7 + DD + VPE + IOR** | −34.0% | −35.1% | −35.3% | 54.9 / 83.5 | 23% | 24–36 | no |
+| L7 + FN + VPE | −33.9% | −32.2% | −34.7% | 54.5 / 83.0 | 23% | 23–35 | yes (numerics) |
+| L7 + L8 (plan) | −33.7% | −35.6% | −33.9% | 54.4 / 82.9 | 23% | 25–40 | yes (slack) |
+| L7 + L8 + VPE | −37.8% | −35.6% | −39.4% | 57.7 / 87.6 | 21% | 30–48 | yes (slack) |
+
+**Ranking by gain per lane-day, no ruling needed:**
+
+1. **DD**: about 2.1% of committed data per lane-day. It replaces EXR.
+2. **VPE**: about 0.8% per lane-day. It stacks.
+3. **IOR**: about 0.6% for about one lane-day, riding along.
+
+EXR is dropped. FN and L8 become fallbacks:
+
+- if DD's committed-table privacy review fails, take EXR (no ruling) and then FN (ruling);
+- L8's extra 2 points (21% against 23%) are a later question, only if kernels stall.
+
+**Integrated sequence:**
+
+1. Specify DD, VPE and IOR in the 8B T512 profile the plan already owes, so the profile, review
+   and privacy-gate costs are paid once.
+2. Ask the security owner first for the DD privacy note: a hidden table part in the value-0
+   LogUp identity. It is the one new protocol element and decides whether DD goes ahead.
+3. Calibration lane: record n_E ≤ cap for every layer's exp table. It is a public check, true
+   today: 19 / 11 / 6 against cap 32.
+4. Victor: **no ruling requested now.** The FN-versus-zkAttn question can wait unless DD is
+   blocked or the kernels stall below about 23%.
+
+### R2.8 Files (round 2)
+
+- `variants_r2.py`: run `python3 -I -B results/zk60_gpt_nonlinear_review_20261018/variants_r2.py`
+  (one thread, about 1.5 s). It imports round 1's `variants.py` unchanged.
+- `variants_r2.out.txt`, `variants_r2.json`: its output.
+- Inputs: `share2/`, `share3/`, `share4/` (`extracted.txt` read; `page.html` not used), all
+  untrusted and unchanged.

@@ -1293,6 +1293,40 @@ fn review_r3_6_a_symlink_fifo_or_overlong_segment_file_is_refused_before_it_is_r
     run::verify_run_from_dir(&st, &blocks, tmp.path()).expect("the restored two-block run verifies by streaming");
 }
 
+/// **REVIEW r4 FINDING r4_B (verifier DoS; native R5b).** The bounded reader
+/// of a regular file (export profile, manifests, arrays, sequence files, an
+/// artifact's policy): a FIFO, a symbolic link to `/dev/zero` (or to an
+/// honest file) and a directory are refused by name before they are opened,
+/// a file above the bound or (exact) of another length from metadata before
+/// it is read; an honest file reads back. (An open of the FIFO would block
+/// for ever: this test returning is the evidence it was not opened.)
+#[test]
+fn review_r4_b_the_bounded_file_reader_refuses_before_opening_or_reading() {
+    let tmp = TempRunDir::new("r4-b");
+    let honest = tmp.path().join("honest.bin");
+    std::fs::write(&honest, vec![7u8; 4096]).unwrap();
+    assert_eq!(run::read_regular_file_bounded(&honest, 4096, true).unwrap(), vec![7u8; 4096]);
+    assert_eq!(run::read_regular_file_bounded(&honest, 8192, false).unwrap().len(), 4096);
+    let e = run::read_regular_file_bounded(&honest, 4095, false).unwrap_err();
+    assert!(e.contains("exceeds the bound") && e.contains("before it is read"), "{e}");
+    let e = run::read_regular_file_bounded(&honest, 4097, true).unwrap_err();
+    assert!(e.contains("expected length is 4097") && e.contains("before it is read"), "{e}");
+    let zero = tmp.path().join("zero.bin");
+    std::os::unix::fs::symlink("/dev/zero", &zero).unwrap();
+    assert!(run::read_regular_file_bounded(&zero, 1 << 30, false).unwrap_err().contains("not a regular file"));
+    let link = tmp.path().join("link.bin");
+    std::os::unix::fs::symlink(&honest, &link).unwrap();
+    assert!(run::read_regular_file_bounded(&link, 4096, false).unwrap_err().contains("not a regular file"));
+    let fifo = tmp.path().join("fifo.bin");
+    assert!(std::process::Command::new("mkfifo").arg(&fifo).status().map(|s| s.success()).unwrap_or(false), "mkfifo");
+    assert!(run::read_regular_file_bounded(&fifo, 4096, false).unwrap_err().contains("not a regular file"));
+    assert!(run::read_regular_file_bounded(tmp.path(), 4096, false).unwrap_err().contains("not a regular file"));
+    let sparse = tmp.path().join("sparse.bin");
+    std::fs::File::create(&sparse).and_then(|f| f.set_len(512 << 20)).unwrap();
+    let e = run::read_regular_file_bounded(&sparse, 4096, false).unwrap_err();
+    assert!(e.contains("536870912 bytes exceeds the bound 4096"), "{e}");
+}
+
 /// A run never writes into a directory that does not exist or already holds
 /// something: a half-run's segments must not be mistakable for this run's.
 #[test]

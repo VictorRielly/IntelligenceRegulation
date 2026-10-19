@@ -1,0 +1,2 @@
+[zk60-guard 02:25:48] START r6-8b-b7-stack-verify class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=03c526c40bd3
+[zk60-guard 02:27:57] END r6-8b-b7-stack-verify exit=0 child_wall=128s peak_rss=2.21G min_avail=10.73G

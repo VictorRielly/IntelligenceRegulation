@@ -1,0 +1,107 @@
+Consensys / gnark-crypto Public Code Issues 53 Pull requests 13 Discussions Actions Security 1 In | | | | --- | --- | --- | --- | --- Consensys / gnark-crypto Public Commit 5660088 Browse files feltroidprime and ivokub authored on May 2 · 7 / 7 · Verified fix: Eisenstein Half-GCD convergence (#680) Co-authored-by: Ivo Kubjas master (#680) · v0.19.0 v0.18.0 1 parent 1873045 commit 5660088 | | | | Consensys / gnark-crypto Public Filter flies… fei ld/eisenstein eisenstein.go eisenstein_test.go 2 files changed +125 -7 lines changed Search within code | | | | Consensys / gnark-crypto Public None | 2 files changed +125 -7 lines changed Search within code | | | Consensys / gnark-crypto Public | field/eisenstein/eisenstein.go +64 -7 | | | Consensys / gnark-crypto Public | | | @@ -9,6 +9,27 @@ type ComplexNumber struct { | Consensys / gnark-crypto Public None | 9 | 9 | A0, A1 *big.Int | Consensys / gnark-crypto Public None | 10 | 10 | } | Consensys / gnark-crypto Public None | 11 | 11 | | Consensys / gnark-crypto Public None | | 12 | + // ────────────────────────────────────────────────────────────────────────────── | Consensys / gnark-crypto Public None | | 13 | + // helpers – hex-lattice geometry & symmetric rounding | Consensys / gnark-crypto Public None | | 14 | + // ────────────────────────────────────────────────────────────────────────────── | Consensys / gnark-crypto Public None | | 15 | + | Consensys / gnark-crypto Public None | | 16 | + // six axial directions of the hexagonal lattice | Consensys / gnark-crypto Public None | | 17 | + var neighbours = [][2]int64{ | Consensys / gnark-crypto Public None | | 18 | + {1, 0}, {0, 1}, {-1, 1}, {-1, 0}, {0, -1}, {1, -1}, | Consensys / gnark-crypto Public None | | 19 | + } | Consensys / gnark-crypto Public None | | 20 | + | Consensys / gnark-crypto Public None | | 21 | + // roundNearest returns ⌊(z + d/2) / d⌋ for *any* sign of z, d>0 | Consensys / gnark-crypto Public None | | 22 | + func roundNearest(z, d *big.Int) *big.Int { | Consensys / gnark-crypto Public None | | 23 | + half := new(big.Int).Rsh(d, 1) // d / 2 | Consensys / gnark-crypto Public None | | 24 | + if z.Sign() >= 0 { | Consensys / gnark-crypto Public None | | 25 | + return new(big.Int).
+
+=====
+
+When element is computed using hints, we need to ensure that every limb is not wider than k bits. ... We omit the bitwidth enforcement for multiplication as the correctness of the limbs is ensured using the corresponding system of linear equations. ... Hint is a non-native hint function which takes a HintContext as an argument which allows to access inputs and outputs over different fields.
+
+=====
+
+  * Image: unchecked Stable version Image ... github.com/consensys/gnark ... LogEntry is used as a shared data structure between the frontend and the backend to represent string values (in logs or debug info) where a value is not known at compile time (which is the case for variables that need to be resolved in the R1CS)
+
+=====
+
+**Yes—your algebraic observation is correct. Our existing softmax implementation already uses it.** The expensive part is proving that the result represents the correctly rounded numerical quotient.
+
+For exact division, assuming \(b\neq0\),
+
+\[
+c=a/b\quad\Longleftrightarrow\quad bc=a.
+\]
+
+An arithmetic proof can therefore check a multiplication instead of executing a division algorithm. Gnark explicitly uses this principle, with additional nonzero checks where needed. genui{"citation":{"ref":"turn1view0"}}
+
+The distinction is that our softmax outputs are **fixed-point integers**, not exact rational numbers.
+
+Let \(P_i\) be the certified integer exponential weights, and define
+
+\[
+D=\sum_jP_j,\qquad Q=2^{32},\qquad
+Y_i=\left\lfloor\frac{QP_i}{D}\right\rfloor.
+\]
+
+Generally, \(DY_i\neq QP_i\), because we rounded. For example, \(\lfloor10/3\rfloor=3\), but \(3\cdot3=9\).
+
+The correct multiplication-based proof is therefore
+
+\[
+\boxed{QP_i=DY_i+R_i,\qquad 0\le R_i<D.}
+\]
+
+The multiplication equality is cheap. **Proving the remainder bounds is what makes this considerably more expensive.** Without them, any proposed \(Y_i\) could be accommodated by choosing \(R_i=QP_i-DY_i\). We also need bounds preventing modular wraparound, since the circuit operates over a finite field.
+
+I inspected our source and compiled an isolated audit using the previous configuration: **16,384 outputs, 512 entries per row, three 40-bit exponential factors, and 32-bit probability precision**.
+
+| Cumulative normalization checks | Compiled constraints |
+|---|---:|
+| Quotient multiplication equations | 32,800 |
+| Plus output range checks | 100,556 |
+| Plus remainder/slack bounds establishing correct rounding | 525,746 |
+
+These are **constraint counts, not latency measurements**. Approximately 94% of this compiled normalization circuit lies beyond the basic quotient arithmetic. Our frontend uses separate product and equality rows here; the mathematical quotient relation itself can occupy one R1CS row per output.
+
+There is another relevant detail from our exponential work: deferring rounding preserves the product of three 40-bit factors. In this configuration, that produces a **144-bit denominator bound**. Every output then needs bounds on quantities of that width. Avoiding intermediate exponential rounding therefore shifts some cost into normalization.
+
+A report calling this entire operation “division” could reasonably identify it as a bottleneck. Attributing that cost simply to checking \(a/b=c\) would miss the main issue. I could not locate Claude’s particular report, so I have not verified its precise breakdown.
+
+**There is an immediate improvement that preserves our current outputs.** The archive already contains an alternative formulation that computes
+
+\[
+R_i=QP_i-DY_i,\qquad H_i=D-1-R_i
+\]
+
+as circuit expressions, then range-checks them. This removes redundant witness equalities and tightens the output bound where justified. My fresh compilation gives:
+
+| Full softmax circuit | Constraints |
+|---|---:|
+| Existing baseline | 674,540 |
+| Existing alternative formulation | 608,894 |
+
+That is **9.7% fewer constraints**, with the same specified floor outputs. We should benchmark its runtime before assigning a speedup.
+
+For the much larger optimization, I would examine **moving normalization after the attention weighted sum**. If the consumer only needs
+
+\[
+O_k=\sum_i \frac{P_i}{D}V_{ik},
+\]
+
+we can first compute \(U_k=\sum_iP_iV_{ik}\), then normalize \(U_k/D\). With integer values and outputs at the same scale, the final floor can again be certified by
+
+\[
+U_k=DO_k+T_k,\qquad 0\le T_k<D,
+\]
+
+with appropriate signed bounds.
+
+This changes the number of quotient checks from the attention row length \(L\) to the value dimension \(d_v\). For \(L=4096\) and \(d_v=128\), that means **32 times fewer quotient checks**, although it does not imply a 32-fold whole-block speedup.
+
+The qualification matters: this removes intermediate probability rounding, so it generally changes the bitwise output of our current implementation. It deserves a separate accuracy-and-runtime experiment. If we require identical current outputs, the remaining targets are the range checks, redundant constraints, and shared-denominator layout.
+
+Also, the repetition optimization from our other chats transfers only when the **numerator and denominator repeat together**. Repeated exponential values in different rows usually have different normalization results.
+
+The reproducible constraint audit is here: [softmax-division-audit.zip](sandbox:/workspace/scratch/d58e980131f0/softmax-division-audit.zip).
+
+=====
+
+The constraint audit supports your intuition: for 16,384 outputs, the quotient arithmetic uses about 32,800 constraints, while adding the required output and remainder bounds brings normalization to about 525,700. I also checked an existing equivalent formulation: it cuts the full softmax circuit from 674,540 to 608,894 constraints, a 9.7% reduction. These are compiled counts, not measured latency gains.
+
+=====
+
+I found older softmax benchmarks inside the source archive, so I need to correct that earlier point. More importantly, our softmax code already checks exactly the relation you propose, with a remainder: \(QP_i=D Y_i+R_i\). It then checks \(0\le R_i<D\). I’m isolating the constraint counts to see how much cost comes from multiplication versus those bounds.
+
+=====
+
+Your observation is correct for exact field division—and gnark already uses multiplication constraints for it. The extra cost in fixed-point softmax is proving that each quotient has the correct rounding and stays within range. The latest benchmark report also confirms that we have measured exponentials, but not yet a complete softmax block.
+
+=====
+
+Keeping in mind all the work we did in the other two chats, let's work on optimizing the division step of the softmax operation. This is reported to be the most expensive operation currently by claude in the report. I find this strange however because to prove a/b = c it would be equivalent to prove a = bc so shouldn't we be able to change all our division proofs in the softmax nonlinearity into multiplication proofs? Then the proofs should be relatively trivial in runtime?

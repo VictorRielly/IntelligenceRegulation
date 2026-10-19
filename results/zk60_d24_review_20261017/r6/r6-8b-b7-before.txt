@@ -1,0 +1,48 @@
+/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r6/stack-llama3_8b_pg_rot1_b7_T128-ho00-cpu/run:
+total 901216
+drwxr-xr-x 3 victor victor     4096 2026-10-17 22:00:53.116837609 -0700 .
+drwxr-xr-x 3 victor victor     4096 2026-10-19 02:24:55.936767648 -0700 ..
+-rw-r--r-- 1 victor victor 28551400 2026-10-17 21:52:31.418894311 -0700 segment-000.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:52:43.265899440 -0700 segment-001.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:52:55.548867560 -0700 segment-002.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:53:06.899914284 -0700 segment-003.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:53:19.776393389 -0700 segment-004.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:53:30.577927682 -0700 segment-005.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:53:42.048964977 -0700 segment-006.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:53:54.019961656 -0700 segment-007.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:54:05.886968081 -0700 segment-008.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:54:16.934041412 -0700 segment-009.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:54:27.733135267 -0700 segment-010.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:54:39.580141555 -0700 segment-011.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:54:50.923190363 -0700 segment-012.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:55:01.938266418 -0700 segment-013.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:55:12.661367242 -0700 segment-014.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:55:24.236397274 -0700 segment-015.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:55:35.291469911 -0700 segment-016.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:55:47.582438982 -0700 segment-017.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:55:58.353536076 -0700 segment-018.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:56:10.020557771 -0700 segment-019.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:56:21.483595938 -0700 segment-020.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:56:33.478589908 -0700 segment-021.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:56:43.981710482 -0700 segment-022.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:56:54.816802565 -0700 segment-023.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:57:06.735803934 -0700 segment-024.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:57:18.458823029 -0700 segment-025.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:57:29.641891942 -0700 segment-026.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:57:40.572975321 -0700 segment-027.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:57:52.100008873 -0700 segment-028.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:58:03.443057967 -0700 segment-029.bin
+-rw-r--r-- 1 victor victor 28819688 2026-10-17 21:58:15.750025999 -0700 segment-030.bin
+-rw-r--r-- 1 victor victor 29569224 2026-10-17 21:58:26.429130613 -0700 segment-031.bin
+drwxr-xr-x 2 victor victor     4096 2026-10-17 22:00:53.116837609 -0700 statement
+
+/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r6/stack-llama3_8b_pg_rot1_b7_T128-ho00-cpu/run/statement:
+total 28
+drwxr-xr-x 2 victor victor 4096 2026-10-17 22:00:53.116837609 -0700 .
+drwxr-xr-x 3 victor victor 4096 2026-10-17 22:00:53.116837609 -0700 ..
+-rw-r--r-- 1 victor victor  112 2026-10-17 22:00:53.112837944 -0700 expected.bin
+-rw-r--r-- 1 victor victor 3907 2026-10-17 22:00:53.116837609 -0700 segments.json
+-rw-r--r-- 1 victor victor 9411 2026-10-17 22:00:53.112837944 -0700 statement.json
+b47e9776c764f067fa7070dbaaca9dd71083c0f45eed2bef43d7170eb71f8412  /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r6/stack-llama3_8b_pg_rot1_b7_T128-ho00-cpu/run/statement/expected.bin
+a5849044c6e5fae113100b9fce61eae1c4a504a7670687aff511910003a69a60  /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r6/stack-llama3_8b_pg_rot1_b7_T128-ho00-cpu/run/statement/segments.json
+7dc6dbcbf468b2d00a1f49684510d1299830d48aca868bcd3b7026013f3d6f41  /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r6/stack-llama3_8b_pg_rot1_b7_T128-ho00-cpu/run/statement/statement.json

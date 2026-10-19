@@ -1,0 +1,68 @@
+{
+  "run_id": "20261018T052105Z-217b5106",
+  "new_target_work": {
+    "completed_independently_verified_full_stack_proofs": 0,
+    "complete_model_passes": 0,
+    "proved_token_positions": 0,
+    "context_tokens": null,
+    "device": "none",
+    "long_context_prefill": false,
+    "resident_pass_series": false,
+    "decode_stream": false,
+    "steady_proved_tokens_per_second": null,
+    "total_workload_proved_tokens_per_second": null,
+    "startup_seconds": null,
+    "startup_fraction": null,
+    "witness_seconds": null,
+    "proof_seconds": null,
+    "serialization_seconds": null,
+    "verification_seconds": null,
+    "reason": "No target workload run; synthetic algebra checks contribute no tokens."
+  },
+  "synthetic_experiment": {
+    "N": [
+      2,
+      8,
+      32
+    ],
+    "seed": 2026101876,
+    "device": "Intel Core Ultra9 185H CPU0, one nice19 thread",
+    "counted_8B_D_geometry": {
+      "T": 128,
+      "N": 524288,
+      "sumcheck_rounds": 19,
+      "model_passes_measured": 0
+    },
+    "clocks_file": "result.json"
+  },
+  "carried_diagnostic_8B": {
+    "model_parameters": 8030261248,
+    "context_tokens": 128,
+    "blocks": 32,
+    "passes": 1,
+    "concurrency": 1,
+    "label": "One cold CPU pass, shared-host n1; no trained privacy/target acceptance",
+    "CPU_threads": 16,
+    "GPU_used": false,
+    "app_seconds": 606.598,
+    "process_seconds": 606.728291,
+    "diagnostic_positions_per_app_second": 0.21101289486612224,
+    "diagnostic_positions_per_process_second": 0.2109675812034946,
+    "steady_rate": null,
+    "startup_fraction": null,
+    "seal_seconds": 105.287,
+    "seal_fraction_is_not_startup": 0.17356964579507353,
+    "seal_overlapping_load_seconds": 36.57,
+    "seal_overlapping_witness_seconds": 103.349,
+    "prove_seconds": 501.126,
+    "prove_includes_witness_rebuild_seconds": 122.694,
+    "prove_includes_reload_seconds": 21.176,
+    "serialization_seconds": null,
+    "receipt_bytes": 922711264,
+    "fresh_verify_load_seconds": 14.126,
+    "fresh_verify_check_seconds": 43.902,
+    "fresh_verify_process_seconds_including_controls": 186.088255,
+    "fresh_verify_controls": 11
+  },
+  "limitations": "No mask/opening reuse or privacy weakening. Larger workloads allowed; context attention can grow quadratically. No native speedup or >=50 proved-token/s claim."
+}

@@ -1,0 +1,32 @@
+{
+  "status": "PASS",
+  "checked_at_utc": "2026-10-18T05:36:10.724119+00:00",
+  "checks": {
+    "main_pass": true,
+    "audit_pass": true,
+    "main_command_pass": true,
+    "audit_command_pass": true,
+    "sources_preserved": true,
+    "source_count": true,
+    "findings_preserved": true,
+    "six_native_pins_unchanged": true,
+    "scope_limit": true,
+    "durable_files": true,
+    "startup_private_identifier_redacted": true,
+    "no_runtime_outputs": true,
+    "artifact_hashes_match": true
+  },
+  "artifacts_pinned": 62,
+  "target_complete_proofs": 0,
+  "target_passes": 0,
+  "target_positions": 0,
+  "note": "Integrity and scope checks, not native proof or privacy acceptance.",
+  "durable_sha256": {
+    "STATE.md": "0b432b6b331d74c1f4a63e092d1323bac048292eeddea76ea6d477f39ac55397",
+    "PROGRESS.md": "a2c900e690461acf9fb4e4dbca7f1ff4c47189867284db4305f71567232fddc7",
+    "FINDINGS.md": "18e2505e079d32b3bf2e344435230b8a5ee72219fc5e599837a047aec459f187",
+    "sources.jsonl": "46d705de383ab1f681274a51d311941c1f0b0f7bd0d1f9c81c95cb6f84091e9e",
+    "progress/20261018T052105Z-217b5106.md": "ff6e97482a381cc8beb14b9500b516ee48456a0c6a9e9d8e52c7f4a38abf9257",
+    "handoffs/20261018-dzc-row-coefficients.md": "3d8a40fd74b749e3e4233294f5c1cd832e21c424fa651b606a2783c80d24ddd2"
+  }
+}

@@ -1,0 +1,43 @@
+
+running 1 test
+test private_block::slot_ir_tests::g7_trained_slot_ir_tests::g7_the_trained_t32_slot_ir_export_at_pg_rot1 ... G7 door: variant pg_rot1_export_T32 from /home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_export_T32; 22 layers [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]; profile hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1; T 32 width 2048 hidden 5632 heads 32 kv 4; tn 10 cn_a 3999 cn_m 3122 ceps 91255; sh_qkv 8 sh_s 6 sh_o 9 sh_ao 3 sh_g 8 sh_h 14 sh_z 5; norm_wrho 32 (top limb full byte: true); f_e 9; trained_calibration true
+G7 duplicate [trained] F: lookups 0 and 1 identical (cst 0, 1 * A_RGL); helper 0 and helper 0: the SAME helper (one H plane, two identical denominators in its relation)
+G7 duplicate [trained] Q: lookups 2 and 3 identical (cst 0, 1 * A_RQL); helper 1 and helper 1: the SAME helper (one H plane, two identical denominators in its relation)
+G7 duplicate [trained] Kv: lookups 2 and 3 identical (cst 0, 1 * A_RKL); helper 1 and helper 1: the SAME helper (one H plane, two identical denominators in its relation)
+G7 duplicate [trained] Kv: lookups 6 and 7 identical (cst 0, 1 * A_RVL); helper 3 and helper 3: the SAME helper (one H plane, two identical denominators in its relation)
+G7 duplicate census: trained 4 identical pairs, twin 0 (twin sh_qkv 7 sh_g 7)
+G7 helpers L: trained 2 lookups -> 1 helpers; twin 2 lookups -> 1 helpers
+G7 helpers D: trained 34 lookups -> 17 helpers; twin 34 lookups -> 17 helpers
+G7 helpers F: trained 9 lookups -> 5 helpers; twin 9 lookups -> 5 helpers
+G7 helpers Q: trained 13 lookups -> 7 helpers; twin 13 lookups -> 7 helpers
+G7 helpers Kv: trained 12 lookups -> 6 helpers; twin 12 lookups -> 6 helpers
+G7 helpers S: trained 13 lookups -> 7 helpers; twin 13 lookups -> 7 helpers
+G7 layer 00: arrays verified (generator RoPE; native generator at theta 10000, equal to the export's tables), 184 oracle points equal, export equal
+G7 layer 01: arrays verified (generator RoPE; native generator at theta 10000, equal to the export's tables), 184 oracle points equal, export equal
+G7 layer 02: arrays verified (generator RoPE; native generator at theta 10000, equal to the export's tables), 184 oracle points equal, export equal
+G7 layer 03: arrays verified (generator RoPE; native generator at theta 10000, equal to the export's tables), 184 oracle points equal, export equal
+G7 layer 04: arrays verified (generator RoPE; native generator at theta 10000, equal to the export's tables), 184 oracle points equal, export equal
+G7 layer 05: arrays verified (generator RoPE; native generator at theta 10000, equal to the export's tables), 184 oracle points equal, export equal
+G7 layer 06: arrays verified (generator RoPE; native generator at theta 10000, equal to the export's tables), 184 oracle points equal, export equal
+G7 layer 07: arrays verified (generator RoPE; native generator at theta 10000, equal to the export's tables), 184 oracle points equal, export equal
+G7 layer 08: arrays verified (generator RoPE; native generator at theta 10000, equal to the export's tables), 184 oracle points equal, export equal
+G7 layer 09: arrays verified (generator RoPE; native generator at theta 10000, equal to the export's tables), 184 oracle points equal, export equal
+G7 layer 10: arrays verified (generator RoPE; native generator at theta 10000, equal to the export's tables), 184 oracle points equal, export equal
+G7 layer 11: arrays verified (generator RoPE; native generator at theta 10000, equal to the export's tables), 184 oracle points equal, export equal
+G7 layer 12: arrays verified (generator RoPE; native generator at theta 10000, equal to the export's tables), 184 oracle points equal, export equal
+G7 layer 13: arrays verified (generator RoPE; native generator at theta 10000, equal to the export's tables), 184 oracle points equal, export equal
+G7 layer 14: arrays verified (generator RoPE; native generator at theta 10000, equal to the export's tables), 184 oracle points equal, export equal
+G7 layer 15: arrays verified (generator RoPE; native generator at theta 10000, equal to the export's tables), 184 oracle points equal, export equal
+G7 layer 16: arrays verified (generator RoPE; native generator at theta 10000, equal to the export's tables), 184 oracle points equal, export equal
+G7 layer 17: arrays verified (generator RoPE; native generator at theta 10000, equal to the export's tables), 184 oracle points equal, export equal
+G7 layer 18: arrays verified (generator RoPE; native generator at theta 10000, equal to the export's tables), 184 oracle points equal, export equal
+G7 layer 19: arrays verified (generator RoPE; native generator at theta 10000, equal to the export's tables), 184 oracle points equal, export equal
+G7 layer 20: arrays verified (generator RoPE; native generator at theta 10000, equal to the export's tables), 184 oracle points equal, export equal
+G7 layer 21: arrays verified (generator RoPE; native generator at theta 10000, equal to the export's tables), 184 oracle points equal, export equal
+G7 oracle: 22 layers x 23 slots, 4048 random points, IR == closure at every one
+G7 export slot_ir_tl_t32_trained_pg_rot1.json: 100323 bytes, sha256 a63b3f35b1c010528755dc0cc0e53b9300179f0148aa35689f4b6fb2b5683239
+G7 export slot_ir_tl_t32_dev.json: 100319 bytes, sha256 cef02f1141251311a593061265ff91fc109b143fe33cc5d937dff195df28c2cd
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 578 filtered out; finished in 5.49s
+

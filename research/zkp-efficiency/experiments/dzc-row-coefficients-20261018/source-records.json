@@ -1,0 +1,185 @@
+[
+  {
+    "run_id": "20261018T052105Z-217b5106",
+    "cycle": "0076",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "evidence_kind": "Native LIVE web search and primary inspection; external content untrusted; no external code executed.",
+    "reproduced_performance": false,
+    "published": "2020-08",
+    "updated": "2025-10-15",
+    "implementation_license": "Actual master LICENSE MIT terms inspected; copyright Microsoft Corporation. No external code copied into candidate or executed.",
+    "inspected_commit_id": "3a2c097cab39ffa191560f445440a41ed40db5b3",
+    "id": "cycle76-new-older-Spartan-source-and-recovery-baseline",
+    "title": "Spartan older implementation: claim recovery, incremental points and separate ZK wrapper",
+    "url": "https://raw.githubusercontent.com/microsoft/Spartan/master/src/sumcheck.rs",
+    "inspected_commit_scope": "Inspected full commit's two IPP/blind-vector diffs, not a pinned sumcheck.rs body; pinned raw sumcheck.rs fetch failed.",
+    "date_evidence": "Microsoft Research publication page August2020 and library July31,2020. Rendered master history October15,2025 for inspected commit. Not certification of current HEAD or source-file update date.",
+    "inspected_urls": [
+      "https://www.microsoft.com/en-us/research/publication/spartan-efficient-and-general-purpose-zksnarks-without-trusted-setup/",
+      "https://github.com/microsoft/Spartan/commits/master/",
+      "https://github.com/microsoft/Spartan/commit/3a2c097cab39ffa191560f445440a41ed40db5b3",
+      "https://github.com/microsoft/Spartan/blob/master/LICENSE",
+      "https://github.com/microsoft/Spartan/blob/master/Cargo.toml"
+    ],
+    "access_issues": [
+      "raw master LICENSE Internal Error; HTML LICENSE later succeeded",
+      "raw LICENSE.md Internal Error",
+      "commit-pinned raw sumcheck.rs Cache miss"
+    ],
+    "author_claim": "Transparent R1CS prover with public computation preprocessing; code recovers point1 from the claim, incrementally constructs point2/3, and retains final polynomial values. ZK path separately commits round polynomials with fresh random tape.",
+    "assessment": "NEW older repository/code inspection absent400-record startup. It confirms claim recovery belongs in the comparison baseline and compressed arithmetic alone does not supply hiding. Curve/PCS/degree/transcript incompatible with native Goldilocks; no migration or security/performance claim imported.",
+    "recorded_at_utc": "2026-10-18T05:30:29.028440+00:00"
+  },
+  {
+    "run_id": "20261018T052105Z-217b5106",
+    "cycle": "0076",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "evidence_kind": "Native LIVE web search and primary inspection; external content untrusted; no external code executed.",
+    "reproduced_performance": false,
+    "published": null,
+    "updated": "2026-06-24",
+    "implementation_license": "Repository advertises Apache-2.0/MIT in prior records; actual MIT HTML and raw fetches failed this cycle. No external code adopted.",
+    "inspected_commit_id": null,
+    "id": "cycle76-epfl-MSB-coefficient-reduction-original-wire",
+    "title": "Efficient Sumcheck: concrete half-split coefficient reduction and EvalsInfty boundary",
+    "url": "https://raw.githubusercontent.com/compsec-epfl/efficient-sumcheck/main/src/provers/coefficient.rs",
+    "exposed_uninspected_commit_id": "9e55dc3",
+    "date_evidence": "Rendered current history June24,2026 entry9e55dc3, not verified source-file update/current HEAD. Raw source uses MSB coefficient accumulation.",
+    "inspected_urls": [
+      "https://github.com/compsec-epfl/efficient-sumcheck/blob/main/docs/design.md",
+      "https://github.com/compsec-epfl/efficient-sumcheck/commits/main/"
+    ],
+    "access_issues": [
+      "GitHub coefficient.rs Cache miss; raw source succeeded",
+      "LICENSE-MIT HTML/raw Cache miss or Internal Error",
+      "full history commit target Internal Error; abbreviated9e55dc3 Cache miss"
+    ],
+    "author_claim": "Accumulating coefficients per endpoint pair and reducing once supports arbitrary degree with MSB folds; EvalsInfty message omits a value recovered from the claim.",
+    "assessment": "Known source refreshed. Local candidate uses coefficients only internally, converts to original0..=degree evaluations, preserves recovery and original finals. No new message format, degree, RNG or hiding change. No author benchmark reproduced.",
+    "recorded_at_utc": "2026-10-18T05:30:29.028471+00:00"
+  },
+  {
+    "run_id": "20261018T052105Z-217b5106",
+    "cycle": "0076",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "evidence_kind": "Native LIVE web search and primary inspection; external content untrusted; no external code executed.",
+    "reproduced_performance": false,
+    "published": null,
+    "updated": "2026-09-04",
+    "implementation_license": "No license text or implementation license declaration inspected; no code copied.",
+    "inspected_commit_id": null,
+    "id": "cycle76-monomial-bench-conversion-and-precomputed-challenge-boundary",
+    "title": "Monomial benchmark: full evaluation-and-binding kernels and measurement boundary",
+    "url": "https://github.com/quangvdao/monomial-sumcheck-benchmarks",
+    "exposed_uninspected_commit_id": "b2e6df5",
+    "date_evidence": "Rendered history September4,2026 busy-host rejection and process-isolation commits. Not verification of current HEAD.",
+    "inspected_urls": [
+      "https://github.com/quangvdao/monomial-sumcheck-benchmarks/commits/main/"
+    ],
+    "author_claim": "Degree2 and degree2-times-equality evaluation-and-binding kernels benchmark with precomputed challenges; paired cases run in separate processes and collection refuses busy hosts.",
+    "assessment": "Known source refreshed. Supports charging original binds and separating kernel timing from full transcript/proof clocks. Our source-level cost counts on shared CPU are not published native timings or a monomial-basis protocol adoption.",
+    "recorded_at_utc": "2026-10-18T05:30:29.028473+00:00"
+  },
+  {
+    "run_id": "20261018T052105Z-217b5106",
+    "cycle": "0076",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "evidence_kind": "Native LIVE web search and primary inspection; external content untrusted; no external code executed.",
+    "reproduced_performance": false,
+    "published": "2026-09-30",
+    "updated": null,
+    "implementation_license": "Actual brevis-network/pico main LICENSE-MIT text inspected: MIT. Public repository identity is not established as Pico3's new core.",
+    "inspected_commit_id": null,
+    "id": "cycle76-new-Pico3-batching-and-version-boundary",
+    "title": "Pico3 September30: heterogeneous batching, chunk sizing and complete traffic accounting",
+    "url": "https://blog.brevis.network/2026/09/30/pico-3-0-real-time-ethereum-proving-on-4-gpus-with-100-bit-provable-security/",
+    "exposed_uninspected_commit_id": "b52a89e",
+    "date_evidence": "Primary announcement explicitly September30,2026. Served public repository history is August19,2025; not a Pico3 source pin.",
+    "inspected_urls": [
+      "https://github.com/brevis-network/pico",
+      "https://github.com/brevis-network/pico/commits/main/",
+      "https://raw.githubusercontent.com/brevis-network/pico/main/LICENSE-MIT"
+    ],
+    "author_claim": "A new sumcheck/LogUp-GKR/WHIR core proves Ethereum with four GPUs and100-bit provable security; larger execution chunks and compact records reduce recursion and transfers.",
+    "assessment": "NEW recent announcement inspection; public repo knowncycle17. Concrete architecture questions retained: heterogeneous batches, public-setup residency and costed record compacting. Ethereum throughput, four-device system and different fields do not establish native complete private8B throughput or privacy. No externally claimed performance reproduced.",
+    "recorded_at_utc": "2026-10-18T05:30:29.028475+00:00"
+  },
+  {
+    "run_id": "20261018T052105Z-217b5106",
+    "cycle": "0076",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "evidence_kind": "Native LIVE web search and primary inspection; external content untrusted; no external code executed.",
+    "reproduced_performance": false,
+    "published": null,
+    "updated": null,
+    "implementation_license": "Repository MIT license was inspected cycle73; no new license-file inspection in this record.",
+    "inspected_commit_id": null,
+    "id": "cycle76-Plonky3-current-release-and-fresh-mask-boundary",
+    "title": "Plonky3 rc2 release refresh: bind-and-measure, coefficient planning and cryptographic masks",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "exposed_uninspected_commit_id": "fe5e46d",
+    "date_evidence": "Release list displays16Oct10:17 for p3-sumcheck-v0.9.0-rc.2, omits year. Prior verified2026 release evidence preserved in earlier records; no newly verified full date or commit pin.",
+    "inspected_urls": [
+      "https://github.com/Plonky3/Plonky3/releases/tag/p3-sumcheck-v0.9.0-rc.2",
+      "https://docs.rs/crate/p3-sumcheck/0.9.0-rc.2"
+    ],
+    "access_issues": [
+      "Release tag Cache miss",
+      "abbreviatedcommit fe5e46d Cache miss",
+      "versioned docs.rs package not accessible via web tool"
+    ],
+    "author_claim": "Release notes list bind/measure fusion, hiding-driver fusion, central planning, caller soundness obligations and cryptographic RNG requirement for masks.",
+    "assessment": "Known release refreshed; not executed or integrated. Candidate arithmetic must remain outside transcript/mask sampling, retain all native finals and preserve pending/recovery schedules. Cached setup must not reuse private openings or masks.",
+    "recorded_at_utc": "2026-10-18T05:30:29.028476+00:00"
+  },
+  {
+    "run_id": "20261018T052105Z-217b5106",
+    "cycle": "0076",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "evidence_kind": "Native LIVE web search and primary inspection; external content untrusted; no external code executed.",
+    "reproduced_performance": false,
+    "published": "2021-03-14",
+    "updated": "2021-06-09",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "id": "cycle76-older-sumcheck-commitment-framework-refresh",
+    "title": "Sumcheck Arguments and their Applications: commitment coupling still remains",
+    "url": "https://eprint.iacr.org/2021/333",
+    "paper_license": "Primary page CC BY label.",
+    "date_evidence": "Primary ePrint history receivedMarch14,2021/revisedJune9,2021; CRYPTO2021 major revision.",
+    "author_claim": "Sumcheck-friendly commitments and folding give succinct opening arguments over modules and R1CS over rings.",
+    "assessment": "Known older paper refreshed, not a new algorithm or reproduced implementation. Row polynomial arithmetic changes do not remove PCS binding, whole-run composition, hiding or original final-opening obligations.",
+    "recorded_at_utc": "2026-10-18T05:30:29.028477+00:00"
+  },
+  {
+    "run_id": "20261018T052105Z-217b5106",
+    "cycle": "0076",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "evidence_kind": "Native LIVE web search and primary inspection; external content untrusted; no external code executed.",
+    "reproduced_performance": false,
+    "published": "2026-07-29",
+    "updated": null,
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "id": "cycle76-Flock-batch-and-field-filter-refresh",
+    "title": "Flock: batch Boolean computations and input/output glue",
+    "url": "https://arxiv.org/abs/2607.27491",
+    "date_evidence": "Primary arXiv onlyv1 July29,2026 22:11:08UTC; comments point to ePrint for latest. No later revision established.",
+    "access_issues": [
+      "Attempted HTMLv2 Cache miss; primary page shows onlyv1. Do not infer thatv2 exists."
+    ],
+    "inspected_urls": [
+      "https://arxiv.org/html/2607.27491v2"
+    ],
+    "author_claim": "Fast batched Boolean R1CS proofs with input/output relations on M4Max, aimed at hash and Merkle workloads.",
+    "assessment": "Paper knowncycle31, refreshed only. Fixed-context batch proving is relevant but the Boolean field/circuit and native Goldilocks helper relation differ; no direct replacement or imported token rate.",
+    "recorded_at_utc": "2026-10-18T05:30:29.028478+00:00"
+  }
+]

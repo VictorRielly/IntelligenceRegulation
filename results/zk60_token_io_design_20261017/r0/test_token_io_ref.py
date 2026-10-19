@@ -158,6 +158,22 @@ class VectorsV3(unittest.TestCase):
 
 
 class Properties(unittest.TestCase):
+    def test_limb_count_is_derived_tf1(self):
+        """TF-1: ceil(window / 8) over the declared class; 6 at the R1 rung (d 384, V 300) and at
+        TinyLlama / 8B under the per-tensor head (mult_bits 0), 7 at TinyLlama (53 bits) and 8B (56 bits)
+        with the 12-bit multipliers; the R0 synthetic profile (d 16, V 300, multipliers 1) needs 4 and the
+        stored vectors' fixed 6 covers it; 16-bit limbs wrap the field under the 12-bit class (v4 finding)."""
+        self.assertEqual(R.limbs_for(384, 300)[:2], (6, 45))
+        self.assertEqual(R.limbs_for(2048, 32000)[:2], (7, 53))
+        self.assertEqual(R.limbs_for(4096, 128256)[:2], (7, 56))
+        self.assertEqual(R.limbs_for(2048, 32000, mult_bits=0)[:2], (6, 41))
+        self.assertEqual(R.limbs_for(4096, 128256, mult_bits=0)[:2], (6, 44))
+        n, w, ok = R.limbs_for(TV.D_MODEL, TV.V, mult_bits=0)
+        self.assertTrue(ok and n <= R.DELTA_LIMBS and w < 8 * R.DELTA_LIMBS)
+        for d, V in ((2048, 32000), (4096, 128256)):
+            self.assertTrue(R.limbs_for(d, V)[2])                       # 7 byte limbs: 2^56 + 2^56 < p
+            self.assertFalse(R.limbs_for(d, V, limb_bits=16)[2])       # 4 x 16-bit limbs: 2^64 + 2^53 >= p
+
     def test_helper_level_stage_in_on_random_sequences(self):
         """honest witnesses pass the helper-level relations; the N-1 forgery fails with fresh
         coefficients for every random sequence tried, and passes the v2 unweighted form"""

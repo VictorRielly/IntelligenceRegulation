@@ -1,0 +1,109 @@
+[load          ]      0.4 s   peak RSS      90 MB   ok
+[replay        ]      0.2 s   peak RSS      90 MB   ok
+[hash          ]      0.2 s   peak RSS      90 MB   ok
+[terminals     ]      2.6 s   peak RSS     145 MB   ok
+[commitments   ]     22.7 s   peak RSS     145 MB   ok
+[boundary      ]      0.5 s   peak RSS     145 MB   ok
+[preimage      ]      0.2 s   peak RSS     145 MB   ok
+[channels      ]      0.0 s   peak RSS     145 MB   ok
+PC-0: ok=True status=PASS held=0 exact=True
+[load          ]      0.3 s   peak RSS     145 MB   FAIL
+[replay        ]      --- NOT RUN (pins / inputs not checked)
+[hash          ]      --- NOT RUN (pins / inputs not checked)
+[terminals     ]      --- NOT RUN (pins / inputs not checked)
+[commitments   ]      --- NOT RUN (pins / inputs not checked)
+[boundary      ]      --- NOT RUN (pins / inputs not checked)
+[preimage      ]      --- NOT RUN (pins / inputs not checked)
+[channels      ]      --- NOT RUN (pins / inputs not checked)
+PC-1: ok=False status=NOT-OK held=9 exact=True
+[load          ]      0.4 s   peak RSS     145 MB   FAIL
+[replay        ]      0.3 s   peak RSS     145 MB   ok
+[hash          ]      0.2 s   peak RSS     145 MB   ok
+[terminals     ]      2.6 s   peak RSS     148 MB   ok
+[commitments   ]      --- NOT RUN (pins / inputs not checked)
+[boundary      ]      --- NOT RUN (pins / inputs not checked)
+[preimage      ]      --- NOT RUN (pins / inputs not checked)
+[channels      ]      --- NOT RUN (pins / inputs not checked)
+PC-2: ok=False status=NOT-OK held=5 exact=True
+[load          ]      0.4 s   peak RSS     148 MB   ok
+[replay        ]      0.3 s   peak RSS     148 MB   ok
+[hash          ]      --- NOT RUN (pins / inputs not checked)
+[terminals     ]      2.9 s   peak RSS     158 MB   ok
+[commitments   ]      --- NOT RUN (pins / inputs not checked)
+[boundary      ]      --- NOT RUN (pins / inputs not checked)
+[preimage      ]      --- NOT RUN (pins / inputs not checked)
+[channels      ]      --- NOT RUN (pins / inputs not checked)
+PC-3: ok=False status=NOT-OK held=5 exact=True
+[load          ]      0.4 s   peak RSS     158 MB   ok
+[replay        ]      0.3 s   peak RSS     158 MB   ok
+[hash          ]      0.2 s   peak RSS     158 MB   ok
+[terminals     ]      2.6 s   peak RSS     158 MB   ok
+[commitments   ]     23.0 s   peak RSS     158 MB   ok
+[boundary      ]      0.5 s   peak RSS     158 MB   ok
+[preimage      ]      0.2 s   peak RSS     158 MB   ok
+[channels      ]      0.0 s   peak RSS     158 MB   ok
+PC-4: ok=False status=NOT-OK held=0 exact=True
+[load          ]      0.3 s   peak RSS     158 MB   ok
+[replay        ]      0.2 s   peak RSS     158 MB   ok
+[hash          ]      0.2 s   peak RSS     158 MB   ok
+[terminals     ]      2.6 s   peak RSS     158 MB   ok
+[commitments   ]     22.8 s   peak RSS     158 MB   ok
+[boundary      ]      0.5 s   peak RSS     158 MB   ok
+[preimage      ]      0.2 s   peak RSS     158 MB   ok
+[channels      ]      0.0 s   peak RSS     158 MB   ok
+PC-5: ok=False status=NOT-OK held=0 exact=True
+[load          ]      0.4 s   peak RSS     158 MB   ok
+[replay        ]      0.2 s   peak RSS     158 MB   ok
+[hash          ]      0.2 s   peak RSS     158 MB   ok
+[terminals     ]      2.6 s   peak RSS     158 MB   ok
+[commitments   ]     21.4 s   peak RSS     158 MB   ok
+[boundary      ]      0.4 s   peak RSS     158 MB   ok
+[preimage      ]      0.1 s   peak RSS     158 MB   ok
+[channels      ]      0.0 s   peak RSS     158 MB   ok
+PC-6: ok=True status=PASS held=0 exact=True
+[load          ]      0.3 s   peak RSS     158 MB   ok
+[replay        ]      0.2 s   peak RSS     158 MB   ok
+[hash          ]      0.1 s   peak RSS     158 MB   ok
+[terminals     ]      2.6 s   peak RSS     158 MB   ok
+[commitments   ]     22.4 s   peak RSS     158 MB   ok
+[boundary      ]      0.5 s   peak RSS     158 MB   ok
+[preimage      ]      --- NOT RUN (pins / inputs not checked)
+[channels      ]      --- NOT RUN (pins / inputs not checked)
+PC-7: ok=False status=NOT-OK held=2 exact=True
+[load          ]      0.3 s   peak RSS     158 MB   ok
+[replay        ]      0.2 s   peak RSS     158 MB   ok
+[hash          ]      0.2 s   peak RSS     158 MB   ok
+[terminals     ]      --- NOT RUN (pins / inputs not checked)
+[commitments   ]     19.2 s   peak RSS     158 MB   ok
+[boundary      ]      0.4 s   peak RSS     158 MB   ok
+[preimage      ]      0.1 s   peak RSS     158 MB   ok
+[channels      ]      --- NOT RUN (pins / inputs not checked)
+PC-8: ok=False status=NOT-OK held=3 exact=True
+[load          ]      0.3 s   peak RSS     158 MB   ok
+[replay        ]      0.2 s   peak RSS     158 MB   ok
+[hash          ]      0.1 s   peak RSS     158 MB   ok
+[terminals     ]      --- NOT RUN (pins / inputs not checked)
+[commitments   ]     16.9 s   peak RSS     158 MB   ok
+[boundary      ]      0.4 s   peak RSS     158 MB   ok
+[preimage      ]      0.2 s   peak RSS     158 MB   ok
+[channels      ]      --- NOT RUN (pins / inputs not checked)
+PC-9: ok=False status=NOT-OK held=3 exact=True
+[load          ]      0.3 s   peak RSS     158 MB   ok
+[replay        ]      0.2 s   peak RSS     158 MB   ok
+[hash          ]      0.1 s   peak RSS     158 MB   ok
+[terminals     ]      1.9 s   peak RSS     158 MB   ok
+[commitments   ]     16.9 s   peak RSS     158 MB   ok
+[boundary      ]      0.3 s   peak RSS     158 MB   ok
+[preimage      ]      0.1 s   peak RSS     158 MB   ok
+[channels      ]      0.0 s   peak RSS     158 MB   ok
+PC-10: ok=True status=PASS held=0 exact=True
+[load          ]      0.3 s   peak RSS     158 MB   ok
+[replay        ]      0.1 s   peak RSS     158 MB   ok
+[hash          ]      --- NOT RUN (pins / inputs not checked)
+[terminals     ]      2.1 s   peak RSS     158 MB   ok
+[commitments   ]      --- NOT RUN (pins / inputs not checked)
+[boundary      ]      --- NOT RUN (pins / inputs not checked)
+[preimage      ]      --- NOT RUN (pins / inputs not checked)
+[channels      ]      --- NOT RUN (pins / inputs not checked)
+PC-11: ok=False status=NOT-OK held=5 exact=True
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/v7/pincontrols/v7-pincontrols-r5b-l1.json   ok=True

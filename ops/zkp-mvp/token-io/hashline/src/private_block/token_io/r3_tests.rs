@@ -29,7 +29,7 @@ use super::*;
 use super::super::layout::{Ids, A_X2};
 use super::super::run::{BlockRef, RunShape, RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32};
 use super::super::trained_block::{sha256, Constants, TrainedExport};
-use super::super::trained_statement::{IntegerCalibration, Provenance, TrainedModelStatement};
+use super::super::trained_statement::{IntegerCalibration, LayerRecord, Provenance, TrainedModelStatement};
 use super::super::BlockPublic;
 use std::path::{Path, PathBuf};
 
@@ -145,6 +145,63 @@ fn r3_a_refused_stage_out_witness_emits_no_segment() {
     assert!(e.contains("not a byte"), "{e}");
     assert_eq!(emitted, 0, "REVIEW R2-5: {emitted} segment(s) reached the sink before the refusal");
     eprintln!("TOKEN-IO-R3 REVIEW R2-5 | a non-byte stage-OUT limb | refused before any segment: {e} | segments emitted: {emitted}");
+}
+
+/// **R3 on the b7 export's format (NATIVE R6 ported): a layer with its own
+/// score shift is witnessed, proved and verified at its STAGE shape.** The
+/// rung's 2-block run with layer 1 at another `sh_s` (recorded in its layer
+/// record, bound by the model identity): the stage line names it, the run
+/// proves and verifies; the receipt is refused under the run-wide statement
+/// (another schedule and model identity), and a cheating prover's block-1
+/// witness at the run-wide shift is refused at block 1.
+#[test]
+fn r3_a_layer_with_its_own_score_shift_is_proved_at_its_stage_shape() {
+    let fx = fx_generic();
+    let tp = profile(&fx);
+    let own = if fx.sh.sh_s == 6 { 5 } else { 6 };
+    let ssh1 = fx.sh.with_score_shift(own).expect("the layer's own score shift is admissible at the rung");
+    let shapes = vec![fx.sh.clone(), ssh1];
+    let mut recs: Vec<LayerRecord> = fx.blocks.iter().enumerate().map(|(k, b)| LayerRecord::of_block(k as u32, b, vec![])).collect();
+    recs[1].sh_s = Some(own);
+    let model = model_with_records(&fx.sh, recs, super::super::run::RUN_PROFILE_TOKEN_IO_RUNG_TC);
+    let mut pipe = honest_pipeline_at(&shapes, &tp, &fx.tables, &fx.blocks, &fx.tokens).expect("the per-layer pipeline");
+    let wide = honest(&fx, &tp);
+    assert_eq!(wide.planes[0], pipe.planes[0], "block 0 is at the run's shift in both");
+    assert_ne!(wide.planes[1], pipe.planes[1], "the score shift does not move block 1's output: the test would prove nothing");
+    let (ins, outs) = endpoint_specs(&fx.sh, ctx(), &tp).unwrap();
+    let digests: Vec<Digest> = fx.blocks.iter().map(|b| b.digest()).collect();
+    let mk = |roots: (Digest, Digest), m: &TrainedModelStatement| TokenRunStatement::new(RunShape::new(fx.sh.clone(), 2, super::super::run::RUN_PROFILE_TOKEN_IO_RUNG_TC).unwrap(), ctx(), digests.clone(), m, &fx.tables, fx.bos, fx.norm, SelectorVariant::PublicRow, Tier::R1_MVP, roots);
+    let (roots, owners) = seal_endpoints(&ins, &outs, &pipe.in_plane, &pipe.out_plane, &fx.sh.hash_tag()).unwrap();
+    let st = mk(roots, &model).expect("the per-layer statement");
+    assert_eq!((st.stage_shape(0).unwrap().sh_s, st.stage_shape(1).unwrap().sh_s), (fx.sh.sh_s, own));
+    let lines = st.stage_lines().unwrap();
+    assert!(lines[2].contains(&format!("score shift {own} (the layer's own; the run's is {})", fx.sh.sh_s)), "{}", lines[2]);
+    assert!(!lines[1].contains("score shift"), "{}", lines[1]);
+    let mut segs = Vec::new();
+    prove_token_run(&st, &fx.blocks, &fx.tables, &mut PipelineSource(&mut pipe), owners, &mut |_, b| {
+        segs.push(b);
+        Ok(())
+    })
+    .unwrap_or_else(|e| panic!("the per-layer run did not prove: {e}"));
+    verify_token_run(&st, &fx.blocks, &fx.tables, &segs, R1_DEV_POLICY_R3).unwrap_or_else(|e| panic!("the per-layer run did not verify: {e}"));
+    // the run-wide statement (no layer of its own) is another statement
+    let e = verify_token_run(&mk(roots, &fx.model).unwrap(), &fx.blocks, &fx.tables, &segs, R1_DEV_POLICY_R3).unwrap_err();
+    record("R3-9", "a per-layer receipt read under the run-wide statement", &[Site::Binding], &e);
+    // a cheating prover proving block 1 with the run-wide witness under the per-layer statement
+    let mut cheat = honest(&fx, &tp);
+    let (roots2, owners2) = seal_endpoints(&ins, &outs, &cheat.in_plane, &cheat.out_plane, &fx.sh.hash_tag()).unwrap();
+    let st2 = mk(roots2, &model).unwrap();
+    let mut segs2 = Vec::new();
+    {
+        let _c = super::super::protocol::CheatingProver::on();
+        prove_token_run(&st2, &fx.blocks, &fx.tables, &mut PipelineSource(&mut cheat), owners2, &mut |_, b| {
+            segs2.push(b);
+            Ok(())
+        })
+        .unwrap_or_else(|e| panic!("the cheating prover did not produce a receipt: {e}"));
+    }
+    let e = verify_token_run(&st2, &fx.blocks, &fx.tables, &segs2, R1_DEV_POLICY_R3).err().expect("A BLOCK WITNESSED AT THE WRONG SCORE SHIFT VERIFIED");
+    record("R3-10", "block 1 witnessed at the run-wide score shift under a per-layer statement", &[Site::Block], &e);
 }
 
 // ------------------------------------------------------------------ 2. the multi-row planes at V_pad 2^17
@@ -658,10 +715,12 @@ impl TokenRunSource for R3Source<'_> {
     fn stage_in(&mut self) -> Result<(StageInWitness, Vec<i16>), String> {
         self.stage_in.take().ok_or_else(|| "R3: stage IN asked twice".to_string())
     }
-    fn witness(&mut self, k: usize, blk: &BlockPublic) -> Result<super::super::witness::Witness, String> {
+    fn witness(&mut self, k: usize, blk: &BlockPublic, ssh: &Shape) -> Result<super::super::witness::Witness, String> {
         let t0 = std::time::Instant::now();
         let sh = &self.p.sh;
-        let w = super::super::witness::build_shaped(sh, blk.attention(), blk.feed_forward(), &self.x)?;
+        // the stage's shape: a layer with its own score shift (the b7 export's
+        // layer 1) is witnessed, proved and verified at it
+        let w = super::super::witness::build_shaped(ssh, blk.attention(), blk.feed_forward(), &self.x)?;
         let out: Vec<i16> = w.planes[self.ids.at(A_X2)].iter().map(|v| i16::try_from(*v).map_err(|_| "R3: a block output outside int16".to_string())).collect::<Result<_, _>>()?;
         let next = unpad(sh, &out);
         if next != self.p.ex.load_seq(sh, &self.seq, self.p.layers[k])?.1 {

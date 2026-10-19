@@ -206,7 +206,7 @@ fn review_c_new_bound_refuses_a_frozen_profile_and_the_trained_profile_takes_the
     let tsh = Shape::tinyllama_t32_trained(&pg(), 9).unwrap();
     let cal = IntegerCalibration::as_the_code_proves(&tsh, &prov);
     // a hand-made record (the statement's own checks never open a block)
-    let rec = vec![LayerRecord { index: 0, block_digest: [1; 32], word_sha256: [[2; 32]; 9], table_sha256: [[3; 32]; 3], source_tensors: vec![], manifest_sha256: [4; 32], silu_member: (-3, -11), exp_e_s: 1 }];
+    let rec = vec![LayerRecord { index: 0, block_digest: [1; 32], word_sha256: [[2; 32]; 9], table_sha256: [[3; 32]; 3], source_tensors: vec![], manifest_sha256: [4; 32], silu_member: (-3, -11), exp_e_s: 1, sh_s: None }];
     let rp = super::run::RUN_PROFILE_TINYLLAMA_T32_TRAINED;
     TrainedModelStatement::new(&tsh, rp, ModelSource::tinyllama_chat_v1_0(), cal.clone(), rec.clone()).expect("the pinned checkpoint at the trained TinyLlama profile");
     let mut other = ModelSource::tinyllama_chat_v1_0();
@@ -532,7 +532,7 @@ fn review_r2_b_the_pinned_checkpoint_rule_is_enforced_in_test_builds() {
     let tsh = Shape::tinyllama_t32_trained(&pg(), 9).unwrap();
     let prov = Provenance::recipe("re-review/r2-b", 1.0, [1; 32], [2; 32]);
     let cal = IntegerCalibration::as_the_code_proves(&tsh, &prov);
-    let rec = vec![LayerRecord { index: 0, block_digest: [1; 32], word_sha256: [[2; 32]; 9], table_sha256: [[3; 32]; 3], source_tensors: vec![], manifest_sha256: [4; 32], silu_member: (-3, -11), exp_e_s: 1 }];
+    let rec = vec![LayerRecord { index: 0, block_digest: [1; 32], word_sha256: [[2; 32]; 9], table_sha256: [[3; 32]; 3], source_tensors: vec![], manifest_sha256: [4; 32], silu_member: (-3, -11), exp_e_s: 1, sh_s: None }];
     let rp = super::run::RUN_PROFILE_TINYLLAMA_T32_TRAINED;
     let mut st = TrainedModelStatement::new(&tsh, rp, ModelSource::tinyllama_chat_v1_0(), cal.clone(), rec.clone()).unwrap();
     st.check_against(&tsh, rp, &[[1; 32]], &[(0, 0)]).expect("the honest statement");

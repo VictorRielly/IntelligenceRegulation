@@ -7,10 +7,10 @@
   "verdict": "AS PREDICTED"
  },
  {
-  "control": "17d",
-  "forgery": "y outside int8 (hot Cn) with in-window remainders",
-  "predicted": "[OutLogUp]",
-  "actual": "stage OUT H (the LogUp sum claim is part of this opening): pcs zk: group 5: <v, c> != combined claim",
+  "control": "R3-9",
+  "forgery": "a per-layer receipt read under the run-wide statement",
+  "predicted": "[Binding]",
+  "actual": "token I/O wire: this segment belongs to another run",
   "verdict": "AS PREDICTED"
  },
  {
@@ -21,10 +21,10 @@
   "verdict": "AS PREDICTED"
  },
  {
-  "control": "13",
-  "forgery": "tie broken the wrong way (higher id chosen)",
-  "predicted": "[OutSlot(6)]",
-  "actual": "stage OUT slot 06 [OUT-06 VZC e(1-e) + head host term on keyed l* + helpers (+pad)]: sumcheck round 0: s(0) + s(1) != claim",
+  "control": "R3-10",
+  "forgery": "block 1 witnessed at the run-wide score shift under a per-layer statement",
+  "predicted": "[Block]",
+  "actual": "block 1: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim",
   "verdict": "AS PREDICTED"
  },
  {
@@ -35,10 +35,52 @@
   "verdict": "AS PREDICTED"
  },
  {
-  "control": "4",
-  "forgery": "tok_0 = BOS + 1, h_q(0) = 0, row 0 arbitrary (the CHECK2 N-1 forgery)",
-  "predicted": "[InSlot(1)]",
-  "actual": "stage IN slot 01 [IN-01 query zero-check: LogUp + BOS (own mu_bos) + pad, fresh mu each]: sumcheck round 0: s(0) + s(1) != claim",
+  "control": "R2-4",
+  "forgery": "(#15, second row) a delta limb that is not a byte at an entry >= 4096 (same delta value)",
+  "predicted": "[OutLogUp]",
+  "actual": "stage OUT H (the LogUp sum claim is part of this opening): pcs zk: group 5: <v, c> != combined claim",
+  "verdict": "AS PREDICTED"
+ },
+ {
+  "control": "R2-5",
+  "forgery": "a nonzero delta limb on the padded entry V + 7 (second row)",
+  "predicted": "[OutSlot(6)]",
+  "actual": "stage OUT slot 06 [OUT-06 VZC e(1-e) + head host term on keyed l* + helpers (+pad)]: sumcheck round 0: s(0) + s(1) != claim",
+  "verdict": "AS PREDICTED"
+ },
+ {
+  "control": "R2-6",
+  "forgery": "stage IN histogram: one count moved from a second-row id to its first-row twin (tok, rows honest)",
+  "predicted": "[InLogUp]",
+  "actual": "stage IN H (the LogUp sum claim is part of this opening): pcs zk: group 3: <v, c> != combined claim",
+  "verdict": "AS PREDICTED"
+ },
+ {
+  "control": "R2-7",
+  "forgery": "(#16c, second row) padded token id V + 11, histogram on that pad entry",
+  "predicted": "[InSlot(2)]",
+  "actual": "stage IN slot 02 [IN-02 table zero-check: h_tab (alpha - tau) = m + pad, fresh mu each]: sumcheck round 0: s(0) + s(1) != claim",
+  "verdict": "AS PREDICTED"
+ },
+ {
+  "control": "17d",
+  "forgery": "y outside int8 (hot Cn) with in-window remainders",
+  "predicted": "[OutLogUp]",
+  "actual": "stage OUT H (the LogUp sum claim is part of this opening): pcs zk: group 5: <v, c> != combined claim",
+  "verdict": "AS PREDICTED"
+ },
+ {
+  "control": "13",
+  "forgery": "tie broken the wrong way (higher id chosen)",
+  "predicted": "[OutSlot(6)]",
+  "actual": "stage OUT slot 06 [OUT-06 VZC e(1-e) + head host term on keyed l* + helpers (+pad)]: sumcheck round 0: s(0) + s(1) != claim",
+  "verdict": "AS PREDICTED"
+ },
+ {
+  "control": "R3-1",
+  "forgery": "(#1, last row) e on the padded entry V + 5 = 128,261, tok = V + 5, M = max + 1",
+  "predicted": "[OutSlot(6)]",
+  "actual": "stage OUT slot 06 [OUT-06 VZC e(1-e) + head host term on keyed l* + helpers (+pad)]: sumcheck round 0: s(0) + s(1) != claim",
   "verdict": "AS PREDICTED"
  },
  {
@@ -182,8 +224,29 @@
   "verdict": "N/A at R1"
  },
  {
-  "control": "R2-4",
-  "forgery": "(#15, second row) a delta limb that is not a byte at an entry >= 4096 (same delta value)",
+  "control": "17b+",
+  "forgery": "final norm: D off by one (isqrt relations kept in the field)",
+  "predicted": "[OutLogUp]",
+  "actual": "stage OUT H (the LogUp sum claim is part of this opening): pcs zk: group 5: <v, c> != combined claim",
+  "verdict": "AS PREDICTED"
+ },
+ {
+  "control": "R3-2",
+  "forgery": "(#2, last row) non-maximal j >= 126,976, M = max + 1, deltas in bytes (A6-only)",
+  "predicted": "[OutSlot(7)]",
+  "actual": "stage OUT slot 07 [OUT-07 RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)]: sumcheck round 0: s(0) + s(1) != claim",
+  "verdict": "AS PREDICTED"
+ },
+ {
+  "control": "4",
+  "forgery": "tok_0 = BOS + 1, h_q(0) = 0, row 0 arbitrary (the CHECK2 N-1 forgery)",
+  "predicted": "[InSlot(1)]",
+  "actual": "stage IN slot 01 [IN-01 query zero-check: LogUp + BOS (own mu_bos) + pad, fresh mu each]: sumcheck round 0: s(0) + s(1) != claim",
+  "verdict": "AS PREDICTED"
+ },
+ {
+  "control": "17b-",
+  "forgery": "final norm: D off by one (isqrt relations kept in the field)",
   "predicted": "[OutLogUp]",
   "actual": "stage OUT H (the LogUp sum claim is part of this opening): pcs zk: group 5: <v, c> != combined claim",
   "verdict": "AS PREDICTED"
@@ -196,8 +259,29 @@
   "verdict": "AS PREDICTED"
  },
  {
-  "control": "17b+",
-  "forgery": "final norm: D off by one (isqrt relations kept in the field)",
+  "control": "17c-i",
+  "forgery": "D16 half-p alias of D, limbs honest",
+  "predicted": "[OutSlot(2)]",
+  "actual": "stage OUT slot 02 [OUT-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)]: sumcheck round 0: s(0) + s(1) != claim",
+  "verdict": "AS PREDICTED"
+ },
+ {
+  "control": "7",
+  "forgery": "consistent re-lookup in A_in (tok, row, histogram) under the honest seal",
+  "predicted": "[InSlot(0)]",
+  "actual": "stage IN slot 00 [IN-00 IO-in: token endpoint = supp_T tok (whole padded plane)]: sumcheck round 0: s(0) + s(1) != claim",
+  "verdict": "AS PREDICTED"
+ },
+ {
+  "control": "R3-3",
+  "forgery": "(#12b, last row) non-maximal j >= 126,976, M = l_j, delta field values in a non-byte 7th limb",
+  "predicted": "[OutLogUp]",
+  "actual": "stage OUT H (the LogUp sum claim is part of this opening): pcs zk: group 5: <v, c> != combined claim",
+  "verdict": "AS PREDICTED"
+ },
+ {
+  "control": "17c-ii",
+  "forgery": "D16 half-p alias reconstructed by its limbs, relations kept",
   "predicted": "[OutLogUp]",
   "actual": "stage OUT H (the LogUp sum claim is part of this opening): pcs zk: group 5: <v, c> != combined claim",
   "verdict": "AS PREDICTED"
@@ -210,24 +294,10 @@
   "verdict": "AS PREDICTED"
  },
  {
-  "control": "R2-5",
-  "forgery": "a nonzero delta limb on the padded entry V + 7 (second row)",
-  "predicted": "[OutSlot(6)]",
-  "actual": "stage OUT slot 06 [OUT-06 VZC e(1-e) + head host term on keyed l* + helpers (+pad)]: sumcheck round 0: s(0) + s(1) != claim",
-  "verdict": "AS PREDICTED"
- },
- {
-  "control": "7",
-  "forgery": "consistent re-lookup in A_in (tok, row, histogram) under the honest seal",
+  "control": "10a",
+  "forgery": "nonzero pad word in the input token endpoint",
   "predicted": "[InSlot(0)]",
   "actual": "stage IN slot 00 [IN-00 IO-in: token endpoint = supp_T tok (whole padded plane)]: sumcheck round 0: s(0) + s(1) != claim",
-  "verdict": "AS PREDICTED"
- },
- {
-  "control": "17b-",
-  "forgery": "final norm: D off by one (isqrt relations kept in the field)",
-  "predicted": "[OutLogUp]",
-  "actual": "stage OUT H (the LogUp sum claim is part of this opening): pcs zk: group 5: <v, c> != combined claim",
   "verdict": "AS PREDICTED"
  },
  {
@@ -238,24 +308,10 @@
   "verdict": "AS PREDICTED"
  },
  {
-  "control": "10a",
-  "forgery": "nonzero pad word in the input token endpoint",
-  "predicted": "[InSlot(0)]",
-  "actual": "stage IN slot 00 [IN-00 IO-in: token endpoint = supp_T tok (whole padded plane)]: sumcheck round 0: s(0) + s(1) != claim",
-  "verdict": "AS PREDICTED"
- },
- {
-  "control": "R2-6",
-  "forgery": "stage IN histogram: one count moved from a second-row id to its first-row twin (tok, rows honest)",
-  "predicted": "[InLogUp]",
-  "actual": "stage IN H (the LogUp sum claim is part of this opening): pcs zk: group 3: <v, c> != combined claim",
-  "verdict": "AS PREDICTED"
- },
- {
-  "control": "17c-i",
-  "forgery": "D16 half-p alias of D, limbs honest",
-  "predicted": "[OutSlot(2)]",
-  "actual": "stage OUT slot 02 [OUT-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)]: sumcheck round 0: s(0) + s(1) != claim",
+  "control": "17e",
+  "forgery": "x int16 limbs off by one (xl1 + 1)",
+  "predicted": "[OutSlot(5)]",
+  "actual": "stage OUT slot 05 [OUT-05 DZC final-norm quotient + x limbs + helpers (+pad)]: sumcheck round 0: s(0) + s(1) != claim",
   "verdict": "AS PREDICTED"
  },
  {
@@ -266,27 +322,6 @@
   "verdict": "AS PREDICTED"
  },
  {
-  "control": "3",
-  "forgery": "e, delta honest; tok' = j + 1, M = l_j + 2^-v (A3-only)",
-  "predicted": "[OutSlot(7)]",
-  "actual": "stage OUT slot 07 [OUT-07 RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)]: sumcheck round 0: s(0) + s(1) != claim",
-  "verdict": "AS PREDICTED"
- },
- {
-  "control": "R2-7",
-  "forgery": "(#16c, second row) padded token id V + 11, histogram on that pad entry",
-  "predicted": "[InSlot(2)]",
-  "actual": "stage IN slot 02 [IN-02 table zero-check: h_tab (alpha - tau) = m + pad, fresh mu each]: sumcheck round 0: s(0) + s(1) != claim",
-  "verdict": "AS PREDICTED"
- },
- {
-  "control": "17c-ii",
-  "forgery": "D16 half-p alias reconstructed by its limbs, relations kept",
-  "predicted": "[OutLogUp]",
-  "actual": "stage OUT H (the LogUp sum claim is part of this opening): pcs zk: group 5: <v, c> != combined claim",
-  "verdict": "AS PREDICTED"
- },
- {
   "control": "16b",
   "forgery": "one changed word of an embedded row",
   "predicted": "[InLogUp]",
@@ -294,17 +329,17 @@
   "verdict": "AS PREDICTED"
  },
  {
-  "control": "11b",
-  "forgery": "wrong output token: A_out tok and endpoint another id, M unchanged",
-  "predicted": "[OutSlot(7), OutSlot(6)]",
-  "actual": "stage OUT slot 06 [OUT-06 VZC e(1-e) + head host term on keyed l* + helpers (+pad)]: sumcheck round 0: s(0) + s(1) != claim",
+  "control": "R3-4",
+  "forgery": "(#15, last row) a delta limb that is not a byte at an entry >= 126,976 (same delta value)",
+  "predicted": "[OutLogUp]",
+  "actual": "stage OUT H (the LogUp sum claim is part of this opening): pcs zk: group 5: <v, c> != combined claim",
   "verdict": "AS PREDICTED"
  },
  {
-  "control": "17e",
-  "forgery": "x int16 limbs off by one (xl1 + 1)",
-  "predicted": "[OutSlot(5)]",
-  "actual": "stage OUT slot 05 [OUT-05 DZC final-norm quotient + x limbs + helpers (+pad)]: sumcheck round 0: s(0) + s(1) != claim",
+  "control": "3",
+  "forgery": "e, delta honest; tok' = j + 1, M = l_j + 2^-v (A3-only)",
+  "predicted": "[OutSlot(7)]",
+  "actual": "stage OUT slot 07 [OUT-07 RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)]: sumcheck round 0: s(0) + s(1) != claim",
   "verdict": "AS PREDICTED"
  },
  {
@@ -315,6 +350,20 @@
   "verdict": "AS PREDICTED"
  },
  {
+  "control": "11b",
+  "forgery": "wrong output token: A_out tok and endpoint another id, M unchanged",
+  "predicted": "[OutSlot(7), OutSlot(6)]",
+  "actual": "stage OUT slot 06 [OUT-06 VZC e(1-e) + head host term on keyed l* + helpers (+pad)]: sumcheck round 0: s(0) + s(1) != claim",
+  "verdict": "AS PREDICTED"
+ },
+ {
+  "control": "16c2",
+  "forgery": "padded token id V, histogram unchanged",
+  "predicted": "[InLogUp]",
+  "actual": "stage IN H (the LogUp sum claim is part of this opening): pcs zk: group 3: <v, c> != combined claim",
+  "verdict": "AS PREDICTED"
+ },
+ {
   "control": "9",
   "forgery": "output plane seals another id (A_out honest)",
   "predicted": "[OutSlot(10)]",
@@ -322,8 +371,15 @@
   "verdict": "AS PREDICTED"
  },
  {
-  "control": "16c2",
-  "forgery": "padded token id V, histogram unchanged",
+  "control": "R3-5",
+  "forgery": "a nonzero delta limb on the padded entry V + 9 (last row)",
+  "predicted": "[OutSlot(6)]",
+  "actual": "stage OUT slot 06 [OUT-06 VZC e(1-e) + head host term on keyed l* + helpers (+pad)]: sumcheck round 0: s(0) + s(1) != claim",
+  "verdict": "AS PREDICTED"
+ },
+ {
+  "control": "16d",
+  "forgery": "histogram off by one",
   "predicted": "[InLogUp]",
   "actual": "stage IN H (the LogUp sum claim is part of this opening): pcs zk: group 3: <v, c> != combined claim",
   "verdict": "AS PREDICTED"
@@ -336,17 +392,17 @@
   "verdict": "AS PREDICTED"
  },
  {
-  "control": "16d",
-  "forgery": "histogram off by one",
-  "predicted": "[InLogUp]",
-  "actual": "stage IN H (the LogUp sum claim is part of this opening): pcs zk: group 3: <v, c> != combined claim",
-  "verdict": "AS PREDICTED"
- },
- {
   "control": "12a",
   "forgery": "non-maximal token, M = l_j, delta field values truncated to bytes",
   "predicted": "[OutSlot(6)]",
   "actual": "stage OUT slot 06 [OUT-06 VZC e(1-e) + head host term on keyed l* + helpers (+pad)]: sumcheck round 0: s(0) + s(1) != claim",
+  "verdict": "AS PREDICTED"
+ },
+ {
+  "control": "R3-6",
+  "forgery": "stage IN histogram: one count moved from a last-row id (127,500) to its first-row twin (tok, rows honest)",
+  "predicted": "[InLogUp]",
+  "actual": "stage IN H (the LogUp sum claim is part of this opening): pcs zk: group 3: <v, c> != combined claim",
   "verdict": "AS PREDICTED"
  },
  {
@@ -364,6 +420,13 @@
   "verdict": "AS PREDICTED"
  },
  {
+  "control": "R3-7",
+  "forgery": "(#16c, last row) padded token id V + 13, histogram on that pad entry",
+  "predicted": "[InSlot(2)]",
+  "actual": "stage IN slot 02 [IN-02 table zero-check: h_tab (alpha - tau) = m + pad, fresh mu each]: sumcheck round 0: s(0) + s(1) != claim",
+  "verdict": "AS PREDICTED"
+ },
+ {
   "control": "14b",
   "forgery": "fractional selector (1/2, 1/2)",
   "predicted": "[OutSlot(6)]",
@@ -375,6 +438,13 @@
   "forgery": "selector (2, -1)",
   "predicted": "[OutSlot(6), OutSlot(7)]",
   "actual": "stage OUT slot 06 [OUT-06 VZC e(1-e) + head host term on keyed l* + helpers (+pad)]: sumcheck round 0: s(0) + s(1) != claim",
+  "verdict": "AS PREDICTED"
+ },
+ {
+  "control": "R3-8",
+  "forgery": "(#5, Llama-3 BOS) position 0 = 127,999 (not BOS 128,000), otherwise consistent",
+  "predicted": "[InSlot(1)]",
+  "actual": "stage IN slot 01 [IN-01 query zero-check: LogUp + BOS (own mu_bos) + pad, fresh mu each]: sumcheck round 0: s(0) + s(1) != claim",
   "verdict": "AS PREDICTED"
  },
  {

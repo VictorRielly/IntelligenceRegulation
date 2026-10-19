@@ -1,0 +1,20 @@
+[zk60-guard 03:04:11] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 03:05:12] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 03:06:12] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 03:07:12] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 03:08:12] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 03:09:12] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 03:10:12] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 03:11:12] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 03:12:12] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 03:13:12] waiting for /tmp/zk-heavy.lock (541s)
+[zk60-guard 03:14:12] waiting for /tmp/zk-heavy.lock (601s)
+[zk60-guard 03:15:12] waiting for /tmp/zk-heavy.lock (661s)
+[zk60-guard 03:15:59] START r7-cli-build class=build need=2.5G cap=5G enforce=cgroup+watchdog waited=708s run=115a841f7cb6
+[zk60-guard 03:16:48] END r7-cli-build exit=0 child_wall=48s peak_rss=1.08G min_avail=10.54G
+[zk60-guard 03:16:48] START r7-r6-rung-statement class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=0490f8133cac
+[zk60-guard 03:16:48] END r7-r6-rung-statement exit=1 child_wall=0s peak_rss=0.00G min_avail=14.13G
+[zk60-guard 03:16:48] START r7-stale-dead-forged class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=0f86e46385dc
+[zk60-guard 03:16:48] END r7-stale-dead-forged exit=0 child_wall=0s peak_rss=0.00G min_avail=14.13G
+[zk60-guard 03:16:48] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 03:17:48] waiting for /tmp/zk-heavy.lock (60s)

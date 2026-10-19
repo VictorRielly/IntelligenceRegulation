@@ -1,0 +1,5 @@
+{
+  "status": "FAIL",
+  "reason": "Independent audit confused 33 affine inputs with 35 complete D A columns in padded formulas. Native measured census was correct; fix audit formula only.",
+  "assertion": "TinyLlama1.1B padded expected [147,69,109,59], actual [149,69,111,59]"
+}

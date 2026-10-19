@@ -1,0 +1,30 @@
+== A. e-column size |{0} u outputs| over the trained class (e_s -8..8, f_e 9..16, hd 64/128) ==
+   members 272; fit cap 32: 116; fit cap 64: 137; largest column 257; members with no 0 output: 111
+   8B b6/b7 (T32/T64/T128), hd 128 fE 9                           e_s 2 -> 19, e_s 3 -> 11, e_s 4 -> 6
+   8B pg_rot1_T32 (older), hd 128 fE 9                            e_s 1 -> 32, e_s 2 -> 19, e_s 4 -> 6
+   TinyLlama pg_rot1 / b4, hd 64 fE 9                             e_s 1 -> 24, e_s 2 -> 14, e_s 3 -> 8
+   B6 candidate (a) one-sided score class, layer 1, hd 128 fE 9   e_s 0 -> 55
+   hd 64: smallest e_s whose column fits 32 / 64 slots, at fE 9, 12, 16: 1 / 0, 2 / 0, 2 / 1
+   hd 128: smallest e_s whose column fits 32 / 64 slots, at fE 9, 12, 16: 1 / 0, 2 / 1, 2 / 1
+== B. Llama-3-8B T512, row 2^15, per block (independent count) ==
+   today: A rows 9185, H rows 11056, committed 663.3 M, U8 306.2 M, N 323026944, element-terms 495.5 M
+   DD cap 32, as counted in variants_r2 (no DD-slot sites)  rows  7281+ 8710 committed 524.0 M (-21.00%) U8 -28.2% terms -20.1%
+   DD cap 32, with the DD slot's 11 A + 7 H claim sites     rows  7303+ 8724 committed 525.2 M (-20.82%) U8 -28.2% terms -20.1%
+   DD cap 64 (needed if any layer has e_s 0 at hd 128)      rows  7463+ 8948 committed 537.8 M (-18.92%) U8 -26.4% terms -18.2%
+   per entry: score {'A': 5, 'U8': 4, 'H': 4, 'committed': 13} ; dictionary slot {'A': 10, 'U8': 11, 'H': 7, 'committed': 24}
+== C. LogUp per block, (N + 2303 [+ 4 T_DD])/|F|, |F| = p^2 ==
+   today 2^-99.73 | DD lookups only 2^-100.13 (+0.40 bits) | DD with committed table 2^-100.12 (+0.39 bits; tight T_DD 2^-100.13)
+   32-block union: today 2^-94.73, DD 2^-95.12
+   new refusal residual (alpha hits a HIDDEN table value): 2^-109.00 per block, 2^-104.00 per 32-block run
+== D. toy LogUp (p = 2^61 - 1, 20 trials each) ==
+   honest_holds                                     20/20
+   bad_P_all_slots_constrained_passes               0/20
+   bad_P_with_unconstrained_padding_slot_passes     20/20
+   cross_row_reuse_without_row_key_passes           20/20
+   cross_row_reuse_with_row_key_passes              0/20
+   sum_keyed_honest_holds                           20/20
+   sum_keyed_bad_P_passes                           0/20
+   bad_P_with_multiplicities_after_alpha_passes     20/20
+== E. honest completeness, 8B calibration (hd 128, fE 9, T 512, random int8 scores): 196608 entries bit-exact ==
+   most distinct (mask*E) values seen in one row, by e_s: e_s 1: 32, e_s 2: 19, e_s 3: 11, e_s 4: 6
+wrote dd_check.json

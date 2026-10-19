@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "python3",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-pair-stream-20261019/run.py"
+  ],
+  "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-pair-stream-20261019",
+  "returncode": 0,
+  "wall_seconds": 6.39533992199722,
+  "stdout": "run.log",
+  "caps": "one CPU, nice19,59s wall/CPU,512MiB AS"
+}

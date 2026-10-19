@@ -300,3 +300,35 @@ fresh-export guard); `b6_sink.py` (float layer-1 range diagnostic);
 `runs/b6_t512_estimate.json`; run directories `runs/llama3_8b_pg_rot1_b6l1*`;
 logs `logs/b5-b6_l1_*`, `logs/b6r-verify-*`, `logs/b6-sink*`; queue scripts
 `logs/b6r_serial.sh`, `logs/b5_run.sh`, hold check `logs/b6_hold2.py`.
+
+## Addendum (B7 / B8, 2026-10-18): per-layer SH_S exports and 8B token I/O
+
+The native R6 code accepted a per-layer `sh_s`, so the recommendation was
+built: same calibration and profile decisions as b6, layer 1 at SH_S 7, all
+other layers 6 (`profile_constants.sh_s` null; `per_layer_constants_differ`
+["exp_e_s", "sh_s", "silu_member"]). Every other layer's words are
+byte-identical to b6. Every export was verified bit-exact (32/32 layers,
+seq_ho00 and seq_ho09) by the independent reader, with 0 refused
+[MEASURED, shared box n=1].
+
+| export | profile.json sha256 | FineWeb top-1 / KL (b6) | licence top-1 / KL (b6) |
+|---|---|---|---|
+| `llama3_8b_pg_rot1_b7_T128` | 040eb5cf...6a6e | 0.673 / 0.496 (0.651 / 0.607) | 0.663 / 0.879 (0.633 / 0.968) |
+| `llama3_8b_pg_rot1_b7_T64` | 02261f3b...3f2a | 0.680 / 0.433 (0.630 / 0.581) | 0.656 / 0.819 (0.628 / 0.911) |
+| `llama3_8b_pg_rot1_b7_T32` | 209b07ac...013c | 0.661 / 0.463 | 0.656 / 0.700 |
+
+8B token I/O for rung R3 (`b8_token_io.py`): `export/llama3_8b_pg_rot1_b7_T128/token_io/`
+and `.../b7_T32/token_io/` hold:
+- the int16 embedding table, checked against every exported and held-out `x_in_L00`;
+- the per-row int8 folded head with 12-bit multipliers (D25 T4 as amended);
+- the final norm by the calibration rule: g0 127, tn 9, Ceps 78617, Cn 4234, refusal-free 512.
+
+F2 (integer head vs float head on the same integer stack output) [MEASURED]:
+
+| T | positions | agreement overall | at float top-2 margin >= 0.3 |
+|---|---|---|---|
+| 128 | 1920 | 99.06% | 100% (D25 T4 met) |
+| 32 | 480 | 99.79% | 100% (D25 T4 met) |
+
+Both runs: 0 final-norm refusals, 0 ties. Raw logits need 20 bits (class
+bound 26). The keyed delta needs 48 of the 56-bit window.

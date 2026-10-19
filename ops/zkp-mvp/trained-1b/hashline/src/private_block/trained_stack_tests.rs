@@ -492,3 +492,145 @@ fn review_r5_3_the_published_statement_is_bound_to_what_was_verified() {
     eprintln!("REVIEW r5_3 (R6): (b) race refused, (b') verified hashes published, (c) four forgeries refused and the verifier's rendering published, (e) five edits of an existing statement/ refused, (d) symlinked directory refused");
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// **NATIVE R7: REVIEW r6 NOTE N-r6-b — A `statement.writing-<pid>` LEFT BY
+/// A KILLED VERIFIER.** Before R7 it blocked every later verification of the
+/// run (the run directory's listing refused it as a foreign entry). Now:
+/// one whose pid is dead and which holds only the verifier's own files is
+/// removed and the run verifies and publishes; one whose pid is alive, a
+/// link, or one holding anything else is refused BY NAME with what to do,
+/// and left in place.
+#[test]
+fn review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name() {
+    let dir = base_dir("n-r6-b");
+    let vdir = write_stack_export(&dir, "stale", 2);
+    let vc = super::trained_block_tests::verifier_copy(&vdir);
+    let s = |v: &[&str]| -> Vec<String> { v.iter().map(|x| x.to_string()).collect() };
+    let (vd, vcd) = (vdir.display().to_string(), vc.display().to_string());
+    let out = dir.join("run");
+    let od = out.display().to_string();
+    assert_eq!(trained_stack_prove_command(&s(&["--export", &vd, "--seq", "s0", "--out", &od, "--witness-cache-gib", "0"])), 0, "stack-prove");
+    let stmt = std::fs::read_to_string(dir.join("run.unverified-statement").join("statement.json")).unwrap();
+    let id = stmt.split("\"trained_statement_identity\": \"").nth(1).unwrap().split('"').next().unwrap().to_string();
+    let verify = || trained_stack_verify_command(&s(&["--export", &vcd, "--artifact", &od, "--expect-statement", &id]));
+    // a pid that WAS a process and is not any more (a reaped child)
+    let dead = {
+        let mut c = std::process::Command::new("true").spawn().expect("spawn true");
+        let pid = c.id();
+        c.wait().unwrap();
+        pid
+    };
+    assert!(!Path::new("/proc").join(dead.to_string()).exists(), "the reaped child's pid {dead} is live again; rerun");
+    let live = std::process::id();
+
+    // (1) a LIVE pid: refused by name with the hint, nothing removed or published
+    let w_live = out.join(format!("statement.writing-{live}"));
+    std::fs::create_dir(&w_live).unwrap();
+    std::fs::write(w_live.join("statement.json"), b"{}").unwrap();
+    let e = clear_stale_writing_dirs(&out).expect_err("a live pid's writing directory was removed");
+    assert!(e.contains(&w_live.display().to_string()) && e.contains("is alive") && e.contains("N-r6-b"), "{e}");
+    assert_eq!(verify(), 1, "a run with a live verifier's writing directory verified");
+    assert!(w_live.join("statement.json").exists() && !out.join("statement").exists());
+    std::fs::remove_dir_all(&w_live).unwrap();
+    // (2) a dead pid but a foreign file inside: refused by name, left in place
+    let w_dead = out.join(format!("statement.writing-{dead}"));
+    std::fs::create_dir(&w_dead).unwrap();
+    std::fs::write(w_dead.join("notes.txt"), b"not ours").unwrap();
+    let e = clear_stale_writing_dirs(&out).expect_err("a writing directory with a foreign file was removed");
+    assert!(e.contains("notes.txt") && e.contains("N-r6-b"), "{e}");
+    assert!(w_dead.join("notes.txt").exists());
+    std::fs::remove_file(w_dead.join("notes.txt")).unwrap();
+    // (3) a link named like a writing directory: refused, never followed
+    std::fs::remove_dir(&w_dead).unwrap();
+    let target = dir.join("elsewhere");
+    std::fs::create_dir(&target).unwrap();
+    std::fs::write(target.join("statement.json"), b"{}").unwrap();
+    std::os::unix::fs::symlink(&target, &w_dead).unwrap();
+    let e = clear_stale_writing_dirs(&out).expect_err("a link was accepted as a writing directory");
+    assert!(e.contains("not a real directory") && e.contains("N-r6-b"), "{e}");
+    assert!(target.join("statement.json").exists() && std::fs::symlink_metadata(&w_dead).unwrap().file_type().is_symlink());
+    std::fs::remove_file(&w_dead).unwrap();
+    // (4) a name that is not `statement.writing-<digits>`: refused by name
+    let odd = out.join("statement.writing-12ab");
+    std::fs::create_dir(&odd).unwrap();
+    assert!(clear_stale_writing_dirs(&out).expect_err("an odd writing name was accepted").contains("not a statement directory this verifier writes"));
+    std::fs::remove_dir(&odd).unwrap();
+    // (5) THE CASE N-r6-b IS ABOUT: a killed verifier's half-written
+    //     directory (dead pid, only our files): removed, then the run
+    //     verifies and the verifier publishes its statement
+    std::fs::create_dir(&w_dead).unwrap();
+    std::fs::write(w_dead.join("expected.bin"), b"partial").unwrap();
+    std::fs::write(w_dead.join("statement.json"), b"{\"partial\": true").unwrap();
+    assert_eq!(verify(), 0, "a stale writing directory still blocks the verification");
+    assert!(!w_dead.exists(), "the stale writing directory was not removed");
+    assert!(out.join("statement").join("statement.json").exists(), "the verified statement was not published");
+    // and the published run re-verifies (no writing directory remains)
+    assert_eq!(verify(), 0, "the published run no longer verifies");
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// **NATIVE R7: PRIVACY REVIEW ROUND 2, Q-2 — `prover_reported.backend` IS A
+/// BUILD CONSTANT.** In R6 it was any printable string of up to 256
+/// characters, republished by the verifier: a free published field of the
+/// class C-R4 closed for the context label. Now the prover writes and the
+/// verifier publishes only one of `BACKENDS` (the CPU build's name — byte
+/// for byte what R5b / R6 wrote — and the two `gpu-cuda` names), with 0
+/// declines on the CPU path. A 300-character backend and an unknown name
+/// are refused before publication; each real name is accepted.
+#[test]
+fn privacy_q2_the_published_backend_is_one_of_the_builds_names() {
+    // the check itself
+    for b in BACKENDS {
+        check_prover_reported(b, 0).unwrap_or_else(|e| panic!("{b}: {e}"));
+    }
+    assert_eq!(BACKEND_CPU_BUILD, "gpu: off (built without --features gpu-cuda)", "the CPU build's name moved: R5b / R6 statements would no longer verify");
+    assert_eq!(backend_of_this_process(), BACKEND_CPU_BUILD, "a CPU test build reports another backend");
+    let long = "x".repeat(300);
+    for bad in [long.as_str(), "gpu: off (request 42)", "", "GPU: OFF (BUILT WITHOUT --FEATURES GPU-CUDA)"] {
+        let e = check_prover_reported(bad, 0).expect_err("a free backend text was admitted");
+        assert!(e.contains("Q-2"), "{e}");
+        if !bad.is_empty() {
+            assert!(!e.contains(&bad[..bad.len().min(20)]), "the refusal echoes the prover's text: {e}");
+        }
+    }
+    assert!(check_prover_reported(BACKEND_CPU_BUILD, 1).is_err(), "declines on the CPU path were admitted");
+    assert!(check_prover_reported(BACKEND_CUDA, 3).is_ok());
+    assert!(check_prover_reported(BACKEND_CUDA, MAX_GPU_DECLINES + 1).is_err());
+
+    // end to end: the prover's unverified statement carries another backend
+    let dir = base_dir("q2");
+    let vdir = write_stack_export(&dir, "q2", 2);
+    let vc = super::trained_block_tests::verifier_copy(&vdir);
+    let s = |v: &[&str]| -> Vec<String> { v.iter().map(|x| x.to_string()).collect() };
+    let (vd, vcd) = (vdir.display().to_string(), vc.display().to_string());
+    let mut runs = 0;
+    let mut prove = |tag: &str| -> (PathBuf, PathBuf, String, String) {
+        runs += 1;
+        let out = dir.join(format!("run-{tag}-{runs}"));
+        assert_eq!(trained_stack_prove_command(&s(&["--export", &vd, "--seq", "s0", "--out", &out.display().to_string(), "--witness-cache-gib", "0"])), 0, "stack-prove");
+        let un = PathBuf::from(format!("{}.unverified-statement", out.display()));
+        let stmt = std::fs::read_to_string(un.join("statement.json")).unwrap();
+        let id = stmt.split("\"trained_statement_identity\": \"").nth(1).unwrap().split('"').next().unwrap().to_string();
+        (out, un, id, stmt)
+    };
+    let verify = |out: &Path, id: &str| trained_stack_verify_command(&s(&["--export", &vcd, "--artifact", &out.display().to_string(), "--expect-statement", id]));
+    let cpu = format!("\"backend\": \"{BACKEND_CPU_BUILD}\"");
+    // a 300-character backend and an unknown name: refused, nothing published
+    for bad in [long.clone(), "gpu: off (request 42)".to_string()] {
+        let (out, un, id, stmt) = prove("bad");
+        assert!(stmt.contains(&cpu), "{stmt}");
+        std::fs::write(un.join("statement.json"), stmt.replace(&cpu, &format!("\"backend\": \"{bad}\""))).unwrap();
+        assert_eq!(verify(&out, &id), 1, "a statement with backend of {} bytes was published", bad.len());
+        assert!(!out.join("statement").exists() && un.exists(), "a refused statement was published or removed");
+    }
+    // each real name: accepted and published under prover_reported
+    for good in BACKENDS {
+        let (out, un, id, stmt) = prove("good");
+        std::fs::write(un.join("statement.json"), stmt.replace(&cpu, &format!("\"backend\": \"{good}\""))).unwrap();
+        assert_eq!(verify(&out, &id), 0, "a statement with the real backend name `{good}` was refused");
+        let pubd = std::fs::read_to_string(out.join("statement").join("statement.json")).unwrap();
+        assert!(pubd.contains(&format!("\"prover_reported\": {{\"backend\": \"{good}\", \"gpu_declines\": 0,")), "{pubd}");
+        assert_eq!(verify(&out, &id), 0, "the published statement with `{good}` no longer re-checks");
+    }
+    let _ = std::fs::remove_dir_all(&dir);
+}

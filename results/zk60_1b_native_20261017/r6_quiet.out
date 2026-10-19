@@ -5,3 +5,10 @@ quiet at 00:12:46
 [zk60-guard 17:17:27] END r5b-stack-verify-llama3_8b_pg_rot1_T32 exit=0 child_wall=124s peak_rss=1.94G min_avail=11.96G
 stack-verify llama3_8b_pg_rot1_T32 exit 0
 shared box [{'label': 't16-r2-ladder', 'cls': 'gpu', 'start': '2026-10-18T00:11:49.335028Z', 'end': '2026-10-18T00:12:46Z'}]
+quiet at 05:10:19
+[zk60-guard 22:10:19] START r5b-stack-llama3_8b_pg_rot1_b6_T128 class=cpu need=7.5G cap=10.5G enforce=cgroup+watchdog waited=0s run=6ab6c0cb5708
+[zk60-guard 22:17:32] END r5b-stack-llama3_8b_pg_rot1_b6_T128 exit=0 child_wall=433s peak_rss=6.56G min_avail=5.44G
+[zk60-guard 22:17:32] START r5b-stack-verify-llama3_8b_pg_rot1_b6_T128 class=cpu need=3G cap=8G enforce=cgroup+watchdog waited=0s run=5c6f94284729
+[zk60-guard 22:19:56] END r5b-stack-verify-llama3_8b_pg_rot1_b6_T128 exit=0 child_wall=144s peak_rss=2.24G min_avail=9.93G
+stack-verify llama3_8b_pg_rot1_b6_T128 exit 0
+quiet box [] boundary ties: ['r5b-stack-verify-llama3_8b_pg_rot1_b6_T128']

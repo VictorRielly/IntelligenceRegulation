@@ -1,0 +1,52 @@
+{
+ "classifier_sha256": "0578430f50f03020db26cc7c27b66fcc8b501e602cfec7ad4c9f8ec612376992",
+ "control_families_not_fired_in_this_pass": {
+  "stage10_bilinear_group_factor": "GQ (bilinear group factor)",
+  "stage8_plane_index_and_terminals": "CT-1..CT-9 (terminal identity)"
+ },
+ "controls_requested": false,
+ "controls_requested_inferred_from_the_record": false,
+ "explained": {
+  "/ok": "(d) the record's top-level ok",
+  "/stage10_bilinear_group_factor/controls/ok": "(a) controls not requested in this pass",
+  "/stage8_plane_index_and_terminals/controls/ok": "(a) controls not requested in this pass"
+ },
+ "false_leaves": [
+  "/ok",
+  "/run_layer_source_pins/ok",
+  "/run_layer_source_pins/shared_files/ok",
+  "/stage10_bilinear_group_factor/controls/ok",
+  "/stage8_plane_index_and_terminals/controls/ok"
+ ],
+ "non_bool_leaves": [],
+ "ok": false,
+ "ok_is_unchanged": "this status never changes `ok`; ok = false stays ok = false",
+ "privacy_acceptance": false,
+ "privacy_property_established": false,
+ "record": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/v7/pincontrols/v7-pincontrols-treea-l1-PC-5.json",
+ "record_bundle": "tinyllama-trained-capture-dense-l1",
+ "record_driver_sha256": "b64799b32e8d5fc3a3fea0d67ab28e49bfc167439d96fd8d561d12ad644f3ce9",
+ "record_sha256": "b46a7f058400b3823efaebbb37980e0f83e3b3fc79d7671ff09ad0b42389be90",
+ "record_stages_run": [
+  "stage10_bilinear_group_factor",
+  "stage11_full_preimage",
+  "stage12_mask_and_cfs",
+  "stage13_joint_run_preimage",
+  "stage1_integrity",
+  "stage2_transcript_replay",
+  "stage3_per_commitment",
+  "stage4_the_boundary",
+  "stage5_zero_data_preimage",
+  "stage7_channels",
+  "stage8_plane_index_and_terminals",
+  "stage9_hash_layer"
+ ],
+ "stages_that_raised": [],
+ "status": "NOT-OK",
+ "unexplained": [
+  "/run_layer_source_pins/ok",
+  "/run_layer_source_pins/shared_files/ok"
+ ],
+ "what_ARMS_ONLY_means": "every figure of the arms this pass ran closed (recomputed here from the record), and the ONLY reason ok is false is that the pass was run without --controls",
+ "what_it_does_not_mean": "that those controls fired: they did not, in this pass.  An arm counts only where its controls fired on the same tools and shape in another record, which the ledger must cite"
+}

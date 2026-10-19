@@ -1,0 +1,6 @@
+[b8 05:10:27Z] start token_io build b7_T128
+[zk60-guard 22:10:27] START b8-tio-b7_T128 class=light need=4G cap=5G enforce=cgroup+watchdog waited=0s run=b9847e547eb8
+[zk60-guard 22:31:29] END b8-tio-b7_T128 exit=0 child_wall=1263s peak_rss=2.72G min_avail=5.44G
+[b8 05:31:29Z] start token_io reuse b7_T32
+[zk60-guard 22:31:30] START b8-tio-b7_T32 class=light need=3G cap=4G enforce=cgroup+watchdog waited=0s run=687a43c6a699
+[zk60-guard 22:32:08] END b8-tio-b7_T32 exit=0 child_wall=39s peak_rss=2.43G min_avail=11.90G

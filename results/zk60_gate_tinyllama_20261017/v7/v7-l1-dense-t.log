@@ -1,0 +1,8 @@
+[load          ]      0.4 s   peak RSS      90 MB   ok
+[replay        ]      0.2 s   peak RSS      90 MB   ok
+[terminals     ]     59.4 s   peak RSS     294 MB   ok
+[commitments   ]     17.5 s   peak RSS     294 MB   ok
+[boundary      ]      0.3 s   peak RSS     294 MB   ok
+[runcontrols   ]     20.3 s   peak RSS     575 MB   ok
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/v7/v7-l1-dense-t.json   total 98.1 s   peak RSS 575 MB   ok=True
+status: PASS   unexplained false leaves 0   -> /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/v7/v7-l1-dense-t.status.json

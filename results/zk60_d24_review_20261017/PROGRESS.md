@@ -775,7 +775,7 @@ No git. Heavy jobs through scripts/zk60_resource_guard.py.
   artefact — `$?` read after a command substitution; the .done files and
   guard JSON hold the real codes, 1 and 1.) The native lane's r6_stack.sh
   for b7 T128 is still live (its prove waits in the guard); not landed.
-- 04:2x UTC: R6_VERDICT.md written. VERDICT: R6 ACCEPTED on soundness.
+- 04:26 UTC: R6_VERDICT.md written. VERDICT: R6 ACCEPTED on soundness.
   r5_A CLOSED (writer attacks (b) (b') (c) (d) (d2) (e) (i) (k) all
   refused or correct; (c') and (f) by design); per-layer sh_s ACCEPTED
   (format, door on both sides, binding incl. the real b7 export, class-wide
@@ -786,3 +786,50 @@ No git. Heavy jobs through scripts/zk60_resource_guard.py.
   dir blocks verifies), N-r6-c (R5b statement/ needs re-layout), N-r6-d
   (queue.out artefact), N-r6-e (prover claims labelled). Round 6 closed;
   nothing of mine is running.
+- 2026-10-19 09:25 UTC: resumed on the coordinator's relay (weekly-limit
+  cut-off ~05:00 UTC 10-18; reboot 21:29 UTC 10-18). The native lane's b7
+  T128 stack landed (prove 2026-10-18T04:58:26Z with the R6 CLI c17abef1...,
+  471.7 s, 922,711,264 B; their verify and recheck exit 0). Its prove log
+  prints identity 97c4acda9da994c1... = my round-6 prediction. My binary
+  (46a949f6...) and my verifier copy (454 files, no seq_*, profile
+  040eb5cf... = the original's) intact after the reboot.
+- 09:25-09:28 UTC r6-8b-b7-stack-verify (guarded cpu 3/5, quiet box): my
+  CLI, fresh process, my verifier copy, pinned 97c4acda..., --controls:
+  verified, 32 blocks, 922,711,264 B (load 10.2 s, verify 30.6 s); 11
+  run-level controls refused, honest still verifies; "statement-checked
+  ... byte for byte this verifier's rendering of the verified run" (schema
+  /2, written by stack-verify, run sh_s 6, layer 1's own sh_s 7 the only
+  per-layer record); wall 128.5 s, max RSS 2.33 GB. Read only: the native
+  run dir and statement/ listing + hashes identical before and after
+  (r6/r6-8b-b7-before.txt / -after.txt). Appended to R6_VERDICT.md; the R6
+  verdict stands. Nothing of mine is running.
+
+## ROUND 7 (re-review of the native R7 tree, ops/zkp-mvp/trained-1b-review-r7/)
+
+- 10:00 UTC (2026-10-19): opened on the coordinator's relay. Read the
+  native ledger's Round 7 section. 10:01 UTC: copied r7/frozen-tree/ (219
+  files) to ops/zkp-mvp/trained-1b-review-r7/; .sha256 (219 entries) equals
+  r7/manifest_frozen.json; tree hash 36a8aed1... = FROZEN.txt.
+  r6-vs-r7.patch = 331 lines = the author's; two files: trained_block.rs,
+  trained_stack_tests.rs.
+- 10:01-10:03 UTC: read r6-vs-r7.patch (two files). trained_block.rs only
+  touches statement writing / publication: BACKENDS (3 build constants;
+  the CPU one = the R5b/R6 CPU value), backend_of_this_process (build +
+  gpu::enabled only), check_prover_reported (exact membership; declines 0
+  on the CPU path, <= 4096 with the device; refusal names the byte length,
+  not the text) in the block and stack provers before writing and in
+  ProverClaims::of_statement before any publication; and
+  clear_stale_writing_dirs (called after the pin and context, before the
+  run dir is listed): `statement.writing-<digits>` removed only if a real
+  dir, only the three names as regular files, /proc/<pid> absent; refused
+  by name otherwise. No proof, transcript, loader or relation code moves.
+  Published stack statements in the repo: schema /2 x3, all the CPU
+  constant (stay valid); schema /1 x31 (already refused since R6). Note:
+  J::i64's error echoes the prover's numeral for gpu_declines.
+- 10:04 UTC: scratch ops/zkp-mvp/trained-1b-review-r7-scratch/ (r7 copy +
+  review_r7_inner in trained_block.rs: r7_1 cleanup attacks incl. 400 race
+  runs, r7_2 allow-list attacks; write_stack_export pub(super)); CLI
+  fixtures: copies of my R6-published rung run with a stale dir of a dead
+  pid (4999999 > pid_max 4194304) holding forged contents (run-r6) and of
+  pid 1 (run-r6-live; the queue job labelled r7-r6-rung-statement is this
+  live-pid case). Launched r7/r7_queue.sh (detached, guarded).

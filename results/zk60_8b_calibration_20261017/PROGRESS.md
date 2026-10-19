@@ -415,3 +415,35 @@ Calibration data, not a proof, not a privacy claim.
   poll (7,672 s), `b8_queue.sh` (9,103 s) waiting for `b7_serial.done`.
   Nothing restarted. Gate's last pass `tl-r5b-l22-zero-f` live since 03:38;
   release at its end (light_queue.finished + no tl-r5b-l22-* live) or 05:30.
+- 04:38 UTC: hold #3 released by its condition (gate L22 chain finished;
+  `light_queue.finished` present, no tl-r5b-l22-* live). `b5-b7_T32` started
+  04:38:39 (layer 1 SH_S 7: iso cos 0.846, chain 0.804, 0 refused at L1).
+  Then: T32 verifier + format check -> `b7_serial.done` -> b8 token I/O
+  (T128 build, then T32 reuse). T64 verifier already ran (02:15).
+- (from the logs; session was cut off 10-18, box rebooted 21:29 UTC, resumed
+  2026-10-19 09:25) 05:07 UTC 10-18: b7_T32 DONE (1737 s, peak RSS 2.86 GiB):
+  `export/llama3_8b_pg_rot1_b7_T32`, profile.json sha256
+  209b07ac78baa3f3ebae0ca40cd1807c3d7098549818c50f6a15691906c0013c; other
+  layers' words identical to b6; held-out FineWeb 6 seqs top-1 0.661, ppl
+  16.99 -> 27.51, KL 0.463; licence 9 seqs 0.656, 12.44 -> 23.90, KL 0.700;
+  0 refused. Verifier 32/32 bit-exact on seq_ho00 / seq_ho09, 0 errors
+  (146 s, 1.58 GiB); format check ok (sh_s 7 at layer 1 only).
+- 05:31 UTC 10-18: `b8-tio-b7_T128` DONE (1263 s, peak RSS 2.72 GiB):
+  `export/llama3_8b_pg_rot1_b7_T128/token_io/` (8 files + SHA256SUMS).
+  Embedding table sha256 8b5a5fb1...; head rows f50ba1aa...; multipliers
+  9eafb7f4... (m_j in [859, 4096], 2304 distinct; 0 clipped, 0 -128).
+  Final norm g0 127, tn 9, Ceps 78617 (= profile), Cn 4234 (calibration
+  rule; calib xhat' max 5.159), refusal-free 512, window 32. Checks: table =
+  x_in_L00 of seq_ho00/seq_ho09 and the whole held-out chain (15 x 128);
+  final_norm == i_norm. F2 (1920 positions): 99.06% overall (1902/1920),
+  100% at float margin >= 0.3 (1576/1576, D25 T4 MET), 0 refusals, 0 ties,
+  max |raw logit| 640,767 (20 bits / class 26), scaled 30 bits, keyed delta
+  48 of 56 bits, strict; all 18 misses at float margin < 0.3.
+- 05:32 UTC 10-18: `b8-tio-b7_T32` DONE (39 s, 2.43 GiB): token_io/ with the
+  4 shared files hard-linked (same sha256s); F2 (480 positions): 99.79%
+  (479/480), 100% at margin >= 0.3 (371/371, MET), 0 refusals, 0 ties, raw
+  20 bits, keyed delta 48 of 56; the one miss at float margin 0.03-0.1.
+- 09:26 UTC 10-19: both SHA256SUMS re-verified after the reboot (16/16 files
+  match). Head manifest keys = the R2 manifest's (+ informational extras;
+  only R2's `seconds` absent). All markers present; nothing of mine running.
+  B7 + B8 COMPLETE.

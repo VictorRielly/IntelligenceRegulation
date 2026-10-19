@@ -90,3 +90,22 @@ when it matches the float head wherever the float top-2 margin is at least
 0.3 logits; the 99%-overall threshold is withdrawn). Victor: "100%
 reliability always is probably not necessary for most of the applications of
 this technology."
+
+## Information for Victor, 2026-10-19 09:31 UTC (no ruling needed) — the blinding-sampler bias at trained size
+
+D9 (accepted in September) allows a tiny bias in how the prover draws its
+masking randomness: it nudges the published view away from a perfectly
+data-independent one by at most the following [COUNTED, from the trained
+TinyLlama privacy draft's §4; the review recomputed them exactly]:
+
+| | statistical distance |
+|---|---|
+| one 22-block run | 2^-70.4 ≈ 6.6 × 10^-22 |
+| a thousand runs | 2^-60.4 ≈ 6.6 × 10^-19 |
+| a million runs | 2^-50.4 ≈ 6.6 × 10^-16 |
+| a billion runs | 2^-40.5 ≈ 6.6 × 10^-13 |
+
+In plain words: an observer comparing a billion published proofs gains at
+most about one part in a trillion of an edge in telling any hidden input from
+another. This is a privacy figure (what leaks), not the soundness figure of
+D27 (what can be forged).

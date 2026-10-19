@@ -719,3 +719,221 @@ Launched `tools/r3c_chain.sh` (detached): t16 (token_io + censuses) ->
 t17 / t18 (the generic 8B run again) -> s4 (the full suite). The t14 run's
 statement and cross-check are kept as `runs/r3-t14-generic-ho00-superseded/`
 (segments removed) and `runs/r3/crosscheck_result_t14.json`.
+- 04:29 **t16-r3c-built RESULT (exit 0): 83 passed, 0 failed, 6 ignored**
+  (token_io incl. the two new controls, every census incl. the R3 profile's
+  new text). The R1 / R2 floors are unchanged by the bound (93 / 97). **The
+  8B figure, with the R2-1 bound in the total [COUNTED]:** 137 openings,
+  column 2^-98.04, LogUp (R2-2 term included) 2^-99.44, PCS-field + sumcheck
+  bound 2^-105.88, **total 2^-97.58, floor 97 bits**. The chain continues:
+  t17 (generic 8B prove, the final text) -> t18 (fresh verify) -> s4.
+- 04:34 **t17-r3-prove RESULT (exit 0): THE GENERIC Llama-3-8B NEXT-TOKEN
+  PROOF ON THE FINAL TREE** (R3-C: the profile text with the R2-1 bound and
+  the R2-6 wording) [MEASURED, shared box, n=1]: next token **75883** =
+  the in-test reference (margin 38,566,990), receipt 471,285,072 B in 34
+  segments (= the counted lengths), **prove 182.0 s** (witness 17.6 s, block
+  reloads 15.8 s), digest pass 20.5 s, tables 0.5 s, total 219.5 s, **peak
+  RSS 3.40 GiB** (cgroup 6.5 incl. the export's page cache), parity at all
+  32 layers; the statement's parameter line now reads `whole-run-floor-97-
+  bits-137-openings-column-plus-logup-derived-plus-pcs-field-and-sumcheck-
+  bound` and `two-internal-boundaries`. Evidence `runs/r3/generic-ho00/`.
+- 04:34 **t18-r3-verify RESULT (exit 0): verifies in a FRESH process under
+  a 95-bit policy** in 44.6 s (block reloads 15.0 s; digest pass 18.8 s),
+  peak RSS 2.94 GiB; a one-bit change refused [MEASURED, shared box, n=1].
+- 04:36 cross-check of the re-proved run: `tools/crosscheck_r3.py` cannot
+  run at this minute because the DESIGN lane's R0 reference
+  (`results/zk60_token_io_design_20261017/r0/token_io_ref.py`, read-only
+  for this lane) is mid-edit (a syntax error at its line 45, the keyed
+  window formula); not mine to touch. The t17 run's `crosscheck.json` and
+  `generic_planted_rows.bin` are byte-identical to t14's (same seq, same
+  table definition, same token 75883), so the 04:24 cross-check result
+  (`runs/r3/crosscheck_result_t14.json`: 75883, ALL AGREE) applies to it
+  verbatim; the script is re-run when the reference file is whole again.
+- 10-18 04:47 **s4-suite RESULT (exit 0) on the R3-C tree: 29 targets, 716
+  passed, 0 failed, 35 ignored** (lib 571 / 35; every integration target
+  and doc-test ok: the frozen toy pins, archived receipts and slot-IR digests
+  unchanged). Against s3 (708 / 33): +8 run (R3 unit tests incl. the two
+  round-2 controls), +2 ignored (the R3 run pair). Guard 736 s, peak RSS 6.21
+  GiB (the suite now holds the shared 1.58 GB 8B tables for its census and
+  R3 tests). Final source `manifest_final_r3.sha256` (c6f2cba0... = R3-C).
+  Controls table regenerated from t16 (`logs/controls.md` / `.json`): **64
+  lines, 63 as predicted, 0 elsewhere, 1 N/A** (R1's 49 + R2-1..7 + R3-1..8).
+  The R0 reference file is whole again (it parses; edited by the design lane
+  at 04:34 UTC).
+- 10-18 ~04:50 usage limit; the box rebooted 10-18 21:29 (/tmp wiped,
+  nothing of this lane running or lost: every artifact is under results/).
+
+## 10-19 09:25 COORDINATOR: the trained Llama-3-8B next-token proof
+
+The calibration lane's trained 8B token-I/O artifacts are ready
+(`export/llama3_8b_pg_rot1_b7_T32/token_io/`: embedding 8b5a5fb1..., per-row
+head f50ba1aa..., multipliers 9eafb7f4... in [859, 4096], final norm g0 127
+/ tn 9 / Ceps 78,617 / **Cn 4,234 calibrated**; F2 met). Run the TRAINED 8B
+proof on the b7 T32 export: real tables, calibrated final norm, BOS 128000,
+cross-checked against the lane's integer and float heads, fresh verify at 95
+bits, the R3 controls, counted lengths.
+
+- 09:40 **BLOCKER FOUND AND ITS FIX PLANNED (no run yet):** the b7 export
+  names `sh_s` PER LAYER (`per_layer_constants_differ` includes `sh_s`;
+  layer 1 at 7, the other 31 at 6). This tree's loader (the R5 frozen base)
+  refuses it ("one calibration per run"). The native lane's R6 (frozen
+  2026-10-18 02:36, reviewed round r6 and ACCEPTED on soundness and the
+  per-layer sh_s) supports it: `LayerRecord::sh_s` (bound by the trained
+  identity only when present), `Shape::with_score_shift`, the run base =
+  the mode, and each stage proved at `RunStatement::stage_shape(k)`.
+  Plan: (1) REBASE this lane's tree onto the R6 frozen tree: R6 changed 18
+  files vs this tree's R5 base, this lane changed 7 and added 8; only 4 are
+  changed by both (`private_block.rs`, `run.rs`, `run_capture.rs`,
+  `s24_tests.rs`) -> 3-way merge of exactly those (base = R5 frozen),
+  R6's version of its other 14, this lane's version of its own; snapshot
+  of the R3-C sources kept in `snap-r3c/`. (2) The token run gets R6's
+  per-stage shapes: `TokenRunStatement::stage_shape(k)` from the trained
+  statement's layer records (validated through `with_score_shift`), each
+  block stage's layout, prover, verifier and witness at its stage shape,
+  and the stage line naming a layer's own score shift (so it enters the
+  schedule digest; runs without one are byte-unchanged). (3) Tests first: a
+  per-layer sh_s token run (rung-TC blocks, one stage at another score
+  shift) proves and verifies, a verifier at the run-wide shift for that
+  stage refuses; R1 / R2 / R3-generic statements byte-unchanged. (4) Then
+  the trained 8B run.
+- 09:29 **STAGE R3-D: REBASED ON THE NATIVE R6 TREE** (working copy =
+  `manifest_r3D.sha256`, 67327e11...): R6's version of its 14 own files
+  (incl. `r6_tests.rs`, `ladder8b_tests.rs`, the trained loader with
+  per-layer sh_s, `Shape::with_score_shift`, `LayerRecord::sh_s`); a 3-way
+  merge (base = the R5 frozen tree) of the 4 shared files: `private_block.rs`,
+  `run.rs`, `s24_tests.rs` clean, `run_capture.rs` with one conflict
+  resolved as the UNION of both pin lists (`OWN_SOURCE_FILES` [21] = R5's 16
+  + this lane's 4 token_io files + R6's `trained_block.rs`). Against the R6
+  frozen tree the working copy now differs in exactly this lane's 7 changed
+  and 8 added files. Merge products kept in `snap-merge/`, the R3-C
+  sources in `snap-r3c/`.
+- 09:29 per-stage score shifts in the token run (NATIVE R6 ported):
+  `TokenRunStatement::stage_shape(k)` from the trained statement's layer
+  records (each own sh_s validated through `with_score_shift`); block
+  stage k's layout, CS-1/CS-4 check, prover (`prove_core`), verifier
+  (`verify_core`) and witness (`TokenRunSource::witness(k, blk, sh)` now
+  hands the stage shape) at that shape; the stage line names a layer's
+  own shift (so the schedule digest binds it; runs without one are
+  byte-unchanged); `honest_pipeline_at` / `downstream_at` build each block
+  at its stage shape. New test `r3_a_layer_with_its_own_score_shift_is_
+  proved_at_its_stage_shape` (rung blocks, layer 1 at another shift: the
+  shift moves block 1's output; the run proves and verifies; controls R3-9
+  receipt under the run-wide statement -> Binding, R3-10 block 1 witnessed
+  at the run-wide shift under the per-layer statement (cheating prover) ->
+  Block). (Not failing-first in the strict sense: the API did not exist
+  before; its two controls are the refusals that must hold.)
+- 09:30 launched `tools/r3d_chain.sh` (detached): t19 (token_io + every
+  census + R6's r6_tests / trained_stack / trained_block / trained_statement)
+  -> if green: **t20 the TRAINED 8B prove** (b7 T32 export; trained tables
+  from `token_io/`; Cn 4,234 calibrated from `head_manifest.json`; need 4.5
+  / cap 6.5) -> t21 fresh verify at 95 bits -> s5 full suite.
+- 09:50 **t19-r3d-built RESULT (exit 0): 98 passed, 0 failed, 7 ignored** on
+  the rebased tree (token_io incl. the per-layer score-shift test, every
+  census, and R6's own r6_tests / trained_stack / trained_block /
+  trained_statement). The trained 8B prove (t20) is starting.
+- 10:05 **t20-r3-trained-prove RESULT (exit 0): THE TRAINED Llama-3-8B
+  NEXT-TOKEN PROOF** [MEASURED, shared box, n=1]. Export
+  `llama3_8b_pg_rot1_b7_T32` (32 trained blocks streamed one at a time,
+  layer 1 at its own score shift 7 per the export, the others at 6);
+  prompt seq ho00 (BOS 128,000); the calibration lane's TRAINED tables
+  (embedding 8b5a5fb1..., per-row int8 head f50ba1aa..., multipliers
+  9eafb7f4..., each SHA-256-checked by the streaming loader); final norm
+  g0 127 / tn 9 / Ceps 78,617 / **Cn 4,234 (calibrated)**; tier R1_MVP; the
+  R3 profile. B_in = the export's x_in_L00 (the trained embedding rows);
+  parity bit-exact at all 32 layers inside the proving pass. The output
+  owner's check returns **next token 11 = the in-test reference** (top-2
+  margin of the scaled logits 146,646,590; D 64,004). Receipt **471,285,072
+  B in 34 segments** (= the counted lengths). **Prove 191.7 s** (witness
+  17.3 s, block reloads 14.3 s; block stages 5.2-6.3 s each), digest pass
+  18.4 s, tables 1.8 s, total 230.5 s; **peak RSS 3.44 GiB** (cgroup 6.5 incl.
+  page cache; need 4.5 / cap 6.5). Whole run [COUNTED, with the R2-1 bound]:
+  floor 97 bits. Trained-statement identity 47f01943...; evidence
+  `runs/r3/trained-ho00/`. The fresh verify (t21) runs next in the chain;
+  the cross-check against the calibration lane's integer and float heads
+  (`tools/crosscheck_r3_trained.py`, the lane's own `final_norm`,
+  `int_logits`, `float_head` + R0's reference) is queued as a light job.
+- 10:07 **x3 cross-check RESULT (exit 0): ALL FOUR AGREE ON 11.** The
+  decommitted next token 11 = the calibration lane's INTEGER head (its own
+  `final_norm` at Cn 4,234 + `int_logits` + per-row multipliers) = R0's
+  reference (`final_norm` equal to the lane's, word for word; first
+  maximum) = the lane's FLOAT head (TOKEN_IO_SPEC float path on the same
+  row: s_out, inverse rotation, float32 RMSNorm with the checkpoint's norm
+  weight, the checkpoint's bf16 lm_head), float top-2 margin **4.40
+  logits** (well above D25 T4's 0.3); max |y| 61 (no D20 refusal at the
+  calibrated Cn). `runs/r3/crosscheck_trained_result.json`, log
+  `logs/x3-trained-crosscheck.*` (light guard).
+- 10:07 **t21-r3-trained-verify RESULT (exit 0): the trained 8B receipt
+  verifies in a FRESH process under a 95-bit policy** (every public input
+  from the export's public files and the trained table files, the blocks
+  streamed and digest-checked, no seq_* data): accepted in 43.4 s (block
+  reloads 14.0 s), digest pass 17.7 s, tables 1.6 s; a one-bit change
+  refused; peak RSS 2.96 GiB [MEASURED, shared box, n=1].
+- Evidence that layer 1 was proved at ITS OWN score shift (7): the witness
+  is built at the stage shape, and the proving pass checked every block's
+  output against the export's x_out_Lk bit for bit; the export computed
+  layer 1 with sh_s 7, so a witness at the run-wide 6 would have failed
+  parity at layer 1 (as control R3-10 shows a verifier refusing exactly
+  that case at slot 17).
+- s5 (the full suite on the rebased tree) is still running in the chain.
+
+## REPORT (10-19 10:10 UTC): TOKEN I/O R3, the trained Llama-3-8B next-token proof
+
+**What was proved.** One private run under one transcript: stage IN (the
+hidden prompt's 32 token ids -> the hidden embedded input through the
+public int16 embedding table, BOS 128,000 forced), the 32 trained
+Llama-3-8B blocks at T32 (the calibration lane's `llama3_8b_pg_rot1_b7_T32`
+export, layer 1 at its own score shift), stage OUT (the final RMSNorm with a
+uniform gain at the calibrated Cn 4,234, the raw-integer logits through the
+public per-row int8 head with 12-bit multipliers, the keyed greedy argmax
+over V = 128,256 padded to 2^17, numpy's first maximum), the hidden next
+token sealed in the output token endpoint. The output owner's check returns
+token 11; the calibration lane's integer head, R0's reference and the
+lane's float head all give 11 (float margin 4.40 logits).
+
+**Figures [MEASURED, shared box, n=1].** Prove 191.7 s (32 block stages
+5.2-6.3 s each; stage IN 0.47 s; stage OUT about 1 s; witness rebuilds
+17.3 s and block reloads 14.3 s inside it), digest pass 18.4 s, peak RSS
+3.44 GiB with ONE block resident (streaming); fresh-process verify 43.4 s
+(blocks reloaded 14.0 s), peak 2.96 GiB. Receipt 471,285,072 B in 34
+segments, each equal to its counted length (stage IN 1,415,192; 32 blocks
+x 14,547,080; stage OUT 4,363,320). [COUNTED] The derived whole-run figure
+of the statement, with the PCS-field and sumcheck terms bounded explicitly
+(review R2-1): column 2^-98.04, LogUp 2^-99.44 (stage IN's term per R2-2),
+bound 2^-105.88, total 2^-97.58, **floor 97 bits** (the verifier's policy
+was 95, D27's MVP level). The counted layout equals the design counter
+(stage IN A 41 / H 76 / M 12; stage OUT A 374 / H 302 / M 26; window 56
+bits, 7 limbs); the counter's stage-OUT receipt differs by B_out's opening
+and the A-group count (TF-6, for the design lane).
+
+**What carried it there (this lane, R3).** Block streaming (TokenBlocks:
+one block resident, CS-1/4/6 at each stage before it absorbs; 32 resident
+8B blocks would be 7.8 GB); parallel embedding and head folds (525 M
+weights each, equal to the serial forms); the R2-format table loader
+(chunked, SHA-256 streamed); the R3 profile string (chosen through the s25
+length census); the rebase onto the native R6 tree for the per-layer score
+shift, ported into the token run (per-stage shapes); the review round-2
+items R2-1..R2-6.
+
+**Controls.** 66 control lines across R1-R3, 65 refused where predicted,
+0 elsewhere, 1 N/A (the hidden-length rows): R1's 49, R2-1..R2-7 on two-row
+planes, R3-1..R3-8 on the LAST row of 32-row planes and pads above V plus
+the Llama-3 BOS, R3-9 / R3-10 for the per-layer score shift; the round-2
+controls (a refused stage-OUT witness emits zero segments; V = 2^17 admitted,
+2^17 + 1 refused); streaming CS-6 on both sides.
+
+**Earlier in this lane.** R1 (rung TC, V 300) and R2 (TinyLlama-1.1B, 22
+blocks: token 29914, 255 MB, 85 s) as reported 10-18; the generic 8B run of
+R3 (token 75883, the same counted receipt, 182 s) before the trained tables
+existed.
+
+**Not claimed.** No privacy figure (the G-1..G-7 rank / CFS gates on the
+new stages are owed; TR-6 is a listed exception); the public-row variant
+only (D26's hidden-length variant is the next rung); one sequence (ho00);
+a shared box, n = 1.
+- 10:16 **s5-suite RESULT (exit 0) on the rebased R3-D tree: 29 targets,
+  729 passed, 0 failed, 37 ignored** (lib 584 / 37; every integration target
+  and doc-test ok). Against the native R6 suite (r6-suite1: 700 / 0 / 31) the
+  difference is exactly this lane's 29 run tests and 6 env-gated ignored
+  ones (the R1, R2, R3 prove/verify pairs). Guard 567 s, peak RSS 6.18 GiB.
+  Final source `manifest_final_r3d.sha256` (= R3-D, 67327e11...). Controls
+  table regenerated from t19: **66 lines, 65 as predicted, 0 elsewhere, 1
+  N/A**. Nothing launched by this lane is pending.

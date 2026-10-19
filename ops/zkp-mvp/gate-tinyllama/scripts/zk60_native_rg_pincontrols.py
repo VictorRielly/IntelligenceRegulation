@@ -27,8 +27,9 @@ be ok with nothing suspended.
         three G-2 files at the digests read) -> ok (honest for that writer)
   PC-7  PC-6 without encode_buffer.rs        -> 5, 7 held, ok false
   PC-8  PC-6 with sumcheck/rounds.rs moved   -> 7, 8, 10 held, ok false
-  PC-9  a pre-G-2 writer pinning ONE G-2 file -> the other two refused
-        (the two sumcheck files: 7, 8, 10 held)
+  PC-9  [v7] a pre-G-2 writer (tree A's run_capture.rs digest) pinning ONE
+        G-2 file, the other two dropped -> the two refused (7, 8, 10 held);
+        holds on any bundle, whatever its own writer pinned
   PC-10 [v6] an R5b-writer pin set (G-2 + N-r4-d, every digest read) -> ok
   PC-11 [v6] PC-10 without src/gpu/mod.rs -> 3, 4, 5, 7, 9 held
 
@@ -62,6 +63,8 @@ G2 = sorted(SHARED_G2_PINS)
 R5_RUN = next(iter(R5["src/private_block/run.rs"]))
 R5_RC = next(iter(R5["src/private_block/run_capture.rs"]))
 UNREAD = "0" * 64
+# tree A's run_capture.rs (round 1's capture writer, which pins no G-2 file)
+TREE_A_RC = "c69e577621c4c2412a2819b4e0f2ae3c0a7613fb1db69c094d3f3e129cc876c9"
 
 
 def _set(pins, path, digest):
@@ -117,8 +120,17 @@ CONTROLS = [
      lambda p: (_r5_writer(p), _set(p, "../zkp-core/src/sumcheck/rounds.rs", UNREAD)),
      ("stage7_channels", "stage8_plane_index_and_terminals",
       "stage10_bilinear_group_factor"), False),
-    ("PC-9", "a pre-G-2 writer that pins ONE of the three G-2 files",
-     lambda p: _set(p, G2[0], SHARED_G2_PINS[G2[0]]["sha256"]),
+    # [v7, round 6] PC-9 is PC-9b: v6's construction only SET one G-2 pin and
+    # was a no-op on a bundle whose writer already pins all three (R5b), so
+    # it could not fire there (round 5). Now the writer's run_capture.rs pin
+    # is set to tree A's read digest (a pre-G-2 writer), one G-2 file is
+    # pinned at its read digest and the other two are DROPPED: on ANY
+    # bundle the two dropped sumcheck files are refused, stages 7, 8, 10 held.
+    ("PC-9", "a pre-G-2 writer (tree A's run_capture.rs digest) pinning ONE of "
+     "the three G-2 files, the other two dropped",
+     lambda p: (_set(p, "src/private_block/run_capture.rs", TREE_A_RC),
+                _set(p, G2[0], SHARED_G2_PINS[G2[0]]["sha256"]),
+                [_drop(p, f) for f in G2[1:]]),
      ("stage7_channels", "stage8_plane_index_and_terminals",
       "stage10_bilinear_group_factor"), False),
     # [v6, round 5] the R5b writer: honest, and without one N-r4-d pin

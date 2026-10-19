@@ -15,7 +15,7 @@ each finding to where it landed. The gate's own findings (P-2, P-9, P-10,
 P-11, P-20, P-21) are repaired in tools v5. P-1 belongs to the native lane
 (a new freeze, R5b), and P-12 is ported and passed. The review is one reader plus
 three helpers, not a ruling.
-**Revised in round 5 (2026-10-18, 00:07-05:xx UTC):** the gate was re-run on
+**Revised in round 5 (2026-10-18, 00:07-04:45 UTC):** the gate was re-run on
 bundles captured from the native lane's post-port freeze **R5b** (tree
 `44013397…`), which carries the CS rulings, the P-1 fix, C-R4, P-5, P-6,
 P-7 and the N-r4-d pins. Tools v6 read R5b's pins. The stage-47 check
@@ -789,18 +789,17 @@ register. None of this is a privacy acceptance.
 | P-20, a per-layer table control at L = 22 (round 4) | TL-4: 3 of 3 at the first pair of stages with different tables | `EV/v5/tl4-l22-dense.json` |
 | P-21, G-10 widened (round 4) | G10-5..G10-8; 8 of 8 at L = 1, 2, 22 | `EV/v5/g10-*.json` |
 | CS-2 / CS-5 (P-13) | Unnecessary at trained profiles on code facts (review's reading, adopted by the coordinator; for the security owner to confirm) | §3 step 4 |
-| **G-1 / G-8 as EVIDENCE on the post-port tree (round 5)** | R5b (CS-1, CS-3, CS-4, CS-6..CS-9, S38-F1(a), P-1, C-R4, P-5, P-6, P-7, the N-r4-d pins) captured at L = 1 (layer 0), 2 (layers 7-8) and 22 (all), dense and all-zero: parity bit-exact, 46 pins per bundle. Tools v6 read every changed pin (the failing-first probe: v5 refused run.rs / run_capture.rs and suspended every stage, while v5's own replay re-derived every challenge). On R5b: pass A PASS at L = 1, 2 (dense and zero) and L = 22 (zero); TL 18 / 18; G-10 8 / 8; export ok (L22 identity equal to the native CLI's); schema ok on all six; everything passes at L = 1, 2 with every control family firing (CT-4 and CH-6 included); L22 pass T with CT 9 / 9, GQ 13, M9-3 at L = 22 for the first time; L22 pass F dense [R5B-F-DENSE]; pass F zero [R5B-F-ZERO] | `EV/r5b/` (`l1/`, `l2/`, `l22/`, `probe_before_repin/`, `r5b-schema-six-bundles.json`), captures `~/zk60-artifacts/tinyllama-trained-r5b-capture-*`, tools `EV/gate-tinyllama.tools.frozen.v6.sha256` |
+| **G-1 / G-8 as EVIDENCE on the post-port tree (round 5)** | R5b (CS-1, CS-3, CS-4, CS-6..CS-9, S38-F1(a), P-1, C-R4, P-5, P-6, P-7, the N-r4-d pins) captured at L = 1 (layer 0), 2 (layers 7-8) and 22 (all), dense and all-zero: parity bit-exact, 46 pins per bundle. Tools v6 read every changed pin (the failing-first probe: v5 refused run.rs / run_capture.rs and suspended every stage, while v5's own replay re-derived every challenge). On R5b: pass A PASS at L = 1, 2 (dense and zero) and L = 22 (zero); TL 18 / 18; G-10 8 / 8; export ok (L22 identity equal to the native CLI's); schema ok on all six; everything passes at L = 1, 2 with every control family firing (CT-4 and CH-6 included); L22 pass T with CT 9 / 9, GQ 13, M9-3 at L = 22 for the first time; L22 pass F dense **PASS, ok true, 0 unexplained** (67 of 67 commitments 24,605,616 entries / 0 differing, mask 355,410 / 0, joint 24,961,026 / 0 with four couplings respected; P 6 / 6, M 6 / 6, C 6 / 6, CH 7 / 7 with CH-6 firing, M9-1 / 2; 4,113 s, 5.48 GiB); pass F all-zero **PASS, ok true, 0 unexplained** (67 of 67 commitments 24,631,921 / 0, mask 355,410 / 0, joint 24,987,331 / 0, four couplings respected; P 6 / 6, M 6 / 6, C 6 / 6, CH 7 / 7; 3,572 s, 5.52 GiB). At L = 22 every arm and every control family has now fired on BOTH inputs on the post-port tree; the only false item anywhere on R5b is G-4's M9-3 wording (pass T, L = 1 / 2 everything) | `EV/r5b/` (`l1/`, `l2/`, `l22/`, `probe_before_repin/`, `r5b-schema-six-bundles.json`), captures `~/zk60-artifacts/tinyllama-trained-r5b-capture-*`, tools `EV/gate-tinyllama.tools.frozen.v6.sha256` |
 | P-12 on R5b (round 5) | The stage-47 check re-run on R5b: block dense / zero and boundary B_0 PASS, same counts as on R5 | `EV/r5b/gr4-*.log` |
-| P-1, C-R4, P-5, P-6, P-7 code repairs (round 5) | In R5b [READ, `trained_block.rs` against R5]: sealing before the header, unverified statements kept apart until `stack-verify`, loud removal; an allow-listed label; `--seq-dir` and the verifier's `seq_*` refusal; count-free refusal texts; `backend` in `statement.json` | §3 step 4, §5, §6 |
+| P-1, C-R4, P-5, P-6, P-7 code repairs (round 5) | In R5b [READ, `trained_block.rs` against R5]: sealing before the header, unverified statements kept apart until `stack-verify`, loud removal; an allow-listed label; `--seq-dir` and the verifier's `seq_*` refusal; count-free refusal texts; `backend` in `statement.json`. **Independently REVIEWED** in D24 review round r5 (`results/zk60_d24_review_20261017/R5_VERDICT.md`: "H-1 (refuse before the run header) holds", "M-9 / D12b(1) holds for the honest prover", "C-R4, P-5, P-6 and P-7 are as described. I found no bypass"; one follow-up r5_A, the statement promotion not bound to what was verified) and r5_A **CLOSED** in round r6 (`R6_VERDICT.md`: the verifier now writes `<run>/statement/` itself from the bytes it verified; R6 accepted on soundness) | §3 step 4, §5, §6; the two verdicts |
 | N-r4-d pins (round 5) | Carried by every R5b bundle and read in tools v6 (required from the R5b writer; PC-10 / PC-11 fire) | §5a, `EV/r5b/l1/pincontrols/` |
 
 ### 10b. Still owed (ranked)
 
-1. **The owner's confirmation of the R5b repairs** (P-1, C-R4, P-5, P-6,
-   P-7). They are READ here, not reviewed; a re-review of the R5b CLI is
-   the native lane's / reviewer's.
-2. **An integrated tree and its pin set** (condition 7). R5b is a frozen
-   copy, not a commit [integrator + gate].
+1. *(Closed in round 6, §10a: the R5b repairs were independently reviewed
+   in D24 review r5 and the follow-up r5_A closed in r6.)*
+2. **An integrated tree and its pin set** (condition 7). R5b / R6 are
+   frozen copies, not commits [integrator + gate].
 3. **G-7:** NL-1's `nl_check.py` and the terminal-surjection computation at
    the trained slot-IR export [delegated, small].
 4. **GN-1 / GS-14:** the refusal census at the trained constants (P-13; the

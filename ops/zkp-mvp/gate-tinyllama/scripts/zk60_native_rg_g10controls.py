@@ -66,7 +66,14 @@ def _legacy_integrity(legacy_dir):
     path = os.path.join(legacy_dir, "zk60_native_rg_bundle.py")
     spec = importlib.util.spec_from_file_location("legacy_zk60_native_rg_bundle", path)
     mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
+    # [v7] the legacy module puts its own directory first on sys.path when it
+    # is executed; restore sys.path so that no later first-time import resolves
+    # to a frozen legacy copy.
+    saved_path = list(sys.path)
+    try:
+        spec.loader.exec_module(mod)
+    finally:
+        sys.path[:] = saved_path
     with open(path, "rb") as fh:
         digest = hashlib.sha256(fh.read()).hexdigest()
     return mod.integrity, digest

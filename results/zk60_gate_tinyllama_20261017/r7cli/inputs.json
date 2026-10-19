@@ -1,0 +1,12 @@
+{
+ "seq_dir": "/home/victor/zk60-artifacts/tinyllama-cli-r7-seq-ho00",
+ "seq_files": 45,
+ "seq_equal_to_export_seq_ho00": true,
+ "verifier_export": "/home/victor/zk60-artifacts/tinyllama-cli-r7-verifier-export",
+ "verifier_files": 312,
+ "verifier_equal_to_export_minus_seq": true,
+ "verifier_seq_entries": [],
+ "seq_list_sha256": "f803f6a5262fadca702bd85e0fe30c3f17fcc8d36812d43249a7d39cac01f275",
+ "verifier_list_sha256": "12c406e72d9c6630c068d1552855a8ce43a0b999bde1c337a75206b6f5bf212f",
+ "ok": true
+}

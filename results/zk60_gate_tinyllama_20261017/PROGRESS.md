@@ -1079,3 +1079,320 @@ P-6, P-7, the N-r4-d pins: SHARED 29, OWN 17; `r5b-suite2` green).
   M9-3 NAMED not-run (no terminal stage, as designed in v5); export ok
   with the identity equal; pins ok. Channels 10 / 3 / 5 / 10.
 - 04:23 UTC: zero-F running since 03:38 (in its full-preimage stage).
+- 03:38-04:38 UTC **L22 PASS F, ALL-ZERO, on R5b** (`r5b/l22/r5b-l22-zero-f.json`,
+  3,572 s, peak 5.52 GiB): **ok TRUE, status PASS, 0 unexplained.** Full
+  preimage 67 of 67, 24,631,921 / 0, 17,152 leaves, P 6 of 6; mask
+  355,410 / 0, M1..M6 fire; joint 24,987,331 / 0, couplings respected, 704
+  data-row pairs; C 6 of 6; CH 7 of 7; M9-1 / M9-2 fire, M9-3 named
+  not-run; export ok, identity equal; pins ok.
+- 04:38 UTC: `r5b/light_queue.done` = 0 (finished 04:37:59),
+  `r5b/heavy_queue.done` = 0; no `tl-` guard live; the v6 tools equal their
+  manifest (53 / 0 moved / 0 unlisted). ROUND 5 COMPLETE; no job of this
+  lane is running or queued.
+
+## Results, round 5: the post-port tree R5b (NOT a privacy acceptance)
+
+Tools v6 (pin-enforced; every R5b pin read). Shared box, n=1.
+
+| Step | L = 1 (layer 0) dense / zero | L = 2 (layers 7-8) dense / zero | L = 22 dense | L = 22 all-zero |
+|---|---|---|---|---|
+| 1. Proves and verifies, parity bit-exact (dense) | yes / yes | yes / yes | yes (1,441,792 words) | yes |
+| 2. Linear view per commitment | A 0, H 2, E 0, M 0 | + B0 0 (6/6); whole run joint 4 = 4 | 22 A 0, 22 H 2, 21 B 0, 2 E 0; joint 44 = 44 (pass T) | the same (pass A) |
+| 3. Blinding reproduced | 1,134,038 / 0; mask 16,155 / 0 (dense everything) | 2,242,634 / 2,242,296, 0; mask 32,310 / 0 | 24,605,616 / 0; mask 355,410 / 0 | 24,631,921 / 0; mask 355,410 / 0 |
+| 4. Joint assignment | 1,150,193 / 0 | 2,274,944 / 2,274,606, 0 | 24,961,026 / 0, ok TRUE | 24,987,331 / 0, ok TRUE |
+| 5. Hash layer and challenges | 4,511 challenges; 1,280 columns | 9,002; 2,304 | 98,822; 22,784 columns, 162.2 MB | the same |
+| Terminal identity, trained constants | 23 / 23 | 46 / 46 | 506 / 506 (pass T) | 506 / 506 |
+| Controls | CT 9/9, GQ, X, P 6/6, M 6/6, C (1-4 n/a by name, 5-6), CH 7/7, M9-1/2/3, TL 15/15, G-10 8/8 | the same at L2 (C 6/6), TL 18/18 (TL-4 3/3) | pass T: CT 9/9, GQ 13, C 6/6, CH 7/7, M9-1/2/3; pass F: P 6/6, M 6/6, C 6/6, CH 7/7, M9-1/2; TL-4 3/3; G-10 8/8 | pass F: P, M, C, CH, M9-1/2 all fire |
+| Export cross-check (E1-E4) | ok | ok | ok, identity = native CLI's | ok, identity equal |
+| Schema / arrays coverage | ok | ok | ok | ok |
+| Status | pass A PASS; everything NOT-OK by G-4 only | the same | pass T NOT-OK by G-4 only; pass F PASS | pass A PASS; pass F PASS |
+| Stage-47 (P-12) | block dense / zero PASS; boundary B_0 PASS | | | |
+
+Costs on R5b [MEASURED]: captures L1 4-5 s, L2 8 s, L22 92-96 s (0.9-2.4
+GiB); pass A L22 690 s / 5.52 GiB; pass T L22 2,054 s / 5.46 GiB; pass F
+L22 4,113 / 3,572 s, 5.48 / 5.52 GiB; everything L1 ~15 min, L2 1,099 s /
+0.76 GiB; stage-47 tests 7 s / 7 s / 0.8 s.
+
+Prediction misses this round (mine): PC-9's construction could not fire on
+an R5b bundle (control-design miss; corrected construction PC-9b fires).
+Every gate figure equals the tree-A figure for the same layers and input,
+as predicted.
+
+## Round 6 (coordinator, 2026-10-18 ~04:40 UTC): G-7, the census, tools v7, P-18
+
+Closed for me by the coordinator: the R5b repairs (P-1, C-R4, P-5, P-6,
+P-7) were independently REVIEWED in D24 review r5 (`results/zk60_d24_review_
+20261017/R5_VERDICT.md`: H-1 holds, M-9 / D12b(1) holds, no bypass; one
+follow-up r5_A) and r5_A CLOSED in r6 (`R6_VERDICT.md`; R6 accepted on
+soundness). Cited in the draft's §10a; §10b item 1 closed (04:42 UTC).
+Remaining, this lane: (1) G-7 NL-1 + terminal surjection at the trained
+export; (2) GN-1 / GS-14 census at the trained constants, real weights;
+(3) tools v7 = G-4 fix + PC-9b, frozen, verdicts unchanged; (4) P-18 one
+capture through the R6 CLI's own path at L = 2, gated.
+
+- 04:41 UTC: v6 kept byte-exact in `gate-tinyllama/frozen_v6/` (53 files).
+- 04:43 UTC: three sub-lanes DELEGATED, each with its own write set and
+  ledger: G-7 (`ops/zkp-mvp/trained-1b-gate-g7/`, `EV/g7/`), the census
+  (`.../trained-1b-gate-census/`, `EV/census/`), P-18 (`.../trained-1b-
+  gate-r6/`, `EV/r6/`, new `~/zk60-artifacts/tinyllama-cli-*` dirs). R6
+  pins differ from R5b in run.rs, protocol.rs, shape.rs, private_block.rs,
+  trained_block.rs, trained_statement.rs (read for the CLI bundle later).
+- 04:43 UTC: tools v7 edits begun (G-4: M9-3's criterion accepts exactly
+  the slots `pad::indicator_slots` lists per domain, R5b `pad.rs:225-238`;
+  PC-9b folded into the pin controls).
+
+### Round 6 resume (2026-10-19 09:27 UTC)
+
+The weekly usage limit cut this lane and its three helpers off at ~04:50 UTC
+on 10-18. The box rebooted at 21:29 UTC on 10-18 and /tmp was wiped; the R5b
+bundles under `~/zk60-artifacts/` survived. None of the three helpers had
+created its write set, so they wrote nothing. I resumed all three in place
+(their context kept): G-7, the census and P-18. The heavy lock is held by the
+review lane (r6-8b-b7-stack-verify, cpu, 3 GiB), so heavy work queues behind it.
+Tools v7 (G-4 fix and PC-9b) is still in the working copy, not frozen. The
+G4Criterion unit tests raise ImportError: the G10 legacy loader execs the v3
+bundle module, which puts `frozen_v3/scripts` first on sys.path. Fixing that
+now.
+
+### Round 6, review round 2 (coordinator, 2026-10-19 ~09:31 UTC)
+
+Privacy review round 2 is in
+(`results/zk60_privacy_review_trained_t32_20261017/REVIEW2.md`): both round-1
+blockers are closed and nothing leaks. Items Q-1..Q-8 remain. The coordinator
+set the order:
+- (A), now: G-7; Q-6 (the stage-47 replay extended to L = 2); tools v7, with
+  G-4 TIGHTENED per Q-8 (M9-3 must fire on the draw count its criterion
+  expects, not loosened to "any refusal by name") and PC-9b folded in.
+- (B), after the native R7 freeze is announced: v7 reads R7's pins; re-capture
+  and re-gate on R7 (L = 1 and 2 in full, L22 pass A); P-18 with the R7 CLI.
+- (C), after (B): one consolidation pass on the draft (Q-2..Q-5, Q-7, P-1's
+  text, CS-3 admissibility, census moved to completeness).
+
+- 09:30 UTC: G4Criterion ImportError fixed at its cause.
+  `_legacy_integrity` now restores sys.path after it execs the legacy v3
+  module, which inserts `frozen_v3/scripts` first. 51 tests OK.
+- 09:31 UTC: first v7 G-4 probe, `v7/probe/l1-dense-t` (R5b L1 dense, stages
+  load, replay, terminals, commitments, boundary, runcontrols, with controls;
+  74 s, 0.56 GiB [MEASURED]). For every unpadded domain, the slots that stop
+  are EXACTLY `pad::indicator_slots`: D {0,1,14}, Kv {16}, Q {15}, S {4,17},
+  T {2}. The refusal is always the public-table count.
+- 09:32 UTC: **P-18 HELD** (R7, not R6). The helper stopped cleanly. It copied
+  and verified R6 into `ops/zkp-mvp/trained-1b-gate-r6/` and applied the
+  capture patch; it did not build and ran nothing. The commands and the R6 pin
+  table are in `EV/r6/PROGRESS.md` and `r6-source-pins.v1.json`.
+- 09:35 UTC: **census STOPPED** (Q-7: a completeness item now). The helper
+  read the refusal sites and recorded a census design in `EV/census/PROGRESS.md`;
+  it ran nothing. Its copy `trained-1b-gate-census/` is unedited R5b.
+- 09:36 UTC: **M9-3 rewritten as two arms** (G-4, tightened per Q-8):
+  - (i) **indicator arm**: the old perturbation, `PadGeometry.pads` forced true
+    everywhere. The host slot must refuse by an indicator mechanism, matched
+    EXACTLY by regex (the public-table count or the definition-draw count,
+    recorded, with exactly the expected surplus of 1 table or 2 draws).
+    EXACTLY the slots `pad::indicator_slots` lists must stop.
+  - (ii) **draw-count arm**: only the host slot's `SlotCtx.pad_on` is forced
+    true and its support tables are untouched. The public-table count then
+    agrees, and the slot reaches the definition-draw count. It must refuse by
+    THAT mechanism, the port consuming 2 more draws than the capture declares,
+    and ONLY the host slot may stop. This is the refusal M9-3's criterion always
+    expected; before v7 no perturbation reached it.
+  - Any other refusal, by name or not, fails. 52 tests OK, with a test that a
+    refusal by name alone fails.
+- 09:37 UTC: probe 2, `v7/probe/l1-dense-t2`. M9-3 ok, 5 of 5 domains, both
+  arms. The draw-count arm refuses "consumes 48 definition draws ... and the
+  capture declares 46" (D, slot 14). The others: Kv 24/22, Q 28/26, S 32/30,
+  T 15/13. Only the host slot stops in each case. Partial pass status PASS.
+- 09:38 UTC: **Q-6 written** in the gate's R5b copy (`trained-1b-gate-r5b/`,
+  `gr4_trained_tests.rs`):
+  - `rebuild` now wraps `rebuild_on(&mut Draws, ...)`; the body is unchanged
+    apart from taking the stream.
+  - New `replay_trained_run_l2(dense)` with two tests (dense ho00 and
+    all-zero). A two-block trained run (layers 0 | 1) is proved stage by stage
+    on ONE seeded stream: B_0 first, then stage 0, then stage 1, with the B_0
+    opening and the output endpoint. This is replicated from `run.rs:895-981`
+    and verified by the production `run::verify_run` from both segments' bytes.
+  - All seven roots (B_0, A_0, M_0, H_0, A_1, M_1, H_1) are rebuilt from one
+    replay stream, with the end probe and counted bytes.
+  - Non-vacuity: a stream reset before stage 1 must move A_1; B_0 drawn after
+    stage 0's block must move B_0 and A_0; m1 / m2 / alpha on stage 1 must move
+    A_1 / H_1 / M_1.
+  - PREDICTION [MODEL]: the counted bytes are 1,007,616 (B_0) + 2 x 38,455,872
+    (one stage at L = 1) = 77,919,360, if a stage's draws do not depend on its
+    IO sites. Whole test about 15 s, below 1.5 GiB.
+  - Queue `q6/q6_queue.sh` launched detached (marker `q6/q6_queue.done`): a
+    guarded build (build class, queued behind r7-suite on the heavy lock), then
+    the five gr4 tests as light jobs (the 2 new and the 3 existing).
+- 09:39:53 UTC **TOOLS v7 FROZEN**:
+  - manifest `gate-tinyllama.tools.frozen.v7.sha256` (53 files, b33a2f55...);
+  - `gate-tinyllama-vs-original.v7.patch` (345ec7d3...);
+  - `gate-tinyllama-v6-to-v7.{scripts,tests}.patch` (624e6a61..., 647c772e...);
+  - snapshot `gate-tinyllama/frozen_v7/`.
+
+  It changes three scripts (m125controls M9-3, pincontrols PC-9 = PC-9b,
+  g10controls sys.path) and one test file.
+- 09:41 UTC: **verdicts unchanged under v7**
+  (`v7/verdicts_unchanged_v7.py` -> `v7/verdicts-unchanged-v7.json`).
+  - 56 staged records (tree A, R5 port, R5b, the pin controls and the
+    equivalence runs): ok unchanged 56 of 56, status (frozen v6 vs v7)
+    unchanged 56 of 56 (21 PASS, 33 NOT-OK, 2 ARMS-ONLY).
+  - Pin-control records take their pin verdict from the record (a mutated
+    manifest). My first version recomputed it from the on-disk manifest and
+    flipped PC-4 / PC-5; that was a script error, not a tool change.
+- 09:42 UTC: `v7/v7_queue.sh` launched detached (marker `v7/v7_queue.done`).
+  It runs:
+  - the toolcheck and the unit tests;
+  - v7 passes over terminals and runcontrols on R5b L1 dense, L2 dense and
+    L2 zero, each leaf-diffed (`v7/leafdiff_v7.py`) against the v6 everything
+    record of the same bundle. Only M9-3's subtree, its three ok aggregates
+    and volatile leaves may differ. On the probe: 3,328 shared leaves, 28
+    differ (M9-3 2, aggregates 3, volatile 23, other 0);
+  - the v7 pin controls on R5b L1 and tree-A L1;
+  - G-10 on R5b L1.
+- FINDING G-11 (mine, provenance; for the next freeze): the driver's TOOLS
+  list, i.e. a record's `tool_sha256`, omits `zk60_native_rg_m125controls.py`.
+  That file holds M9-1..M9-3, the very code v7 changed. It also omits
+  `m125table`, `witcmp`, three `jv_*` modules and three pin/gate helpers. The
+  v7 records are tied to the code through the queue's manifest toolcheck
+  (53 of 53). The list will be fixed with the R7 pins.
+- 09:56 UTC **v7 evidence queue done** (`v7/v7_queue.done` = 0; toolcheck
+  53 of 53 against the v7 manifest; unit tests 52 OK):
+  - **v7 passes T-subset, R5b** (load, replay, terminals, commitments,
+    boundary, runcontrols, with controls, CT-4 / CH-6 / cross bundles):
+    - L1 dense PASS (98 s, 0.56 GiB);
+    - L2 dense PASS (159 s, 0.62 GiB);
+    - L2 zero PASS (142 s, 0.62 GiB) [MEASURED, shared box, n=1].
+
+    M9-3 ok on all three, 5 of 5 domains, both arms. Indicator arm: the
+    public-table count every time, with exactly the indicator slots. Draw-count
+    arm: D 48/46, Kv 24/22, Q 28/26, S 32/30, T 15/13, with only the host
+    slot stopping, identical at L1 and L2.
+  - **Leaf diff against the v6 everything records** (`v7/leafdiff-v7-*.json`):
+    - L1 dense: 3,328 shared leaves, 33 differ;
+    - L2 dense: 4,565 shared, 34 differ;
+    - L2 zero: 4,565 shared, 30 differ.
+
+    The differing leaves are exactly M9-3 (2), its ok aggregates (3) and
+    volatile ones (time, memory, tool digests, stage list). **Other: 0 on
+    all three.** So re-running with v7 moves exactly G-4: NOT-OK -> PASS, and
+    no other leaf moves.
+  - **Pin controls v7**: R5b L1 dense and tree-A L1 dense, 12 of 12 exact
+    each. PC-9 (= PC-9b) now FIRES on R5b: pins refused, stages 7 / 8 / 10
+    held, NOT-OK (v6's PC-9 was a no-op there).
+  - **G-10 v7**, R5b L1: ok, 8 of 8 fire, the same per control as v6.
+
+### Round 6 part (B): native R7 (coordinator, ~10:00 UTC)
+
+R7 is frozen: `results/zk60_1b_native_20261017/r7/frozen-tree/`,
+2026-10-19T09:58:29Z, tree 36a8aed1..., CPU CLI e51cc6a4. R7 = R6 + N-r6-b +
+Q-2. Part (A) is not finished: Q-6 is queued on the heavy lock and G-7 is
+running. The (B) work that does not wait on them was started in parallel.
+
+- 10:01 UTC: `ops/zkp-mvp/trained-1b-gate-r7/` = rsync of the R7 frozen tree,
+  verified: 219 of 219 files, no extra file, tree digest reproduced with the
+  native formula (`r7/verify_copy.before_patch.json`).
+- 10:02 UTC: patched it with the R5b gate patch
+  (`r5b/trained-1b-gate-r5b-vs-frozen-r5b.v1.patch`, applied clean with -p7)
+  and installed round 6's gr4 module (with the Q-6 L = 2 replay). One R7 edit:
+  every proved stage uses `st.stage_shape(k)`, as NATIVE R6's `prove_run_with`
+  does.
+  - `r7/record_sources.py v1`: patch 84,478 B (932ee125...), 3 files;
+    sources 220 files (7d6f1abe...).
+  - Pins (`r7-source-pins.v1.json`): 46. The copy differs from R7 only in
+    run_capture.rs, which is 31557a27, the R5b gate copy's digest. R7
+    differs from R5b in exactly six files: run.rs, protocol.rs, shape.rs,
+    private_block.rs, trained_statement.rs and trained_block.rs.
+- 10:03 UTC: `r7/heavy_queue.sh` launched detached (marker
+  `r7/heavy_queue.done`): build, the five gr4 tests (2 L = 2 + 3 existing),
+  and six captures (`tinyllama-trained-r7-capture-{dense,zero}-{l1,l2,l22}`;
+  L2 = layers 7-8, as on R5b).
+- 10:03 UTC: P-18 resumed on R7, in its own copy
+  `ops/zkp-mvp/trained-1b-gate-r7-cli/` with `EV/r7cli/`, CLI e51cc6a4. It
+  reports the bundle, the statement hex, the stack-verify outcome and the
+  sources.
+- 10:05 UTC: **the R7 readings** (`zk60_native_rg_tinyllama_r7_pins.py`),
+  each diff READ against R5b:
+  - run.rs ad92be08: +54 / -6, 9 hunks: `stage_sh_s`, `stage_shape(k)`,
+    the schedule-line clause only when it differs, and the verifier-side
+    hashing of verified bytes;
+  - protocol.rs 85ca8931: the CS-3 loops moved into helpers with identical
+    bodies, plus `check_lookup_misses`;
+  - shape.rs 7b0c9742: two doc comments and `with_score_shift`;
+  - report-only: private_block.rs (a cfg(test) mod), trained_statement.rs
+    (`sh_s: Option`, encoded only when Some) and trained_block.rs (R6 / R7
+    CLI: schema /2 `prover_reported`, Q-2 allow-list, r5_A, CS-3 in
+    sealing, N-r6-b).
+
+  The fact every reading uses: the export's
+  `per_layer_constants_differ = [exp_e_s, silu_member]` and `sh_s` = 6
+  run-wide, so every `LayerRecord::sh_s` is None and `stage_shape(k)` is the
+  run shape [READ]. The R5b base digests were verified (c192fd33, 7cf6e486,
+  6c262f59, e1847bf0, ecd7459e, 46d4c5d4). The readings are merged into
+  runpins (RUN_LAYER_PINS, READINGS), terminals (ALSO_ACCEPTED,
+  PINNED_IF_PRESENT) and mask (MASK_LAYER_PINS).
+- 10:06 UTC: G-11 fixed. TOOLS gains m125controls, the three jv_* modules,
+  manifest_pins, privacy_gate, profile_pins and r7_pins: every module the
+  driver and its control families import.
+- 10:06:35 UTC **TOOLS v8 FROZEN** (v8 = v7 + R7 readings + G-11):
+  - manifest `gate-tinyllama.tools.frozen.v8.sha256` (54 files, e047fb59...);
+  - `gate-tinyllama-vs-original.v8.patch` (62e003f2...);
+  - `gate-tinyllama-v7-to-v8.{scripts,tests}.patch` (78b45099..., b7066aeb...);
+  - snapshot `frozen_v8/`;
+  - 54 tests OK, with new R7Pins tests: every R7 digest is the copy's file,
+    the writer and shared set are R5b's, an R7 pin set is accepted and a
+    moved run.rs is refused.
+
+  Verdicts of all 56 staged records unchanged under v8
+  (`v8/verdicts-unchanged-v8.json`).
+- 10:07 UTC: `r7/light_queue.sh` launched detached (marker
+  `r7/light_queue.done`). It waits for the bundles, then runs:
+  - the FAILING-FIRST probe (frozen v7 on R7 L2 dense; it must refuse the
+    moved pins);
+  - predictions;
+  - pass A, L1 / L2 x dense / zero;
+  - TL controls, witcmp L2, G-10 at L1 / L2 / L22, pin controls at L1;
+  - everything, L1 / L2 x dense / zero;
+  - schema over the six bundles;
+  - L22 pass A, zero and dense.
+- The heavy lock is contended by other lanes (r7-check, then tio-s5-suite).
+  My Q-6 build (queued since 09:38) and the R7 build wait behind them.
+- 10:07 UTC **G-7 DONE** (sub-lane; `EV/g7/PROGRESS.md`; it ran on the R5b
+  copy `trained-1b-gate-g7/` with a test-only patch, no pinned file changed;
+  all its .done markers present):
+  - **Trained slot-IR export** (through the trained door, all 22 layers),
+    `g7/export/slot_ir_tl_t32_trained_pg_rot1.json` (a63b3f35...). The IR
+    equals the `define` closure at 4,048 random points (22 layers x 23
+    slots, each layer's real statement) [MEASURED].
+  - **The duplicate, as it really appears**: 4 identical lookup pairs (F
+    RGL 0/1, Q RQL 2/3, Kv RKL 2/3 and RVL 6/7; the frozen twin at
+    sh = 7 has 0). Each pair lands in ONE helper, whose relation has two
+    identical denominators (`h d^2 - 2d`): H[19], H[26], H[28], H[39]. No
+    repeated table, no repeated terminal coordinate, and no two equal
+    published claim values in any capture. **The draft's "two H helper
+    planes with identical values and two equal terminals" does not occur.**
+  - **NL-1** (`nl_check.py` S0-S5 at the trained export): PASS.
+    - S1: 23 of 23 premise, public factor and degree.
+    - Budgets: L 979, dim C 956, kernel 23, worst 97 + 256 <= 512.
+    - S3: 230 of 230. S4: onto at 23 of 23; slots 15 / 16 / 18 at
+      m = 15 / 13 / 17. S5: 12 of 12.
+    - `nlc_check` K1 / K5 / K2 agree with the captures (A 120, H 49 + the
+      LogUp sum claim).
+  - **Terminal surjection** at the trained width on 7 R5b stage files:
+    - A: 36 of 36 groups surjective, disclosed 0.
+    - H: 8 of 9 groups; group 8 (the LogUp sum claim) discloses 2. The
+      joint component {7, 8} on the zero-sum rows gives 16,388 / 16,382 /
+      16,384 / 2, the SAME structure as the review of record's toy figures
+      (1,028 / 1,022 / 1,024 / 2): the declared zero-sum relation, not a new
+      disclosure.
+    - Endpoints and boundary: surjective, disclosed 0.
+
+    Controls C1 / C2 fire; C3 / C6 / C8 do not, as in the review of record.
+    G-7 probes: D1 (a duplicate with its own pair) disclosed 0; D2 (two
+    identical coordinates) is 2 short of "onto" but discloses 0; D3 (a
+    non-exact repeat) discloses 2, so the probe can catch it.
+  - Costs [MEASURED, shared box, n=1]: build 2 min 44 s at 1.79 GiB (after a
+    1,414 s wait for the lock); NL 45.8 s at 31 MB; surjection 1,245 s at
+    0.42 GiB.
+  - **Carries to R7 by reading.** The slot IR is a function of the shape
+    and `argument.rs`'s `define`; argument.rs and layout.rs are R5b's bytes
+    in R7, and R7's shape.rs adds only `with_score_shift` (unused here).
+  - Owner's question left: restrict the declared class (sh <= 7), or keep
+    pg_rot1's duplicate lookups now that they are read.

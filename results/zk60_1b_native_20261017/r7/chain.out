@@ -1,0 +1,19 @@
+/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/manifest_check.json: 219 files, tree 36a8aed17ea1ec9ca2dec89155edebcb19048f3a63789ded6ab74cc275c43520
+[zk60-guard 02:48:45] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 02:49:45] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 02:50:39] START r7-check class=cpu need=4G cap=7G enforce=cgroup+watchdog waited=114s run=022f57a0a10e
+[zk60-guard 02:51:19] END r7-check exit=0 child_wall=40s peak_rss=0.98G min_avail=12.01G
+[09:51:19] r7-check exit 0
+[zk60-guard 02:51:20] START r7-cli-build class=build need=2.5G cap=5G enforce=cgroup+watchdog waited=0s run=89b868e01365
+[zk60-guard 02:51:32] END r7-cli-build exit=0 child_wall=12s peak_rss=0.40G min_avail=13.28G
+[09:51:32] r7-cli-build exit 0
+[zk60-guard 02:51:32] START r7-gpu-cli-build class=build need=3G cap=5G enforce=cgroup+watchdog waited=0s run=230896ab582a
+[zk60-guard 02:52:36] END r7-gpu-cli-build exit=0 child_wall=64s peak_rss=1.13G min_avail=12.51G
+[09:52:36] r7-gpu-cli-build exit 0
+/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/manifest_suite.json: 219 files, tree 36a8aed17ea1ec9ca2dec89155edebcb19048f3a63789ded6ab74cc275c43520
+[zk60-guard 02:52:36] START r7-suite class=cpu need=4.5G cap=8G enforce=cgroup+watchdog waited=0s run=4c970d6c472d
+[zk60-guard 02:58:29] END r7-suite exit=0 child_wall=353s peak_rss=4.35G min_avail=9.15G
+[09:58:29] r7-suite exit 0
+/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/manifest_frozen_working.json: 219 files, tree 36a8aed17ea1ec9ca2dec89155edebcb19048f3a63789ded6ab74cc275c43520
+/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/manifest_frozen.json: 219 files, tree 36a8aed17ea1ec9ca2dec89155edebcb19048f3a63789ded6ab74cc275c43520
+R7 frozen 2026-10-19T09:58:29Z tree 36a8aed17ea1ec9ca2dec89155edebcb19048f3a63789ded6ab74cc275c43520; patch 331 lines

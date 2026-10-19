@@ -8,3 +8,8 @@
 [zk60-guard 19:12:20] END b5-b7_T64 exit=0 child_wall=1864s peak_rss=2.99G min_avail=6.38G
 [zk60-guard 19:12:20] START b7-verify-llama3_8b_pg_rot1_b7_T64 class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=0df80fa5eca3
 [zk60-guard 19:15:17] END b7-verify-llama3_8b_pg_rot1_b7_T64 exit=0 child_wall=177s peak_rss=1.69G min_avail=10.39G
+[b5_run 04:38:38Z] hold #3 released for b5-b7_T32 (need 3.5 / cap 4.5)
+[zk60-guard 21:38:39] START b5-b7_T32 class=light need=3.5G cap=4.5G enforce=cgroup+watchdog waited=0s run=8218d64748ff
+[zk60-guard 22:07:35] END b5-b7_T32 exit=0 child_wall=1737s peak_rss=2.86G min_avail=4.88G
+[zk60-guard 22:07:36] START b7-verify-llama3_8b_pg_rot1_b7_T32 class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=355f62ae8410
+[zk60-guard 22:10:01] END b7-verify-llama3_8b_pg_rot1_b7_T32 exit=0 child_wall=146s peak_rss=1.58G min_avail=12.72G

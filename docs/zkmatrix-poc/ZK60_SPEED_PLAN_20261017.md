@@ -23,6 +23,39 @@ Every Python run was one thread and took under 1 s.
   estimated 33–42% [MODEL]. The laptop's in-stack 2.7% is its clock ramp after
   idle, which a GPU-resident prover avoids. Report:
   `results/zk60_gpu_zerocheck_20261017/REPORT.md`.
+- **2026-10-19 09:34 UTC — layout levers from Victor's GPT conversations**
+  (`results/zk60_gpt_nonlinear_review_20261018/REVIEW.md`, rounds 1–2): the
+  exact softmax division is ~27% of a block at 8B T512. **DD** (per-row
+  division dictionary: the 8B exp tables have only 19/11/6 distinct outputs,
+  so each row's probabilities take <= 19 values; 32 public slots per row, each
+  an exact division, entries look up (row, E, P)): −21.0% committed, −28.2%
+  byte lookups, −20.1% zero-check work [COUNTED; the adversarial check corrected
+  −21.0% to −20.8% and +0.40 to +0.39 lookup-soundness bits]; bit-exact, no
+  Victor ruling; admitted into the 8B T512 profile specification by the
+  security owner as D30 (six conditions, binding changes B-1..B-8;
+  `results/zk60_gpt_nonlinear_review_20261018/dd_check/CHECK.md`). **VPE** (stop committing 8 value planes fixed by
+  their limbs) −5.4%; **IOR** (drop o8 range at sh_o = F_P = 9) −0.6%. EXR is
+  superseded by DD; FN (−22.8%, changes the integer function) becomes a
+  fallback. L7 + DD + VPE + IOR: −34% committed, ~23% of 5090 bandwidth needed
+  for 50 positions/s [MODEL] — the same as L7 + L8 (zkAttn) without its ruling.
+  Calibration property to keep: n_E <= 32 distinct exp outputs per layer
+  table (19/11/6 today). GPU kernel efficiency remains the necessary
+  condition.
+- **2026-10-18 04:30 UTC — task 2, kernel round 4 (last laptop round; lane
+  paused):** slot-18 body **25.9 ms** (materialised build + mapped-flag
+  polling + host tail from 2^5) = **49.6 GB/s = 19.4% of 256 GB/s**
+  isolated, warm [MEASURED]; kernels alone 20.66 ms at 2^20; every
+  production entry point 80 registers, 0 spills, 24 warps/SM; gates: 1,440
+  synthetic bodies, 72 trained equalities, seeded proof bytes identical at
+  four shapes, VRAM ≤ 3,175 MiB. Still the 10–25% band; every number under
+  the laptop's SW-thermal clock cap (SM 1,065 MHz). Gap closed 2026-10-18 04:50 UTC: a
+  22-block TinyLlama T128 stack with the round-4 CLI (`gzc-stack-s12-r4`, exit 0,
+  3,139 MiB VRAM) verified in a fresh process (`gzc-verify-s12-r4`, exit 0). `results/zk60_gpu_zerocheck_20261017/NEXT.md`
+  holds the 5090 start list (gates, ladder, real-slot measurement against
+  1,792 GB/s, clock pinning) and the L3 outline on the split template
+  (expected at the laptop's clock: sumchecks 38.7 → ~1.6 s, extension
+  rounds 12.9 → ~0.3 s, block walls 152 → ~90 s at T128; ~5 lane-days
+  [MODEL]).
 - **2026-10-18 02:26 UTC — task 2, kernel round 3 (exact arithmetic cuts +
   cross-process module cache):** slot-18 body 28.3–29.8 ms isolated (29.0 ms in
   the stack, warm) = **16.8–17.7% of 256 GB/s** [MEASURED], still byte-identical

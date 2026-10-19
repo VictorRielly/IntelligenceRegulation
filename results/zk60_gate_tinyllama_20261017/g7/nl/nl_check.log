@@ -1,0 +1,50 @@
+GS-13 non-linear channel check; 11 IR exports: m125, rung, rung_c6, rung_e32, rung_g, rung_k4, rung_p2, rung_w14, tl_t32_dev, tl_t32_trained_pg_rot1, toy
+S0 field self-test: {'seven_is_nonresidue': True, 'inverse_checks': 200, 'u_squared_is_7': True, 'solve_rank_selftest_systems': 30}
+S2 sources: kinds {'Private': 12, 'Standalone': 5, 'Host': 6} functionals 34 hosts triangular True every private hosted once True
+S2 sources: non-zero extension-round pushes [(1384, 'SC_SCORE', '1'), (1410, 'SC_PV', '1')] ; bilinear order {8: [0, 1], 9: [0, 1]}
+S1 [m125] premise 23/23; public factor in every monomial 23/23; degree fits 23/23 (max declared 5); supp slots 8; group-eq slots 2; sum L 1239, dim C 1216, ker 23; worst L 117 at slot 17
+S1 [rung] premise 23/23; public factor in every monomial 23/23; degree fits 23/23 (max declared 5); supp slots 11; group-eq slots 2; sum L 859, dim C 836, ker 23; worst L 72 at slot 17
+S1 [rung_c6] premise 23/23; public factor in every monomial 23/23; degree fits 23/23 (max declared 5); supp slots 8; group-eq slots 2; sum L 934, dim C 911, ker 23; worst L 77 at slot 14
+S1 [rung_e32] premise 23/23; public factor in every monomial 23/23; degree fits 23/23 (max declared 5); supp slots 8; group-eq slots 2; sum L 981, dim C 958, ker 23; worst L 82 at slot 14
+S1 [rung_g] premise 23/23; public factor in every monomial 23/23; degree fits 23/23 (max declared 5); supp slots 11; group-eq slots 2; sum L 859, dim C 836, ker 23; worst L 72 at slot 17
+S1 [rung_k4] premise 23/23; public factor in every monomial 23/23; degree fits 23/23 (max declared 5); supp slots 11; group-eq slots 2; sum L 871, dim C 848, ker 23; worst L 77 at slot 17
+S1 [rung_p2] premise 23/23; public factor in every monomial 23/23; degree fits 23/23 (max declared 5); supp slots 8; group-eq slots 2; sum L 846, dim C 823, ker 23; worst L 77 at slot 17
+S1 [rung_w14] premise 23/23; public factor in every monomial 23/23; degree fits 23/23 (max declared 5); supp slots 8; group-eq slots 2; sum L 1071, dim C 1048, ker 23; worst L 87 at slot 14
+S1 [tl_t32_dev] premise 23/23; public factor in every monomial 23/23; degree fits 23/23 (max declared 5); supp slots 3; group-eq slots 2; sum L 979, dim C 956, ker 23; worst L 97 at slot 18
+S1 [tl_t32_trained_pg_rot1] premise 23/23; public factor in every monomial 23/23; degree fits 23/23 (max declared 5); supp slots 3; group-eq slots 2; sum L 979, dim C 956, ker 23; worst L 97 at slot 18
+S1 [toy] premise 23/23; public factor in every monomial 21/23; degree fits 23/23 (max declared 4); supp slots 0; group-eq slots 0; sum L 583, dim C 560, ker 23; worst L 50 at slot 17
+S1 [toy] slots whose premise needs the second mechanism (different extension rounds): [8, 9]
+S3 distinct (N, d) pairs over all shapes: 46 [(5, 2), (6, 3), (7, 2), (7, 3), (8, 2), (8, 3), (9, 2), (9, 3), (9, 4), (10, 2), (10, 3), (10, 4), (11, 2), (11, 3), (11, 4), (11, 5), (12, 2), (12, 3), (12, 4), (13, 2), (13, 3), (13, 4), (13, 5), (14, 2), (14, 4), (14, 5), (15, 2), (15, 3), (15, 4), (15, 5), (16, 2), (16, 3), (16, 4), (16, 5), (17, 2), (17, 3), (17, 4), (17, 5), (18, 4), (19, 5), (20, 2), (20, 4), (20, 5), (21, 4), (23, 4), (23, 5)]
+S3 closed-form round map, total and eval weights vs brute force: 310 values equal
+S3 Fact 2.1 at full size: 230/230 (N, d, regime) triples exactly tight (rank = dim C = N d + 1, kernel = the explicit line, sum/eval weights in rowspace)
+S4 [m125] miniature runs passing every check: 23/23; the Private-Gamma control fires in 23/23
+S4 [rung] miniature runs passing every check: 23/23; the Private-Gamma control fires in 23/23
+S4 [rung_c6] miniature runs passing every check: 23/23; the Private-Gamma control fires in 23/23
+S4 [rung_e32] miniature runs passing every check: 23/23; the Private-Gamma control fires in 23/23
+S4 [rung_g] miniature runs passing every check: 23/23; the Private-Gamma control fires in 23/23
+S4 [rung_k4] miniature runs passing every check: 23/23; the Private-Gamma control fires in 23/23
+S4 [rung_p2] miniature runs passing every check: 23/23; the Private-Gamma control fires in 23/23
+S4 [rung_w14] miniature runs passing every check: 23/23; the Private-Gamma control fires in 23/23
+S4 [tl_t32_dev] miniature runs passing every check: 23/23; the Private-Gamma control fires in 23/23
+S4 [tl_t32_trained_pg_rot1] miniature runs passing every check: 23/23; the Private-Gamma control fires in 23/23
+S4 [toy] miniature runs passing every check: 23/23; the Private-Gamma control fires in 23/23
+S4 [m125] per-slot terminal map (R_re, R_im) -> terminals onto Fp2^m (Fp-rank 2m), at random tails AND at one shared boolean tail: 23/23; terminals per slot [1, 1, 22, 3, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 54, 15, 13, 24, 17, 6, 1, 2, 2]
+S4 [rung_g] per-slot terminal map (R_re, R_im) -> terminals onto Fp2^m (Fp-rank 2m), at random tails AND at one shared boolean tail: 23/23; terminals per slot [1, 1, 22, 3, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 56, 15, 13, 24, 17, 6, 1, 2, 2]
+S4 [rung_k4] per-slot terminal map (R_re, R_im) -> terminals onto Fp2^m (Fp-rank 2m), at random tails AND at one shared boolean tail: 23/23; terminals per slot [1, 1, 22, 3, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 56, 15, 13, 24, 17, 6, 1, 2, 2]
+S4 [tl_t32_trained_pg_rot1] per-slot terminal map (R_re, R_im) -> terminals onto Fp2^m (Fp-rank 2m), at random tails AND at one shared boolean tail: 23/23; terminals per slot [1, 1, 22, 3, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 54, 15, 13, 21, 17, 6, 1, 2, 2]
+S4 [tl_t32_dev] per-slot terminal map (R_re, R_im) -> terminals onto Fp2^m (Fp-rank 2m), at random tails AND at one shared boolean tail: 23/23; terminals per slot [1, 1, 22, 3, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 54, 15, 13, 21, 17, 6, 1, 2, 2]
+S5 C1 (redundancy, must NOT fire): OK
+S5 C2 (toy mechanism, must NOT fire): OK
+S5 C3 fires: OK
+S5 C4 fires: OK
+S5 C5 fires: OK
+S5 C6 fires: OK
+S5 C7 honest pair onto at a boolean tail (must NOT fire): OK
+S5 C7 fires ((cm, cm) at a boolean tail): OK
+S5 C8 honest distinct pairs onto (must NOT fire): OK
+S5 C8 fires (shared pair, same tail): OK
+S5 C9 P3 probe fires at exactly the seven matmul slots: OK
+S5 toy anchor 23/21/[8,9]: OK
+S5 details: {'C1_group_eq_kept_both_round0': {'premise_holds': True, 'expect': True}, 'C2_group_eq_dropped_rounds_0_1': {'premise_holds': True, 'expect': True}, 'C3_group_eq_dropped_both_round0': {'premise_holds': False, 'expect': False}, 'C3_miniature': {'chain_accepts': False, 'offset_in_ImR': False, 'expect': 'chain rejects, offset outside Im R'}, 'C4_pad_term_outside_eq': {'moved': True, 'premise_holds': False, 'expect': False}, 'C4_miniature': {'chain_accepts': False, 'offset_in_ImR': False, 'expect': 'chain rejects, offset outside Im R'}, 'C5_declared_degree_minus_one': {'declared': 4, 'max_product': 5, 'chain_accepts': False, 'expect': False}, 'C6_mask_one_degree_short': {'N': 23, 'd': 5, 'rank': 93, 'dimC': 116, 'covers': False, 'expect': False}, 'C7_honest_pair_boolean_tail': {'fp_rank': 2, 'onto_needs': 2, 'expect': 'onto'}, 'C7_pair_weights_cm_cm_boolean_tail': {'fp_rank': 1, 'onto_needs': 2, 'expect': 'short'}, 'C7_pair_weights_cm_cm_fp2_tail': {'fp_rank': 2, 'onto_needs': 2, 'expect': 'onto (the Fp2 tail covers the loss; not a defence)'}, 'C8_honest_distinct_pairs_same_tail': {'fp_rank': 4, 'onto_needs': 4, 'expect': 'onto'}, 'C8_shared_pair_same_tail': {'fp_rank': 2, 'onto_needs': 4, 'expect': 'short'}, 'C8_shared_pair_different_tails': {'fp_rank': 4, 'onto_needs': 4, 'expect': 'onto on terminals alone; the joint trap needs the PCS view ((H1), not here)'}, 'C9_P3_scope_probe_weights_private': {'slots_with_weight_tables': {'5': ['fold_rows_i8(W, eq(r_j))'], '6': ['fold_rows_i8(W, eq(r_j))'], '7': ['fold_rows_i8(W, eq(r_j))'], '10': ['fold_rows_i8(W, eq(r_j))'], '11': ['fold_cols_i8(W, eq(r_j))'], '12': ['fold_cols_i8(W, eq(r_j))'], '13': ['fold_cols_i8(W, eq(r_j))'], '14': ['gamma_a on the padded width (ruling P-2)', 'gamma_m on the padded width (ruling P-2)']}, 'premise_fails_at': [5, 6, 7, 10, 11, 12, 13]}, 'toy_anchor': {'premise_holds': 23, 'public_factor_every_monomial': 21, 'second_mechanism_slots': [8, 9], 'expect': '23 / 21 / [8, 9]'}}
+SUMMARY {"shapes": ["m125", "rung", "rung_c6", "rung_e32", "rung_g", "rung_k4", "rung_p2", "rung_w14", "tl_t32_dev", "tl_t32_trained_pg_rot1", "toy"], "premise_holds": {"m125": 23, "rung": 23, "rung_c6": 23, "rung_e32": 23, "rung_g": 23, "rung_k4": 23, "rung_p2": 23, "rung_w14": 23, "tl_t32_dev": 23, "tl_t32_trained_pg_rot1": 23, "toy": 23}, "public_factor_every_monomial": {"m125": 23, "rung": 23, "rung_c6": 23, "rung_e32": 23, "rung_g": 23, "rung_k4": 23, "rung_p2": 23, "rung_w14": 23, "tl_t32_dev": 23, "tl_t32_trained_pg_rot1": 23, "toy": 21}, "degree_fits": {"m125": 23, "rung": 23, "rung_c6": 23, "rung_e32": 23, "rung_g": 23, "rung_k4": 23, "rung_p2": 23, "rung_w14": 23, "tl_t32_dev": 23, "tl_t32_trained_pg_rot1": 23, "toy": 23}, "budget": {"m125": [117, 17, true], "rung": [72, 17, true], "rung_c6": [77, 14, true], "rung_e32": [82, 14, true], "rung_g": [72, 17, true], "rung_k4": [77, 17, true], "rung_p2": [77, 17, true], "rung_w14": [87, 14, true], "tl_t32_dev": [97, 18, true], "tl_t32_trained_pg_rot1": [97, 18, true], "toy": [50, 17, true]}, "sum_L_dimC_ker": {"m125": [1239, 1216, 23], "rung": [859, 836, 23], "rung_c6": [934, 911, 23], "rung_e32": [981, 958, 23], "rung_g": [859, 836, 23], "rung_k4": [871, 848, 23], "rung_p2": [846, 823, 23], "rung_w14": [1071, 1048, 23], "tl_t32_dev": [979, 956, 23], "tl_t32_trained_pg_rot1": [979, 956, 23], "toy": [583, 560, 23]}, "fact21_tight": "230/230", "miniatures_all_pass": {"m125": 23, "rung": 23, "rung_c6": 23, "rung_e32": 23, "rung_g": 23, "rung_k4": 23, "rung_p2": 23, "rung_w14": 23, "tl_t32_dev": 23, "tl_t32_trained_pg_rot1": 23, "toy": 23}, "controls_as_expected": 12, "controls_total": 12}
+elapsed 45.7 s

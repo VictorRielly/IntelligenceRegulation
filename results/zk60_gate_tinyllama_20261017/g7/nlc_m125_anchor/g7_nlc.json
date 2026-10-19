@@ -1,0 +1,1285 @@
+{
+ "pins": {
+  "nlc_check.py": "486ecfbdc0c896e733057f4a92ffa3246341524aa38265fdccc414992731aca6",
+  "nlc_field.py": "3168dcc6981ba7452ada00c0681f6ad88fa838e5654a19e3dbc10b835185cb15"
+ },
+ "inputs": {
+  "m125": {
+   "path": "/home/victor/wt-zk60-block125m/results/zk60_block125m_lane/x34-slot-ir/slot_ir_m125.json",
+   "sha256": "2e8cdb877d4938a63d92dc8f4b054e59ff296456c56063f61c1ad8e39e948d39"
+  }
+ },
+ "K3": {
+  "lane": {
+   "pushes": 13,
+   "nonzero": [
+    [
+     "SC_SCORE",
+     "1"
+    ],
+    [
+     "SC_PV",
+     "1"
+    ]
+   ],
+   "other_private_push_calls": {
+    "a": 12,
+    "h": 15,
+    "endpoint": 1,
+    "a_range": 5
+   },
+   "helpers": {
+    "a() pushes a_at(.., 0)": true,
+    "h() pushes ext_round: 0": true,
+    "endpoint() pushes ext_round: 0": true,
+    "a_range -> self.a(p)": true,
+    "a_slice stores the caller's ext_round": true
+   },
+   "kinds": [
+    "Private",
+    "Private",
+    "Host",
+    "Standalone",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Host",
+    "Host",
+    "Host",
+    "Host",
+    "Host",
+    "Standalone",
+    "Standalone",
+    "Standalone",
+    "Standalone"
+   ],
+   "hosts": [
+    [
+     2,
+     [
+      0,
+      1
+     ]
+    ],
+    [
+     14,
+     [
+      10,
+      13
+     ]
+    ],
+    [
+     15,
+     [
+      5,
+      9
+     ]
+    ],
+    [
+     16,
+     [
+      6,
+      7
+     ]
+    ],
+    [
+     17,
+     [
+      4,
+      8
+     ]
+    ],
+    [
+     18,
+     [
+      11,
+      12
+     ]
+    ]
+   ],
+   "bilinear": {
+    "8": [
+     "0",
+     "1"
+    ],
+    "9": [
+     "0",
+     "1"
+    ]
+   },
+   "argument.rs": "/home/victor/wt-zk60-block125m/hashline/src/private_block/argument.rs",
+   "argument.rs sha256": "2cee0a2253d6ef91bea23f564d8e24a3362663da53a10182d6b0edaa8a10a013"
+  },
+  "g7": {
+   "pushes": 13,
+   "nonzero": [
+    [
+     "SC_SCORE",
+     "1"
+    ],
+    [
+     "SC_PV",
+     "1"
+    ]
+   ],
+   "other_private_push_calls": {
+    "a": 12,
+    "h": 15,
+    "endpoint": 1,
+    "a_range": 5
+   },
+   "helpers": {
+    "a() pushes a_at(.., 0)": true,
+    "h() pushes ext_round: 0": true,
+    "endpoint() pushes ext_round: 0": true,
+    "a_range -> self.a(p)": true,
+    "a_slice stores the caller's ext_round": true
+   },
+   "kinds": [
+    "Private",
+    "Private",
+    "Host",
+    "Standalone",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Host",
+    "Host",
+    "Host",
+    "Host",
+    "Host",
+    "Standalone",
+    "Standalone",
+    "Standalone",
+    "Standalone"
+   ],
+   "hosts": [
+    [
+     2,
+     [
+      0,
+      1
+     ]
+    ],
+    [
+     14,
+     [
+      10,
+      13
+     ]
+    ],
+    [
+     15,
+     [
+      5,
+      9
+     ]
+    ],
+    [
+     16,
+     [
+      6,
+      7
+     ]
+    ],
+    [
+     17,
+     [
+      4,
+      8
+     ]
+    ],
+    [
+     18,
+     [
+      11,
+      12
+     ]
+    ]
+   ],
+   "bilinear": {
+    "8": [
+     "0",
+     "1"
+    ],
+    "9": [
+     "0",
+     "1"
+    ]
+   },
+   "argument.rs": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-g7/hashline/src/private_block/argument.rs",
+   "argument.rs sha256": "02df55ebec4da046d5522dfc14bf17a691c1fca851f014ba50a759502804e3b5"
+  },
+  "lane_vs_g7_equal": {
+   "pushes": true,
+   "nonzero": true,
+   "other_private_push_calls": true,
+   "helpers": true,
+   "kinds": true,
+   "hosts": true,
+   "bilinear": true
+  }
+ },
+ "K1": {
+  "m125": [
+   {
+    "slot": 0,
+    "kind": "Private",
+    "main": 19,
+    "ext": 1,
+    "d": 4,
+    "n_tables": 3,
+    "n_private": 1,
+    "private_by_commitment": {
+     "A": 1
+    },
+    "public_kinds": [
+     "eq",
+     "supp"
+    ],
+    "n_monomials": 1,
+    "premise_failing_monomials": {
+     "0": []
+    },
+    "premise_holds_all_rounds": true,
+    "monomials_without_public_table": [],
+    "public_table_in_every_monomial": true,
+    "top_level_public_factor_every_term": true,
+    "monomials_by_public_carrier": {
+     "eq+supp": 1
+    },
+    "constant_monomial_present": false,
+    "product_degree": 4,
+    "export_max_product_degree": 4,
+    "per_variable_bound_max": 4,
+    "degree_fits": true,
+    "slack": 0,
+    "has_supp": true,
+    "supp_monomials_without_eq": 0,
+    "has_group_eq": false,
+    "ext_rounds_used": [
+     0
+    ]
+   },
+   {
+    "slot": 1,
+    "kind": "Private",
+    "main": 19,
+    "ext": 1,
+    "d": 4,
+    "n_tables": 3,
+    "n_private": 1,
+    "private_by_commitment": {
+     "A": 1
+    },
+    "public_kinds": [
+     "eq",
+     "supp"
+    ],
+    "n_monomials": 1,
+    "premise_failing_monomials": {
+     "0": []
+    },
+    "premise_holds_all_rounds": true,
+    "monomials_without_public_table": [],
+    "public_table_in_every_monomial": true,
+    "top_level_public_factor_every_term": true,
+    "monomials_by_public_carrier": {
+     "eq+supp": 1
+    },
+    "constant_monomial_present": false,
+    "product_degree": 4,
+    "export_max_product_degree": 4,
+    "per_variable_bound_max": 4,
+    "degree_fits": true,
+    "slack": 0,
+    "has_supp": true,
+    "supp_monomials_without_eq": 0,
+    "has_group_eq": false,
+    "ext_rounds_used": [
+     0
+    ]
+   },
+   {
+    "slot": 2,
+    "kind": "Host",
+    "main": 9,
+    "ext": 1,
+    "d": 3,
+    "n_tables": 25,
+    "n_private": 22,
+    "private_by_commitment": {
+     "A": 22
+    },
+    "public_kinds": [
+     "eq"
+    ],
+    "n_monomials": 34,
+    "premise_failing_monomials": {
+     "0": []
+    },
+    "premise_holds_all_rounds": true,
+    "monomials_without_public_table": [],
+    "public_table_in_every_monomial": true,
+    "top_level_public_factor_every_term": true,
+    "monomials_by_public_carrier": {
+     "eq": 34
+    },
+    "constant_monomial_present": false,
+    "product_degree": 3,
+    "export_max_product_degree": 3,
+    "per_variable_bound_max": 3,
+    "degree_fits": true,
+    "slack": 0,
+    "has_supp": false,
+    "supp_monomials_without_eq": 0,
+    "has_group_eq": false,
+    "ext_rounds_used": [
+     0
+    ]
+   },
+   {
+    "slot": 3,
+    "kind": "Standalone",
+    "main": 14,
+    "ext": 1,
+    "d": 4,
+    "n_tables": 5,
+    "n_private": 3,
+    "private_by_commitment": {
+     "A": 2,
+     "H": 1
+    },
+    "public_kinds": [
+     "eq",
+     "supp"
+    ],
+    "n_monomials": 9,
+    "premise_failing_monomials": {
+     "0": []
+    },
+    "premise_holds_all_rounds": true,
+    "monomials_without_public_table": [],
+    "public_table_in_every_monomial": true,
+    "top_level_public_factor_every_term": true,
+    "monomials_by_public_carrier": {
+     "eq": 7,
+     "eq+supp": 2
+    },
+    "constant_monomial_present": false,
+    "product_degree": 4,
+    "export_max_product_degree": 4,
+    "per_variable_bound_max": 4,
+    "degree_fits": true,
+    "slack": 0,
+    "has_supp": true,
+    "supp_monomials_without_eq": 0,
+    "has_group_eq": false,
+    "ext_rounds_used": [
+     0
+    ]
+   },
+   {
+    "slot": 4,
+    "kind": "Private",
+    "main": 22,
+    "ext": 1,
+    "d": 4,
+    "n_tables": 5,
+    "n_private": 2,
+    "private_by_commitment": {
+     "A": 2
+    },
+    "public_kinds": [
+     "eq",
+     "pub",
+     "supp"
+    ],
+    "n_monomials": 2,
+    "premise_failing_monomials": {
+     "0": []
+    },
+    "premise_holds_all_rounds": true,
+    "monomials_without_public_table": [],
+    "public_table_in_every_monomial": true,
+    "top_level_public_factor_every_term": true,
+    "monomials_by_public_carrier": {
+     "eq+pub+supp": 1,
+     "eq+supp": 1
+    },
+    "constant_monomial_present": false,
+    "product_degree": 4,
+    "export_max_product_degree": 4,
+    "per_variable_bound_max": 4,
+    "degree_fits": true,
+    "slack": 0,
+    "has_supp": true,
+    "supp_monomials_without_eq": 0,
+    "has_group_eq": false,
+    "ext_rounds_used": [
+     0
+    ]
+   },
+   {
+    "slot": 5,
+    "kind": "Private",
+    "main": 10,
+    "ext": 1,
+    "d": 2,
+    "n_tables": 2,
+    "n_private": 1,
+    "private_by_commitment": {
+     "A": 1
+    },
+    "public_kinds": [
+     "pub"
+    ],
+    "n_monomials": 1,
+    "premise_failing_monomials": {
+     "0": []
+    },
+    "premise_holds_all_rounds": true,
+    "monomials_without_public_table": [],
+    "public_table_in_every_monomial": true,
+    "top_level_public_factor_every_term": true,
+    "monomials_by_public_carrier": {
+     "pub": 1
+    },
+    "constant_monomial_present": false,
+    "product_degree": 2,
+    "export_max_product_degree": 2,
+    "per_variable_bound_max": 2,
+    "degree_fits": true,
+    "slack": 0,
+    "has_supp": false,
+    "supp_monomials_without_eq": 0,
+    "has_group_eq": false,
+    "ext_rounds_used": [
+     0
+    ]
+   },
+   {
+    "slot": 6,
+    "kind": "Private",
+    "main": 10,
+    "ext": 1,
+    "d": 2,
+    "n_tables": 2,
+    "n_private": 1,
+    "private_by_commitment": {
+     "A": 1
+    },
+    "public_kinds": [
+     "pub"
+    ],
+    "n_monomials": 1,
+    "premise_failing_monomials": {
+     "0": []
+    },
+    "premise_holds_all_rounds": true,
+    "monomials_without_public_table": [],
+    "public_table_in_every_monomial": true,
+    "top_level_public_factor_every_term": true,
+    "monomials_by_public_carrier": {
+     "pub": 1
+    },
+    "constant_monomial_present": false,
+    "product_degree": 2,
+    "export_max_product_degree": 2,
+    "per_variable_bound_max": 2,
+    "degree_fits": true,
+    "slack": 0,
+    "has_supp": false,
+    "supp_monomials_without_eq": 0,
+    "has_group_eq": false,
+    "ext_rounds_used": [
+     0
+    ]
+   },
+   {
+    "slot": 7,
+    "kind": "Private",
+    "main": 10,
+    "ext": 1,
+    "d": 2,
+    "n_tables": 2,
+    "n_private": 1,
+    "private_by_commitment": {
+     "A": 1
+    },
+    "public_kinds": [
+     "pub"
+    ],
+    "n_monomials": 1,
+    "premise_failing_monomials": {
+     "0": []
+    },
+    "premise_holds_all_rounds": true,
+    "monomials_without_public_table": [],
+    "public_table_in_every_monomial": true,
+    "top_level_public_factor_every_term": true,
+    "monomials_by_public_carrier": {
+     "pub": 1
+    },
+    "constant_monomial_present": false,
+    "product_degree": 2,
+    "export_max_product_degree": 2,
+    "per_variable_bound_max": 2,
+    "degree_fits": true,
+    "slack": 0,
+    "has_supp": false,
+    "supp_monomials_without_eq": 0,
+    "has_group_eq": false,
+    "ext_rounds_used": [
+     0
+    ]
+   },
+   {
+    "slot": 8,
+    "kind": "Private",
+    "main": 8,
+    "ext": 2,
+    "d": 3,
+    "n_tables": 3,
+    "n_private": 2,
+    "private_by_commitment": {
+     "A": 2
+    },
+    "public_kinds": [
+     "group_eq"
+    ],
+    "n_monomials": 1,
+    "premise_failing_monomials": {
+     "0": [],
+     "1": []
+    },
+    "premise_holds_all_rounds": true,
+    "monomials_without_public_table": [],
+    "public_table_in_every_monomial": true,
+    "top_level_public_factor_every_term": true,
+    "monomials_by_public_carrier": {
+     "group_eq": 1
+    },
+    "constant_monomial_present": false,
+    "product_degree": 3,
+    "export_max_product_degree": 3,
+    "per_variable_bound_max": 3,
+    "degree_fits": true,
+    "slack": 0,
+    "has_supp": false,
+    "supp_monomials_without_eq": 0,
+    "has_group_eq": true,
+    "ext_rounds_used": [
+     0,
+     1
+    ]
+   },
+   {
+    "slot": 9,
+    "kind": "Private",
+    "main": 11,
+    "ext": 2,
+    "d": 3,
+    "n_tables": 3,
+    "n_private": 2,
+    "private_by_commitment": {
+     "A": 2
+    },
+    "public_kinds": [
+     "group_eq"
+    ],
+    "n_monomials": 1,
+    "premise_failing_monomials": {
+     "0": [],
+     "1": []
+    },
+    "premise_holds_all_rounds": true,
+    "monomials_without_public_table": [],
+    "public_table_in_every_monomial": true,
+    "top_level_public_factor_every_term": true,
+    "monomials_by_public_carrier": {
+     "group_eq": 1
+    },
+    "constant_monomial_present": false,
+    "product_degree": 3,
+    "export_max_product_degree": 3,
+    "per_variable_bound_max": 3,
+    "degree_fits": true,
+    "slack": 0,
+    "has_supp": false,
+    "supp_monomials_without_eq": 0,
+    "has_group_eq": true,
+    "ext_rounds_used": [
+     0,
+     1
+    ]
+   },
+   {
+    "slot": 10,
+    "kind": "Private",
+    "main": 10,
+    "ext": 1,
+    "d": 2,
+    "n_tables": 2,
+    "n_private": 1,
+    "private_by_commitment": {
+     "A": 1
+    },
+    "public_kinds": [
+     "pub"
+    ],
+    "n_monomials": 1,
+    "premise_failing_monomials": {
+     "0": []
+    },
+    "premise_holds_all_rounds": true,
+    "monomials_without_public_table": [],
+    "public_table_in_every_monomial": true,
+    "top_level_public_factor_every_term": true,
+    "monomials_by_public_carrier": {
+     "pub": 1
+    },
+    "constant_monomial_present": false,
+    "product_degree": 2,
+    "export_max_product_degree": 2,
+    "per_variable_bound_max": 2,
+    "degree_fits": true,
+    "slack": 0,
+    "has_supp": false,
+    "supp_monomials_without_eq": 0,
+    "has_group_eq": false,
+    "ext_rounds_used": [
+     0
+    ]
+   },
+   {
+    "slot": 11,
+    "kind": "Private",
+    "main": 10,
+    "ext": 1,
+    "d": 2,
+    "n_tables": 2,
+    "n_private": 1,
+    "private_by_commitment": {
+     "A": 1
+    },
+    "public_kinds": [
+     "pub"
+    ],
+    "n_monomials": 1,
+    "premise_failing_monomials": {
+     "0": []
+    },
+    "premise_holds_all_rounds": true,
+    "monomials_without_public_table": [],
+    "public_table_in_every_monomial": true,
+    "top_level_public_factor_every_term": true,
+    "monomials_by_public_carrier": {
+     "pub": 1
+    },
+    "constant_monomial_present": false,
+    "product_degree": 2,
+    "export_max_product_degree": 2,
+    "per_variable_bound_max": 2,
+    "degree_fits": true,
+    "slack": 0,
+    "has_supp": false,
+    "supp_monomials_without_eq": 0,
+    "has_group_eq": false,
+    "ext_rounds_used": [
+     0
+    ]
+   },
+   {
+    "slot": 12,
+    "kind": "Private",
+    "main": 10,
+    "ext": 1,
+    "d": 2,
+    "n_tables": 2,
+    "n_private": 1,
+    "private_by_commitment": {
+     "A": 1
+    },
+    "public_kinds": [
+     "pub"
+    ],
+    "n_monomials": 1,
+    "premise_failing_monomials": {
+     "0": []
+    },
+    "premise_holds_all_rounds": true,
+    "monomials_without_public_table": [],
+    "public_table_in_every_monomial": true,
+    "top_level_public_factor_every_term": true,
+    "monomials_by_public_carrier": {
+     "pub": 1
+    },
+    "constant_monomial_present": false,
+    "product_degree": 2,
+    "export_max_product_degree": 2,
+    "per_variable_bound_max": 2,
+    "degree_fits": true,
+    "slack": 0,
+    "has_supp": false,
+    "supp_monomials_without_eq": 0,
+    "has_group_eq": false,
+    "ext_rounds_used": [
+     0
+    ]
+   },
+   {
+    "slot": 13,
+    "kind": "Private",
+    "main": 11,
+    "ext": 1,
+    "d": 2,
+    "n_tables": 2,
+    "n_private": 1,
+    "private_by_commitment": {
+     "A": 1
+    },
+    "public_kinds": [
+     "pub"
+    ],
+    "n_monomials": 1,
+    "premise_failing_monomials": {
+     "0": []
+    },
+    "premise_holds_all_rounds": true,
+    "monomials_without_public_table": [],
+    "public_table_in_every_monomial": true,
+    "top_level_public_factor_every_term": true,
+    "monomials_by_public_carrier": {
+     "pub": 1
+    },
+    "constant_monomial_present": false,
+    "product_degree": 2,
+    "export_max_product_degree": 2,
+    "per_variable_bound_max": 2,
+    "degree_fits": true,
+    "slack": 0,
+    "has_supp": false,
+    "supp_monomials_without_eq": 0,
+    "has_group_eq": false,
+    "ext_rounds_used": [
+     0
+    ]
+   },
+   {
+    "slot": 14,
+    "kind": "Host",
+    "main": 19,
+    "ext": 1,
+    "d": 5,
+    "n_tables": 60,
+    "n_private": 54,
+    "private_by_commitment": {
+     "A": 37,
+     "H": 17
+    },
+    "public_kinds": [
+     "eq",
+     "pub",
+     "supp"
+    ],
+    "n_monomials": 148,
+    "premise_failing_monomials": {
+     "0": []
+    },
+    "premise_holds_all_rounds": true,
+    "monomials_without_public_table": [],
+    "public_table_in_every_monomial": true,
+    "top_level_public_factor_every_term": true,
+    "monomials_by_public_carrier": {
+     "eq": 100,
+     "eq+pub+supp": 2,
+     "eq+supp": 46
+    },
+    "constant_monomial_present": false,
+    "product_degree": 4,
+    "export_max_product_degree": 4,
+    "per_variable_bound_max": 4,
+    "degree_fits": true,
+    "slack": 1,
+    "has_supp": true,
+    "supp_monomials_without_eq": 0,
+    "has_group_eq": false,
+    "ext_rounds_used": [
+     0
+    ]
+   },
+   {
+    "slot": 15,
+    "kind": "Host",
+    "main": 19,
+    "ext": 1,
+    "d": 5,
+    "n_tables": 21,
+    "n_private": 15,
+    "private_by_commitment": {
+     "A": 8,
+     "H": 7
+    },
+    "public_kinds": [
+     "eq",
+     "pub",
+     "supp"
+    ],
+    "n_monomials": 46,
+    "premise_failing_monomials": {
+     "0": []
+    },
+    "premise_holds_all_rounds": true,
+    "monomials_without_public_table": [],
+    "public_table_in_every_monomial": true,
+    "top_level_public_factor_every_term": true,
+    "monomials_by_public_carrier": {
+     "eq": 29,
+     "eq+pub+supp": 2,
+     "eq+supp": 15
+    },
+    "constant_monomial_present": false,
+    "product_degree": 4,
+    "export_max_product_degree": 4,
+    "per_variable_bound_max": 4,
+    "degree_fits": true,
+    "slack": 1,
+    "has_supp": true,
+    "supp_monomials_without_eq": 0,
+    "has_group_eq": false,
+    "ext_rounds_used": [
+     0
+    ]
+   },
+   {
+    "slot": 16,
+    "kind": "Host",
+    "main": 17,
+    "ext": 1,
+    "d": 4,
+    "n_tables": 18,
+    "n_private": 13,
+    "private_by_commitment": {
+     "A": 7,
+     "H": 6
+    },
+    "public_kinds": [
+     "eq",
+     "pub"
+    ],
+    "n_monomials": 33,
+    "premise_failing_monomials": {
+     "0": []
+    },
+    "premise_holds_all_rounds": true,
+    "monomials_without_public_table": [],
+    "public_table_in_every_monomial": true,
+    "top_level_public_factor_every_term": true,
+    "monomials_by_public_carrier": {
+     "eq": 31,
+     "eq+pub": 2
+    },
+    "constant_monomial_present": false,
+    "product_degree": 4,
+    "export_max_product_degree": 4,
+    "per_variable_bound_max": 4,
+    "degree_fits": true,
+    "slack": 0,
+    "has_supp": false,
+    "supp_monomials_without_eq": 0,
+    "has_group_eq": false,
+    "ext_rounds_used": [
+     0
+    ]
+   },
+   {
+    "slot": 17,
+    "kind": "Host",
+    "main": 22,
+    "ext": 1,
+    "d": 5,
+    "n_tables": 30,
+    "n_private": 24,
+    "private_by_commitment": {
+     "A": 15,
+     "H": 9
+    },
+    "public_kinds": [
+     "eq",
+     "pub",
+     "supp"
+    ],
+    "n_monomials": 75,
+    "premise_failing_monomials": {
+     "0": []
+    },
+    "premise_holds_all_rounds": true,
+    "monomials_without_public_table": [],
+    "public_table_in_every_monomial": true,
+    "top_level_public_factor_every_term": true,
+    "monomials_by_public_carrier": {
+     "eq": 46,
+     "eq+pub": 2,
+     "eq+pub+supp": 3,
+     "eq+supp": 24
+    },
+    "constant_monomial_present": false,
+    "product_degree": 5,
+    "export_max_product_degree": 5,
+    "per_variable_bound_max": 5,
+    "degree_fits": true,
+    "slack": 0,
+    "has_supp": true,
+    "supp_monomials_without_eq": 0,
+    "has_group_eq": false,
+    "ext_rounds_used": [
+     0
+    ]
+   },
+   {
+    "slot": 18,
+    "kind": "Host",
+    "main": 20,
+    "ext": 1,
+    "d": 4,
+    "n_tables": 20,
+    "n_private": 17,
+    "private_by_commitment": {
+     "A": 11,
+     "H": 6
+    },
+    "public_kinds": [
+     "eq"
+    ],
+    "n_monomials": 35,
+    "premise_failing_monomials": {
+     "0": []
+    },
+    "premise_holds_all_rounds": true,
+    "monomials_without_public_table": [],
+    "public_table_in_every_monomial": true,
+    "top_level_public_factor_every_term": true,
+    "monomials_by_public_carrier": {
+     "eq": 35
+    },
+    "constant_monomial_present": false,
+    "product_degree": 4,
+    "export_max_product_degree": 4,
+    "per_variable_bound_max": 4,
+    "degree_fits": true,
+    "slack": 0,
+    "has_supp": false,
+    "supp_monomials_without_eq": 0,
+    "has_group_eq": false,
+    "ext_rounds_used": [
+     0
+    ]
+   },
+   {
+    "slot": 19,
+    "kind": "Standalone",
+    "main": 14,
+    "ext": 1,
+    "d": 3,
+    "n_tables": 11,
+    "n_private": 6,
+    "private_by_commitment": {
+     "A": 3,
+     "H": 3
+    },
+    "public_kinds": [
+     "eq",
+     "pub",
+     "supp"
+    ],
+    "n_monomials": 15,
+    "premise_failing_monomials": {
+     "0": []
+    },
+    "premise_holds_all_rounds": true,
+    "monomials_without_public_table": [],
+    "public_table_in_every_monomial": true,
+    "top_level_public_factor_every_term": true,
+    "monomials_by_public_carrier": {
+     "eq": 6,
+     "eq+pub": 3,
+     "eq+supp": 6
+    },
+    "constant_monomial_present": false,
+    "product_degree": 3,
+    "export_max_product_degree": 3,
+    "per_variable_bound_max": 3,
+    "degree_fits": true,
+    "slack": 0,
+    "has_supp": true,
+    "supp_monomials_without_eq": 0,
+    "has_group_eq": false,
+    "ext_rounds_used": [
+     0
+    ]
+   },
+   {
+    "slot": 20,
+    "kind": "Standalone",
+    "main": 14,
+    "ext": 1,
+    "d": 2,
+    "n_tables": 2,
+    "n_private": 1,
+    "private_by_commitment": {
+     "H": 1
+    },
+    "public_kinds": [
+     "pub"
+    ],
+    "n_monomials": 1,
+    "premise_failing_monomials": {
+     "0": []
+    },
+    "premise_holds_all_rounds": true,
+    "monomials_without_public_table": [],
+    "public_table_in_every_monomial": true,
+    "top_level_public_factor_every_term": true,
+    "monomials_by_public_carrier": {
+     "pub": 1
+    },
+    "constant_monomial_present": false,
+    "product_degree": 2,
+    "export_max_product_degree": 2,
+    "per_variable_bound_max": 2,
+    "degree_fits": true,
+    "slack": 0,
+    "has_supp": false,
+    "supp_monomials_without_eq": 0,
+    "has_group_eq": false,
+    "ext_rounds_used": [
+     0
+    ]
+   },
+   {
+    "slot": 21,
+    "kind": "Standalone",
+    "main": 19,
+    "ext": 1,
+    "d": 2,
+    "n_tables": 3,
+    "n_private": 2,
+    "private_by_commitment": {
+     "A": 1,
+     "EP": 1
+    },
+    "public_kinds": [
+     "eq"
+    ],
+    "n_monomials": 2,
+    "premise_failing_monomials": {
+     "0": []
+    },
+    "premise_holds_all_rounds": true,
+    "monomials_without_public_table": [],
+    "public_table_in_every_monomial": true,
+    "top_level_public_factor_every_term": true,
+    "monomials_by_public_carrier": {
+     "eq": 2
+    },
+    "constant_monomial_present": false,
+    "product_degree": 2,
+    "export_max_product_degree": 2,
+    "per_variable_bound_max": 2,
+    "degree_fits": true,
+    "slack": 0,
+    "has_supp": false,
+    "supp_monomials_without_eq": 0,
+    "has_group_eq": false,
+    "ext_rounds_used": [
+     0
+    ]
+   },
+   {
+    "slot": 22,
+    "kind": "Standalone",
+    "main": 19,
+    "ext": 1,
+    "d": 2,
+    "n_tables": 3,
+    "n_private": 2,
+    "private_by_commitment": {
+     "A": 1,
+     "EP": 1
+    },
+    "public_kinds": [
+     "eq"
+    ],
+    "n_monomials": 2,
+    "premise_failing_monomials": {
+     "0": []
+    },
+    "premise_holds_all_rounds": true,
+    "monomials_without_public_table": [],
+    "public_table_in_every_monomial": true,
+    "top_level_public_factor_every_term": true,
+    "monomials_by_public_carrier": {
+     "eq": 2
+    },
+    "constant_monomial_present": false,
+    "product_degree": 2,
+    "export_max_product_degree": 2,
+    "per_variable_bound_max": 2,
+    "degree_fits": true,
+    "slack": 0,
+    "has_supp": false,
+    "supp_monomials_without_eq": 0,
+    "has_group_eq": false,
+    "ext_rounds_used": [
+     0
+    ]
+   }
+  ]
+ },
+ "K2": {
+  "m125": {
+   "sum_L": 1239,
+   "sum_dimC": 1216,
+   "kernel": 23,
+   "worst_L": 117,
+   "worst_L_slots": [
+    17
+   ],
+   "budget_ok": true,
+   "terminals": {
+    "A": 122,
+    "H": 50,
+    "EP": 2
+   },
+   "terminals_total": 174,
+   "degree5_slots": [
+    14,
+    15,
+    17
+   ],
+   "supp_slots": [
+    0,
+    1,
+    3,
+    4,
+    14,
+    15,
+    17,
+    19
+   ],
+   "group_eq_slots": [
+    8,
+    9
+   ]
+  }
+ },
+ "K5": {
+  "m125": {
+   "pass": 6,
+   "of": 6,
+   "rows": [
+    {
+     "label": "m125 IR, host 02 hosting 00 and 01, miniature 2^3 cubes, admissible by construction, scalars and M functionals as the code builds them",
+     "host": 2,
+     "shape": "m125",
+     "admissible_world1": true,
+     "admissible_world2": true,
+     "verifier_accepts_world1": true,
+     "fibre_constructed": true,
+     "published_items_that_differ": [],
+     "verifier_accepts_world2": true,
+     "witness_differs": true,
+     "a_private_gamma_would_separate": true,
+     "pass": true
+    },
+    {
+     "label": "m125 IR, host 14 hosting 10 and 13, miniature 2^3 cubes, admissible by construction, scalars and M functionals as the code builds them",
+     "host": 14,
+     "shape": "m125",
+     "admissible_world1": true,
+     "admissible_world2": true,
+     "verifier_accepts_world1": true,
+     "fibre_constructed": true,
+     "published_items_that_differ": [],
+     "verifier_accepts_world2": true,
+     "witness_differs": true,
+     "a_private_gamma_would_separate": true,
+     "pass": true
+    },
+    {
+     "label": "m125 IR, host 15 hosting 05 and 09, miniature 2^3 cubes, admissible by construction, scalars and M functionals as the code builds them",
+     "host": 15,
+     "shape": "m125",
+     "admissible_world1": true,
+     "admissible_world2": true,
+     "verifier_accepts_world1": true,
+     "fibre_constructed": true,
+     "published_items_that_differ": [],
+     "verifier_accepts_world2": true,
+     "witness_differs": true,
+     "a_private_gamma_would_separate": true,
+     "pass": true
+    },
+    {
+     "label": "m125 IR, host 16 hosting 06 and 07, miniature 2^3 cubes, admissible by construction, scalars and M functionals as the code builds them",
+     "host": 16,
+     "shape": "m125",
+     "admissible_world1": true,
+     "admissible_world2": true,
+     "verifier_accepts_world1": true,
+     "fibre_constructed": true,
+     "published_items_that_differ": [],
+     "verifier_accepts_world2": true,
+     "witness_differs": true,
+     "a_private_gamma_would_separate": true,
+     "pass": true
+    },
+    {
+     "label": "m125 IR, host 17 hosting 04 and 08, miniature 2^3 cubes, admissible by construction, scalars and M functionals as the code builds them",
+     "host": 17,
+     "shape": "m125",
+     "admissible_world1": true,
+     "admissible_world2": true,
+     "verifier_accepts_world1": true,
+     "fibre_constructed": true,
+     "published_items_that_differ": [],
+     "verifier_accepts_world2": true,
+     "witness_differs": true,
+     "a_private_gamma_would_separate": true,
+     "pass": true
+    },
+    {
+     "label": "m125 IR, host 18 hosting 11 and 12, miniature 2^3 cubes, admissible by construction, scalars and M functionals as the code builds them",
+     "host": 18,
+     "shape": "m125",
+     "admissible_world1": true,
+     "admissible_world2": true,
+     "verifier_accepts_world1": true,
+     "fibre_constructed": true,
+     "published_items_that_differ": [],
+     "verifier_accepts_world2": true,
+     "witness_differs": true,
+     "a_private_gamma_would_separate": true,
+     "pass": true
+    }
+   ]
+  }
+ },
+ "K1_m125_equal_to_frozen": true,
+ "K5_m125_equal_to_frozen": true
+}

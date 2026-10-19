@@ -1,0 +1,96 @@
+{
+  "status": "PASS",
+  "checks": 237,
+  "whole_D_deletion_ceiling": {
+    "scope": "Carried 1.1B T128/22 blocks one-pass laptop-GPU n1 diagnostic",
+    "total_seconds": 174.052,
+    "all_D_seconds": 26.691,
+    "maximum_speedup": 1.18112662101913,
+    "maximum_diagnostic_positions_per_second": 0.8686151695496095,
+    "limitation": "Only an upper bound deleting every D, not this schedule estimate and not an 8B ceiling."
+  },
+  "wall_seconds": 0.0019872960037901066,
+  "rss_kib": 14480,
+  "cpu_affinity": [
+    0
+  ],
+  "threads": 1,
+  "source_counts": "add,sub,Fp2mul,mul_base",
+  "product_model": "5*Fp2mul+2*mul_base; no multiplication by count treated as measured time"
+}
+{
+  "descriptor": "Llama3-8B",
+  "padded": false,
+  "N": 524288,
+  "rounds": 19,
+  "known_initial_unmasked_claim": false,
+  "debug_evaluate_one": false,
+  "pair_rows": 524287,
+  "baseline_scalar_points": 2359292,
+  "baseline_calls": [
+    423623987,
+    222297740,
+    207879833,
+    139198228
+  ],
+  "coefficient_calls": [
+    176160740,
+    140508988,
+    204471930,
+    37748922
+  ],
+  "schoolbook_calls": [
+    164102139,
+    116391786,
+    216530531,
+    37748922
+  ],
+  "baseline_scalar_products": 1317795621,
+  "coefficient_scalar_products": 1097857494,
+  "product_reduction_fraction": 0.1668985110400515,
+  "baseline_fp2_add_sub": 645921727,
+  "coefficient_fp2_add_sub": 316669728,
+  "added_full_tables": 0,
+  "removed_original_tables": 0,
+  "retained_original_folds": 30932933,
+  "row_coefficient_output_bytes": 80,
+  "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+}
+{
+  "descriptor": "Llama3-8B",
+  "padded": false,
+  "N": 524288,
+  "rounds": 19,
+  "known_initial_unmasked_claim": true,
+  "debug_evaluate_one": false,
+  "pair_rows": 524287,
+  "baseline_scalar_points": 2097148,
+  "baseline_calls": [
+    393739571,
+    204471949,
+    188219033,
+    123731732
+  ],
+  "coefficient_calls": [
+    176160736,
+    140508989,
+    204471930,
+    37748922
+  ],
+  "schoolbook_calls": [
+    164102135,
+    116391787,
+    216530531,
+    37748922
+  ],
+  "baseline_scalar_products": 1188558629,
+  "coefficient_scalar_products": 1097857494,
+  "product_reduction_fraction": 0.0763118728743839,
+  "baseline_fp2_add_sub": 598211520,
+  "coefficient_fp2_add_sub": 316669725,
+  "added_full_tables": 0,
+  "removed_original_tables": 0,
+  "retained_original_folds": 30932933,
+  "row_coefficient_output_bytes": 80,
+  "limitation": "Source-level API/product counts only; no timing, DRAM/peak scratch/occupancy, native construction, transcripts, masking, PCS, serialization or verifier measured. Common claim interpolation unchanged/excluded; reduction/dispatch must be costed natively."
+}

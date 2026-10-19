@@ -526,3 +526,125 @@ class R5bPins(unittest.TestCase):
         out = check(moved)
         self.assertFalse(out["ok"])
         self.assertIn("stage8_plane_index_and_terminals", out["stages_not_checked"])
+
+
+class G4Criterion(unittest.TestCase):
+    """[v7, finding G-4, tightened per review round 2 Q-8] M9-3's two arms"""
+
+    TAB = "slot {}: the port declares {} public tables, the capture has {}"
+    DRAW = ("slot {}: this slot consumes {} definition draws (tau 4 + mu 13+1 "
+            "+ nu 2 + zeta 1) and the capture declares {}")
+
+    def test_indicator_arm(self):
+        from zk60_native_rg_m125controls import INDICATOR_SLOTS, g4_criterion
+        ok = lambda *a: g4_criterion(*a)["ok"]  # noqa: E731
+        self.assertTrue(ok("D", 14, "indicator", {0, 1, 14}, [self.TAB.format(14, 3, 2)]))
+        self.assertFalse(ok("D", 14, "indicator", {14}, [self.TAB.format(14, 3, 2)]))
+        self.assertFalse(ok("D", 14, "indicator", {0, 1, 14, 15}, [self.TAB.format(14, 3, 2)]))
+        self.assertTrue(ok("S", 17, "indicator", {4, 17}, [self.TAB.format(17, 2, 1)]))
+        self.assertFalse(ok("S", 17, "indicator", {17}, [self.TAB.format(17, 2, 1)]))
+        # either indicator mechanism, recorded, with exactly its surplus
+        r = g4_criterion("Q", 15, "indicator", {15}, [self.DRAW.format(15, 19, 17)])
+        self.assertTrue(r["ok"])
+        self.assertEqual(r["refusal_mechanism"], "definition-draw count")
+        self.assertFalse(ok("Q", 15, "indicator", {15}, [self.TAB.format(15, 4, 2)]))
+        self.assertFalse(ok("Q", 15, "indicator", {15}, [self.DRAW.format(15, 18, 17)]))
+        for d, slots in INDICATOR_SLOTS.items():
+            host = max(slots)
+            self.assertTrue(ok(d, host, "indicator", set(slots),
+                               [self.TAB.format(host, 2, 1)]), d)
+
+    def test_draw_count_arm(self):
+        from zk60_native_rg_m125controls import g4_criterion
+        ok = lambda *a: g4_criterion(*a)["ok"]  # noqa: E731
+        self.assertTrue(ok("D", 14, "draw-count", {14}, [self.DRAW.format(14, 19, 17)]))
+        # the public-table count does NOT satisfy the draw-count arm
+        self.assertFalse(ok("D", 14, "draw-count", {14}, [self.TAB.format(14, 3, 2)]))
+        # only the host slot may stop
+        self.assertFalse(ok("D", 14, "draw-count", {0, 1, 14}, [self.DRAW.format(14, 19, 17)]))
+        # the surplus must be exactly the pad mu and zeta
+        self.assertFalse(ok("D", 14, "draw-count", {14}, [self.DRAW.format(14, 18, 17)]))
+
+    def test_a_refusal_not_by_mechanism_or_none_fails(self):
+        from zk60_native_rg_m125controls import g4_criterion
+        for arm in ("indicator", "draw-count"):
+            self.assertFalse(g4_criterion("Q", 15, arm, {15}, [])["ok"])
+            self.assertFalse(g4_criterion("Q", 15, arm, {15},
+                                          ["Dom::Q refused by name"])["ok"])
+            self.assertFalse(g4_criterion("Q", 15, arm, {15},
+                                          ["slot 15: indicator of Q looks padded"])["ok"])
+            # another slot's refusal text does not count for the host
+            self.assertFalse(g4_criterion("Q", 15, arm, {15},
+                                          [self.DRAW.format(16, 19, 17)])["ok"])
+
+
+class R7Pins(unittest.TestCase):
+    """[v8, round 6 part (B)] the R7 readings: every digest is the gate's R7
+    copy's file; the R7 writer is R5b's (run_capture.rs 31557a27), so the
+    shared set and the transcribed files R7 did not change keep their
+    readings; an R7 pin set is accepted and a moved R7 pin is refused"""
+
+    R7 = "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-r7/hashline"
+
+    def _sha(self, rel):
+        import hashlib
+        with open(os.path.join(self.R7, rel), "rb") as fh:
+            return hashlib.sha256(fh.read()).hexdigest()
+
+    @unittest.skipUnless(os.path.isdir(R7), "the gate's R7 copy is not on disk")
+    def test_every_r7_digest_is_the_r7_copys_file(self):
+        import zk60_native_rg_tinyllama_r7_pins as R
+        import zk60_native_rg_tinyllama_r5b_pins as R5B
+        import zk60_native_rg_tinyllama_r5_pins as R5
+        for table in (R.RUN_LAYER_PINS, R.TERMINALS_ALSO_ACCEPTED,
+                      R.TERMINALS_PINNED_IF_PRESENT, R.MASK_LAYER_PINS):
+            for path, digests in table.items():
+                self.assertEqual(list(digests), [self._sha(path)], path)
+        for path, (d, _why) in R.REPORT_ONLY_OWN_FILES.items():
+            self.assertEqual(d, self._sha(path), path)
+        rc = self._sha("src/private_block/run_capture.rs")
+        self.assertIn(rc, R5B.RUN_LAYER_PINS["src/private_block/run_capture.rs"])
+        for path, e in R5B.SHARED_NR4D_PINS.items():
+            self.assertEqual(e["sha256"], self._sha(path), path)
+        for path, e in R5.SHARED_G2_PINS.items():
+            self.assertEqual(e["sha256"], self._sha(path), path)
+        self.assertIn(self._sha("src/private_block/layout.rs"), R5.TERMINALS_ALSO_ACCEPTED["src/private_block/layout.rs"])
+        self.assertIn(self._sha("src/private_block/argument.rs"), R5.ARGUMENT_DEFINITIONS)
+
+    @unittest.skipUnless(os.path.isdir(TL1D), "L = 1 bundle not on disk")
+    def test_an_r7_pin_set_is_accepted_and_a_moved_one_refused(self):
+        import types
+        import zk60_native_rg_runpins as RP
+        import zk60_native_rg_tinyllama_r7_pins as R
+        import zk60_native_rg_tinyllama_r5b_pins as R5B
+        import zk60_native_rg_tinyllama_r5_pins as R5
+        with open(os.path.join(TL1D, "manifest.json")) as fh:
+            man = json.load(fh)
+
+        def set_(pins, f, d):
+            for p in pins:
+                if p["file"] == f:
+                    p["sha256"] = d
+                    return
+            pins.append({"file": f, "sha256": d})
+
+        def r7(pins):
+            set_(pins, "src/private_block/run.rs", next(iter(R.RUN_LAYER_PINS["src/private_block/run.rs"])))
+            set_(pins, "src/private_block/run_capture.rs", next(iter(R5B.RUN_LAYER_PINS["src/private_block/run_capture.rs"])))
+            for f, e in R5.SHARED_G2_PINS.items():
+                set_(pins, f, e["sha256"])
+            for f, e in R5B.SHARED_NR4D_PINS.items():
+                set_(pins, f, e["sha256"])
+
+        def check(m):
+            mm = copy.deepcopy(man)
+            m(mm["source_pins"])
+            return RP.check_run_layer_pins(types.SimpleNamespace(manifest=mm))
+        out = check(r7)
+        self.assertTrue(out["ok"], out.get("shared_files", {}).get("pins_that_moved"))
+
+        def moved(p):
+            r7(p)
+            set_(p, "src/private_block/run.rs", "1" * 64)
+        out = check(moved)
+        self.assertFalse(out["ok"])

@@ -1,0 +1,1532 @@
+  * bar cart vintage trolley Hollywood regency drinks gold 50s Italian handmade wheels decomposable glass panels mid century hotel guest gift (14) Sale Price $928.32 $928.32 $1,031.47 Original Price $1,031.47 (10% off) ...   * Modern mid-century French 1970s serving trolley · Vintage gold side table with wheels (24) $412.59 ...   * Hollywood Regency Italian Gilt Rope & Tassle Drinks Trolley Bar Cart (238) $1,295.00
+
+=====
+
+  * 2024/1866 (PDF)     ARCHER: Architecture-Level Simulator for Side-Channel Analysis in RISC-V Processors ...   * 2024/1547 (PDF)     HHL for tensor-decomposable matrices ...   * 2024/1545 (PDF)     Fully Composable Homomorphic Encryption ...   * 2024/1218 (PDF)     A Note on the use of the Double Boomerang Connectivity Table (DBCT) for Spotting Impossibilities ...   * 2024/1075 (PDF)     TaSSLE: Lasso for the commitment-phobic ...   * 2024/348 (PDF)     A Computational Tsirelson's Theorem for the Value of Compiled XOR Games
+
+=====
+
+  * Elegant bar cart, rosewood, brass inlays, tea trolley, 1960s side table, tea trolley, Italian style furniture, vintage, retro, shabby chic (442) $298.65 ...   * bar cart vintage trolley Hollywood regency drinks gold 50s Italian handmade wheels decomposable glass panels mid century hotel guest gift (16) Sale Price $483.83 $483.83 $537.59 Original Price $537.59 (10% off) ...   * Hollywood Regency Italian Gilt Rope & Tassle Drinks Trolley Bar Cart (238) $1,295.00
+
+=====
+
+We present TaSSLE, a new lookup argument for decomposable tables with minimal commitment costs.The construction generalizes techniques introduced in Lasso (Eurocrypt '24) which take advantage of the internal structure present in such tables to avoid the need for any party to need to commit to, or even construct, the entire table.
+
+=====
+
+Then, create a set of lookup table s, one for each block, and fill them with random values. ... Choose a block size r ≤ p; the choice of block size controls the tradeoff between time and memory usage, so it should be made so that the tables are not too large, e.g., so that the tables fit into the computer's cache memory.Smaller blocks use less memory but slow down the hash function.
+
+=====
+
+Title: Efficient Softmax Approximation for Deep Neural Networks with Attention Mechanism ... In this paper, we propose two methods to approximate softmax computation, which are based on the usage of LookUp Tables (LUTs).The required size of LUT is quite small (about 700 Bytes) because ranges of numerators and denominators of softmax are stable if normalization is applied to the input.
+
+=====
+
+The softmax function is often used as the last activation function of a neural network to normalize the output of a network to a probability distribution over predicted output classes. ... Formally, the standard (unit) softmax function \sigma: \R^K \to (0, 1)^K, where , takes a tuple \mathbf{z} = (z_1, \dotsc, z_K) \in \R^K and computes each component of vector \sigma(\mathbf{z}) \in (0, 1)^K with ... The normalization ensures that the sum of the components of the output vector \sigma(\mathbf z) is 1.
+
+=====
+
+TaSSLE: Lasso For The Commitment-phobic by Daniel Dore: Cryptology ePrintTaSSLE is a novel lookup argument designed to minimize commitment costs in decomposable tables, a challenge in cryptographic proofs.It extends the Lasso technique, allowing large table lookups without the need for full table commitments.
+
+=====
+
+Softmax / exp  | bespoke attention argument (zkLLM's `zkAttn`); lookup tables (zkPyTorch); result-as-witness (zkGPT)  | OT lookup for $e^{-x}$ and reciprocal (Iron); Taylor/piecewise polynomial (BOLT, Nimbus); FBS (Bootstrapping is All You Need)LayerNorm  | auxiliary witnesses -- division as quotient plus remainder-less-than-divisor, and a piecewise lookup table for the RMSNorm square root (zkPyTorch)  | reciprocal-sqrt via OT (Iron); folded into HE weights (BOLT); replaced by Dynamic Tanh (Bootstrapping is All You Need)
+
+=====
+
+Image: tlookup Protocol Visualization Abbildung 2: Der zkAttn-Protokoll-Workflow zeigt, wie der Aufmerksamkeitsmechanismus in verifizierbare Komponenten zerlegt wird, einschließlich Matrixmultiplikationen und des neuartigen b-ären Segmentierungsansatzes zur Handhabung der Softmax-Exponentiation. ... 2022), 1530. https://eprint.iacr.org/2022/1530 ... Lemma 4.1 aus dieser Arbeit ist die zentrale kryptografische Erkenntnis, die es zkLLM ermöglicht, nicht-arithmetische Tensoroperationen effizient durch ein parallelisierbares Lookup-Argument zu handhaben, was ein Schlüssel zu seiner Leistung ist.
+
+=====
+
+The paper proposes two key technical innovations to achieve efficient ZKPs for LLMs: `tlookup` and `zkAttn`. ...      * Problem: The attention mechanism in transformers is multivariate (involves multiple inputs) and relies on the Softmax function, which is highly non-arithmetic. ...        * Base-b Decomposition: Decomposes the input to the Softmax (after normalization) into negative K-digit base-b numbers. ... The paper describes a fully parallelized CUDA implementation of `zkLLM`.
+
+=====
+
+$$x = y\cdot 2^s + r \qquad\text{and}\qquad 0 \le r < 2^s \qquad\text{and}\qquad y \text{ in range}$$ ... Range, order, and division: softmax hits all three weaknesses at once.So it is unsurprising that it is where every system spends its cleverness, zkLLM builds a bespoke `zkAttn` to avoid bit-decomposing it; zkPyTorch gives up on arithmetic and looks $\exp$ up in a piecewise table; Jolt Atlas runs a four-stage batched sumcheck with a one-hot `argmax`, an operand link, and a saturating clamp made unique by a complementary-slackness argument.
+
+=====
+
+We extend the Shanks approach as it is the most commonly used method in practice due to its determinism and simplicity, by proposing a truncated lookup table strategy to speed up decryption and reduce memory requirements. ... Note: In order to protect the privacy of readers, eprint.iacr.org does not use cookies or embedded third party content.
+
+=====
+
+High-profile legal challenges, such as The New York Times' lawsuit against OpenAI for alleged copyright infringement, alongside governmental initiatives like President Biden's executive order on AI safety, highlight the urgent need for mechanisms to verify LLM outputs without compromising proprietary model parameters. ... Image: tlookup Protocol Visualization Figure 2: The zkAttn protocol workflow showing how the attention mechanism is decomposed into verifiable components, including matrix multiplications and the novel b-ary segmentation approach for handling Softmax exponentiation. ... While the normalization constant ẑ is difficult to verify directly, the final output Y's row-wise sum is checked against a target constant θ, allowing for tolerable error margins due to quantization. ... 2022), 1530. https://eprint.iacr.org/2022/1530 ... Lemma 4.1 from this work is the central cryptographic insight that allows zkLLM to efficiently handle non-arithmetic tensor operations through a parallelizable lookup argument, which is a key to its performance.
+
+=====
+
+zkLLM is a GPU-accelerated zero-knowledge proof system that proves a large language model's output came from committed weights without revealing those weights.R2 Demonstrated Source reviewed 2026-09-25 Provider-reported evidence ...   * zkAttn proves softmax attention by splitting the exponentiation into K segments, each checked with tlookup (§5).
+
+=====
+
+    https://arxiv.org/pdf/2404.16109 ... The GPU baseline everyone compares against. tlookup handles non-arithmetic tensor ops without asymptotic overhead; zkAttn is a bespoke argument for attention. ... A lookup table for Softmax is impossible, the function is multivariate, so you would have to tabulate every input vector. zkAttn escapes by exploiting two properties of the exponential: shift-invariance lets you normalize each row so the outputs sum to one, and homomorphism lets you decompose the shifted input into base-`b` digits and take the product of per-digit exponentials, each of which is a univariate table. ... Watch the model names. zkLLM's "GPT-2" is GPT-2 XL, 1.5B parameters.
+
+=====
+
+To tackle this issue, we present zkLLM, which stands as the inaugural specialized zero-knowledge proof tailored for LLMs to the best of our knowledge.Addressing the persistent challenge of non-arithmetic operations in deep learning, we introduce tlookup, a parallelized lookup argument designed for non-arithmetic tensor operations in deep learning, offering a solution with no asymptotic overhead.Furthermore, leveraging the foundation of tlookup, we introduce zkAttn, a specialized zero-knowledge proof crafted for the attention mechanism, carefully balancing considerations of running time, memory usage, and accuracy.
+
+=====
+
+# zkLLM: Zero Knowledge Proofs for Large Language Models ... The bottleneck is the attention mechanism or `zkAttn` in LLaMa-2, where the input size is `num_layer * num_head * seq_len * seq_len`, which is `32 * 32 * 2048 * 2048` (7B) or `40 * 40 * 2048 * 2048` (13B).`zkAttn` involves 5 (or 2) `tlookup`s and two Hadamard products. ...   * Openings: There are `40 * 40 * 2 = 3200` instances (input and its multiplicative inverse for each `tlookup`) with tensor dimensions `2048 * 2048 = 4194304`.
+
+=====
+
+  * [Input] Implementation of `tlookup` and `zkAttn`, two major technical components of zkLLM. ... Also, to load the LLMs and run the experiments, you will need `torch`, `transformers` and `datasets`: ...     python llama-rmsnorm.py $model_size $layer_number post_attention $sequence_length --input_file $post_attn_norm_input --output_file $ffn_input
+
+=====
+
+Though the non-arithmetic Sigmoid function can be integrated into the proof system via tlookup, optimizing setup costs and memory usage is crucial.This is achieved by reducing the Sigmoid function to zkAttn, given Softmax \(\begin{pmatrix} z \\ 0 \end{pmatrix} = \begin{pmatrix} \mathrm{Sigmoid}(z) \\ \mathrm{Sigmoid}(-z) \end{pmatrix}\), thus circumventing the bottleneck of iterating over extensive input-output pairs.
+
+=====
+
+We present TaSSLE, a new lookup argument for decomposable tables with minimal commitment costs.The construction generalizes techniques introduced in Lasso (Eurocrypt '24) which take advantage of the internal structure present in such tables to avoid the need for any party to need to commit to, or even construct, the entire table. ... Read the whitepaper here: https://eprint.iacr.org/2024/1075
+
+=====
+
+hardware devices, we cannot make a fair comparison with zkLLM. ... including GELU, Softmax, Normalization, and other linear layers. ... For transformer neural networks, we evaluate the cosine simi- ... by OpenAI [42] and the outputs of the approximated GPT-2 model ... Cryptology ePrint Archive (2024).
+
+=====
+
+To tackle this issue, we present zkLLM, which stands as the inaugural specialized zero-knowledge proof tailored for LLMs to the best of our knowledge. ... Furthermore, leveraging the foundation of tlookup, we introduce zkAttn, a specialized zero-knowledge proof crafted for the attention mechanism, carefully balancing considerations of running time, memory usage, and accuracy. ... Layer Normalization. ... (2022), 1763. https://eprint.iacr.org/2022/1763 ... (2021), 87. https://eprint.iacr.org/2021/087 ... 2021. zkCNN: Zero Knowledge Proofs for Convolutional Neural Network Predictions and Accuracy.
+
+=====
+
+Parameters: A finite field Fp, upper bound of input bitlength n, scale s, number of iterations I, and bitlength m for lookup. ... ˆz1 := F2R(z1, p,m), and sends (Input,a,b) to functionality FZK, which returns [a]p,[b]p to P and V . ... Figure 13: Protocol for division. ... softmax, GELU, and normalization.
+
+=====
+
+We present TaSSLE, a new lookup argument for decomposable tables with minimal commitment costs.The construction generalizes techniques introduced in Lasso (Eurocrypt '24) which take advantage of the internal structure present in such tables to avoid the need for any party to need to commit to, or even construct, the entire table. ...           url = {https://eprint.iacr.org/2024/1075}
+
+=====
+
+**Yes—this is a fruitful direction, particularly because quotient lookups could absorb the expensive rounding and range checks.** The important distinction is between a table of exact quotients and one of rounded fixed-point quotients.
+
+Our division audit supports your intuition: for 16,384 outputs, the arithmetic-only diagnostic used **32,800 constraints**; including all normalization bounds brought it to **525,746**. Those are constraint counts, not proof timings, but they identify the opportunity.
+
+**1. The outer-product structure is excellent—before rounding.**
+
+For numerator values \(a_i\) and nonzero denominator values \(b_j\),
+
+\[
+T_{ij}=\frac{a_i}{b_j}=a_i\,r_j,\qquad r_j=\frac1{b_j}.
+\]
+
+This is a rank-one matrix. Taking “16k” as 16,384:
+
+| Representation | Entries stored | Payload at 32 bytes/entry |
+|---|---:|---:|
+| Entire quotient matrix | 268,435,456 | 8 GiB |
+| Two factor vectors | 32,768 | 1 MiB |
+
+These figures exclude proof overhead and additional columns needed to bind values to indices.
+
+Structured lookup arguments such as TaSSLE provide a framework for exploiting decomposable tables without constructing or committing the entire large table. That supports the architectural direction; it does not establish a speedup in our current prover. genui{"citation":{"ref":"turn11search1"}}
+
+The complication is that our softmax statement is
+
+\[
+y=\left\lfloor\frac{Q a}{b}\right\rfloor,
+\]
+
+where \(Q\) is the fixed-point scale. This rounded table need not remain rank one. For example,
+
+\[
+\left[\left\lfloor\frac{16a}{b}\right\rfloor\right]_
+{a\in\{1,3\},\,b\in\{3,5\}}
+=
+\begin{pmatrix}5&3\\16&9\end{pmatrix},
+\]
+
+whose determinant is \(-3\).
+
+Consequently, factorizing the reciprocal computation still leaves a rounding obligation. A modular field inverse also does not, by itself, produce the required integer quotient.
+
+**2. There is an exact reciprocal construction worth testing.**
+
+We can preserve the original floor result using a sufficiently precise, rounded-up reciprocal.
+
+Assume
+
+\[
+0\le a\le A_{\max},\qquad 1\le b\le B_{\max}.
+\]
+
+Choose a power of two \(L\ge Q A_{\max}B_{\max}\), and define
+
+\[
+z_b=\left\lceil\frac{L}{b}\right\rceil.
+\]
+
+Then
+
+\[
+\boxed{\left\lfloor\frac{Qaz_b}{L}\right\rfloor
+=\left\lfloor\frac{Qa}{b}\right\rfloor.}
+\]
+
+The reciprocal approximation increases the unrounded result by less than \(1/b\), which is too little to cross the next integer boundary.
+
+This gives us a concrete construction:
+
+- Certify \(z_b\) **once per distinct denominator**, using \(0\le bz_b-L<b\).
+- Bind each query’s denominator to its certified reciprocal.
+- Multiply by the numerator and prove a power-of-two truncation.
+
+The numerator can remain its existing authenticated circuit value; a separate numerator lookup is optional.
+
+**I checked this arithmetic:** 65,792 exhaustive small-domain pairs, 100,020 random/boundary pairs with 14-bit values, and 100,020 with wide softmax-like bounds. Every result matched exact integer division. These are correctness checks, **not proof-runtime benchmarks**.
+
+The remaining tradeoff is precision:
+
+| Tested bounds, \(Q=2^{32}\) | Required \(L\) | Truncation bits after cancelling \(Q\) |
+|---|---:|---:|
+| 14-bit numerators and denominators | \(2^{60}\) | 28 |
+| 135-bit numerators, 144-bit denominators | \(2^{311}\) | 279 |
+
+This matters for us: **16k distinct values does not mean 14-bit values.** Our wide softmax weights can require multi-limb arithmetic for this exact construction, potentially consuming the savings. Our existing lower-precision reciprocal modes avoid some of that cost but have a different rounding contract.
+
+**3. Your table-sizing optimization applies most strongly to the pairs actually used.**
+
+Let:
+
+- \(N\): total quotient requests;
+- \(U_a,U_b\): distinct numerators and denominators;
+- \(K\): distinct **numerator–denominator pairs**.
+
+There are two useful approaches:
+
+| Approach | Work certified once | Work remaining across requests |
+|---|---|---|
+| Denominator dictionary | \(U_b\) reciprocals | \(N\) bindings, multiplications and truncations |
+| Observed-pair dictionary | \(K\) exact quotient relations | \(N\) lookups of complete \((a,b,y)\) tuples |
+
+The second approach can eliminate repeated rounding checks entirely: prove each occupied quotient-table entry once, then reuse it. Its approximate cost is
+
+\[
+T_{\text{binding}}(N,K)+K\,C_{\text{exact division}}.
+\]
+
+That can be excellent when \(K\ll N\). But small marginal dictionaries do not guarantee small \(K\): 16k numerator values and 16k denominator values can still generate almost entirely distinct pairs.
+
+For softmax, denominators already repeat within each row. At one million outputs with 512-element rows, there are only about 2,048 row denominators before any further deduplication. Conversely, 16k possible exponential outputs does **not** imply only 16k possible row sums.
+
+The previous optimizations therefore transfer as follows:
+
+- **Adaptive table sizing:** size reciprocal tables by \(U_b\), and quotient dictionaries by \(K\).
+- **Separate certification from assignment:** certify dictionary entries once, then bind all requests to them. Private dictionaries still need sound commitment and binding.
+- **Repeated-scalar aggregation:** potentially useful again, but savings depend on repeated scalars in the resulting proof—not merely repeated numerator values.
+- **Batching:** amortizes dictionary certification across many requests sharing the same numerical specification.
+
+**My recommendation is to compare the exact reciprocal dictionary and the observed-pair dictionary against our exact division baseline.** Measure total certification, binding and proving time while varying \(U_b\), \(K\), and value bit widths independently.
+
+Your proposal targets the expensive part of division. The decisive question is whether we can share the **rounding certification** as effectively as we can share the reciprocal table.
+
+=====
+
+The division audit supports your intuition: at 16,384 outputs, the arithmetic-only circuit used 32,800 constraints, while adding all normalization bounds brought it to 525,746. A quotient lookup could absorb those expensive checks. I’m also checking whether a sufficiently precise reciprocal can preserve the exact rounded result, so we can distinguish a real saving from simply moving the same work elsewhere.
+
+=====
+
+The key distinction is now clear: the unrounded quotient table factors perfectly into two small vectors, but fixed-point rounding can break that structure. The most promising version is therefore to share a certified reciprocal for each distinct denominator, while accounting explicitly for the remaining rounding checks.
+
+=====
+
+It seems to me like the quotient proofs could benefit from the outerproduct tables even more than the exponential proofs and the construction could be done similarly here. Suppose you had 16k possible numerators and 16k possible denominators, an outer product of the two would provide the entire set of possible quotient proofs. Not sure if that would be a fruitful direction to approach the problem? Some of the previous optimizations might then be applicable in this case as well?
+
+=====
+
+**Implemented and tested. Repeated-scalar aggregation gives a further 6.7–13.5% reduction in million-evaluation latency**, compared with our already optimized full-table prover. It also combines successfully with the smaller-dictionary approach.
+
+At **1,048,576 exponential evaluations**:
+
+| Approach | Distinct inputs | Previous prover | New prover | Reduction |
+|---|---:|---:|---:|---:|
+| Full 200k table | 64 | 10.26 s | **8.88 s** | **13.5%** |
+| Full 200k table | 16,384 | 9.81 s | **9.16 s** | **6.7%** |
+| Full 200k table | 200,000 | 11.47 s | **10.49 s** | **8.6%** |
+| Factor-certified dictionary, capacity 64 | 64 | 9.81 s | **8.56 s** | **12.8%** |
+
+These are three-trial medians on eight CPU threads. Times include witness construction, proving, verification, and **fresh grouping and base aggregation on every proof**. Setup is excluded.
+
+The implementation uses the exact identity
+
+\[
+\sum_i s_i B_i
+=
+\sum_u s_u\left(\sum_{i:s_i=s_u}B_i\right).
+\]
+
+We group actual equal field scalars, then perform the smaller MSM. The circuit, keys, verification, proof size, and integer exponential outputs remain unchanged.
+
+For your **16k-distinct-value case**, this reduces the complete G2 MSM from **1,453,639 terms to 37,832**. Its median duration falls from **2.94 s to 1.05 s**, including aggregation overhead. The remaining terms come from other circuit work, so the total does not fall exactly to 16k.
+
+The whole-proof improvement is smaller because G1 MSMs, FFTs, and witness construction remain. This successfully exploits repetition, while retaining an \(O(N)\) scan and base-aggregation step.
+
+I also tested a control that removes only zero scalars. Grouping outperformed it in all million-evaluation comparisons, confirming an additional benefit from repeated **nonzero** scalars.
+
+There is a crossover: at 262,144 evaluations and 200,000 distinct inputs, the improvement was only **0.4%—effectively a tie**. The smaller 32,768-evaluation/16,384-distinct pilot regressed by 1.1%. The new path is therefore opt-in.
+
+**Validation:** 75 benchmark proofs verified, alongside exact MSM comparisons, public/private proof tests, and rejection tests for altered statements and invalid witnesses. Performance measurements use public statements and synthetic balanced repetitions; private whole-LLM latency and skewed activation traces remain unmeasured.
+
+The next natural extension is to **reuse the scalar grouping for the G1 B-side MSM**, which uses the same scalar vector. That extension is not yet tested.
+
+- [expzk-repeated-msm.pdf](sandbox:/workspace/scratch/ee40a9bea707/work/expzk-0.7.0/output/pdf/expzk-repeated-msm.pdf)
+- [expzk-0.7.0.zip](sandbox:/workspace/scratch/ee40a9bea707/work/expzk-0.7.0.zip)
+
+=====
+
+{"plan":[{"step":"Implement exact repeated-scalar G2 aggregation with correctness checks.","status":"completed"},{"step":"Integrate it into the prover and benchmark matched proofs at large batch sizes.","status":"completed"},{"step":"Analyze crossover, document limitations, and deliver the reproducible release.","status":"completed"}],"explanation":"Implemented and validated exact aggregation; completed 75 verified proofs across matched full-table and dictionary comparisons; inspected the six-page report and saved the reproducible 0.7.0 release."}
+
+=====
+
+{"plan":[{"step":"Implement exact repeated-scalar G2 aggregation with correctness checks.","status":"completed"},{"step":"Integrate it into the prover and benchmark matched proofs at large batch sizes.","status":"completed"},{"step":"Analyze crossover, document limitations, and deliver the reproducible release.","status":"in_progress"}],"explanation":"Completed 75 verified benchmark proofs, including zero-only controls and combination with a 64-entry factor-certified dictionary. Final analysis/report and reproducible release are being checked."}
+
+=====
+
+For the 16,384-distinct-input case, the full G2 sum shrinks from **1,453,639 terms to 37,832**, and its median duration falls from **2.94 s to 1.05 s**. Other circuit terms account for the remaining groups. Whole-proof latency falls by about 0.65 s, showing why the overall gain is smaller than the G2 reduction.
+
+=====
+
+The million-value results are now consistently positive across all three trials for both 64 and 16,384 distinct inputs, though the gains vary. I’m adding one final check against our small-dictionary LogUp circuit, which was already competitive at heavy repetition, to test whether the two optimizations combine well.
+
+=====
+
+At 262,144 evaluations, the 64-distinct-value case reduces the G2 MSM from 664,577 terms to about 1,350. That phase is much faster, but the whole proof improves less because other prover work remains. The high-distinct-value case looks close to a tie so far; the million-evaluation runs will test whether greater repetition makes grouping worthwhile.
+
+=====
+
+{"plan":[{"step":"Implement exact repeated-scalar G2 aggregation with correctness checks.","status":"completed"},{"step":"Integrate it into the prover and benchmark matched proofs at large batch sizes.","status":"in_progress"},{"step":"Analyze crossover, document limitations, and deliver the reproducible release.","status":"pending"}],"explanation":"Exact aggregation and public/private proof tests pass. Added zero-only compaction as an attribution control before large benchmarks."}
+
+=====
+
+**All four experimental workstreams are complete.** The useful gains are roughly **16–20% lower online latency from constraint orientation**, plus a **21% reduction from compact tables at a tested FFT boundary**. The \(3N \to N\) result is real, but applies to one expensive prover operation—not the entire proof.
+
+The release includes **132 verified benchmark proofs**, matched inputs and outputs across comparisons, correctness tests, and adversarial tests.
+
+**1. Batch inversion: implemented and tested**
+
+For each lookup, we need a quotient such as
+
+\[
+q_i=\frac{1}{z-X_i-\alpha Y_i}.
+\]
+
+We now compute inverses in batches of 4,096. At \(N=1,048,576\) requests and a 200,000-entry table, this reduces **1,248,576 individual inversions to 305 batch inversions**, with additional field multiplications.
+
+Every quotient remains checked inside the circuit. The hint is untrusted, and the constraint count is unchanged.
+
+The qualification: implementing this also changed constraint orientation. Consequently, we cannot credit the measured runtime improvement entirely to batch inversion. The structural investigation below explains an important part of the gain.
+
+**2. The \(3N \to N\) optimization: implemented and validated**
+
+These equations enforce the same relation:
+
+\[
+q_i(z-X_i-t_i)=1
+\qquad\text{and}\qquad
+(z-X_i-t_i)q_i=1.
+\]
+
+But their placement in the R1CS matrices can change Groth16’s expensive G2 multiscalar multiplication.
+
+Putting the quotient on the appropriate side reduces the activation-dependent contribution from approximately **\(3N\) columns to \(N\)**.
+
+At \(N=1,048,576\):
+
+| Measurement | Original | Optimized |
+|---|---:|---:|
+| Total B-matrix support | 3,550,524 | 1,453,372 |
+| Constraints | 2,302,327 | 2,302,327 |
+
+The reduction is exactly \(2N\); fixed overhead remains. G1 work also increases, so this does not translate into a threefold overall speedup.
+
+Measured full-table online latency:
+
+| Distinct inputs | Original | Oriented implementation | Reduction |
+|---:|---:|---:|---:|
+| 64 | 12.84 s | 10.27 s | 20.0% |
+| 16,384 | 12.00 s | 10.13 s | 15.6% |
+| 200,000 | 13.19 s | 10.59 s | 19.7% |
+
+The earlier chunked implementation already captured most of this improvement. At 16,384 distinct inputs it measured **9.97 s**, slightly faster than the explicitly oriented variant. We therefore should not assume the latter is universally best.
+
+**3. Tables sized to distinct values: implemented, with certification costs included**
+
+Your observation is correct: **a batch containing 16,384 distinct inputs needs only 16,384 distinct input/output pairs for its membership proof.**
+
+The remaining question is how we establish that those pairs contain correct exponential outputs.
+
+| Situation | Required treatment |
+|---|---|
+| A fixed, known 16,384-value allowed domain | Compile that smaller table directly |
+| A batch-selected dictionary | Prove that its entries implement the exponential function |
+| An identical dictionary already certified | Reuse its certificate |
+
+We implemented two ways to certify a batch-selected dictionary:
+
+- **Within the same proof:** validate each distinct pair using the factorized exponential gadget.
+- **Separate certificate:** certify the dictionary against the full function, then prove the requests use that dictionary.
+
+For the separate-certificate implementation, the verifier binds both proofs to the **same ordered dictionary**. Tests explicitly reject a valid membership proof containing consistently false exponential outputs.
+
+With \(U=16,384\):
+
+| Requests \(N\) | Optimized full table | Compact table, fresh certificate included | Compact usage, certificate already available |
+|---:|---:|---:|---:|
+| 262,144 | 2.92 s | 3.56 s | 2.67 s |
+| 1,028,096 | 9.73 s | **7.67 s** | 6.82 s |
+| 1,048,576 | 10.13 s | 10.05 s | 9.24 s |
+
+This reveals two important effects:
+
+- **At 1,048,576 requests, fresh certification is effectively a tie.** The difference is too small to call a reliable improvement.
+- **At 1,028,096 requests, the smaller table halves the FFT domain**, from \(2^{22}\) to \(2^{21}\). That produces the **21.2% improvement**, even after paying for a fresh certificate.
+
+Thus, table capacity and batch size should be optimized together. Choosing a power-of-two request count alone can be inefficient because table and circuit overhead push the actual constraint count into the next FFT domain.
+
+This also applies to the factorized approach, with an important distinction: its constant factor tables contain only **\(50+50+80=180\) entries**. Our 16,384-value samples occupied all 180, so those tables could not shrink. We did shrink the dictionary of complete input/output pairs.
+
+That factor-certified dictionary took **10.65 s** at one million requests and 16,384 distinct inputs—slower than the optimized full table. With only 64 distinct inputs, grouped methods were better: approximately **9.52–9.64 s**. Smaller dictionaries help, but their validation cost determines the crossover.
+
+**4. GKR for the lookup sum: implemented and evaluated**
+
+We implemented a fractional-sum tree, combining fractions through
+
+\[
+\frac{a}{b}+\frac{c}{d}=\frac{ad+bc}{bd},
+\]
+
+and verifying its GKR proof inside Groth16.
+
+Small proof round trips and adversarial tests passed. However, the large-table compile screen already required **1,710,544 constraints for just 1,024 requests** against the 200,000-entry table.
+
+The generic embedding carries substantial costs for binding the intermediate values into the outer proof. **This version is not a promising replacement for the optimized direct lookup.** We did not run or claim a large-table GKR latency benchmark.
+
+That result concerns this implementation; it does not establish that a native lookup/GKR backend sharing commitments with the surrounding model would perform poorly.
+
+For very large LLM workloads, I would use the findings as follows:
+
+- Keep the inversion batching and measured constraint-orientation improvements.
+- Select dictionary capacity from actual distinct quantized inputs, using reusable circuit shapes.
+- Choose request chunk sizes from **compiled constraint counts and FFT boundaries**.
+- Count fresh dictionary certification unless identical-dictionary reuse is actually established.
+- Measure real activation traces before choosing between full-table and grouped approaches.
+
+The numerical function stayed unchanged: the same 200,000-point input grid, the same integer outputs, and 40 fractional output bits. A 16,384-entry dictionary does **not** reduce input precision.
+
+All reported timings are three-trial medians on eight CPU threads, including witness construction, proving, and verification, with setup excluded. They use synthetic repeated inputs and public input/output statements. Private wrappers were tested, but **private compact-table composition and complete LLM proof latency remain unmeasured**.
+
+The most focused next experiment is to exploit repeated quotient scalars directly in the prover:
+
+\[
+\sum_i q_{d(i)}B_i
+=
+\sum_u q_u\left(\sum_{i:d(i)=u}B_i\right).
+\]
+
+This could replace an \(N\)-term G2 MSM with base aggregation followed by a \(U\)-term MSM. It preserves the proof relation exactly, but its net performance benefit has **not yet been tested**.
+
+The full measurements, implementation details, and reproduction instructions are available here:
+
+- [expzk-batched-lookups.pdf](sandbox:/workspace/scratch/ee40a9bea707/work/expzk-0.6.0/output/pdf/expzk-batched-lookups.pdf)
+- [expzk-0.6.0.zip](sandbox:/workspace/scratch/ee40a9bea707/work/expzk-0.6.0.zip)
+
+=====
+
+The four workstreams are covered: batched inversion, the \(3N \to N\) constraint change, compact tables sized to distinct values, and GKR for the lookup sum. The strongest results are the constraint change and table sizing near an FFT boundary. I’m checking the final evidence, including where an experiment did not improve performance.
+
+=====
+
+{"plan":[{"step":"Recover prior results and preserve the exact numerical and proof contract","status":"completed"},{"step":"Implement and validate the next optimizations, including adaptive table certification","status":"completed"},{"step":"Measure million-value proofs, occupied capacities, and FFT thresholds","status":"completed"},{"step":"Inspect the evidence and deliver reproducible source and results","status":"completed"}],"explanation":"Verified all 132 benchmark proofs and matching integer outputs, inspected all nine report pages, checked archive CRC and file hashes, and saved the versioned source plus report."}
+
+=====
+
+bash -lc /bin/bash -lc "python - <<'PY'
+from pathlib import Path
+p=Path('scripts/analyze_compact.py');s=p.read_text().replace(\"summary={'cases':rows\", \"rows.sort(key=lambda c:c['batch'])\\nsummary={'cases':rows\");p.write_text(s)
+p=Path('scripts/report_batch.py');s=p.read_text().replace(\"2. Certified compact public table: first prove\", \"Alternatively, certify a compact public table: first prove\");s=s.replace(\"{s['evaluation_instances']:,} evaluation instances across trials.\", \"{s['evaluation_instances']+compact['request_evaluation_instances']:,} activation requests across trials, plus dictionary certification.\");p.write_text(s)
+p=Path('BATCH_EXPERIMENT.md');s=p.read_text();s+='\\nPDF reproduction additionally requires Python matplotlib/reportlab and the system DejaVu Sans fonts (embedded in the delivered PDF). The matrix audit reuses its completed JSON unless invoked with "'`--force`.'"\\n';p.write_text(s)
+PY"
+
+=====
+
+bash -lc /bin/bash -lc "python - <<'PY'
+import json,pdfplumber
+s=json.load(open('benchmarks/batch/summary.json'));c=json.load(open('benchmarks/compact/summary.json'))
+print('Standard cases/proofs',s['verified_cases'],s['verified_proofs'],'compact proofs',c['verified_proofs'])
+print('Requests',s['evaluation_instances']+c['request_evaluation_instances'])
+for r in c['cases']:print(r['batch'],'fresh',r['median_cold_seconds'],'usage',r['median_certified_usage_seconds'],'cert',r['median_certificate_seconds'],'range',[t['cold_online_seconds'] for t in r['trials']])
+with pdfplumber.open('output/pdf/expzk-batched-lookups.pdf') as doc:
+ for i,page in enumerate(doc.pages,1):
+  bad=[c for c in page.chars if c['x0']<20 or c['x1']>595 or (c['top']>738 and c['top']<755)]
+  print('PDF page',i,'out-of-body characters',len(bad))
+PY"
+
+=====
+
+bash -lc /bin/bash -lc "python - <<'PY'
+from pathlib import Path
+p=Path('scripts/report_batch.py');s=p.read_text();s=s.replace('from reportlab.pdfgen import canvas','from reportlab.pdfgen import canvas\\nfrom reportlab.pdfbase import pdfmetrics\\nfrom reportlab.pdfbase.ttfonts import TTFont\\npdfmetrics.registerFont(TTFont(\"Body\", \"/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf\"))\\npdfmetrics.registerFont(TTFont(\"Heading\", \"/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf\"))');s=s.replace(\"'Helvetica-Bold'\",\"'Heading'\").replace(\"'Helvetica'\",\"'Body'\");s=s.replace(\"new('Where time and memory go','Phase medians are diagnostic; the online median is taken from complete per-trial sums')\",\"new('Where time and memory go','N=1,048,576; U=64. Phase medians do not sum to the online median.')\");p.write_text(s)
+PY"
+
+=====
+
+{"plan":[{"step":"Recover prior results and preserve the exact numerical and proof contract","status":"completed"},{"step":"Implement and validate the next optimizations, including adaptive table certification","status":"completed"},{"step":"Measure million-value proofs, occupied capacities, and FFT thresholds","status":"completed"},{"step":"Inspect the evidence and deliver reproducible source and results","status":"in_progress"}],"explanation":"Completed all large and adaptive-table proof runs, checked matching integer outputs and proving-key/matrix support. The compact table wins clearly at the FFT threshold; outside it, fresh certification can erase the benefit."}
+
+=====
+
+The final test shows a clear benefit from combining the ideas. At **1,028,096 requests and 16,384 distinct values**, the compact table fits a **2²¹-point FFT instead of 2²²**. Including a fresh dictionary certificate, median online time falls from **9.73 s to 7.67 s**—about **21%**.
+
+All compared integer-output hashes match, and the proofs verify. I’m assembling the source, raw results, and report now, with the public-dictionary limitation made explicit.
+
+
+=====
+
+At 1,048,576 requests, the compact table takes **10.05 s including a fresh certificate**, versus **10.13 s** for the optimized full table—effectively a tie in three trials. With an already-certified dictionary, its usage phase is **9.24 s**.
+
+The last run tests the nearby FFT boundary. That is where reducing the table size should have a clearer effect than simply removing some rows within the same FFT domain.
+
+
+=====
+
+bash -lc /bin/bash -lc "python - <<'PY'
+from pathlib import Path
+p=Path('scripts/report_batch.py');s=p.read_text();needle=\"para('Usage only is conditional on reusing the identical already-certified dictionary. Each measured trial used a fresh random support and generated a new certificate. Reuse savings are a phase-based model, not measured multi-batch reuse. Setup is excluded for all methods.',size=10)\";s=s.replace(needle,\"para('Usage only requires the identical already-certified dictionary. Each trial generated a fresh certificate; reuse is a phase-based model. At 1,048,576 requests the cold compact and full-table medians differ by less than 1%, which is not a reliable timing win from three trials. Setup is excluded throughout.',size=10)\")
+needle=\"(root/'BATCH_RESULTS.md').write_text('\\\\n'.join(lines)+'\\\\n')\"
+replace=\"\"\"lines+=['','## Certified compact public tables','','Cold includes a fresh full-function certificate. Usage only requires an already-certified identical dictionary. Public dictionary; private shared-commitment integration is not implemented.','','| N | U | Full oriented s | Compact cold s | Usage only s | Full FFT | Compact FFT |','|---:|---:|---:|---:|---:|---:|---:|']
+for c in compact['cases']:lines.append(f\\\"| {c['batch']:,} | {c['unique_inputs']:,} | {c['baseline_online_seconds']:.4f} | {c['median_cold_seconds']:.4f} | {c['median_certified_usage_seconds']:.4f} | {c['baseline_fft_domain']:,} | {c['usage_fft_domain']:,} |\\\")
+lines+=['',f\\\"These add {compact['verified_proofs']} verified certificate/usage proofs. Input and integer-output hashes match the full-table comparisons.\\\",'', '## Compiled R1CS support at N=1,048,576','','| Method | A support | B support | Constraints |','|---|---:|---:|---:|']
+for c in support:
+ if c['n']==1048576:lines.append(f\\\"| {c['method']} | {c['a_support']:,} | {c['b_support']:,} | {c['constraints']:,} |\\\")
+(root/'BATCH_RESULTS.md').write_text('\\\\n'.join(lines)+'\\\\n')\"\"\"
+assert needle in s;s=s.replace(needle,replace);p.write_text(s)
+PY"
+
+=====
+
+The corrected compact-table run is complete at 262,144 requests: **2.67 s** for usage alone, or **3.56 s** including a fresh dictionary certificate. The optimized full table takes **2.92 s**.
+
+So the smaller table helps the membership proof, but loses on a fresh batch. Using these measured phase costs, it would pay off after roughly **four batches reusing exactly the same certified dictionary**; that reuse figure is a model, not a measured multi-batch run.
+
+
+=====
+
+bash -lc /bin/bash -lc "python - <<'PY'
+from pathlib import Path
+p=Path('scripts/report_batch.py');s=p.read_text();s=s.replace(\"1. Grouped factor validation: reserve K slots and certify each dictionary value from the fixed 50 x 50 x 80 factor tables inside every proof. Set K=U (or a small precompiled capacity bucket). Low actual occupancy does not shrink a circuit compiled with a larger K.\",\"Here U is a batch-dependent subset of the 200,000-point domain. If 16,384 values are instead the entire predeclared allowed domain, compile that smaller constant table directly. For dynamic support, grouped factor validation reserves K slots and certifies each pair inside the proof. Choose K=U or the next small capacity bucket.\")
+p.write_text(s)
+PY"
+
+=====
+
+bash -lc /bin/bash -lc "python - <<'PY'
+from pathlib import Path
+p=Path('BATCH_EXPERIMENT.md');s=p.read_text();s+='''
+
+## A further exact-arithmetic candidate (not benchmarked here)
+
+After orientation, many B-side query scalars are identical when the input/output
+pairs repeat: q_i = 1/(z-X_i-alpha*Y_i). For a dictionary label d(i), a prover can
+rewrite the G2 sum exactly as
+
+    sum_i q[d(i)] * B_i = sum_u q[u] * (sum_{i:d(i)=u} B_i).
+
+This exchanges a large MSM for O(N) group additions to aggregate bases and a
+U-term MSM. It changes no constraints, numerical values or verification relation.
+Its actual gain depends on the backend's MSM algorithm, scalar distribution,
+aggregation cost and memory traffic. Bases are proof-position-specific, so the
+aggregation cannot be assumed reusable across different request layouts. This
+release does not implement or time this prover optimization. It is a focused
+candidate after the matrix-orientation result, especially for repeated activations.
+''';p.write_text(s)
+PY"
+
+=====
+
+The compiled-matrix audit now confirms the \(3N \to N\) reduction exactly for the activation-dependent part. At 1,048,576 requests, total B-side support falls from **3,550,524 to 1,453,372 entries**, including table overhead.
+
+It also explains the limits: A-side work increases, and a simple operand swap is normalized away by the compiler. The useful change is how the reciprocal constraints are laid out—not every source-level multiplication swap.
+
+
+=====
+
+bash -lc /bin/bash -lc "python - <<'PY'
+from pathlib import Path
+p=Path('scripts/report_batch.py');s=p.read_text();s=s.replace(\"c=next(c for c in support if c['n']==1048576 and c['method']==m);rows.append([labels[m],f\\\"{c['b_support']:,}\\\",f\\\"{c['constraints']:,}\\\"])\",\"c=next(c for c in support if c['n']==1048576 and c['method']==m);rows.append([labels[m],f\\\"{c['a_support']:,}\\\",f\\\"{c['b_support']:,}\\\",f\\\"{c['constraints']:,}\\\"])\")
+s=s.replace(\"table(['Method, N=1,048,576','B columns','Constraints'],rows,[200,150,150],size=9)\",\"table(['Method; N=1,048,576','A columns','B columns','Constraints'],rows,[180,110,110,110],size=8.3)\")
+s=s.replace(\"B support is counted directly from compiled R1CS rows. This reduces entries in one G2 multiscalar multiplication (and a G1 counterpart), not the number of all proof operations. The constraint count and FFT domain remain unchanged. The compiler can normalize a source-level operand swap away; inspect compiled matrices.\",\"The matrix audit confirms the 3N-to-N activation contribution, plus table overhead. A support increases: some cheaper G1 work replaces G2 work. This is not a threefold reduction in total operations. Pair-product-only swapping has identical A/B support to baseline. Both batched layouts have similar B support; the full-chunk variant has fewer A columns.\")
+p.write_text(s)
+p=Path('scripts/analyze_batch.py');s=p.read_text();s=s.replace(\"summary={'verified_cases'\", \"support=json.loads((d/'matrix-support.json').read_text()) if (d/'matrix-support.json').exists() else []\\nfor c in cases:\\n for m in support:\\n  if m['method']==c['method'] and m['n']==c['batch'] and c.get('proving_key_g2_points'):\\n   assert m['b_support']+2==c['proving_key_g2_points']\\n   assert m['constraints']==c['constraints']\\nsummary={'verified_cases'\")
+p.write_text(s)
+PY"
+
+=====
+
+I caught a witness-construction inefficiency in the compact prototype: it was reparsing the same output once per request, while the baseline caches it once per distinct value. I’ve fixed that and stopped the compact run so the final comparison uses the same caching approach.
+
+The first compact run still showed the expected distinction: a smaller membership proof, but a fresh dictionary certificate that could outweigh the saving.
+
+
+=====
+
+At 262,144 requests and 16k distinct values, the timings now confirm the tradeoff: **3.80 s** for the factor-certified 16k dictionary versus **2.92 s** for the optimized full table.
+
+The remaining compact-table runs test whether certifying the dictionary separately can reverse that result, especially near an FFT boundary. I’ll report fresh-certificate cost separately from any conditional reuse savings.
+
+
+=====
+
+bash -lc /bin/bash -lc "python - <<'PY'
+from pathlib import Path
+p=Path('cmd/compact/main.go');s=p.read_text();s=s.replace('\"os\"','\"os\"\\n \"runtime\"');s=s.replace('r := map[string]any{\"batch\":','r := map[string]any{\"config_hash\": c.Fingerprint(), \"go_version\": runtime.Version(), \"threads\": runtime.GOMAXPROCS(0), \"batch\":');p.write_text(s)
+p=Path('scripts/analyze_compact.py');s=p.read_text();s=s.replace(\" assert all(t['composed_verified'] for t in c['trials'])\",\" assert c['config_hash']==b['config_hash']\\n assert all(t['composed_verified'] for t in c['trials'])\\n assert all(t['factor_digit_occupancy']==[50,50,80] for t in c['trials'])\");p.write_text(s)
+PY"
+
+=====
+
+The 16k-capacity grouped circuit has **970,024 constraints** at \(N=262,144\), compared with **726,833** for the full 200k-table circuit. Its smaller dictionary saves lookup work, but certifying each selected value through the factor gadget adds rows.
+
+That does not by itself decide latency—the group operations also differ—but it confirms why we need to measure the complete proof rather than equate “smaller table” with “cheaper proof.”
+
+
+=====
+
+bash -lc /bin/bash -lc "python - <<'PY'
+from pathlib import Path
+p=Path('BATCH_EXPERIMENT.md');s=p.read_text();s+='''
+
+## Practical dispatch policy for a large run
+
+Count distinct original quantized inputs during witness construction. Preserve
+request order and group only the auxiliary dictionary. Reuse a small offline
+family of circuit shapes (N, capacity bucket, argument), with K the smallest
+available bucket covering U; a new dictionary of the same shape does not require
+a new setup. Compare grouped factor validation and the full table using actual
+backend measurements, not only U. Then choose chunk lengths using the compiled
+constraint count so that a small excess does not double the FFT domain. Changing
+the chunk length can change U, so profile the resulting chunks again.
+
+Do not assume that a dictionary observed in one LLM layer will cover another,
+or that the same exponential scale/configuration is used everywhere. Certifier
+verification keys bind the exact configured integer function. Amortized compact
+certificate figures require the same ordered dictionary and function, or an
+explicit new certification step. These release measurements use synthetic
+balanced repetitions; model activation traces are still required for a deployment
+policy and for full-block commitment costs.
+''';p.write_text(s)
+PY"
+
+=====
+
+The batch-size test found another gain. Keeping the full 200k-entry table, **942,080 requests take 7.94 s**, versus **10.59 s for 1,048,576 requests**, with all 200k distinct values present.
+
+The smaller batch fits a smaller FFT domain and delivers about **20% more evaluations per second**. For large LLM workloads, that suggests choosing chunk sizes by the compiled constraint count, alongside choosing table capacity by distinct-value count.
+
+
+=====
+
+{"plan":[{"step":"Recover prior results and preserve the exact numerical and proof contract","status":"completed"},{"step":"Implement and validate the next optimizations, including adaptive table certification","status":"completed"},{"step":"Measure million-value proofs, occupied capacities, and FFT thresholds","status":"in_progress"},{"step":"Inspect the evidence and deliver reproducible source and results","status":"pending"}],"explanation":"Recovered the prior numerical/proof contract, implemented and tested batched quotient witnesses, R1CS orientation, fractional-sum GKR, and a composed public compact-table certificate. Large proof benchmarks are running serially."}
+
+=====
+
+A useful distinction for the smaller-table test: the **16k-entry dictionary** holds complete exponential input/output pairs. Our factorized construction’s underlying tables contain only **50 + 50 + 80 = 180 entries**. Shrinking the dictionary therefore targets a different cost from pruning those factor tables.
+
+The new certificate tests also pass: they reject a forged exponential dictionary even when the request-membership proof is internally valid. That check is essential before treating the compact-table timings as meaningful.
+
+
+=====
+
+bash -lc /bin/bash -lc "python - <<'PY'
+from pathlib import Path
+p=Path('BATCH_EXPERIMENT.md');s=p.read_text();s=s.replace('''Native pair multiplication alpha*Y_i and inverse q_i*(z-X_i-t_i)=1 instead
+place Y_i, X_i and t_i on B. Ignoring fixed challenge machinery, query B support
+therefore falls from about 3N variables to N, without dropping a single row.''','''The native inverse q_i*(z-X_i-t_i)=1 places X_i and t_i on B, while compiler-generated
+summation rows also expose q_i there. Orienting the inverse puts q_i on B directly,
+so the activation-dependent contribution falls from about 3N variables to N,
+without dropping a row. This is NOT a reduction of all computation from 3N to N.
+The constant-table and compiler-generated summation overhead remains. In the
+current builder alpha is itself a linear expression: a source-level pair operand
+swap can be normalized away and must not be assumed to save another N points.''')
+s=s.replace('''but placed all table quotients on B, so its gain must NOT be credited purely to
+batch inversion. This confound is reported rather than hidden.''','''but placed all table quotients on B. Table summation rows already expose those
+quotients, so reversing only those division rows need not further reduce total
+B support. The first batched variant's gain must NOT be credited purely to
+batch inversion. This confound is reported rather than hidden.''');p.write_text(s)
+PY"
+
+=====
+
+bash -lc /bin/bash -lc "python - <<'PY'
+from pathlib import Path
+p=Path('scripts/report_batch.py');s=p.read_text();s=s.replace(\"Equivalent multiplication equations are arranged so common factors enter the more expensive Groth16 B-side group operations. Query B support falls from about 3N variables to N. Batched reciprocal hints supply the witness; every quotient remains constrained. No proof check is skipped.\",\"Equivalent multiplication equations are arranged to reduce the number of distinct variables entering Groth16's B-side group operations. The activation-dependent contribution falls from about 3N to N. Table and compiler overhead remain. Batched reciprocal hints supply the witness; every quotient remains constrained.\")
+s=s.replace(\"Query: t_i=Y_i*alpha, then (z-X_i-t_i)*q_i=1. Put shared alpha and then q_i on the B side. Constant table: q_j*(z-T_j-alpha*F(T_j))=m_j, so only common challenge variables enter B. Swapping left and right factors does not alter the equation.\",\"Query: t_i=Y_i*alpha, then (z-X_i-t_i)*q_i=1. The inverse row places q_i on B instead of the input-dependent denominator. Together with the summation rows, query B support falls from approximately 3N to N. Constant-table and compiler-generated sum rows still contribute overhead. Swapping left and right factors preserves the equation.\")
+s=s.replace(\"B support is counted directly from compiled R1CS rows. It predicts nonzero proving-key B points except negligible setup cancellations. This changes group work; the constraint count and FFT domain remain unchanged.\",\"B support is counted directly from compiled R1CS rows. This reduces entries in one G2 multiscalar multiplication (and a G1 counterpart), not the number of all proof operations. The constraint count and FFT domain remain unchanged. The compiler can normalize a source-level operand swap away; inspect compiled matrices.\")
+p.write_text(s)
+PY"
+
+=====
+
+The million-request full-table results confirm a **16–20% reduction in total online time** across the tested distinct-value counts. With 16,384 distinct values, the median falls from **12.00 s to 10.13 s**, with unchanged outputs and constraint count.
+
+That is the practical payoff so far from the \(3N \to N\) idea: fewer entries in one expensive group operation, while FFTs, other group operations, and witness construction still remain.
+
+
+=====
+
+bash -lc /bin/bash -lc "python - <<'PY'
+from pathlib import Path
+p=Path('scripts/package_release.py');s=p.read_text();old=\"    manifest['matrix_support_audit']=json.loads((ROOT/'benchmarks/batch/matrix-support.json').read_text())\"
+new=old+'''
+    compact=json.loads((ROOT/'benchmarks/compact/summary.json').read_text())
+    if not compact['all_comparators_matched'] or len(compact['cases'])"'!=3 or not all(t['"'composed_verified'] for c in compact['cases'] for t in c['trials']):
+        raise SystemExit('compact certificate evidence failed')
+    manifest['compact_results']={k:v for k,v in compact.items() if k"'!='"'cases'}
+    manifest['compact_binary_sha256']=hashlib.sha256((ROOT/'bin/compact').read_bytes()).hexdigest()
+    if not (ROOT/'output/pdf/expzk-batched-lookups.pdf').is_file():
+        raise SystemExit('missing batch/compact PDF report')'''
+assert old in s;s=s.replace(old,new);p.write_text(s)
+PY"
+
+=====
+
+bash -lc /bin/bash -lc "python - <<'PY'
+from pathlib import Path
+p=Path('BATCH_EXPERIMENT.md');s=p.read_text();s+='''
+
+## Adaptive occupied dictionaries (user-requested extension)
+
+A support of U=16,384 values needs only 16,384 membership rows. It does not
+permit a prover to choose 16,384 arbitrary exponential outputs. There are three
+distinct designs:
+
+* A fixed known subset can be compiled as constants, with a verification key
+  pinned to that subset. Fresh circuit-specific setup for every observed subset
+  is not a cheap online adaptation.
+* "'`joint-logup-oriented` keeps capacity K=U and validates every dictionary pair
+  using the fixed factor gadget inside the same proof. This supports the existing
+  private wrapper; its timing here remains public IO. K is the circuit'"'s reserved
+  capacity, not the number of slots that happen to be nonzero.
+* "'`CompactPublicCircuit` proves membership in a supplied public dictionary.
+  `VerifyCompact` additionally verifies a full-function certificate for exactly
+  that dictionary, using pinned certifier and usage verification keys. NEVER
+  treat its usage proof alone as an exponential proof. The verifier constructs
+  both public witnesses from the same ordered dictionary statement.
+
+The compact experiment reports a fresh certificate plus usage in every cold
+online trial. Conditional reuse removes only the certificate phase, and is
+valid only for the identical already-certified dictionary. Three random supports
+are measured; reuse across LLM batches is not assumed or demonstrated. Its public
+dictionary would disclose selected values in an otherwise private proof. A
+private composition must bind both proofs to a shared commitment and pay that
+binding cost; this implementation does not supply it.
+
+All compared request vectors use the same seeded generator. Raw input and
+integer-output hashes are checked across the compact and full-table runners.
+Tests include an internally valid membership proof for a completely false
+function: the composed verifier correctly rejects it. Other attacks alter
+certificates, dictionary values, request outputs, or counts.
+
+The current factorized function has 50+50+80=180 constant factor entries, not a
+16k factor table. At U=16,384, the measured supports occupy all three factor
+alphabets, so those tables cannot be pruned. Capacity reduction applies to the
+U-entry dictionary of complete exponential input/output pairs. Fourteen-bit
+IDs for 16,384 dictionary slots do not reduce the original 18-bit index domain
+or its numerical precision.
+
+## Constraint-domain-aware batch sizing
+
+The pinned Groth16 backend constructs an FFT domain by rounding the R1CS
+constraint count up to a power of two. Therefore a small table or request-count
+reduction can halve the domain near a boundary. We compare full and compact at
+N=1,028,096, alongside N=1,048,576 and 262,144. We also test the complete 200k
+table at N=942,080. Unequal batch sizes are compared by evaluations per second,
+not by raw proof latency. These are actual independently verified proofs.
+
+Compact reproduction:
+
+    python3 scripts/run_compact.py
+    python3 scripts/analyze_batch.py
+    python3 scripts/analyze_compact.py
+
+The compact runner includes table materialization, compilation and setup as
+separate recorded phases. It measures witness construction, proving and one
+verification of each necessary proof. A second composed-verifier check is run
+outside timings to exercise the API boundary; it does not replace any counted
+verification. No serialization or input generation is included in online time.
+'"''';p.write_text(s)
+p=Path('README.md');s=p.read_text();s='''This release also tests **adaptive dictionaries with K=U**, separately certified
+compact public tables, and constraint-domain-aware batching. See
+"'`BATCH_EXPERIMENT.md` for the certificate boundary and privacy scope. A compact
+membership proof alone is not an exponential proof.
+
+'"'''+s;p.write_text(s)
+PY"
+
+=====
+
+The million-request grouped tests are complete: the new LogUp layout takes **9.64 s**, close to the grouped product method’s **9.52 s**, with 64 distinct values. So it makes LogUp competitive in that regime, but does not yet beat our best method.
+
+I’m also testing a batch-size effect: Groth16 rounds the constraint count up to a power of two. A smaller table—or a slightly smaller request batch—may cross that boundary and save substantially more than its row count alone suggests.
+
+
+=====
+
+bash -lc /bin/bash -lc "python - <<'PY'
+from pathlib import Path
+p=Path('scripts/report_batch.py');s=p.read_text()
+s=s.replace(\"ns=sorted({c['batch'] for c in cs if c['method']=='full-oriented'})\",\"ns=[32768,262144,1048576]\")
+s=s.replace(\"support=json.loads((d/'matrix-support.json').read_text())\",\"support=json.loads((d/'matrix-support.json').read_text())\")
+marker=\"new('The GKR experiment and next direction'\"
+pos=s.index(marker)
+extra='''compact=json.loads((root/'benchmarks/compact/summary.json').read_text())
+new('Use the occupied table size','A 16,384-entry dictionary is sufficient for membership; its exponential values still need certification')
+head('Two sound ways to shrink the online table')
+para('1. Grouped factor validation: reserve K slots and certify each dictionary value from the fixed 50 x 50 x 80 factor tables inside every proof. Set K=U (or a small precompiled capacity bucket). Low actual occupancy does not shrink a circuit compiled with a larger K.')
+para('2. Certified compact public table: first prove that the U dictionary pairs belong to the fixed exponential table, then prove request membership in those U pairs. The verifier checks both proofs against exactly the same ordered dictionary. A fresh certificate is included in the cold online figures below.')
+rows=[]
+for nn in [262144,1048576]:
+ b=get(nn,'full-oriented',16384);g=get(nn,'joint-logup-oriented',16384)
+ c=next(c for c in compact['cases'] if c['batch']==nn)
+ rows.append([f'{nn:,}',f\"{b['median_online_seconds']:.3f}\",f\"{g['median_online_seconds']:.3f}\",f\"{c['median_cold_seconds']:.3f}\",f\"{c['median_certified_usage_seconds']:.3f}\"])
+table(['N; U=16,384','Full 200k s','Factor K=U s','Compact cold s','Usage only s'],rows,[103,99,109,110,95],size=8.2)
+para('Usage only is conditional on reusing the identical already-certified dictionary. Each measured trial used a fresh random support and generated a new certificate. Reuse savings are a phase-based model, not measured multi-batch reuse. Setup is excluded for all methods.',size=10)
+head('Why U is not the whole cost')
+para('The full table costs about 2N+200,000 constraints. Factor certification costs about 2N+30K. A compact usage proof costs about 2N+2U, plus a separate certificate. Therefore K=16,384 can still make factor certification more expensive than scanning the full constant table. Adapt capacity, but compare total certification and request costs.')
+para('All compact trials occupy all 50, 50 and 80 factor digits. Those three small factor tables cannot be pruned in this test. The 16,384-entry dictionary is a different object from the 180-entry factor tables. Dictionary IDs can be 14 bits without coarsening the original input grid.',size=10)
+
+new('Capacity interacts with FFT thresholds','Choose batch sizes from compiled constraints, rather than rounding the request count alone')
+rows=[]
+for c in compact['cases']:
+ rows.append([f\"{c['batch']:,}\",f\"{c['baseline_constraints']:,}\",f\"{c['constraints']:,}\",f\"{c['baseline_fft_domain']//1048576}M -> {c['usage_fft_domain']//1048576}M\",f\"{c['median_cold_seconds']:.3f}\"])
+table(['N; U=16,384','Full rows','Compact rows','FFT size*','Cold s'],rows,[102,115,115,100,80],size=8.5)
+para('* M in the FFT column means 1,048,576 points. Groth16 rounds the number of constraints up to a power of two. A modest table reduction can halve the FFT domain near a boundary, while saving much less between boundaries.',size=10)
+big=get(1048576,'full-oriented',200000);chunk=get(942080,'full-oriented',200000)
+para(f\"Keeping the complete 200,000-entry table, changing a batch from 1,048,576 to 942,080 requests changes measured throughput from {big['batch']/big['median_online_seconds']:,.0f} to {chunk['batch']/chunk['median_online_seconds']:,.0f} evaluations/s. Both use U=200,000. This compares amortized throughput, not equal-sized proof latency.\")
+head('Certificate and composition costs')
+c=next(c for c in compact['cases'] if c['batch']==1028096)
+para(f\"At N=1,028,096 the fresh dictionary certificate costs a median {c['median_certificate_seconds']:.3f} s. Its circuit has {c['certificate_constraints']:,} constraints and its separate setup costs {c['certificate_setup_seconds']:.1f} s in this run. The two proofs total {c['trials'][0]['proof_bytes']} bytes; their public statements total {c['trials'][0]['public_statement_bytes']:,} bytes.\")
+para('This prototype exposes the selected dictionary, as well as every request pair. A private LLM implementation needs a binding shared commitment between certification and usage, including its actual cost. The public-table experiment does not establish that private integration cost. A predeclared static subset can instead be part of a fixed circuit; compiling a new subset per batch moves substantial cost into setup.')
+para('The verifier rejects a forged dictionary even when its membership proof is internally valid. Tests also reject mismatched statements, wrong certificates, altered counts and wrong request outputs. The standalone membership proof must never be presented as an exponential proof.',size=10)
+
+'''
+s=s[:pos]+extra+s[pos:]
+s=s.replace(\"'python3 scripts/run_batch.py --suite oriented',\",\"'python3 scripts/run_batch.py --suite oriented','python3 scripts/run_compact.py',\")
+s=s.replace(\"'python3 scripts/analyze_batch.py',\",\"'python3 scripts/analyze_batch.py','python3 scripts/analyze_compact.py',\")
+s=s.replace(\"{s['verified_cases']} benchmark cases, {s['verified_proofs']} independently verified proofs,\", \"{s['verified_cases']} standard benchmark cases, {s['verified_proofs']} standard proofs plus {compact['verified_proofs']} compact/certificate proofs,\")
+p.write_text(s)
+PY"
+
+=====
+
+bash -lc /bin/bash -lc "python - <<'PY'
+from pathlib import Path
+p=Path('cmd/compact/main.go');s=p.read_text();s=s.replace('\\t\\tct, st := certHost+certProve+certVerify, host+prove+verify','''\\t\\tct, st := certHost+certProve+certVerify, host+prove+verify
+        occupied := []int{}
+        stride := 1
+        for _, radix := range []int{50, 50, 80} {
+            seen := map[int]bool{}
+            for _, x := range dict.Indices { seen[(x/stride)%radix] = true }
+            occupied = append(occupied, len(seen)); stride *= radix
+        }''').replace('map[string]any{\"trial\": trial,','map[string]any{\"trial\": trial, \"factor_digit_occupancy\": occupied,');p.write_text(s)
+PY"
+
+=====
+
+Your table-size point has two parts. We can use a 16,384-entry dictionary for the requests, but we must still establish that its outputs are correct exponentials. The existing grouped method does that inside every proof.
+
+I’ve now implemented a second route: certify that small dictionary separately, then prove requests against it. I’ll measure both the cost of a fresh certificate and the cost when an identical certified dictionary is reused. This will show whether shrinking the table saves work overall, rather than merely moving the work elsewhere.
+
+
+=====
+
+Yes—the \(3N \to N\) observation concerns the number of activation-dependent entries feeding Groth16’s expensive **G2 multiscalar multiplication**, not the whole computation or the constraint count. Swapping the sides of certain multiplication constraints can reduce those entries while proving the same relation.
+
+The first measured result is encouraging: at \(N=262{,}144\), with 16,384 distinct values, the optimized layout reduces median online time from **3.57 s to 2.92 s**—about **18%**. That version also batches inversions; the separate layout ablation and million-value runs will help distinguish the effects. I’m testing this alongside your smaller-table idea, since the two optimizations can combine.
+
+
+=====
+
+{"plan":[{"step":"Recover the previous algorithms, benchmarks, and constraints.","status":"completed"},{"step":"Implement and validate batched witnesses and cheaper Groth16 constraint orientation.","status":"completed"},{"step":"Benchmark large batches and capacity-matched or certified compact lookup tables; deliver reproducible results.","status":"in_progress"}],"explanation":"Incorporating the request to adapt table size to distinct values: benchmark K=U factor dictionaries, and a proof-certified compact full-table composition with certification cost and reuse reported explicitly."}
+
+=====
+
+Yes—matching the table capacity to the occupied values is important, and I’ll add that comparison.
+
+For the full table, we also need to certify the selected rows: a prover-supplied 16k-entry table must be shown to contain the correct exponential outputs. Our grouped factor method already does this with capacity \(K=U\). I’ll test it with the new constraint layout against the 200k-entry baseline, and investigate whether that certification can be made cheaper or reused across batches.
+
+=====
+
+Please explore this angle, also What about the observation you previously made about how in the case of only 16k distinct values we do not need a lookup table of 200k values, adjusting the size of the lookup table to fit the number of distinct values seems important to optimize the proof (both in the full table case and the other cases)
+
+=====
+
+The fresh million-element baseline is complete: it takes 12.0–13.2 seconds across the three distinct-value counts, consistent with our previous results.
+
+The new layout keeps every lookup check and removes repeated values from the expensive group calculation. I’ll report the actual group-operation count alongside latency, because the count reduction won’t translate directly into the same speedup.
+
+=====
+
+bash -lc /bin/bash -lc "python3 - <<'PY'
+from pathlib import Path
+p=Path('scripts/package_release.py');s=p.read_text().replace(\"VERSION='0.5.0'\",\"VERSION='0.6.0'\").replace(\"p.is_file() and '__pycache__' not in rel.parts and\", \"p.is_file() and not p.is_symlink() and '__pycache__' not in rel.parts and 'development-batch' not in rel.parts and\")
+s=s.replace(\"manifest.update(grouped_pair_results=grouped,grouped_benchmark_binary_sha256=grouped_hashes)\",\"\"\"manifest.update(grouped_pair_results=grouped,grouped_benchmark_binary_sha256=grouped_hashes)
+    batch=json.loads((ROOT/'benchmarks/batch/summary.json').read_text())
+    if not batch['all_comparators_matched'] or not batch['equal_full_constraints'] or not all(c['verified'] for c in batch['cases']):
+        raise SystemExit('batch/orientation evidence failed')
+    manifest['batch_orientation_results']={k:v for k,v in batch.items() if k"'!='"'cases'}
+    manifest['batch_orientation_binary_sha256']=sorted({json.loads(p.read_text())['binary_sha256'] for p in (ROOT/'benchmarks/batch').glob('*-meta.json')})
+    manifest['current_repetition_binary_sha256']=hashlib.sha256((ROOT/'bin/repetition').read_bytes()).hexdigest()
+    manifest['matrix_support_audit']=json.loads((ROOT/'benchmarks/batch/matrix-support.json').read_text())\"\"\")
+p.write_text(s)
+p=Path('README.md');s=p.read_text().replace('# Latest experiment: batched LogUp witnesses (0.6.0)','# Latest experiment: optimize group-operation cost (0.6.0)');s=s.replace('"'`full-batch` and `full-chunk` replace individual inversions with a batch-inversion'"','"'`full-oriented` and `joint-logup-oriented` arrange equivalent multiplication'"\\nequations to reduce expensive Groth16 B-side group operations. "'`full-swapped`'"\\nis the native-inversion multiplication-order ablation.\\n"'`full-batch` and `full-chunk` replace individual inversions with a batch-inversion'"');s=s.replace('with a batch-inversion\\nhint and preserve','with a batch-inversion\\nhint (also changing row orientation) and preserve');p.write_text(s)
+PY
+python3 -m py_compile scripts/package_release.py
+ls -lh bin/repetition"
+
+=====
+
+The constraint layout suggests we can reduce the activation-dependent entries in Groth16’s expensive \(B\)-side calculation from roughly \(3N\) to \(N\), while keeping the same equations and constraint count.
+
+The earlier measurements support investigating this, but they don’t isolate it yet. The new ablation changes only multiplication order; it will tell us whether the reduction produces a real latency gain.
+
+=====
+
+bash -lc /bin/bash -lc "python3 - <<'PY'
+from pathlib import Path
+p=Path('scripts/run_batch.py');s=p.read_text().replace(\"[(n,m,64,'64') for n in [262144,1048576] for m in ['joint-logup-field','joint-logup-batch','joint-logup-oriented','joint-product']]\",\"[(262144,m,64,'64') for m in ['joint-logup-field','joint-logup-batch','joint-logup-oriented','joint-product']]+[(1048576,m,64,'64') for m in ['joint-logup-oriented','joint-product']]\");p.write_text(s)
+p=Path('scripts/report_batch.py');s=p.read_text().replace(\"c=get(nn,m);rows.append\", \"if not any(c['batch']==nn and c['method']==m for c in cs): continue\\n  c=get(nn,m);rows.append\")
+s=s.replace(\"['full-joint','full-oriented','joint-logup-field','joint-logup-oriented','joint-product']\",\"['full-joint','full-chunk','full-oriented','joint-logup-oriented','joint-product']\")
+p.write_text(s)
+p=Path('cmd/matrixscreen/main.go');s=p.read_text().replace('[]int{1024, 32768, 262144, 1048576}','[]int{1024, 262144, 1048576}').replace('\"full-joint\", \"full-batch\", \"full-chunk\", \"full-swapped\", \"full-oriented\"','\"full-joint\", \"full-chunk\", \"full-swapped\", \"full-oriented\"');p.write_text(s)
+PY
+python3 -m py_compile scripts/report_batch.py scripts/run_batch.py
+/workspace/scratch/4ee9dfa745a9/toolchain/go/bin/gofmt -w cmd/matrixscreen/main.go"
+
+=====
+
+bash -lc /bin/bash -lc "python3 - <<'PY'
+from pathlib import Path
+p=Path('scripts/analyze_batch.py');s=p.read_text().replace(\"['full-batch','full-chunk']\",\"['full-batch','full-chunk','full-swapped','full-oriented']\");p.write_text(s)
+p=Path('BATCH_EXPERIMENT.md');s=p.read_text();ix=s.index('## Second experiment:')
+s=s[:ix]+'''## Stronger optimization discovered by phase attribution: R1CS orientation
+
+Initial batched runs improved total proof time without consistently improving
+solver time. Inspection of the pinned builder showed that native newR1C swaps
+sides to put the shorter linear expression on the left. This can increase the
+number of distinct variables appearing in the right (B) matrix. Groth16 proving
+includes an expensive G2 multiscalar multiplication supported on B columns.
+Commuting the two factors preserves the exact constraint but can shrink that work.
+
+For query pairs, compute t_i=Y_i*alpha (put the common alpha on B), followed by
+(z-X_i-t_i)*q_i=1 (put q_i on B). For the constant table use
+q_j*(z-T_j-alpha*F(T_j))=m_j, which places only shared challenge variables on B.
+Native pair multiplication alpha*Y_i and inverse q_i*(z-X_i-t_i)=1 instead
+place Y_i, X_i and t_i on B. Ignoring fixed challenge machinery, query B support
+therefore falls from about 3N variables to N, without dropping a single row.
+
+The "'`full-swapped` ablation only reverses alpha*Y_i to Y_i*alpha and keeps native
+per-value inversions. `full-oriented` combines the complete row layout with
+4096-entry reciprocal batches. `joint-logup-oriented` applies the analogous
+layout to the factor dictionary; its variable table also puts quotient wires
+on B. The early `full-chunk` variant already changed row orientation incidentally
+but placed all table quotients on B, so its gain must NOT be credited purely to
+batch inversion. This confound is reported rather than hidden.
+
+`cmd/matrixscreen` counts actual A/B support from compiled constraints. The
+updated runner also records proving-key group point counts. These structural
+measurements distinguish group-operation savings from FFT-domain changes:
+all full-table comparators have identical constraint counts and FFT domains.
+The original full-joint and full-chunk relations/code paths are preserved when
+adding the later methods; their previously measured cases are not silently
+relabelled as runs of the new method.
+
+'"'''+s[ix:];s=s.replace('python3 scripts/run_batch.py --suite grouped','python3 scripts/run_batch.py --suite grouped\\n    python3 scripts/run_batch.py --suite oriented\\n    go run ./cmd/matrixscreen');p.write_text(s)
+p=Path('scripts/report_batch.py');s=p.read_text().replace(\"'joint-logup-batch':'Batched grouped LogUp'\",\"'joint-logup-batch':'Batched grouped LogUp','joint-logup-oriented':'Oriented grouped LogUp','full-oriented':'Oriented full table','full-swapped':'Pair product swap'\")
+s=s.replace(\"('full-chunk',teal)\",\"('full-oriented',teal)\").replace(\"c['method']=='full-chunk'\",\"c['method']=='full-oriented'\")
+s=s.replace(\"opt=get(n,'full-chunk')\",\"opt=get(n,'full-oriented')\").replace(\"new('Batch reciprocals, preserve the proof','An exact witness optimization and a measured test of a more ambitious GKR design')\",\"new('Fewer expensive group operations','Reorienting equivalent R1CS equations, with exact batched reciprocal witnesses')\")
+s=s.replace('4096-entry batching changes full-table online latency','the optimized row layout changes full-table online latency').replace(\"o=get(n,'full-chunk',u)\",\"o=get(n,'full-oriented',u)\")
+s=s.replace(\"['Distinct inputs U','Baseline s','Batched s','Speedup']\",\"['Distinct inputs U','Baseline s','Optimized s','Speedup']\")
+s=s.replace('The solver previously computed every reciprocal independently. The new hint uses shared prefix products, one inverse per chunk and a backward pass. Every resulting quotient is still checked by the original one-row equation d*q=n. A malicious hint cannot bypass the proof.','Equivalent multiplication equations are arranged so common factors enter Groth16\\'s more expensive B-side group operations. Query B support falls from about 3N variables to N. Batched reciprocal hints supply the witness; every quotient remains constrained. No proof check is skipped.')
+s=s.replace(\"['joint-logup-field','joint-logup-batch','joint-product']\",\"['joint-logup-field','joint-logup-oriented','joint-product']\")
+s=s.replace(\"['full-joint','full-chunk','joint-logup-field','joint-logup-batch','joint-product']\",\"['full-joint','full-oriented','joint-logup-field','joint-logup-oriented','joint-product']\")
+s=s.replace(\"get(n,'full-chunk',200000)\",\"get(n,'full-oriented',200000)\")
+s=s.replace(\"new('The numerical and proof contract'\", \"new('The numerical and proof contract'\")
+# Add a dedicated ablation page before numerical details.
+marker=\"new('The numerical and proof contract'\"
+idx=s.index(marker)
+s=s[:idx]+'''new('Why orientation matters','Same constraints and numerical relation; fewer nonzero B columns')
+head('The measured ablation at N=262,144')
+rows=[]
+for m in ['full-joint','full-swapped','full-batch','full-chunk','full-oriented']:
+ c=get(262144,m,16384);rows.append([labels[m],f\"{c['median_online_seconds']:.3f}\",f\"{c['median_solver_seconds']:.3f}\",f\"{c['constraints']:,}\"])
+table(['Method, U=16,384','Online s','Solve s','Constraints'],rows,[200,90,90,130],size=8.8)
+para('The first batch implementation also changed row orientation. Its end-to-end gain cannot be attributed purely to fewer inversions. The pair-product-swap ablation retains native individual inversions and changes only multiplication order.',size=10)
+head('Exact equivalent equations')
+para('Query: t_i=Y_i*alpha, then (z-X_i-t_i)*q_i=1. Put shared alpha and then q_i on the B side. Constant table: q_j*(z-T_j-alpha*F(T_j))=m_j, so only common challenge variables enter B. Swapping left and right factors does not alter the equation.')
+support=json.loads((d/'matrix-support.json').read_text())
+rows=[]
+for m in ['full-joint','full-chunk','full-swapped','full-oriented']:
+ c=next(c for c in support if c['n']==1048576 and c['method']==m);rows.append([labels[m],f\"{c['b_support']:,}\",f\"{c['constraints']:,}\"])
+table(['Method, N=1,048,576','B columns','Constraints'],rows,[200,150,150],size=9)
+para('B support is counted directly from compiled R1CS rows. It predicts nonzero proving-key B points except negligible setup cancellations. This changes group work; the constraint count and FFT domain remain unchanged.',size=10)
+
+'''+s[idx:]
+s=s.replace(\"'python3 scripts/run_batch.py --suite grouped',\",\"'python3 scripts/run_batch.py --suite grouped','python3 scripts/run_batch.py --suite oriented','go run ./cmd/matrixscreen',\")
+s=s.replace(\"'EXPONENTIAL ZKP / EXPERIMENT 0.6.0'\",\"'EXPONENTIAL ZKP / EXPERIMENT 0.6.0'\")
+p.write_text(s)
+PY
+python3 -m py_compile scripts/report_batch.py scripts/run_batch.py scripts/analyze_batch.py"
+
+=====
+
+bash -lc /bin/bash -lc "mkdir -p cmd/matrixscreen
+cat > cmd/matrixscreen/main.go <<'GO'
+// Compile-only audit of R1CS matrix support, never a prover timing.
+package main
+import(\"encoding/json\";\"fmt\";\"os\";\"runtime\";\"expzk\";\"github.com/consensys/gnark/constraint\";\"github.com/consensys/gnark-crypto/ecc\";\"github.com/consensys/gnark/frontend\";\"github.com/consensys/gnark/frontend/cs/r1cs\")
+type iterCS interface{GetR1CIterator()*constraint.R1CIterator}
+func main(){
+ c,e:=expzk.LoadConfig(\"benchmarks/softmax/3d.params.json\");if e"'!=nil{panic(e)};c,e=expzk.MaterializeConfig(c);if e!=nil{panic(e)}
+ rows:=[]map[string]any{}
+ for _,n:=range []int{1024,32768,262144,1048576}{for _,m:=range []string{"full-joint","full-batch","full-chunk","full-swapped","full-oriented"}{
+  obj,e:=expzk.NewFullJointCircuit(c,n,"public");if e!=nil{panic(e)};obj.(*expzk.PublicCircuit).Argument=m
+  cc,e:=frontend.Compile(ecc.BN254.ScalarField(),r1cs.NewBuilder,obj);if e!=nil{panic(e)}
+  it:=cc.(iterCS).GetR1CIterator(); a,b:=map[int]bool{},map[int]bool{}
+  for row:=it.Next();row!=nil;row=it.Next(){for _,t:=range row.L{if t.CID!=constraint.CoeffIdZero{a[t.WireID()]=true}};for _,t:=range row.R{if t.CID!=constraint.CoeffIdZero{b[t.WireID()]=true}}}
+  r:=map[string]any{"method":m,"n":n,"constraints":cc.GetNbConstraints(),"a_support":len(a),"b_support":len(b)};rows=append(rows,r);fmt.Println(r);runtime.GC()
+ }}
+ raw,_:=json.MarshalIndent(rows,"","  ");if e=os.WriteFile("benchmarks/batch/matrix-support.json",raw,0600);e!=nil{panic(e)}
+}
+GO
+rg -n '"'type R1CIterator' /root/go/pkg/mod/github.com/consensys/gnark@v0.14.0/constraint -g '*.go'
+tail -4 benchmarks/batch/1048576-full-joint-k0.log"
+
+=====
+
+bash -lc /bin/bash -lc "python3 - <<'PY'
+from pathlib import Path
+p=Path('scripts/run_batch.py');s=p.read_text().replace(\"for m in ['joint-logup-field','joint-logup-batch','joint-product']\",\"for m in ['joint-logup-field','joint-logup-batch','joint-logup-oriented','joint-product']\")
+s=s.replace(\"suites={\",'''if args.suite=='grouped':
+ go=os.environ.get('EXPZK_GO','go')
+ with (out/'all-go-tests-oriented.log').open('w') as log:
+  subprocess.run([go,'test','-buildvcs=false','./...','-count=1'],stdout=log,stderr=subprocess.STDOUT,env=env,check=True)
+ subprocess.run([go,'build','-buildvcs=false','-trimpath','-o','bin/repetition','./cmd/repetition'],env=env,check=True)
+suites={''')
+s=s.replace(\"'grouped':[(n,m,64,'64')\", \"'oriented':[(n,'full-oriented',0,('64' if n==32768 else '64,16384,200000')) for n in [32768,262144,1048576]]+[(262144,'full-swapped',0,'64,16384,200000')],\\n 'grouped':[(n,m,64,'64')\")
+# The existing parent process does not supply EXPZK_GO. Use PATH installed wrapper
+# through an absolute known compiler only for this run; source default remains go.
+p.write_text(s)
+PY
+mkdir -p /usr/local/bin
+ln -s /workspace/scratch/4ee9dfa745a9/toolchain/go/bin/go /usr/local/bin/go
+sed -n '8,34p' scripts/run_batch.py"
+
+=====
+
+bash -lc /bin/bash -lc "python3 - <<'PY'
+from pathlib import Path
+p=Path('batch_divide.go');s=p.read_text().replace('chunk int) ([]frontend.Variable, error)', 'chunk int) ([]frontend.Variable, error)')
+s=s.replace('quot := make([]frontend.Variable, len(nums))','return batchDivideOriented(api,nums,dens,chunk,-1)\\n}\\n\\nfunc batchDivideOriented(api frontend.API,nums,dens []frontend.Variable,chunk,queryCount int)([]frontend.Variable,error) {\\n quot := make([]frontend.Variable, len(nums))',1)
+s=s.replace('row := constraint.R1C{L: l, R: r, O: o}','if queryCount >= 0 && start+j >= queryCount {l,r=r,l}\\n\\t\\t\\trow := constraint.R1C{L: l, R: r, O: o}')
+s=s.replace('n := len(xs)\\n', 'return assertBatchedLookupSumOriented(api,xs,ys,tx,ty,counts,z,alpha,chunk,false,false)\\n}\\n\\nfunc assertBatchedLookupSumOriented(api frontend.API,xs,ys,tx,ty,counts []frontend.Variable,z,alpha frontend.Variable,chunk int,oriented,constantTable bool)error{\\n n := len(xs)\\n')
+s=s.replace('dens[i] = api.Sub(z, api.Add(xs[i], api.Mul(alpha, ys[i])))','product:=api.Mul(alpha,ys[i]); if oriented { product=api.Mul(ys[i],alpha) }; dens[i] = api.Sub(z, api.Add(xs[i], product))')
+# Avoid an unused redundant multiplication in the new orientation.
+s=s.replace('product:=api.Mul(alpha,ys[i]); if oriented { product=api.Mul(ys[i],alpha) }','var product frontend.Variable; if oriented { product=api.Mul(ys[i],alpha) } else { product=api.Mul(alpha,ys[i]) }')
+s=s.replace('dens[n+j] = api.Sub(z, api.Add(tx[j], api.Mul(alpha, ty[j])))','var product frontend.Variable; if oriented {product=api.Mul(ty[j],alpha)} else {product=api.Mul(alpha,ty[j])}; dens[n+j] = api.Sub(z, api.Add(tx[j], product))')
+s=s.replace('qs, err := batchDivide(api, nums, dens, chunk)','split:=-1;if oriented && constantTable {split=n}; qs, err := batchDivideOriented(api, nums, dens, chunk,split)')
+p.write_text(s)
+p=Path('full_joint.go');s=p.read_text().replace('if method "'!= "full-joint" {'"','if method "'!= "full-joint" && method != "full-swapped" {'"').replace('if method == \"full-chunk\" {','if method == \"full-chunk\" || method == \"full-oriented\" {').replace('return assertBatchedLookupSum(api, xs, ys, tx, ty, counts, z, alpha, chunk)','return assertBatchedLookupSumOriented(api,xs,ys,tx,ty,counts,z,alpha,chunk,method==\"full-oriented\",true)')
+s=s.replace('lhs = api.Add(lhs, api.Inverse(api.Sub(z, api.Add(xs[i], api.Mul(alpha, ys[i])))))','var product frontend.Variable; if method==\"full-swapped\" {product=api.Mul(ys[i],alpha)} else {product=api.Mul(alpha,ys[i])}; lhs = api.Add(lhs, api.Inverse(api.Sub(z, api.Add(xs[i],product))))');p.write_text(s)
+p=Path('grouped.go');s=p.read_text().replace('method == \"full-gkr\" {','method == \"full-gkr\" || method == \"full-oriented\" || method == \"full-swapped\" {').replace('method "'!= "joint-logup-batch" &&'"','method "'!= "joint-logup-batch" && method != "joint-logup-oriented" &&'"').replace('if method == \"joint-logup-batch\" {\\n\\t\\t\\treturn assertBatchedLookupSum(api, xs, ys, a.DictionaryIndices, a.DictionaryOutputs, a.Counts, z, alpha, 4096)','if method == \"joint-logup-batch\" || method==\"joint-logup-oriented\" {\\n\\t\\t\\treturn assertBatchedLookupSumOriented(api, xs, ys, a.DictionaryIndices, a.DictionaryOutputs, a.Counts, z, alpha, 4096,method==\"joint-logup-oriented\",false)');p.write_text(s)
+p=Path('cmd/repetition/main.go');s=p.read_text().replace('\"joint-logup-batch\", \"joint-product\"','\"joint-logup-batch\", \"joint-logup-oriented\", \"joint-product\"').replace('\"full-chunk\", \"full-gkr\"','\"full-chunk\", \"full-gkr\", \"full-oriented\", \"full-swapped\"')
+s=s.replace('Method          string    "'`json:"method"`'"','Method          string    "'`json:"method"`'"\\n ProvingKeyG1 int "'`json:"proving_key_g1_points"`'"\\n ProvingKeyG2 int "'`json:"proving_key_g2_points"`'"')
+s=s.replace('result{BenchResult: b, Method: *method}','result{BenchResult: b, Method: *method,ProvingKeyG1:pk.NbG1(),ProvingKeyG2:pk.NbG2()}');p.write_text(s)
+p=Path('batch_test.go');s=p.read_text().replace('\"full-chunk\", \"full-gkr\"','\"full-chunk\", \"full-gkr\", \"full-oriented\", \"full-swapped\"');p.write_text(s)
+p=Path('batch_hint_test.go');s=p.read_text().replace('\"full-batch\", \"full-chunk\"','\"full-batch\", \"full-chunk\", \"full-oriented\", \"full-swapped\"');p.write_text(s)
+p=Path('grouped_test.go');s=p.read_text().replace('\"joint-logup-batch\", \"joint-product\"','\"joint-logup-batch\", \"joint-logup-oriented\", \"joint-product\"').replace('method == \"joint-logup-batch\")','method == \"joint-logup-batch\" || method==\"joint-logup-oriented\")');p.write_text(s)
+PY
+/workspace/scratch/4ee9dfa745a9/toolchain/go/bin/gofmt -w batch_divide.go full_joint.go grouped.go cmd/repetition/main.go batch_test.go batch_hint_test.go grouped_test.go
+ls benchmarks/batch/*1048576* 2>/dev/null
+tail -4 benchmarks/batch/262144-full-chunk-k0.log"
+
+=====
+
+I found a more promising explanation for the speedup: the batched solver isn’t consistently faster, but the proof is. The new constraint layout also changes which values enter Groth16’s more expensive group operations.
+
+That suggests a stronger optimization: orient the equivalent multiplication equations to share common terms and reduce those operations. I’m adding a controlled comparison to separate that effect from batch inversion.
+
+=====
+
+At 262,144 evaluations, the baseline’s solver takes about 0.45 seconds out of roughly 3.6–4.0 seconds online. That leaves limited room for a reciprocal-only optimization, even if the arithmetic gets much faster.
+
+I’m separating solver time from total proof time in the results so we can see whether any gain survives the FFT and commitment work.
+
+=====
+
+bash -lc /bin/bash -lc "cat > scripts/report_batch.py <<'PY'
+#"'!/usr/bin/env python3
+from pathlib import Path
+import json,statistics,math
+import matplotlib;matplotlib.use('"'Agg')
+import matplotlib.pyplot as plt
+from reportlab.pdfgen import canvas
+from reportlab.lib.colors import HexColor,white
+from reportlab.lib.utils import simpleSplit
+root=Path(__file__).resolve().parents[1];d=root/'benchmarks/batch';s=json.loads((d/'summary.json').read_text());cs=s['cases']
+out=root/'output/pdf';out.mkdir(exist_ok=True,parents=True)
+W,H=612,792;navy='#14243B';teal='#007F86';gray='#536477';blue='#2874B2';gold='#C18D1D'
+labels={'full-joint':'Joint full table','full-batch':'One inverse batch','full-chunk':'4096-entry batches','joint-product':'Grouped product','joint-logup-field':'Grouped LogUp','joint-logup-batch':'Batched grouped LogUp'}
+def get(n,m,u=64):return next(c for c in cs if c['batch']==n and c['method']==m and c['unique_inputs']==u)
+def med(c,k):return statistics.median(c[k])
+ns=sorted({c['batch'] for c in cs if c['method']=='full-chunk'})
+fig,ax=plt.subplots(figsize=(8,3.8),layout='constrained')
+for m,color in [('full-joint',blue),('full-chunk',teal),('joint-product',gold)]:
+ rows=[c for c in cs if c['method']==m and c['unique_inputs']==64]
+ rows=sorted(rows,key=lambda c:c['batch']);xx=[c['batch'] for c in rows];yy=[c['median_online_seconds'] for c in rows]
+ ax.plot(xx,yy,'o-',label=labels[m],color=color,lw=2)
+ ax.vlines(xx,[min(c['online_latencies']) for c in rows],[max(c['online_latencies']) for c in rows],color=color,alpha=.6)
+ax.set_xscale('log',base=2);ax.set_xticks(ns,[f'{n:,}' for n in ns]);ax.set_xlabel('Evaluations in one proof');ax.set_ylabel('Online seconds');ax.set_title('Fresh matched runs; U=64, grouped capacity K=64',loc='left',fontsize=12);ax.grid(alpha=.2);ax.legend(frameon=False);fig.savefig(d/'latency.png',dpi=170);plt.close(fig)
+cv=canvas.Canvas(str(out/'expzk-batched-lookups.pdf'),pagesize=(W,H));page=0;y=0
+
+def new(title,sub=''):
+ global page,y
+ if page:cv.showPage()
+ page+=1;cv.setFillColor(HexColor(navy));cv.rect(0,H-113,W,113,fill=1,stroke=0)
+ cv.setFillColor(HexColor('#64D3CF'));cv.setFont('Helvetica-Bold',10);cv.drawString(42,H-30,'EXPONENTIAL ZKP / EXPERIMENT 0.6.0')
+ cv.setFillColor(white);cv.setFont('Helvetica-Bold',21);cv.drawString(42,H-62,title)
+ cv.setFont('Helvetica',10);cv.drawString(42,H-85,sub)
+ cv.setFillColor(HexColor(gray));cv.setFont('Helvetica',8);cv.drawString(42,27,'18 October 2026 UTC | Groth16 / BN254 | 8-CPU quota | Research implementation')
+ cv.drawRightString(W-42,27,str(page));y=H-139
+
+def para(text,size=10.6,color=navy,gap=12):
+ global y
+ cv.setFillColor(HexColor(color));cv.setFont('Helvetica',size)
+ for line in simpleSplit(text,'Helvetica',size,W-84):cv.drawString(42,y,line);y-=size*1.43
+ y-=gap
+
+def head(text):
+ global y
+ cv.setFillColor(HexColor(teal));cv.setFont('Helvetica-Bold',13);cv.drawString(42,y,text);y-=22
+
+def table(headers,rows,widths,size=9):
+ global y
+ rh=26
+ cv.setFillColor(HexColor(navy));cv.rect(42,y-rh+7,W-84,rh,fill=1,stroke=0)
+ x=48;cv.setFillColor(white);cv.setFont('Helvetica-Bold',size)
+ for h,w in zip(headers,widths):cv.drawString(x,y-10,h);x+=w
+ y-=rh
+ for k,row in enumerate(rows):
+  if k%2==0:cv.setFillColor(HexColor('#EFF5F7'));cv.rect(42,y-rh+7,W-84,rh,fill=1,stroke=0)
+  cv.setFillColor(HexColor(navy));cv.setFont('Helvetica',size);x=48
+  for v,w in zip(row,widths):cv.drawString(x,y-10,str(v));x+=w
+  y-=rh
+ y-=22
+
+n=1048576;b=get(n,'full-joint');opt=get(n,'full-chunk');ratio=b['median_online_seconds']/opt['median_online_seconds']
+new('Batch reciprocals, preserve the proof','An exact witness optimization and a measured test of a more ambitious GKR design')
+head('Main result')
+para(f\"At {n:,} evaluations and 64 distinct inputs, 4096-entry batching changes full-table online latency from {b['median_online_seconds']:.3f} s to {opt['median_online_seconds']:.3f} s ({ratio:.2f}x). The integer outputs and constraint counts are unchanged.\")
+rows=[]
+for u in [64,16384,200000]:
+ a=get(n,'full-joint',u);o=get(n,'full-chunk',u)
+ rows.append([f'{u:,}',f\"{a['median_online_seconds']:.3f}\",f\"{o['median_online_seconds']:.3f}\",f\"{a['median_online_seconds']/o['median_online_seconds']:.2f}x\"])
+table(['Distinct inputs U','Baseline s','Batched s','Speedup'],rows,[150,125,125,100])
+para('All values are medians of three verified trials. Online means host witness construction plus proof generation plus verification; setup is excluded. These are public-input/output activation-component benchmarks, not private whole-model proof timings.',size=10)
+head('What changed')
+para('The solver previously computed every reciprocal independently. The new hint uses shared prefix products, one inverse per chunk and a backward pass. Every resulting quotient is still checked by the original one-row equation d*q=n. A malicious hint cannot bypass the proof.')
+head('What did not change')
+para('This remains linear work in the number of activations. It does not establish that exponentials are an insignificant part of an LLM proof. The larger architectural opportunity is to reuse tensor commitments across matrix multiplication and activation lookup proofs.')
+
+new('Scaling and the repetition regime','Actual single proofs up to 1,048,576 evaluations; no timing extrapolation in this plot')
+cv.drawImage(str(d/'latency.png'),40,y-255,width=532,height=253,mask='auto');y-=282
+rows=[]
+for nn in [262144,1048576]:
+ for m in ['joint-logup-field','joint-logup-batch','joint-product']:
+  c=get(nn,m);rows.append([f'{nn:,}',labels[m],f\"{c['median_online_seconds']:.3f}\",f\"{min(c['online_latencies']):.3f}-{max(c['online_latencies']):.3f}\"])
+table(['N','Method, U=K=64','Median s','Three-trial range s'],rows,[84,183,82,165],size=8.8)
+para('Distinct means distinct quantized inputs. K is reserved dictionary capacity, which remains a public circuit parameter. The full-table method always contains 200,000 entries. Grouped methods validate K dictionary values with the same factor gadget.',size=10)
+
+new('Where time and memory go','Phase medians are diagnostic; the online median is taken from complete per-trial sums')
+rows=[]
+for m in ['full-joint','full-chunk','joint-logup-field','joint-logup-batch','joint-product']:
+ c=get(n,m);rows.append([labels[m],f\"{med(c,'assignment_seconds'):.3f}\",f\"{c['median_solver_seconds']:.3f}\",f\"{med(c,'prove_seconds'):.3f}\",f\"{med(c,'verify_seconds')*1000:.1f}\"])
+table(['Method, N=1,048,576','Host s','Solve s*','Prove s*','Verify ms'],rows,[186,73,73,73,105],size=8.4)
+para('* Solve is included inside Prove; do not add it again. Solver timings come from backend logs. Groth16 still performs FFT and elliptic-curve work after solving the witness.',size=10)
+rows=[]
+for m in ['full-joint','full-chunk','joint-logup-field','joint-logup-batch','joint-product']:
+ c=get(n,m);rows.append([labels[m],f\"{c['constraints']:,}\",f\"{c['setup_seconds']:.1f}\",f\"{c['peak_rss_kib']/2**20:.2f}\"])
+table(['Method','Constraints','Setup s','Peak RSS GiB'],rows,[190,118,90,115],size=8.6)
+para('Peak RSS covers the whole process, including materialization, compilation, setup and all trials. Setup is circuit-specific and can be amortized; parameter loading and serialization are not timed. Exact cold-start phases are retained in each raw JSON.',size=10)
+head('Scale implication')
+para(f\"At the measured U=200,000 throughput, one billion activation evaluations would take approximately {get(n,'full-chunk',200000)['median_online_seconds']*1e9/n/3600:.2f} hours if throughput stayed constant across chunks. This is an arithmetic extrapolation, not a measured billion-element proof or an LLM runtime estimate.\")
+
+new('The numerical and proof contract','No relaxed precision, no skipped range checks, and no trusted reciprocal advice')
+head('Same input grid and integer output')
+para('x=-10+X/10000 for integer 0 <= X < 200000. Outputs retain 40 fractional bits and the certified 50 x 50 x 80 factor-table construction. Full-table methods materialize exactly that function. Per-trial input and integer-output hashes match across all compared methods.')
+head('Same joint-pair lookup')
+para('Commit the input/output pairs and table multiplicities before deriving z and alpha. For each request define d_i=z-X_i-alpha*Y_i. The proof compares the sum of 1/d_i with the table-side sum of m_j/(z-T_j-alpha*F(T_j)). Random pair compression continues to bind each output to its corresponding input.')
+head('Batched arithmetic, untrusted outputs')
+para('For nonzero d_0,...,d_(B-1), compute prefix products P_i, invert the final P, and propagate backwards to recover all d_i inverses. This replaces B inversions with one inversion and roughly 3B multiplications. Numerator multiplication produces weighted table fractions. The circuit separately enforces d_i*q_i=n_i for every result.')
+para('Query numerators equal one and therefore reject zero denominators. Table zero/zero behavior matches native weighted division; table poles remain in the negligible bad-challenge event. The hint returns zero there as a witness convention. No claim is made that numerical tests prove cryptographic security.')
+head('A compiler detail that mattered')
+para('A naive Mul followed by AssertIsEqual creates an extra row in the pinned R1CS builder. The implementation emits the same single generic R1CS row as native division. Regression tests require equal full-table constraint counts. This implementation is intentionally tied to gnark 0.14.0 and BN254.')
+
+new('The GKR experiment and next direction','The lookup sum itself was implemented; the generic wrapper was screened out')
+g=json.loads((d/'screen-gkr-1024.json').read_text())
+para(f\"The GKR variant combines fractions in a tree: (a/b)+(c/d)=(ad+bc)/(bd). It proves a zero numerator and nonzero denominator at the root. On the production-size 200,000-entry table and only 1,024 requests, the outer circuit already has {g['constraints']:,} constraints. This is a compile-only screen; no large-table GKR latency is claimed.\")
+para('Small-table public and private Groth16 proof round trips pass. All intermediate GKR output nodes are committed before the GKR challenges; the original pairs and counts were committed before the lookup challenges. Incorrect outputs, pairings and counts are rejected by the tests.')
+head('Why this does not settle native LogUp-GKR')
+para('The generic wrapper pays again to bind large arrays of tree values inside R1CS. Native LogUp-GKR is designed around polynomial tensor commitments and avoids separate reciprocal commitments [1]. Reusing commitments already needed by adjacent matrix multiplications is the important integration target, not wrapping another full set of arrays in Groth16.')
+head('Recommended architecture experiment')
+para('Build one committed matrix-multiply -> activation -> matrix-multiply block with shared multilinear tensor commitments. Compare full-table LogUp-GKR against factor-decomposed TaSSLE-style lookups on the same committed inputs and exact integer outputs [2]. Measure incremental activation time, total block time, proof bytes and peak memory. This architecture has not been benchmarked by this release.')
+para('Cached quotients can remove online dependence on table size after preprocessing [3]. For the present fixed 200,000-entry table and much larger N, reducing per-activation binding and group work is likely more consequential. That is an inference from the cost structure, not a measured cq comparison.',size=10)
+para('[1] Papini & Haboeck: eprint.iacr.org/2023/1284\\n[2] Dore: eprint.iacr.org/2024/1075\\n[3] Eagen, Fiore & Gabizon: eprint.iacr.org/2022/1763',size=9,gap=6)
+
+new('Evidence and reproduction','Source, exact parameter files, per-trial timings, logs and input/output hashes are included')
+head('Measured evidence')
+para(f\"{s['verified_cases']} benchmark cases, {s['verified_proofs']} independently verified proofs, and {s['evaluation_instances']:,} evaluation instances across trials. Largest single proof: {s['max_single_proof']:,} evaluations. Each case uses three fresh synthetic input vectors. All matched input/output hashes agree; full-table constraint counts match exactly.\")
+head('Checks')
+para('The full Go suite and all seven Python tests pass. Tests cover public/private statements, swapped pairings, corrupted counts and dictionary entries, remainders and padding, invalid packing collisions, malicious quotient hints, zero denominators, and unchanged constraint counts. This is unaudited research code.')
+head('Reproduction')
+for line in ['go test -buildvcs=false ./... -count=1','go build -buildvcs=false -trimpath -o bin/repetition ./cmd/repetition','python3 scripts/run_batch.py --suite pilot','python3 scripts/run_batch.py --suite large','python3 scripts/run_batch.py --suite million','python3 scripts/run_batch.py --suite grouped','python3 scripts/analyze_batch.py','python3 scripts/report_batch.py']:
+ para(line,size=9.2,gap=1)
+y-=10
+para('Runners skip completed case files. Move existing JSON groups to rerun. Run performance jobs serially with GOMAXPROCS=8 and GOMEMLIMIT=6GiB. No GPU was used. The measured backend is pinned for reproducibility, not asserted to be the newest or fastest available.',size=10)
+para('The public statement contains every input/output pair. Private digest wrappers are tested but excluded from timings. Real model activation traces, complete softmax/SiLU blocks, recursive aggregation and a full LLM proof remain outside the measurements.',size=10)
+cv.save()
+# A compact Markdown result, bundled with code, is generated from the same raw data.
+lines=['# Batched LogUp results (0.6.0)','',f\"{s['verified_proofs']} verified proofs; {s['evaluation_instances']:,} evaluation instances. Public IO; three-trial online medians.\",'','| N | U | Method | Constraints | Online s | Solver s |','|---:|---:|---|---:|---:|---:|']
+for c in cs:lines.append(f\"| {c['batch']:,} | {c['unique_inputs']:,} | {c['method']} | {c['constraints']:,} | {c['median_online_seconds']:.4f} | {c['median_solver_seconds']:.4f} |\")
+lines+=['','Solver is included in proof time; never add it again. Setup excluded. See BATCH_EXPERIMENT.md and output/pdf/expzk-batched-lookups.pdf for scope, phase breakdowns and limitations.']
+(root/'BATCH_RESULTS.md').write_text('\\n'.join(lines)+'\\n')
+print(out/'expzk-batched-lookups.pdf')
+PY"
+
+=====
+
+The full regression suite passed. At 32,768 evaluations, whole-batch inversion is nearly tied with the baseline: 1.31 versus 1.33 seconds. That’s a useful caution against equating the large reduction in inversion count with a large proof speedup.
+
+The quarter-million and million-element runs will show whether the change matters more at scale.
+
+=====
+
+bash -lc /bin/bash -lc "cat > scripts/analyze_batch.py <<'PY'
+#"'!/usr/bin/env python3
+from pathlib import Path
+import json,re,statistics,hashlib
+root=Path(__file__).resolve().parents[1];d=root/'"'benchmarks/batch'
+cases=[]
+for p in sorted(d.glob('*-k*.json')):
+ data=json.loads(p.read_text());cs=data['cases']
+ times=[float(x)/1000 for x in re.findall(r'constraint system solver done["'^'"\\n]*took=([0-9.]+)',p.with_suffix('.log').read_text())]
+ assert len(times)==sum(len(c['prove_seconds']) for c in cs),(p,len(times))
+ for i,c in enumerate(cs):
+  assert c['verified']
+  c=dict(c,source=p.name,solver_seconds=times[i::len(cs)])
+  c['median_solver_seconds']=statistics.median(c['solver_seconds'])
+  cases.append(c)
+by={}
+for c in cases:
+ key=(c['batch'],c['unique_inputs'])
+ hashes=(c['trial_input_hashes'],c['trial_output_hashes'])
+ if key in by: assert by[key]==hashes,(key,c['method'])
+ by[key]=hashes
+for c in cases:
+ if c['method'] in ['full-batch','full-chunk']:
+  b=next(x for x in cases if x['batch']==c['batch'] and x['unique_inputs']==c['unique_inputs'] and x['method']=='full-joint')
+  assert c['constraints']==b['constraints']
+  c['speedup_vs_full_joint']=b['median_online_seconds']/c['median_online_seconds']
+summary={'verified_cases':len(cases),'verified_proofs':sum(len(c['prove_seconds']) for c in cases),'evaluation_instances':sum(c['batch']*len(c['prove_seconds']) for c in cases),'max_single_proof':max(c['batch'] for c in cases),'all_comparators_matched':True,'equal_full_constraints':True,'cases':cases}
+(d/'summary.json').write_text(json.dumps(summary,indent=2)+'\\n')
+for c in cases: print(c['batch'],c['unique_inputs'],c['method'],c['constraints'],round(c['median_online_seconds'],4),'solve',round(c['median_solver_seconds'],4),'mem GiB',round(c['peak_rss_kib']/2**20,3))
+PY
+python3 - <<'PY'
+from pathlib import Path
+p=Path('README.md');s=p.read_text();s=s.replace('# expzk 0.5.0','# expzk 0.6.0');s='''# Latest experiment: batched LogUp witnesses (0.6.0)
+
+Read [BATCH_RESULTS.md](BATCH_RESULTS.md) for fresh matched timings and
+[BATCH_EXPERIMENT.md](BATCH_EXPERIMENT.md) for algorithms and reproduction.
+"'`full-batch` and `full-chunk` replace individual inversions with a batch-inversion
+hint and preserve the baseline R1CS row count. `joint-logup-batch` applies this
+to the factor dictionary. `full-gkr` is an experimental fractional-sum GKR
+ablation; it is not the selected default or a native LogUp-GKR backend.
+The new runner lives in `cmd/repetition`; existing CLI defaults are unchanged.
+
+'"'''+s;p.write_text(s)
+p=Path('BATCH_EXPERIMENT.md');p.write_text('''# Batched witnesses and fractional-sum GKR
+
+## Starting point and unchanged relation
+
+Version 0.5.0 established that exact-value grouping helps for small reserved
+capacity K, but the N request bindings remain linear. In its public-IO tests,
+N=1,048,576 and U=K=64 took 12.357 s (joint full table), 11.660 s (field LogUp),
+and 9.657 s (grouped product). Those historical values are context only; this
+release reruns its own comparators on matched input vectors.
+
+All new methods prove the same integer function as 0.5.0. Inputs are indices
+0 <= X < 200000 representing x=-10+X/10000. The 50 x 50 x 80 factor construction
+has 40 fractional output bits; the materialized table contains exactly the same
+integer outputs. No precision, clipping, or normalization changes are made.
+U counts completely distinct quantized inputs, not distinct bins.
+
+## First optimization: batch the quotient witness
+
+The unchanged joint-pair lookup identity is
+
+    sum_i 1/(z-X_i-alpha*Y_i) = sum_j m_j/(z-T_j-alpha*F(T_j)).
+
+The original circuit asks the R1CS solver to invert every denominator separately.
+The optimized hint batch-inverts all denominators and computes the weighted
+quotients. A nonzero-denominator batch of length B replaces B inversions with
+one inversion and approximately 3B multiplications, plus numerator products.
+Prefix products and a backward pass give all inverse values exactly in BN254.
+The implementation delegates this arithmetic to pinned gnark-crypto fr.BatchInvert.
+
+Every hint output remains untrusted: the circuit enforces d*q=n. Query numerators
+are one, so a query pole is rejected. Table numerators are field multiplicities;
+the zero/zero case has the same semantics and negligible bad-challenge treatment
+as native DivUnchecked. The hint's zero output at such a position is only a
+witness convention. It is not used as an additional soundness assumption.
+
+"'`full-batch` uses one hint for N+M fractions. `full-chunk` uses consecutive chunks
+of 4096, allowing the solver to schedule independent hints and limiting temporary
+memory. At N=1048576, M=200000 this reduces 1248576 inversions to 305.
+`joint-logup-batch` uses the same chunking with a K-entry factor dictionary.
+
+The R1CS builder does not fuse Mul followed by AssertIsEqual. To avoid an extra
+row per fraction, the implementation emits a BlueprintGenericR1C row directly,
+using canonical linear expressions and mapping literal constants to wire zero.
+This is intentionally specific to gnark 0.14.0 R1CS/BN254. A regression test
+requires the same constraint count as full-joint. All row checks stay in the
+proved system; no division relation is moved into trusted host code.
+
+## Second experiment: fractional-sum GKR inside Groth16
+
+The GKR experiment uses rational pairs (p,q). A tree combines them by
+
+    (pL,qL) + (pR,qR) = (pL*qR+pR*qL, qL*qR).
+
+Query leaves have numerator 1; table leaves have numerator -m_j. The final
+numerator must be zero and its denominator nonzero. Padding leaves are 0/1.
+This proves the lookup sum itself, unlike the older shallow factor-product GKR.
+The first commitment binds original pairs and counts before z and alpha. A
+second commitment fixes all hinted GKR output nodes before the GKR challenges.
+The GKR proof is verified inside the Groth16 circuit; it is not trusted advice.
+
+This generic embedding retains expensive outer bindings for the tree and tensor
+values. Its compile screen must not be interpreted as a benchmark of the native
+Papini-Haboeck LogUp-GKR protocol, which reuses polynomial tensor commitments.
+Small-table proof round trips and adversarial tests are run. Large-table results
+label compile-only screens explicitly, with no fabricated prover latencies.
+
+## Validation and scope
+
+Tests include public/private round trips, swapped pairs, bad counts, a deterministic
+packing collision, wrong dictionary values and remainders, padding, split counts,
+malicious zero-valued quotient hints, and zero-denominator handling. The existing
+Go and Python suites run as well. Tests are engineering evidence, not an audit.
+
+Benchmarks use serial processes, GOMAXPROCS=8, GOMEMLIMIT=6GiB, an eight-CPU quota
+and 8 GiB memory limit. Each case has three fresh seeded synthetic vectors and
+verified proofs. Matched cases have identical SHA-256 input and output hashes.
+Online latency = assignment/witness conversion + proving (including solving) +
+verification. It excludes input generation/audit hashes, materialization, compile,
+setup, parameter loading and serialization. Those setup phases and peak RSS are
+recorded separately. The timed proofs expose input/output vectors. Private
+wrappers are tested but not timed; whole-LLM proof cost is not measured.
+No real activation traces, GPU, recursive aggregation or cross-proof cache is used.
+
+## Reproduction
+
+    go test -buildvcs=false ./... -count=1
+    python3 -m unittest discover -s tests -v
+    go build -buildvcs=false -trimpath -o bin/repetition ./cmd/repetition
+    python3 scripts/run_batch.py --suite pilot
+    python3 scripts/run_batch.py --suite large
+    python3 scripts/run_batch.py --suite million
+    python3 scripts/run_batch.py --suite grouped
+    python3 scripts/analyze_batch.py
+    python3 scripts/report_batch.py
+
+Runners skip existing complete JSON cases. Move them out of benchmarks/batch to
+rerun. Do not run performance jobs concurrently. The binaries, raw per-trial
+measurements and test logs are included. The newly supported method names are
+available through cmd/repetition and the package'"'s CompileFullMethod /
+FullMethodAssignment / CompileGrouped / GroupedAssignment functions.
+
+## Where a larger gain should come from
+
+Batch inversion improves the coefficient of O(N+M), not its asymptotic order.
+For a fresh explicit tensor the input pass alone is Omega(N). An architectural
+next step is to fuse activation lookups into a multilinear whole-model backend,
+reusing the commitments already required for adjacent matrix multiplications.
+Native LogUp-GKR avoids committing separate reciprocal columns; TaSSLE uses
+structured tables without materializing the entire table. Neither that complete
+integration nor its private end-to-end latency is claimed here. Cached-quotient
+lookups address table-size overhead, especially when M is large relative to N;
+for N much larger than this fixed M, request binding and commitments matter more.
+
+Primary references:
+- Papini and Haboeck, Improving logarithmic derivative lookups using GKR:
+  https://eprint.iacr.org/2023/1284
+- Dore, TaSSLE: Lasso for the commitment-phobic:
+  https://eprint.iacr.org/2024/1075
+- Eagen, Fiore and Gabizon, cq: Cached quotients for fast lookups:
+  https://eprint.iacr.org/2022/1763
+- Pinned arithmetic implementation: github.com/consensys/gnark-crypto v0.19.0,
+  ecc/bn254/fr/element.go, BatchInvert.
+''')
+PY"
+
+=====
+
+{"plan":[{"step":"Recover the previous algorithms, benchmarks, and constraints.","status":"completed"},{"step":"Select and implement the next optimization with a soundness argument.","status":"completed"},{"step":"Benchmark at large batch sizes and deliver reproducible results.","status":"in_progress"}],"explanation":"Implemented exact batched quotient witnesses with fused native R1CS checks, plus a tested fractional-sum GKR ablation. Targeted round-trip and adversarial tests pass; full suite and serial benchmarks are running."}
+
+=====
+
+The revised implementation passes the targeted checks, including rejection of corrupted reciprocal hints. The full regression suite is running next.
+
+I’ll put the results in a short PDF with the updated source and raw timings, including the GKR experiment so the architectural dead end is documented.
+
+=====
+
+bash -lc /bin/bash -lc "python3 - <<'PY'
+from pathlib import Path
+p=Path('batch_hint_test.go');s=p.read_text();s+='''
+func TestBatchConstraintCount(t *testing.T) {
+ c,e:=MaterializeConfig(testConfig(t,\"segmented\"));if e"'!=nil{t.Fatal(e)}
+ baseline,e:=CompileFullJoint(c,1024,"public");if e!=nil{t.Fatal(e)}
+ for _,m:=range []string{"full-batch","full-chunk"}{
+  cc,e:=CompileFullMethod(c,1024,"public",m);if e!=nil{t.Fatal(e)}
+  if cc.GetNbConstraints()!=baseline.GetNbConstraints(){t.Fatalf("%s constraints %d != baseline %d",m,cc.GetNbConstraints(),baseline.GetNbConstraints())}
+ }
+}
+'"''';p.write_text(s)
+PY
+/workspace/scratch/4ee9dfa745a9/toolchain/go/bin/gofmt -w batch_hint_test.go
+mkdir -p benchmarks/development-batch
+mv benchmarks/batch/32768-* benchmarks/development-batch/
+GOMAXPROCS=8 GOMEMLIMIT=6GiB /workspace/scratch/4ee9dfa745a9/toolchain/go/bin/go test -buildvcs=false ./... -count=1 > benchmarks/batch/all-go-tests.log 2>&1
+python3 -m unittest discover -s tests -v > benchmarks/batch/python-tests.log 2>&1
+GOMAXPROCS=8 /workspace/scratch/4ee9dfa745a9/toolchain/go/bin/go build -buildvcs=false -trimpath -o bin/repetition ./cmd/repetition
+python3 scripts/run_batch.py --suite pilot
+python3 scripts/run_batch.py --suite large
+python3 scripts/run_batch.py --suite million
+python3 scripts/run_batch.py --suite grouped"
+
+=====
+
+I found a compiler pitfall in the first batch-inversion implementation: the high-level API added an extra equality constraint per quotient. I’ve changed it to emit the same single constraint as the baseline and am validating that change.
+
+The larger tests will cover 64, 16,384, and 200,000 distinct quantized inputs, so the result won’t depend solely on extreme repetition.
+
+=====
+
+bash -lc /bin/bash -lc "cat > scripts/run_batch.py <<'PY'
+#"'!/usr/bin/env python3
+import subprocess,os,json,hashlib,platform,argparse,time
+from pathlib import Path
+p=argparse.ArgumentParser();p.add_argument('"'--suite',default='pilot');args=p.parse_args()
+root=Path(__file__).resolve().parents[1];os.chdir(root)
+out=Path('benchmarks/batch');out.mkdir(exist_ok=True)
+env=dict(os.environ,GOMAXPROCS='8',GOMEMLIMIT='6GiB')
+suites={
+ 'pilot':[(32768,m,0,'64') for m in ['full-joint','full-batch','full-chunk']],
+ 'large':[(262144,m,0,'64,16384,200000') for m in ['full-joint','full-batch','full-chunk']],
+ 'million':[(1048576,m,0,'64,16384,200000') for m in ['full-joint','full-chunk']],
+ 'grouped':[(n,m,64,'64') for n in [262144,1048576] for m in ['joint-logup-field','joint-logup-batch','joint-product']],
+}
+meta={'suite':args.suite,'binary_sha256':hashlib.sha256(Path('bin/repetition').read_bytes()).hexdigest(),'platform':platform.platform(),'cpu':next(x for x in Path('/proc/cpuinfo').read_text().splitlines() if x.startswith('model name')),'cpu_max':Path('/sys/fs/cgroup/cpu.max').read_text().strip(),'memory_max':Path('/sys/fs/cgroup/memory.max').read_text().strip()}
+(out/f'{args.suite}-meta.json').write_text(json.dumps(meta,indent=2))
+for n,m,k,u in suites[args.suite]:
+ dest=out/f'{n}-{m}-k{k}.json'
+ if dest.exists(): continue
+ cmd=['bin/repetition','--method',m,'--n',str(n),'--cache',str(k),'--uniques',u,'--repeats','3','--out',str(dest)]
+ print('START',n,m,k,u,flush=True)
+ with dest.with_suffix('.log').open('w') as log: subprocess.run(cmd,stdout=log,stderr=subprocess.STDOUT,env=env,check=True)
+ d=json.loads(dest.read_text())
+ for c in d['cases']: print('DONE',n,m,'U',c['unique_inputs'],'online',c['median_online_seconds'],flush=True)
+PY
+python3 scripts/run_batch.py --suite pilot"
+
+=====
+
+Both prototypes pass the proof round trips and adversarial tests so far. The generic GKR version looks unfavorable: with 1,024 requests against the 200,000-entry table, it already creates 1.71 million outer constraints. Its tensor bindings are expensive in this backend.
+
+Batch inversion preserves the existing constraint count. I’m now timing it against fresh baseline runs.
+
+=====
+
+bash -lc /bin/bash -lc "python3 - <<'PY'
+from pathlib import Path
+p=Path('grouped_test.go');s=p.read_text().replace('\"joint-logup-field\", \"joint-product\"','\"joint-logup-field\", \"joint-logup-batch\", \"joint-product\"').replace('(method == \"joint-logup-field\")','(method == \"joint-logup-field\" || method == \"joint-logup-batch\")');p.write_text(s)
+p=Path('batch_test.go');s=Path('full_joint_test.go').read_text();s=s.replace('func TestFullJoint(t *testing.T) {','func TestFullOptimizations(t *testing.T) {\\n for _,method:=range []string{\"full-batch\",\"full-chunk\",\"full-gkr\"} { t.Run(method,func(t *testing.T) {');s=s.replace('CompileFullJoint(c, len(xs), mode)','CompileFullMethod(c, len(xs), mode,method)').replace('CompileFullJoint(c, len(xs), \"public\")','CompileFullMethod(c, len(xs), \"public\",method)').replace('FullJointAssignment(c, xs, mode)','FullMethodAssignment(c, xs, mode,method)').replace('FullJointAssignment(c, xs, \"public\")','FullMethodAssignment(c, xs, \"public\",method)').replace('FullJointAssignment(c, []int{c.Count}, \"public\")','FullMethodAssignment(c, []int{c.Count}, \"public\",method)');s=s.rstrip()[:-1]+'})\\n}\\n}\\n';p.write_text(s)
+PY
+/workspace/scratch/4ee9dfa745a9/toolchain/go/bin/gofmt -w batch_test.go grouped_test.go
+GOMAXPROCS=8 GOMEMLIMIT=6GiB /workspace/scratch/4ee9dfa745a9/toolchain/go/bin/go test -buildvcs=false . -run 'TestFullOptimizations|TestGrouped' -count=1 > benchmarks/batch/tests.log 2>&1"
+
+=====
+
+bash -lc /bin/bash -lc "python3 - <<'PY'
+from pathlib import Path
+p=Path('work/expzk-0.6.0/grouped.go');s=p.read_text().replace('if method == \"full-joint\" {','if method == \"full-joint\" || method == \"full-batch\" || method == \"full-chunk\" || method == \"full-gkr\" {').replace('return AssertFullJoint(api, xs, ys, a.Counts, c)','return assertFullJointMethod(api, xs, ys, a.Counts, c, method)')
+s=s.replace('method "'!= "joint-logup-field" && method != "joint-product"'"','method "'!= "joint-logup-field" && method != "joint-logup-batch" && method != "joint-product"'"')
+s=s.replace('alpha := h.Sum()','alpha := h.Sum()\\n        if method == \"joint-logup-batch\" { return assertBatchedLookupSum(api,xs,ys,a.DictionaryIndices,a.DictionaryOutputs,a.Counts,z,alpha,4096) }')
+p.write_text(s)
+p=Path('work/expzk-0.6.0/full_joint.go');s=p.read_text();s=s.replace('if c == nil {','return assertFullJointMethod(api,xs,ys,counts,c,\"full-joint\")\\n}\\n\\nfunc assertFullJointMethod(api frontend.API, xs,ys,counts []frontend.Variable,c *Config,method string) error {\\n if c == nil {',1)
+s=s.replace('alpha := h.Sum()','''alpha := h.Sum()
+        if method "'!= "full-joint" {
+            tx,ty:=make([]frontend.Variable,c.Count),make([]frontend.Variable,c.Count)
+            for j,v:=range c.Tables[0] { tx[j]=j;ty[j]=v }
+            if method == "full-gkr" { return assertFractionGKR(api,xs,ys,tx,ty,counts,z,alpha) }
+            chunk:=len(xs)+c.Count; if method=="full-chunk" {chunk=4096}
+            return assertBatchedLookupSum(api,xs,ys,tx,ty,counts,z,alpha,chunk)
+        }'"''')
+s+='''
+// The method changes the implementation, never the certified integer table.
+func CompileFullMethod(c *Config,n int,mode,method string)(constraint.ConstraintSystem,error){
+ obj,e:=NewFullJointCircuit(c,n,mode);if e"'!=nil{return nil,e}
+ setFullMethod(obj,method)
+ return frontend.Compile(ecc.BN254.ScalarField(),r1cs.NewBuilder,obj)
+}
+func FullMethodAssignment(c *Config,xs []int,mode,method string)(frontend.Circuit,*Statement,error){
+ obj,s,e:=FullJointAssignment(c,xs,mode);if e!=nil{return nil,nil,e};setFullMethod(obj,method);return obj,s,nil
+}
+func setFullMethod(obj frontend.Circuit,method string){
+ switch v:=obj.(type){case *Circuit:v.Argument=method;case *PublicCircuit:v.Argument=method}
+}
+'"''';p.write_text(s)
+p=Path('work/expzk-0.6.0/cmd/repetition/main.go');s=p.read_text().replace('\"joint-logup-field\", \"joint-product\"','\"joint-logup-field\", \"joint-logup-batch\", \"joint-product\"').replace('\"factor\", \"full-matched\", \"full-joint\"','\"factor\", \"full-matched\", \"full-joint\", \"full-batch\", \"full-chunk\", \"full-gkr\"').replace('*method == \"full-matched\" || *method == \"full-joint\"','strings.HasPrefix(*method,\"full-\")').replace('if *method == \"full-joint\" {','if strings.HasPrefix(*method,\"full-\") && *method "'!= "full-matched" {'"').replace('expzk.CompileFullJoint(c, *n, \"public\")','expzk.CompileFullMethod(c, *n, \"public\",*method)').replace('expzk.FullJointAssignment(c, xs, \"public\")','expzk.FullMethodAssignment(c, xs, \"public\",*method)');p.write_text(s)
+PY"
+
+=====
+
+{"plan":[{"step":"Recover the previous algorithms, benchmarks, and constraints.","status":"completed"},{"step":"Select and implement the next optimization with a soundness argument.","status":"in_progress"},{"step":"Benchmark at large batch sizes and deliver reproducible results.","status":"pending"}],"explanation":"Recovered v0.5.0 source and same-backend results. Testing batched reciprocals and a fractional-sum GKR prototype without changing the fixed-point relation."}
+
+=====
+
+The code confirms two useful experiments. The immediate one is batch inversion: the current LogUp prover computes reciprocals separately, even though they can share one field inversion. The more ambitious one is a GKR proof of the lookup sum, which could reduce the work represented in the main SNARK.
+
+I’ll compare measured runtimes, including the added proof overhead; fewer arithmetic checks alone may not make either approach faster.
+
+=====
+
+bash -lc /bin/bash -lc "mkdir -p .library_helpers
+cp -r /root/.codex/plugins/cache/openai-curated-remote/openai-library/0.1.62/skills/library/scripts .library_helpers/
+python3 .library_helpers/scripts/library_download.py <<'JSON'
+{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"Action completed.\"}],\"structuredContent\":{\"meta\":{\"_codex_apps\":{\"file_retrieval\":{\"version\":1,\"complete\":false,\"product_experience\":\"work\",\"requests\":[[\"/retrieval_title_results/0\",\"/retrieval_title_results/1\",\"/retrieval_title_results/2\"]]}}},\"content\":[{\"type\":\"text\",\"text\":\"Action completed.\",\"annotations\":null,\"meta\":null}],\"structuredContent\":{\"api_tool_source\":\"files/search\",\"results\":[{\"read_locator\":null,\"result_index\":0,\"result_id\":\"library:libfile_ce7363d1a4f08191b209f599c63c7895:0\",\"file_id\":\"file_000000000b0c820c81830b2275c5a83a\",\"version_id\":\"6\",\"library_file_id\":\"libfile_ce7363d1a4f08191b209f599c63c7895\",\"name\":\"expzk-0.5.0.zip\",\"mime_type\":\"application/zip\",\"score\":null,\"snippets\":[],\"locators\":[],\"document_chunk_id\":null,\"created_at\":\"2026-10-17T18:43:52.788396Z\",\"modified_at\":\"2026-10-18T01:52:52.159932Z\",\"size_bytes\":18132289,\"image_taken_at\":null,\"image_location\":null,\"surface\":\"library\",\"metadata\":{\"id\":\"file_000000000b0c820c81830b2275c5a83a\",\"kind\":\"file\",\"name\":\"expzk-0.5.0.zip\",\"path\":\"/ZKP of exponentials/expzk-0.5.0.zip\",\"file_id\":\"file_000000000b0c820c81830b2275c5a83a\",\"library_file_id\":\"libfile_ce7363d1a4f08191b209f599c63c7895\",\"library_artifact_type\":\"other\",\"version_id\":\"6\",\"mime_type\":\"application/zip\",\"size_bytes\":18132289,\"created_at\":\"2026-10-17T18:43:52.788396Z\",\"modified_at\":\"2026-10-18T01:52:52.159932Z\",\"model_generated\":true,\"surface\":\"library\"},\"match_source\":\"library_metadata_filename\"}],\"retrieval_title_results\":[{\"read_locator\":{\"file_id\":null,\"version_id\":null,\"content_location\":\"sediment://8929b56630cfffc#file_0000000031c881f5a12461d327ea3f8c#full_text?version=2&pages=%5B2%5D\",\"document_chunk_id\":\"file_0000000031c881f5a12461d327ea3f8c:4--1--1\",\"page_number\":null,\"anchor_text\":null},\"result_index\":0,\"result_id\":\"library-retrieval-title:libfile_f4f575315c0081918d1bd132dad0c023:0\",\"file_id\":\"file_0000000031c881f5a12461d327ea3f8c\",\"version_id\":null,\"library_file_id\":\"libfile_f4f575315c0081918d1bd132dad0c023\",\"name\":\"expzk-repetition-latency.pdf\",\"mime_type\":\"application/pdf\",\"score\":0.03278688524590164,\"snippets\":[{\"text\":\"Latency includes frontend witness construction, backend constraint solving/proving and verification. It\\n excludes synthetic input generation, audit hashes, proof/public-statement serialization, parameter loading,\\n compilation and setup. Every proof is verified. Each proof is 196 bytes; its separate public statement is\\n 64*N+12 bytes. Actual serialized keys are not included in those sizes.\\n\\n For the N=32,768, U=K=64 cache, median proof-only time is 0.953 s, median host witness time is 0.028 s,\\n and median verification time is 13.96 ms. The reported online median is computed from complete per-trial\\n sums, not by adding independently chosen phase medians.\\n\\n Reproduce with: go test ./cmd/repetition; go build -buildvcs=false -trimpath -o bin/repetition\\n ./cmd/repetition; python3 scripts/run_repetition.py; python3 scripts/report_repetition.py. The report\\n generator requires reportlab. The runner skips completed groups; move their JSON files to rerun them.\\n\\n Raw group JSON and logs are in benchmarks/repetition/. They contain all trial inputs/outputs as hashes,\\n exact constraints, setup/compile/assignment/prove/verify timings and peak memory. The generator is tested\\n for exact distinct count, balanced repetitions, deterministic matching and fresh trials. The proof circuit itself\\n is unchanged from 0.4.0.\\n\\n\\n\\n\\nexpzk 0.4.1 | Repeated-input latency | 18 October 2026 UTC                                                           3\",\"locator\":null}],\"image_asset_pointers\":[{\"content_type\":\"image_asset_pointer\",\"asset_pointer\":\"sediment://b8d6814cd7fb43e#file_0000000031c881f5a12461d327ea3f8c#p_2.268b51bc98.jpg\",\"size_bytes\":167638,\"width\":768,\"height\":1024,\"fovea\":768}],\"locators\":[{\"file_id\":null,\"version_id\":null,\"content_location\":null,\"document_chunk_id\":\"file_0000000031c881f5a12461d327ea3f8c:4--1--1\",\"page_number\":null,\"anchor_text\":null}],\"document_chunk_id\":\"file_0000000031c881f5a12461d327ea3f8c:4--1--1\",\"created_at\":\"2026-10-18T00:40:51.256467Z\",\"modified_at\":\"2026-10-18T00:40:51.256467Z\",\"size_bytes\":76016,\"image_taken_at\":null,\"image_location\":null,\"surface\":\"library\",\"metadata\":{\"id\":\"file_0000000031c881f5a12461d327ea3f8c\",\"kind\":\"file\",\"name\":\"expzk-repetition-latency.pdf\",\"path\":\"/ZKP of exponentials/expzk-repetition-latency.pdf\",\"file_id\":\"file_0000000031c881f5a12461d327ea3f8c\",\"library_file_id\":\"libfile_f4f575315c0081918d1bd132dad0c023\",\"library_artifact_type\":\"report\",\"version_id\":null,\"mime_type\":\"application/pdf\",\"size_bytes\":76016,\"created_at\":\"2026-10-18T00:40:51.256467Z\",\"modified_at\":\"2026-10-18T00:40:51.256467Z\",\"model_generated\":true,\"surface\":\"library\"},\"match_source\":\"retrieval_title\"},{\"read_locator\":{\"file_id\":null,\"version_id\":null,\"content_location\":\"sediment://b97fb1b454272bd#file_000000002ca081f5ad4fca3f8e24c349#full_text?version=2&pages=%5B1%5D\",\"document_chunk_id\":\"file_000000002ca081f5ad4fca3f8e24c349:2--1--0\",\"page_number\":null,\"anchor_text\":null},\"result_index\":1,\"result_id\":\"library-retrieval-title:libfile_ada830cc05108191923bc26a0b05f2a9:1\",\"file_id\":\"file_000000002ca081f5ad4fca3f8e24c349\",\"version_id\":null,\"library_file_id\":\"libfile_ada830cc05108191923bc26a0b05f2a9\",\"name\":\"expzk-reuse-report.pdf\",\"mime_type\":\"application/pdf\",\"score\":0.03278688524590164,\"snippets\":[{\"text\":\"02 / Separate factorization from the other\\n optimizations\\n These earlier softmax comparisons use identical unrounded integer weights and the same normalization\\n within each row of the table. They test the proposed product/bin representation against a materialized table\\n of exactly those weights. Public inputs/outputs, row length 512; setup excluded.\\n\\n   Matched relation                      N                    Full table s               Factors s    Full / factors\\n\\n   200k grid, exact floor                1,024                1.178                      0.356        3.31x\\n\\n   200k grid, exact floor                16,384               4.013                      4.054        0.99x\\n\\n   1m grid, exact floor                  16,384               6.393                      3.706        1.73x\\n\\n   200k grid, shared reciprocal          65,536               7.202                      6.965        1.03x\\n\\n\\n The factor proposal wins clearly when the table is large relative to the request batch. It did not show a\\n growing advantage with N on the 200k grid. The 65k times overlap in their three-trial ranges. Increasing grid\\n precision and increasing request count are different scaling experiments.\\n\\n   Ablation at N=16,384                           IO                         Constraints             Prove s\\n\\n   Original factors                               public                     674,540                 4.037\\n\\n   Exact bounds + fused axes                      public                     561,764                 3.761\\n\\n   Shared reciprocal + fused axes                 public                     398,298                 2.338\\n\\n   Original + MiMC                                private                    1,769,158               10.567\\n\\n   Optimized + MiMC                               private                    1,492,916               10.416\\n\\n   Optimized + Poseidon2                          private                    1,008,007               4.256\\n\\n\\n Exact affine bounds preserve outputs. The reciprocal option changes final rounding and has its own proven\\n error bound. Poseidon2 changes the commitment hash and expected root. Neither speedup should be\\n credited to tensor factorization alone. The prior GKR experiment batched only the shallow factor products,\\n not the lookup argument; it does not test a TaSSLE or GKR-LogUp implementation.\\n\\n\\n\\n\\nexpzk 0.4.0 | Matched baselines and reuse | 17 October 2026                                                            2\",\"locator\":null}],\"image_asset_pointers\":[{\"content_type\":\"image_asset_pointer\",\"asset_pointer\":\"sediment://681a6f168506b8a#file_000000002ca081f5ad4fca3f8e24c349#p_1.f4d4dce4f3.jpg\",\"size_bytes\":112315,\"width\":768,\"height\":1024,\"fovea\":768}],\"locators\":[{\"file_id\":null,\"version_id\":null,\"content_location\":null,\"document_chunk_id\":\"file_000000002ca081f5ad4fca3f8e24c349:2--1--0\",\"page_number\":null,\"anchor_text\":null}],\"document_chunk_id\":\"file_000000002ca081f5ad4fca3f8e24c349:2--1--0\",\"created_at\":\"2026-10-17T22:40:30.194339Z\",\"modified_at\":\"2026-10-17T22:40:30.194339Z\",\"size_bytes\":86125,\"image_taken_at\":null,\"image_location\":null,\"surface\":\"library\",\"metadata\":{\"id\":\"file_000000002ca081f5ad4fca3f8e24c349\",\"kind\":\"file\",\"name\":\"expzk-reuse-report.pdf\",\"path\":\"/ZKP of exponentials/expzk-reuse-report.pdf\",\"file_id\":\"file_000000002ca081f5ad4fca3f8e24c349\",\"library_file_id\":\"libfile_ada830cc05108191923bc26a0b05f2a9\",\"library_artifact_type\":\"report\",\"version_id\":null,\"mime_type\":\"application/pdf\",\"size_bytes\":86125,\"created_at\":\"2026-10-17T22:40:30.194339Z\",\"modified_at\":\"2026-10-17T22:40:30.194339Z\",\"model_generated\":true,\"surface\":\"library\"},\"match_source\":\"retrieval_title\"},{\"read_locator\":{\"file_id\":null,\"version_id\":null,\"content_location\":\"sediment://0c99a160b926b88#file_000000005af0820d9e57b257e96421ff#full_text?version=2&pages=%5B2%5D\",\"document_chunk_id\":\"file_000000005af0820d9e57b257e96421ff:4--1--0\",\"page_number\":null,\"anchor_text\":null},\"result_index\":2,\"result_id\":\"library-retrieval-title:libfile_d51b5033e5188191b321ecd6d419fd07:2\",\"file_id\":\"file_000000005af0820d9e57b257e96421ff\",\"version_id\":null,\"library_file_id\":\"libfile_d51b5033e5188191b321ecd6d419fd07\",\"name\":\"expzk-grouped-pairs.pdf\",\"mime_type\":\"application/pdf\",\"score\":0.032018442622950824,\"snippets\":[{\"text\":\"03 / Removing unnecessary count constraints\\n The first LogUp version separately bounded every dictionary count and required strict table-side inverses.\\n Standard LogUp only needs field weights committed before the challenge: the aggregate residue at each\\n distinct pair is fixed to its actual occurrence count by the rational identity. Removing those unnecessary\\n per-slot integer checks and using the native weighted division form preserves lookup membership.\\n\\n With duplicate dictionary entries, individual field weights may be negative and cancel; the sum for each\\n complete input/output pair still equals its true multiplicity. A dedicated test accepts such a valid cancellation\\n only in Field LogUp, while rejecting mismatched original pairs. The product variant still requires bounded\\n integer exponents. Factor-selection and rounding-range checks remain necessary and are retained.\\n\\n  N                     U=K                           Bounded       Field constraints   Bounded s       Field s\\n                                                      constraints\\n\\n  32,768                64                            69,720        69,463              0.521           0.614\\n\\n  32,768                16,384                        576,151       510,505             3.330           2.440\\n\\n  262,144               64                            529,367       528,982             3.528           3.378\\n\\n  262,144               16,384                        1,052,108     970,024             6.034           4.486\\n\\n\\n This is an implementation ablation, not a claim that range proofs are generally unnecessary. It removes only\\n constraints whose role is already covered by LogUp membership. In particular, the product argument needs\\n bounded exponents to control polynomial degree; fixed-point division needs its own integer bounds to prevent\\n field-wrap or rounding cheats.\\n\\n Groth16 rounds its FFT domain to a power of two. A modest constraint reduction can cross a domain threshold\\n and materially change latency; conversely, fewer constraints can leave the domain unchanged. The initial\\n 262,144-request bounded LogUp with K=16,384 has 1,052,108 constraints, just above the 1,048,576\\n threshold. Raw constraints and measured latencies are reported together to expose this effect.\\n\\n\\n\\n\\nexpzk 0.5.0 | Grouped-pair proof experiment | 18 October 2026 UTC                                                    3\",\"locator\":null}],\"image_asset_pointers\":[{\"content_type\":\"image_asset_pointer\",\"asset_pointer\":\"sediment://ac96da88bb6b2bf#file_000000005af0820d9e57b257e96421ff#p_2.1892549578.jpg\",\"size_bytes\":115007,\"width\":768,\"height\":1024,\"fovea\":768}],\"locators\":[{\"file_id\":null,\"version_id\":null,\"content_location\":null,\"document_chunk_id\":\"file_000000005af0820d9e57b257e96421ff:4--1--0\",\"page_number\":null,\"anchor_text\":null}],\"document_chunk_id\":\"file_000000005af0820d9e57b257e96421ff:4--1--0\",\"created_at\":\"2026-10-18T01:52:52.237875Z\",\"modified_at\":\"2026-10-18T01:52:52.237875Z\",\"size_bytes\":85875,\"image_taken_at\":null,\"image_location\":null,\"surface\":\"library\",\"metadata\":{\"id\":\"file_000000005af0820d9e57b257e96421ff\",\"kind\":\"file\",\"name\":\"expzk-grouped-pairs.pdf\",\"path\":\"/ZKP of exponentials/expzk-grouped-pairs.pdf\",\"file_id\":\"file_000000005af0820d9e57b257e96421ff\",\"library_file_id\":\"libfile_d51b5033e5188191b321ecd6d419fd07\",\"library_artifact_type\":\"report\",\"version_id\":null,\"mime_type\":\"application/pdf\",\"size_bytes\":85875,\"created_at\":\"2026-10-18T01:52:52.237875Z\",\"modified_at\":\"2026-10-18T01:52:52.237875Z\",\"model_generated\":true,\"surface\":\"library\"},\"match_source\":\"retrieval_title\"}],\"next_cursor\":null,\"warnings\":[],\"external_connectors_accessed\":false},\"isError\":false},\"isError\":false},\"selection\":\"000\",\"destination\":\"inputs\"}
+JSON"
+
+=====
+
+### Lasso vs LogUp-GKR ... Finally, while multiple lookup input columns can be batched for a single lookup table in LogUp, batching multiple lookup types (range bounds in this case) is impossible with LogUp, afaik.On the contrary, one can batch many lookup types and verify them via a single primary (collation) sum check and two grand product argument GKRs.
+
+=====
+
+The latest results show that grouping helps with very few exact values, but its advantage shrinks as batches grow: at one million evaluations, the best grouped proof took 9.66 seconds versus 12.36 seconds for the improved full table. The main remaining cost appears to be binding every activation to its output.
+
+I’m checking whether that binding can be moved into a batched proof, while preserving the same numerical function.
+
+=====
+
+Have a look at the conclusions we derived in our conversation on how to optimize the exponential nonlinearity for ZKPs and building from where we left off let’s propose and test the next most obvious optimization 
+. Keep in mind that we will in practice be running these in very large numbers for LLM proofs. I’m not glued to our current approach so let’s see how creative we can be

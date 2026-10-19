@@ -492,6 +492,20 @@ fn the_capture_writer_pins_every_run_layer_source_it_depends_on() {
     for f in ["src/private_block/run_capture.rs", "src/private_block/plane_index.rs"] {
         assert!(pinned.contains(&f), "{f} writes a bundle and is not pinned");
     }
+    // (d2) NATIVE R5b (review r4 note N-r4-d, the privacy-gate lane): the
+    // trained loader and its table registries are pinned, and the GPU-only
+    // and older-prover files are deliberately NOT, each with its reason in
+    // the list's comment
+    for f in ["src/private_block/trained_block.rs", "src/gpu/mod.rs", "src/tables_v3.rs", "../zkp-core/src/tables.rs"] {
+        assert!(pinned.contains(&f), "{f} — N-r4-d — is not a source pin");
+    }
+    let rc = source("src/private_block/run_capture.rs");
+    for f in ["src/gpu/cuda.rs", "src/gpu/kernels.cu", "src/layer.rs", "src/wcache.rs"] {
+        assert!(!pinned.contains(&f), "{f} is pinned; N-r4-d keeps it off the list");
+    }
+    for why in ["`gpu/cuda.rs` and `gpu/kernels.cu`", "`gpu-cuda` feature", "`layer.rs` / `wcache.rs`"] {
+        assert!(rc.contains(why), "run_capture.rs no longer gives the reason for an N-r4-d exclusion ({why})");
+    }
     // (e) no duplicates, and every pin resolves to a file with a digest
     let mut sorted = pinned.clone();
     sorted.sort();

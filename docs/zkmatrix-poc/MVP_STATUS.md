@@ -1,5 +1,33 @@
 # Where the MVP stands, in plain words
 
+**2026-10-19 10:20 UTC — first private proof of a trained Llama-3-8B's NEXT
+TOKEN.** One proof: a 32-token hidden prompt -> the trained int16 embedding ->
+all 32 trained blocks (streamed; layer 1 at its own score shift) -> final norm
+-> per-row int8 head -> greedy token, sealed in a hidden output fingerprint;
+the verifier sees no prompt, no activation and no token (D25). Token 11,
+confirmed by three independent references (float head's top-2 margin 4.40
+logits); bit-exact at all 32 layers; receipt 471,285,072 B; prove 191.7 s on
+the laptop CPU, peak 3.44 GiB; fresh-process verify 43.4 s under a 95-bit
+policy; 65 of 65 applicable tamper controls caught; whole-run soundness 97
+bits; full suite 729 passed / 0 failed [MEASURED, shared box, n=1;
+`results/zk60_token_io_r1_20261017/runs/r3/trained-ho00/`]. The integer head
+meets D25 T4 at 8B (100% agreement with the float head wherever its margin is
+>= 0.3; 99.1–99.8% overall). Independent review of this rung running.
+
+**Also since 10-18:** the fidelity-improved 8B T128 block stack (layer 1 at
+score shift 7; held-out top-1 0.651 -> 0.673) proved (471.6 s, shared box) and
+was re-verified independently (identity 97c4acda…); quiet-box 8B stacks: T32
+156.2 s, T128 432.5 s. Native R6 and R7 frozen and accepted / under review
+(R7: stale-writer handling, backend allow-list). Privacy evidence at trained
+TinyLlama size complete on R5b; the second independent privacy review lists
+five closing items (re-pin and re-gate on R7, G-7, a 2-block root-rebuild
+check, a text consolidation, owner confirmations D28/D29 — done); those are in
+progress. GPU slot-18 kernel at 25.9 ms = 19.4% of 256 GB/s (laptop clock
+capped at ~1.1 GHz); lane paused with a 5090 start plan. Victor's GPT
+conversations yielded DD (per-row division dictionary, −20.8% committed at
+8B T512, exact), admitted into the 8B T512 profile specification as D30; FN
+withdrawn as a question.
+
 **2026-10-18 01:42 UTC — first private proof of a trained model's NEXT TOKEN.**
 TinyLlama-1.1B, a 32-token hidden prompt: hidden token ids -> embedding (indexed
 lookup into the public int16 table) -> all 22 trained blocks -> final norm ->

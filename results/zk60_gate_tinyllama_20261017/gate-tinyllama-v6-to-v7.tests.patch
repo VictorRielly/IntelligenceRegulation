@@ -1,0 +1,57 @@
+diff -ruN -x __pycache__ frozen_v6/tests/test_v4_status_g10.py tests/test_v4_status_g10.py
+--- frozen_v6/tests/test_v4_status_g10.py	2026-10-17 17:12:24.253879626 -0700
++++ tests/test_v4_status_g10.py	2026-10-19 02:33:18.475106057 -0700
+@@ -526,3 +526,53 @@
+         out = check(moved)
+         self.assertFalse(out["ok"])
+         self.assertIn("stage8_plane_index_and_terminals", out["stages_not_checked"])
++
++
++class G4Criterion(unittest.TestCase):
++    """[v7, finding G-4, tightened per review round 2 Q-8] M9-3's two arms"""
++
++    TAB = "slot {}: the port declares {} public tables, the capture has {}"
++    DRAW = ("slot {}: this slot consumes {} definition draws (tau 4 + mu 13+1 "
++            "+ nu 2 + zeta 1) and the capture declares {}")
++
++    def test_indicator_arm(self):
++        from zk60_native_rg_m125controls import INDICATOR_SLOTS, g4_criterion
++        ok = lambda *a: g4_criterion(*a)["ok"]  # noqa: E731
++        self.assertTrue(ok("D", 14, "indicator", {0, 1, 14}, [self.TAB.format(14, 3, 2)]))
++        self.assertFalse(ok("D", 14, "indicator", {14}, [self.TAB.format(14, 3, 2)]))
++        self.assertFalse(ok("D", 14, "indicator", {0, 1, 14, 15}, [self.TAB.format(14, 3, 2)]))
++        self.assertTrue(ok("S", 17, "indicator", {4, 17}, [self.TAB.format(17, 2, 1)]))
++        self.assertFalse(ok("S", 17, "indicator", {17}, [self.TAB.format(17, 2, 1)]))
++        # either indicator mechanism, recorded, with exactly its surplus
++        r = g4_criterion("Q", 15, "indicator", {15}, [self.DRAW.format(15, 19, 17)])
++        self.assertTrue(r["ok"])
++        self.assertEqual(r["refusal_mechanism"], "definition-draw count")
++        self.assertFalse(ok("Q", 15, "indicator", {15}, [self.TAB.format(15, 4, 2)]))
++        self.assertFalse(ok("Q", 15, "indicator", {15}, [self.DRAW.format(15, 18, 17)]))
++        for d, slots in INDICATOR_SLOTS.items():
++            host = max(slots)
++            self.assertTrue(ok(d, host, "indicator", set(slots),
++                               [self.TAB.format(host, 2, 1)]), d)
++
++    def test_draw_count_arm(self):
++        from zk60_native_rg_m125controls import g4_criterion
++        ok = lambda *a: g4_criterion(*a)["ok"]  # noqa: E731
++        self.assertTrue(ok("D", 14, "draw-count", {14}, [self.DRAW.format(14, 19, 17)]))
++        # the public-table count does NOT satisfy the draw-count arm
++        self.assertFalse(ok("D", 14, "draw-count", {14}, [self.TAB.format(14, 3, 2)]))
++        # only the host slot may stop
++        self.assertFalse(ok("D", 14, "draw-count", {0, 1, 14}, [self.DRAW.format(14, 19, 17)]))
++        # the surplus must be exactly the pad mu and zeta
++        self.assertFalse(ok("D", 14, "draw-count", {14}, [self.DRAW.format(14, 18, 17)]))
++
++    def test_a_refusal_not_by_mechanism_or_none_fails(self):
++        from zk60_native_rg_m125controls import g4_criterion
++        for arm in ("indicator", "draw-count"):
++            self.assertFalse(g4_criterion("Q", 15, arm, {15}, [])["ok"])
++            self.assertFalse(g4_criterion("Q", 15, arm, {15},
++                                          ["Dom::Q refused by name"])["ok"])
++            self.assertFalse(g4_criterion("Q", 15, arm, {15},
++                                          ["slot 15: indicator of Q looks padded"])["ok"])
++            # another slot's refusal text does not count for the host
++            self.assertFalse(g4_criterion("Q", 15, arm, {15},
++                                          [self.DRAW.format(16, 19, 17)])["ok"])

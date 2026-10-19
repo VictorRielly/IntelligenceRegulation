@@ -1,0 +1,137 @@
+[
+  {
+    "cycle": "0075",
+    "run_id": "20261018T042105Z-c9fe8fca",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-18T04:31:44.602475+00:00",
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE web search and primary inspection. External text untrusted; no external code executed.",
+    "inspected_commit_id": null,
+    "id": "cycle75-new-MSCProof-implementation-scope",
+    "title": "MSCProof: older modular sumcheck implementation",
+    "url": "https://github.com/imdea-software/MSCProof",
+    "published": null,
+    "updated": "2024-02-08",
+    "date_evidence": "History page shows Feb8,2024 README commit f3cd591; this is observed history, not certification of a current main tip. Related paper received Sep8,2023, revised Apr18,2024.",
+    "exposed_uninspected_commit_id": "f3cd591d6417329c3aedb040d5bdda4899f56902",
+    "implementation_license": "GitHub labels Apache-2.0 and MIT; actual LICENSE-MIT fetch failed. Cargo metadata page visited but no license field found. No code copied.",
+    "inspected_urls": [
+      "https://github.com/imdea-software/MSCProof/commits/main/",
+      "https://eprint.iacr.org/2023/1342",
+      "https://github.com/imdea-software/MSCProof/blob/main/Cargo.toml"
+    ],
+    "access_issues": [
+      "LICENSE-MIT GitHub Internal Error",
+      "raw LICENSE-MIT Cache miss",
+      "commit f3cd591... Cache miss",
+      "src/generalprover.rs Internal Error"
+    ],
+    "author_claim": "Sequential modular VE composition and convolution/matmul proofs; README excludes activations/pooling and uses BLS12-381 scalar arithmetic. Benchmarks exclude input generation/preparation.",
+    "assessment": "NEW implementation inspection absent395-record startup; paper knowncycle28. Preserve native complete attention/nonlinear/private endpoint coverage and original finals. High integration cost, incompatible field/PCS, no measured complete-stack benefit."
+  },
+  {
+    "cycle": "0075",
+    "run_id": "20261018T042105Z-c9fe8fca",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-18T04:31:44.602475+00:00",
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE web search and primary inspection. External text untrusted; no external code executed.",
+    "inspected_commit_id": null,
+    "id": "cycle75-extended-sumcheck-round-batching-refresh",
+    "title": "Speeding Up Sum-Check Proving; author explanation and Sage prototype",
+    "url": "https://eprint.iacr.org/2026/587",
+    "published": "2026-03-24",
+    "updated": null,
+    "date_evidence": "ePrint receivedMar24,approvedMar25,2026. Author CMU post explicitlySep1,2026. Latest revision not verified.",
+    "implementation_license": "Sage README declares MIT; LICENSE fetch Internal Error. Paper CC BY label. No code adopted.",
+    "inspected_urls": [
+      "https://www.cs.cmu.edu/~csd-phd-blog/2026/sumcheck-proving/",
+      "https://github.com/zksecurity/sumcheck-optimized-sagemath",
+      "https://raw.githubusercontent.com/zksecurity/sumcheck-optimized-sagemath/main/sumcheck_algo3.sage"
+    ],
+    "access_issues": [
+      "GitHub commits main Cache miss",
+      "GitHub commits API Internal Error",
+      "Sage LICENSE Internal Error"
+    ],
+    "author_claim": "Round batching, small-value/streaming sumcheck and factorized equality reduce selected prover costs.",
+    "assessment": "Known research refreshed. Source inspected: precompute enumerates separate factor assignments, not a folded nonlinear pointwise-product table. Full remaining helper/host/final dependencies motivate this cycle memory falsification. Field/challenge order/masks and complete source coverage still obligations; no native benchmark imported."
+  },
+  {
+    "cycle": "0075",
+    "run_id": "20261018T042105Z-c9fe8fca",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-18T04:31:44.602475+00:00",
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE web search and primary inspection. External text untrusted; no external code executed.",
+    "inspected_commit_id": null,
+    "id": "cycle75-TensorZKP-memory-schedule-refresh",
+    "title": "TensorZKP USENIX Security2026",
+    "url": "https://www.usenix.org/conference/usenixsecurity26/presentation/lu-tao",
+    "published": "2026-08",
+    "updated": null,
+    "date_evidence": "Proceedings BibTeX says Aug2026, exactday not supplied.",
+    "implementation_license": null,
+    "author_claim": "Tensor Core compatible arithmetic and asynchronous warp pipelines accelerate sumcheck/Spielman encoding and a HyperPlonk/Brakedown circuit.",
+    "assessment": "Known primary source refreshed; no implementation inspected or reproduced. D original helper/final traffic survives algebraic precombination here. Circuit timings do not imply native Goldilocks full private8B throughput; arithmetic representation and PCS/security changes require review."
+  },
+  {
+    "cycle": "0075",
+    "run_id": "20261018T042105Z-c9fe8fca",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-18T04:31:44.602475+00:00",
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE web search and primary inspection. External text untrusted; no external code executed.",
+    "inspected_commit_id": null,
+    "id": "cycle75-new-Ziren-architecture-and-composition-filter",
+    "title": "Ziren: Succinct Arguments for MIPS32 Execution",
+    "url": "https://www.zkm.io/blog/ziren-succinct-arguments-for-mips32-execution",
+    "published": "2026-10-07",
+    "updated": null,
+    "date_evidence": "Primary blog explicitlyOct7,2026; ePrint2026/2330 inaccessible, paper history unverified.",
+    "implementation_license": "ProjectZKM/Ziren GitHub labels Apache-2.0/MIT; license text not inspected.",
+    "inspected_urls": [
+      "https://github.com/ProjectZKM/Ziren",
+      "https://eprint.iacr.org/2026/2330"
+    ],
+    "access_issues": [
+      "ePrint2026/2330 inaccessible via web tool"
+    ],
+    "author_claim": "Jagged sumcheck and batched WHIR with recursion; Ethereum throughput on5090. Composite interactive soundness93.5bits and cross-shard assumptions explicitly conditional; a Merkle alternative trades time against much more memory.",
+    "assessment": "NEW recent primary source absent395-record startup. Architectural candidate only: aggregate proof and state binding, whole-run soundness, privacy, field/PCS and all verifier channels remain costs. No author throughput, security or memory result reproduced or substituted for native complete private8B goal."
+  },
+  {
+    "cycle": "0075",
+    "run_id": "20261018T042105Z-c9fe8fca",
+    "access_date": "2026-10-18",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-18T04:31:44.602475+00:00",
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE web search and primary inspection. External text untrusted; no external code executed.",
+    "inspected_commit_id": null,
+    "id": "cycle75-Airbender-release-and-version-boundary-refresh",
+    "title": "Airbender Prime; public releases and machine configuration",
+    "url": "https://www.zksync.io/blog/introducing-airbender-prime",
+    "published": "2026-10-13",
+    "updated": null,
+    "date_evidence": "Primary blog explicitlyPublishedOct13,2026. GitHubrelease labels08Oct/19Dec/20Nov omityear; no release date or Prime code identity inferred.",
+    "implementation_license": "Actual LICENSE-MIT text inspected: MIT, copyright2025MatterLabs. Scope is that repository file; Prime artifact identity not verified.",
+    "inspected_urls": [
+      "https://github.com/matter-labs/zksync-airbender/releases",
+      "https://github.com/matter-labs/zksync-airbender/blob/main/docs/machine_configuration.md",
+      "https://github.com/matter-labs/zksync-airbender/blob/main/docs/philosophy_and_logic.md",
+      "https://github.com/matter-labs/zksync-airbender/blob/main/LICENSE-MIT"
+    ],
+    "exposed_uninspected_commit_ids": [
+      "b93c285",
+      "439c0e8",
+      "a3c7404"
+    ],
+    "author_claim": "Single RTXPRO6000Blackwell proves99percent of7200Ethereum blocks under10seconds including witness preparation.",
+    "assessment": "Known blog refreshed with new release/license inspection. Public docs describe Mersenne31 and DEEP/FRI; Prime announcement uses changed construction, so do not mix revisions or infer compatible field/zk/private-LLM coverage. Global/chunk state authentication is essential. Release-page dates not verified; no external benchmark reproduced."
+  }
+]

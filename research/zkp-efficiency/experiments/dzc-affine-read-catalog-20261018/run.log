@@ -1,0 +1,211 @@
+Final successful result record (serialized from result.json; not a rerun):
+{
+  "status": "PASS",
+  "seed": 2026101875,
+  "run_id": "20261018T042105Z-c9fe8fca",
+  "checks": {
+    "fixtures": 24,
+    "native_full_values": 2028,
+    "original_final_values": 1488,
+    "round_sums": 468,
+    "permuted_values": 24,
+    "aliased_values": 24,
+    "refusals": 24
+  },
+  "controls": {
+    "toy_index_fails": true,
+    "changed_helper_order": true,
+    "drop_helper_column": true,
+    "stale_mu": true,
+    "wrong_msb": true,
+    "missing_original_final": true,
+    "alias_overwrite": true,
+    "support_omission": true,
+    "bad_binding_refused": true,
+    "positive_endpoint_norm_formula": true
+  },
+  "catalogs": [
+    {
+      "descriptor": "TinyLlama1.1B",
+      "ln": 4,
+      "norm_w": 32,
+      "padded_D": false,
+      "A_columns": 35,
+      "lookup_descriptors": 34,
+      "helpers": 17,
+      "original_tables": 59,
+      "candidate_original_online_tables": 58,
+      "candidate_online_with_L": 59,
+      "omittable_online_original_tables": [
+        34
+      ],
+      "omittable_names": [
+        "A_X2"
+      ],
+      "original_private_finals": 54,
+      "removable_original_fold_tables": 0,
+      "generic_driver_extra_tables": 1,
+      "linear_build_sources": 33
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "ln": 4,
+      "norm_w": 32,
+      "padded_D": true,
+      "A_columns": 35,
+      "lookup_descriptors": 34,
+      "helpers": 17,
+      "original_tables": 60,
+      "candidate_original_online_tables": 60,
+      "candidate_online_with_L": 61,
+      "omittable_online_original_tables": [],
+      "omittable_names": [],
+      "original_private_finals": 54,
+      "removable_original_fold_tables": 0,
+      "generic_driver_extra_tables": 1,
+      "linear_build_sources": 33
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "ln": 4,
+      "norm_w": 32,
+      "padded_D": false,
+      "A_columns": 35,
+      "lookup_descriptors": 34,
+      "helpers": 17,
+      "original_tables": 59,
+      "candidate_original_online_tables": 58,
+      "candidate_online_with_L": 59,
+      "omittable_online_original_tables": [
+        34
+      ],
+      "omittable_names": [
+        "A_X2"
+      ],
+      "original_private_finals": 54,
+      "removable_original_fold_tables": 0,
+      "generic_driver_extra_tables": 1,
+      "linear_build_sources": 33
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "ln": 4,
+      "norm_w": 32,
+      "padded_D": true,
+      "A_columns": 35,
+      "lookup_descriptors": 34,
+      "helpers": 17,
+      "original_tables": 60,
+      "candidate_original_online_tables": 60,
+      "candidate_online_with_L": 61,
+      "omittable_online_original_tables": [],
+      "omittable_names": [],
+      "original_private_finals": 54,
+      "removable_original_fold_tables": 0,
+      "generic_driver_extra_tables": 1,
+      "linear_build_sources": 33
+    },
+    {
+      "descriptor": "generic-four-top",
+      "ln": 4,
+      "norm_w": 31,
+      "padded_D": false,
+      "A_columns": 35,
+      "lookup_descriptors": 38,
+      "helpers": 19,
+      "original_tables": 61,
+      "candidate_original_online_tables": 60,
+      "candidate_online_with_L": 61,
+      "omittable_online_original_tables": [
+        34
+      ],
+      "omittable_names": [
+        "A_X2"
+      ],
+      "original_private_finals": 56,
+      "removable_original_fold_tables": 0,
+      "generic_driver_extra_tables": 1,
+      "linear_build_sources": 33
+    },
+    {
+      "descriptor": "generic-four-top",
+      "ln": 4,
+      "norm_w": 31,
+      "padded_D": true,
+      "A_columns": 35,
+      "lookup_descriptors": 38,
+      "helpers": 19,
+      "original_tables": 62,
+      "candidate_original_online_tables": 62,
+      "candidate_online_with_L": 63,
+      "omittable_online_original_tables": [],
+      "omittable_names": [],
+      "original_private_finals": 56,
+      "removable_original_fold_tables": 0,
+      "generic_driver_extra_tables": 1,
+      "linear_build_sources": 33
+    },
+    {
+      "descriptor": "generic-five-top",
+      "ln": 5,
+      "norm_w": 39,
+      "padded_D": false,
+      "A_columns": 39,
+      "lookup_descriptors": 42,
+      "helpers": 21,
+      "original_tables": 67,
+      "candidate_original_online_tables": 66,
+      "candidate_online_with_L": 67,
+      "omittable_online_original_tables": [
+        38
+      ],
+      "omittable_names": [
+        "A_X2"
+      ],
+      "original_private_finals": 62,
+      "removable_original_fold_tables": 0,
+      "generic_driver_extra_tables": 1,
+      "linear_build_sources": 37
+    },
+    {
+      "descriptor": "generic-five-top",
+      "ln": 5,
+      "norm_w": 39,
+      "padded_D": true,
+      "A_columns": 39,
+      "lookup_descriptors": 42,
+      "helpers": 21,
+      "original_tables": 68,
+      "candidate_original_online_tables": 68,
+      "candidate_online_with_L": 69,
+      "omittable_online_original_tables": [],
+      "omittable_names": [],
+      "original_private_finals": 62,
+      "removable_original_fold_tables": 0,
+      "generic_driver_extra_tables": 1,
+      "linear_build_sources": 37
+    }
+  ],
+  "synthetic_digest": "ede704b001761b854de575cdf9a128cba2c01f435acd65d6b999b1990e44e310",
+  "wall_seconds": 1.1820084680002765,
+  "rss_kib": 18924,
+  "compiler_rss_kib": 135812,
+  "cpu_affinity": [
+    0
+  ],
+  "threads": 1,
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "compiler_argv": [
+    "rustc",
+    "--edition=2021",
+    "--crate-type=cdylib",
+    "-C",
+    "codegen-units=1",
+    "-C",
+    "opt-level=0",
+    "shim.rs",
+    "-o",
+    "isolated.so"
+  ],
+  "scope": "Captured native Ids/a_range/lookups_at/full D expression with shape and u128 field substitutes; synthetic values only, public trained profile scalars. No native proof/PTX/CUDA/RNG/privacy or runtime speed result."
+}

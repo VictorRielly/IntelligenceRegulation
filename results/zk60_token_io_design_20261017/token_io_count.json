@@ -1,5 +1,37 @@
 {
- "version": 2,
+ "version": 4,
+ "code_length_check": {
+  "TinyLlama-1.1B": {
+   "counter": {
+    "stage_in": 1267576,
+    "block": 11391800,
+    "stage_out": 3371640,
+    "total": 255258816
+   },
+   "code": {
+    "stage_in": 1267576,
+    "block": 11391800,
+    "stage_out": 3371640,
+    "total": 255258816
+   },
+   "equal": true
+  },
+  "Llama-3-8B": {
+   "counter": {
+    "stage_in": 1415192,
+    "block": 14547080,
+    "stage_out": 4363320,
+    "total": 471285072
+   },
+   "code": {
+    "stage_in": 1415192,
+    "block": 14547080,
+    "stage_out": 4363320,
+    "total": 471285072
+   },
+   "equal": true
+  }
+ },
  "labels": "rows/elements/lookups/terms/bytes/bits [COUNTED]; seconds [MODEL]",
  "per_opening_log2": {
   "log_n 8 rate 1/4": -67.34,
@@ -19,9 +51,9 @@
    "V": 32000,
    "V_pad": 32768,
    "d": 2048,
-   "logits_bound": 33032192,
-   "window_keyed_bits": 41,
-   "window_step_bits": 26,
+   "logits_bound": 135299858432,
+   "window_keyed_bits": 53,
+   "window_step_bits": 38,
    "T": {
     "32": {
      "stack": {
@@ -154,7 +186,7 @@
        "slots": 3,
        "a_sites": 4,
        "h_sites": 0,
-       "receipt": 1313984,
+       "receipt": 1314104,
        "pubtab": 2129952,
        "pubtab_factored": 98368,
        "endpoints": {
@@ -214,7 +246,7 @@
        "slots": 4,
        "a_sites": 3,
        "h_sites": 3,
-       "receipt": 1267424,
+       "receipt": 1267576,
        "pubtab": 73728,
        "pubtab_factored": 73728,
        "endpoints": {
@@ -280,7 +312,7 @@
        "slots": 5,
        "a_sites": 6,
        "h_sites": 0,
-       "receipt": 883680,
+       "receipt": 883800,
        "pubtab": 1060928,
        "pubtab_factored": 45120,
        "endpoints": {
@@ -341,21 +373,21 @@
      "OUT mode(i) public last row": {
       "summary": {
        "log_cols": 12,
-       "A_rows": 170,
-       "H_rows": 92,
+       "A_rows": 182,
+       "H_rows": 110,
        "M_rows": 26,
-       "A_elems": 696320,
-       "H_elems": 376832,
-       "elems": 1073152,
-       "u8": 249856,
+       "A_elems": 745472,
+       "H_elems": 450560,
+       "elems": 1196032,
+       "u8": 282624,
        "inversions": 256,
        "fold": 67108864,
-       "zc_elem_terms": 758283,
+       "zc_elem_terms": 856587,
        "largest_zc": 32768,
        "slots": 11,
-       "a_sites": 47,
-       "h_sites": 12,
-       "receipt": 2374080,
+       "a_sites": 49,
+       "h_sites": 13,
+       "receipt": 3371640,
        "pubtab": 86016,
        "pubtab_factored": 79874,
        "endpoints": {
@@ -396,12 +428,12 @@
        [
         "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
         32768,
-        12
+        14
        ],
        [
         "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
         32768,
-        8
+        9
        ],
        [
         "TAB table helper(s)",
@@ -415,30 +447,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.004297883501345619,
-       "commit": 0.02473810560696788,
-       "inverses": 0.002708923183102208,
-       "openings": 0.0062397931409907455,
-       "zero_checks": 0.7594770937062273,
+       "conversion": 0.00460126351320531,
+       "commit": 0.02757071311921611,
+       "inverses": 0.0030638281651258342,
+       "openings": 0.00695427327163854,
+       "zero_checks": 0.7694284825951162,
        "fold": 0.11283994878361057,
-       "rest_other": 0.06306985933663442,
-       "total": 0.9733716072588787,
-       "s0_5090": 0.6279035445113119,
-       "s3_5090": 0.191532133751433,
+       "rest_other": 0.06352447548595143,
+       "total": 0.987982984933864,
+       "s0_5090": 0.6339173716177213,
+       "s3_5090": 0.1921277265829833,
        "verify": 0.12947894144,
        "verify_pubtab_unfactored": 0.00043008
       },
       "argmax": {
-       "window_bits": 41,
-       "limbs": 6,
+       "window_bits": 53,
+       "limbs": 7,
        "pin": 0,
-       "lookups_per_vocab_entry": 6,
-       "vocab_planes": 7
+       "lookups_per_vocab_entry": 7,
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 184320,
-       "receipt": 1267424,
+       "receipt": 1267576,
        "endpoints": {
         "input token endpoint": {
          "plane": 256,
@@ -462,34 +496,34 @@
        }
       },
       "total": {
-       "elems": 1257472,
-       "receipt": 3641504,
+       "elems": 1380352,
+       "receipt": 4639216,
        "commitment_term_log2": -97.46,
        "whole_run_r14_log2": -97.02,
-       "total": 1.401373895135492,
-       "s0_5090": 0.9924668958529936,
-       "s3_5090": 0.3611689318533239,
+       "total": 1.4159852728104774,
+       "s0_5090": 0.998480722959403,
+       "s3_5090": 0.3617645246848742,
        "verify": 0.25895788288
       }
      },
      "OUT mode(i) hidden selector, sealed in input endpoint (B-2 preferred)": {
       "summary": {
        "log_cols": 12,
-       "A_rows": 177,
-       "H_rows": 92,
+       "A_rows": 189,
+       "H_rows": 110,
        "M_rows": 30,
-       "A_elems": 724992,
-       "H_elems": 376832,
-       "elems": 1101824,
-       "u8": 249856,
+       "A_elems": 774144,
+       "H_elems": 450560,
+       "elems": 1224704,
+       "u8": 282624,
        "inversions": 256,
        "fold": 67108864,
-       "zc_elem_terms": 750379,
+       "zc_elem_terms": 848683,
        "largest_zc": 32768,
        "slots": 13,
-       "a_sites": 50,
-       "h_sites": 12,
-       "receipt": 2398192,
+       "a_sites": 52,
+       "h_sites": 13,
+       "receipt": 3395800,
        "pubtab": 86016,
        "pubtab_factored": 79874,
        "endpoints": {
@@ -535,12 +569,12 @@
        [
         "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
         32768,
-        12
+        14
        ],
        [
         "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
         32768,
-        8
+        9
        ],
        [
         "TAB table helper(s)",
@@ -554,30 +588,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.004474855174930439,
-       "commit": 0.0253990473598258,
-       "inverses": 0.002708923183102208,
-       "openings": 0.0064065051714752306,
-       "zero_checks": 0.840197919312551,
+       "conversion": 0.00477823518679013,
+       "commit": 0.02823165487207403,
+       "inverses": 0.0030638281651258342,
+       "openings": 0.007120985302123026,
+       "zero_checks": 0.8501493082014399,
        "fold": 0.11283994878361057,
-       "rest_other": 0.06348064640979961,
-       "total": 1.0555078453952949,
-       "s0_5090": 0.6686702291756006,
-       "s3_5090": 0.19482018207928486,
+       "rest_other": 0.0639352625591166,
+       "total": 1.0701192230702798,
+       "s0_5090": 0.6746840562820098,
+       "s3_5090": 0.19541577491083517,
        "verify": 0.12947894144,
        "verify_pubtab_unfactored": 0.00043008
       },
       "argmax": {
-       "window_bits": 41,
-       "limbs": 6,
+       "window_bits": 53,
+       "limbs": 7,
        "pin": 0,
-       "lookups_per_vocab_entry": 6,
-       "vocab_planes": 7
+       "lookups_per_vocab_entry": 7,
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 184320,
-       "receipt": 1277600,
+       "receipt": 1277752,
        "endpoints": {
         "input token endpoint (tok | s)": {
          "plane": 256,
@@ -601,34 +637,34 @@
        }
       },
       "total": {
-       "elems": 1286144,
-       "receipt": 3675792,
+       "elems": 1409024,
+       "receipt": 4673552,
        "commitment_term_log2": -97.46,
        "whole_run_r14_log2": -97.02,
-       "total": 1.483493791468457,
-       "s0_5090": 1.0332254096155566,
-       "s3_5090": 0.3644563265090377,
+       "total": 1.498105169143442,
+       "s0_5090": 1.0392392367219658,
+       "s3_5090": 0.365051919340588,
        "verify": 0.25895788288
       }
      },
      "OUT mode(i) hidden selector, sealed in output endpoint (B-2 fallback)": {
       "summary": {
        "log_cols": 12,
-       "A_rows": 177,
-       "H_rows": 92,
+       "A_rows": 189,
+       "H_rows": 110,
        "M_rows": 28,
-       "A_elems": 724992,
-       "H_elems": 376832,
-       "elems": 1101824,
-       "u8": 249856,
+       "A_elems": 774144,
+       "H_elems": 450560,
+       "elems": 1224704,
+       "u8": 282624,
        "inversions": 256,
        "fold": 67108864,
-       "zc_elem_terms": 750379,
+       "zc_elem_terms": 848683,
        "largest_zc": 32768,
        "slots": 12,
-       "a_sites": 50,
-       "h_sites": 12,
-       "receipt": 2393552,
+       "a_sites": 52,
+       "h_sites": 13,
+       "receipt": 3391160,
        "pubtab": 86016,
        "pubtab_factored": 79874,
        "endpoints": {
@@ -669,12 +705,12 @@
        [
         "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
         32768,
-        12
+        14
        ],
        [
         "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
         32768,
-        8
+        9
        ],
        [
         "TAB table helper(s)",
@@ -688,30 +724,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.004474855174930439,
-       "commit": 0.0253990473598258,
-       "inverses": 0.002708923183102208,
-       "openings": 0.0064065051714752306,
-       "zero_checks": 0.7589725405246722,
+       "conversion": 0.00477823518679013,
+       "commit": 0.02823165487207403,
+       "inverses": 0.0030638281651258342,
+       "openings": 0.007120985302123026,
+       "zero_checks": 0.7689239294135611,
        "fold": 0.11283994878361057,
-       "rest_other": 0.06348064640979961,
-       "total": 0.9742824666074161,
-       "s0_5090": 0.6280575397816612,
-       "s3_5090": 0.1915711669277697,
+       "rest_other": 0.0639352625591166,
+       "total": 0.9888938442824013,
+       "s0_5090": 0.6340713668880706,
+       "s3_5090": 0.19216675975932002,
        "verify": 0.12947894144,
        "verify_pubtab_unfactored": 0.00043008
       },
       "argmax": {
-       "window_bits": 41,
-       "limbs": 6,
+       "window_bits": 53,
+       "limbs": 7,
        "pin": 0,
-       "lookups_per_vocab_entry": 6,
-       "vocab_planes": 7
+       "lookups_per_vocab_entry": 7,
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 184320,
-       "receipt": 1267424,
+       "receipt": 1267576,
        "endpoints": {
         "input token endpoint": {
          "plane": 256,
@@ -735,34 +773,34 @@
        }
       },
       "total": {
-       "elems": 1286144,
-       "receipt": 3660976,
+       "elems": 1409024,
+       "receipt": 4658736,
        "commitment_term_log2": -97.46,
        "whole_run_r14_log2": -97.02,
-       "total": 1.4022847544840293,
-       "s0_5090": 0.992620891123343,
-       "s3_5090": 0.36120796502966057,
+       "total": 1.4168961321590146,
+       "s0_5090": 0.9986347182297524,
+       "s3_5090": 0.3618035578612109,
        "verify": 0.25895788288
       }
      },
      "OUT mode(i) public last row, WITH pin (v1 form)": {
       "summary": {
        "log_cols": 12,
-       "A_rows": 170,
+       "A_rows": 182,
        "H_rows": 110,
        "M_rows": 26,
-       "A_elems": 696320,
+       "A_elems": 745472,
        "H_elems": 450560,
-       "elems": 1146880,
-       "u8": 282624,
+       "elems": 1196032,
+       "u8": 315392,
        "inversions": 256,
        "fold": 67108864,
-       "zc_elem_terms": 791051,
+       "zc_elem_terms": 856587,
        "largest_zc": 32768,
        "slots": 11,
-       "a_sites": 47,
+       "a_sites": 49,
        "h_sites": 13,
-       "receipt": 2410960,
+       "receipt": 3371640,
        "pubtab": 86016,
        "pubtab_factored": 79874,
        "endpoints": {
@@ -803,12 +841,12 @@
        [
         "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
         32768,
-        13
+        14
        ],
        [
         "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
         32768,
-        8
+        9
        ],
        [
         "TAB table helper(s)",
@@ -822,30 +860,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.004297883501345619,
-       "commit": 0.02643767011431682,
-       "inverses": 0.0030638281651258342,
-       "openings": 0.006668481219379422,
-       "zero_checks": 0.762794223335857,
+       "conversion": 0.00460126351320531,
+       "commit": 0.02757071311921611,
+       "inverses": 0.0034187331471494603,
+       "openings": 0.00695427327163854,
+       "zero_checks": 0.7694284825951162,
        "fold": 0.11283994878361057,
-       "rest_other": 0.06325061743717462,
-       "total": 0.9793526525568099,
-       "s0_5090": 0.6301189501216276,
-       "s3_5090": 0.19177805819808078,
+       "rest_other": 0.06356830456210326,
+       "total": 0.9883817189920395,
+       "s0_5090": 0.6341167386468091,
+       "s3_5090": 0.19214367594531032,
        "verify": 0.12947894144,
        "verify_pubtab_unfactored": 0.00043008
       },
       "argmax": {
-       "window_bits": 41,
-       "limbs": 6,
+       "window_bits": 53,
+       "limbs": 7,
        "pin": 1,
-       "lookups_per_vocab_entry": 7,
-       "vocab_planes": 7
+       "lookups_per_vocab_entry": 8,
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 184320,
-       "receipt": 1267424,
+       "receipt": 1267576,
        "endpoints": {
         "input token endpoint": {
          "plane": 256,
@@ -869,34 +909,175 @@
        }
       },
       "total": {
-       "elems": 1331200,
-       "receipt": 3678384,
+       "elems": 1380352,
+       "receipt": 4639216,
        "commitment_term_log2": -97.46,
        "whole_run_r14_log2": -97.02,
-       "total": 1.4073549404334231,
-       "s0_5090": 0.9946823014633093,
-       "s3_5090": 0.3614148562999716,
+       "total": 1.4163840068686528,
+       "s0_5090": 0.9986800899884908,
+       "s3_5090": 0.36178047404720115,
        "verify": 0.25895788288
       }
      },
      "OUT mode(ii) U8 keyed": {
       "summary": {
        "log_cols": 13,
-       "A_rows": 1096,
-       "H_rows": 896,
+       "A_rows": 1228,
+       "H_rows": 1154,
        "M_rows": 28,
-       "A_elems": 8978432,
+       "A_elems": 10059776,
+       "H_elems": 9453568,
+       "elems": 19513344,
+       "u8": 8134656,
+       "inversions": 256,
+       "fold": 67108864,
+       "zc_elem_terms": 25527200,
+       "largest_zc": 1048576,
+       "slots": 12,
+       "a_sites": 50,
+       "h_sites": 13,
+       "receipt": 9378840,
+       "pubtab": 2310144,
+       "pubtab_factored": 88128,
+       "endpoints": {
+        "output token endpoint": {
+         "plane": 256,
+         "sites": 1,
+         "rows": 6
+        }
+       },
+       "per_opening_log2": [
+        -104.97,
+        -104.97,
+        -106.25,
+        -106.25
+       ]
+      },
+      "zc": [
+       [
+        "IO-in x_row = B_out row T-1 (public row bits)",
+        65536,
+        2
+       ],
+       [
+        "TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
+        32,
+        11
+       ],
+       [
+        "LZC limb lookups",
+        8192,
+        2
+       ],
+       [
+        "DZC norm quotient + x limbs + helpers (+pad)",
+        65536,
+        19
+       ],
+       [
+        "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
+        1048576,
+        14
+       ],
+       [
+        "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
+        1048576,
+        9
+       ],
+       [
+        "TAB table helper(s)",
+        8192,
+        2
+       ],
+       [
+        "IO-out output endpoint = u0 tok (whole plane)",
+        256,
+        2
+       ],
+       [
+        "SHIFT tok_out[k] = tok_in[k+1] on the generated range",
+        32,
+        2
+       ]
+      ],
+      "cost": {
+       "conversion": 0.06209177576061672,
+       "commit": 0.449818072945019,
+       "inverses": 0.08810793448253723,
+       "openings": 0.11345944474686989,
+       "zero_checks": 2.5039308720341436,
+       "fold": 0.11283994878361057,
+       "rest_other": 0.10659265211623296,
+       "total": 3.43684070086903,
+       "s0_5090": 1.665772707538489,
+       "s3_5090": 0.2917422986934438,
+       "verify": 0.12947894144,
+       "verify_pubtab_unfactored": 0.01155072
+      },
+      "argmax": {
+       "window_bits": 53,
+       "limbs": 7,
+       "pin": 0,
+       "lookups_per_vocab_entry": 7,
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
+      },
+      "input_stage": {
+       "log_cols": 12,
+       "elems": 184320,
+       "receipt": 1277816,
+       "endpoints": {
+        "input token endpoint": {
+         "plane": 256,
+         "sites": 2,
+         "rows": 7
+        }
+       },
+       "cost": {
+        "conversion": 0.00042978835013456193,
+        "commit": 0.004248911268372345,
+        "inverses": 0.0003552515689201335,
+        "openings": 0.0010717201959716928,
+        "zero_checks": 0.25357824337121215,
+        "fold": 0.11283994878361057,
+        "rest_other": 0.055478424338391764,
+        "total": 0.42800228787661326,
+        "s0_5090": 0.3645633513416817,
+        "s3_5090": 0.16963679810189086,
+        "verify": 0.12947894144,
+        "verify_pubtab_unfactored": 0.00036864
+       }
+      },
+      "total": {
+       "elems": 19697664,
+       "receipt": 10656656,
+       "commitment_term_log2": -97.48,
+       "whole_run_r14_log2": -97.02,
+       "total": 3.8648429887456435,
+       "s0_5090": 2.0303360588801707,
+       "s3_5090": 0.4613790967953347,
+       "verify": 0.25895788288
+      }
+     },
+     "OUT mode(ii) U8 step": {
+      "summary": {
+       "log_cols": 13,
+       "A_rows": 1100,
+       "H_rows": 896,
+       "M_rows": 30,
+       "A_elems": 9011200,
        "H_elems": 7340032,
-       "elems": 16318464,
-       "u8": 7086080,
+       "elems": 16351232,
+       "u8": 6037504,
        "inversions": 256,
        "fold": 67108864,
        "zc_elem_terms": 22381472,
        "largest_zc": 1048576,
-       "slots": 12,
-       "a_sites": 48,
+       "slots": 13,
+       "a_sites": 50,
        "h_sites": 12,
-       "receipt": 7119968,
+       "receipt": 8593736,
        "pubtab": 2310144,
        "pubtab_factored": 88128,
        "endpoints": {
@@ -961,30 +1142,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.05541741549970352,
-       "commit": 0.376170277626565,
-       "inverses": 0.0767509750577812,
-       "openings": 0.0948829613500272,
+       "conversion": 0.05561966884094331,
+       "commit": 0.3769256396298312,
+       "inverses": 0.06539401563302516,
+       "openings": 0.09507348938486662,
        "zero_checks": 2.29577051849879,
        "fold": 0.11283994878361057,
-       "rest_other": 0.10436854753304414,
-       "total": 3.116200644349522,
-       "s0_5090": 1.5390410842869002,
-       "s3_5090": 0.27862711559434017,
+       "rest_other": 0.10351373319373929,
+       "total": 3.1051370139648062,
+       "s0_5090": 1.5331647726329203,
+       "s3_5090": 0.27818754043883176,
        "verify": 0.12947894144,
        "verify_pubtab_unfactored": 0.01155072
       },
       "argmax": {
-       "window_bits": 41,
-       "limbs": 6,
+       "window_bits": 38,
+       "limbs": 5,
        "pin": 0,
-       "lookups_per_vocab_entry": 6,
-       "vocab_planes": 7
+       "lookups_per_vocab_entry": 5,
+       "vocab_planes": 7,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 184320,
-       "receipt": 1277664,
+       "receipt": 1277816,
        "endpoints": {
         "input token endpoint": {
          "plane": 256,
@@ -1008,292 +1191,26 @@
        }
       },
       "total": {
-       "elems": 16502784,
-       "receipt": 8397632,
+       "elems": 16535552,
+       "receipt": 9871552,
        "commitment_term_log2": -97.48,
        "whole_run_r14_log2": -97.02,
-       "total": 3.5442029322261352,
-       "s0_5090": 1.903604435628582,
-       "s3_5090": 0.44826391369623103,
-       "verify": 0.25895788288
-      }
-     },
-     "OUT mode(ii) U8 step": {
-      "summary": {
-       "log_cols": 13,
-       "A_rows": 968,
-       "H_rows": 638,
-       "M_rows": 30,
-       "A_elems": 7929856,
-       "H_elems": 5226496,
-       "elems": 13156352,
-       "u8": 4988928,
-       "inversions": 256,
-       "fold": 67108864,
-       "zc_elem_terms": 19235744,
-       "largest_zc": 1048576,
-       "slots": 13,
-       "a_sites": 48,
-       "h_sites": 11,
-       "receipt": 6334864,
-       "pubtab": 2310144,
-       "pubtab_factored": 88128,
-       "endpoints": {
-        "output token endpoint": {
-         "plane": 256,
-         "sites": 1,
-         "rows": 6
-        }
-       },
-       "per_opening_log2": [
-        -104.97,
-        -104.97,
-        -106.25,
-        -106.25
-       ]
-      },
-      "zc": [
-       [
-        "IO-in x_row = B_out row T-1 (public row bits)",
-        65536,
-        2
-       ],
-       [
-        "TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
-        32,
-        11
-       ],
-       [
-        "LZC limb lookups",
-        8192,
-        2
-       ],
-       [
-        "DZC norm quotient + x limbs + helpers (+pad)",
-        65536,
-        19
-       ],
-       [
-        "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
-        1048576,
-        10
-       ],
-       [
-        "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
-        1048576,
-        7
-       ],
-       [
-        "TAB table helper(s)",
-        8192,
-        2
-       ],
-       [
-        "IO-out output endpoint = u0 tok (whole plane)",
-        256,
-        2
-       ],
-       [
-        "SHIFT tok_out[k] = tok_in[k+1] on the generated range",
-        32,
-        2
-       ]
-      ],
-      "cost": {
-       "conversion": 0.048945308580030114,
-       "commit": 0.3032778443113772,
-       "inverses": 0.054037056208269124,
-       "openings": 0.07649700598802395,
-       "zero_checks": 2.087610164963437,
-       "fold": 0.11283994878361057,
-       "rest_other": 0.10128962861055048,
-       "total": 2.7844969574452985,
-       "s0_5090": 1.4064331493813318,
-       "s3_5090": 0.2650723573397281,
-       "verify": 0.12947894144,
-       "verify_pubtab_unfactored": 0.01155072
-      },
-      "argmax": {
-       "window_bits": 26,
-       "limbs": 4,
-       "pin": 0,
-       "lookups_per_vocab_entry": 4,
-       "vocab_planes": 6
-      },
-      "input_stage": {
-       "log_cols": 12,
-       "elems": 184320,
-       "receipt": 1277664,
-       "endpoints": {
-        "input token endpoint": {
-         "plane": 256,
-         "sites": 2,
-         "rows": 7
-        }
-       },
-       "cost": {
-        "conversion": 0.00042978835013456193,
-        "commit": 0.004248911268372345,
-        "inverses": 0.0003552515689201335,
-        "openings": 0.0010717201959716928,
-        "zero_checks": 0.25357824337121215,
-        "fold": 0.11283994878361057,
-        "rest_other": 0.055478424338391764,
-        "total": 0.42800228787661326,
-        "s0_5090": 0.3645633513416817,
-        "s3_5090": 0.16963679810189086,
-        "verify": 0.12947894144,
-        "verify_pubtab_unfactored": 0.00036864
-       }
-      },
-      "total": {
-       "elems": 13340672,
-       "receipt": 7612528,
-       "commitment_term_log2": -97.48,
-       "whole_run_r14_log2": -97.03,
-       "total": 3.212499245321912,
-       "s0_5090": 1.7709965007230135,
-       "s3_5090": 0.434709155441619,
+       "total": 3.5331393018414197,
+       "s0_5090": 1.897728123974602,
+       "s3_5090": 0.4478243385407226,
        "verify": 0.25895788288
       }
      },
      "OUT mode(ii) U16 keyed": {
-      "summary": {
-       "log_cols": 16,
-       "A_rows": 169,
-       "H_rows": 110,
-       "M_rows": 28,
-       "A_elems": 11075584,
-       "H_elems": 7208960,
-       "elems": 18284544,
-       "u8": 3997696,
-       "inversions": 65792,
-       "fold": 67108864,
-       "zc_elem_terms": 15401888,
-       "largest_zc": 1048576,
-       "slots": 12,
-       "a_sites": 42,
-       "h_sites": 12,
-       "receipt": 20176464,
-       "pubtab": 2424832,
-       "pubtab_factored": 202816,
-       "endpoints": {
-        "output token endpoint": {
-         "plane": 256,
-         "sites": 1,
-         "rows": 6
-        }
-       },
-       "per_opening_log2": [
-        -106.09,
-        -106.09,
-        -106.25,
-        -106.25
-       ]
-      },
-      "zc": [
-       [
-        "IO-in x_row = B_out row T-1 (public row bits)",
-        65536,
-        2
-       ],
-       [
-        "TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
-        32,
-        11
-       ],
-       [
-        "LZC limb lookups",
-        65536,
-        2
-       ],
-       [
-        "DZC norm quotient + x limbs + helpers (+pad)",
-        65536,
-        19
-       ],
-       [
-        "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
-        1048576,
-        8
-       ],
-       [
-        "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
-        1048576,
-        5
-       ],
-       [
-        "TAB table helper(s)",
-        65536,
-        4
-       ],
-       [
-        "IO-out output endpoint = u0 tok (whole plane)",
-        256,
-        2
-       ],
-       [
-        "SHIFT tok_out[k] = tok_in[k+1] on the generated range",
-        32,
-        2
-       ]
-      ],
-      "cost": {
-       "conversion": 0.06836162933905032,
-       "commit": 0.4214919978225367,
-       "inverses": 0.04401099046610169,
-       "openings": 0.10631464344039193,
-       "zero_checks": 2.7815154679937395,
-       "fold": 0.11283994878361057,
-       "rest_other": 0.5353433250023011,
-       "total": 4.069878002847732,
-       "s0_5090": 1.9952099758386728,
-       "s3_5090": 0.3169524135270829,
-       "verify": 0.12947894144,
-       "verify_pubtab_unfactored": 0.01212416
-      },
+      "inadmissible": true,
       "argmax": {
-       "window_bits": 41,
-       "limbs": 3,
+       "window_bits": 53,
+       "limbs": 4,
        "pin": 0,
-       "lookups_per_vocab_entry": 3,
-       "vocab_planes": 4
-      },
-      "input_stage": {
-       "log_cols": 12,
-       "elems": 184320,
-       "receipt": 1277664,
-       "endpoints": {
-        "input token endpoint": {
-         "plane": 256,
-         "sites": 2,
-         "rows": 7
-        }
-       },
-       "cost": {
-        "conversion": 0.00042978835013456193,
-        "commit": 0.004248911268372345,
-        "inverses": 0.0003552515689201335,
-        "openings": 0.0010717201959716928,
-        "zero_checks": 0.25357824337121215,
-        "fold": 0.11283994878361057,
-        "rest_other": 0.055478424338391764,
-        "total": 0.42800228787661326,
-        "s0_5090": 0.3645633513416817,
-        "s3_5090": 0.16963679810189086,
-        "verify": 0.12947894144,
-        "verify_pubtab_unfactored": 0.00036864
-       }
-      },
-      "total": {
-       "elems": 18468864,
-       "receipt": 21454128,
-       "commitment_term_log2": -97.49,
-       "whole_run_r14_log2": -97.03,
-       "total": 4.497880290724345,
-       "s0_5090": 2.3597733271803545,
-       "s3_5090": 0.4865892116289738,
-       "verify": 0.25895788288
+       "lookups_per_vocab_entry": 4,
+       "vocab_planes": 5,
+       "limb_bits": 16,
+       "no_wrap": false
       }
      }
     },
@@ -1428,7 +1345,7 @@
        "slots": 3,
        "a_sites": 4,
        "h_sites": 0,
-       "receipt": 2174304,
+       "receipt": 2174424,
        "pubtab": 8421504,
        "pubtab_factored": 98560,
        "endpoints": {
@@ -1488,7 +1405,7 @@
        "slots": 4,
        "a_sites": 3,
        "h_sites": 3,
-       "receipt": 1267424,
+       "receipt": 1267576,
        "pubtab": 73728,
        "pubtab_factored": 73728,
        "endpoints": {
@@ -1554,7 +1471,7 @@
        "slots": 5,
        "a_sites": 6,
        "h_sites": 0,
-       "receipt": 902688,
+       "receipt": 902808,
        "pubtab": 4243712,
        "pubtab_factored": 82176,
        "endpoints": {
@@ -1615,21 +1532,21 @@
      "OUT mode(i) public last row": {
       "summary": {
        "log_cols": 12,
-       "A_rows": 170,
-       "H_rows": 92,
+       "A_rows": 182,
+       "H_rows": 110,
        "M_rows": 26,
-       "A_elems": 696320,
-       "H_elems": 376832,
-       "elems": 1073152,
-       "u8": 249856,
+       "A_elems": 745472,
+       "H_elems": 450560,
+       "elems": 1196032,
+       "u8": 282624,
        "inversions": 256,
        "fold": 67108864,
-       "zc_elem_terms": 758283,
+       "zc_elem_terms": 856587,
        "largest_zc": 32768,
        "slots": 11,
-       "a_sites": 47,
-       "h_sites": 12,
-       "receipt": 2374080,
+       "a_sites": 49,
+       "h_sites": 13,
+       "receipt": 3977848,
        "pubtab": 86016,
        "pubtab_factored": 79874,
        "endpoints": {
@@ -1670,12 +1587,12 @@
        [
         "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
         32768,
-        12
+        14
        ],
        [
         "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
         32768,
-        8
+        9
        ],
        [
         "TAB table helper(s)",
@@ -1689,30 +1606,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.004297883501345619,
-       "commit": 0.02473810560696788,
-       "inverses": 0.002708923183102208,
-       "openings": 0.0062397931409907455,
-       "zero_checks": 0.7594770937062273,
+       "conversion": 0.00460126351320531,
+       "commit": 0.02757071311921611,
+       "inverses": 0.0030638281651258342,
+       "openings": 0.00695427327163854,
+       "zero_checks": 0.7694284825951162,
        "fold": 0.11283994878361057,
-       "rest_other": 0.06306985933663442,
-       "total": 0.9733716072588787,
-       "s0_5090": 0.6279035445113119,
-       "s3_5090": 0.191532133751433,
+       "rest_other": 0.06352447548595143,
+       "total": 0.987982984933864,
+       "s0_5090": 0.6339173716177213,
+       "s3_5090": 0.1921277265829833,
        "verify": 0.12947894144,
        "verify_pubtab_unfactored": 0.00043008
       },
       "argmax": {
-       "window_bits": 41,
-       "limbs": 6,
+       "window_bits": 53,
+       "limbs": 7,
        "pin": 0,
-       "lookups_per_vocab_entry": 6,
-       "vocab_planes": 7
+       "lookups_per_vocab_entry": 7,
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 184320,
-       "receipt": 1267424,
+       "receipt": 1267576,
        "endpoints": {
         "input token endpoint": {
          "plane": 256,
@@ -1736,34 +1655,34 @@
        }
       },
       "total": {
-       "elems": 1257472,
-       "receipt": 3641504,
+       "elems": 1380352,
+       "receipt": 5245424,
        "commitment_term_log2": -98.98,
        "whole_run_r14_log2": -96.41,
-       "total": 1.4013749348961815,
-       "s0_5090": 0.9924674157333384,
-       "s3_5090": 0.36116897344375143,
+       "total": 1.415986312571167,
+       "s0_5090": 0.9984812428397478,
+       "s3_5090": 0.36176456627530174,
        "verify": 0.25895788288
       }
      },
      "OUT mode(i) hidden selector, sealed in input endpoint (B-2 preferred)": {
       "summary": {
        "log_cols": 12,
-       "A_rows": 177,
-       "H_rows": 92,
+       "A_rows": 189,
+       "H_rows": 110,
        "M_rows": 30,
-       "A_elems": 724992,
-       "H_elems": 376832,
-       "elems": 1101824,
-       "u8": 249856,
+       "A_elems": 774144,
+       "H_elems": 450560,
+       "elems": 1224704,
+       "u8": 282624,
        "inversions": 256,
        "fold": 67108864,
-       "zc_elem_terms": 750475,
+       "zc_elem_terms": 848779,
        "largest_zc": 32768,
        "slots": 13,
-       "a_sites": 50,
-       "h_sites": 12,
-       "receipt": 2398448,
+       "a_sites": 52,
+       "h_sites": 13,
+       "receipt": 4002264,
        "pubtab": 86016,
        "pubtab_factored": 79874,
        "endpoints": {
@@ -1809,12 +1728,12 @@
        [
         "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
         32768,
-        12
+        14
        ],
        [
         "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
         32768,
-        8
+        9
        ],
        [
         "TAB table helper(s)",
@@ -1828,30 +1747,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.004474855174930439,
-       "commit": 0.0253990473598258,
-       "inverses": 0.002708923183102208,
-       "openings": 0.0064065051714752306,
-       "zero_checks": 0.8402040474888451,
+       "conversion": 0.00477823518679013,
+       "commit": 0.02823165487207403,
+       "inverses": 0.0030638281651258342,
+       "openings": 0.007120985302123026,
+       "zero_checks": 0.850155436377734,
        "fold": 0.11283994878361057,
-       "rest_other": 0.06348064640979961,
-       "total": 1.055513973571589,
-       "s0_5090": 0.6686732932637477,
-       "s3_5090": 0.19482042720633663,
+       "rest_other": 0.0639352625591166,
+       "total": 1.070125351246574,
+       "s0_5090": 0.674687120370157,
+       "s3_5090": 0.19541602003788694,
        "verify": 0.12947894144,
        "verify_pubtab_unfactored": 0.00043008
       },
       "argmax": {
-       "window_bits": 41,
-       "limbs": 6,
+       "window_bits": 53,
+       "limbs": 7,
        "pin": 0,
-       "lookups_per_vocab_entry": 6,
-       "vocab_planes": 7
+       "lookups_per_vocab_entry": 7,
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 184320,
-       "receipt": 1277600,
+       "receipt": 1277752,
        "endpoints": {
         "input token endpoint (tok | s)": {
          "plane": 256,
@@ -1875,34 +1796,34 @@
        }
       },
       "total": {
-       "elems": 1286144,
-       "receipt": 3676048,
+       "elems": 1409024,
+       "receipt": 5280016,
        "commitment_term_log2": -98.98,
        "whole_run_r14_log2": -96.41,
-       "total": 1.4835009594054407,
-       "s0_5090": 1.0332289935840486,
-       "s3_5090": 0.364456613226517,
+       "total": 1.4981123370804257,
+       "s0_5090": 1.0392428206904578,
+       "s3_5090": 0.3650522060580673,
        "verify": 0.25895788288
       }
      },
      "OUT mode(i) hidden selector, sealed in output endpoint (B-2 fallback)": {
       "summary": {
        "log_cols": 12,
-       "A_rows": 177,
-       "H_rows": 92,
+       "A_rows": 189,
+       "H_rows": 110,
        "M_rows": 28,
-       "A_elems": 724992,
-       "H_elems": 376832,
-       "elems": 1101824,
-       "u8": 249856,
+       "A_elems": 774144,
+       "H_elems": 450560,
+       "elems": 1224704,
+       "u8": 282624,
        "inversions": 256,
        "fold": 67108864,
-       "zc_elem_terms": 750475,
+       "zc_elem_terms": 848779,
        "largest_zc": 32768,
        "slots": 12,
-       "a_sites": 50,
-       "h_sites": 12,
-       "receipt": 2393808,
+       "a_sites": 52,
+       "h_sites": 13,
+       "receipt": 3997624,
        "pubtab": 86016,
        "pubtab_factored": 79874,
        "endpoints": {
@@ -1943,12 +1864,12 @@
        [
         "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
         32768,
-        12
+        14
        ],
        [
         "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
         32768,
-        8
+        9
        ],
        [
         "TAB table helper(s)",
@@ -1962,30 +1883,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.004474855174930439,
-       "commit": 0.0253990473598258,
-       "inverses": 0.002708923183102208,
-       "openings": 0.0064065051714752306,
-       "zero_checks": 0.7589786687009664,
+       "conversion": 0.00477823518679013,
+       "commit": 0.02823165487207403,
+       "inverses": 0.0030638281651258342,
+       "openings": 0.007120985302123026,
+       "zero_checks": 0.7689300575898553,
        "fold": 0.11283994878361057,
-       "rest_other": 0.06348064640979961,
-       "total": 0.9742885947837103,
-       "s0_5090": 0.6280606038698083,
-       "s3_5090": 0.19157141205482148,
+       "rest_other": 0.0639352625591166,
+       "total": 0.9888999724586955,
+       "s0_5090": 0.6340744309762176,
+       "s3_5090": 0.19216700488637178,
        "verify": 0.12947894144,
        "verify_pubtab_unfactored": 0.00043008
       },
       "argmax": {
-       "window_bits": 41,
-       "limbs": 6,
+       "window_bits": 53,
+       "limbs": 7,
        "pin": 0,
-       "lookups_per_vocab_entry": 6,
-       "vocab_planes": 7
+       "lookups_per_vocab_entry": 7,
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 184320,
-       "receipt": 1267424,
+       "receipt": 1267576,
        "endpoints": {
         "input token endpoint": {
          "plane": 256,
@@ -2009,34 +1932,34 @@
        }
       },
       "total": {
-       "elems": 1286144,
-       "receipt": 3661232,
+       "elems": 1409024,
+       "receipt": 5265200,
        "commitment_term_log2": -98.98,
        "whole_run_r14_log2": -96.41,
-       "total": 1.402291922421013,
-       "s0_5090": 0.9926244750918347,
-       "s3_5090": 0.36120825174713994,
+       "total": 1.4169033000959983,
+       "s0_5090": 0.9986383021982441,
+       "s3_5090": 0.36180384457869025,
        "verify": 0.25895788288
       }
      },
      "OUT mode(i) public last row, WITH pin (v1 form)": {
       "summary": {
        "log_cols": 12,
-       "A_rows": 170,
+       "A_rows": 182,
        "H_rows": 110,
        "M_rows": 26,
-       "A_elems": 696320,
+       "A_elems": 745472,
        "H_elems": 450560,
-       "elems": 1146880,
-       "u8": 282624,
+       "elems": 1196032,
+       "u8": 315392,
        "inversions": 256,
        "fold": 67108864,
-       "zc_elem_terms": 791051,
+       "zc_elem_terms": 856587,
        "largest_zc": 32768,
        "slots": 11,
-       "a_sites": 47,
+       "a_sites": 49,
        "h_sites": 13,
-       "receipt": 2410960,
+       "receipt": 3977848,
        "pubtab": 86016,
        "pubtab_factored": 79874,
        "endpoints": {
@@ -2077,12 +2000,12 @@
        [
         "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
         32768,
-        13
+        14
        ],
        [
         "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
         32768,
-        8
+        9
        ],
        [
         "TAB table helper(s)",
@@ -2096,30 +2019,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.004297883501345619,
-       "commit": 0.02643767011431682,
-       "inverses": 0.0030638281651258342,
-       "openings": 0.006668481219379422,
-       "zero_checks": 0.762794223335857,
+       "conversion": 0.00460126351320531,
+       "commit": 0.02757071311921611,
+       "inverses": 0.0034187331471494603,
+       "openings": 0.00695427327163854,
+       "zero_checks": 0.7694284825951162,
        "fold": 0.11283994878361057,
-       "rest_other": 0.06325061743717462,
-       "total": 0.9793526525568099,
-       "s0_5090": 0.6301189501216276,
-       "s3_5090": 0.19177805819808078,
+       "rest_other": 0.06356830456210326,
+       "total": 0.9883817189920395,
+       "s0_5090": 0.6341167386468091,
+       "s3_5090": 0.19214367594531032,
        "verify": 0.12947894144,
        "verify_pubtab_unfactored": 0.00043008
       },
       "argmax": {
-       "window_bits": 41,
-       "limbs": 6,
+       "window_bits": 53,
+       "limbs": 7,
        "pin": 1,
-       "lookups_per_vocab_entry": 7,
-       "vocab_planes": 7
+       "lookups_per_vocab_entry": 8,
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 184320,
-       "receipt": 1267424,
+       "receipt": 1267576,
        "endpoints": {
         "input token endpoint": {
          "plane": 256,
@@ -2143,34 +2068,175 @@
        }
       },
       "total": {
-       "elems": 1331200,
-       "receipt": 3678384,
+       "elems": 1380352,
+       "receipt": 5245424,
        "commitment_term_log2": -98.98,
        "whole_run_r14_log2": -96.41,
-       "total": 1.4073559801941127,
-       "s0_5090": 0.994682821343654,
-       "s3_5090": 0.36141489789039927,
+       "total": 1.4163850466293422,
+       "s0_5090": 0.9986806098688354,
+       "s3_5090": 0.3617805156376288,
        "verify": 0.25895788288
       }
      },
      "OUT mode(ii) U8 keyed": {
       "summary": {
        "log_cols": 14,
-       "A_rows": 2088,
-       "H_rows": 1760,
+       "A_rows": 2348,
+       "H_rows": 2274,
        "M_rows": 28,
-       "A_elems": 34209792,
+       "A_elems": 38469632,
+       "H_elems": 37257216,
+       "elems": 75726848,
+       "u8": 32522240,
+       "inversions": 256,
+       "fold": 67108864,
+       "zc_elem_terms": 102041728,
+       "largest_zc": 4194304,
+       "slots": 12,
+       "a_sites": 50,
+       "h_sites": 13,
+       "receipt": 17997976,
+       "pubtab": 9207808,
+       "pubtab_factored": 104704,
+       "endpoints": {
+        "output token endpoint": {
+         "plane": 256,
+         "sites": 1,
+         "rows": 6
+        }
+       },
+       "per_opening_log2": [
+        -105.61,
+        -105.61,
+        -106.25,
+        -106.25
+       ]
+      },
+      "zc": [
+       [
+        "IO-in x_row = B_out row T-1 (public row bits)",
+        262144,
+        2
+       ],
+       [
+        "TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
+        128,
+        11
+       ],
+       [
+        "LZC limb lookups",
+        16384,
+        2
+       ],
+       [
+        "DZC norm quotient + x limbs + helpers (+pad)",
+        262144,
+        19
+       ],
+       [
+        "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
+        4194304,
+        14
+       ],
+       [
+        "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
+        4194304,
+        9
+       ],
+       [
+        "TAB table helper(s)",
+        16384,
+        2
+       ],
+       [
+        "IO-out output endpoint = u0 tok (whole plane)",
+        256,
+        2
+       ],
+       [
+        "SHIFT tok_out[k] = tok_in[k+1] on the generated range",
+        128,
+        2
+       ]
+      ],
+      "cost": {
+       "conversion": 0.237445422615518,
+       "commit": 1.7456415895481763,
+       "inverses": 0.3522459673536209,
+       "openings": 0.44031028851388126,
+       "zero_checks": 7.54264648108691,
+       "fold": 0.11283994878361057,
+       "rest_other": 0.20406985250825319,
+       "total": 10.635199550409972,
+       "s0_5090": 4.673968452396059,
+       "s3_5090": 0.5847717903996323,
+       "verify": 0.12947894144,
+       "verify_pubtab_unfactored": 0.04603904
+      },
+      "argmax": {
+       "window_bits": 53,
+       "limbs": 7,
+       "pin": 0,
+       "lookups_per_vocab_entry": 7,
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
+      },
+      "input_stage": {
+       "log_cols": 12,
+       "elems": 184320,
+       "receipt": 1277816,
+       "endpoints": {
+        "input token endpoint": {
+         "plane": 256,
+         "sites": 2,
+         "rows": 7
+        }
+       },
+       "cost": {
+        "conversion": 0.00042978835013456193,
+        "commit": 0.004248911268372345,
+        "inverses": 0.0003562913296096559,
+        "openings": 0.0010717201959716928,
+        "zero_checks": 0.25357824337121215,
+        "fold": 0.11283994878361057,
+        "rest_other": 0.055478424338391764,
+        "total": 0.42800332763730276,
+        "s0_5090": 0.36456387122202644,
+        "s3_5090": 0.16963683969231846,
+        "verify": 0.12947894144,
+        "verify_pubtab_unfactored": 0.00036864
+       }
+      },
+      "total": {
+       "elems": 75911168,
+       "receipt": 19275792,
+       "commitment_term_log2": -99.07,
+       "whole_run_r14_log2": -96.36,
+       "total": 11.063202878047274,
+       "s0_5090": 5.038532323618085,
+       "s3_5090": 0.7544086300919508,
+       "verify": 0.25895788288
+      }
+     },
+     "OUT mode(ii) U8 step": {
+      "summary": {
+       "log_cols": 14,
+       "A_rows": 2092,
+       "H_rows": 1760,
+       "M_rows": 30,
+       "A_elems": 34275328,
        "H_elems": 28835840,
-       "elems": 63045632,
-       "u8": 28327936,
+       "elems": 63111168,
+       "u8": 24133632,
        "inversions": 256,
        "fold": 67108864,
        "zc_elem_terms": 89458816,
        "largest_zc": 4194304,
-       "slots": 12,
-       "a_sites": 48,
+       "slots": 13,
+       "a_sites": 50,
        "h_sites": 12,
-       "receipt": 13297984,
+       "receipt": 16426568,
        "pubtab": 9207808,
        "pubtab_factored": 104704,
        "endpoints": {
@@ -2235,30 +2301,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.2111524882543448,
-       "commit": 1.4533164942841588,
-       "inverses": 0.3068181296545968,
-       "openings": 0.3665759390310288,
+       "conversion": 0.21155699493682437,
+       "commit": 1.4548272182906912,
+       "inverses": 0.2613902919555727,
+       "openings": 0.3669569951007076,
        "zero_checks": 6.7247096124000425,
        "fold": 0.11283994878361057,
-       "rest_other": 0.19681658246815867,
-       "total": 9.372229194875942,
-       "s0_5090": 4.175803405276839,
-       "s3_5090": 0.5331035630046186,
+       "rest_other": 0.19230189291583208,
+       "total": 9.324582954383281,
+       "s0_5090": 4.151291292107264,
+       "s3_5090": 0.5312036535046726,
        "verify": 0.12947894144,
        "verify_pubtab_unfactored": 0.04603904
       },
       "argmax": {
-       "window_bits": 41,
-       "limbs": 6,
+       "window_bits": 38,
+       "limbs": 5,
        "pin": 0,
-       "lookups_per_vocab_entry": 6,
-       "vocab_planes": 7
+       "lookups_per_vocab_entry": 5,
+       "vocab_planes": 7,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 184320,
-       "receipt": 1277664,
+       "receipt": 1277816,
        "endpoints": {
         "input token endpoint": {
          "plane": 256,
@@ -2282,292 +2350,26 @@
        }
       },
       "total": {
-       "elems": 63229952,
-       "receipt": 14575648,
-       "commitment_term_log2": -99.07,
-       "whole_run_r14_log2": -96.37,
-       "total": 9.800232522513245,
-       "s0_5090": 4.540367276498865,
-       "s3_5090": 0.702740402696937,
-       "verify": 0.25895788288
-      }
-     },
-     "OUT mode(ii) U8 step": {
-      "summary": {
-       "log_cols": 14,
-       "A_rows": 1832,
-       "H_rows": 1246,
-       "M_rows": 30,
-       "A_elems": 30015488,
-       "H_elems": 20414464,
-       "elems": 50429952,
-       "u8": 19939328,
-       "inversions": 256,
-       "fold": 67108864,
-       "zc_elem_terms": 76875904,
-       "largest_zc": 4194304,
-       "slots": 13,
-       "a_sites": 48,
-       "h_sites": 11,
-       "receipt": 11726576,
-       "pubtab": 9207808,
-       "pubtab_factored": 104704,
-       "endpoints": {
-        "output token endpoint": {
-         "plane": 256,
-         "sites": 1,
-         "rows": 6
-        }
-       },
-       "per_opening_log2": [
-        -105.61,
-        -105.61,
-        -106.25,
-        -106.25
-       ]
-      },
-      "zc": [
-       [
-        "IO-in x_row = B_out row T-1 (public row bits)",
-        262144,
-        2
-       ],
-       [
-        "TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
-        128,
-        11
-       ],
-       [
-        "LZC limb lookups",
-        16384,
-        2
-       ],
-       [
-        "DZC norm quotient + x limbs + helpers (+pad)",
-        262144,
-        19
-       ],
-       [
-        "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
-        4194304,
-        10
-       ],
-       [
-        "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
-        4194304,
-        7
-       ],
-       [
-        "TAB table helper(s)",
-        16384,
-        2
-       ],
-       [
-        "IO-out output endpoint = u0 tok (whole plane)",
-        256,
-        2
-       ],
-       [
-        "SHIFT tok_out[k] = tok_in[k+1] on the generated range",
-        128,
-        2
-       ]
-      ],
-      "cost": {
-       "conversion": 0.18526406057565117,
-       "commit": 1.1625021230266739,
-       "inverses": 0.21596245425654853,
-       "openings": 0.29322264561785516,
-       "zero_checks": 5.906772743713173,
-       "fold": 0.11283994878361057,
-       "rest_other": 0.1850486228757376,
-       "total": 8.06161259884925,
-       "s0_5090": 3.6531262449880435,
-       "s3_5090": 0.4795354261096586,
-       "verify": 0.12947894144,
-       "verify_pubtab_unfactored": 0.04603904
-      },
-      "argmax": {
-       "window_bits": 26,
-       "limbs": 4,
-       "pin": 0,
-       "lookups_per_vocab_entry": 4,
-       "vocab_planes": 6
-      },
-      "input_stage": {
-       "log_cols": 12,
-       "elems": 184320,
-       "receipt": 1277664,
-       "endpoints": {
-        "input token endpoint": {
-         "plane": 256,
-         "sites": 2,
-         "rows": 7
-        }
-       },
-       "cost": {
-        "conversion": 0.00042978835013456193,
-        "commit": 0.004248911268372345,
-        "inverses": 0.0003562913296096559,
-        "openings": 0.0010717201959716928,
-        "zero_checks": 0.25357824337121215,
-        "fold": 0.11283994878361057,
-        "rest_other": 0.055478424338391764,
-        "total": 0.42800332763730276,
-        "s0_5090": 0.36456387122202644,
-        "s3_5090": 0.16963683969231846,
-        "verify": 0.12947894144,
-        "verify_pubtab_unfactored": 0.00036864
-       }
-      },
-      "total": {
-       "elems": 50614272,
-       "receipt": 13004240,
+       "elems": 63295488,
+       "receipt": 17704384,
        "commitment_term_log2": -99.07,
        "whole_run_r14_log2": -96.38,
-       "total": 8.489615926486552,
-       "s0_5090": 4.01769011621007,
-       "s3_5090": 0.6491722658019771,
+       "total": 9.752586282020584,
+       "s0_5090": 4.515855163329291,
+       "s3_5090": 0.700840493196991,
        "verify": 0.25895788288
       }
      },
      "OUT mode(ii) U16 keyed": {
-      "summary": {
-       "log_cols": 16,
-       "A_rows": 397,
-       "H_rows": 338,
-       "M_rows": 28,
-       "A_elems": 26017792,
-       "H_elems": 22151168,
-       "elems": 48168960,
-       "u8": 15794176,
-       "inversions": 65792,
-       "fold": 67108864,
-       "zc_elem_terms": 60426368,
-       "largest_zc": 4194304,
-       "slots": 12,
-       "a_sites": 42,
-       "h_sites": 12,
-       "receipt": 21111408,
-       "pubtab": 9306112,
-       "pubtab_factored": 203008,
-       "endpoints": {
-        "output token endpoint": {
-         "plane": 256,
-         "sites": 1,
-         "rows": 6
-        }
-       },
-       "per_opening_log2": [
-        -106.09,
-        -106.09,
-        -106.25,
-        -106.25
-       ]
-      },
-      "zc": [
-       [
-        "IO-in x_row = B_out row T-1 (public row bits)",
-        262144,
-        2
-       ],
-       [
-        "TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
-        128,
-        11
-       ],
-       [
-        "LZC limb lookups",
-        65536,
-        2
-       ],
-       [
-        "DZC norm quotient + x limbs + helpers (+pad)",
-        262144,
-        19
-       ],
-       [
-        "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
-        4194304,
-        8
-       ],
-       [
-        "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
-        4194304,
-        5
-       ],
-       [
-        "TAB table helper(s)",
-        65536,
-        4
-       ],
-       [
-        "IO-out output endpoint = u0 tok (whole plane)",
-        256,
-        2
-       ],
-       [
-        "SHIFT tok_out[k] = tok_in[k+1] on the generated range",
-        128,
-        2
-       ]
-      ],
-      "cost": {
-       "conversion": 0.16058915294439632,
-       "commit": 1.1103821448013063,
-       "inverses": 0.17177678399460708,
-       "openings": 0.2800762112139357,
-       "zero_checks": 5.655660790851222,
-       "fold": 0.11283994878361057,
-       "rest_other": 0.5511217924169585,
-       "total": 8.042446825006037,
-       "s0_5090": 3.6673136139183695,
-       "s3_5090": 0.47856386102419357,
-       "verify": 0.12947894144,
-       "verify_pubtab_unfactored": 0.04653056
-      },
+      "inadmissible": true,
       "argmax": {
-       "window_bits": 41,
-       "limbs": 3,
+       "window_bits": 53,
+       "limbs": 4,
        "pin": 0,
-       "lookups_per_vocab_entry": 3,
-       "vocab_planes": 4
-      },
-      "input_stage": {
-       "log_cols": 12,
-       "elems": 184320,
-       "receipt": 1277664,
-       "endpoints": {
-        "input token endpoint": {
-         "plane": 256,
-         "sites": 2,
-         "rows": 7
-        }
-       },
-       "cost": {
-        "conversion": 0.00042978835013456193,
-        "commit": 0.004248911268372345,
-        "inverses": 0.0003562913296096559,
-        "openings": 0.0010717201959716928,
-        "zero_checks": 0.25357824337121215,
-        "fold": 0.11283994878361057,
-        "rest_other": 0.055478424338391764,
-        "total": 0.42800332763730276,
-        "s0_5090": 0.36456387122202644,
-        "s3_5090": 0.16963683969231846,
-        "verify": 0.12947894144,
-        "verify_pubtab_unfactored": 0.00036864
-       }
-      },
-      "total": {
-       "elems": 48353280,
-       "receipt": 22389072,
-       "commitment_term_log2": -99.08,
-       "whole_run_r14_log2": -96.39,
-       "total": 8.47045015264334,
-       "s0_5090": 4.031877485140396,
-       "s3_5090": 0.648200700716512,
-       "verify": 0.25895788288
+       "lookups_per_vocab_entry": 4,
+       "vocab_planes": 5,
+       "limb_bits": 16,
+       "no_wrap": false
       }
      }
     },
@@ -2702,7 +2504,7 @@
        "slots": 3,
        "a_sites": 4,
        "h_sites": 0,
-       "receipt": 3888704,
+       "receipt": 3888824,
        "pubtab": 33587712,
        "pubtab_factored": 99328,
        "endpoints": {
@@ -2762,7 +2564,7 @@
        "slots": 4,
        "a_sites": 3,
        "h_sites": 3,
-       "receipt": 1269536,
+       "receipt": 1269688,
        "pubtab": 73728,
        "pubtab_factored": 73728,
        "endpoints": {
@@ -2828,7 +2630,7 @@
        "slots": 5,
        "a_sites": 6,
        "h_sites": 0,
-       "receipt": 979104,
+       "receipt": 979224,
        "pubtab": 16974848,
        "pubtab_factored": 230400,
        "endpoints": {
@@ -2889,21 +2691,21 @@
      "OUT mode(i) public last row": {
       "summary": {
        "log_cols": 12,
-       "A_rows": 170,
-       "H_rows": 92,
+       "A_rows": 182,
+       "H_rows": 110,
        "M_rows": 26,
-       "A_elems": 696320,
-       "H_elems": 376832,
-       "elems": 1073152,
-       "u8": 249856,
+       "A_elems": 745472,
+       "H_elems": 450560,
+       "elems": 1196032,
+       "u8": 282624,
        "inversions": 256,
        "fold": 67108864,
-       "zc_elem_terms": 758283,
+       "zc_elem_terms": 856587,
        "largest_zc": 32768,
        "slots": 11,
-       "a_sites": 47,
-       "h_sites": 12,
-       "receipt": 2374080,
+       "a_sites": 49,
+       "h_sites": 13,
+       "receipt": 6353528,
        "pubtab": 86016,
        "pubtab_factored": 79874,
        "endpoints": {
@@ -2944,12 +2746,12 @@
        [
         "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
         32768,
-        12
+        14
        ],
        [
         "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
         32768,
-        8
+        9
        ],
        [
         "TAB table helper(s)",
@@ -2963,30 +2765,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.004297883501345619,
-       "commit": 0.02473810560696788,
-       "inverses": 0.002708923183102208,
-       "openings": 0.0062397931409907455,
-       "zero_checks": 0.7594770937062273,
+       "conversion": 0.00460126351320531,
+       "commit": 0.02757071311921611,
+       "inverses": 0.0030638281651258342,
+       "openings": 0.00695427327163854,
+       "zero_checks": 0.7694284825951162,
        "fold": 0.11283994878361057,
-       "rest_other": 0.06306985933663442,
-       "total": 0.9733716072588787,
-       "s0_5090": 0.6279035445113119,
-       "s3_5090": 0.191532133751433,
+       "rest_other": 0.06352447548595143,
+       "total": 0.987982984933864,
+       "s0_5090": 0.6339173716177213,
+       "s3_5090": 0.1921277265829833,
        "verify": 0.12947894144,
        "verify_pubtab_unfactored": 0.00043008
       },
       "argmax": {
-       "window_bits": 41,
-       "limbs": 6,
+       "window_bits": 53,
+       "limbs": 7,
        "pin": 0,
-       "lookups_per_vocab_entry": 6,
-       "vocab_planes": 7
+       "lookups_per_vocab_entry": 7,
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 184320,
-       "receipt": 1269536,
+       "receipt": 1269688,
        "endpoints": {
         "input token endpoint": {
          "plane": 512,
@@ -3010,34 +2814,34 @@
        }
       },
       "total": {
-       "elems": 1257472,
-       "receipt": 3643616,
+       "elems": 1380352,
+       "receipt": 7623216,
        "commitment_term_log2": -99.29,
        "whole_run_r14_log2": null,
-       "total": 1.401411777545842,
-       "s0_5090": 0.9924858370581686,
-       "s3_5090": 0.3611704471497379,
+       "total": 1.4160231552208273,
+       "s0_5090": 0.998499664164578,
+       "s3_5090": 0.3617660399812882,
        "verify": 0.25895788288
       }
      },
      "OUT mode(i) hidden selector, sealed in input endpoint (B-2 preferred)": {
       "summary": {
        "log_cols": 12,
-       "A_rows": 177,
-       "H_rows": 92,
+       "A_rows": 189,
+       "H_rows": 110,
        "M_rows": 30,
-       "A_elems": 724992,
-       "H_elems": 376832,
-       "elems": 1101824,
-       "u8": 249856,
+       "A_elems": 774144,
+       "H_elems": 450560,
+       "elems": 1224704,
+       "u8": 282624,
        "inversions": 256,
        "fold": 67108864,
-       "zc_elem_terms": 751627,
+       "zc_elem_terms": 849931,
        "largest_zc": 32768,
        "slots": 13,
-       "a_sites": 50,
-       "h_sites": 12,
-       "receipt": 2398832,
+       "a_sites": 52,
+       "h_sites": 13,
+       "receipt": 6378328,
        "pubtab": 86016,
        "pubtab_factored": 79874,
        "endpoints": {
@@ -3083,12 +2887,12 @@
        [
         "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
         32768,
-        12
+        14
        ],
        [
         "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
         32768,
-        8
+        9
        ],
        [
         "TAB table helper(s)",
@@ -3102,30 +2906,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.004474855174930439,
-       "commit": 0.0253990473598258,
-       "inverses": 0.002708923183102208,
-       "openings": 0.0064065051714752306,
-       "zero_checks": 0.8402775856043755,
+       "conversion": 0.00477823518679013,
+       "commit": 0.02823165487207403,
+       "inverses": 0.0030638281651258342,
+       "openings": 0.007120985302123026,
+       "zero_checks": 0.8502289744932644,
        "fold": 0.11283994878361057,
-       "rest_other": 0.06348064640979961,
-       "total": 1.0555875116871194,
-       "s0_5090": 0.6687100623215129,
-       "s3_5090": 0.19482336873095785,
+       "rest_other": 0.0639352625591166,
+       "total": 1.0701988893621044,
+       "s0_5090": 0.6747238894279222,
+       "s3_5090": 0.19541896156250815,
        "verify": 0.12947894144,
        "verify_pubtab_unfactored": 0.00043008
       },
       "argmax": {
-       "window_bits": 41,
-       "limbs": 6,
+       "window_bits": 53,
+       "limbs": 7,
        "pin": 0,
-       "lookups_per_vocab_entry": 6,
-       "vocab_planes": 7
+       "lookups_per_vocab_entry": 7,
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 184320,
-       "receipt": 1283872,
+       "receipt": 1284024,
        "endpoints": {
         "input token endpoint (tok | s)": {
          "plane": 1024,
@@ -3149,34 +2955,34 @@
        }
       },
       "total": {
-       "elems": 1286144,
-       "receipt": 3682704,
+       "elems": 1409024,
+       "receipt": 7662352,
        "commitment_term_log2": -99.29,
        "whole_run_r14_log2": null,
-       "total": 1.4836276819740826,
-       "s0_5090": 1.0332923548683697,
-       "s3_5090": 0.3644616821292627,
+       "total": 1.4982390596490676,
+       "s0_5090": 1.0393061819747789,
+       "s3_5090": 0.365057274960813,
        "verify": 0.25895788288
       }
      },
      "OUT mode(i) hidden selector, sealed in output endpoint (B-2 fallback)": {
       "summary": {
        "log_cols": 12,
-       "A_rows": 177,
-       "H_rows": 92,
+       "A_rows": 189,
+       "H_rows": 110,
        "M_rows": 28,
-       "A_elems": 724992,
-       "H_elems": 376832,
-       "elems": 1101824,
-       "u8": 249856,
+       "A_elems": 774144,
+       "H_elems": 450560,
+       "elems": 1224704,
+       "u8": 282624,
        "inversions": 256,
        "fold": 67108864,
-       "zc_elem_terms": 753163,
+       "zc_elem_terms": 851467,
        "largest_zc": 32768,
        "slots": 12,
-       "a_sites": 50,
-       "h_sites": 12,
-       "receipt": 2400336,
+       "a_sites": 52,
+       "h_sites": 13,
+       "receipt": 6379832,
        "pubtab": 86016,
        "pubtab_factored": 79874,
        "endpoints": {
@@ -3217,12 +3023,12 @@
        [
         "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
         32768,
-        12
+        14
        ],
        [
         "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
         32768,
-        8
+        9
        ],
        [
         "TAB table helper(s)",
@@ -3236,30 +3042,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.004474855174930439,
-       "commit": 0.0253990473598258,
-       "inverses": 0.002708923183102208,
-       "openings": 0.0064065051714752306,
-       "zero_checks": 0.7591502576372037,
+       "conversion": 0.00477823518679013,
+       "commit": 0.02823165487207403,
+       "inverses": 0.0030638281651258342,
+       "openings": 0.007120985302123026,
+       "zero_checks": 0.7691016465260926,
        "fold": 0.11283994878361057,
-       "rest_other": 0.06348064640979961,
-       "total": 0.9744601837199476,
-       "s0_5090": 0.628146398337927,
-       "s3_5090": 0.19157827561227098,
+       "rest_other": 0.0639352625591166,
+       "total": 0.9890715613949328,
+       "s0_5090": 0.6341602254443364,
+       "s3_5090": 0.19217386844382128,
        "verify": 0.12947894144,
        "verify_pubtab_unfactored": 0.00043008
       },
       "argmax": {
-       "window_bits": 41,
-       "limbs": 6,
+       "window_bits": 53,
+       "limbs": 7,
        "pin": 0,
-       "lookups_per_vocab_entry": 6,
-       "vocab_planes": 7
+       "lookups_per_vocab_entry": 7,
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 184320,
-       "receipt": 1269536,
+       "receipt": 1269688,
        "endpoints": {
         "input token endpoint": {
          "plane": 512,
@@ -3283,34 +3091,34 @@
        }
       },
       "total": {
-       "elems": 1286144,
-       "receipt": 3669872,
+       "elems": 1409024,
+       "receipt": 7649520,
        "commitment_term_log2": -99.29,
        "whole_run_r14_log2": null,
-       "total": 1.4025003540069108,
-       "s0_5090": 0.9927286908847837,
-       "s3_5090": 0.36121658901057585,
+       "total": 1.417111731681896,
+       "s0_5090": 0.9987425179911931,
+       "s3_5090": 0.36181218184212616,
        "verify": 0.25895788288
       }
      },
      "OUT mode(i) public last row, WITH pin (v1 form)": {
       "summary": {
        "log_cols": 12,
-       "A_rows": 170,
+       "A_rows": 182,
        "H_rows": 110,
        "M_rows": 26,
-       "A_elems": 696320,
+       "A_elems": 745472,
        "H_elems": 450560,
-       "elems": 1146880,
-       "u8": 282624,
+       "elems": 1196032,
+       "u8": 315392,
        "inversions": 256,
        "fold": 67108864,
-       "zc_elem_terms": 791051,
+       "zc_elem_terms": 856587,
        "largest_zc": 32768,
        "slots": 11,
-       "a_sites": 47,
+       "a_sites": 49,
        "h_sites": 13,
-       "receipt": 2410960,
+       "receipt": 6353528,
        "pubtab": 86016,
        "pubtab_factored": 79874,
        "endpoints": {
@@ -3351,12 +3159,12 @@
        [
         "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
         32768,
-        13
+        14
        ],
        [
         "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
         32768,
-        8
+        9
        ],
        [
         "TAB table helper(s)",
@@ -3370,30 +3178,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.004297883501345619,
-       "commit": 0.02643767011431682,
-       "inverses": 0.0030638281651258342,
-       "openings": 0.006668481219379422,
-       "zero_checks": 0.762794223335857,
+       "conversion": 0.00460126351320531,
+       "commit": 0.02757071311921611,
+       "inverses": 0.0034187331471494603,
+       "openings": 0.00695427327163854,
+       "zero_checks": 0.7694284825951162,
        "fold": 0.11283994878361057,
-       "rest_other": 0.06325061743717462,
-       "total": 0.9793526525568099,
-       "s0_5090": 0.6301189501216276,
-       "s3_5090": 0.19177805819808078,
+       "rest_other": 0.06356830456210326,
+       "total": 0.9883817189920395,
+       "s0_5090": 0.6341167386468091,
+       "s3_5090": 0.19214367594531032,
        "verify": 0.12947894144,
        "verify_pubtab_unfactored": 0.00043008
       },
       "argmax": {
-       "window_bits": 41,
-       "limbs": 6,
+       "window_bits": 53,
+       "limbs": 7,
        "pin": 1,
-       "lookups_per_vocab_entry": 7,
-       "vocab_planes": 7
+       "lookups_per_vocab_entry": 8,
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 184320,
-       "receipt": 1269536,
+       "receipt": 1269688,
        "endpoints": {
         "input token endpoint": {
          "plane": 512,
@@ -3417,34 +3227,175 @@
        }
       },
       "total": {
-       "elems": 1331200,
-       "receipt": 3680496,
+       "elems": 1380352,
+       "receipt": 7623216,
        "commitment_term_log2": -99.29,
        "whole_run_r14_log2": null,
-       "total": 1.407392822843773,
-       "s0_5090": 0.9947012426684843,
-       "s3_5090": 0.3614163715963856,
+       "total": 1.4164218892790028,
+       "s0_5090": 0.9986990311936658,
+       "s3_5090": 0.36178198934361516,
        "verify": 0.25895788288
       }
      },
      "OUT mode(ii) U8 keyed": {
       "summary": {
        "log_cols": 15,
-       "A_rows": 4072,
-       "H_rows": 3488,
+       "A_rows": 4588,
+       "H_rows": 4514,
        "M_rows": 28,
-       "A_elems": 133431296,
+       "A_elems": 150339584,
+       "H_elems": 147914752,
+       "elems": 298254336,
+       "u8": 130056192,
+       "inversions": 256,
+       "fold": 67108864,
+       "zc_elem_terms": 408034816,
+       "largest_zc": 16777216,
+       "slots": 12,
+       "a_sites": 50,
+       "h_sites": 13,
+       "receipt": 36384088,
+       "pubtab": 36765696,
+       "pubtab_factored": 138240,
+       "endpoints": {
+        "output token endpoint": {
+         "plane": 512,
+         "sites": 1,
+         "rows": 7
+        }
+       },
+       "per_opening_log2": [
+        -105.93,
+        -105.93,
+        -106.25,
+        -106.25
+       ]
+      },
+      "zc": [
+       [
+        "IO-in x_row = B_out row T-1 (public row bits)",
+        1048576,
+        2
+       ],
+       [
+        "TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
+        512,
+        11
+       ],
+       [
+        "LZC limb lookups",
+        32768,
+        2
+       ],
+       [
+        "DZC norm quotient + x limbs + helpers (+pad)",
+        1048576,
+        19
+       ],
+       [
+        "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
+        16777216,
+        14
+       ],
+       [
+        "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
+        16777216,
+        9
+       ],
+       [
+        "TAB table helper(s)",
+        32768,
+        2
+       ],
+       [
+        "IO-out output endpoint = u0 tok (whole plane)",
+        512,
+        2
+       ],
+       [
+        "SHIFT tok_out[k] = tok_in[k+1] on the generated range",
+        512,
+        2
+       ]
+      ],
+      "cost": {
+       "conversion": 0.9279383296081742,
+       "commit": 6.8753049537289055,
+       "inverses": 1.408620646346944,
+       "openings": 1.7341861731083286,
+       "zero_checks": 27.38456264467593,
+       "fold": 0.11283994878361057,
+       "rest_other": 0.4642419186062109,
+       "total": 38.90769461485811,
+       "s0_5090": 16.470740513743696,
+       "s3_5090": 1.7358412696242644,
+       "verify": 0.12947894144,
+       "verify_pubtab_unfactored": 0.18382848000000002
+      },
+      "argmax": {
+       "window_bits": 53,
+       "limbs": 7,
+       "pin": 0,
+       "lookups_per_vocab_entry": 7,
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
+      },
+      "input_stage": {
+       "log_cols": 12,
+       "elems": 184320,
+       "receipt": 1279928,
+       "endpoints": {
+        "input token endpoint": {
+         "plane": 512,
+         "sites": 2,
+         "rows": 8
+        }
+       },
+       "cost": {
+        "conversion": 0.00042978835013456193,
+        "commit": 0.004248911268372345,
+        "inverses": 0.0003604503723677452,
+        "openings": 0.0010717201959716928,
+        "zero_checks": 0.2536109269781145,
+        "fold": 0.11283994878361057,
+        "rest_other": 0.055478424338391764,
+        "total": 0.42804017028696323,
+        "s0_5090": 0.3645822925468567,
+        "s3_5090": 0.16963831339830487,
+        "verify": 0.12947894144,
+        "verify_pubtab_unfactored": 0.00036864
+       }
+      },
+      "total": {
+       "elems": 298438656,
+       "receipt": 37664016,
+       "commitment_term_log2": -99.4,
+       "whole_run_r14_log2": null,
+       "total": 39.33573478514507,
+       "s0_5090": 16.835322806290552,
+       "s3_5090": 1.9054795830225693,
+       "verify": 0.25895788288
+      }
+     },
+     "OUT mode(ii) U8 step": {
+      "summary": {
+       "log_cols": 15,
+       "A_rows": 4076,
+       "H_rows": 3488,
+       "M_rows": 30,
+       "A_elems": 133562368,
        "H_elems": 114294784,
-       "elems": 247726080,
-       "u8": 113278976,
+       "elems": 247857152,
+       "u8": 96501760,
        "inversions": 256,
        "fold": 67108864,
        "zc_elem_terms": 357703168,
        "largest_zc": 16777216,
-       "slots": 12,
-       "a_sites": 48,
+       "slots": 13,
+       "a_sites": 50,
        "h_sites": 12,
-       "receipt": 25638496,
+       "receipt": 33239944,
        "pubtab": 36765696,
        "pubtab_factored": 138240,
        "endpoints": {
@@ -3509,30 +3460,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.8235756055284406,
-       "commit": 5.710536744692432,
-       "inverses": 1.2269092955508474,
-       "openings": 1.440391943385955,
+       "conversion": 0.8243846188933998,
+       "commit": 5.713558192705498,
+       "inverses": 1.0451979447547508,
+       "openings": 1.4411540555253128,
        "zero_checks": 24.142224260837544,
        "fold": 0.11283994878361057,
-       "rest_other": 0.43851513503115436,
-       "total": 33.89499293380998,
-       "s0_5090": 14.495603217041081,
-       "s3_5090": 1.53075337004701,
+       "rest_other": 0.41826551243163373,
+       "total": 33.697624533931744,
+       "s0_5090": 14.395541031255474,
+       "s3_5090": 1.5228705142914014,
        "verify": 0.12947894144,
        "verify_pubtab_unfactored": 0.18382848000000002
       },
       "argmax": {
-       "window_bits": 41,
-       "limbs": 6,
+       "window_bits": 38,
+       "limbs": 5,
        "pin": 0,
-       "lookups_per_vocab_entry": 6,
-       "vocab_planes": 7
+       "lookups_per_vocab_entry": 5,
+       "vocab_planes": 7,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 184320,
-       "receipt": 1279776,
+       "receipt": 1279928,
        "endpoints": {
         "input token endpoint": {
          "plane": 512,
@@ -3556,292 +3509,26 @@
        }
       },
       "total": {
-       "elems": 247910400,
-       "receipt": 26918272,
+       "elems": 248041472,
+       "receipt": 34519872,
        "commitment_term_log2": -99.4,
        "whole_run_r14_log2": null,
-       "total": 34.32303310409694,
-       "s0_5090": 14.860185509587938,
-       "s3_5090": 1.7003916834453148,
-       "verify": 0.25895788288
-      }
-     },
-     "OUT mode(ii) U8 step": {
-      "summary": {
-       "log_cols": 15,
-       "A_rows": 3560,
-       "H_rows": 2462,
-       "M_rows": 30,
-       "A_elems": 116654080,
-       "H_elems": 80674816,
-       "elems": 197328896,
-       "u8": 79724544,
-       "inversions": 256,
-       "fold": 67108864,
-       "zc_elem_terms": 307371520,
-       "largest_zc": 16777216,
-       "slots": 13,
-       "a_sites": 48,
-       "h_sites": 11,
-       "receipt": 22494352,
-       "pubtab": 36765696,
-       "pubtab_factored": 138240,
-       "endpoints": {
-        "output token endpoint": {
-         "plane": 512,
-         "sites": 1,
-         "rows": 7
-        }
-       },
-       "per_opening_log2": [
-        -105.93,
-        -105.93,
-        -106.25,
-        -106.25
-       ]
-      },
-      "zc": [
-       [
-        "IO-in x_row = B_out row T-1 (public row bits)",
-        1048576,
-        2
-       ],
-       [
-        "TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
-        512,
-        11
-       ],
-       [
-        "LZC limb lookups",
-        32768,
-        2
-       ],
-       [
-        "DZC norm quotient + x limbs + helpers (+pad)",
-        1048576,
-        19
-       ],
-       [
-        "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
-        16777216,
-        10
-       ],
-       [
-        "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
-        16777216,
-        7
-       ],
-       [
-        "TAB table helper(s)",
-        32768,
-        2
-       ],
-       [
-        "IO-out output endpoint = u0 tok (whole plane)",
-        512,
-        2
-       ],
-       [
-        "SHIFT tok_out[k] = tok_in[k+1] on the generated range",
-        512,
-        2
-       ]
-      ],
-      "cost": {
-       "conversion": 0.7200218948136662,
-       "commit": 4.5487899836690255,
-       "inverses": 0.8634865939586542,
-       "openings": 1.1473598258029394,
-       "zero_checks": 20.89988587699916,
-       "fold": 0.11283994878361057,
-       "rest_other": 0.3925387288565772,
-       "total": 28.684922852883634,
-       "s0_5090": 12.420403734552869,
-       "s3_5090": 1.3177826147141478,
-       "verify": 0.12947894144,
-       "verify_pubtab_unfactored": 0.18382848000000002
-      },
-      "argmax": {
-       "window_bits": 26,
-       "limbs": 4,
-       "pin": 0,
-       "lookups_per_vocab_entry": 4,
-       "vocab_planes": 6
-      },
-      "input_stage": {
-       "log_cols": 12,
-       "elems": 184320,
-       "receipt": 1279776,
-       "endpoints": {
-        "input token endpoint": {
-         "plane": 512,
-         "sites": 2,
-         "rows": 8
-        }
-       },
-       "cost": {
-        "conversion": 0.00042978835013456193,
-        "commit": 0.004248911268372345,
-        "inverses": 0.0003604503723677452,
-        "openings": 0.0010717201959716928,
-        "zero_checks": 0.2536109269781145,
-        "fold": 0.11283994878361057,
-        "rest_other": 0.055478424338391764,
-        "total": 0.42804017028696323,
-        "s0_5090": 0.3645822925468567,
-        "s3_5090": 0.16963831339830487,
-        "verify": 0.12947894144,
-        "verify_pubtab_unfactored": 0.00036864
-       }
-      },
-      "total": {
-       "elems": 197513216,
-       "receipt": 23774128,
-       "commitment_term_log2": -99.4,
-       "whole_run_r14_log2": null,
-       "total": 29.112963023170597,
-       "s0_5090": 12.784986027099725,
-       "s3_5090": 1.4874209281124526,
+       "total": 34.12566470421871,
+       "s0_5090": 14.76012332380233,
+       "s3_5090": 1.6925088276897062,
        "verify": 0.25895788288
       }
      },
      "OUT mode(ii) U16 keyed": {
-      "summary": {
-       "log_cols": 16,
-       "A_rows": 1309,
-       "H_rows": 1250,
-       "M_rows": 28,
-       "A_elems": 85786624,
-       "H_elems": 81920000,
-       "elems": 167706624,
-       "u8": 62980096,
-       "inversions": 65792,
-       "fold": 67108864,
-       "zc_elem_terms": 240524800,
-       "largest_zc": 16777216,
-       "slots": 12,
-       "a_sites": 42,
-       "h_sites": 12,
-       "receipt": 24850128,
-       "pubtab": 36831232,
-       "pubtab_factored": 203776,
-       "endpoints": {
-        "output token endpoint": {
-         "plane": 512,
-         "sites": 1,
-         "rows": 7
-        }
-       },
-       "per_opening_log2": [
-        -106.09,
-        -106.09,
-        -106.25,
-        -106.25
-       ]
-      },
-      "zc": [
-       [
-        "IO-in x_row = B_out row T-1 (public row bits)",
-        1048576,
-        2
-       ],
-       [
-        "TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
-        512,
-        11
-       ],
-       [
-        "LZC limb lookups",
-        65536,
-        2
-       ],
-       [
-        "DZC norm quotient + x limbs + helpers (+pad)",
-        1048576,
-        19
-       ],
-       [
-        "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
-        16777216,
-        8
-       ],
-       [
-        "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
-        16777216,
-        5
-       ],
-       [
-        "TAB table helper(s)",
-        65536,
-        4
-       ],
-       [
-        "IO-out output endpoint = u0 tok (whole plane)",
-        512,
-        2
-       ],
-       [
-        "SHIFT tok_out[k] = tok_in[k+1] on the generated range",
-        512,
-        2
-       ]
-      ],
-      "cost": {
-       "conversion": 0.5294992473657804,
-       "commit": 3.865942732716385,
-       "inverses": 0.6828399581086286,
-       "openings": 0.9751224823081109,
-       "zero_checks": 17.15227476588805,
-       "fold": 0.11283994878361057,
-       "rest_other": 0.6142356620755882,
-       "total": 23.93275479724615,
-       "s0_5090": 10.355744508040605,
-       "s3_5090": 1.1250109583569121,
-       "verify": 0.12947894144,
-       "verify_pubtab_unfactored": 0.18415616
-      },
+      "inadmissible": true,
       "argmax": {
-       "window_bits": 41,
-       "limbs": 3,
+       "window_bits": 53,
+       "limbs": 4,
        "pin": 0,
-       "lookups_per_vocab_entry": 3,
-       "vocab_planes": 4
-      },
-      "input_stage": {
-       "log_cols": 12,
-       "elems": 184320,
-       "receipt": 1279776,
-       "endpoints": {
-        "input token endpoint": {
-         "plane": 512,
-         "sites": 2,
-         "rows": 8
-        }
-       },
-       "cost": {
-        "conversion": 0.00042978835013456193,
-        "commit": 0.004248911268372345,
-        "inverses": 0.0003604503723677452,
-        "openings": 0.0010717201959716928,
-        "zero_checks": 0.2536109269781145,
-        "fold": 0.11283994878361057,
-        "rest_other": 0.055478424338391764,
-        "total": 0.42804017028696323,
-        "s0_5090": 0.3645822925468567,
-        "s3_5090": 0.16963831339830487,
-        "verify": 0.12947894144,
-        "verify_pubtab_unfactored": 0.00036864
-       }
-      },
-      "total": {
-       "elems": 167890944,
-       "receipt": 26129904,
-       "commitment_term_log2": -99.41,
-       "whole_run_r14_log2": null,
-       "total": 24.360794967533113,
-       "s0_5090": 10.720326800587461,
-       "s3_5090": 1.294649271755217,
-       "verify": 0.25895788288
+       "lookups_per_vocab_entry": 4,
+       "vocab_planes": 5,
+       "limb_bits": 16,
+       "no_wrap": false
       }
      }
     }
@@ -3851,9 +3538,9 @@
    "V": 128256,
    "V_pad": 131072,
    "d": 4096,
-   "logits_bound": 66064384,
-   "window_keyed_bits": 44,
-   "window_step_bits": 27,
+   "logits_bound": 270599716864,
+   "window_keyed_bits": 56,
+   "window_step_bits": 39,
    "T": {
     "32": {
      "stack": {
@@ -4026,7 +3713,7 @@
        "slots": 3,
        "a_sites": 4,
        "h_sites": 0,
-       "receipt": 2174400,
+       "receipt": 2174520,
        "pubtab": 8519712,
        "pubtab_factored": 393280,
        "endpoints": {
@@ -4086,7 +3773,7 @@
        "slots": 4,
        "a_sites": 3,
        "h_sites": 3,
-       "receipt": 1415040,
+       "receipt": 1415192,
        "pubtab": 270336,
        "pubtab_factored": 270336,
        "endpoints": {
@@ -4152,7 +3839,7 @@
        "slots": 5,
        "a_sites": 6,
        "h_sites": 0,
-       "receipt": 890144,
+       "receipt": 890264,
        "pubtab": 4218944,
        "pubtab_factored": 155712,
        "endpoints": {
@@ -4213,21 +3900,21 @@
      "OUT mode(i) public last row": {
       "summary": {
        "log_cols": 12,
-       "A_rows": 338,
-       "H_rows": 236,
+       "A_rows": 374,
+       "H_rows": 302,
        "M_rows": 26,
-       "A_elems": 1384448,
-       "H_elems": 966656,
-       "elems": 2351104,
-       "u8": 839680,
+       "A_elems": 1531904,
+       "H_elems": 1236992,
+       "elems": 2768896,
+       "u8": 970752,
        "inversions": 256,
        "fold": 536870912,
-       "zc_elem_terms": 2724363,
+       "zc_elem_terms": 3117579,
        "largest_zc": 131072,
        "slots": 11,
-       "a_sites": 47,
-       "h_sites": 12,
-       "receipt": 3013456,
+       "a_sites": 49,
+       "h_sites": 13,
+       "receipt": 4363320,
        "pubtab": 282624,
        "pubtab_factored": 282626,
        "endpoints": {
@@ -4268,12 +3955,12 @@
        [
         "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
         131072,
-        12
+        14
        ],
        [
         "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
         131072,
-        8
+        9
        ],
        [
         "TAB table helper(s)",
@@ -4287,30 +3974,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.00854520366738129,
-       "commit": 0.05419722373434948,
-       "inverses": 0.009097212859527477,
-       "openings": 0.013670386499727816,
-       "zero_checks": 0.8849821442112779,
+       "conversion": 0.009455343702960363,
+       "commit": 0.06382808927599345,
+       "inverses": 0.010516832787621982,
+       "openings": 0.01609961894393032,
+       "zero_checks": 0.9137592906759243,
        "fold": 0.9027195902688846,
-       "rest_other": 0.06385878270736728,
-       "total": 1.9370705439485159,
-       "s0_5090": 1.0963176508528643,
-       "s3_5090": 0.23019592355434781,
+       "rest_other": 0.06444488608513978,
+       "total": 1.980823651740455,
+       "s0_5090": 1.1138018748631506,
+       "s3_5090": 0.23198391612949845,
        "verify": 0.8153315315199999,
        "verify_pubtab_unfactored": 0.0014131200000000001
       },
       "argmax": {
-       "window_bits": 44,
-       "limbs": 6,
+       "window_bits": 56,
+       "limbs": 7,
        "pin": 0,
-       "lookups_per_vocab_entry": 6,
-       "vocab_planes": 7
+       "lookups_per_vocab_entry": 7,
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 479232,
-       "receipt": 1415040,
+       "receipt": 1415192,
        "endpoints": {
         "input token endpoint": {
          "plane": 256,
@@ -4334,34 +4023,34 @@
        }
       },
       "total": {
-       "elems": 2830336,
-       "receipt": 4428496,
+       "elems": 3248128,
+       "receipt": 5778512,
        "commitment_term_log2": -98.04,
        "whole_run_r14_log2": -96.71,
-       "total": 3.1776874636736485,
-       "s0_5090": 1.864087849964206,
-       "s3_5090": 0.4323640374691016,
+       "total": 3.221440571465588,
+       "s0_5090": 1.8815720739744923,
+       "s3_5090": 0.4341520300442523,
        "verify": 1.6306630630399999
       }
      },
      "OUT mode(i) hidden selector, sealed in input endpoint (B-2 preferred)": {
       "summary": {
        "log_cols": 12,
-       "A_rows": 345,
-       "H_rows": 236,
+       "A_rows": 381,
+       "H_rows": 302,
        "M_rows": 30,
-       "A_elems": 1413120,
-       "H_elems": 966656,
-       "elems": 2379776,
-       "u8": 839680,
+       "A_elems": 1560576,
+       "H_elems": 1236992,
+       "elems": 2797568,
+       "u8": 970752,
        "inversions": 256,
        "fold": 536870912,
-       "zc_elem_terms": 2716459,
+       "zc_elem_terms": 3109675,
        "largest_zc": 131072,
        "slots": 13,
-       "a_sites": 50,
-       "h_sites": 12,
-       "receipt": 3037568,
+       "a_sites": 52,
+       "h_sites": 13,
+       "receipt": 4387432,
        "pubtab": 282624,
        "pubtab_factored": 282626,
        "endpoints": {
@@ -4407,12 +4096,12 @@
        [
         "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
         131072,
-        12
+        14
        ],
        [
         "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
         131072,
-        8
+        9
        ],
        [
         "TAB table helper(s)",
@@ -4426,30 +4115,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.00872217534096611,
-       "commit": 0.0548581654872074,
-       "inverses": 0.009097212859527477,
-       "openings": 0.013837098530212302,
-       "zero_checks": 0.9657029698176015,
+       "conversion": 0.009632315376545183,
+       "commit": 0.06448903102885138,
+       "inverses": 0.010516832787621982,
+       "openings": 0.016266330974414805,
+       "zero_checks": 0.994480116282248,
        "fold": 0.9027195902688846,
-       "rest_other": 0.06426956978053247,
-       "total": 2.019206782084932,
-       "s0_5090": 1.137084335517153,
-       "s3_5090": 0.2334839718821997,
+       "rest_other": 0.06485567315830496,
+       "total": 2.0629598898768706,
+       "s0_5090": 1.154568559527439,
+       "s3_5090": 0.23527196445735027,
        "verify": 0.8153315315199999,
        "verify_pubtab_unfactored": 0.0014131200000000001
       },
       "argmax": {
-       "window_bits": 44,
-       "limbs": 6,
+       "window_bits": 56,
+       "limbs": 7,
        "pin": 0,
-       "lookups_per_vocab_entry": 6,
-       "vocab_planes": 7
+       "lookups_per_vocab_entry": 7,
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 479232,
-       "receipt": 1425216,
+       "receipt": 1425368,
        "endpoints": {
         "input token endpoint (tok | s)": {
          "plane": 256,
@@ -4473,34 +4164,34 @@
        }
       },
       "total": {
-       "elems": 2859008,
-       "receipt": 4462784,
+       "elems": 3276800,
+       "receipt": 5812800,
        "commitment_term_log2": -98.04,
        "whole_run_r14_log2": -96.71,
-       "total": 3.2598073600066138,
-       "s0_5090": 1.904846363726769,
-       "s3_5090": 0.4356514321248155,
+       "total": 3.3035604677985524,
+       "s0_5090": 1.9223305877370551,
+       "s3_5090": 0.43743942469996605,
        "verify": 1.6306630630399999
       }
      },
      "OUT mode(i) hidden selector, sealed in output endpoint (B-2 fallback)": {
       "summary": {
        "log_cols": 12,
-       "A_rows": 345,
-       "H_rows": 236,
+       "A_rows": 381,
+       "H_rows": 302,
        "M_rows": 28,
-       "A_elems": 1413120,
-       "H_elems": 966656,
-       "elems": 2379776,
-       "u8": 839680,
+       "A_elems": 1560576,
+       "H_elems": 1236992,
+       "elems": 2797568,
+       "u8": 970752,
        "inversions": 256,
        "fold": 536870912,
-       "zc_elem_terms": 2716459,
+       "zc_elem_terms": 3109675,
        "largest_zc": 131072,
        "slots": 12,
-       "a_sites": 50,
-       "h_sites": 12,
-       "receipt": 3032928,
+       "a_sites": 52,
+       "h_sites": 13,
+       "receipt": 4382792,
        "pubtab": 282624,
        "pubtab_factored": 282626,
        "endpoints": {
@@ -4541,12 +4232,12 @@
        [
         "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
         131072,
-        12
+        14
        ],
        [
         "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
         131072,
-        8
+        9
        ],
        [
         "TAB table helper(s)",
@@ -4560,30 +4251,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.00872217534096611,
-       "commit": 0.0548581654872074,
-       "inverses": 0.009097212859527477,
-       "openings": 0.013837098530212302,
-       "zero_checks": 0.8844775910297228,
+       "conversion": 0.009632315376545183,
+       "commit": 0.06448903102885138,
+       "inverses": 0.010516832787621982,
+       "openings": 0.016266330974414805,
+       "zero_checks": 0.9132547374943693,
        "fold": 0.9027195902688846,
-       "rest_other": 0.06426956978053247,
-       "total": 1.9379814032970533,
-       "s0_5090": 1.0964716461232136,
-       "s3_5090": 0.23023495673068453,
+       "rest_other": 0.06485567315830496,
+       "total": 1.9817345110889921,
+       "s0_5090": 1.1139558701335,
+       "s3_5090": 0.23202294930583514,
        "verify": 0.8153315315199999,
        "verify_pubtab_unfactored": 0.0014131200000000001
       },
       "argmax": {
-       "window_bits": 44,
-       "limbs": 6,
+       "window_bits": 56,
+       "limbs": 7,
        "pin": 0,
-       "lookups_per_vocab_entry": 6,
-       "vocab_planes": 7
+       "lookups_per_vocab_entry": 7,
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 479232,
-       "receipt": 1415040,
+       "receipt": 1415192,
        "endpoints": {
         "input token endpoint": {
          "plane": 256,
@@ -4607,34 +4300,34 @@
        }
       },
       "total": {
-       "elems": 2859008,
-       "receipt": 4447968,
+       "elems": 3276800,
+       "receipt": 5797984,
        "commitment_term_log2": -98.04,
        "whole_run_r14_log2": -96.71,
-       "total": 3.178598323022186,
-       "s0_5090": 1.8642418452345553,
-       "s3_5090": 0.43240307064543837,
+       "total": 3.222351430814125,
+       "s0_5090": 1.8817260692448416,
+       "s3_5090": 0.434191063220589,
        "verify": 1.6306630630399999
       }
      },
      "OUT mode(i) public last row, WITH pin (v1 form)": {
       "summary": {
        "log_cols": 12,
-       "A_rows": 338,
+       "A_rows": 374,
        "H_rows": 302,
        "M_rows": 26,
-       "A_elems": 1384448,
+       "A_elems": 1531904,
        "H_elems": 1236992,
-       "elems": 2621440,
+       "elems": 2768896,
        "u8": 970752,
        "inversions": 256,
        "fold": 536870912,
-       "zc_elem_terms": 2855435,
+       "zc_elem_terms": 3117579,
        "largest_zc": 131072,
        "slots": 11,
-       "a_sites": 47,
+       "a_sites": 49,
        "h_sites": 13,
-       "receipt": 3148640,
+       "receipt": 4363320,
        "pubtab": 282624,
        "pubtab_factored": 282626,
        "endpoints": {
@@ -4675,12 +4368,12 @@
        [
         "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
         131072,
-        13
+        14
        ],
        [
         "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
         131072,
-        8
+        9
        ],
        [
         "TAB table helper(s)",
@@ -4694,30 +4387,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.00854520366738129,
-       "commit": 0.060428960261295586,
+       "conversion": 0.009455343702960363,
+       "commit": 0.06382808927599345,
        "inverses": 0.010516832787621982,
-       "openings": 0.015242242787152966,
-       "zero_checks": 0.89457452636616,
+       "openings": 0.01609961894393032,
+       "zero_checks": 0.9137592906759243,
        "fold": 0.9027195902688846,
-       "rest_other": 0.06417102803636297,
-       "total": 1.9561983841748594,
-       "s0_5090": 1.1030394751576529,
-       "s3_5090": 0.23098554015741354,
+       "rest_other": 0.06444488608513978,
+       "total": 1.980823651740455,
+       "s0_5090": 1.1138018748631506,
+       "s3_5090": 0.23198391612949845,
        "verify": 0.8153315315199999,
        "verify_pubtab_unfactored": 0.0014131200000000001
       },
       "argmax": {
-       "window_bits": 44,
-       "limbs": 6,
-       "pin": 1,
+       "window_bits": 56,
+       "limbs": 7,
+       "pin": 0,
        "lookups_per_vocab_entry": 7,
-       "vocab_planes": 7
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 479232,
-       "receipt": 1415040,
+       "receipt": 1415192,
        "endpoints": {
         "input token endpoint": {
          "plane": 256,
@@ -4741,34 +4436,175 @@
        }
       },
       "total": {
-       "elems": 3100672,
-       "receipt": 4563680,
+       "elems": 3248128,
+       "receipt": 5778512,
        "commitment_term_log2": -98.04,
        "whole_run_r14_log2": -96.71,
-       "total": 3.1968153038999922,
-       "s0_5090": 1.8708096742689946,
-       "s3_5090": 0.4331536540721673,
+       "total": 3.221440571465588,
+       "s0_5090": 1.8815720739744923,
+       "s3_5090": 0.4341520300442523,
        "verify": 1.6306630630399999
       }
      },
      "OUT mode(ii) U8 keyed": {
       "summary": {
        "log_cols": 14,
-       "A_rows": 1992,
-       "H_rows": 1664,
+       "A_rows": 2252,
+       "H_rows": 2178,
        "M_rows": 28,
-       "A_elems": 32636928,
+       "A_elems": 36896768,
+       "H_elems": 35684352,
+       "elems": 72581120,
+       "u8": 30949376,
+       "inversions": 256,
+       "fold": 536870912,
+       "zc_elem_terms": 99287968,
+       "largest_zc": 4194304,
+       "slots": 12,
+       "a_sites": 50,
+       "h_sites": 13,
+       "receipt": 17203016,
+       "pubtab": 8814592,
+       "pubtab_factored": 307264,
+       "endpoints": {
+        "output token endpoint": {
+         "plane": 256,
+         "sites": 1,
+         "rows": 6
+        }
+       },
+       "per_opening_log2": [
+        -105.61,
+        -105.61,
+        -106.25,
+        -106.25
+       ]
+      },
+      "zc": [
+       [
+        "IO-in x_row = B_out row T-1 (public row bits)",
+        131072,
+        2
+       ],
+       [
+        "TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
+        32,
+        11
+       ],
+       [
+        "LZC limb lookups",
+        16384,
+        2
+       ],
+       [
+        "DZC norm quotient + x limbs + helpers (+pad)",
+        131072,
+        19
+       ],
+       [
+        "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
+        4194304,
+        14
+       ],
+       [
+        "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
+        4194304,
+        9
+       ],
+       [
+        "TAB table helper(s)",
+        16384,
+        2
+       ],
+       [
+        "IO-out output endpoint = u0 tok (whole plane)",
+        256,
+        2
+       ],
+       [
+        "SHIFT tok_out[k] = tok_in[k+1] on the generated range",
+        32,
+        2
+       ]
+      ],
+      "cost": {
+       "conversion": 0.22773726223600788,
+       "commit": 1.6731268372346215,
+       "inverses": 0.3352105282164869,
+       "openings": 0.4220195971692977,
+       "zero_checks": 7.366859744088017,
+       "fold": 0.9027195902688846,
+       "rest_other": 0.20196605685296554,
+       "total": 11.12963961606628,
+       "s0_5090": 4.954260145539945,
+       "s3_5090": 0.6042642672773817,
+       "verify": 0.8153315315199999,
+       "verify_pubtab_unfactored": 0.04407296
+      },
+      "argmax": {
+       "window_bits": 56,
+       "limbs": 7,
+       "pin": 0,
+       "lookups_per_vocab_entry": 7,
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
+      },
+      "input_stage": {
+       "log_cols": 12,
+       "elems": 479232,
+       "receipt": 1425432,
+       "endpoints": {
+        "input token endpoint": {
+         "plane": 256,
+         "sites": 2,
+         "rows": 7
+        }
+       },
+       "cost": {
+        "conversion": 0.0010365483738539434,
+        "commit": 0.0110471692977681,
+        "inverses": 0.0014199665149910118,
+        "openings": 0.0027864725095264014,
+        "zero_checks": 0.2661287484217172,
+        "fold": 0.9027195902688846,
+        "rest_other": 0.055478424338391764,
+        "total": 1.2406169197251329,
+        "s0_5090": 0.7677701991113417,
+        "s3_5090": 0.2021681139147538,
+        "verify": 0.8153315315199999,
+        "verify_pubtab_unfactored": 0.00135168
+       }
+      },
+      "total": {
+       "elems": 73060352,
+       "receipt": 18628448,
+       "commitment_term_log2": -98.09,
+       "whole_run_r14_log2": -96.66,
+       "total": 12.370256535791412,
+       "s0_5090": 5.722030344651287,
+       "s3_5090": 0.8064323811921355,
+       "verify": 1.6306630630399999
+      }
+     },
+     "OUT mode(ii) U8 step": {
+      "summary": {
+       "log_cols": 14,
+       "A_rows": 1996,
+       "H_rows": 1664,
+       "M_rows": 30,
+       "A_elems": 32702464,
        "H_elems": 27262976,
-       "elems": 59899904,
-       "u8": 26755072,
+       "elems": 59965440,
+       "u8": 22560768,
        "inversions": 256,
        "fold": 536870912,
        "zc_elem_terms": 86705056,
        "largest_zc": 4194304,
-       "slots": 12,
-       "a_sites": 48,
+       "slots": 13,
+       "a_sites": 50,
        "h_sites": 12,
-       "receipt": 12904336,
+       "receipt": 15631608,
        "pubtab": 8814592,
        "pubtab_factored": 307264,
        "endpoints": {
@@ -4833,30 +4669,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.20144432787483468,
-       "commit": 1.380801741970604,
-       "inverses": 0.28978269051746275,
-       "openings": 0.34828524768644525,
+       "conversion": 0.20184883455731428,
+       "commit": 1.3823124659771364,
+       "inverses": 0.2443548528184386,
+       "openings": 0.34866630375612406,
        "zero_checks": 6.548922875401147,
        "fold": 0.9027195902688846,
-       "rest_other": 0.19471278681287102,
-       "total": 9.86666926053225,
-       "s0_5090": 4.456095098420725,
-       "s3_5090": 0.5525960398823678,
+       "rest_other": 0.19019809726054443,
+       "total": 9.81902302003959,
+       "s0_5090": 4.43158298525115,
+       "s3_5090": 0.5506961303824219,
        "verify": 0.8153315315199999,
        "verify_pubtab_unfactored": 0.04407296
       },
       "argmax": {
-       "window_bits": 44,
-       "limbs": 6,
+       "window_bits": 39,
+       "limbs": 5,
        "pin": 0,
-       "lookups_per_vocab_entry": 6,
-       "vocab_planes": 7
+       "lookups_per_vocab_entry": 5,
+       "vocab_planes": 7,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 479232,
-       "receipt": 1425280,
+       "receipt": 1425432,
        "endpoints": {
         "input token endpoint": {
          "plane": 256,
@@ -4880,292 +4718,26 @@
        }
       },
       "total": {
-       "elems": 60379136,
-       "receipt": 14329616,
+       "elems": 60444672,
+       "receipt": 17057040,
        "commitment_term_log2": -98.09,
-       "whole_run_r14_log2": -96.67,
-       "total": 11.107286180257383,
-       "s0_5090": 5.2238652975320665,
-       "s3_5090": 0.7547641537971217,
-       "verify": 1.6306630630399999
-      }
-     },
-     "OUT mode(ii) U8 step": {
-      "summary": {
-       "log_cols": 14,
-       "A_rows": 1736,
-       "H_rows": 1150,
-       "M_rows": 30,
-       "A_elems": 28442624,
-       "H_elems": 18841600,
-       "elems": 47284224,
-       "u8": 18366464,
-       "inversions": 256,
-       "fold": 536870912,
-       "zc_elem_terms": 74122144,
-       "largest_zc": 4194304,
-       "slots": 13,
-       "a_sites": 48,
-       "h_sites": 11,
-       "receipt": 11332928,
-       "pubtab": 8814592,
-       "pubtab_factored": 307264,
-       "endpoints": {
-        "output token endpoint": {
-         "plane": 256,
-         "sites": 1,
-         "rows": 6
-        }
-       },
-       "per_opening_log2": [
-        -105.61,
-        -105.61,
-        -106.25,
-        -106.25
-       ]
-      },
-      "zc": [
-       [
-        "IO-in x_row = B_out row T-1 (public row bits)",
-        131072,
-        2
-       ],
-       [
-        "TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
-        32,
-        11
-       ],
-       [
-        "LZC limb lookups",
-        16384,
-        2
-       ],
-       [
-        "DZC norm quotient + x limbs + helpers (+pad)",
-        131072,
-        19
-       ],
-       [
-        "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
-        4194304,
-        10
-       ],
-       [
-        "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
-        4194304,
-        7
-       ],
-       [
-        "TAB table helper(s)",
-        16384,
-        2
-       ],
-       [
-        "IO-out output endpoint = u0 tok (whole plane)",
-        256,
-        2
-       ],
-       [
-        "SHIFT tok_out[k] = tok_in[k+1] on the generated range",
-        32,
-        2
-       ]
-      ],
-      "cost": {
-       "conversion": 0.17555590019614106,
-       "commit": 1.0899873707131191,
-       "inverses": 0.19892701511941446,
-       "openings": 0.2749319542732716,
-       "zero_checks": 5.730986006714279,
-       "fold": 0.9027195902688846,
-       "rest_other": 0.18294482722044994,
-       "total": 8.55605266450556,
-       "s0_5090": 3.9334179381319303,
-       "s3_5090": 0.49902790298740796,
-       "verify": 0.8153315315199999,
-       "verify_pubtab_unfactored": 0.04407296
-      },
-      "argmax": {
-       "window_bits": 27,
-       "limbs": 4,
-       "pin": 0,
-       "lookups_per_vocab_entry": 4,
-       "vocab_planes": 6
-      },
-      "input_stage": {
-       "log_cols": 12,
-       "elems": 479232,
-       "receipt": 1425280,
-       "endpoints": {
-        "input token endpoint": {
-         "plane": 256,
-         "sites": 2,
-         "rows": 7
-        }
-       },
-       "cost": {
-        "conversion": 0.0010365483738539434,
-        "commit": 0.0110471692977681,
-        "inverses": 0.0014199665149910118,
-        "openings": 0.0027864725095264014,
-        "zero_checks": 0.2661287484217172,
-        "fold": 0.9027195902688846,
-        "rest_other": 0.055478424338391764,
-        "total": 1.2406169197251329,
-        "s0_5090": 0.7677701991113417,
-        "s3_5090": 0.2021681139147538,
-        "verify": 0.8153315315199999,
-        "verify_pubtab_unfactored": 0.00135168
-       }
-      },
-      "total": {
-       "elems": 47763456,
-       "receipt": 12758208,
-       "commitment_term_log2": -98.09,
-       "whole_run_r14_log2": -96.69,
-       "total": 9.796669584230692,
-       "s0_5090": 4.701188137243272,
-       "s3_5090": 0.7011960169021618,
+       "whole_run_r14_log2": -96.68,
+       "total": 11.059639939764722,
+       "s0_5090": 5.199353184362492,
+       "s3_5090": 0.7528642442971758,
        "verify": 1.6306630630399999
       }
      },
      "OUT mode(ii) U16 keyed": {
-      "summary": {
-       "log_cols": 16,
-       "A_rows": 373,
-       "H_rows": 314,
-       "M_rows": 28,
-       "A_elems": 24444928,
-       "H_elems": 20578304,
-       "elems": 45023232,
-       "u8": 14221312,
-       "inversions": 65792,
-       "fold": 536870912,
-       "zc_elem_terms": 57672608,
-       "largest_zc": 4194304,
-       "slots": 12,
-       "a_sites": 42,
-       "h_sites": 12,
-       "receipt": 21012672,
-       "pubtab": 8912896,
-       "pubtab_factored": 405568,
-       "endpoints": {
-        "output token endpoint": {
-         "plane": 256,
-         "sites": 1,
-         "rows": 6
-        }
-       },
-       "per_opening_log2": [
-        -106.09,
-        -106.09,
-        -106.25,
-        -106.25
-       ]
-      },
-      "zc": [
-       [
-        "IO-in x_row = B_out row T-1 (public row bits)",
-        131072,
-        2
-       ],
-       [
-        "TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
-        32,
-        11
-       ],
-       [
-        "LZC limb lookups",
-        65536,
-        2
-       ],
-       [
-        "DZC norm quotient + x limbs + helpers (+pad)",
-        131072,
-        19
-       ],
-       [
-        "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
-        4194304,
-        8
-       ],
-       [
-        "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
-        4194304,
-        5
-       ],
-       [
-        "TAB table helper(s)",
-        65536,
-        4
-       ],
-       [
-        "IO-out output endpoint = u0 tok (whole plane)",
-        256,
-        2
-       ],
-       [
-        "SHIFT tok_out[k] = tok_in[k+1] on the generated range",
-        32,
-        2
-       ]
-      ],
-      "cost": {
-       "conversion": 0.1508809925648862,
-       "commit": 1.0378673924877517,
-       "inverses": 0.154741344857473,
-       "openings": 0.26178551986935217,
-       "zero_checks": 5.479874053852327,
-       "fold": 0.9027195902688846,
-       "rest_other": 0.5490179967616708,
-       "total": 8.536886890662345,
-       "s0_5090": 3.9476053070622554,
-       "s3_5090": 0.4980563379019429,
-       "verify": 0.8153315315199999,
-       "verify_pubtab_unfactored": 0.044564480000000004
-      },
+      "inadmissible": true,
       "argmax": {
-       "window_bits": 44,
-       "limbs": 3,
+       "window_bits": 56,
+       "limbs": 4,
        "pin": 0,
-       "lookups_per_vocab_entry": 3,
-       "vocab_planes": 4
-      },
-      "input_stage": {
-       "log_cols": 12,
-       "elems": 479232,
-       "receipt": 1425280,
-       "endpoints": {
-        "input token endpoint": {
-         "plane": 256,
-         "sites": 2,
-         "rows": 7
-        }
-       },
-       "cost": {
-        "conversion": 0.0010365483738539434,
-        "commit": 0.0110471692977681,
-        "inverses": 0.0014199665149910118,
-        "openings": 0.0027864725095264014,
-        "zero_checks": 0.2661287484217172,
-        "fold": 0.9027195902688846,
-        "rest_other": 0.055478424338391764,
-        "total": 1.2406169197251329,
-        "s0_5090": 0.7677701991113417,
-        "s3_5090": 0.2021681139147538,
-        "verify": 0.8153315315199999,
-        "verify_pubtab_unfactored": 0.00135168
-       }
-      },
-      "total": {
-       "elems": 45502464,
-       "receipt": 22437952,
-       "commitment_term_log2": -98.09,
-       "whole_run_r14_log2": -96.7,
-       "total": 9.777503810387477,
-       "s0_5090": 4.715375506173597,
-       "s3_5090": 0.7002244518166967,
-       "verify": 1.6306630630399999
+       "lookups_per_vocab_entry": 4,
+       "vocab_planes": 5,
+       "limb_bits": 16,
+       "no_wrap": false
       }
      }
     },
@@ -5340,7 +4912,7 @@
        "slots": 3,
        "a_sites": 4,
        "h_sites": 0,
-       "receipt": 3886688,
+       "receipt": 3886808,
        "pubtab": 33685632,
        "pubtab_factored": 393472,
        "endpoints": {
@@ -5400,7 +4972,7 @@
        "slots": 4,
        "a_sites": 3,
        "h_sites": 3,
-       "receipt": 1415040,
+       "receipt": 1415192,
        "pubtab": 270336,
        "pubtab_factored": 270336,
        "endpoints": {
@@ -5466,7 +5038,7 @@
        "slots": 5,
        "a_sites": 6,
        "h_sites": 0,
-       "receipt": 927584,
+       "receipt": 927704,
        "pubtab": 16875776,
        "pubtab_factored": 229632,
        "endpoints": {
@@ -5527,21 +5099,21 @@
      "OUT mode(i) public last row": {
       "summary": {
        "log_cols": 12,
-       "A_rows": 338,
-       "H_rows": 236,
+       "A_rows": 374,
+       "H_rows": 302,
        "M_rows": 26,
-       "A_elems": 1384448,
-       "H_elems": 966656,
-       "elems": 2351104,
-       "u8": 839680,
+       "A_elems": 1531904,
+       "H_elems": 1236992,
+       "elems": 2768896,
+       "u8": 970752,
        "inversions": 256,
        "fold": 536870912,
-       "zc_elem_terms": 2724363,
+       "zc_elem_terms": 3117579,
        "largest_zc": 131072,
        "slots": 11,
-       "a_sites": 47,
-       "h_sites": 12,
-       "receipt": 3013456,
+       "a_sites": 49,
+       "h_sites": 13,
+       "receipt": 4797496,
        "pubtab": 282624,
        "pubtab_factored": 282626,
        "endpoints": {
@@ -5582,12 +5154,12 @@
        [
         "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
         131072,
-        12
+        14
        ],
        [
         "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
         131072,
-        8
+        9
        ],
        [
         "TAB table helper(s)",
@@ -5601,30 +5173,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.00854520366738129,
-       "commit": 0.05419722373434948,
-       "inverses": 0.009097212859527477,
-       "openings": 0.013670386499727816,
-       "zero_checks": 0.8849821442112779,
+       "conversion": 0.009455343702960363,
+       "commit": 0.06382808927599345,
+       "inverses": 0.010516832787621982,
+       "openings": 0.01609961894393032,
+       "zero_checks": 0.9137592906759243,
        "fold": 0.9027195902688846,
-       "rest_other": 0.06385878270736728,
-       "total": 1.9370705439485159,
-       "s0_5090": 1.0963176508528643,
-       "s3_5090": 0.23019592355434781,
+       "rest_other": 0.06444488608513978,
+       "total": 1.980823651740455,
+       "s0_5090": 1.1138018748631506,
+       "s3_5090": 0.23198391612949845,
        "verify": 0.8153315315199999,
        "verify_pubtab_unfactored": 0.0014131200000000001
       },
       "argmax": {
-       "window_bits": 44,
-       "limbs": 6,
+       "window_bits": 56,
+       "limbs": 7,
        "pin": 0,
-       "lookups_per_vocab_entry": 6,
-       "vocab_planes": 7
+       "lookups_per_vocab_entry": 7,
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 479232,
-       "receipt": 1415040,
+       "receipt": 1415192,
        "endpoints": {
         "input token endpoint": {
          "plane": 256,
@@ -5648,34 +5222,34 @@
        }
       },
       "total": {
-       "elems": 2830336,
-       "receipt": 4428496,
+       "elems": 3248128,
+       "receipt": 6212688,
        "commitment_term_log2": -98.53,
        "whole_run_r14_log2": null,
-       "total": 3.1776885034343385,
-       "s0_5090": 1.8640883698445507,
-       "s3_5090": 0.4323640790595292,
+       "total": 3.221441611226277,
+       "s0_5090": 1.881572593854837,
+       "s3_5090": 0.43415207163467984,
        "verify": 1.6306630630399999
       }
      },
      "OUT mode(i) hidden selector, sealed in input endpoint (B-2 preferred)": {
       "summary": {
        "log_cols": 12,
-       "A_rows": 345,
-       "H_rows": 236,
+       "A_rows": 381,
+       "H_rows": 302,
        "M_rows": 30,
-       "A_elems": 1413120,
-       "H_elems": 966656,
-       "elems": 2379776,
-       "u8": 839680,
+       "A_elems": 1560576,
+       "H_elems": 1236992,
+       "elems": 2797568,
+       "u8": 970752,
        "inversions": 256,
        "fold": 536870912,
-       "zc_elem_terms": 2716555,
+       "zc_elem_terms": 3109771,
        "largest_zc": 131072,
        "slots": 13,
-       "a_sites": 50,
-       "h_sites": 12,
-       "receipt": 3037824,
+       "a_sites": 52,
+       "h_sites": 13,
+       "receipt": 4821864,
        "pubtab": 282624,
        "pubtab_factored": 282626,
        "endpoints": {
@@ -5721,12 +5295,12 @@
        [
         "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
         131072,
-        12
+        14
        ],
        [
         "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
         131072,
-        8
+        9
        ],
        [
         "TAB table helper(s)",
@@ -5740,30 +5314,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.00872217534096611,
-       "commit": 0.0548581654872074,
-       "inverses": 0.009097212859527477,
-       "openings": 0.013837098530212302,
-       "zero_checks": 0.9657090979938957,
+       "conversion": 0.009632315376545183,
+       "commit": 0.06448903102885138,
+       "inverses": 0.010516832787621982,
+       "openings": 0.016266330974414805,
+       "zero_checks": 0.9944862444585422,
        "fold": 0.9027195902688846,
-       "rest_other": 0.06426956978053247,
-       "total": 2.019212910261226,
-       "s0_5090": 1.1370873996053,
-       "s3_5090": 0.23348421700925143,
+       "rest_other": 0.06485567315830496,
+       "total": 2.062966018053165,
+       "s0_5090": 1.1545716236155863,
+       "s3_5090": 0.23527220958440204,
        "verify": 0.8153315315199999,
        "verify_pubtab_unfactored": 0.0014131200000000001
       },
       "argmax": {
-       "window_bits": 44,
-       "limbs": 6,
+       "window_bits": 56,
+       "limbs": 7,
        "pin": 0,
-       "lookups_per_vocab_entry": 6,
-       "vocab_planes": 7
+       "lookups_per_vocab_entry": 7,
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 479232,
-       "receipt": 1425216,
+       "receipt": 1425368,
        "endpoints": {
         "input token endpoint (tok | s)": {
          "plane": 256,
@@ -5787,34 +5363,34 @@
        }
       },
       "total": {
-       "elems": 2859008,
-       "receipt": 4463040,
+       "elems": 3276800,
+       "receipt": 6247232,
        "commitment_term_log2": -98.53,
        "whole_run_r14_log2": null,
-       "total": 3.259814527943597,
-       "s0_5090": 1.9048499476952607,
-       "s3_5090": 0.4356517188422948,
+       "total": 3.3035676357355364,
+       "s0_5090": 1.922334171705547,
+       "s3_5090": 0.4374397114174454,
        "verify": 1.6306630630399999
       }
      },
      "OUT mode(i) hidden selector, sealed in output endpoint (B-2 fallback)": {
       "summary": {
        "log_cols": 12,
-       "A_rows": 345,
-       "H_rows": 236,
+       "A_rows": 381,
+       "H_rows": 302,
        "M_rows": 28,
-       "A_elems": 1413120,
-       "H_elems": 966656,
-       "elems": 2379776,
-       "u8": 839680,
+       "A_elems": 1560576,
+       "H_elems": 1236992,
+       "elems": 2797568,
+       "u8": 970752,
        "inversions": 256,
        "fold": 536870912,
-       "zc_elem_terms": 2716555,
+       "zc_elem_terms": 3109771,
        "largest_zc": 131072,
        "slots": 12,
-       "a_sites": 50,
-       "h_sites": 12,
-       "receipt": 3033184,
+       "a_sites": 52,
+       "h_sites": 13,
+       "receipt": 4817224,
        "pubtab": 282624,
        "pubtab_factored": 282626,
        "endpoints": {
@@ -5855,12 +5431,12 @@
        [
         "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
         131072,
-        12
+        14
        ],
        [
         "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
         131072,
-        8
+        9
        ],
        [
         "TAB table helper(s)",
@@ -5874,30 +5450,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.00872217534096611,
-       "commit": 0.0548581654872074,
-       "inverses": 0.009097212859527477,
-       "openings": 0.013837098530212302,
-       "zero_checks": 0.884483719206017,
+       "conversion": 0.009632315376545183,
+       "commit": 0.06448903102885138,
+       "inverses": 0.010516832787621982,
+       "openings": 0.016266330974414805,
+       "zero_checks": 0.9132608656706634,
        "fold": 0.9027195902688846,
-       "rest_other": 0.06426956978053247,
-       "total": 1.9379875314733472,
-       "s0_5090": 1.0964747102113606,
-       "s3_5090": 0.2302352018577363,
+       "rest_other": 0.06485567315830496,
+       "total": 1.9817406392652865,
+       "s0_5090": 1.1139589342216472,
+       "s3_5090": 0.2320231944328869,
        "verify": 0.8153315315199999,
        "verify_pubtab_unfactored": 0.0014131200000000001
       },
       "argmax": {
-       "window_bits": 44,
-       "limbs": 6,
+       "window_bits": 56,
+       "limbs": 7,
        "pin": 0,
-       "lookups_per_vocab_entry": 6,
-       "vocab_planes": 7
+       "lookups_per_vocab_entry": 7,
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 479232,
-       "receipt": 1415040,
+       "receipt": 1415192,
        "endpoints": {
         "input token endpoint": {
          "plane": 256,
@@ -5921,34 +5499,34 @@
        }
       },
       "total": {
-       "elems": 2859008,
-       "receipt": 4448224,
+       "elems": 3276800,
+       "receipt": 6232416,
        "commitment_term_log2": -98.53,
        "whole_run_r14_log2": null,
-       "total": 3.1786054909591694,
-       "s0_5090": 1.864245429203047,
-       "s3_5090": 0.4324033573629177,
+       "total": 3.222358598751109,
+       "s0_5090": 1.8817296532133336,
+       "s3_5090": 0.4341913499380683,
        "verify": 1.6306630630399999
       }
      },
      "OUT mode(i) public last row, WITH pin (v1 form)": {
       "summary": {
        "log_cols": 12,
-       "A_rows": 338,
+       "A_rows": 374,
        "H_rows": 302,
        "M_rows": 26,
-       "A_elems": 1384448,
+       "A_elems": 1531904,
        "H_elems": 1236992,
-       "elems": 2621440,
+       "elems": 2768896,
        "u8": 970752,
        "inversions": 256,
        "fold": 536870912,
-       "zc_elem_terms": 2855435,
+       "zc_elem_terms": 3117579,
        "largest_zc": 131072,
        "slots": 11,
-       "a_sites": 47,
+       "a_sites": 49,
        "h_sites": 13,
-       "receipt": 3148640,
+       "receipt": 4797496,
        "pubtab": 282624,
        "pubtab_factored": 282626,
        "endpoints": {
@@ -5989,12 +5567,12 @@
        [
         "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
         131072,
-        13
+        14
        ],
        [
         "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
         131072,
-        8
+        9
        ],
        [
         "TAB table helper(s)",
@@ -6008,30 +5586,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.00854520366738129,
-       "commit": 0.060428960261295586,
+       "conversion": 0.009455343702960363,
+       "commit": 0.06382808927599345,
        "inverses": 0.010516832787621982,
-       "openings": 0.015242242787152966,
-       "zero_checks": 0.89457452636616,
+       "openings": 0.01609961894393032,
+       "zero_checks": 0.9137592906759243,
        "fold": 0.9027195902688846,
-       "rest_other": 0.06417102803636297,
-       "total": 1.9561983841748594,
-       "s0_5090": 1.1030394751576529,
-       "s3_5090": 0.23098554015741354,
+       "rest_other": 0.06444488608513978,
+       "total": 1.980823651740455,
+       "s0_5090": 1.1138018748631506,
+       "s3_5090": 0.23198391612949845,
        "verify": 0.8153315315199999,
        "verify_pubtab_unfactored": 0.0014131200000000001
       },
       "argmax": {
-       "window_bits": 44,
-       "limbs": 6,
-       "pin": 1,
+       "window_bits": 56,
+       "limbs": 7,
+       "pin": 0,
        "lookups_per_vocab_entry": 7,
-       "vocab_planes": 7
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 479232,
-       "receipt": 1415040,
+       "receipt": 1415192,
        "endpoints": {
         "input token endpoint": {
          "plane": 256,
@@ -6055,34 +5635,175 @@
        }
       },
       "total": {
-       "elems": 3100672,
-       "receipt": 4563680,
+       "elems": 3248128,
+       "receipt": 6212688,
        "commitment_term_log2": -98.53,
        "whole_run_r14_log2": null,
-       "total": 3.196816343660682,
-       "s0_5090": 1.8708101941493394,
-       "s3_5090": 0.433153695662595,
+       "total": 3.221441611226277,
+       "s0_5090": 1.881572593854837,
+       "s3_5090": 0.43415207163467984,
        "verify": 1.6306630630399999
       }
      },
      "OUT mode(ii) U8 keyed": {
       "summary": {
        "log_cols": 15,
-       "A_rows": 3880,
-       "H_rows": 3296,
+       "A_rows": 4396,
+       "H_rows": 4322,
        "M_rows": 28,
-       "A_elems": 127139840,
+       "A_elems": 144048128,
+       "H_elems": 141623296,
+       "elems": 285671424,
+       "u8": 123764736,
+       "inversions": 256,
+       "fold": 536870912,
+       "zc_elem_terms": 397019264,
+       "largest_zc": 16777216,
+       "slots": 12,
+       "a_sites": 50,
+       "h_sites": 13,
+       "receipt": 33252296,
+       "pubtab": 35192832,
+       "pubtab_factored": 340224,
+       "endpoints": {
+        "output token endpoint": {
+         "plane": 256,
+         "sites": 1,
+         "rows": 6
+        }
+       },
+       "per_opening_log2": [
+        -105.93,
+        -105.93,
+        -106.25,
+        -106.25
+       ]
+      },
+      "zc": [
+       [
+        "IO-in x_row = B_out row T-1 (public row bits)",
+        524288,
+        2
+       ],
+       [
+        "TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
+        128,
+        11
+       ],
+       [
+        "LZC limb lookups",
+        32768,
+        2
+       ],
+       [
+        "DZC norm quotient + x limbs + helpers (+pad)",
+        524288,
+        19
+       ],
+       [
+        "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
+        16777216,
+        14
+       ],
+       [
+        "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
+        16777216,
+        9
+       ],
+       [
+        "TAB table helper(s)",
+        32768,
+        2
+       ],
+       [
+        "IO-out output endpoint = u0 tok (whole plane)",
+        256,
+        2
+       ],
+       [
+        "SHIFT tok_out[k] = tok_in[k+1] on the generated range",
+        128,
+        2
+       ]
+      ],
+      "cost": {
+       "conversion": 0.8891056880901338,
+       "commit": 6.5852459444746865,
+       "inverses": 1.3404788897984077,
+       "openings": 1.6610234077299944,
+       "zero_checks": 26.68138301307345,
+       "fold": 0.9027195902688846,
+       "rest_other": 0.45582673598506024,
+       "total": 38.51578326942062,
+       "s0_5090": 16.407071482287886,
+       "s3_5090": 1.7190243128127531,
+       "verify": 0.8153315315199999,
+       "verify_pubtab_unfactored": 0.17596416
+      },
+      "argmax": {
+       "window_bits": 56,
+       "limbs": 7,
+       "pin": 0,
+       "lookups_per_vocab_entry": 7,
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
+      },
+      "input_stage": {
+       "log_cols": 12,
+       "elems": 479232,
+       "receipt": 1425432,
+       "endpoints": {
+        "input token endpoint": {
+         "plane": 256,
+         "sites": 2,
+         "rows": 7
+        }
+       },
+       "cost": {
+        "conversion": 0.0010365483738539434,
+        "commit": 0.0110471692977681,
+        "inverses": 0.001421006275680534,
+        "openings": 0.0027864725095264014,
+        "zero_checks": 0.2661287484217172,
+        "fold": 0.9027195902688846,
+        "rest_other": 0.055478424338391764,
+        "total": 1.2406179594858224,
+        "s0_5090": 0.7677707189916865,
+        "s3_5090": 0.2021681555051814,
+        "verify": 0.8153315315199999,
+        "verify_pubtab_unfactored": 0.00135168
+       }
+      },
+      "total": {
+       "elems": 286150656,
+       "receipt": 34677728,
+       "commitment_term_log2": -98.6,
+       "whole_run_r14_log2": null,
+       "total": 39.75640122890645,
+       "s0_5090": 17.174842201279574,
+       "s3_5090": 1.9211924683179347,
+       "verify": 1.6306630630399999
+      }
+     },
+     "OUT mode(ii) U8 step": {
+      "summary": {
+       "log_cols": 15,
+       "A_rows": 3884,
+       "H_rows": 3296,
+       "M_rows": 30,
+       "A_elems": 127270912,
        "H_elems": 108003328,
-       "elems": 235143168,
-       "u8": 106987520,
+       "elems": 235274240,
+       "u8": 90210304,
        "inversions": 256,
        "fold": 536870912,
        "zc_elem_terms": 346687616,
        "largest_zc": 16777216,
-       "slots": 12,
-       "a_sites": 48,
+       "slots": 13,
+       "a_sites": 50,
        "h_sites": 12,
-       "receipt": 24849520,
+       "receipt": 30108152,
        "pubtab": 35192832,
        "pubtab_factored": 340224,
        "endpoints": {
@@ -6147,30 +5868,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.7847429640104001,
-       "commit": 5.420477735438214,
-       "inverses": 1.158767539002311,
-       "openings": 1.367229178007621,
+       "conversion": 0.7855519773753593,
+       "commit": 5.423499183451279,
+       "inverses": 0.9770561882062146,
+       "openings": 1.3679912901469786,
        "zero_checks": 23.439044629235063,
        "fold": 0.9027195902688846,
-       "rest_other": 0.43009995241000376,
-       "total": 33.5030815883725,
-       "s0_5090": 14.431934185585272,
-       "s3_5090": 1.5139364132354989,
+       "rest_other": 0.4098503298104831,
+       "total": 33.30571318849426,
+       "s0_5090": 14.331871999799661,
+       "s3_5090": 1.5060535574798903,
        "verify": 0.8153315315199999,
        "verify_pubtab_unfactored": 0.17596416
       },
       "argmax": {
-       "window_bits": 44,
-       "limbs": 6,
+       "window_bits": 39,
+       "limbs": 5,
        "pin": 0,
-       "lookups_per_vocab_entry": 6,
-       "vocab_planes": 7
+       "lookups_per_vocab_entry": 5,
+       "vocab_planes": 7,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 479232,
-       "receipt": 1425280,
+       "receipt": 1425432,
        "endpoints": {
         "input token endpoint": {
          "plane": 256,
@@ -6194,292 +5917,26 @@
        }
       },
       "total": {
-       "elems": 235622400,
-       "receipt": 26274800,
+       "elems": 235753472,
+       "receipt": 31533584,
        "commitment_term_log2": -98.6,
        "whole_run_r14_log2": null,
-       "total": 34.74369954785833,
-       "s0_5090": 15.199704904576958,
-       "s3_5090": 1.7161045687406804,
-       "verify": 1.6306630630399999
-      }
-     },
-     "OUT mode(ii) U8 step": {
-      "summary": {
-       "log_cols": 15,
-       "A_rows": 3368,
-       "H_rows": 2270,
-       "M_rows": 30,
-       "A_elems": 110362624,
-       "H_elems": 74383360,
-       "elems": 184745984,
-       "u8": 73433088,
-       "inversions": 256,
-       "fold": 536870912,
-       "zc_elem_terms": 296355968,
-       "largest_zc": 16777216,
-       "slots": 13,
-       "a_sites": 48,
-       "h_sites": 11,
-       "receipt": 21705376,
-       "pubtab": 35192832,
-       "pubtab_factored": 340224,
-       "endpoints": {
-        "output token endpoint": {
-         "plane": 256,
-         "sites": 1,
-         "rows": 6
-        }
-       },
-       "per_opening_log2": [
-        -105.93,
-        -105.93,
-        -106.25,
-        -106.25
-       ]
-      },
-      "zc": [
-       [
-        "IO-in x_row = B_out row T-1 (public row bits)",
-        524288,
-        2
-       ],
-       [
-        "TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
-        128,
-        11
-       ],
-       [
-        "LZC limb lookups",
-        32768,
-        2
-       ],
-       [
-        "DZC norm quotient + x limbs + helpers (+pad)",
-        524288,
-        19
-       ],
-       [
-        "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
-        16777216,
-        10
-       ],
-       [
-        "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
-        16777216,
-        7
-       ],
-       [
-        "TAB table helper(s)",
-        32768,
-        2
-       ],
-       [
-        "IO-out output endpoint = u0 tok (whole plane)",
-        256,
-        2
-       ],
-       [
-        "SHIFT tok_out[k] = tok_in[k+1] on the generated range",
-        128,
-        2
-       ]
-      ],
-      "cost": {
-       "conversion": 0.6811892532956257,
-       "commit": 4.2587309744148065,
-       "inverses": 0.7953448374101181,
-       "openings": 1.0741970604246052,
-       "zero_checks": 20.19670624539668,
-       "fold": 0.9027195902688846,
-       "rest_other": 0.3841235462354266,
-       "total": 28.293011507446145,
-       "s0_5090": 12.356734703097052,
-       "s3_5090": 1.300965657902636,
-       "verify": 0.8153315315199999,
-       "verify_pubtab_unfactored": 0.17596416
-      },
-      "argmax": {
-       "window_bits": 27,
-       "limbs": 4,
-       "pin": 0,
-       "lookups_per_vocab_entry": 4,
-       "vocab_planes": 6
-      },
-      "input_stage": {
-       "log_cols": 12,
-       "elems": 479232,
-       "receipt": 1425280,
-       "endpoints": {
-        "input token endpoint": {
-         "plane": 256,
-         "sites": 2,
-         "rows": 7
-        }
-       },
-       "cost": {
-        "conversion": 0.0010365483738539434,
-        "commit": 0.0110471692977681,
-        "inverses": 0.001421006275680534,
-        "openings": 0.0027864725095264014,
-        "zero_checks": 0.2661287484217172,
-        "fold": 0.9027195902688846,
-        "rest_other": 0.055478424338391764,
-        "total": 1.2406179594858224,
-        "s0_5090": 0.7677707189916865,
-        "s3_5090": 0.2021681555051814,
-        "verify": 0.8153315315199999,
-        "verify_pubtab_unfactored": 0.00135168
-       }
-      },
-      "total": {
-       "elems": 185225216,
-       "receipt": 23130656,
-       "commitment_term_log2": -98.6,
-       "whole_run_r14_log2": null,
-       "total": 29.533629466931966,
-       "s0_5090": 13.124505422088738,
-       "s3_5090": 1.5031338134078176,
+       "total": 34.546331147980084,
+       "s0_5090": 15.099642718791348,
+       "s3_5090": 1.7082217129850719,
        "verify": 1.6306630630399999
       }
      },
      "OUT mode(ii) U16 keyed": {
-      "summary": {
-       "log_cols": 16,
-       "A_rows": 1213,
-       "H_rows": 1154,
-       "M_rows": 28,
-       "A_elems": 79495168,
-       "H_elems": 75628544,
-       "elems": 155123712,
-       "u8": 56688640,
-       "inversions": 65792,
-       "fold": 536870912,
-       "zc_elem_terms": 229509248,
-       "largest_zc": 16777216,
-       "slots": 12,
-       "a_sites": 42,
-       "h_sites": 12,
-       "receipt": 24454368,
-       "pubtab": 35258368,
-       "pubtab_factored": 405760,
-       "endpoints": {
-        "output token endpoint": {
-         "plane": 256,
-         "sites": 1,
-         "rows": 6
-        }
-       },
-       "per_opening_log2": [
-        -106.09,
-        -106.09,
-        -106.25,
-        -106.25
-       ]
-      },
-      "zc": [
-       [
-        "IO-in x_row = B_out row T-1 (public row bits)",
-        524288,
-        2
-       ],
-       [
-        "TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
-        128,
-        11
-       ],
-       [
-        "LZC limb lookups",
-        65536,
-        2
-       ],
-       [
-        "DZC norm quotient + x limbs + helpers (+pad)",
-        524288,
-        19
-       ],
-       [
-        "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
-        16777216,
-        8
-       ],
-       [
-        "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
-        16777216,
-        5
-       ],
-       [
-        "TAB table helper(s)",
-        65536,
-        4
-       ],
-       [
-        "IO-out output endpoint = u0 tok (whole plane)",
-        256,
-        2
-       ],
-       [
-        "SHIFT tok_out[k] = tok_in[k+1] on the generated range",
-        128,
-        2
-       ]
-      ],
-      "cost": {
-       "conversion": 0.4906666058477399,
-       "commit": 3.5758837234621663,
-       "inverses": 0.6146982015600924,
-       "openings": 0.9019597169297767,
-       "zero_checks": 16.449095134285564,
-       "fold": 0.9027195902688846,
-       "rest_other": 0.6058204794544375,
-       "total": 23.54084345180866,
-       "s0_5090": 10.292075476584786,
-       "s3_5090": 1.1081940015454004,
-       "verify": 0.8153315315199999,
-       "verify_pubtab_unfactored": 0.17629184
-      },
+      "inadmissible": true,
       "argmax": {
-       "window_bits": 44,
-       "limbs": 3,
+       "window_bits": 56,
+       "limbs": 4,
        "pin": 0,
-       "lookups_per_vocab_entry": 3,
-       "vocab_planes": 4
-      },
-      "input_stage": {
-       "log_cols": 12,
-       "elems": 479232,
-       "receipt": 1425280,
-       "endpoints": {
-        "input token endpoint": {
-         "plane": 256,
-         "sites": 2,
-         "rows": 7
-        }
-       },
-       "cost": {
-        "conversion": 0.0010365483738539434,
-        "commit": 0.0110471692977681,
-        "inverses": 0.001421006275680534,
-        "openings": 0.0027864725095264014,
-        "zero_checks": 0.2661287484217172,
-        "fold": 0.9027195902688846,
-        "rest_other": 0.055478424338391764,
-        "total": 1.2406179594858224,
-        "s0_5090": 0.7677707189916865,
-        "s3_5090": 0.2021681555051814,
-        "verify": 0.8153315315199999,
-        "verify_pubtab_unfactored": 0.00135168
-       }
-      },
-      "total": {
-       "elems": 155602944,
-       "receipt": 25879648,
-       "commitment_term_log2": -98.6,
-       "whole_run_r14_log2": null,
-       "total": 24.78146141129448,
-       "s0_5090": 11.059846195576473,
-       "s3_5090": 1.310362157050582,
-       "verify": 1.6306630630399999
+       "lookups_per_vocab_entry": 4,
+       "vocab_planes": 5,
+       "limb_bits": 16,
+       "no_wrap": false
       }
      }
     },
@@ -6654,7 +6111,7 @@
        "slots": 3,
        "a_sites": 4,
        "h_sites": 0,
-       "receipt": 7305024,
+       "receipt": 7305144,
        "pubtab": 134349312,
        "pubtab_factored": 394240,
        "endpoints": {
@@ -6714,7 +6171,7 @@
        "slots": 4,
        "a_sites": 3,
        "h_sites": 3,
-       "receipt": 1417152,
+       "receipt": 1417304,
        "pubtab": 270336,
        "pubtab_factored": 270336,
        "endpoints": {
@@ -6780,7 +6237,7 @@
        "slots": 5,
        "a_sites": 6,
        "h_sites": 0,
-       "receipt": 1077728,
+       "receipt": 1077848,
        "pubtab": 67503104,
        "pubtab_factored": 525312,
        "endpoints": {
@@ -6841,21 +6298,21 @@
      "OUT mode(i) public last row": {
       "summary": {
        "log_cols": 12,
-       "A_rows": 338,
-       "H_rows": 236,
+       "A_rows": 374,
+       "H_rows": 302,
        "M_rows": 26,
-       "A_elems": 1384448,
-       "H_elems": 966656,
-       "elems": 2351104,
-       "u8": 839680,
+       "A_elems": 1531904,
+       "H_elems": 1236992,
+       "elems": 2768896,
+       "u8": 970752,
        "inversions": 256,
        "fold": 536870912,
-       "zc_elem_terms": 2724363,
+       "zc_elem_terms": 3117579,
        "largest_zc": 131072,
        "slots": 11,
-       "a_sites": 47,
-       "h_sites": 12,
-       "receipt": 3013456,
+       "a_sites": 49,
+       "h_sites": 13,
+       "receipt": 5657656,
        "pubtab": 282624,
        "pubtab_factored": 282626,
        "endpoints": {
@@ -6896,12 +6353,12 @@
        [
         "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
         131072,
-        12
+        14
        ],
        [
         "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
         131072,
-        8
+        9
        ],
        [
         "TAB table helper(s)",
@@ -6915,30 +6372,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.00854520366738129,
-       "commit": 0.05419722373434948,
-       "inverses": 0.009097212859527477,
-       "openings": 0.013670386499727816,
-       "zero_checks": 0.8849821442112779,
+       "conversion": 0.009455343702960363,
+       "commit": 0.06382808927599345,
+       "inverses": 0.010516832787621982,
+       "openings": 0.01609961894393032,
+       "zero_checks": 0.9137592906759243,
        "fold": 0.9027195902688846,
-       "rest_other": 0.06385878270736728,
-       "total": 1.9370705439485159,
-       "s0_5090": 1.0963176508528643,
-       "s3_5090": 0.23019592355434781,
+       "rest_other": 0.06444488608513978,
+       "total": 1.980823651740455,
+       "s0_5090": 1.1138018748631506,
+       "s3_5090": 0.23198391612949845,
        "verify": 0.8153315315199999,
        "verify_pubtab_unfactored": 0.0014131200000000001
       },
       "argmax": {
-       "window_bits": 44,
-       "limbs": 6,
+       "window_bits": 56,
+       "limbs": 7,
        "pin": 0,
-       "lookups_per_vocab_entry": 6,
-       "vocab_planes": 7
+       "lookups_per_vocab_entry": 7,
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 479232,
-       "receipt": 1417152,
+       "receipt": 1417304,
        "endpoints": {
         "input token endpoint": {
          "plane": 512,
@@ -6962,34 +6421,34 @@
        }
       },
       "total": {
-       "elems": 2830336,
-       "receipt": 4430608,
+       "elems": 3248128,
+       "receipt": 7074960,
        "commitment_term_log2": -98.75,
        "whole_run_r14_log2": null,
-       "total": 3.1777253460839985,
-       "s0_5090": 1.864106791169381,
-       "s3_5090": 0.43236555276551564,
+       "total": 3.221478453875938,
+       "s0_5090": 1.8815910151796673,
+       "s3_5090": 0.4341535453406663,
        "verify": 1.6306630630399999
       }
      },
      "OUT mode(i) hidden selector, sealed in input endpoint (B-2 preferred)": {
       "summary": {
        "log_cols": 12,
-       "A_rows": 345,
-       "H_rows": 236,
+       "A_rows": 381,
+       "H_rows": 302,
        "M_rows": 30,
-       "A_elems": 1413120,
-       "H_elems": 966656,
-       "elems": 2379776,
-       "u8": 839680,
+       "A_elems": 1560576,
+       "H_elems": 1236992,
+       "elems": 2797568,
+       "u8": 970752,
        "inversions": 256,
        "fold": 536870912,
-       "zc_elem_terms": 2717707,
+       "zc_elem_terms": 3110923,
        "largest_zc": 131072,
        "slots": 13,
-       "a_sites": 50,
-       "h_sites": 12,
-       "receipt": 3038208,
+       "a_sites": 52,
+       "h_sites": 13,
+       "receipt": 5682408,
        "pubtab": 282624,
        "pubtab_factored": 282626,
        "endpoints": {
@@ -7035,12 +6494,12 @@
        [
         "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
         131072,
-        12
+        14
        ],
        [
         "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
         131072,
-        8
+        9
        ],
        [
         "TAB table helper(s)",
@@ -7054,30 +6513,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.00872217534096611,
-       "commit": 0.0548581654872074,
-       "inverses": 0.009097212859527477,
-       "openings": 0.013837098530212302,
-       "zero_checks": 0.965782636109426,
+       "conversion": 0.009632315376545183,
+       "commit": 0.06448903102885138,
+       "inverses": 0.010516832787621982,
+       "openings": 0.016266330974414805,
+       "zero_checks": 0.9945597825740725,
        "fold": 0.9027195902688846,
-       "rest_other": 0.06426956978053247,
-       "total": 2.0192864483767563,
-       "s0_5090": 1.137124168663065,
-       "s3_5090": 0.23348715853387264,
+       "rest_other": 0.06485567315830496,
+       "total": 2.0630395561686954,
+       "s0_5090": 1.1546083926733515,
+       "s3_5090": 0.23527515110902325,
        "verify": 0.8153315315199999,
        "verify_pubtab_unfactored": 0.0014131200000000001
       },
       "argmax": {
-       "window_bits": 44,
-       "limbs": 6,
+       "window_bits": 56,
+       "limbs": 7,
        "pin": 0,
-       "lookups_per_vocab_entry": 6,
-       "vocab_planes": 7
+       "lookups_per_vocab_entry": 7,
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 479232,
-       "receipt": 1431488,
+       "receipt": 1431640,
        "endpoints": {
         "input token endpoint (tok | s)": {
          "plane": 1024,
@@ -7101,34 +6562,34 @@
        }
       },
       "total": {
-       "elems": 2859008,
-       "receipt": 4469696,
+       "elems": 3276800,
+       "receipt": 7114048,
        "commitment_term_log2": -98.75,
        "whole_run_r14_log2": null,
-       "total": 3.259941250512239,
-       "s0_5090": 1.9049133089795818,
-       "s3_5090": 0.43565678774504046,
+       "total": 3.3036943583041785,
+       "s0_5090": 1.9223975329898682,
+       "s3_5090": 0.4374447803201911,
        "verify": 1.6306630630399999
       }
      },
      "OUT mode(i) hidden selector, sealed in output endpoint (B-2 fallback)": {
       "summary": {
        "log_cols": 12,
-       "A_rows": 345,
-       "H_rows": 236,
+       "A_rows": 381,
+       "H_rows": 302,
        "M_rows": 28,
-       "A_elems": 1413120,
-       "H_elems": 966656,
-       "elems": 2379776,
-       "u8": 839680,
+       "A_elems": 1560576,
+       "H_elems": 1236992,
+       "elems": 2797568,
+       "u8": 970752,
        "inversions": 256,
        "fold": 536870912,
-       "zc_elem_terms": 2719243,
+       "zc_elem_terms": 3112459,
        "largest_zc": 131072,
        "slots": 12,
-       "a_sites": 50,
-       "h_sites": 12,
-       "receipt": 3039712,
+       "a_sites": 52,
+       "h_sites": 13,
+       "receipt": 5683912,
        "pubtab": 282624,
        "pubtab_factored": 282626,
        "endpoints": {
@@ -7169,12 +6630,12 @@
        [
         "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
         131072,
-        12
+        14
        ],
        [
         "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
         131072,
-        8
+        9
        ],
        [
         "TAB table helper(s)",
@@ -7188,30 +6649,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.00872217534096611,
-       "commit": 0.0548581654872074,
-       "inverses": 0.009097212859527477,
-       "openings": 0.013837098530212302,
-       "zero_checks": 0.8846553081422541,
+       "conversion": 0.009632315376545183,
+       "commit": 0.06448903102885138,
+       "inverses": 0.010516832787621982,
+       "openings": 0.016266330974414805,
+       "zero_checks": 0.9134324546069006,
        "fold": 0.9027195902688846,
-       "rest_other": 0.06426956978053247,
-       "total": 1.9381591204095845,
-       "s0_5090": 1.0965605046794793,
-       "s3_5090": 0.23024206541518577,
+       "rest_other": 0.06485567315830496,
+       "total": 1.9819122282015236,
+       "s0_5090": 1.1140447286897657,
+       "s3_5090": 0.23203005799033638,
        "verify": 0.8153315315199999,
        "verify_pubtab_unfactored": 0.0014131200000000001
       },
       "argmax": {
-       "window_bits": 44,
-       "limbs": 6,
+       "window_bits": 56,
+       "limbs": 7,
        "pin": 0,
-       "lookups_per_vocab_entry": 6,
-       "vocab_planes": 7
+       "lookups_per_vocab_entry": 7,
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 479232,
-       "receipt": 1417152,
+       "receipt": 1417304,
        "endpoints": {
         "input token endpoint": {
          "plane": 512,
@@ -7235,34 +6698,34 @@
        }
       },
       "total": {
-       "elems": 2859008,
-       "receipt": 4456864,
+       "elems": 3276800,
+       "receipt": 7101216,
        "commitment_term_log2": -98.75,
        "whole_run_r14_log2": null,
-       "total": 3.1788139225450673,
-       "s0_5090": 1.864349644995996,
-       "s3_5090": 0.4324116946263536,
+       "total": 3.2225670303370064,
+       "s0_5090": 1.8818338690062824,
+       "s3_5090": 0.4341996872015042,
        "verify": 1.6306630630399999
       }
      },
      "OUT mode(i) public last row, WITH pin (v1 form)": {
       "summary": {
        "log_cols": 12,
-       "A_rows": 338,
+       "A_rows": 374,
        "H_rows": 302,
        "M_rows": 26,
-       "A_elems": 1384448,
+       "A_elems": 1531904,
        "H_elems": 1236992,
-       "elems": 2621440,
+       "elems": 2768896,
        "u8": 970752,
        "inversions": 256,
        "fold": 536870912,
-       "zc_elem_terms": 2855435,
+       "zc_elem_terms": 3117579,
        "largest_zc": 131072,
        "slots": 11,
-       "a_sites": 47,
+       "a_sites": 49,
        "h_sites": 13,
-       "receipt": 3148640,
+       "receipt": 5657656,
        "pubtab": 282624,
        "pubtab_factored": 282626,
        "endpoints": {
@@ -7303,12 +6766,12 @@
        [
         "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
         131072,
-        13
+        14
        ],
        [
         "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
         131072,
-        8
+        9
        ],
        [
         "TAB table helper(s)",
@@ -7322,30 +6785,32 @@
        ]
       ],
       "cost": {
-       "conversion": 0.00854520366738129,
-       "commit": 0.060428960261295586,
+       "conversion": 0.009455343702960363,
+       "commit": 0.06382808927599345,
        "inverses": 0.010516832787621982,
-       "openings": 0.015242242787152966,
-       "zero_checks": 0.89457452636616,
+       "openings": 0.01609961894393032,
+       "zero_checks": 0.9137592906759243,
        "fold": 0.9027195902688846,
-       "rest_other": 0.06417102803636297,
-       "total": 1.9561983841748594,
-       "s0_5090": 1.1030394751576529,
-       "s3_5090": 0.23098554015741354,
+       "rest_other": 0.06444488608513978,
+       "total": 1.980823651740455,
+       "s0_5090": 1.1138018748631506,
+       "s3_5090": 0.23198391612949845,
        "verify": 0.8153315315199999,
        "verify_pubtab_unfactored": 0.0014131200000000001
       },
       "argmax": {
-       "window_bits": 44,
-       "limbs": 6,
-       "pin": 1,
+       "window_bits": 56,
+       "limbs": 7,
+       "pin": 0,
        "lookups_per_vocab_entry": 7,
-       "vocab_planes": 7
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 479232,
-       "receipt": 1417152,
+       "receipt": 1417304,
        "endpoints": {
         "input token endpoint": {
          "plane": 512,
@@ -7369,34 +6834,175 @@
        }
       },
       "total": {
-       "elems": 3100672,
-       "receipt": 4565792,
+       "elems": 3248128,
+       "receipt": 7074960,
        "commitment_term_log2": -98.75,
        "whole_run_r14_log2": null,
-       "total": 3.196853186310342,
-       "s0_5090": 1.8708286154741696,
-       "s3_5090": 0.43315516936858134,
+       "total": 3.221478453875938,
+       "s0_5090": 1.8815910151796673,
+       "s3_5090": 0.4341535453406663,
        "verify": 1.6306630630399999
       }
      },
      "OUT mode(ii) U8 keyed": {
       "summary": {
        "log_cols": 16,
-       "A_rows": 7656,
-       "H_rows": 6560,
+       "A_rows": 8684,
+       "H_rows": 8610,
        "M_rows": 28,
-       "A_elems": 501743616,
+       "A_elems": 569114624,
+       "H_elems": 564264960,
+       "elems": 1133379584,
+       "u8": 494993408,
+       "inversions": 256,
+       "fold": 536870912,
+       "zc_elem_terms": 1587813888,
+       "largest_zc": 67108864,
+       "slots": 12,
+       "a_sites": 50,
+       "h_sites": 13,
+       "receipt": 65327240,
+       "pubtab": 140640256,
+       "pubtab_factored": 406528,
+       "endpoints": {
+        "output token endpoint": {
+         "plane": 512,
+         "sites": 1,
+         "rows": 7
+        }
+       },
+       "per_opening_log2": [
+        -106.09,
+        -106.09,
+        -106.25,
+        -106.25
+       ]
+      },
+      "zc": [
+       [
+        "IO-in x_row = B_out row T-1 (public row bits)",
+        2097152,
+        2
+       ],
+       [
+        "TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
+        512,
+        11
+       ],
+       [
+        "LZC limb lookups",
+        65536,
+        2
+       ],
+       [
+        "DZC norm quotient + x limbs + helpers (+pad)",
+        2097152,
+        19
+       ],
+       [
+        "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
+        67108864,
+        14
+       ],
+       [
+        "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
+        67108864,
+        9
+       ],
+       [
+        "TAB table helper(s)",
+        65536,
+        2
+       ],
+       [
+        "IO-out output endpoint = u0 tok (whole plane)",
+        512,
+        2
+       ],
+       [
+        "SHIFT tok_out[k] = tok_in[k+1] on the generated range",
+        512,
+        2
+       ]
+      ],
+      "cost": {
+       "conversion": 3.5127360306527398,
+       "commit": 26.126460968971145,
+       "inverses": 5.361197431144068,
+       "openings": 6.589983669025584,
+       "zero_checks": 103.31355086016414,
+       "fold": 0.9027195902688846,
+       "rest_other": 1.211795981573193,
+       "total": 147.01844453179976,
+       "s0_5090": 61.746278651310874,
+       "s3_5090": 6.135966212409715,
+       "verify": 0.8153315315199999,
+       "verify_pubtab_unfactored": 0.70320128
+      },
+      "argmax": {
+       "window_bits": 56,
+       "limbs": 7,
+       "pin": 0,
+       "lookups_per_vocab_entry": 7,
+       "vocab_planes": 8,
+       "limb_bits": 8,
+       "no_wrap": true
+      },
+      "input_stage": {
+       "log_cols": 12,
+       "elems": 479232,
+       "receipt": 1427544,
+       "endpoints": {
+        "input token endpoint": {
+         "plane": 512,
+         "sites": 2,
+         "rows": 8
+        }
+       },
+       "cost": {
+        "conversion": 0.0010365483738539434,
+        "commit": 0.0110471692977681,
+        "inverses": 0.0014251653184386235,
+        "openings": 0.0027864725095264014,
+        "zero_checks": 0.2661614320286195,
+        "fold": 0.9027195902688846,
+        "rest_other": 0.055478424338391764,
+        "total": 1.2406548021354828,
+        "s0_5090": 0.7677891403165167,
+        "s3_5090": 0.20216962921116782,
+        "verify": 0.8153315315199999,
+        "verify_pubtab_unfactored": 0.00135168
+       }
+      },
+      "total": {
+       "elems": 1133858816,
+       "receipt": 66754784,
+       "commitment_term_log2": -98.83,
+       "whole_run_r14_log2": null,
+       "total": 148.25909933393524,
+       "s0_5090": 62.51406779162739,
+       "s3_5090": 6.3381358416208835,
+       "verify": 1.6306630630399999
+      }
+     },
+     "OUT mode(ii) U8 step": {
+      "summary": {
+       "log_cols": 16,
+       "A_rows": 7660,
+       "H_rows": 6560,
+       "M_rows": 30,
+       "A_elems": 502005760,
        "H_elems": 429916160,
-       "elems": 931659776,
-       "u8": 427884544,
+       "elems": 931921920,
+       "u8": 360775680,
        "inversions": 256,
        "fold": 536870912,
        "zc_elem_terms": 1386487296,
        "largest_zc": 67108864,
-       "slots": 12,
-       "a_sites": 48,
+       "slots": 13,
+       "a_sites": 50,
        "h_sites": 12,
-       "receipt": 48724368,
+       "receipt": 59037496,
        "pubtab": 140640256,
        "pubtab_factored": 406528,
        "endpoints": {
@@ -7461,30 +7067,32 @@
        ]
       ],
       "cost": {
-       "conversion": 3.0969031610637234,
-       "commit": 21.476452476864452,
-       "inverses": 4.6343520279596815,
-       "openings": 5.417093086554164,
+       "conversion": 3.098521187793642,
+       "commit": 21.48249537289058,
+       "inverses": 3.907506624775295,
+       "openings": 5.418617310832879,
        "zero_checks": 90.40301550662879,
        "fold": 0.9027195902688846,
-       "rest_other": 1.1154614404436098,
-       "total": 127.04599728978332,
-       "s0_5090": 53.88077524804898,
-       "s3_5090": 5.3187846341063025,
+       "rest_other": 1.0300812212650987,
+       "total": 126.24295681445517,
+       "s0_5090": 53.47649903869193,
+       "s3_5090": 5.286686775572219,
        "verify": 0.8153315315199999,
        "verify_pubtab_unfactored": 0.70320128
       },
       "argmax": {
-       "window_bits": 44,
-       "limbs": 6,
+       "window_bits": 39,
+       "limbs": 5,
        "pin": 0,
-       "lookups_per_vocab_entry": 6,
-       "vocab_planes": 7
+       "lookups_per_vocab_entry": 5,
+       "vocab_planes": 7,
+       "limb_bits": 8,
+       "no_wrap": true
       },
       "input_stage": {
        "log_cols": 12,
        "elems": 479232,
-       "receipt": 1427392,
+       "receipt": 1427544,
        "endpoints": {
         "input token endpoint": {
          "plane": 512,
@@ -7508,292 +7116,26 @@
        }
       },
       "total": {
-       "elems": 932139008,
-       "receipt": 50151760,
+       "elems": 932401152,
+       "receipt": 60465040,
        "commitment_term_log2": -98.83,
        "whole_run_r14_log2": null,
-       "total": 128.2866520919188,
-       "s0_5090": 54.64856438836549,
-       "s3_5090": 5.520954263317471,
-       "verify": 1.6306630630399999
-      }
-     },
-     "OUT mode(ii) U8 step": {
-      "summary": {
-       "log_cols": 16,
-       "A_rows": 6632,
-       "H_rows": 4510,
-       "M_rows": 30,
-       "A_elems": 434634752,
-       "H_elems": 295567360,
-       "elems": 730202112,
-       "u8": 293666816,
-       "inversions": 256,
-       "fold": 536870912,
-       "zc_elem_terms": 1185160704,
-       "largest_zc": 67108864,
-       "slots": 13,
-       "a_sites": 48,
-       "h_sites": 11,
-       "receipt": 42434624,
-       "pubtab": 140640256,
-       "pubtab_factored": 406528,
-       "endpoints": {
-        "output token endpoint": {
-         "plane": 512,
-         "sites": 1,
-         "rows": 7
-        }
-       },
-       "per_opening_log2": [
-        -106.09,
-        -106.09,
-        -106.25,
-        -106.25
-       ]
-      },
-      "zc": [
-       [
-        "IO-in x_row = B_out row T-1 (public row bits)",
-        2097152,
-        2
-       ],
-       [
-        "TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
-        512,
-        11
-       ],
-       [
-        "LZC limb lookups",
-        65536,
-        2
-       ],
-       [
-        "DZC norm quotient + x limbs + helpers (+pad)",
-        2097152,
-        19
-       ],
-       [
-        "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
-        67108864,
-        10
-       ],
-       [
-        "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
-        67108864,
-        7
-       ],
-       [
-        "TAB table helper(s)",
-        65536,
-        2
-       ],
-       [
-        "IO-out output endpoint = u0 tok (whole plane)",
-        512,
-        2
-       ],
-       [
-        "SHIFT tok_out[k] = tok_in[k+1] on the generated range",
-        512,
-        2
-       ]
-      ],
-      "cost": {
-       "conversion": 2.682688318204626,
-       "commit": 16.832486880783886,
-       "inverses": 3.180661221590909,
-       "openings": 4.245726728361459,
-       "zero_checks": 77.49248015309344,
-       "fold": 0.9027195902688846,
-       "rest_other": 0.9337466801355159,
-       "total": 106.27050957243873,
-       "s0_5090": 45.61099563543003,
-       "s3_5090": 4.4695051972688065,
-       "verify": 0.8153315315199999,
-       "verify_pubtab_unfactored": 0.70320128
-      },
-      "argmax": {
-       "window_bits": 27,
-       "limbs": 4,
-       "pin": 0,
-       "lookups_per_vocab_entry": 4,
-       "vocab_planes": 6
-      },
-      "input_stage": {
-       "log_cols": 12,
-       "elems": 479232,
-       "receipt": 1427392,
-       "endpoints": {
-        "input token endpoint": {
-         "plane": 512,
-         "sites": 2,
-         "rows": 8
-        }
-       },
-       "cost": {
-        "conversion": 0.0010365483738539434,
-        "commit": 0.0110471692977681,
-        "inverses": 0.0014251653184386235,
-        "openings": 0.0027864725095264014,
-        "zero_checks": 0.2661614320286195,
-        "fold": 0.9027195902688846,
-        "rest_other": 0.055478424338391764,
-        "total": 1.2406548021354828,
-        "s0_5090": 0.7677891403165167,
-        "s3_5090": 0.20216962921116782,
-        "verify": 0.8153315315199999,
-        "verify_pubtab_unfactored": 0.00135168
-       }
-      },
-      "total": {
-       "elems": 730681344,
-       "receipt": 43862016,
-       "commitment_term_log2": -98.83,
-       "whole_run_r14_log2": null,
-       "total": 107.51116437457421,
-       "s0_5090": 46.378784775746546,
-       "s3_5090": 4.671674826479975,
+       "total": 127.48361161659065,
+       "s0_5090": 54.24428817900844,
+       "s3_5090": 5.488856404783387,
        "verify": 1.6306630630399999
       }
      },
      "OUT mode(ii) U16 keyed": {
-      "summary": {
-       "log_cols": 16,
-       "A_rows": 4573,
-       "H_rows": 4514,
-       "M_rows": 28,
-       "A_elems": 299696128,
-       "H_elems": 295829504,
-       "elems": 595525632,
-       "u8": 226557952,
-       "inversions": 65792,
-       "fold": 536870912,
-       "zc_elem_terms": 916856320,
-       "largest_zc": 67108864,
-       "slots": 12,
-       "a_sites": 42,
-       "h_sites": 12,
-       "receipt": 38220096,
-       "pubtab": 140640256,
-       "pubtab_factored": 406528,
-       "endpoints": {
-        "output token endpoint": {
-         "plane": 512,
-         "sites": 1,
-         "rows": 7
-        }
-       },
-       "per_opening_log2": [
-        -106.09,
-        -106.09,
-        -106.25,
-        -106.25
-       ]
-      },
-      "zc": [
-       [
-        "IO-in x_row = B_out row T-1 (public row bits)",
-        2097152,
-        2
-       ],
-       [
-        "TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
-        512,
-        11
-       ],
-       [
-        "LZC limb lookups",
-        65536,
-        2
-       ],
-       [
-        "DZC norm quotient + x limbs + helpers (+pad)",
-        2097152,
-        19
-       ],
-       [
-        "VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
-        67108864,
-        8
-       ],
-       [
-        "RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
-        67108864,
-        5
-       ],
-       [
-        "TAB table helper(s)",
-        65536,
-        4
-       ],
-       [
-        "IO-out output endpoint = u0 tok (whole plane)",
-        512,
-        2
-       ],
-       [
-        "SHIFT tok_out[k] = tok_in[k+1] on the generated range",
-        512,
-        2
-       ]
-      ],
-      "cost": {
-       "conversion": 1.8498090589791547,
-       "commit": 13.727949047359825,
-       "inverses": 2.45452562837057,
-       "openings": 3.462656505171475,
-       "zero_checks": 60.32601213962543,
-       "fold": 0.9027195902688846,
-       "rest_other": 0.8330304102255042,
-       "total": 83.55670238000084,
-       "s0_5090": 35.66997249647837,
-       "s3_5090": 3.5487459634635066,
-       "verify": 0.8153315315199999,
-       "verify_pubtab_unfactored": 0.70320128
-      },
+      "inadmissible": true,
       "argmax": {
-       "window_bits": 44,
-       "limbs": 3,
+       "window_bits": 56,
+       "limbs": 4,
        "pin": 0,
-       "lookups_per_vocab_entry": 3,
-       "vocab_planes": 4
-      },
-      "input_stage": {
-       "log_cols": 12,
-       "elems": 479232,
-       "receipt": 1427392,
-       "endpoints": {
-        "input token endpoint": {
-         "plane": 512,
-         "sites": 2,
-         "rows": 8
-        }
-       },
-       "cost": {
-        "conversion": 0.0010365483738539434,
-        "commit": 0.0110471692977681,
-        "inverses": 0.0014251653184386235,
-        "openings": 0.0027864725095264014,
-        "zero_checks": 0.2661614320286195,
-        "fold": 0.9027195902688846,
-        "rest_other": 0.055478424338391764,
-        "total": 1.2406548021354828,
-        "s0_5090": 0.7677891403165167,
-        "s3_5090": 0.20216962921116782,
-        "verify": 0.8153315315199999,
-        "verify_pubtab_unfactored": 0.00135168
-       }
-      },
-      "total": {
-       "elems": 596004864,
-       "receipt": 39647488,
-       "commitment_term_log2": -98.83,
-       "whole_run_r14_log2": null,
-       "total": 84.79735718213632,
-       "s0_5090": 36.43776163679489,
-       "s3_5090": 3.7509155926746742,
-       "verify": 1.6306630630399999
+       "lookups_per_vocab_entry": 4,
+       "vocab_planes": 5,
+       "limb_bits": 16,
+       "no_wrap": false
       }
      }
     }

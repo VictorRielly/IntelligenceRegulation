@@ -1,0 +1,6 @@
+FIDELITY at N = 256 on the review's four captures: 176 rows, 0 disagreements with ts_review.json or between the null-space and original forms
+   component ('40083e7ac8f3', 'H', 'component', [7, 8], 1022, 2)
+   component ('6c5e83fd1b2d', 'H', 'component', [6, 7], 1022, 2)
+   component ('7d334e069c84', 'H', 'component', [7, 8], 1022, 2)
+   component ('c26d1f05754b', 'H', 'component', [6, 7], 1022, 2)
+   ts_components.json of record: [{"capture": "40083e7ac8f3", "components": 35, "disclosed_from_multi_group_components": 0, "multi_group_components": [], "multi_group_detail": [], "profile": "private-block-t32-poc", "role": "A"}, {"capture": "40083e7ac8f3", "components": 8, "disclosed_from_multi_group_components": 2, "multi_group_components": [[7, 8]], "multi_group_detail": [{"blinding_rows": 4, "claims": 2, "data_rows": 278, "disclosed_Fp": 2, "groups": [7, 8], "observation_Fp": 1028, "rank_blinding": 1022, "rank_blinding_plus_data": 1024, "u_rows": [278, 279]}], "profile": "private-block-t32-poc", "role": "H"}, {"capture": 

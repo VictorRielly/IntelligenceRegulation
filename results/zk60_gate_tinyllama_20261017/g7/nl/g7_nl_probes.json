@@ -1,0 +1,1081 @@
+{
+ "wrapper": {
+  "frozen_nl_check_sha256": "e4db99a251ddde4f432675a53bd7e9149cdeb7c9edd61bbac87f50b87d0727c7",
+  "frozen_nl_field_sha256": "ea8ca39263213d88ef92c3f5d18fb8f86ed73471da027bf57348f94087dbb7e4",
+  "src": "g7",
+  "SRC": {
+   "layout.rs": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-g7/hashline/src/private_block/layout.rs",
+   "argument.rs": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-g7/hashline/src/private_block/argument.rs",
+   "shape.rs": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-g7/hashline/src/private_block/shape.rs",
+   "zk.rs": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-g7/hashline/src/zk.rs",
+   "sumcheck.rs(zkp-core)": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-g7/zkp-core/src/sumcheck.rs",
+   "slot_ir.rs": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-g7/hashline/src/private_block/slot_ir.rs"
+  },
+  "extra_ir": {
+   "tl_t32_trained_pg_rot1": {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/g7/export/slot_ir_tl_t32_trained_pg_rot1.json",
+    "sha256": "a63b3f35b1c010528755dc0cc0e53b9300179f0148aa35689f4b6fb2b5683239"
+   },
+   "tl_t32_dev": {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/g7/export/slot_ir_tl_t32_dev.json",
+    "sha256": "cef02f1141251311a593061265ff91fc109b143fe33cc5d937dff195df28c2cd"
+   }
+  }
+ },
+ "S2_source_parse": {
+  "lane": {
+   "kinds": [
+    "Private",
+    "Private",
+    "Host",
+    "Standalone",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Host",
+    "Host",
+    "Host",
+    "Host",
+    "Host",
+    "Standalone",
+    "Standalone",
+    "Standalone",
+    "Standalone"
+   ],
+   "hosts": [
+    [
+     2,
+     [
+      0,
+      1
+     ]
+    ],
+    [
+     14,
+     [
+      10,
+      13
+     ]
+    ],
+    [
+     15,
+     [
+      5,
+      9
+     ]
+    ],
+    [
+     16,
+     [
+      6,
+      7
+     ]
+    ],
+    [
+     17,
+     [
+      4,
+      8
+     ]
+    ],
+    [
+     18,
+     [
+      11,
+      12
+     ]
+    ]
+   ],
+   "ext_assign": {
+    "8": [
+     0,
+     1
+    ],
+    "9": [
+     0,
+     1
+    ]
+   },
+   "nonzero_ext_pushes": [
+    [
+     "SC_SCORE",
+     "1"
+    ],
+    [
+     "SC_PV",
+     "1"
+    ]
+   ],
+   "pushes": 13,
+   "helpers_found": [
+    "a_range -> a_at(.., 0)",
+    "endpoint(): ext_round 0",
+    "h(): ext_round 0"
+   ]
+  },
+  "g7": {
+   "kinds": [
+    "Private",
+    "Private",
+    "Host",
+    "Standalone",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Private",
+    "Host",
+    "Host",
+    "Host",
+    "Host",
+    "Host",
+    "Standalone",
+    "Standalone",
+    "Standalone",
+    "Standalone"
+   ],
+   "hosts": [
+    [
+     2,
+     [
+      0,
+      1
+     ]
+    ],
+    [
+     14,
+     [
+      10,
+      13
+     ]
+    ],
+    [
+     15,
+     [
+      5,
+      9
+     ]
+    ],
+    [
+     16,
+     [
+      6,
+      7
+     ]
+    ],
+    [
+     17,
+     [
+      4,
+      8
+     ]
+    ],
+    [
+     18,
+     [
+      11,
+      12
+     ]
+    ]
+   ],
+   "ext_assign": {
+    "8": [
+     0,
+     1
+    ],
+    "9": [
+     0,
+     1
+    ]
+   },
+   "nonzero_ext_pushes": [
+    [
+     "SC_SCORE",
+     "1"
+    ],
+    [
+     "SC_PV",
+     "1"
+    ]
+   ],
+   "pushes": 13,
+   "helpers_found": [
+    "a_range -> a_at(.., 0)",
+    "endpoint(): ext_round 0",
+    "h(): ext_round 0"
+   ]
+  },
+  "equal_except_line_numbers": true
+ },
+ "duplicate_structure": {
+  "tl_t32_trained_pg_rot1": {
+   "slots_with_identical_denominator_pairs": [
+    15,
+    16,
+    18
+   ],
+   "slots_with_repeated_terminal_coordinate": [],
+   "slots_with_repeated_table_label": [],
+   "rows": [
+    {
+     "slot": 0,
+     "name": "01 SS row sums norm_a (private)",
+     "kind": "Private",
+     "tables": 2,
+     "terminal_coordinates": 1,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 1,
+     "name": "01m SS row sums norm_m (private)",
+     "kind": "Private",
+     "tables": 2,
+     "terminal_coordinates": 1,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 2,
+     "name": "02 norm squares zero-check (hosts 01, 01m)",
+     "kind": "Host",
+     "tables": 25,
+     "terminal_coordinates": 22,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 3,
+     "name": "08 limb zero-check",
+     "kind": "Standalone",
+     "tables": 5,
+     "terminal_coordinates": 3,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 4,
+     "name": "07 masked row sums + selector (private)",
+     "kind": "Private",
+     "tables": 4,
+     "terminal_coordinates": 2,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 5,
+     "name": "09Q matmul (private)",
+     "kind": "Private",
+     "tables": 2,
+     "terminal_coordinates": 1,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 6,
+     "name": "09K matmul (private)",
+     "kind": "Private",
+     "tables": 2,
+     "terminal_coordinates": 1,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 7,
+     "name": "09V matmul (private)",
+     "kind": "Private",
+     "tables": 2,
+     "terminal_coordinates": 1,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 8,
+     "name": "10 score matmul (private, bilinear)",
+     "kind": "Private",
+     "tables": 3,
+     "terminal_coordinates": 2,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 9,
+     "name": "11 PV matmul (private, bilinear)",
+     "kind": "Private",
+     "tables": 3,
+     "terminal_coordinates": 2,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 10,
+     "name": "12 Wo matmul (private)",
+     "kind": "Private",
+     "tables": 2,
+     "terminal_coordinates": 1,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 11,
+     "name": "13G gate matmul (private)",
+     "kind": "Private",
+     "tables": 2,
+     "terminal_coordinates": 1,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 12,
+     "name": "13U up matmul (private)",
+     "kind": "Private",
+     "tables": 2,
+     "terminal_coordinates": 1,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 13,
+     "name": "13D down matmul (private)",
+     "kind": "Private",
+     "tables": 2,
+     "terminal_coordinates": 1,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 14,
+     "name": "03 D zero-check (hosts 12, 13D)",
+     "kind": "Host",
+     "tables": 59,
+     "terminal_coordinates": 54,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 15,
+     "name": "04 Q zero-check (hosts 09Q, 11)",
+     "kind": "Host",
+     "tables": 20,
+     "terminal_coordinates": 15,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [
+      [
+       "den[Q:2]",
+       "den[Q:3]"
+      ]
+     ],
+     "logup_relations_with_two_identical_denominators": [
+      {
+       "relation": "logup[Q:1]",
+       "dens": [
+        "den[Q:2]",
+        "den[Q:3]"
+       ],
+       "den_terms": [
+        [
+         "18446744069414584320+0u",
+         "A[44] on its own domain"
+        ]
+       ],
+       "helper_tables": [
+        "H[19]"
+       ]
+      }
+     ]
+    },
+    {
+     "slot": 16,
+     "name": "05 KV zero-check (hosts 09K, 09V)",
+     "kind": "Host",
+     "tables": 18,
+     "terminal_coordinates": 13,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [
+      [
+       "den[Kv:2]",
+       "den[Kv:3]"
+      ],
+      [
+       "den[Kv:6]",
+       "den[Kv:7]"
+      ]
+     ],
+     "logup_relations_with_two_identical_denominators": [
+      {
+       "relation": "logup[Kv:1]",
+       "dens": [
+        "den[Kv:2]",
+        "den[Kv:3]"
+       ],
+       "den_terms": [
+        [
+         "18446744069414584320+0u",
+         "A[51] on its own domain"
+        ]
+       ],
+       "helper_tables": [
+        "H[26]"
+       ]
+      },
+      {
+       "relation": "logup[Kv:3]",
+       "dens": [
+        "den[Kv:6]",
+        "den[Kv:7]"
+       ],
+       "den_terms": [
+        [
+         "18446744069414584320+0u",
+         "A[53] on its own domain"
+        ]
+       ],
+       "helper_tables": [
+        "H[28]"
+       ]
+      }
+     ]
+    },
+    {
+     "slot": 17,
+     "name": "06 softmax zero-check (hosts 07, 10)",
+     "kind": "Host",
+     "tables": 25,
+     "terminal_coordinates": 21,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 18,
+     "name": "14 F zero-check (hosts 13G, 13U)",
+     "kind": "Host",
+     "tables": 21,
+     "terminal_coordinates": 17,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [
+      [
+       "den[F:0]",
+       "den[F:1]"
+      ]
+     ],
+     "logup_relations_with_two_identical_denominators": [
+      {
+       "relation": "logup[F:0]",
+       "dens": [
+        "den[F:0]",
+        "den[F:1]"
+       ],
+       "den_terms": [
+        [
+         "18446744069414584320+0u",
+         "A[68] on its own domain"
+        ]
+       ],
+       "helper_tables": [
+        "H[39]"
+       ]
+      }
+     ]
+    },
+    {
+     "slot": 19,
+     "name": "TAB table helper zero-check",
+     "kind": "Standalone",
+     "tables": 11,
+     "terminal_coordinates": 6,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [
+      [
+       "1 - supp[t10]",
+       "1 - supp[t10]"
+      ]
+     ],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 20,
+     "name": "ZS zero-sum row",
+     "kind": "Standalone",
+     "tables": 2,
+     "terminal_coordinates": 1,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 21,
+     "name": "IO-in endpoint equality",
+     "kind": "Standalone",
+     "tables": 3,
+     "terminal_coordinates": 2,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 22,
+     "name": "IO-out endpoint equality",
+     "kind": "Standalone",
+     "tables": 3,
+     "terminal_coordinates": 2,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    }
+   ]
+  },
+  "tl_t32_dev": {
+   "slots_with_identical_denominator_pairs": [],
+   "slots_with_repeated_terminal_coordinate": [],
+   "slots_with_repeated_table_label": [],
+   "rows": [
+    {
+     "slot": 0,
+     "name": "01 SS row sums norm_a (private)",
+     "kind": "Private",
+     "tables": 2,
+     "terminal_coordinates": 1,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 1,
+     "name": "01m SS row sums norm_m (private)",
+     "kind": "Private",
+     "tables": 2,
+     "terminal_coordinates": 1,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 2,
+     "name": "02 norm squares zero-check (hosts 01, 01m)",
+     "kind": "Host",
+     "tables": 25,
+     "terminal_coordinates": 22,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 3,
+     "name": "08 limb zero-check",
+     "kind": "Standalone",
+     "tables": 5,
+     "terminal_coordinates": 3,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 4,
+     "name": "07 masked row sums + selector (private)",
+     "kind": "Private",
+     "tables": 4,
+     "terminal_coordinates": 2,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 5,
+     "name": "09Q matmul (private)",
+     "kind": "Private",
+     "tables": 2,
+     "terminal_coordinates": 1,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 6,
+     "name": "09K matmul (private)",
+     "kind": "Private",
+     "tables": 2,
+     "terminal_coordinates": 1,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 7,
+     "name": "09V matmul (private)",
+     "kind": "Private",
+     "tables": 2,
+     "terminal_coordinates": 1,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 8,
+     "name": "10 score matmul (private, bilinear)",
+     "kind": "Private",
+     "tables": 3,
+     "terminal_coordinates": 2,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 9,
+     "name": "11 PV matmul (private, bilinear)",
+     "kind": "Private",
+     "tables": 3,
+     "terminal_coordinates": 2,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 10,
+     "name": "12 Wo matmul (private)",
+     "kind": "Private",
+     "tables": 2,
+     "terminal_coordinates": 1,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 11,
+     "name": "13G gate matmul (private)",
+     "kind": "Private",
+     "tables": 2,
+     "terminal_coordinates": 1,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 12,
+     "name": "13U up matmul (private)",
+     "kind": "Private",
+     "tables": 2,
+     "terminal_coordinates": 1,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 13,
+     "name": "13D down matmul (private)",
+     "kind": "Private",
+     "tables": 2,
+     "terminal_coordinates": 1,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 14,
+     "name": "03 D zero-check (hosts 12, 13D)",
+     "kind": "Host",
+     "tables": 59,
+     "terminal_coordinates": 54,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 15,
+     "name": "04 Q zero-check (hosts 09Q, 11)",
+     "kind": "Host",
+     "tables": 20,
+     "terminal_coordinates": 15,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 16,
+     "name": "05 KV zero-check (hosts 09K, 09V)",
+     "kind": "Host",
+     "tables": 18,
+     "terminal_coordinates": 13,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 17,
+     "name": "06 softmax zero-check (hosts 07, 10)",
+     "kind": "Host",
+     "tables": 25,
+     "terminal_coordinates": 21,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 18,
+     "name": "14 F zero-check (hosts 13G, 13U)",
+     "kind": "Host",
+     "tables": 21,
+     "terminal_coordinates": 17,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 19,
+     "name": "TAB table helper zero-check",
+     "kind": "Standalone",
+     "tables": 11,
+     "terminal_coordinates": 6,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [
+      [
+       "1 - supp[t10]",
+       "1 - supp[t10]"
+      ]
+     ],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 20,
+     "name": "ZS zero-sum row",
+     "kind": "Standalone",
+     "tables": 2,
+     "terminal_coordinates": 1,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 21,
+     "name": "IO-in endpoint equality",
+     "kind": "Standalone",
+     "tables": 3,
+     "terminal_coordinates": 2,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    },
+    {
+     "slot": 22,
+     "name": "IO-out endpoint equality",
+     "kind": "Standalone",
+     "tables": 3,
+     "terminal_coordinates": 2,
+     "terminal_coordinates_repeated": [],
+     "tables_with_repeated_label": {},
+     "repeated_node_signatures": [],
+     "logup_relations_with_two_identical_denominators": []
+    }
+   ]
+  }
+ },
+ "duplicate_structure_lane": {
+  "m125": {
+   "slots_with_identical_denominator_pairs": [],
+   "slots_with_repeated_terminal_coordinate": []
+  },
+  "rung": {
+   "slots_with_identical_denominator_pairs": [],
+   "slots_with_repeated_terminal_coordinate": []
+  },
+  "rung_c6": {
+   "slots_with_identical_denominator_pairs": [],
+   "slots_with_repeated_terminal_coordinate": []
+  },
+  "rung_e32": {
+   "slots_with_identical_denominator_pairs": [],
+   "slots_with_repeated_terminal_coordinate": []
+  },
+  "rung_g": {
+   "slots_with_identical_denominator_pairs": [],
+   "slots_with_repeated_terminal_coordinate": []
+  },
+  "rung_k4": {
+   "slots_with_identical_denominator_pairs": [],
+   "slots_with_repeated_terminal_coordinate": []
+  },
+  "rung_p2": {
+   "slots_with_identical_denominator_pairs": [],
+   "slots_with_repeated_terminal_coordinate": []
+  },
+  "rung_w14": {
+   "slots_with_identical_denominator_pairs": [],
+   "slots_with_repeated_terminal_coordinate": []
+  },
+  "toy": {
+   "slots_with_identical_denominator_pairs": [],
+   "slots_with_repeated_terminal_coordinate": []
+  }
+ },
+ "trained_vs_twin": {
+  "a": "tl_t32_trained_pg_rot1",
+  "b": "tl_t32_dev",
+  "slots_that_differ": [
+   {
+    "slot": 2,
+    "coefficient_values_differ": [
+     [
+      "host SC_SS: dsq + a1 - NORM_CEPS",
+      "kbase:NORM_CEPS",
+      "18446744069414493066+0u",
+      "18446744069414584320+0u"
+     ],
+     [
+      "host SC_SSM: dsq_m + a1_m - NORM_CEPS",
+      "kbase:NORM_CEPS",
+      "18446744069414493066+0u",
+      "18446744069414584320+0u"
+     ]
+    ]
+   },
+   {
+    "slot": 14,
+    "coefficient_values_differ": [
+     [
+      "c0: 2 cn gamma_a x + 2^tn d - 2^(tn+1) y d - nr",
+      "kbase:2 * NORM_CN",
+      "7998+0u",
+      "2048+0u"
+     ],
+     [
+      "c0: 2 cn gamma_a x + 2^tn d - 2^(tn+1) y d - nr",
+      "kbase:2^(NORM_TN+1)",
+      "18446744069414582273+0u",
+      "18446744069414580225+0u"
+     ],
+     [
+      "c0: 2 cn gamma_a x + 2^tn d - 2^(tn+1) y d - nr",
+      "kbase:2^NORM_TN",
+      "1024+0u",
+      "2048+0u"
+     ],
+     [
+      "c1: ns + nr + 1 - 2^(tn+1) d",
+      "kbase:2^(NORM_TN+1)",
+      "18446744069414582273+0u",
+      "18446744069414580225+0u"
+     ],
+     [
+      "c6: 2 cn gamma_m x1 + 2^tn dm - 2^(tn+1) nm dm - mr",
+      "kbase:2 * NORM_CN",
+      "6244+0u",
+      "2048+0u"
+     ],
+     [
+      "c6: 2 cn gamma_m x1 + 2^tn dm - 2^(tn+1) nm dm - mr",
+      "kbase:2^(NORM_TN+1)",
+      "18446744069414582273+0u",
+      "18446744069414580225+0u"
+     ],
+     [
+      "c6: 2 cn gamma_m x1 + 2^tn dm - 2^(tn+1) nm dm - mr",
+      "kbase:2^NORM_TN",
+      "1024+0u",
+      "2048+0u"
+     ],
+     [
+      "c7: ms + mr + 1 - 2^(tn+1) dm",
+      "kbase:2^(NORM_TN+1)",
+      "18446744069414582273+0u",
+      "18446744069414580225+0u"
+     ],
+     [
+      "den[D:15]",
+      "kbase:a lookup's integer coefficient",
+      "18446744069414584289+0u",
+      "18446744069414584319+0u"
+     ],
+     [
+      "den[D:33]",
+      "kbase:a lookup's integer coefficient",
+      "18446744069414584313+0u",
+      "18446744069414584317+0u"
+     ],
+     [
+      "host SC_DMM: 2^SH_Z z16 + rdl - 2^(SH_Z-1)",
+      "kbase:2^(SH_Z-1)",
+      "18446744069414584305+0u",
+      "18446744069414584289+0u"
+     ],
+     [
+      "host SC_DMM: 2^SH_Z z16 + rdl - 2^(SH_Z-1)",
+      "kbase:2^SH_Z",
+      "32+0u",
+      "64+0u"
+     ],
+     [
+      "host SC_WO: 2^SH_AO ao + ral - 2^(SH_AO-1)",
+      "kbase:2^(SH_AO-1)",
+      "18446744069414584317+0u",
+      "18446744069414584257+0u"
+     ],
+     [
+      "host SC_WO: 2^SH_AO ao + ral - 2^(SH_AO-1)",
+      "kbase:2^SH_AO",
+      "8+0u",
+      "128+0u"
+     ]
+    ]
+   },
+   {
+    "slot": 15,
+    "coefficient_values_differ": [
+     [
+      "den[Q:3]",
+      "kbase:a lookup's integer coefficient",
+      "18446744069414584320+0u",
+      "18446744069414584319+0u"
+     ],
+     [
+      "host SC_QMM: 2^SH_QKV q8 + rql - 2^(SH_QKV-1)",
+      "kbase:2^(SH_QKV-1)",
+      "18446744069414584193+0u",
+      "18446744069414584257+0u"
+     ],
+     [
+      "host SC_QMM: 2^SH_QKV q8 + rql - 2^(SH_QKV-1)",
+      "kbase:2^SH_QKV",
+      "256+0u",
+      "128+0u"
+     ]
+    ]
+   },
+   {
+    "slot": 16,
+    "coefficient_values_differ": [
+     [
+      "den[Kv:3]",
+      "kbase:a lookup's integer coefficient",
+      "18446744069414584320+0u",
+      "18446744069414584319+0u"
+     ],
+     [
+      "den[Kv:7]",
+      "kbase:a lookup's integer coefficient",
+      "18446744069414584320+0u",
+      "18446744069414584319+0u"
+     ],
+     [
+      "host SC_KMM: 2^SH_QKV k8 + rkl - 2^(SH_QKV-1)",
+      "kbase:2^(SH_QKV-1)",
+      "18446744069414584193+0u",
+      "18446744069414584257+0u"
+     ],
+     [
+      "host SC_KMM: 2^SH_QKV k8 + rkl - 2^(SH_QKV-1)",
+      "kbase:2^SH_QKV",
+      "256+0u",
+      "128+0u"
+     ],
+     [
+      "host SC_VMM: 2^SH_QKV v8 + rvl - 2^(SH_QKV-1)",
+      "kbase:2^(SH_QKV-1)",
+      "18446744069414584193+0u",
+      "18446744069414584257+0u"
+     ],
+     [
+      "host SC_VMM: 2^SH_QKV v8 + rvl - 2^(SH_QKV-1)",
+      "kbase:2^SH_QKV",
+      "256+0u",
+      "128+0u"
+     ]
+    ]
+   },
+   {
+    "slot": 18,
+    "coefficient_values_differ": [
+     [
+      "den[F:1]",
+      "kbase:a lookup's integer coefficient",
+      "18446744069414584320+0u",
+      "18446744069414584319+0u"
+     ],
+     [
+      "host SC_GMM: 2^SH_G g8 + rgl - 2^(SH_G-1)",
+      "kbase:2^(SH_G-1)",
+      "18446744069414584193+0u",
+      "18446744069414584257+0u"
+     ],
+     [
+      "host SC_GMM: 2^SH_G g8 + rgl - 2^(SH_G-1)",
+      "kbase:2^SH_G",
+      "256+0u",
+      "128+0u"
+     ]
+    ]
+   }
+  ]
+ }
+}

@@ -1,0 +1,13 @@
+{
+ "checked_utc": "2026-10-19T09:29:11Z",
+ "copy": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-census",
+ "manifest": "results/zk60_1b_native_20261017/r5b/manifest_frozen.json",
+ "manifest_tree_sha256": "440133975de99fe06d091e4393bb5192f1d726c39f60cbbaef53326498b881d9",
+ "count": 218,
+ "missing_or_differing": [],
+ "extra": [],
+ "ok": true,
+ "tree_sha256_recomputed_from_copy": "440133975de99fe06d091e4393bb5192f1d726c39f60cbbaef53326498b881d9",
+ "tree_formula": "sha256 over sorted lines \"<path> <sha256>\\n\"",
+ "tree_equal": true
+}

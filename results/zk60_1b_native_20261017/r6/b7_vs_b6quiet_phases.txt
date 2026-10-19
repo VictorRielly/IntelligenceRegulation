@@ -1,0 +1,86 @@
+## /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r6/stack-llama3_8b_pg_rot1_b7_T128-ho00-cpu/prove.log
+
+32 block phase tables, sum of block walls 368.4 s; prove_run 370.137 s (witness 94.021 s, block loads 17.408 s); gpu: gpu: off (built without --features gpu-cuda)
+
+| half | seconds | % |
+|---|---|---|
+| commit | 116.51 | 31.6% |
+| run (witness, boundary) | 95.42 | 25.9% |
+| residual | 44.83 | 12.2% |
+| feed-forward | 43.76 | 11.9% |
+| attention | 42.55 | 11.5% |
+| openings | 15.86 | 4.3% |
+| endpoints | 3.60 | 1.0% |
+| norm | 2.99 | 0.8% |
+| lookup-table | 2.26 | 0.6% |
+
+| phase (summed over blocks) | seconds | % | counted work | ns per unit | bytes | GB/s |
+|---|---|---|---|---|---|---|
+| run: witness hand-over (the last block builds it here) | 94.02 | 25.5% | 32 block | 2938218750.000 | 0 | 0.000 |
+| slot 14 03 D zero-check (hosts 12, 13D) | 44.83 | 12.2% | 1,979,711,488 elem-terms | 22.646 | 31,675,383,808 | 0.707 |
+| H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | 44.59 | 12.1% | 1,987,051,520 words | 22.442 | 63,585,648,640 | 1.426 |
+| A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | 39.81 | 10.8% | 1,785,200,640 words | 22.299 | 57,126,420,480 | 1.435 |
+| slot 18 14 F zero-check (hosts 13G, 13U) | 38.99 | 10.6% | 2,818,572,288 elem-terms | 13.834 | 45,097,156,608 | 1.157 |
+| slot 17 06 softmax zero-check (hosts 07, 10) | 16.02 | 4.3% | 838,860,800 elem-terms | 19.093 | 13,421,772,800 | 0.838 |
+| H: LogUp helper inverses (six lookup domains) | 15.11 | 4.1% | 1,661,992,960 words | 9.092 | 26,591,887,360 | 1.760 |
+| slot 15 04 Q zero-check (hosts 09Q, 11) | 13.75 | 3.7% | 671,088,640 elem-terms | 20.485 | 10,737,418,240 | 0.781 |
+| open A (schedule audit + pcs::open_zk) | 8.44 | 2.3% | 1,785,200,640 words | 4.728 | 14,281,605,120 | 1.692 |
+| A: allocate + witness planes -> committed rows | 8.13 | 2.2% | 1,785,200,640 words | 4.556 | 14,281,605,120 | 1.756 |
+| slot 16 05 KV zero-check (hosts 09K, 09V) | 8.04 | 2.2% | 150,994,944 elem-terms | 53.280 | 2,415,919,104 | 0.300 |
+| open H (schedule audit + pcs::open_zk) | 7.26 | 2.0% | 1,987,051,520 words | 3.654 | 15,896,412,160 | 2.190 |
+| H: exp + activation helper inverses | 3.14 | 0.9% | 83,886,080 words | 37.372 | 1,342,177,280 | 0.428 |
+| A: mask + proximity rows (fresh randomness) | 2.10 | 0.6% | 126,877,696 words | 16.551 | 0 | 0.000 |
+| slot 19 TAB table helper zero-check | 2.08 | 0.6% | 11,534,336 elem-terms | 180.071 | 184,549,376 | 0.089 |
+| slot 21 IO-in endpoint equality | 1.96 | 0.5% | 100,663,296 elem-terms | 19.421 | 1,610,612,736 | 0.824 |
+| slot 04 07 masked row sums + selector (private) | 1.93 | 0.5% | 134,217,728 elem-terms | 14.365 | 2,147,483,648 | 1.114 |
+| slot 13 13D down matmul (private) | 1.86 | 0.5% | 2,097,152 elem-terms | 886.917 | 33,554,432 | 0.018 |
+| slot 22 IO-out endpoint equality | 1.65 | 0.4% | 100,663,296 elem-terms | 16.371 | 1,610,612,736 | 0.977 |
+| slot 12 13U up matmul (private) | 1.46 | 0.4% | 524,288 elem-terms | 2777.100 | 8,388,608 | 0.006 |
+| slot 11 13G gate matmul (private) | 1.45 | 0.4% | 524,288 elem-terms | 2763.748 | 8,388,608 | 0.006 |
+| run: boundary B_k commitment | 1.40 | 0.4% | 16,252,928 words | 86.077 | 130,023,424 | 0.093 |
+| A: lookup values + the byte histogram | 1.16 | 0.3% | 1,661,992,960 words | 0.696 | 0 | 0.000 |
+| slot 00 01 SS row sums norm_a (private) | 1.12 | 0.3% | 67,108,864 elem-terms | 16.689 | 1,073,741,824 | 0.959 |
+
+## /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5b/stack-llama3_8b_pg_rot1_b6_T128-ho00-cpu-quiet/prove.log
+
+32 block phase tables, sum of block walls 356.5 s; prove_run 358.26 s (witness 92.294 s, block loads 17.766 s); gpu: gpu: off (built without --features gpu-cuda)
+
+| half | seconds | % |
+|---|---|---|
+| commit | 111.65 | 31.3% |
+| run (witness, boundary) | 93.65 | 26.3% |
+| residual | 43.29 | 12.1% |
+| feed-forward | 42.69 | 12.0% |
+| attention | 41.11 | 11.5% |
+| openings | 15.18 | 4.3% |
+| endpoints | 3.25 | 0.9% |
+| norm | 2.83 | 0.8% |
+| lookup-table | 2.21 | 0.6% |
+
+| phase (summed over blocks) | seconds | % | counted work | ns per unit | bytes | GB/s |
+|---|---|---|---|---|---|---|
+| run: witness hand-over (the last block builds it here) | 92.30 | 25.9% | 32 block | 2884281250.000 | 0 | 0.000 |
+| slot 14 03 D zero-check (hosts 12, 13D) | 43.29 | 12.1% | 1,979,711,488 elem-terms | 21.868 | 31,675,383,808 | 0.732 |
+| H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | 43.29 | 12.1% | 1,987,051,520 words | 21.785 | 63,585,648,640 | 1.469 |
+| A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | 38.47 | 10.8% | 1,785,200,640 words | 21.547 | 57,126,420,480 | 1.485 |
+| slot 18 14 F zero-check (hosts 13G, 13U) | 37.96 | 10.6% | 2,818,572,288 elem-terms | 13.468 | 45,097,156,608 | 1.188 |
+| slot 17 06 softmax zero-check (hosts 07, 10) | 15.25 | 4.3% | 838,860,800 elem-terms | 18.176 | 13,421,772,800 | 0.880 |
+| H: LogUp helper inverses (six lookup domains) | 13.60 | 3.8% | 1,661,992,960 words | 8.186 | 26,591,887,360 | 1.955 |
+| slot 15 04 Q zero-check (hosts 09Q, 11) | 13.48 | 3.8% | 671,088,640 elem-terms | 20.091 | 10,737,418,240 | 0.796 |
+| open A (schedule audit + pcs::open_zk) | 8.07 | 2.3% | 1,785,200,640 words | 4.520 | 14,281,605,120 | 1.770 |
+| slot 16 05 KV zero-check (hosts 09K, 09V) | 7.95 | 2.2% | 150,994,944 elem-terms | 52.624 | 2,415,919,104 | 0.304 |
+| A: allocate + witness planes -> committed rows | 7.71 | 2.2% | 1,785,200,640 words | 4.322 | 14,281,605,120 | 1.851 |
+| open H (schedule audit + pcs::open_zk) | 6.95 | 2.0% | 1,987,051,520 words | 3.499 | 15,896,412,160 | 2.286 |
+| H: exp + activation helper inverses | 3.07 | 0.9% | 83,886,080 words | 36.597 | 1,342,177,280 | 0.437 |
+| slot 19 TAB table helper zero-check | 2.02 | 0.6% | 11,534,336 elem-terms | 175.303 | 184,549,376 | 0.091 |
+| A: mask + proximity rows (fresh randomness) | 1.99 | 0.6% | 126,877,696 words | 15.716 | 0 | 0.000 |
+| slot 13 13D down matmul (private) | 1.84 | 0.5% | 2,097,152 elem-terms | 877.380 | 33,554,432 | 0.018 |
+| slot 21 IO-in endpoint equality | 1.80 | 0.5% | 100,663,296 elem-terms | 17.832 | 1,610,612,736 | 0.897 |
+| slot 04 07 masked row sums + selector (private) | 1.71 | 0.5% | 134,217,728 elem-terms | 12.718 | 2,147,483,648 | 1.258 |
+| slot 12 13U up matmul (private) | 1.47 | 0.4% | 524,288 elem-terms | 2798.080 | 8,388,608 | 0.006 |
+| slot 22 IO-out endpoint equality | 1.45 | 0.4% | 100,663,296 elem-terms | 14.454 | 1,610,612,736 | 1.107 |
+| slot 11 13G gate matmul (private) | 1.42 | 0.4% | 524,288 elem-terms | 2704.620 | 8,388,608 | 0.006 |
+| run: boundary B_k commitment | 1.35 | 0.4% | 16,252,928 words | 83.247 | 130,023,424 | 0.096 |
+| A: lookup values + the byte histogram | 1.11 | 0.3% | 1,661,992,960 words | 0.667 | 0 | 0.000 |
+| slot 00 01 SS row sums norm_a (private) | 1.06 | 0.3% | 67,108,864 elem-terms | 15.751 | 1,073,741,824 | 1.016 |
+

@@ -1,0 +1,24 @@
+{
+  "main": [
+    "python3",
+    "experiments/dzc-row-coefficients-20261018/run.py"
+  ],
+  "audit": [
+    "python3",
+    "experiments/dzc-row-coefficients-20261018/audit.py"
+  ],
+  "compile": [
+    "rustc",
+    "--edition=2021",
+    "--crate-type=cdylib",
+    "-C",
+    "codegen-units=1",
+    "-C",
+    "opt-level=0",
+    "counted-shim.rs",
+    "-o",
+    "counted-reference.so"
+  ],
+  "seed": 2026101876,
+  "scope": "One bounded cycle; each experiment one thread <=59s CPU/wall and512MiB AS. No native Cargo/GPU/dependencies/install."
+}

@@ -1,0 +1,40 @@
+{
+  "run_id": "20261018T042105Z-c9fe8fca",
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "experiments/dzc-affine-read-catalog-20261018/run.py"
+      ],
+      "exit": 0,
+      "result": "result.json"
+    },
+    {
+      "argv": [
+        "python3",
+        "experiments/dzc-affine-read-catalog-20261018/audit.py"
+      ],
+      "exit": 0,
+      "result": "audit-result.json"
+    }
+  ],
+  "limits": {
+    "threads": 1,
+    "cpu_seconds_per_experiment": 59,
+    "alarm_seconds": 59,
+    "address_space_MiB": 512,
+    "estimated_peak_below_MiB": 160,
+    "nice": 19,
+    "gpu_jobs": 0,
+    "cargo_builds": 0
+  },
+  "initial_failure": {
+    "exit": 1,
+    "artifact": "initial-width-assumption/run.py",
+    "reason": "Incorrect shared32bit assertion exposed a wrong32767 formula for the trained signedint16 endpoint; subsequent provisional31bit8B catalog was also wrong. Final executes captured native derive core with32768; both32.",
+    "correction_artifact": "initial-before-signed-endpoint-correction/",
+    "status": "superseded, preserved"
+  },
+  "device": "one Intel Core Ultra9 185H CPU0 thread,WSL2; GPU none",
+  "scope": "Rust shim compilation is tiny local source-only, no Cargo/dependency installation/downloaded execution. All model values synthetic; only whitelisted public profile scalars inspected."
+}

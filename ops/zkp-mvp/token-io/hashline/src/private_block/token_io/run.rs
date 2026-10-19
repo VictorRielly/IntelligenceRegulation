@@ -56,6 +56,12 @@ pub(crate) struct TokenRunStatement {
     /// parameter line; PRIVATE (review R2-3): the constructor is its only
     /// source, read through [`TokenRunStatement::whole_run`]
     whole_run: WholeRun,
+    /// NATIVE R6 ported (R3, 10-19): each block stage's softmax score shift,
+    /// the run shape's unless the trained statement's layer record carries
+    /// its own (`LayerRecord::sh_s`, bound by the model identity the header
+    /// absorbs); block stage `k` is proved and verified at
+    /// [`TokenRunStatement::stage_shape`]`(k)`
+    stage_sh_s: Vec<u32>,
 }
 
 /// **THE DERIVED WHOLE-RUN FIGURE (D27; review TR-1).** A union bound over
@@ -205,7 +211,17 @@ impl TokenRunStatement {
         variant_is_built(&tp)?;
         let (in_spec, out_spec) = endpoint_specs(sh, context, &tp)?;
         let whole_run = whole_run_of(sh, l, &tp);
-        Ok(TokenRunStatement { rs, context, block_digests, model_identity: model.identity(), tp, in_spec, out_spec, in_root: roots.0, out_root: roots.1, scale: scales.0, whole_run })
+        // NATIVE R6 ported: a layer's own score shift, validated at the
+        // trained door (`Shape::with_score_shift`: the one-limb window, the
+        // constructor's rebuild, the trained class)
+        let mut stage_sh_s = vec![sh.sh_s; l];
+        for (k, r) in model.layers.iter().enumerate() {
+            if let Some(v) = r.sh_s {
+                sh.with_score_shift(v).map_err(|e| format!("token I/O run: layer {}'s own score shift: {e}", r.index))?;
+                stage_sh_s[k] = v;
+            }
+        }
+        Ok(TokenRunStatement { rs, context, block_digests, model_identity: model.identity(), tp, in_spec, out_spec, in_root: roots.0, out_root: roots.1, scale: scales.0, whole_run, stage_sh_s })
     }
 
     pub(crate) fn sh(&self) -> &Shape {
@@ -218,6 +234,17 @@ impl TokenRunStatement {
     /// the statement's derived whole-run figure (review R2-3: read-only)
     pub(crate) fn whole_run(&self) -> &WholeRun {
         &self.whole_run
+    }
+    /// **NATIVE R6 ported: the shape block stage `k` is proved and verified
+    /// at** — the run shape, or (a layer with its own score shift) the same
+    /// shape with that `sh_s`, rebuilt through the trained door
+    pub(crate) fn stage_shape(&self, k: usize) -> Result<Shape, String> {
+        let v = *self.stage_sh_s.get(k).ok_or_else(|| format!("token I/O run: no block stage {k}"))?;
+        if v == self.sh().sh_s {
+            Ok(self.sh().clone())
+        } else {
+            self.sh().with_score_shift(v)
+        }
     }
     pub(crate) fn l(&self) -> usize {
         self.rs.l()
@@ -313,8 +340,12 @@ impl TokenRunStatement {
         ));
         for k in 0..l {
             let (p, q) = (self.boundary_spec(k)?, self.boundary_spec(k + 1)?);
+            // NATIVE R6 ported: a block stage whose layer has its own score
+            // shift says so (and so in the schedule digest the header absorbs);
+            // every other run's lines are what they were
+            let own = if self.stage_sh_s[k] != self.sh().sh_s { format!("; score shift {} (the layer's own; the run's is {})", self.stage_sh_s[k], self.sh().sh_s) } else { String::new() };
             out.push(format!(
-                "stage {:02} (block {k}): commits boundary {}{}; slot 21 claims boundary {} at pair row {}; slot 22 claims boundary {} at pair row {}; opens M A H then boundary {}; data rows {}",
+                "stage {:02} (block {k}): commits boundary {}{}; slot 21 claims boundary {} at pair row {}; slot 22 claims boundary {} at pair row {}; opens M A H then boundary {}; data rows {}{own}",
                 k + 1,
                 k + 2,
                 if k + 1 == l { " = B_out" } else { "" },
@@ -421,7 +452,7 @@ impl TokenRunStatement {
     }
 
     fn block_layout(&self, k: usize) -> Result<Layout, String> {
-        Ok(Layout::for_shape(self.sh())?.with_io_mask_rows([self.boundary_spec(k)?.mask_row(1)?, self.boundary_spec(k + 1)?.mask_row(0)?]))
+        Ok(Layout::for_shape(&self.stage_shape(k)?)?.with_io_mask_rows([self.boundary_spec(k)?.mask_row(1)?, self.boundary_spec(k + 1)?.mask_row(0)?]))
     }
 
     /// the counted byte length of every segment, in order
@@ -468,8 +499,9 @@ pub(crate) trait TokenRunSource {
     /// `A_in`'s planes and the `B_in` plane
     fn stage_in(&mut self) -> Result<(StageInWitness, Vec<i16>), String>;
     /// block `k`'s integer witness (`blk` is the stage's block, handed by the
-    /// prover after its shape and digest checks: one load per stage)
-    fn witness(&mut self, k: usize, blk: &BlockPublic) -> Result<Witness, String>;
+    /// prover after its shape and digest checks: one load per stage; `sh` the
+    /// stage's shape, which carries a layer's own score shift)
+    fn witness(&mut self, k: usize, blk: &BlockPublic, sh: &Shape) -> Result<Witness, String>;
     /// the padded plane after block `k` (boundary `k + 1`; `B_out` at `L - 1`)
     fn boundary_plane(&mut self, k: usize) -> Result<Vec<i16>, String>;
     /// `A_out`'s planes (asked FIRST, before any segment exists: review R2-5)
@@ -517,7 +549,7 @@ impl TokenBlocks for ResidentBlocks<'_> {
 /// RULINGS CS-1 / CS-4 / CS-6 for the block of stage `k`, before the stage
 /// absorbs anything (the cheating prover of the tamper controls skips CS-6)
 fn stage_block_is_the_statements(st: &TokenRunStatement, k: usize, blk: &BlockPublic, cs6: bool) -> Result<(), String> {
-    blk.check_for_shape(st.sh()).map_err(|e| format!("token I/O run: block {k}: {e}"))?;
+    blk.check_for_shape(&st.stage_shape(k)?).map_err(|e| format!("token I/O run: block {k}: {e}"))?;
     if cs6 && blk.digest() != st.block_digests[k] {
         return Err(format!("token I/O run: ruling CS-6 — block {k} is not the block the statement names"));
     }
@@ -618,8 +650,9 @@ pub(crate) fn prove_token_run_with(
         let cur = boundary::prepare(&spec, &words, &ntt, &mut rng, &tag)?;
         protocol::absorb_root(&mut tr, b"B", &cur.root(), spec.commitment_rows(), spec.log_n());
         let lay = st.block_layout(k)?;
-        let wit = src.witness(k, &blk)?;
-        let core = protocol::prove_core(sh, &lay, &blk, wit, [prev.1.data(), cur.data()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick)?;
+        let ssh = st.stage_shape(k)?;
+        let wit = src.witness(k, &blk, &ssh)?;
+        let core = protocol::prove_core(&ssh, &lay, &blk, wit, [prev.1.data(), cur.data()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick)?;
         let [ic, oc] = core.io_claims;
         let mut claims = std::mem::take(&mut pending);
         claims.extend(ic);
@@ -711,7 +744,8 @@ pub(crate) fn verify_token_run_with(st: &TokenRunStatement, blocks: &mut dyn Tok
         let root = seg.b_root.ok_or_else(|| format!("token I/O run: block segment {k} carries no boundary root"))?;
         protocol::absorb_root(&mut tr, b"B", &root, spec.commitment_rows(), spec.log_n());
         let view = CoreView { a_root: seg.a_root, h_root: seg.h_root, mask_root: seg.mask_root, slots: &seg.slots, mask_open: &seg.mask_open, a_open: &seg.a_open, h_open: &seg.h_open };
-        let ([ic, oc], _) = protocol::verify_core(sh, &lay, &blk, view, &ntt, &mut tr, &mut ph).map_err(|e| format!("block {k}: {e}"))?;
+        let ssh = st.stage_shape(k)?;
+        let ([ic, oc], _) = protocol::verify_core(&ssh, &lay, &blk, view, &ntt, &mut tr, &mut ph).map_err(|e| format!("block {k}: {e}"))?;
         drop(blk);
         let mut claims = std::mem::take(&mut pending);
         claims.extend(ic);
@@ -809,8 +843,13 @@ pub(crate) struct HonestPipeline {
 }
 
 pub(crate) fn honest_pipeline(sh: &Shape, tp: &TokenProfile, tables: &TokenTables, blocks: &[BlockPublic], tokens: &[u64]) -> Result<HonestPipeline, String> {
+    honest_pipeline_at(&vec![sh.clone(); blocks.len()], tp, tables, blocks, tokens)
+}
+
+/// [`honest_pipeline`] with each block at its STAGE shape (NATIVE R6 ported)
+pub(crate) fn honest_pipeline_at(shapes: &[Shape], tp: &TokenProfile, tables: &TokenTables, blocks: &[BlockPublic], tokens: &[u64]) -> Result<HonestPipeline, String> {
     let (wit_in, b_in, in_plane) = stage_in::honest_inputs(tp, tables, tokens)?;
-    let (witnesses, planes, ov, wout, out_plane) = downstream(sh, tp, tables, blocks, &b_in, true)?;
+    let (witnesses, planes, ov, wout, out_plane) = downstream_at(shapes, tp, tables, blocks, &b_in, true)?;
     Ok(HonestPipeline { tokens: tokens.to_vec(), stage_in: wit_in, b_in, witnesses, planes, out_values: ov, stage_out: wout, in_plane, out_plane })
 }
 
@@ -820,12 +859,23 @@ pub(crate) fn honest_pipeline(sh: &Shape, tp: &TokenProfile, tables: &TokenTable
 /// refusals (the tamper controls).
 #[allow(clippy::type_complexity)]
 pub(crate) fn downstream(sh: &Shape, tp: &TokenProfile, tables: &TokenTables, blocks: &[BlockPublic], b_in: &[i16], check: bool) -> Result<(Vec<Option<Witness>>, Vec<Vec<i16>>, OutValues, StageOutWitness, Vec<Fp>), String> {
+    downstream_at(&vec![sh.clone(); blocks.len()], tp, tables, blocks, b_in, check)
+}
+
+/// [`downstream`] with each block's witness at its STAGE shape (a layer with
+/// its own score shift: NATIVE R6 ported)
+#[allow(clippy::type_complexity)]
+pub(crate) fn downstream_at(shapes: &[Shape], tp: &TokenProfile, tables: &TokenTables, blocks: &[BlockPublic], b_in: &[i16], check: bool) -> Result<(Vec<Option<Witness>>, Vec<Vec<i16>>, OutValues, StageOutWitness, Vec<Fp>), String> {
+    let sh = shapes.first().ok_or("token I/O pipeline: no block")?;
+    if shapes.len() != blocks.len() {
+        return Err("token I/O pipeline: one stage shape per block".into());
+    }
     let ids = Ids::new(sh)?;
     let mut x: Vec<i16> = (0..sh.tokens).flat_map(|t| (0..sh.width).map(move |i| (t, i))).map(|(t, i)| b_in[t * sh.d_pad + i]).collect();
     let mut witnesses = Vec::with_capacity(blocks.len());
     let mut planes = Vec::with_capacity(blocks.len());
     for (k, b) in blocks.iter().enumerate() {
-        let w = super::super::witness::build_shaped(sh, b.attention(), b.feed_forward(), &x).map_err(|e| format!("token I/O pipeline: block {k}: {e}"))?;
+        let w = super::super::witness::build_shaped(&shapes[k], b.attention(), b.feed_forward(), &x).map_err(|e| format!("token I/O pipeline: block {k}: {e}"))?;
         let plane: Vec<i16> = w.planes[ids.at(A_X2)].iter().map(|v| i16::try_from(*v).map_err(|_| "token I/O pipeline: a block output outside int16".to_string())).collect::<Result<Vec<i16>, String>>()?;
         if k == 0 && w.planes[ids.at(A_X)].iter().zip(b_in.iter()).any(|(a, b)| *a != i64::from(*b)) {
             return Err("token I/O pipeline: block 0's input plane is not B_in".into());
@@ -848,7 +898,7 @@ impl TokenRunSource for PipelineSource<'_> {
     fn stage_in(&mut self) -> Result<(StageInWitness, Vec<i16>), String> {
         Ok((self.0.stage_in.clone(), self.0.b_in.clone()))
     }
-    fn witness(&mut self, k: usize, _blk: &BlockPublic) -> Result<Witness, String> {
+    fn witness(&mut self, k: usize, _blk: &BlockPublic, _sh: &Shape) -> Result<Witness, String> {
         self.0.witnesses.get_mut(k).and_then(|w| w.take()).ok_or_else(|| format!("token I/O pipeline: block {k}'s witness was already consumed"))
     }
     fn boundary_plane(&mut self, k: usize) -> Result<Vec<i16>, String> {

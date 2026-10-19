@@ -1,0 +1,331 @@
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r6/frozen-tree/hashline/src/private_block/trained_block.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/hashline/src/private_block/trained_block.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r6/frozen-tree/hashline/src/private_block/trained_block.rs	2026-10-17 17:46:22.765693043 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/hashline/src/private_block/trained_block.rs	2026-10-19 02:32:28.436029961 -0700
+@@ -1279,7 +1279,7 @@
+     format!(
+         "{{\n \"schema\": \"zk60-trained-block-run/2\",\n \"scope\": {},\n \"prover_reported\": {{\"backend\": {}, \"gpu_declines\": {}, \"what\": {}}},\n \"block_profile\": {},\n \"run_profile\": {},\n \"export_variant\": {},\n \"export_profile_sha256\": {},\n \"calibration_tool_sha256\": {},\n \"layer\": {},\n \"layer_manifest_sha256\": {},\n \"block_digest\": {},\n \"trained_statement_identity\": {},\n \"context_label\": {},\n \"context\": {},\n \"expected_io\": {},\n \"rope_tables\": {},\n \"constants_source\": {},\n \"shape\": {{\"tokens\": {}, \"width\": {}, \"hidden\": {}, \"q_heads\": {}, \"kv_heads\": {}, \"head_dim\": {}, \"log_cols\": {}, \"inv_rate\": {}, \"opened_cols\": {}, \"f_e\": {}, \"wrho_s\": {}, \"norm_wrho\": {}, \"norm_tn\": {}, \"norm_cn_a\": {}, \"norm_cn_m\": {}, \"norm_ceps\": {}, \"sh_ao\": {}, \"d_max\": {}}}\n}}\n",
+         js(ex.geometry.scope()),
+-        js(&crate::gpu::label()),
++        js(backend_of_this_process()),
+         crate::gpu::declines(),
+         js(PROVER_REPORTED_WHAT),
+         js(sh.profile),
+@@ -1443,6 +1443,8 @@
+     std::fs::create_dir(&out).map_err(|e| format!("{}: {e}", out.display()))?;
+     write_new(&out.join("segment-000.bin"), &segs[0])?;
+     write_new(&out.join("expected.bin"), &expected.to_bytes())?;
++    // NATIVE R7 (Q-2): the prover writes only the build's constants
++    check_prover_reported(backend_of_this_process(), crate::gpu::declines() as u64)?;
+     write_new(&out.join("statement.json"), render_statement(&ex, &sh, &layer, &st, &ctx, &expected, label).as_bytes())?;
+     println!(
+         "{{\"event\":\"proved\",\"segment_bytes\":{},\"segment_sha256\":{},\"prove_seconds\":{prove_s:.3},\"in_process_verify_seconds\":{verify_s:.3},\"peak_rss_mib_after_prove\":{hwm_prove:.0},\"total_seconds\":{:.3},\"statement_identity\":{},\"out\":{}}}",
+@@ -2163,6 +2165,51 @@
+     }
+ }
+ 
++/// **NATIVE R7 (privacy review round 2, Q-2): the backend names a statement
++/// may carry** — build constants, never request- or input-derived text (the
++/// class C-R4 closed for the context label). The first is byte for byte
++/// what every R5b / R6 CPU build wrote, so their statements stay valid; the
++/// device's own description (`gpu::label()`, with its name and memory) goes
++/// to the prover's stdout only.
++pub(crate) const BACKEND_CPU_BUILD: &str = "gpu: off (built without --features gpu-cuda)";
++/// a `gpu-cuda` build whose device path is not live: the proof is the CPU's
++pub(crate) const BACKEND_CUDA_BUILD_CPU_PATH: &str = "gpu: off (built with gpu-cuda; the device path not live)";
++/// a `gpu-cuda` build whose device path is live
++pub(crate) const BACKEND_CUDA: &str = "gpu: on (built with gpu-cuda; the device path live)";
++pub(crate) const BACKENDS: [&str; 3] = [BACKEND_CPU_BUILD, BACKEND_CUDA_BUILD_CPU_PATH, BACKEND_CUDA];
++/// the most GPU declines a statement may report (a count of declined device
++/// calls; a backend on the CPU path reports none)
++pub(crate) const MAX_GPU_DECLINES: u64 = 4096;
++
++/// this process's backend name, from the build and the device state only
++pub(crate) fn backend_of_this_process() -> &'static str {
++    if !cfg!(feature = "gpu-cuda") {
++        BACKEND_CPU_BUILD
++    } else if crate::gpu::enabled() {
++        BACKEND_CUDA
++    } else {
++        BACKEND_CUDA_BUILD_CPU_PATH
++    }
++}
++
++/// **NATIVE R7 (Q-2): the `prover_reported` fields a statement may carry**,
++/// checked by the prover before it writes one and by the verifier before it
++/// publishes one: `backend` one of [`BACKENDS`] exactly, `gpu_declines` 0 on
++/// the CPU path and at most [`MAX_GPU_DECLINES`] with the device. Anything
++/// else is refused by name, and the prover-chosen text is not echoed.
++pub(crate) fn check_prover_reported(backend: &str, gpu_declines: u64) -> Result<(), String> {
++    if !BACKENDS.contains(&backend) {
++        return Err(format!("prover_reported.backend ({} bytes) is not one of the build's backend names {BACKENDS:?} (privacy review round 2, Q-2)", backend.len()));
++    }
++    if backend != BACKEND_CUDA && gpu_declines != 0 {
++        return Err(format!("prover_reported.gpu_declines is {gpu_declines} with a CPU-path backend; it must be 0 (privacy review round 2, Q-2)"));
++    }
++    if gpu_declines > MAX_GPU_DECLINES {
++        return Err(format!("prover_reported.gpu_declines exceeds {MAX_GPU_DECLINES} (privacy review round 2, Q-2)"));
++    }
++    Ok(())
++}
++
+ /// **NATIVE R6 (review r5 note N-r5-c): the prover's self-reports** (privacy
+ /// review P-7). Copied into a verifier-written statement only under
+ /// `prover_reported`, and only from a prover statement that is byte for byte
+@@ -2175,7 +2222,7 @@
+ 
+ impl ProverClaims {
+     fn of_this_process() -> ProverClaims {
+-        ProverClaims { backend: crate::gpu::label(), gpu_declines: crate::gpu::declines() as u64 }
++        ProverClaims { backend: backend_of_this_process().to_string(), gpu_declines: crate::gpu::declines() as u64 }
+     }
+ 
+     /// the writer and the claims a stack `statement.json` names (the strict
+@@ -2190,11 +2237,10 @@
+         let writer = StatementWriter::ALL.iter().copied().find(|w| w.text() == by).ok_or("statement.json: an unknown writer")?;
+         let pr = j.get("prover_reported").map_err(|e| format!("statement.json: {e}"))?;
+         let backend = pr.get("backend").and_then(J::str).map_err(|e| format!("statement.json: prover_reported: {e}"))?;
+-        if backend.len() > 256 || backend.chars().any(|c| c.is_control()) {
+-            return Err("statement.json: prover_reported.backend is not a short printable string".into());
+-        }
+         let d = pr.get("gpu_declines").and_then(J::i64).map_err(|e| format!("statement.json: prover_reported: {e}"))?;
+         let gpu_declines = u64::try_from(d).map_err(|_| "statement.json: prover_reported.gpu_declines is negative".to_string())?;
++        // NATIVE R7 (privacy review round 2, Q-2): build constants only
++        check_prover_reported(backend, gpu_declines).map_err(|e| format!("statement.json: {e}"))?;
+         Ok((writer, ProverClaims { backend: backend.to_string(), gpu_declines }))
+     }
+ }
+@@ -2241,6 +2287,65 @@
+     Ok(())
+ }
+ 
++/// **NATIVE R7 (review r6 note N-r6-b): a `statement.writing-<pid>` left in
++/// a run directory.** `publish_statement_dir` writes into
++/// `<run>/statement.writing-<pid>` and renames it; a verifier killed in
++/// between leaves the directory behind, and the run directory's own listing
++/// (`run_sink::segment_paths`) then refuses the run as "not one of this
++/// run's segments" — every later verification blocked until a person
++/// removes it. Before anything of the run is read, each such entry is:
++///
++/// * REMOVED when it is a real directory (never a link: refused by name),
++///   holding only files this function's writer writes (`expected.bin`,
++///   `statement.json`, `segments.json`, each a regular file) and its pid is
++///   not a live process (`/proc/<pid>` absent); a removal publishes nothing
++///   and cannot make another writer publish anything (a writer in another
++///   pid namespace whose directory is removed fails its own rename);
++/// * REFUSED by name, with what to do, otherwise: a live pid (a verifier of
++///   this run is publishing now, or the pid was reused), a link, a
++///   non-directory, or other contents.
++///
++/// Returns the paths removed (stdout names each).
++pub(crate) fn clear_stale_writing_dirs(art: &Path) -> Result<Vec<PathBuf>, String> {
++    let prefix = format!("{}.writing-", super::run_sink::STATEMENT_DIR);
++    let mut removed = Vec::new();
++    let rd = match std::fs::read_dir(art) {
++        Ok(rd) => rd,
++        // the run directory's own checks name a missing directory
++        Err(_) => return Ok(removed),
++    };
++    for e in rd {
++        let e = e.map_err(|er| format!("{}: {er}", art.display()))?;
++        let name = e.file_name().to_string_lossy().to_string();
++        let Some(rest) = name.strip_prefix(&prefix) else { continue };
++        let path = e.path();
++        let hint = format!("remove {} by hand once no verifier of this run is running (review N-r6-b)", path.display());
++        let pid: u32 = match rest.parse() {
++            Ok(p) if !rest.is_empty() && rest.bytes().all(|b| b.is_ascii_digit()) => p,
++            _ => return Err(format!("{} is not a statement directory this verifier writes (`{prefix}<pid>`); {hint}", path.display())),
++        };
++        let m = std::fs::symlink_metadata(&path).map_err(|er| format!("{}: {er}", path.display()))?;
++        if m.file_type().is_symlink() || !m.is_dir() {
++            return Err(format!("{} is not a real directory (a link or a file); it is never followed; {hint}", path.display()));
++        }
++        if Path::new("/proc").join(pid.to_string()).exists() {
++            return Err(format!("{}: process {pid} is alive — a verifier of this run may be publishing its statement now, or the pid was reused; wait for it, or {hint}", path.display()));
++        }
++        for f in std::fs::read_dir(&path).map_err(|er| format!("{}: {er}", path.display()))? {
++            let f = f.map_err(|er| format!("{}: {er}", path.display()))?;
++            let fname = f.file_name().to_string_lossy().to_string();
++            let fm = std::fs::symlink_metadata(f.path()).map_err(|er| format!("{}: {er}", f.path().display()))?;
++            if !["expected.bin", "statement.json", "segments.json"].contains(&fname.as_str()) || !fm.file_type().is_file() {
++                return Err(format!("{} holds `{fname}`, which this verifier never writes; it is left in place; {hint}", path.display()));
++            }
++        }
++        std::fs::remove_dir_all(&path).map_err(|er| format!("{}: {er}; {hint}", path.display()))?;
++        println!("{{\"event\":\"stale-statement-writing-removed\",\"path\":{},\"pid\":{pid},\"why\":\"left by a verifier that is no longer running (review N-r6-b)\"}}", js(&path.display().to_string()));
++        removed.push(path);
++    }
++    Ok(removed)
++}
++
+ /// **NATIVE R6 (review r5 finding r5_A): publish `files` as `<run>/statement/`.**
+ /// The files are written into a NEW directory `<run>/statement.writing-<pid>`
+ /// (`create_dir` fails if it exists), then renamed to `statement/` after a
+@@ -2523,6 +2628,8 @@
+     //      is the hashes of the bytes it verified, which must be the sink's
+     let sunk: Vec<(u64, String)> = (0..l).map(|k| (disk.lengths()[k] as u64, disk.digests()[k].clone())).collect();
+     let claims = ProverClaims::of_this_process();
++    // NATIVE R7 (Q-2): the prover writes only the build's constants
++    check_prover_reported(&claims.backend, claims.gpu_declines).map_err(|e| fail_run(&out, e))?;
+     let sdir = match verified_seen {
+         Some(seen) => {
+             if seen != sunk {
+@@ -2614,6 +2721,10 @@
+         return Err(format!("the rebuilt trained statement {} is not the pinned {}", hex(&st.identity()), hex(&pin)));
+     }
+     let ctx = stack_context(&ex.variant, &layers, label)?;
++    // NATIVE R7 (review r6 note N-r6-b): a statement directory a killed
++    // verifier left half-written is removed (dead pid, only our files) or
++    // refused by name with what to do, before the run directory is listed
++    clear_stale_writing_dirs(&art)?;
+     // R5b (P-1, M-9) and NATIVE R6 (review r5 finding r5_A): the policy comes
+     // from <art>/statement/ (a run that verified before; checked byte for byte
+     // against this verifier's own rendering below) or from the prover's
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r6/frozen-tree/hashline/src/private_block/trained_stack_tests.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/hashline/src/private_block/trained_stack_tests.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r6/frozen-tree/hashline/src/private_block/trained_stack_tests.rs	2026-10-17 17:47:34.705056191 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/hashline/src/private_block/trained_stack_tests.rs	2026-10-19 02:32:58.681136225 -0700
+@@ -492,3 +492,145 @@
+     eprintln!("REVIEW r5_3 (R6): (b) race refused, (b') verified hashes published, (c) four forgeries refused and the verifier's rendering published, (e) five edits of an existing statement/ refused, (d) symlinked directory refused");
+     let _ = std::fs::remove_dir_all(&dir);
+ }
++
++/// **NATIVE R7: REVIEW r6 NOTE N-r6-b — A `statement.writing-<pid>` LEFT BY
++/// A KILLED VERIFIER.** Before R7 it blocked every later verification of the
++/// run (the run directory's listing refused it as a foreign entry). Now:
++/// one whose pid is dead and which holds only the verifier's own files is
++/// removed and the run verifies and publishes; one whose pid is alive, a
++/// link, or one holding anything else is refused BY NAME with what to do,
++/// and left in place.
++#[test]
++fn review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name() {
++    let dir = base_dir("n-r6-b");
++    let vdir = write_stack_export(&dir, "stale", 2);
++    let vc = super::trained_block_tests::verifier_copy(&vdir);
++    let s = |v: &[&str]| -> Vec<String> { v.iter().map(|x| x.to_string()).collect() };
++    let (vd, vcd) = (vdir.display().to_string(), vc.display().to_string());
++    let out = dir.join("run");
++    let od = out.display().to_string();
++    assert_eq!(trained_stack_prove_command(&s(&["--export", &vd, "--seq", "s0", "--out", &od, "--witness-cache-gib", "0"])), 0, "stack-prove");
++    let stmt = std::fs::read_to_string(dir.join("run.unverified-statement").join("statement.json")).unwrap();
++    let id = stmt.split("\"trained_statement_identity\": \"").nth(1).unwrap().split('"').next().unwrap().to_string();
++    let verify = || trained_stack_verify_command(&s(&["--export", &vcd, "--artifact", &od, "--expect-statement", &id]));
++    // a pid that WAS a process and is not any more (a reaped child)
++    let dead = {
++        let mut c = std::process::Command::new("true").spawn().expect("spawn true");
++        let pid = c.id();
++        c.wait().unwrap();
++        pid
++    };
++    assert!(!Path::new("/proc").join(dead.to_string()).exists(), "the reaped child's pid {dead} is live again; rerun");
++    let live = std::process::id();
++
++    // (1) a LIVE pid: refused by name with the hint, nothing removed or published
++    let w_live = out.join(format!("statement.writing-{live}"));
++    std::fs::create_dir(&w_live).unwrap();
++    std::fs::write(w_live.join("statement.json"), b"{}").unwrap();
++    let e = clear_stale_writing_dirs(&out).expect_err("a live pid's writing directory was removed");
++    assert!(e.contains(&w_live.display().to_string()) && e.contains("is alive") && e.contains("N-r6-b"), "{e}");
++    assert_eq!(verify(), 1, "a run with a live verifier's writing directory verified");
++    assert!(w_live.join("statement.json").exists() && !out.join("statement").exists());
++    std::fs::remove_dir_all(&w_live).unwrap();
++    // (2) a dead pid but a foreign file inside: refused by name, left in place
++    let w_dead = out.join(format!("statement.writing-{dead}"));
++    std::fs::create_dir(&w_dead).unwrap();
++    std::fs::write(w_dead.join("notes.txt"), b"not ours").unwrap();
++    let e = clear_stale_writing_dirs(&out).expect_err("a writing directory with a foreign file was removed");
++    assert!(e.contains("notes.txt") && e.contains("N-r6-b"), "{e}");
++    assert!(w_dead.join("notes.txt").exists());
++    std::fs::remove_file(w_dead.join("notes.txt")).unwrap();
++    // (3) a link named like a writing directory: refused, never followed
++    std::fs::remove_dir(&w_dead).unwrap();
++    let target = dir.join("elsewhere");
++    std::fs::create_dir(&target).unwrap();
++    std::fs::write(target.join("statement.json"), b"{}").unwrap();
++    std::os::unix::fs::symlink(&target, &w_dead).unwrap();
++    let e = clear_stale_writing_dirs(&out).expect_err("a link was accepted as a writing directory");
++    assert!(e.contains("not a real directory") && e.contains("N-r6-b"), "{e}");
++    assert!(target.join("statement.json").exists() && std::fs::symlink_metadata(&w_dead).unwrap().file_type().is_symlink());
++    std::fs::remove_file(&w_dead).unwrap();
++    // (4) a name that is not `statement.writing-<digits>`: refused by name
++    let odd = out.join("statement.writing-12ab");
++    std::fs::create_dir(&odd).unwrap();
++    assert!(clear_stale_writing_dirs(&out).expect_err("an odd writing name was accepted").contains("not a statement directory this verifier writes"));
++    std::fs::remove_dir(&odd).unwrap();
++    // (5) THE CASE N-r6-b IS ABOUT: a killed verifier's half-written
++    //     directory (dead pid, only our files): removed, then the run
++    //     verifies and the verifier publishes its statement
++    std::fs::create_dir(&w_dead).unwrap();
++    std::fs::write(w_dead.join("expected.bin"), b"partial").unwrap();
++    std::fs::write(w_dead.join("statement.json"), b"{\"partial\": true").unwrap();
++    assert_eq!(verify(), 0, "a stale writing directory still blocks the verification");
++    assert!(!w_dead.exists(), "the stale writing directory was not removed");
++    assert!(out.join("statement").join("statement.json").exists(), "the verified statement was not published");
++    // and the published run re-verifies (no writing directory remains)
++    assert_eq!(verify(), 0, "the published run no longer verifies");
++    let _ = std::fs::remove_dir_all(&dir);
++}
++
++/// **NATIVE R7: PRIVACY REVIEW ROUND 2, Q-2 — `prover_reported.backend` IS A
++/// BUILD CONSTANT.** In R6 it was any printable string of up to 256
++/// characters, republished by the verifier: a free published field of the
++/// class C-R4 closed for the context label. Now the prover writes and the
++/// verifier publishes only one of `BACKENDS` (the CPU build's name — byte
++/// for byte what R5b / R6 wrote — and the two `gpu-cuda` names), with 0
++/// declines on the CPU path. A 300-character backend and an unknown name
++/// are refused before publication; each real name is accepted.
++#[test]
++fn privacy_q2_the_published_backend_is_one_of_the_builds_names() {
++    // the check itself
++    for b in BACKENDS {
++        check_prover_reported(b, 0).unwrap_or_else(|e| panic!("{b}: {e}"));
++    }
++    assert_eq!(BACKEND_CPU_BUILD, "gpu: off (built without --features gpu-cuda)", "the CPU build's name moved: R5b / R6 statements would no longer verify");
++    assert_eq!(backend_of_this_process(), BACKEND_CPU_BUILD, "a CPU test build reports another backend");
++    let long = "x".repeat(300);
++    for bad in [long.as_str(), "gpu: off (request 42)", "", "GPU: OFF (BUILT WITHOUT --FEATURES GPU-CUDA)"] {
++        let e = check_prover_reported(bad, 0).expect_err("a free backend text was admitted");
++        assert!(e.contains("Q-2"), "{e}");
++        if !bad.is_empty() {
++            assert!(!e.contains(&bad[..bad.len().min(20)]), "the refusal echoes the prover's text: {e}");
++        }
++    }
++    assert!(check_prover_reported(BACKEND_CPU_BUILD, 1).is_err(), "declines on the CPU path were admitted");
++    assert!(check_prover_reported(BACKEND_CUDA, 3).is_ok());
++    assert!(check_prover_reported(BACKEND_CUDA, MAX_GPU_DECLINES + 1).is_err());
++
++    // end to end: the prover's unverified statement carries another backend
++    let dir = base_dir("q2");
++    let vdir = write_stack_export(&dir, "q2", 2);
++    let vc = super::trained_block_tests::verifier_copy(&vdir);
++    let s = |v: &[&str]| -> Vec<String> { v.iter().map(|x| x.to_string()).collect() };
++    let (vd, vcd) = (vdir.display().to_string(), vc.display().to_string());
++    let mut runs = 0;
++    let mut prove = |tag: &str| -> (PathBuf, PathBuf, String, String) {
++        runs += 1;
++        let out = dir.join(format!("run-{tag}-{runs}"));
++        assert_eq!(trained_stack_prove_command(&s(&["--export", &vd, "--seq", "s0", "--out", &out.display().to_string(), "--witness-cache-gib", "0"])), 0, "stack-prove");
++        let un = PathBuf::from(format!("{}.unverified-statement", out.display()));
++        let stmt = std::fs::read_to_string(un.join("statement.json")).unwrap();
++        let id = stmt.split("\"trained_statement_identity\": \"").nth(1).unwrap().split('"').next().unwrap().to_string();
++        (out, un, id, stmt)
++    };
++    let verify = |out: &Path, id: &str| trained_stack_verify_command(&s(&["--export", &vcd, "--artifact", &out.display().to_string(), "--expect-statement", id]));
++    let cpu = format!("\"backend\": \"{BACKEND_CPU_BUILD}\"");
++    // a 300-character backend and an unknown name: refused, nothing published
++    for bad in [long.clone(), "gpu: off (request 42)".to_string()] {
++        let (out, un, id, stmt) = prove("bad");
++        assert!(stmt.contains(&cpu), "{stmt}");
++        std::fs::write(un.join("statement.json"), stmt.replace(&cpu, &format!("\"backend\": \"{bad}\""))).unwrap();
++        assert_eq!(verify(&out, &id), 1, "a statement with backend of {} bytes was published", bad.len());
++        assert!(!out.join("statement").exists() && un.exists(), "a refused statement was published or removed");
++    }
++    // each real name: accepted and published under prover_reported
++    for good in BACKENDS {
++        let (out, un, id, stmt) = prove("good");
++        std::fs::write(un.join("statement.json"), stmt.replace(&cpu, &format!("\"backend\": \"{good}\""))).unwrap();
++        assert_eq!(verify(&out, &id), 0, "a statement with the real backend name `{good}` was refused");
++        let pubd = std::fs::read_to_string(out.join("statement").join("statement.json")).unwrap();
++        assert!(pubd.contains(&format!("\"prover_reported\": {{\"backend\": \"{good}\", \"gpu_declines\": 0,")), "{pubd}");
++        assert_eq!(verify(&out, &id), 0, "the published statement with `{good}` no longer re-checks");
++    }
++    let _ = std::fs::remove_dir_all(&dir);
++}

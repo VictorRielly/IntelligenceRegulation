@@ -1,0 +1,516 @@
+{
+  "status": "PASS",
+  "run_id": "20261018T052105Z-217b5106",
+  "seed": 2026101876,
+  "checks": {
+    "fixtures": 24,
+    "native_values": 1716,
+    "round_messages": 72,
+    "offgrid": 312,
+    "original_finals": 1488,
+    "schoolbook_values": 1560,
+    "permutations": 24,
+    "aliases": 24,
+    "zero_censuses": 312
+  },
+  "controls": {
+    "leading_coefficient": true,
+    "stale_mu": true,
+    "helper_order": true,
+    "wrong_msb": true,
+    "nonlinear_table_fold": true,
+    "missing_final": true,
+    "support_omission": true,
+    "toy_index": true,
+    "bad_binding": true
+  },
+  "census": [
+    {
+      "descriptor": "TinyLlama1.1B",
+      "ln": 4,
+      "norm_w": 32,
+      "padded": false,
+      "degree": 4,
+      "tables": 59,
+      "lookups": 34,
+      "helpers": 17,
+      "prep": [
+        76,
+        54,
+        0,
+        30
+      ],
+      "differences": [
+        0,
+        59,
+        0,
+        0
+      ],
+      "coefficient_row": [
+        272,
+        150,
+        331,
+        72
+      ],
+      "schoolbook_row": [
+        249,
+        104,
+        354,
+        72
+      ],
+      "native_point": [
+        113,
+        68,
+        75,
+        59
+      ],
+      "coefficient_accumulate": [
+        5,
+        0,
+        0,
+        0
+      ],
+      "convert_full": [
+        16,
+        0,
+        0,
+        12
+      ],
+      "convert_recovered": [
+        12,
+        1,
+        0,
+        12
+      ]
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "ln": 4,
+      "norm_w": 32,
+      "padded": true,
+      "degree": 5,
+      "tables": 60,
+      "lookups": 34,
+      "helpers": 17,
+      "prep": [
+        76,
+        54,
+        35,
+        30
+      ],
+      "differences": [
+        0,
+        60,
+        0,
+        0
+      ],
+      "coefficient_row": [
+        356,
+        154,
+        427,
+        72
+      ],
+      "schoolbook_row": [
+        332,
+        106,
+        451,
+        72
+      ],
+      "native_point": [
+        149,
+        69,
+        111,
+        59
+      ],
+      "coefficient_accumulate": [
+        5,
+        0,
+        0,
+        0
+      ],
+      "convert_full": [
+        20,
+        0,
+        0,
+        16
+      ],
+      "convert_recovered": [
+        16,
+        1,
+        0,
+        16
+      ]
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "ln": 4,
+      "norm_w": 32,
+      "padded": false,
+      "degree": 4,
+      "tables": 59,
+      "lookups": 34,
+      "helpers": 17,
+      "prep": [
+        76,
+        54,
+        0,
+        30
+      ],
+      "differences": [
+        0,
+        59,
+        0,
+        0
+      ],
+      "coefficient_row": [
+        272,
+        150,
+        331,
+        72
+      ],
+      "schoolbook_row": [
+        249,
+        104,
+        354,
+        72
+      ],
+      "native_point": [
+        113,
+        68,
+        75,
+        59
+      ],
+      "coefficient_accumulate": [
+        5,
+        0,
+        0,
+        0
+      ],
+      "convert_full": [
+        16,
+        0,
+        0,
+        12
+      ],
+      "convert_recovered": [
+        12,
+        1,
+        0,
+        12
+      ]
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "ln": 4,
+      "norm_w": 32,
+      "padded": true,
+      "degree": 5,
+      "tables": 60,
+      "lookups": 34,
+      "helpers": 17,
+      "prep": [
+        76,
+        54,
+        35,
+        30
+      ],
+      "differences": [
+        0,
+        60,
+        0,
+        0
+      ],
+      "coefficient_row": [
+        356,
+        154,
+        427,
+        72
+      ],
+      "schoolbook_row": [
+        332,
+        106,
+        451,
+        72
+      ],
+      "native_point": [
+        149,
+        69,
+        111,
+        59
+      ],
+      "coefficient_accumulate": [
+        5,
+        0,
+        0,
+        0
+      ],
+      "convert_full": [
+        20,
+        0,
+        0,
+        16
+      ],
+      "convert_recovered": [
+        16,
+        1,
+        0,
+        16
+      ]
+    },
+    {
+      "descriptor": "generic-four-top",
+      "ln": 4,
+      "norm_w": 31,
+      "padded": false,
+      "degree": 4,
+      "tables": 61,
+      "lookups": 38,
+      "helpers": 19,
+      "prep": [
+        80,
+        58,
+        0,
+        30
+      ],
+      "differences": [
+        0,
+        61,
+        0,
+        0
+      ],
+      "coefficient_row": [
+        292,
+        166,
+        357,
+        80
+      ],
+      "schoolbook_row": [
+        267,
+        116,
+        382,
+        80
+      ],
+      "native_point": [
+        121,
+        74,
+        81,
+        63
+      ],
+      "coefficient_accumulate": [
+        5,
+        0,
+        0,
+        0
+      ],
+      "convert_full": [
+        16,
+        0,
+        0,
+        12
+      ],
+      "convert_recovered": [
+        12,
+        1,
+        0,
+        12
+      ]
+    },
+    {
+      "descriptor": "generic-four-top",
+      "ln": 4,
+      "norm_w": 31,
+      "padded": true,
+      "degree": 5,
+      "tables": 62,
+      "lookups": 38,
+      "helpers": 19,
+      "prep": [
+        80,
+        58,
+        35,
+        30
+      ],
+      "differences": [
+        0,
+        62,
+        0,
+        0
+      ],
+      "coefficient_row": [
+        376,
+        170,
+        453,
+        80
+      ],
+      "schoolbook_row": [
+        350,
+        118,
+        479,
+        80
+      ],
+      "native_point": [
+        157,
+        75,
+        117,
+        63
+      ],
+      "coefficient_accumulate": [
+        5,
+        0,
+        0,
+        0
+      ],
+      "convert_full": [
+        20,
+        0,
+        0,
+        16
+      ],
+      "convert_recovered": [
+        16,
+        1,
+        0,
+        16
+      ]
+    },
+    {
+      "descriptor": "generic-five-top",
+      "ln": 5,
+      "norm_w": 39,
+      "padded": false,
+      "degree": 4,
+      "tables": 67,
+      "lookups": 42,
+      "helpers": 21,
+      "prep": [
+        88,
+        62,
+        0,
+        34
+      ],
+      "differences": [
+        0,
+        67,
+        0,
+        0
+      ],
+      "coefficient_row": [
+        320,
+        182,
+        391,
+        88
+      ],
+      "schoolbook_row": [
+        293,
+        128,
+        418,
+        88
+      ],
+      "native_point": [
+        133,
+        80,
+        87,
+        71
+      ],
+      "coefficient_accumulate": [
+        5,
+        0,
+        0,
+        0
+      ],
+      "convert_full": [
+        16,
+        0,
+        0,
+        12
+      ],
+      "convert_recovered": [
+        12,
+        1,
+        0,
+        12
+      ]
+    },
+    {
+      "descriptor": "generic-five-top",
+      "ln": 5,
+      "norm_w": 39,
+      "padded": true,
+      "degree": 5,
+      "tables": 68,
+      "lookups": 42,
+      "helpers": 21,
+      "prep": [
+        88,
+        62,
+        39,
+        34
+      ],
+      "differences": [
+        0,
+        68,
+        0,
+        0
+      ],
+      "coefficient_row": [
+        412,
+        186,
+        495,
+        88
+      ],
+      "schoolbook_row": [
+        384,
+        130,
+        523,
+        88
+      ],
+      "native_point": [
+        173,
+        81,
+        127,
+        71
+      ],
+      "coefficient_accumulate": [
+        5,
+        0,
+        0,
+        0
+      ],
+      "convert_full": [
+        20,
+        0,
+        0,
+        16
+      ],
+      "convert_recovered": [
+        16,
+        1,
+        0,
+        16
+      ]
+    }
+  ],
+  "synthetic_digest": "24300c906f5af31544ea2cd47d2f9ed27df4186b9dade7c03b336f146a3f36a6",
+  "wall_seconds": 1.889742215993465,
+  "rss_kib": 20788,
+  "compiler_rss_kib": 132272,
+  "cpu_affinity": [
+    0
+  ],
+  "threads": 1,
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "compiler_argv": [
+    "rustc",
+    "--edition=2021",
+    "--crate-type=cdylib",
+    "-C",
+    "codegen-units=1",
+    "-C",
+    "opt-level=0",
+    "counted-shim.rs",
+    "-o",
+    "counted-reference.so"
+  ],
+  "limits": "59s wall/CPU, 512MiB AS; one nice19 CPU; no GPU/Cargo/install",
+  "scope": "Synthetic endpoint-coefficient values and exact Fp2 API counts. Captured original Rust full D body/catalog with shape/layout/u128 field substitutes. No native proof, transcript, RNG, mask/privacy, device performance or target tokens."
+}

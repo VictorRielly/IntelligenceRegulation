@@ -1,0 +1,27 @@
+[05:11:41Z]   calibration float forward L00 (39s)
+[05:15:37Z]   calibration float forward L08 (30s)
+[05:19:19Z]   calibration float forward L16 (24s)
+[05:23:21Z]   calibration float forward L24 (33s)
+[05:27:01Z]   calibration float forward L31 (31s)
+[05:27:02Z] calibration final xhat maxima: {'sequences': 30, 'T_cal': 128, 'xhat_rot_absmax': 5.158717646270934, 'final_residual_absmax': 14.83291244506836}
+[05:28:19Z] embedding table written
+[05:28:19Z] embedding checks ok: {'exported_sequences': ['seq_ho00', 'seq_ho09'], 'heldout_chain_sequences': 15}
+[05:29:56Z] head written (clipped 0, -128 0, m in [859, 4096])
+[05:29:56Z] final norm 127 / Cn 4234 (refusal-free 512) / tn 9 / Ceps 78617 / window 32; selftest {'final_norm_equals_i_norm': True, 'rows': 64}
+[05:30:02Z]   F2 T128 positions 0-128 of 1920 (6.7s)
+[05:30:09Z]   F2 T128 positions 128-256 of 1920 (6.5s)
+[05:30:15Z]   F2 T128 positions 256-384 of 1920 (6.4s)
+[05:30:21Z]   F2 T128 positions 384-512 of 1920 (5.9s)
+[05:30:27Z]   F2 T128 positions 512-640 of 1920 (5.8s)
+[05:30:33Z]   F2 T128 positions 640-768 of 1920 (5.8s)
+[05:30:38Z]   F2 T128 positions 768-896 of 1920 (5.9s)
+[05:30:44Z]   F2 T128 positions 896-1024 of 1920 (5.9s)
+[05:30:50Z]   F2 T128 positions 1024-1152 of 1920 (5.9s)
+[05:30:56Z]   F2 T128 positions 1152-1280 of 1920 (5.8s)
+[05:31:02Z]   F2 T128 positions 1280-1408 of 1920 (5.9s)
+[05:31:08Z]   F2 T128 positions 1408-1536 of 1920 (6.0s)
+[05:31:14Z]   F2 T128 positions 1536-1664 of 1920 (5.8s)
+[05:31:20Z]   F2 T128 positions 1664-1792 of 1920 (6.5s)
+[05:31:27Z]   F2 T128 positions 1792-1920 of 1920 (6.4s)
+[05:31:27Z] F2: {"int_vs_float_head": {"all": {"agree": 1902, "n": 1920, "rate": 0.990625}, "float_margin_ge_0.3 (D25 T4)": {"agree": 1576, "n": 1576, "rate": 1.0}, "last_position": {"agree": 15, "n": 15, "rate": 1.0}, "domain:fineweb-edu": {"agree": 760, "n": 768, "rate": 0.9895833333333334}, "domain:licence-docstring": {"agree": 1142, "n": 1152, "rate": 0.9913194444444444}}, "d25_t4_criterion_met": true, "tie_positions": 0, "max_abs_raw_logit_bits": 20, "keyed_delta_bits_needed": 48, "keyed_window_bits": 56, "final_norm_refused_positions": 0}
+[05:31:29Z] done (1261s) -> /home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_b7_T128/token_io

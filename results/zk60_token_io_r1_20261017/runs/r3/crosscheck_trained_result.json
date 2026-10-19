@@ -1,0 +1,18 @@
+{
+ "seq": "ho00",
+ "decommitted_next_token": 11,
+ "lane_integer_head_token": 11,
+ "r0_integer_token": 11,
+ "lane_float_head_token": 11,
+ "float_top2_margin_logits": 4.398786544799805,
+ "integer_top2_margin_C": 146646590,
+ "max_abs_y": 61,
+ "agree_integer": true,
+ "agree_float": true,
+ "final_norm": {
+  "g0": 127,
+  "cn": 4234,
+  "tn": 9,
+  "ceps": 78617
+ }
+}

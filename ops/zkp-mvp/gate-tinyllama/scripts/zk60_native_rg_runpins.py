@@ -975,6 +975,12 @@ from zk60_native_rg_tinyllama_r5b_pins import (  # noqa: E402
     SHARED_NR4D_PINS)
 _tl_merge2(RUN_LAYER_PINS, _R5B_RLP, "RUN_LAYER_PINS")
 _tl_merge1(READINGS, _R5B_READINGS, "READINGS")
+# [TINYLLAMA PORT v8, round 6 part (B)] the R7 tree's run.rs digest and
+# reading (`zk60_native_rg_tinyllama_r7_pins`); the shared set is R5b's
+from zk60_native_rg_tinyllama_r7_pins import (  # noqa: E402
+    READINGS as _R7_READINGS, RUN_LAYER_PINS as _R7_RLP)
+_tl_merge2(RUN_LAYER_PINS, _R7_RLP, "RUN_LAYER_PINS")
+_tl_merge1(READINGS, _R7_READINGS, "READINGS")
 
 # --------------------------------------------------------------------------
 # 4.  WHICH STAGES A MOVED PIN SUSPENDS

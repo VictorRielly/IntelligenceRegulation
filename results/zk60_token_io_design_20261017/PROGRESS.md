@@ -98,8 +98,30 @@ Deliverable: `DESIGN.md` here. Counting scripts here (one thread, < 1 s).
   Did not run `check/check2_probes.py` (it writes under check/, another lane's set).
   Fidelity REPORT.md still not landed.
 
-## State: DONE for this round (DESIGN v3 + counter v3 + R0 v3). Nothing running.
-Open follow-up: fidelity REPORT.md -> record its Cn choice against D25 T4 in C-7 / 3.1 item 2.
+- 2026-10-18T04:25:29Z — coordinator: three implementation notes for v4 (TF-1 derived limbs; TR-7
+  block shape's key set; TF-6 receipt = the code's counted lengths), record R1/R2 built+reviewed and
+  R3 counted, rerun counter + R0 tests. Read: review verdicts (REVIEW.md round 1: sound, TR-1 MEDIUM
+  / TR-2 LOW-MEDIUM fixed; REVIEW2.md: no HIGH/MEDIUM), the rung ledger/REPORT (R2 255,258,816 B,
+  R3 471,285,072 B, 137 openings, floor 97), the codec (`token_io.rs::StageSegGeom::len`,
+  `wire.rs::segment_len`, stage A/H groups 3/4 and 18/6), fidelity REPORT.md (per-tensor 98.45 %,
+  per-row 98.91 %; D25 T4 amended 20:21 UTC option (b): 12-bit multipliers, margin criterion), D27.
+- 2026-10-18T04:31:39Z — counter v4 (v3 kept as `token_io_count_v3.py/.json`): per-row logit bound
+  (2^12), derived limbs (7 at TinyLlama 53 b / 8B 56 b), stage framing 88+32(+32 B_in root), IO-in over
+  d_pad, TZC 1 round, A/H groups 3/4 and 18/6, stage OUT closes B_out (2 groups, data+6 rows), block
+  segment in a run = single-block estimate + 112 B with the boundary opening; `check_code_lengths()`
+  asserted in main(): R2 and R3 stage IN / block / stage OUT / total all EQUAL the code's lengths.
+  Finding: U16 limbs inadmissible under the 12-bit class (4 x 16 = 64 bits; 2^64 + 2^53 >= p) — the
+  counter marks those variants, DESIGN withdraws the (U16) alternative. R0: `keyed_window_bits`,
+  `limbs_for` (+ no-wrap flag) and a TF-1 test; 21 tests OK in 0.5 s; vectors.json byte-identical.
+- 2026-10-18T04:35:43Z — DESIGN v4: section 0 (V4-1..V4-8), summary numbers, 3.1 (per-row head with
+  multipliers, derived L, Cn outcome, U16 withdrawn, R adopted), 3.2 sites 49/52, 3.5 tables (= code
+  receipts), 4.1 D17 bullet (TR-7), 4.4 rows N-1..N-3 + the built statements' 97-bit floors / D27,
+  5 tables, 6.1 rung status, 6.3 F1 done, 6.4 R0 v4, NEW 6.5 (R1/R2/R3 record), 7.1 R4 amended + D27
+  note, appendix. Stray __pycache__ dirs removed. Nothing launched; nothing running.
+
+## State: DONE for this round (DESIGN v4 + counter v4 + R0 v4). Nothing running.
+Open follow-ups: R3's independent review (not reported to this lane); the hidden-length variant,
+mode (ii) and the G-1..G-7 gate tooling are unbuilt.
 Open follow-up: when the fidelity lane's REPORT.md lands, record its Cn choice (calibrated vs
 refusal-free) against D25 T4 in DESIGN C-7 and section 3.1 item 2.
 

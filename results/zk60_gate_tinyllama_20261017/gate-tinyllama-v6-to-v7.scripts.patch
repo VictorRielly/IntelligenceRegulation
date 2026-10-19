@@ -1,0 +1,272 @@
+diff -ruN -x __pycache__ frozen_v6/scripts/zk60_native_rg_g10controls.py scripts/zk60_native_rg_g10controls.py
+--- frozen_v6/scripts/zk60_native_rg_g10controls.py	2026-10-17 14:49:16.129654563 -0700
++++ scripts/zk60_native_rg_g10controls.py	2026-10-19 02:29:04.796705289 -0700
+@@ -66,7 +66,14 @@
+     path = os.path.join(legacy_dir, "zk60_native_rg_bundle.py")
+     spec = importlib.util.spec_from_file_location("legacy_zk60_native_rg_bundle", path)
+     mod = importlib.util.module_from_spec(spec)
+-    spec.loader.exec_module(mod)
++    # [v7] the legacy module puts its own directory first on sys.path when it
++    # is executed; restore sys.path so that no later first-time import resolves
++    # to a frozen legacy copy.
++    saved_path = list(sys.path)
++    try:
++        spec.loader.exec_module(mod)
++    finally:
++        sys.path[:] = saved_path
+     with open(path, "rb") as fh:
+         digest = hashlib.sha256(fh.read()).hexdigest()
+     return mod.integrity, digest
+diff -ruN -x __pycache__ frozen_v6/scripts/zk60_native_rg_m125controls.py scripts/zk60_native_rg_m125controls.py
+--- frozen_v6/scripts/zk60_native_rg_m125controls.py	2026-10-17 14:43:27.627641631 -0700
++++ scripts/zk60_native_rg_m125controls.py	2026-10-19 02:33:01.244746462 -0700
+@@ -34,6 +34,7 @@
+ import copy
+ import hashlib
+ import os
++import re
+ import sys
+ 
+ HERE = os.path.dirname(os.path.abspath(__file__))
+@@ -212,16 +213,93 @@
+ 
+ 
+ # ------------------------------------------------------------------ M9-3
++# [v7, finding G-4] `pad::indicator_slots` (R5b `pad.rs:225-238`, READ): the
++# slots whose definition reads a domain's support indicator.  Ht is lifted
++# over the trailing axis of the S cube, so it shares S's host slot.
++INDICATOR_SLOTS = {
++    "D": {0, 1, 14}, "Q": {15}, "S": {4, 17}, "Ht": {17}, "Kv": {16},
++    "F": {18}, "L": {3}, "Tab": {19}, "T": {2},
++}
++
++# [v7, review round 2 Q-8] the two refusals that name the host slot's
++# indicator mechanism, matched EXACTLY (the texts of
++# `zk60_native_rg_terminals.TerminalGate.build_public` and
++# `SlotCtx.pad_draws`).  Any other refusal -- by name or not -- does not count.
++_TABLE_COUNT = re.compile(
++    r"^slot (\d+): the port declares (\d+) public tables, the capture has (\d+)$")
++_DRAW_COUNT = re.compile(
++    r"^slot (\d+): this slot consumes (\d+) definition draws \(.*\) and the "
++    r"capture declares (\d+)$")
++# a domain made to look padded adds ONE support table to its host slot, and
++# TWO definition draws (the pad mu and zeta) to it
++_EXTRA = {"public-table count": 1, "definition-draw count": 2}
++
++
++def _stopped_slots(rec) -> set:
++    """the slots that are not checked or do not match, over every stage"""
++    out = set()
++    for row in rec["per_stage"]:
++        out |= set(row["checked"]) - set(row["equal"])
++        out |= {e["slot"] for e in row["not_checked"]}
++    return out
++
++
++def refusal_mechanism(host: int, said: list):
++    """Which indicator mechanism the host slot's first refusal names, and its
++    two numbers (the port's, the capture's); (None, None) for anything else."""
++    if not said:
++        return None, None
++    for mech, rx in (("public-table count", _TABLE_COUNT),
++                     ("definition-draw count", _DRAW_COUNT)):
++        m = rx.match(said[0])
++        if m and int(m[1]) == host:
++            return mech, (int(m[2]), int(m[3]))
++    return None, None
++
++
++def g4_criterion(dom: str, host: int, arm: str, stopped: set, said: list) -> dict:
++    """[v7, finding G-4, tightened per review round 2 Q-8] one arm's verdict
++    for one domain.
++
++    arm "indicator": the domain's pad state forced true everywhere (the
++      pre-v7 perturbation).  The host slot must refuse by one of the two
++      indicator mechanisms -- recorded -- with exactly the expected surplus,
++      and exactly the slots `pad::indicator_slots` lists must stop.
++    arm "draw-count": only the host slot's `pad_on` forced true (its support
++      tables untouched), so the public-table count agrees and the slot reaches
++      the definition-draw count.  It must refuse by THAT mechanism, the port
++      consuming exactly two draws more than the capture declares, and only the
++      host slot may stop.  This is the refusal M9-3's criterion always
++      expected; before v7 no perturbation reached it."""
++    mech, nums = refusal_mechanism(host, said)
++    if arm == "indicator":
++        want_slots = set(INDICATOR_SLOTS[dom])
++        allowed = ("public-table count", "definition-draw count")
++    elif arm == "draw-count":
++        want_slots = {host}
++        allowed = ("definition-draw count",)
++    else:
++        raise ValueError(f"unknown M9-3 arm {arm!r}")
++    surplus = nums[0] - nums[1] if nums else None
++    mech_ok = mech in allowed and surplus == _EXTRA[mech]
++    exact = stopped == want_slots
++    return {"arm": arm, "refusal_mechanism": mech,
++            "port_and_capture_numbers": list(nums) if nums else None,
++            "mechanism_and_surplus_as_expected": mech_ok,
++            "expected_slots_to_stop": sorted(want_slots),
++            "exactly_the_expected_slots": exact,
++            "ok": bool(said) and mech_ok and exact}
++
++
+ def m9_3_the_unpadded_domains(bundle, index, replay) -> dict:
+     """Finding M-F1's own control.
+ 
+-    The three domains that do not pad at 125M are made to LOOK padded to
+-    the port -- `Shape::pads` forced true for one of them at a time -- and
+-    the slot that hosts it must refuse by name, saying how many definition
+-    draws it would consume and how many the capture declares.  Before round
+-    9 this case raised an `IndexError` that the per-slot arm reported as
+-    'not checked: list index out of range'."""
+-    from zk60_native_rg_terminals import PadGeometry, check_terminals
++    The domains that do not pad at this shape are made to LOOK padded to
++    the port, one at a time, and the slot that hosts each must refuse by
++    the mechanism the perturbation reaches.  Before round 9 this case
++    raised an `IndexError` that the per-slot arm reported as 'not checked:
++    list index out of range'.  [v7] Two arms per domain (`g4_criterion`)."""
++    from zk60_native_rg_terminals import PadGeometry, SlotCtx, check_terminals
+ 
+     honest = check_terminals(bundle, index, replay=replay)
+     hosts = {"T": (2, "SC_TZC"), "Kv": (16, "SC_KVZC"), "F": (18, "SC_FZC"),
+@@ -248,37 +326,63 @@
+             geom_doms[dom] = None
+             pad_errors[dom] = f"{type(e).__name__}: {e}"[:200]
+     unpadded = sorted(d for d, v in geom_doms.items() if v is False)
+-    per = []
+-    for dom in unpadded:
+-        slot, name = hosts[dom]
+-        real = PadGeometry.pads
+-
+-        def looks_padded(self, d, _dom=dom, _r=real):
+-            return True if d == _dom else _r(self, d)
++    honest_stopped = _stopped_slots(honest)
+ 
+-        PadGeometry.pads = looks_padded
++    def one_arm(dom, slot, arm):
++        if arm == "indicator":
++            owner, attr = PadGeometry, "pads"
++            real = PadGeometry.pads
++
++            def patched(self, d, _dom=dom, _r=real):
++                return True if d == _dom else _r(self, d)
++        else:
++            owner, attr = SlotCtx, "pad_on"
++            real = SlotCtx.pad_on
++
++            def patched(self, *doms, _dom=dom, _r=real):
++                return True if _dom in doms else _r(self, *doms)
++        setattr(owner, attr, patched)
+         try:
+             bad = check_terminals(bundle, index, replay=replay)
+-            said = [f["why"] for s in bad["per_stage"]
+-                    for f in s["not_checked"] if f["slot"] == slot]
+         finally:
+-            PadGeometry.pads = real
++            setattr(owner, attr, real)
++        said = [f["why"] for s in bad["per_stage"]
++                for f in s["not_checked"] if f["slot"] == slot]
++        stopped = _stopped_slots(bad) - honest_stopped
++        crit = g4_criterion(dom, slot, arm, stopped, said)
++        return {"refusal": said[0] if said else None,
++                "slots_that_stopped_being_checked": sorted(stopped),
++                "fires": bool(said), **crit}
++
++    per = []
++    for dom in unpadded:
++        slot, name = hosts[dom]
++        arms = {a: one_arm(dom, slot, a) for a in ("indicator", "draw-count")}
++        ind = arms["indicator"]
+         per.append({
+             "domain": dom, "slot": slot, "name": name,
+-            "refusal": said[0] if said else None,
++            "refusal": ind["refusal"],
++            # kept for the record; NOT criteria since v7 (finding G-4)
+             "the_refusal_names_the_two_numbers":
+-                bool(said) and "definition draws" in said[0]
+-                and "the capture declares" in said[0],
++                bool(ind["refusal"]) and "definition draws" in ind["refusal"]
++                and "the capture declares" in ind["refusal"],
+             "only_this_slot_stopped_being_checked":
+-                bad["slot_checks_equal"]
+-                == honest["slot_checks_equal"] - bundle.blocks,
+-            "fires": bool(said),
++                ind["slots_that_stopped_being_checked"] == [slot],
++            # [v7, finding G-4 / review Q-8]
++            "the_indicator_slots_of_the_domain": sorted(INDICATOR_SLOTS[dom]),
++            "arms": arms,
++            "fires": all(a["fires"] for a in arms.values()),
++            "ok": all(a["ok"] for a in arms.values()),
+         })
+     return {
+         "control": "M9-3",
+         "what": "each domain that does NOT pad at this shape, made to look "
+-        "padded to the port one at a time; its host slot must refuse by "
+-        "name (finding M-F1)",
++        "padded to the port one at a time, in two arms: everywhere (its host "
++        "slot must refuse by an indicator mechanism and exactly the slots "
++        "pad::indicator_slots lists must stop) and at the host slot's draw "
++        "count only (it must refuse by the definition-draw count, two draws "
++        "over the capture's, and only the host slot may stop) -- finding "
++        "M-F1; v7 = finding G-4 / review round 2 Q-8",
+         "pads_by_domain": geom_doms,
+         "domains_that_do_not_pad": unpadded,
+         "honest_slot_checks_equal": honest["slot_checks_equal"],
+@@ -290,8 +394,11 @@
+         # [v5, review P-11] with no domain left, ok only when that is the
+         # named every-domain-pads case and no domain's pad state errored
+         "pad_state_errors": pad_errors,
+-        "ok": (all(p["fires"] and p["the_refusal_names_the_two_numbers"]
+-                   for p in per) if per else True) and not pad_errors,
++        # [v7] per domain, both arms ok.  Before v7 the criterion asked that
++        # the indicator arm's refusal name the two definition-draw counts
++        # (false at every shape: the public-table count refusal fires first)
++        # and that exactly ONE slot stop (false for D and S).
++        "ok": (all(p["ok"] for p in per) if per else True) and not pad_errors,
+     }
+ 
+ 
+diff -ruN -x __pycache__ frozen_v6/scripts/zk60_native_rg_pincontrols.py scripts/zk60_native_rg_pincontrols.py
+--- frozen_v6/scripts/zk60_native_rg_pincontrols.py	2026-10-17 17:12:45.349929845 -0700
++++ scripts/zk60_native_rg_pincontrols.py	2026-10-17 21:44:42.339264284 -0700
+@@ -27,8 +27,9 @@
+         three G-2 files at the digests read) -> ok (honest for that writer)
+   PC-7  PC-6 without encode_buffer.rs        -> 5, 7 held, ok false
+   PC-8  PC-6 with sumcheck/rounds.rs moved   -> 7, 8, 10 held, ok false
+-  PC-9  a pre-G-2 writer pinning ONE G-2 file -> the other two refused
+-        (the two sumcheck files: 7, 8, 10 held)
++  PC-9  [v7] a pre-G-2 writer (tree A's run_capture.rs digest) pinning ONE
++        G-2 file, the other two dropped -> the two refused (7, 8, 10 held);
++        holds on any bundle, whatever its own writer pinned
+   PC-10 [v6] an R5b-writer pin set (G-2 + N-r4-d, every digest read) -> ok
+   PC-11 [v6] PC-10 without src/gpu/mod.rs -> 3, 4, 5, 7, 9 held
+ 
+@@ -62,6 +63,8 @@
+ R5_RUN = next(iter(R5["src/private_block/run.rs"]))
+ R5_RC = next(iter(R5["src/private_block/run_capture.rs"]))
+ UNREAD = "0" * 64
++# tree A's run_capture.rs (round 1's capture writer, which pins no G-2 file)
++TREE_A_RC = "c69e577621c4c2412a2819b4e0f2ae3c0a7613fb1db69c094d3f3e129cc876c9"
+ 
+ 
+ def _set(pins, path, digest):
+@@ -117,8 +120,17 @@
+      lambda p: (_r5_writer(p), _set(p, "../zkp-core/src/sumcheck/rounds.rs", UNREAD)),
+      ("stage7_channels", "stage8_plane_index_and_terminals",
+       "stage10_bilinear_group_factor"), False),
+-    ("PC-9", "a pre-G-2 writer that pins ONE of the three G-2 files",
+-     lambda p: _set(p, G2[0], SHARED_G2_PINS[G2[0]]["sha256"]),
++    # [v7, round 6] PC-9 is PC-9b: v6's construction only SET one G-2 pin and
++    # was a no-op on a bundle whose writer already pins all three (R5b), so
++    # it could not fire there (round 5). Now the writer's run_capture.rs pin
++    # is set to tree A's read digest (a pre-G-2 writer), one G-2 file is
++    # pinned at its read digest and the other two are DROPPED: on ANY
++    # bundle the two dropped sumcheck files are refused, stages 7, 8, 10 held.
++    ("PC-9", "a pre-G-2 writer (tree A's run_capture.rs digest) pinning ONE of "
++     "the three G-2 files, the other two dropped",
++     lambda p: (_set(p, "src/private_block/run_capture.rs", TREE_A_RC),
++                _set(p, G2[0], SHARED_G2_PINS[G2[0]]["sha256"]),
++                [_drop(p, f) for f in G2[1:]]),
+      ("stage7_channels", "stage8_plane_index_and_terminals",
+       "stage10_bilinear_group_factor"), False),
+     # [v6, round 5] the R5b writer: honest, and without one N-r4-d pin

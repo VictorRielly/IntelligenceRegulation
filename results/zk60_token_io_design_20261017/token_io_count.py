@@ -1,5 +1,22 @@
 """Counted layouts, per-opening soundness and [MODEL] seconds for the token I/O stages (paper design).
 
+Version 4 (2026-10-18, after rungs R1-R3 were built: `results/zk60_token_io_r1_20261017/`). The receipt
+estimate now equals the CODE'S counted segment lengths (`token_io.rs::StageSegGeom::len`,
+`wire.rs::segment_len`), with rows / sites / elements unchanged:
+  * TF-1 / D25 T4 as amended: the head is per-row int8 with public multipliers m_j in [1, 2^12], so the
+    logit bound carries the multiplier class and the keyed window is bits(2^v * 2 d 127^2 * 2^12 + V - 1)
+    (53 at TinyLlama, 56 at 8B, 45 at the R1 rung); the limb count is DERIVED, ceil(window / 8).
+  * TF-6: a stage segment carries an 88-byte header (magic, binding, total, index, start tag), the B_in
+    root in stage IN, a 32-byte trailer (end tag); stage OUT closes B_out (its second site's stage opens
+    the boundary, D12a): one two-group opening at the block geometry (data + 6 rows); the stage-OUT A
+    opening has the code's 18 column-weight groups (H 6; stage IN A 3 / H 4).
+  * TF-2 / TI-1: stage OUT's IO-in runs over d_pad (not the lifted Do cube); TZC's one-row To domain is
+    laid out over 2 entries (1 main round).
+  * block segments inside a token run: the block's single-block estimate + 112 B (run header / boundary
+    root / trailer), with the two external endpoint openings replaced by ONE two-group boundary opening.
+  Self-checks in main(): R2 (TinyLlama T32) 1,267,576 + 22 x 11,391,800 + 3,371,640 = 255,258,816 B and
+  R3 (Llama-3-8B T32) 1,415,192 + 32 x 14,547,080 + 4,363,320 = 471,285,072 B, the code's counted and
+  measured receipt lengths.
 Version 3 (2026-10-17, after the second check `check/CHECK2.md` and the D15 correction): the stack's
 own commitment term is counted as the soundness recount does (`results/zk60_soundness_recount_20261017/
 RECOUNT.md`: 4L + 1 openings, A / H / boundaries / endpoints at the real ZK-code distance, M at
@@ -80,8 +97,15 @@ MODELS = [TINY, L3_8B]
 TS = [32, 128, 512]
 
 
-def logits_bound(m, wmax=127):
-    return m.d * 127 * wmax
+MULT_BITS = 12            # D25 T4 as amended (2026-10-17 20:21 UTC): per-row multipliers m_j in [1, 2^12]
+SEG_HEADER, SEG_TRAILER = 88, 32   # token_io.rs: magic 8 + binding 32 + total 8 + index 8 + start tag 32; end tag 32
+RUN_BLOCK_EXTRA = 88 + 32 + 32 - 40  # wire.rs segment_len vs layout.py's single-block frame (40-byte header)
+A_GROUPS_IN, H_GROUPS_IN, A_GROUPS_OUT, H_GROUPS_OUT = 3, 4, 18, 6   # the code's column-weight group counts
+
+
+def logits_bound(m, wmax=127, mult_bits=MULT_BITS):
+    """|l_j| = m_j |y . W'_j| <= 2^mult_bits * d * 127 * wmax (per-row head, D25 T4 amended; TF-1)."""
+    return (1 << mult_bits) * m.d * 127 * wmax
 
 
 def window_bits(m, keyed=True):
@@ -93,7 +117,18 @@ def window_bits(m, keyed=True):
 
 
 def limbs(bits, limb_bits):
+    """TF-1: the limb count is derived, ceil(window / limb bits)."""
     return -(-bits // limb_bits)
+
+
+def limbs_no_wrap(bits, limb_bits):
+    """the C-4 / door condition: 2^(limb bits * L) + 2^window < p. FALSE for 16-bit limbs under the 12-bit
+    multiplier class (53 / 56-bit windows need four 16-bit limbs = 2^64 > p - 2^56): the U16 alternative of
+    DESIGN 3.1 is inadmissible as of D25 T4 as amended (v4 finding)."""
+    return (1 << (limb_bits * limbs(bits, limb_bits))) + (1 << bits) < P_GOLDILOCKS
+
+
+P_GOLDILOCKS = (1 << 64) - (1 << 32) + 1
 
 
 class Endpoint:
@@ -128,6 +163,8 @@ class Stage:
         self.pubtab = 0
         self.pubtab_factored = 0
         self.endpoints = []              # Endpoint objects this stage introduces (receipt + soundness)
+        self.closes_boundary = None      # (rows, log_cols) of the boundary this stage opens (stage OUT: B_out)
+        self.has_b_root = False          # stage IN commits B_in (its root travels in the segment)
         self.groups_a, self.groups_h = 8, 4
 
     def lift(self, size, carries_h):
@@ -165,10 +202,15 @@ class Stage:
             return (groups + 1) * vl * 16 + Q * (8 + rows * 8 + 32 + pth * 32)
         slot_words = sum(1 + (m_ + e) * (dg + 1) + t for nm, m_, e, dg, t, sz, k in self.slots)
         mask_open = 2 * MASK_VEC * 16 + Q * (8 + m_rows * 8 + 32 + MASK_PATH * 32)
-        rb = 96 + slot_words * 16 + mask_open + opening(self.groups_a, ar, vec_len, path)
+        # token_io.rs StageSegGeom::len: header, [B_in root], three roots, slots, mask, A, H, closes, trailer
+        rb = SEG_HEADER + 32 * int(self.has_b_root) + 96 + slot_words * 16 + mask_open + opening(self.groups_a, ar, vec_len, path)
         if hr:
             rb += opening(self.groups_h, hr, vec_len, path)
+        if self.closes_boundary is not None:
+            brows, blc = self.closes_boundary
+            rb += opening(2, brows, (1 << blc) + Q, clog2((1 << blc) * INV_RATE))
         rb += sum(e.receipt() for e in self.endpoints)
+        rb += SEG_TRAILER
         return dict(log_cols=self.log_cols, A_rows=ar, H_rows=hr, M_rows=m_rows, A_elems=ar * n, H_elems=hr * n,
                     elems=(ar + hr) * n, u8=self.u8, inversions=self.inversions, fold=self.fold,
                     zc=zc, zc_elem_terms=sum(sz * t for _, sz, t in zc), largest_zc=max([sz for _, sz, _ in zc] or [0]),
@@ -227,7 +269,8 @@ def input_b(m, T, log_cols, ep):
     st.pubtab = Vl + 2 * Tl + Vl
     st.pubtab_factored = st.pubtab
     st.endpoints = [ep]
-    st.groups_a, st.groups_h = 3, 4
+    st.has_b_root = True
+    st.groups_a, st.groups_h = A_GROUPS_IN, H_GROUPS_IN
     return st
 
 
@@ -305,14 +348,15 @@ def output_stage(m, T, T_out, log_cols, limb_bits=8, keyed=True, selector=None, 
     else:
         out_ep = Endpoint("output token endpoint", Top, 1)
     st.endpoints = [out_ep]
-    io_in = ("IO-in x_row = B_out row T-1 (public row bits)", clog2(Do_l), 1, 2, 2, Do_l, 2)
+    # TF-2: the code's IO-in reads x over d_pad (not the lifted Do cube); TI-1: To is laid out over 2 entries
+    io_in = ("IO-in x_row = B_out row T-1 (public row bits)", clog2(m.d_pad), 1, 2, 2, Do_l, 2)
     sel = [("SEL x_sel = sum_t s(t) B_out(t, .) (two private factors, public u0 on x_sel)", clog2(Tp) + clog2(Do_l), 2, 3, 3, None, 3),
            ("SBOOL s(1 - s) = 0 and sum s = 1 (batched, public factors)", clog2(Tp), 1, 3, 1, Tp, 1)]
     if selector == "input":
         sel.append(("IO-s s = input endpoint half 1 (whole half, public support factor)", clog2(max(128, Tp)), 1, 3, 2, max(128, Tp), 2))
     st.slots = ([io_in] if not selector else sel) + [
         ("SS row sums (private, hosted by TZC)", clog2(Do_l), 1, 4, 1, None, 1),
-        ("TZC isqrt (D, Dsq, 9 limb slices; hosts SS)", clog2(Top), 1, 3, 11, Top, 11),
+        ("TZC isqrt (D, Dsq, 9 limb slices; hosts SS)", max(1, clog2(Top)), 1, 3, 11, Top, 11),
         ("LZC limb lookups", clog2(Lo_l), 1, 4, 2, Lo_l, 2),
         ("HEAD matmul sum_i y(r_t, i) W'(r_j, i) (private, hosted by VZC)", clog2(m.d_pad), 1, 2, 1, None, 1),
         ("DZC norm quotient + x limbs + helpers (+pad)", clog2(Do_l), 1, 5, 13 + lk_do // 2, Do_l, 13 + lk_do // 2),
@@ -337,8 +381,32 @@ def output_stage(m, T, T_out, log_cols, limb_bits=8, keyed=True, selector=None, 
     st.fold = m.V_pad * m.d_pad
     st.pubtab = 2 * Vo_l + 3 * Do_l + Lo_l + Tab_l
     st.pubtab_factored = 2 * m.V_pad + 2 * Top + 3 * m.d_pad + Lo_l + Tab_l
-    st.groups_a, st.groups_h = 10, 6
-    return st, dict(window_bits=w, limbs=nl, pin=pin_n, lookups_per_vocab_entry=lk_v, vocab_planes=v_planes)
+    st.groups_a, st.groups_h = A_GROUPS_OUT, H_GROUPS_OUT
+    # TF-6: stage OUT closes B_out (two sites, boundary rows data + 6 at the block geometry)
+    sh = m.block(T)
+    st.closes_boundary = (((Tp * m.d_pad) >> sh.log_cols) + 6, sh.log_cols)
+    return st, dict(window_bits=w, limbs=nl, pin=pin_n, lookups_per_vocab_entry=lk_v, vocab_planes=v_planes,
+                    limb_bits=limb_bits, no_wrap=limbs_no_wrap(w, limb_bits))
+
+
+def run_block_segment(m, T):
+    """a block's segment inside a token run (wire.rs segment_len): the single-block estimate of layout.py
+    (which carries two one-site external endpoint openings) + 112 B of run framing, with the two endpoint
+    openings replaced by ONE two-group boundary opening of data + 6 rows at the block row width"""
+    sh = m.block(T)
+    s = sh.summary()
+    n = 1 << sh.log_cols
+    vl, pth = n + Q, clog2(n * INV_RATE)
+
+    def opening(groups, rows):
+        return (groups + 1) * vl * 16 + Q * (8 + rows * 8 + 32 + pth * 32)
+    brows = ((npow2(T) * m.d_pad) >> sh.log_cols) + 6
+    return s["receipt"] + RUN_BLOCK_EXTRA - 2 * opening(1, s["endpoint_rows"]) + opening(2, brows)
+
+
+# the code's counted (and measured) segment lengths, R2 (TinyLlama T32) and R3 (Llama-3-8B T32), public row
+CODE_LENGTHS = {"TinyLlama-1.1B": dict(stage_in=1267576, block=11391800, stage_out=3371640, total=255258816),
+                "Llama-3-8B": dict(stage_in=1415192, block=14547080, stage_out=4363320, total=471285072)}
 
 
 def best_width(build, lo=STAGE_MIN_LOG, hi=18):
@@ -398,9 +466,27 @@ def fmt_stage(st, c):
     return line, s, k
 
 
+def check_code_lengths():
+    """self-check: the counter's public-row segments equal the code's counted lengths byte for byte"""
+    out = {}
+    for m in MODELS:
+        ep = input_ep(32)
+        si = input_b(m, 32, STAGE_MIN_LOG, ep).summary()["receipt"]
+        so = output_stage(m, 32, 1, STAGE_MIN_LOG)[0].summary()["receipt"]
+        blk = run_block_segment(m, 32)
+        tot = si + m.L * blk + so
+        want = CODE_LENGTHS[m.name]
+        got = dict(stage_in=si, block=blk, stage_out=so, total=tot)
+        out[m.name] = dict(counter=got, code=want, equal=(got == want))
+        print("code-length check %-14s stage IN %d (%d) block %d (%d) stage OUT %d (%d) total %d (%d) %s" % (
+            m.name, si, want["stage_in"], blk, want["block"], so, want["stage_out"], tot, want["total"], "OK" if got == want else "MISMATCH"))
+        assert got == want, (m.name, got, want)
+    return out
+
+
 def main():
     c = cm.coefficients("cpu")
-    res = {"version": 2, "labels": "rows/elements/lookups/terms/bytes/bits [COUNTED]; seconds [MODEL]",
+    res = {"version": 4, "code_length_check": check_code_lengths(), "labels": "rows/elements/lookups/terms/bytes/bits [COUNTED]; seconds [MODEL]",
            "per_opening_log2": {"log_n %d rate 1/4" % ln: round(per_opening_log2(ln, 4), 2) for ln in range(8, 17)},
            "models": {}}
     res["per_opening_log2"]["token endpoint log_n 8 rate 1/8"] = round(per_opening_log2(8, 8), 2)
@@ -438,6 +524,11 @@ def main():
                 st = best_width(lambda lc: output_stage(m, T, log_cols=lc, **kw)[0], lo, 18)
                 info = output_stage(m, T, log_cols=st.log_cols, **kw)[1]
                 st.name = nm
+                if not info["no_wrap"]:
+                    print("   %-50s INADMISSIBLE: %d limbs of %d bits = 2^%d, 2^%d + 2^%d >= p (v4 finding)" % (
+                        nm, info["limbs"], info["limb_bits"], info["limbs"] * info["limb_bits"], info["limbs"] * info["limb_bits"], info["window_bits"]))
+                    tr[nm] = dict(inadmissible=True, argmax=info)
+                    continue
                 line, s, k = fmt_stage(st, c)
                 print("   " + line + "  [w %d b, %d limbs, pin %d]" % (info["window_bits"], info["limbs"], info["pin"]))
                 # the matching input stage (its endpoint geometry depends on the variant)

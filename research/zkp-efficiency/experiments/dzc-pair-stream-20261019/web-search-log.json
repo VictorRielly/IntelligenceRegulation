@@ -1,0 +1,40 @@
+{
+  "queries": [
+    "GPU sumcheck register pressure streaming polynomial coefficients ZK 2026",
+    "site.github.com ICICLE sumcheck memory GPU 2026",
+    "site.eprint.iacr.org GPU polynomial commitment streaming 2026",
+    "sumcheck October 2026 GPU streaming release site:github.com",
+    "site.eprint.iacr.org/2026 GPU October proof",
+    "site.arxiv.org/abs/2610 sumcheck polynomial commitment GPU",
+    "site.github.com sumcheck Oct18,2026",
+    "site.docs.nvidia.com CUDA C++ best practices register pressure local memory arrays"
+  ],
+  "notes": "Searches and primary inspections only, no external writes. Empty or irrelevant query results do not establish absence. Source records identify exact URLs and failures.",
+  "inspected_urls": [
+    "https://github.com/ingonyama-zk/super-sumcheck",
+    "https://raw.githubusercontent.com/ingonyama-zk/super-sumcheck/main/src/prover.rs",
+    "https://github.com/ingonyama-zk/super-sumcheck/commits/main/",
+    "https://medium.com/@ingonyama/sumcheck-201-12e4f42eb669",
+    "https://github.com/ingonyama-zk/super-sumcheck/tree/main/src",
+    "https://developer.nvidia.com/blog/fast-dynamic-indexing-private-arrays-cuda/",
+    "https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html",
+    "https://github.com/Plonky3/Plonky3/releases",
+    "https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0",
+    "https://github.com/ingonyama-zk/icicle/commit/6c77775",
+    "https://github.com/ingonyama-zk/icicle/blob/main/LICENSE",
+    "https://arxiv.org/abs/2606.16146",
+    "https://tanvirarafin.github.io/assets/pdf/DATE_2026.pdf"
+  ],
+  "access_issues": {
+    "cycle77-new-older-super-sumcheck-source": [
+      "Linked chapter1 PDF GitHub Internal Error; raw URL404NotFound",
+      "LICENSE.txt HTMLCachemiss/rawInternalError",
+      "6d389c1 commit and pinned source Cachemiss/InternalError"
+    ],
+    "cycle77-plonky3-october-release-refresh": [
+      "fe5e46d commitCachemiss",
+      "PR2268 direct-source suffix commitmentCachemiss"
+    ]
+  },
+  "note": "Native LIVE tool results reviewed; source claims/date/license/commit limits preserved in source-records.json. Full external page text not republished."
+}

@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "checks": 246,
+  "controls": {
+    "retain_bank_destroys_streaming_retention_gain": true,
+    "common_endpoints_and_accumulator_are_not_eliminated": true,
+    "input_last_use_demotes_scratch_only_claim": true
+  },
+  "end_to_end": {
+    "measured_8B_D_affected_time": null,
+    "predicted_8B_speedup": null,
+    "measured_native_speedup": null,
+    "maximum_speedup_if_all_D_deleted_in_carried_1B_diagnostic": 1.18112662101913,
+    "maximum_diagnostic_positions_per_second_if_all_D_deleted": 0.8686151695496095,
+    "caveat": "A ceiling on deleting ALL D in a 1.1B one-pass GPU-arm diagnostic; no estimate for this schedule or for 8B. Actual D phase, native compilation, registers, spills, occupancy and enclosing clocks owed."
+  },
+  "wall_seconds": 0.11829324300197186,
+  "rss_kib": 19352,
+  "cpu_affinity": [
+    0
+  ],
+  "threads": 1
+}
+{
+  "descriptor": "Llama3-8B",
+  "padded": false,
+  "bank_logical_scratch_bytes": 1264,
+  "pair_logical_scratch_bytes": 288,
+  "bank_with_common_endpoint_and_accumulator_words": 202,
+  "pair_with_common_endpoint_and_accumulator_words": 141,
+  "fixed_retained_endpoint_bank_reduction": 0.301980198019802,
+  "fixed_retained_endpoint_bank_is_not_last_use_peak": true,
+  "total_last_use_bank_words_including_accumulator": 130,
+  "total_last_use_pair_words_including_accumulator": 129,
+  "total_last_use_reduction": 0.007692307692307665,
+  "current_unpadded_catalog": true,
+  "full_original_tables_retained": 59,
+  "denominators_created_each_row": 34,
+  "baseline_and_pair_same_operations": [
+    272,
+    150,
+    331,
+    72
+  ],
+  "physical_memory_or_register_claim": false
+}

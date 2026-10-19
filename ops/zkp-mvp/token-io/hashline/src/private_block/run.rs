@@ -88,6 +88,10 @@ pub(crate) const RUN_PROFILE_TINYLLAMA_T64_TRAINED: &str = "hashline-zk-mr1/priv
 pub(crate) const RUN_PROFILE_TINYLLAMA_T128_TRAINED: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t128-trained-statement/1";
 /// ROUND 4 (R4-1): the run profile of the trained Llama-3-8B shape at T32.
 pub(crate) const RUN_PROFILE_LLAMA3_8B_T32_TRAINED: &str = "hashline-zk-mr1/private-run-llama-3-8b-t32-trained-statement/1";
+/// task 3 (2026-10-17 evening): the run profiles of the trained Llama-3-8B
+/// shapes at T64 and T128 (one per shape, D17). PENDING REVIEW.
+pub(crate) const RUN_PROFILE_LLAMA3_8B_T64_TRAINED: &str = "hashline-zk-mr1/private-run-llama-3-8b-t64-trained-statement/1";
+pub(crate) const RUN_PROFILE_LLAMA3_8B_T128_TRAINED: &str = "hashline-zk-mr1/private-run-llama-3-8b-t128-trained-statement/1";
 /// NATIVE LANE: the run profile of the trained-calibration development rung.
 pub(crate) const RUN_PROFILE_RUNG_TC: &str = "hashline-zk-mr1/private-run-rung-tc-t32-dev/1";
 /// TOKEN I/O R1 LANE (2026-10-17): the token-I/O run over the trained-
@@ -153,6 +157,8 @@ fn registered_block_shape(profile: &str, sh: &Shape) -> Option<Result<Shape, Str
         RUN_PROFILE_TINYLLAMA_T64_TRAINED => Shape::tinyllama_trained(64, &cal, sh.f_e),
         RUN_PROFILE_TINYLLAMA_T128_TRAINED => Shape::tinyllama_trained(128, &cal, sh.f_e),
         RUN_PROFILE_LLAMA3_8B_T32_TRAINED => Shape::llama3_8b_t32_trained(&cal, sh.f_e),
+        RUN_PROFILE_LLAMA3_8B_T64_TRAINED => Shape::llama3_8b_trained(64, &cal, sh.f_e),
+        RUN_PROFILE_LLAMA3_8B_T128_TRAINED => Shape::llama3_8b_trained(128, &cal, sh.f_e),
         #[cfg(test)]
         RUN_PROFILE_TINYLLAMA_T32_DEV => Ok(Shape::tinyllama_t32_dev()),
         _ => return None,
@@ -241,6 +247,8 @@ impl RunShape {
             p if p == TINYLLAMA_T64_TRAINED_PROFILE => RUN_PROFILE_TINYLLAMA_T64_TRAINED,
             p if p == TINYLLAMA_T128_TRAINED_PROFILE => RUN_PROFILE_TINYLLAMA_T128_TRAINED,
             p if p == super::shape::LLAMA3_8B_T32_TRAINED_PROFILE => RUN_PROFILE_LLAMA3_8B_T32_TRAINED,
+            p if p == super::shape::LLAMA3_8B_T64_TRAINED_PROFILE => RUN_PROFILE_LLAMA3_8B_T64_TRAINED,
+            p if p == super::shape::LLAMA3_8B_T128_TRAINED_PROFILE => RUN_PROFILE_LLAMA3_8B_T128_TRAINED,
             _ => return Err("private run: a trained-model run profile needs a trained TinyLlama or Llama-3-8B shape".into()),
         };
         if !sh.trained_calibration {
@@ -283,6 +291,12 @@ pub(crate) struct RunStatement {
     /// `k + 1`'s declared input scale. There is no second place to declare it.
     boundary_scales: Vec<i32>,
     calibration: Digest,
+    /// **NATIVE R6: each stage's softmax score shift** — the run shape's
+    /// `sh_s` for every stage of a run-wide calibration, and a trained
+    /// layer's own value where its record carries one (`LayerRecord::sh_s`,
+    /// bound by the trained identity the header absorbs). Stage `k` is
+    /// proved and verified at [`RunStatement::stage_shape`]`(k)`.
+    stage_sh_s: Vec<u32>,
 }
 
 impl RunStatement {
@@ -301,7 +315,7 @@ impl RunStatement {
         // the SHAPE's own flag (it was a substring test on the run profile,
         // which let an unbound run at the trained-calibration rung absorb
         // `calibration_identity()`), and on the trained run profile by name.
-        if rs.sh.trained_calibration || [RUN_PROFILE_TINYLLAMA_T32_TRAINED, RUN_PROFILE_TINYLLAMA_T64_TRAINED, RUN_PROFILE_TINYLLAMA_T128_TRAINED, RUN_PROFILE_LLAMA3_8B_T32_TRAINED, RUN_PROFILE_RUNG_TC].contains(&rs.profile) {
+        if rs.sh.trained_calibration || [RUN_PROFILE_TINYLLAMA_T32_TRAINED, RUN_PROFILE_TINYLLAMA_T64_TRAINED, RUN_PROFILE_TINYLLAMA_T128_TRAINED, RUN_PROFILE_LLAMA3_8B_T32_TRAINED, RUN_PROFILE_LLAMA3_8B_T64_TRAINED, RUN_PROFILE_LLAMA3_8B_T128_TRAINED, RUN_PROFILE_RUNG_TC].contains(&rs.profile) {
             return Err(format!("private run: {} is a trained-calibration run; it needs its trained-model statement (RunStatement::new_bound)", rs.profile));
         }
         if blocks.len() != rs.l || block_scales.len() != rs.l {
@@ -355,7 +369,17 @@ impl RunStatement {
         model.check_against(&rs.sh, rs.profile, &digests, block_scales)?;
         let approved = model.calibration.block_scales;
         let n = digests.len();
-        Self::new_with_calibration(rs, context, expected, digests, n, block_scales, model.identity(), approved)
+        let mut st = Self::new_with_calibration(rs, context, expected, digests, n, block_scales, model.identity(), approved)?;
+        // NATIVE R6: a layer's own score shift, each validated at the trained
+        // door (`Shape::with_score_shift`: the one-limb window, CS-8's
+        // rebuild, the trained class)
+        for (k, r) in model.layers.iter().enumerate() {
+            if let Some(v) = r.sh_s {
+                st.rs.sh.with_score_shift(v).map_err(|e| format!("private run: layer {}'s own score shift: {e}", r.index))?;
+                st.stage_sh_s[k] = v;
+            }
+        }
+        Ok(st)
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -408,7 +432,8 @@ impl RunStatement {
             }
         }
         let boundary_scales: Vec<i32> = (0..rs.l - 1).map(|k| block_scales[k].1).collect();
-        let st = RunStatement { rs, expected, block_digests, context, boundary_scales, calibration };
+        let stage_sh_s = vec![rs.sh.sh_s; rs.l];
+        let st = RunStatement { rs, expected, block_digests, context, boundary_scales, calibration, stage_sh_s };
         // **STAGE 16, ruling T-3.** `Layout::for_shape` has already checked
         // `A`, `H`, `M` and the external endpoint against the BLOCK's set of
         // hash-input lengths. A run absorbs one word no block does — its own
@@ -506,6 +531,22 @@ impl RunStatement {
             if k + 1 == l { ", then the external output endpoint" } else { "" },
         ))
         .map(|s: String| format!("{s}; data rows {d}"))
+        // NATIVE R6: a stage whose layer has its own score shift says so in
+        // its schedule line (and so in the schedule digest the header
+        // absorbs); a run-wide run's lines are what they were
+        .map(|s| if self.stage_sh_s[k] != self.rs.sh.sh_s { format!("{s}; score shift {} (the layer's own; the run's is {})", self.stage_sh_s[k], self.rs.sh.sh_s) } else { s })
+    }
+
+    /// **NATIVE R6: the shape stage `k` is proved and verified at** — the run
+    /// shape, or (a layer with its own score shift) the same shape with that
+    /// `sh_s`, rebuilt through the trained door
+    pub(crate) fn stage_shape(&self, k: usize) -> Result<Shape, String> {
+        let v = *self.stage_sh_s.get(k).ok_or_else(|| format!("private run: no stage {k}"))?;
+        if v == self.rs.sh.sh_s {
+            Ok(self.rs.sh.clone())
+        } else {
+            self.rs.sh.with_score_shift(v)
+        }
     }
 
     /// the reserved pair slot 21 (the INCOMING claim) uses in stage `k`
@@ -632,7 +673,7 @@ impl RunStatement {
     /// the stage layout: the block's, with the two IO tabs pointed at the
     /// reserved pairs this stage's schedule gives them
     fn stage_layout(&self, k: usize) -> Result<Layout, String> {
-        Ok(Layout::for_shape(&self.rs.sh)?.with_io_mask_rows([self.in_site(k)?, self.out_site(k)?]))
+        Ok(Layout::for_shape(&self.stage_shape(k)?)?.with_io_mask_rows([self.in_site(k)?, self.out_site(k)?]))
     }
 }
 
@@ -953,7 +994,9 @@ pub(crate) fn prove_run_with(st: &RunStatement, blocks: &mut dyn BlockSource, sr
                 None => &eout.as_ref().ok_or("private run: the output endpoint was already consumed")?.data,
             };
             let blk = blocks.block(k)?;
-            protocol::prove_core(sh, &lay, &blk, wit, [in_data, out_data], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick)?
+            // NATIVE R6: the stage's own shape (its layer's score shift)
+            let ssh = st.stage_shape(k)?;
+            protocol::prove_core(&ssh, &lay, &blk, wit, [in_data, out_data], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick)?
         };
         let [ic, oc] = core.io_claims;
         // the incoming commitment's claim list is complete NOW, and not before
@@ -1098,7 +1141,9 @@ impl<'a> RunVerifier<'a> {
             h_open: &seg.h_open,
         };
         let blk = self.blocks.block(k)?;
-        let ([ic, oc], _) = protocol::verify_core(sh, &lay, &blk, view, &self.ntt, &mut self.tr, &mut ph)?;
+        // NATIVE R6: the stage's own shape (its layer's score shift)
+        let ssh = st.stage_shape(k)?;
+        let ([ic, oc], _) = protocol::verify_core(&ssh, &lay, &blk, view, &self.ntt, &mut self.tr, &mut ph)?;
         drop(blk);
         match self.prev.take() {
             Some((spec, root)) => {
@@ -1275,11 +1320,22 @@ pub(crate) fn verify_run_from_dir(st: &RunStatement, blocks: &[BlockPublic], dir
 /// [`verify_run_from_dir`] with the blocks from a [`BlockSource`] (ROUND 4):
 /// ONE segment and ONE block resident
 pub(crate) fn verify_run_from_dir_with(st: &RunStatement, blocks: &mut dyn BlockSource, dir: &std::path::Path) -> Result<(), String> {
+    verify_run_from_dir_hashed_with(st, blocks, dir).map(|_| ())
+}
+
+/// **NATIVE R6 (review r5 finding r5_A).** [`verify_run_from_dir_with`],
+/// returning the length and SHA-256 (lower-case hex) of EXACTLY the bytes
+/// each segment's verification step consumed, hashed from the same buffer in
+/// the same iteration. A statement published after the verification binds
+/// these, never a later re-read of the files (which a writer of the run
+/// directory could have swapped in between).
+pub(crate) fn verify_run_from_dir_hashed_with(st: &RunStatement, blocks: &mut dyn BlockSource, dir: &std::path::Path) -> Result<Vec<(u64, String)>, String> {
     let l = st.rs.l;
     // RULING CS-6: the count and the digests (in `start`) before the
     // directory is listed or any segment file is read
     let mut v = RunVerifier::start(st, blocks)?;
     let paths = run_sink::segment_paths(dir, l)?;
+    let mut seen = Vec::with_capacity(l);
     for (k, p) in paths.iter().enumerate() {
         // ONE segment's bytes are resident: read here, dropped at the end of
         // this iteration, before the next file is opened. REVIEW r3_6: read
@@ -1287,8 +1343,10 @@ pub(crate) fn verify_run_from_dir_with(st: &RunStatement, blocks: &mut dyn Block
         // checked from metadata before the file is opened)
         let bytes = read_segment_bounded(st, k, p)?;
         v.step(k, &bytes)?;
+        seen.push((bytes.len() as u64, run_sink::digest_hex(&bytes)));
     }
-    v.finish()
+    v.finish()?;
+    Ok(seen)
 }
 
 /// `O_NOFOLLOW | O_NONBLOCK` on x86-64 Linux (the open flags differ by
@@ -1347,6 +1405,50 @@ pub(crate) fn read_segment_bounded(st: &RunStatement, k: usize, p: &std::path::P
     f.take(want as u64 + 1).read_to_end(&mut bytes).map_err(|e| format!("private run: segment {k} ({}) cannot be read: {e}", p.display()))?;
     if bytes.len() != want {
         return Err(format!("private run wire: segment {k} read {} B, the counted length is {want}", bytes.len()));
+    }
+    Ok(bytes)
+}
+
+/// **REVIEW r4 FINDING r4_B (verifier DoS, not soundness; native R5b): THE
+/// BOUNDED READER OF A REGULAR FILE**, with [`read_segment_bounded`]'s open
+/// discipline, for every other file the trained CLI and the MVP driver read
+/// by path (an export's `profile.json`, manifests, arrays and sequence files;
+/// an artifact's policy and single segment): `symlink_metadata` refuses
+/// anything that is not a regular file and any length above `max` (or other
+/// than `max` when `exact`) BEFORE the open; the open follows no link and
+/// does not block on a FIFO (x86-64 Linux); the OPENED file is re-checked
+/// (`fstat`: regular, the same length); the read is capped at `max + 1`
+/// bytes and its length re-checked — so a path swapped between the check and
+/// the read is refused, never followed, blocked on or read without bound.
+pub(crate) fn read_regular_file_bounded(path: &std::path::Path, max: u64, exact: bool) -> Result<Vec<u8>, String> {
+    use std::io::Read;
+    let meta = std::fs::symlink_metadata(path).map_err(|e| format!("{}: {e}", path.display()))?;
+    if !meta.file_type().is_file() {
+        return Err(format!("{}: not a regular file (a symbolic link, FIFO, device or directory is refused before it is opened)", path.display()));
+    }
+    let len = meta.len();
+    if exact && len != max {
+        return Err(format!("{}: {len} bytes on disk, the expected length is {max}; refused before it is read", path.display()));
+    }
+    if len > max {
+        return Err(format!("{}: {len} bytes exceeds the bound {max}; refused before it is read", path.display()));
+    }
+    let mut opts = std::fs::OpenOptions::new();
+    opts.read(true);
+    #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+    {
+        use std::os::unix::fs::OpenOptionsExt;
+        opts.custom_flags(SEGMENT_OPEN_FLAGS);
+    }
+    let f = opts.open(path).map_err(|e| format!("{}: cannot be opened as a regular file: {e}", path.display()))?;
+    let fm = f.metadata().map_err(|e| format!("{}: {e}", path.display()))?;
+    if !fm.file_type().is_file() || fm.len() != len {
+        return Err(format!("{}: changed after its check; refused", path.display()));
+    }
+    let mut bytes = Vec::with_capacity(len as usize);
+    f.take(max + 1).read_to_end(&mut bytes).map_err(|e| format!("{}: {e}", path.display()))?;
+    if bytes.len() as u64 != len {
+        return Err(format!("{}: changed while it was read ({} bytes, {len} at the check); refused", path.display(), bytes.len()));
     }
     Ok(bytes)
 }

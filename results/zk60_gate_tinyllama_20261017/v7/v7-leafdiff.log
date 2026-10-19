@@ -1,0 +1,3 @@
+v7-l1-dense-t.json: shared 3328, differ 33 {'m9_3': 2, 'aggregates': 3, 'volatile': 28, 'other': 0}; ok False -> True; M9-3 ok True; verdict OK
+v7-l2-dense-t.json: shared 4565, differ 34 {'m9_3': 2, 'aggregates': 3, 'volatile': 29, 'other': 0}; ok False -> True; M9-3 ok True; verdict OK
+v7-l2-zero-t.json: shared 4565, differ 30 {'m9_3': 2, 'aggregates': 3, 'volatile': 25, 'other': 0}; ok False -> True; M9-3 ok True; verdict OK

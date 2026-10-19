@@ -1,43 +1,40 @@
 # ZKP efficiency progress
 
-Cycle 0074 — `20261018T032105Z-8464ee28`, 2026-10-18 UTC.
+Cycle 0077 — `20261019T091854Z-7d13829d`, 2026-10-19 UTC.
 
-**No native proving speedup measured.** An affine table plus four bilinear
-terms matches D zero-check's eleven clauses in 96 synthetic CPU fixtures,
-including 9,840 comparisons with the captured Rust expression. An independent
-check passes 1,536 linear coefficients, 96 bilinear coefficients and 396 full
-round sums. Main experiment: 3.024 seconds; audit: 0.499 seconds; one Core
-Ultra 9 185H CPU thread, no GPU.
+**Useful negative; no measured proving improvement.** Streaming D helper
+pairs preserves all tested messages and original finals, with identical
+arithmetic. Derived scratch falls from 79 to 18 field words, but the complete
+logical peak, releasing endpoint pairs and derived buffers after last use,
+falls only **130→129 words (0.77%)** at current unpadded T128 catalogs.
+The earlier 202→141 count retains the entire endpoint bank throughout;
+it describes a different scope. These are logical buffers, not GPU registers,
+VRAM or proof clocks.
 
-The candidate saves counted clause arithmetic after charging preparation,
-construction and folds, while adding an 8 MiB table at N=2^19. Original tables
-and final checks remain. A small case with a known initial claim loses 63
-scalar products. Counts establish no runtime improvement. Even deleting the
-entire D phase in the retained 1.1B run would raise diagnostic total throughput
-only from 0.735 to 0.869 positions/s; the 8B effect is unknown.
+Thirty synthetic fixtures pass against the captured full Rust expression:
+2,145 grid and 390 off-grid values, 90 messages, 1,845 original finals and
+seven controls. All 246 independent audit checks pass. Main test: 6.348 s
+on one CPU thread. [Experiment](experiments/dzc-pair-stream-20261019/README.md)
+and [unapplied handoff](handoffs/20261019-dzc-pair-stream.md).
 
-The unapplied [handoff](handoffs/20261018-dzc-affine-aggregate.md) targets
-`SC_DZC` and `SumcheckRounds`. Real trained table bindings, native byte/refusal,
-RNG/privacy gates and enclosing timings remain. Next: inspect D's actual
-lookup, host and final-check dependencies to determine whether the extra
-table can avoid any original reads. Owner round 4 device gates pass, but no
-new enclosing stack result was credited here.
+Seam: `SC_DZC` / `SumcheckRounds`. Pair streaming alone is deprioritized.
+Next: construct endpoint pairs on first public use, charging every read,
+difference, temporary and original fold. Native byte, RNG, refusal, privacy
+and timing gates remain owner work. Seven LIVE source records cover older
+Super-sumcheck/NVIDIA guidance, current releases and hardware papers; exact
+dates, licenses, inspected commits and access limits are retained.
 
-Carried 8B T128 CPU baseline: one cold pass, 32 blocks, 606.598 seconds total,
-diagnostic 0.211 positions/s. Prove 501.126 seconds includes 122.694 seconds
-of rebuilt witnesses. Seal 105.287 seconds overlaps loading and witnesses;
-its 17.357% share is a phase fraction. Startup and serialization are not
-isolated. Fresh verifier: 14.126 seconds load + 43.902 seconds check.
+Carried 8B CPU diagnostic: T128, 32 blocks, one cold pass, 16 threads, GPU off;
+606.598 s app total, 0.211 diagnostic positions/s. Prove: 501.126 s, including
+122.694 s witness rebuilding. Seal: 105.287 s, overlapping witness 103.349 s
+and loading. Fresh verification: 14.126 s load + 43.902 s check. Serialization,
+startup fraction and steady slope remain unisolated; privacy/5090 acceptance
+remains pending.
 
-Six LIVE source records cover hardware ZeroCheck, EPFL, Sage, older recursive
-GKR training proofs, ROSETTA and Hekate engine releases/privacy analysis.
-No drop-in full-stack improvement found. Source dates, license scope and
-fetch failures are retained.
+New target proofs/passes/positions: **0/0/0**, device none. Target steady and
+total rates, startup fraction, witness/proof/serialization/verification clocks
+remain unmeasured. No prefill, resident series or decode ran; context can
+increase attention quadratically. Complete private 8B ≥50/s remains unachieved.
+Only research files changed; no mask/opening reuse.
 
-New target proofs/passes/positions: **0/0/0**. Target steady/total rates,
-startup fraction and witness/proof/serialization/verification clocks remain
-unmeasured; device none. No long-context prefill, resident series or decode.
-The complete private 8B ≥50-token/s target remains unachieved. Privacy and
-fresh-mask requirements are unchanged.
-
-[Dated report](progress/20261018T032105Z-8464ee28.md). Saved reports do not establish delivery.
+[Dated report](progress/20261019T091854Z-7d13829d.md). Saved reports do not establish delivery.

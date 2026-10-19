@@ -66,3 +66,4 @@
 [zk60-guard 19:29:54] START tl-r5b-l22-dense-f class=light need=6G cap=7G enforce=cgroup+watchdog waited=0s run=79eee165c644
 [zk60-guard 20:38:27] END tl-r5b-l22-dense-f exit=0 child_wall=4113s peak_rss=5.48G min_avail=7.32G
 [zk60-guard 20:38:27] START tl-r5b-l22-zero-f class=light need=6G cap=7G enforce=cgroup+watchdog waited=0s run=77d5666bcce4
+[zk60-guard 21:37:59] END tl-r5b-l22-zero-f exit=0 child_wall=3572s peak_rss=5.52G min_avail=8.97G

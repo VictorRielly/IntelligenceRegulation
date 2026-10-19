@@ -68,7 +68,14 @@ impl<'a> B<'a> {fn a(&mut self,p:usize)->Result<usize,String>{self.tabs.push(p);
 '''
     # Padded generic extra limbs require the shaped pad list, not toy idx slice.
     full=full.replace('&idx[A_X..=A_RDL]','&(5..sp[2]).collect::<Vec<usize>>()')
-    text=field+'\n'+consts+'\nconst F_P:u32=9;\n#[derive(Clone,Copy,Debug,PartialEq)]enum Dom{T,Ht,L,D,Q,Kv,S,F,Tab}\n'+shape+ids+b+lookups+cat+gate+pad+helper+full
+    core=span(s,'pub(crate) fn derive_at_width(')
+    dmax=next(l.strip() for l in core.splitlines() if l.strip().startswith('let d_max ='))
+    wrho=next(l.strip() for l in core.splitlines() if l.strip().startswith('let wrho ='))
+    norm=span(s,'fn isqrt_i128(')+span(s,'fn bit_length(')+'\nconst INT16_ABS:i128=32_768;\n'
+    norm+='''#[no_mangle] pub unsafe extern "C" fn norm_window(width:usize,ceps:i64,tn:u32)->u32 {
+ struct Cal{ceps:i64,tn:u32}impl Cal{fn derive(&self,width:usize)->u32{'''+dmax+wrho+'''wrho}}
+ Cal{ceps,tn}.derive(width)}\n'''
+    text=field+'\n'+consts+'\nconst F_P:u32=9;\n#[derive(Clone,Copy,Debug,PartialEq)]enum Dom{T,Ht,L,D,Q,Kv,S,F,Tab}\n'+shape+ids+b+lookups+cat+gate+pad+helper+full+norm
     (H/'shim.rs').write_text(text)
     return ['rustc','--edition=2021','--crate-type=cdylib','-C','codegen-units=1','-C','opt-level=0','shim.rs','-o','isolated.so']
 

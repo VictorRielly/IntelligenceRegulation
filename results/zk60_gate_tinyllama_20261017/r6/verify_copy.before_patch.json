@@ -1,0 +1,14 @@
+{
+ "digest_mismatch": [],
+ "listed": 219,
+ "manifest": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r6/manifest_frozen.json",
+ "manifest_sha256": "44e0e54f18769dda97f6e59ea562781ddab64cd4a63794638b5e9e8ec11386d5",
+ "missing": [],
+ "ok": true,
+ "root": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-r6",
+ "tree_sha256_declared": "83f1fdcbdcda3687815a76d5dc7714bf6b49d413ccfd9bc5b595bd898406cc33",
+ "tree_sha256_formula_reproduced": [
+  "sha256 of '<path> <digest>\\n' sorted by path (native r5_manifest.py)"
+ ],
+ "unlisted": []
+}

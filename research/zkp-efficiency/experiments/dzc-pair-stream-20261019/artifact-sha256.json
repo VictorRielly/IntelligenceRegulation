@@ -1,0 +1,332 @@
+[
+  {
+    "path": "experiments/dzc-pair-stream-20261019/README.md",
+    "bytes": 6392,
+    "sha256": "589a1a5d853a6d4b0dd9bcbd7e74126c2abf3769ead5e5ea0e01c37ac72097f6"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/audit-execution.json",
+    "bytes": 362,
+    "sha256": "27ccb7b520b0668fc3bc359fb5be3cfec4e446705852d1bb460783d8172a993f"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/audit-result.json",
+    "bytes": 9597,
+    "sha256": "10daa50243222b716e23210a3d9fe9105777908b117646110004164b7de2bd0d"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/audit.log",
+    "bytes": 1637,
+    "sha256": "1215d95458ce48cb543d50ae24e5cb7067348d1730b90cb3ed5fe5f9cf8cfb55"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/audit.py",
+    "bytes": 7414,
+    "sha256": "47ffaa2b080d4a19a5b35f5185cd1d52977c401b2e0700104f2e348fb22fb235"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/compile.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/counted-reference.so",
+    "bytes": 4582352,
+    "sha256": "4b19feefc87a255abb0c934f1498ec0ba39f9bd12f0b28ad49dd954eea15e6b3"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/counted-shim.rs",
+    "bytes": 18333,
+    "sha256": "c37a376f040084c8dbbafd174db7345f51ef52e739e0556e6ccb141ce0d08e1e"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/execution.json",
+    "bytes": 384,
+    "sha256": "a41eb96db4d3c29cc4d9498c52980d61f0516f7559f67e1443a240df9a632c06"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/hardware.json",
+    "bytes": 460,
+    "sha256": "a99c3f8930f8bc2d3b6bc0e7370857e6a495fd529283da4f112c5ce28ba9ef1d"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/initial-scratch-only-accounting/NOTE.md",
+    "bytes": 368,
+    "sha256": "f238367670f1ba5de42a82710de2ec181f1c72d3482d2a48bcb54d25762af3ee"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/initial-scratch-only-accounting/audit-execution.json",
+    "bytes": 362,
+    "sha256": "c3107de37dfeccd5506e025aaf10b2d1bcfcdd0dc2c4513e154281a40f086a4e"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/initial-scratch-only-accounting/audit-result.json",
+    "bytes": 6709,
+    "sha256": "ee91e772234b92e6711634419a88705a980393c8df0aa672c2e1768095b2fac7"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/initial-scratch-only-accounting/audit.log",
+    "bytes": 1318,
+    "sha256": "d4a5d0f3e32d09191674f619515b007b976834d91097fd41f085a5f15331526a"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/initial-scratch-only-accounting/audit.py",
+    "bytes": 6006,
+    "sha256": "547d5552974a5d12c7bed31c5f81b54299921365b29457b43d7f5c895e33ce8c"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/native/hashline__src__private_block__argument.rs",
+    "bytes": 109208,
+    "sha256": "9e70bbe558d7771b16f2a6f7f526ad3e548895d32ed0f6b897b85d0dd48b29b5"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/native/hashline__src__private_block__layout.rs",
+    "bytes": 64489,
+    "sha256": "fcf9dda4e507d2a347f786ddc537feff3ac57779abae88cea91ee48d4b34c855"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/native/hashline__src__private_block__pad.rs",
+    "bytes": 56654,
+    "sha256": "4f0c11c50503dd8cb4fb38d2b5be5e4f08ec310ee916b83a357f0283ede9eb42"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/native/hashline__src__private_block__shape.rs",
+    "bytes": 102462,
+    "sha256": "e6c7290b5c2d897ccaaa6284c813bbcfea563aaef7594c309b955a5588c1e073"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/native/zkp-core__src__field.rs",
+    "bytes": 11065,
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/native/zkp-core__src__sumcheck__rounds.rs",
+    "bytes": 7092,
+    "sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/native-full-closure.rs.inc",
+    "bytes": 3853,
+    "sha256": "ff211a135747ce09e1faff290539b892b45d8102e423d9065fc9e0c282d9bca6"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/prior-audit.py",
+    "bytes": 6653,
+    "sha256": "3f91bba4325ff8af39a94e94a8d42ee8c6a2bb03535b5338bd132e2ae4cf0645"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/prior-run.py",
+    "bytes": 16280,
+    "sha256": "719c391dabc20916a06df0535028431726888b28cbb4f1ae44aaa914fe10b96a"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/prior-source-inventory.json",
+    "bytes": 588499,
+    "sha256": "e598a046d93a1eb33f51c6e484a0ba2aa8d6b1afd76d34080567b9b1711c08cd"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/reference/constants.json",
+    "bytes": 1076,
+    "sha256": "9727e83700e02d1f9417f3104fdd330150d080e019f9c909917d4f1cd7459b7e"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/reference/native/hashline__src__private_block__argument.rs",
+    "bytes": 109208,
+    "sha256": "9e70bbe558d7771b16f2a6f7f526ad3e548895d32ed0f6b897b85d0dd48b29b5"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/reference/native/hashline__src__private_block__layout.rs",
+    "bytes": 64489,
+    "sha256": "fcf9dda4e507d2a347f786ddc537feff3ac57779abae88cea91ee48d4b34c855"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/reference/native/hashline__src__private_block__pad.rs",
+    "bytes": 56654,
+    "sha256": "4f0c11c50503dd8cb4fb38d2b5be5e4f08ec310ee916b83a357f0283ede9eb42"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/reference/native/hashline__src__private_block__shape.rs",
+    "bytes": 102462,
+    "sha256": "e6c7290b5c2d897ccaaa6284c813bbcfea563aaef7594c309b955a5588c1e073"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/reference/native/zkp-core__src__sumcheck__rounds.rs",
+    "bytes": 7092,
+    "sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/reference/native-full-closure.rs.inc",
+    "bytes": 3853,
+    "sha256": "ff211a135747ce09e1faff290539b892b45d8102e423d9065fc9e0c282d9bca6"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/reference/prepare.py",
+    "bytes": 6099,
+    "sha256": "7b6a3b22d5450ee85d682ef1548b6fab1a1e8de9436a9e21e8b14e1b3442e1b6"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/reference/provenance.json",
+    "bytes": 2398,
+    "sha256": "c2dec8e8fa22f877c7473d936ab035ab320bac55bf0521846896d26c2a4cd393"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/reference/public-profile-scalars.json",
+    "bytes": 1006,
+    "sha256": "82c523ac4912f1a3b33e5ad9662053e54e60f6ca9a73ce46a0cf812d6a1e7475"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/reference/reference_math.py",
+    "bytes": 1744,
+    "sha256": "2d5e05dcd7aba6f67520a4472faacb28c9cd16b6734ec05eb67249a8a88f7c26"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/reference/run.py",
+    "bytes": 13813,
+    "sha256": "454d0b3c3590ad586389bbaf1a064e95f1dd9c01f001b142d52b000e0c82d493"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/reference/shim.rs",
+    "bytes": 18214,
+    "sha256": "a4a3ac50b03345da8499a2b679cf35143c79f2e62c08e68d34a581a68b8be398"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/result.json",
+    "bytes": 9542,
+    "sha256": "1db6f5d080e80783eefe8001010fe99f18c6d9fb843fce561c5a5dd455fba5c5"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/run.log",
+    "bytes": 2352,
+    "sha256": "4147557b7ffef4c8bbfea14f5f6b4dfb063303f5763bfe61cb8def4b32bd7c78"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/run.py",
+    "bytes": 14548,
+    "sha256": "a79e1c1823d51f991cc64c0b9d365e117bef45a1aaeb3d7d0063c7badfbb1aa3"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/source-pins.json",
+    "bytes": 2858,
+    "sha256": "7867a89d7b8ee816d5416cd0e4d85e0fb3f0f88f5f08ecda994fc9282bfb6ae3"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/source-records.json",
+    "bytes": 10074,
+    "sha256": "bc123713d62775f239f9fcc8a91e9a2dd5942939c03c3ba74607b5bd61da4a74"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/startup/AGENDA.md",
+    "bytes": 5603,
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/startup/CLAUDE.md",
+    "bytes": 14089,
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/startup/FINDINGS.md",
+    "bytes": 554630,
+    "sha256": "18e2505e079d32b3bf2e344435230b8a5ee72219fc5e599837a047aec459f187"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/startup/PROGRESS.md",
+    "bytes": 2453,
+    "sha256": "a2c900e690461acf9fb4e4dbca7f1ff4c47189867284db4305f71567232fddc7"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/startup/STATE.md",
+    "bytes": 6185,
+    "sha256": "0b432b6b331d74c1f4a63e092d1323bac048292eeddea76ea6d477f39ac55397"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/startup/docs__zkmatrix-poc__MVP_STATUS.md",
+    "bytes": 72813,
+    "sha256": "b52a2ee0289f4a915eb16bab1886dc19fc55e3ba6cc8a90e1ac7fb3ed40fdddd"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/startup/docs__zkmatrix-poc__ZK60_CODEX_FABLE_COORDINATION.md",
+    "bytes": 64889,
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/startup/docs__zkmatrix-poc__ZK60_DECISIONS.md",
+    "bytes": 82276,
+    "sha256": "2dc434f5bf954d8b6eefcdbd98b71f46907821230bc1f913d02caae33814fbc7"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/startup/docs__zkmatrix-poc__ZK60_SPEED_PLAN_20261017.md",
+    "bytes": 34055,
+    "sha256": "e1798fe19b11960c1f8c0ba08d31b9427361cd194e61f9a6394c3ca339f67597"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/startup/docs__zkmatrix-poc__ZK60_THROUGHPUT_TARGET.md",
+    "bytes": 4941,
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/startup/ops__zkp-mvp__RECOVERY_COORDINATION.md",
+    "bytes": 38417,
+    "sha256": "56a05892c537f2120bbbee0a1934a1fe79cc9f237ad2da47b3a1d19091a096d7"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/startup/results__zk60_gpu_zerocheck_20261017__NEXT.md",
+    "bytes": 9653,
+    "sha256": "c3216eb5b5475603f7b6b64b7f8959a30a1d889488ccb03a79ede6da922bb44c"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/startup/results__zk60_gpu_zerocheck_20261017__REPORT.md",
+    "bytes": 9074,
+    "sha256": "fe12f86679dddc77c7dd4a1b0a5899e4612a174bcb29d07cb59369c1a33146a0"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/startup/sources.jsonl",
+    "bytes": 527541,
+    "sha256": "46d705de383ab1f681274a51d311941c1f0b0f7bd0d1f9c81c95cb6f84091e9e"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/target-accounting.json",
+    "bytes": 2566,
+    "sha256": "1a907f02a9ea213fa1b06841ac55f86a9a2226e9f3be6e4f26cc8258b1b99e6c"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/traces.json",
+    "bytes": 1440827,
+    "sha256": "964b318f00710ebbf1bee2e3feee06dc8c45fa5279be2d3966ce977a6ddff285"
+  },
+  {
+    "path": "experiments/dzc-pair-stream-20261019/web-search-log.json",
+    "bytes": 2174,
+    "sha256": "802e189072251baac8217cc7ead1d5933c866711771fcb4eb45e604433cbce6a"
+  },
+  {
+    "path": "STATE.md",
+    "bytes": 6258,
+    "sha256": "ccc6e414a5b80e7ea0b522c6b0d70b36790bdb6475932d55c284e87032020aa2"
+  },
+  {
+    "path": "FINDINGS.md",
+    "bytes": 561286,
+    "sha256": "5688cc465c5617d253083765a876b2bbbae555fda60ff614cf7d869b663c7689"
+  },
+  {
+    "path": "PROGRESS.md",
+    "bytes": 2315,
+    "sha256": "1e4a7e13cf50b898de33c1adb8932c735c25d8eeee4fed104a2da2aaa138f7b3"
+  },
+  {
+    "path": "sources.jsonl",
+    "bytes": 536945,
+    "sha256": "492d1f3528737155c6b00fb3a545dbc6228e1d5390ed4b50d1a096bd1bfcfa0d"
+  },
+  {
+    "path": "progress/20261019T091854Z-7d13829d.md",
+    "bytes": 6864,
+    "sha256": "c3be37f484097f54157635bb34217ff99f44f6b3b206c1c74f7aefa26e65c568"
+  },
+  {
+    "path": "handoffs/20261019-dzc-pair-stream.md",
+    "bytes": 3409,
+    "sha256": "f690618debf8a8718f8e9c74d099150c823e097041f4186dbe9a994fae711098"
+  }
+]

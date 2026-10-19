@@ -185,6 +185,18 @@ TOOLS = [
     "zk60_native_rg_schema.py",
     # [v6, round 5] the readings of the R5b tree's digests
     "zk60_native_rg_tinyllama_r5b_pins.py",
+    # [v8, round 6, finding G-11] every module the driver and its control
+    # families import, so a record's `tool_sha256` names all the code that
+    # made it (M9-1..M9-3 live in m125controls, which v7 changed), and the
+    # readings of the R7 tree's digests
+    "zk60_native_rg_m125controls.py",
+    "zk60_native_jv_capture.py",
+    "zk60_native_jv_cfs.py",
+    "zk60_native_jv_replay.py",
+    "zk60_native_manifest_pins.py",
+    "zk60_native_privacy_gate.py",
+    "zk60_native_profile_pins.py",
+    "zk60_native_rg_tinyllama_r7_pins.py",
 ]
 
 EXPECTED_DISCLOSED = {

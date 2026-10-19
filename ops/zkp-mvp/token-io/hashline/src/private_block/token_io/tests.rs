@@ -118,7 +118,7 @@ pub(super) fn model_of_one(sh: &Shape, blk: &BlockPublic, l: usize, run_profile:
     model_with_records(sh, recs, run_profile)
 }
 
-fn model_with_records(sh: &Shape, recs: Vec<LayerRecord>, run_profile: &str) -> TrainedModelStatement {
+pub(super) fn model_with_records(sh: &Shape, recs: Vec<LayerRecord>, run_profile: &str) -> TrainedModelStatement {
     let src = ModelSource {
         kind: SourceKind::PublicSyntheticRecipe,
         repo: "hashline/token-io-r1/synthetic".into(),

@@ -1,0 +1,6 @@
+[10:04:11Z] queue start
+[10:16:48Z] r7-cli-build exit 0
+[10:16:48Z] r7-r6-rung-statement exit 1
+[10:16:48Z] r7-stale-dead-forged exit 0
+[10:16:48Z] after r7-stale-dead-forged: run-r6 entries: segment-000.bin segment-001.bin statement 
+[10:16:48Z] run-r6-live entries: segment-000.bin segment-001.bin statement statement.writing-1 

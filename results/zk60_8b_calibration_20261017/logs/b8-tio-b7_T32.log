@@ -1,0 +1,8 @@
+[05:31:53Z] embedding checks ok: {'exported_sequences': ['seq_ho00', 'seq_ho09'], 'heldout_chain_sequences': 15}
+[05:31:54Z] final norm 127 / Cn 4234 (refusal-free 512) / tn 9 / Ceps 78617 / window 32; selftest {'final_norm_equals_i_norm': True, 'rows': 64}
+[05:31:57Z]   F2 T32 positions 0-128 of 480 (3.1s)
+[05:32:01Z]   F2 T32 positions 128-256 of 480 (3.1s)
+[05:32:03Z]   F2 T32 positions 256-384 of 480 (2.9s)
+[05:32:06Z]   F2 T32 positions 384-480 of 480 (2.7s)
+[05:32:06Z] F2: {"int_vs_float_head": {"all": {"agree": 479, "n": 480, "rate": 0.9979166666666667}, "float_margin_ge_0.3 (D25 T4)": {"agree": 371, "n": 371, "rate": 1.0}, "last_position": {"agree": 15, "n": 15, "rate": 1.0}, "domain:fineweb-edu": {"agree": 192, "n": 192, "rate": 1.0}, "domain:licence-docstring": {"agree": 287, "n": 288, "rate": 0.9965277777777778}}, "d25_t4_criterion_met": true, "tie_positions": 0, "max_abs_raw_logit_bits": 20, "keyed_delta_bits_needed": 48, "keyed_window_bits": 56, "final_norm_refused_positions": 0}
+[05:32:08Z] done (38s) -> /home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_b7_T32/token_io

@@ -1641,3 +1641,117 @@ Live tree `ops/zkp-mvp/trained-1b/` (R5b stays frozen at
   83f1fdcb... = the R6 freeze (219 files; scratch manifest, not kept). The
   review lane opened its round 6 on the frozen copy at 02:37 (its ledger
   line 647 on); its b7 identity probe is the 97c4acda... above.
+- 04:3x UTC review round r6 ACCEPTED R6 on soundness and the per-layer sh_s
+  (`results/zk60_d24_review_20261017/R6_VERDICT.md`). Notes carried:
+  N-r6-a (operating rule): evidence of a verification is a `stack-verify`
+  log line or a re-run, never a directory's existence. N-r6-c: R5b-written
+  statements need re-layout under R6 (`r6/r6_compat_prepare.py`). The
+  reviewer re-verifies the b7 T128 stack from its own copy once it lands
+  (expected identity 97c4acda9da994c1...).
+
+NEXT ROUND (R7), item 1 — N-r6-b: a `statement.writing-<pid>` left by a
+killed verifier blocks every later verify of that run (publish_statement_dir
+refuses to create it) until removed by hand; refuse it by name with a hint
+naming the file, or remove a stale one whose pid is dead (and only then).
+
+### Session resume 2026-10-19 09:25 UTC (weekly usage stop ~05:00 UTC 10-18; box rebooted 21:29 UTC 10-18)
+
+Both detached chains finished before the stop/reboot (guard times below
+converted to UTC; the guard log prints PDT).
+
+- **(1) 8B b7 T128 stack, per-layer sh_s (layer 1 at 7, run base 6), R6 CLI**
+  (`r6/stack-llama3_8b_pg_rot1_b7_T128-ho00-cpu/`, `report.json`,
+  `r6/b7_vs_b6quiet_phases.txt`) [MEASURED, n=1, **shared box**: the
+  calibration lane's light `b5-b7_T32` export overlapped the whole prove,
+  `box_label.json`]:
+  * prove 04:50:34-04:58:26 UTC 10-18, exit 0: identity
+    **97c4acda9da994c11790c2c8ec93b44beecb21501686b7e25965d2c18f970566** (= the
+    reviewer's independent probe); parity **bit-exact at every layer** (all 32,
+    seq ho00, against the calibration lane's integer reference, so layer 1's
+    witness at SH_S 7 equals it); 32 segments, 922,711,264 B (= the b6 T128
+    receipt: sh_s moves no plane or count); total 471.6 s = sealing pass
+    101.3 s (with the N-r5-a CS-3 check) + prove_run 370.1 s (of which witness
+    rebuilds 94.0 s, block loads 17.4 s); load 32.9 s; VmHWM 6,599 MiB, guard
+    peak RSS 6.43 GiB / cgroup 8.69 GiB (cap 10.5).
+  * fresh verify with controls (verifier copy, no seq_*): verified (load
+    11.6 s, verify 34.6 s, guard wall 146.5 s incl. controls), **11/11
+    run-level controls refused**, statement published BY THE VERIFIER
+    (schema /2, `statement_written_by` stack-verify, layer object
+    `{"layer": 1, ..., "sh_s": 7}`, run `sh_s` 6), unverified dir removed.
+  * byte re-check (second verify against the published statement/):
+    verified (32.3 s), `statement-checked`, exit 0.
+  * phases (summed over 32 blocks): commit 116.5 s (31.6%; H commit 44.6,
+    A commit 39.8), run/witness 95.4 s, residual zero-check 44.8 s, FF 43.8 s,
+    attention 42.6 s, openings 15.9 s.
+- **(2) quiet-box re-measure (R5b CLI)** [MEASURED, n=1]:
+  * 8B T32 (`r5b/stack-llama3_8b_pg_rot1_T32-ho00-cpu-quiet`), prove
+    00:12:46-00:15:22 UTC 10-18, **quiet box** (one boundary tie only):
+    total 156.2 s = sealing 29.3 + prove_run 126.8 s (witnesses kept, cache 4);
+    load 28.2 s; VmHWM 4,854 MiB; fresh verify 29.3 s. Shared-box R5b run
+    for comparison: 191.8 s total / prove_run 154.4 s -> the shared box cost
+    about 18% here.
+  * 8B b6 T128 (`r5b/stack-llama3_8b_pg_rot1_b6_T128-ho00-cpu-quiet`), prove
+    05:10:19-05:17:32 UTC 10-18, **quiet box** (the only "overlap" is its own
+    verify starting in the same second): total 432.5 s = sealing 74.2 +
+    prove_run 358.3 s (witness rebuilds 92.3 s, cache 0); load 27.2 s; VmHWM
+    6,716 MiB, guard peak RSS 6.56 GiB / cgroup 7.8 GiB; fresh verify 33.1 s.
+    Shared-box R5b run: 606.6 s total / prove_run 501.1 s -> about 29% here.
+  * b7 (R6, shared) vs b6 quiet (R5b): prove_run 370.1 vs 358.3 s (x1.033),
+    sealing 101.3 vs 74.2 s. Not separable at n=1: the b7 run shared the box
+    with a calibration export, and R6's sealing pass adds the CS-3 miss check
+    (~0.07 s per block at T128 by the prove-side phase "A: lookup values +
+    the byte histogram" 0.036 s/block + exp/act 0.02 s/block, i.e. ~2-3 s of
+    the 27 s); the receipt is identical.
+
+## Round 7 (coordinator, 2026-10-19 09:25 UTC): N-r6-b, kept small
+
+- 09:30 UTC edits (live tree, from the R6 freeze): trained_block.rs
+  `clear_stale_writing_dirs(art)`, called by `stack-verify` right after the
+  identity pin and the context, before the run directory is listed. Each
+  `statement.writing-<pid>` entry: REMOVED when it is a real directory
+  holding only expected.bin / statement.json / segments.json (regular files)
+  and `/proc/<pid>` is absent (stdout event `stale-statement-writing-removed`);
+  REFUSED by name with what to do otherwise (live pid, a link or file, other
+  contents, a name that is not `<digits>`). A removal publishes nothing; a
+  writer in another pid namespace whose directory is removed fails its own
+  rename. Test `review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_
+  refused_by_name` (live pid refused and kept, foreign file refused and kept,
+  link refused and not followed, odd name refused, the killed-verifier case
+  removed then verified + published + re-verified).
+- 09:31 UTC queued `r7_chain.sh` (detached): targeted check -> CPU + GPU CLI
+  builds -> full suite -> R7 freeze (only if green, tree unchanged since the
+  check, CLIs from the same tree). Check tree 7ef76971....
+- 09:4x UTC R7 item 2 (coordinator, privacy review round 2 Q-2): R6's
+  `prover_reported.backend` was any printable string <= 256 chars,
+  republished by the verifier (a C-R4-class free published field). Now
+  `BACKENDS` = three build constants: `BACKEND_CPU_BUILD` = "gpu: off (built
+  without --features gpu-cuda)" (byte for byte the R5b / R6 CPU builds'
+  value, so their statements stay valid), `BACKEND_CUDA_BUILD_CPU_PATH`,
+  `BACKEND_CUDA`; `backend_of_this_process()` picks one from the build and
+  `gpu::enabled()` only (the device's description stays on prover stdout);
+  `check_prover_reported` (backend in the list, declines 0 on the CPU path,
+  <= 4096 with the device; refusal names the rule and the byte length, never
+  echoes the text) runs in the prover before it writes a stack or block
+  statement and in the verifier's `ProverClaims::of_statement` before any
+  publication. Field stays labelled `prover_reported`. Test
+  `privacy_q2_the_published_backend_is_one_of_the_builds_names` (300-char and
+  unknown names refused end to end, nothing published; all three real names
+  accepted, published, re-checked).
+- The first R7 chain (09:31) was launched before Q-2; its freeze step
+  refuses a moved tree, so it cannot freeze the wrong tree. A second chain
+  starts after it ends.
+- 09:45 UTC first R7 chain: check 46/46 (incl. N-r6-b), CLIs, full suite
+  702/0 green, then **refused to freeze** ("the tree moved
+  (manifest_check)": Q-2 landed after its check), as designed; outputs kept in
+  `r7/attempt1-before-q2/`.
+- 09:46-09:58 UTC second chain on the complete tree (N-r6-b + Q-2): targeted
+  check 47 passed / 0 failed (incl. `review_n_r6_b_...`, `privacy_q2_...`,
+  `review_r5_3_...`); CPU + GPU CLIs (`r7/binaries.sha256`: CPU e51cc6a4...,
+  GPU 416dc64e...); **full suite 702 passed, 0 failed, 31 ignored** (29
+  targets) [MEASURED 353 s wall, peak RSS 4.35 GiB, shared box].
+- **R7 tree frozen for review at 2026-10-19T09:58:29Z, sha256 manifest
+  `results/zk60_1b_native_20261017/r7/manifest_frozen.json`** (tree
+  36a8aed17ea1ec9ca2dec89155edebcb19048f3a63789ded6ab74cc275c43520; copy
+  `r7/frozen-tree/`, note `r7/FROZEN.txt`, patch `r7/r7-vs-r6.patch` 331
+  lines, two files: trained_block.rs, trained_stack_tests.rs; CLIs built
+  from this tree; R6 stays frozen).

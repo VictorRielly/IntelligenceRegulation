@@ -1,0 +1,77 @@
+{
+ "run": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r6/stack-llama3_8b_pg_rot1_b7_T128-ho00-cpu",
+ "checks": {
+  "parity": "bit-exact at every layer",
+  "parity_bit_exact_every_layer": true,
+  "identity": "97c4acda9da994c11790c2c8ec93b44beecb21501686b7e25965d2c18f970566",
+  "identity_equals_expected": true,
+  "statement_published": true,
+  "statement_schema_2": true,
+  "statement_written_by_verifier": true,
+  "layers_with_own_sh_s": {
+   "1": 7
+  },
+  "run_sh_s": 6,
+  "layer_1_own_sh_s_7": true,
+  "unverified_dir_removed": true,
+  "verify": {
+   "verified": true,
+   "controls_refused": 11,
+   "published": true,
+   "checked": false,
+   "rejected": []
+  },
+  "recheck": {
+   "verified": true,
+   "controls_refused": 0,
+   "published": false,
+   "checked": true,
+   "rejected": []
+  }
+ },
+ "numbers": {
+  "prove": {
+   "blocks": 32,
+   "receipt_bytes": 922711264,
+   "prove_run_seconds": 370.137,
+   "of_which_witness_seconds": 94.021,
+   "sealing_pass_seconds": 101.279,
+   "load_seconds": 32.931,
+   "total_seconds": 471.58,
+   "vmhwm_mib": 6599,
+   "statement_identity": "97c4acda9da994c11790c2c8ec93b44beecb21501686b7e25965d2c18f970566",
+   "guard_wall_s": 471.686927318573,
+   "guard_peak_rss_gib": 6.43,
+   "guard_peak_cgroup_gib": 8.69
+  },
+  "verify": {
+   "blocks": 32,
+   "receipt_bytes": 922711264,
+   "load_seconds": 11.599,
+   "verify_seconds": 34.587,
+   "vmhwm_mib": 2095,
+   "guard_wall_s": 146.47306156158447,
+   "exit": "0"
+  },
+  "recheck": {
+   "blocks": 32,
+   "receipt_bytes": 922711264,
+   "load_seconds": 9.903,
+   "verify_seconds": 32.311,
+   "vmhwm_mib": 2140,
+   "guard_wall_s": 42.27633547782898,
+   "exit": "0"
+  }
+ },
+ "baseline": {
+  "run": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5b/stack-llama3_8b_pg_rot1_b6_T128-ho00-cpu-quiet",
+  "prove_run_seconds": 358.26,
+  "total_seconds": 432.539,
+  "receipt_bytes": 922711264,
+  "vmhwm_mib": 6716,
+  "guard_peak_rss_gib": 6.56,
+  "statement_identity": "6aba46fbd12d14b053a0ec4afb29ba7b7dbad5ef4fe327213474a737b6e3fe24",
+  "prove_ratio_run_over_base": 1.033,
+  "same_receipt_bytes": true
+ }
+}

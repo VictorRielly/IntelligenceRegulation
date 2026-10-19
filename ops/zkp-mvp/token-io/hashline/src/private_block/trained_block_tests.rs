@@ -287,9 +287,43 @@ fn every_malformed_export_is_refused_by_name() {
     assert!(ex.run_constants(&[1]).err().expect("layer 1 loaded").contains("not in profile.json's layer list"));
 }
 
-/// Parity reports a mismatch by count and position, never by value.
+/// **REVIEW r4 FINDING r4_A (verifier DoS; native R5b).** An export whose
+/// array files are replaced by large sparse files (manifests unchanged) is
+/// refused by name from METADATA — the exact length the manifest's dtype and
+/// shape give — before any byte is read, however many loads run in
+/// parallel; a manifest declaring a shape the code does not expect is refused
+/// before the file is touched. (Before R5b the parallel loads read up to
+/// 2 x 11 x 256 MiB first.)
 #[test]
-fn parity_reports_a_mismatch_by_count_and_position() {
+fn review_r4_a_an_oversized_or_misdeclared_array_is_refused_before_it_is_read() {
+    let dir = base_dir("r4-a");
+    let (vdir, _) = write_export(&dir, "fat", &Fault::default());
+    for name in ["wq", "wk", "wv", "wo", "wg_t", "wu_t", "wd_t"] {
+        let p = vdir.join("layer_00").join(format!("{name}.bin"));
+        std::fs::remove_file(&p).unwrap();
+        std::fs::File::create(&p).and_then(|f| f.set_len(255 << 20)).unwrap();
+    }
+    let ex = TrainedExport::load(&vdir).unwrap();
+    let c = ex.run_constants(&[0]).unwrap();
+    let sh = ex.shape_for(&c).unwrap();
+    let t0 = std::time::Instant::now();
+    let e = ex.load_layer(&sh, &c, 0, false).err().expect("the fat export loaded");
+    assert!(e.contains("layer 0") && e.contains("expected length is") && e.contains("refused before it is read"), "{e}");
+    assert!(t0.elapsed().as_secs_f64() < 5.0, "the refusal took {:?}", t0.elapsed());
+    // the same at the reload (no SHA) path
+    assert!(ex.reload_block(&sh, &c, 0, false).err().expect("the fat export reloaded").contains("refused before it is read"));
+    // a manifest shape the code does not expect: refused before the read
+    let (vdir, _) = write_export(&dir, "misdeclared", &Fault { shape_of_wk: Some("[384, 128]"), ..Default::default() });
+    let ex = TrainedExport::load(&vdir).unwrap();
+    let e = ex.load_layer(&sh, &c, 0, false).err().expect("a misdeclared array loaded");
+    assert!(e.contains("expected one of") && e.contains("refused before it is read"), "{e}");
+}
+
+/// R5b (privacy review P-6, ruling K-2): parity refuses a mismatch WITHOUT a
+/// count, a position or a value (it reported the count and the first
+/// position before R5b).
+#[test]
+fn parity_refuses_a_mismatch_without_a_count_a_position_or_a_value() {
     let dir = base_dir("parity");
     let (vdir, _) = write_export(&dir, "flip", &Fault { x_out_flip: true, ..Default::default() });
     let ex = TrainedExport::load(&vdir).unwrap();
@@ -298,7 +332,63 @@ fn parity_reports_a_mismatch_by_count_and_position() {
     let layer = ex.load_layer(&sh, &c, 0, false).unwrap();
     let (x_in, x_out) = ex.load_seq(&sh, "s0", 0).unwrap();
     let e = parity(&sh, &layer.blk, &x_in, &x_out).err().expect("a flipped word passed parity");
-    assert!(e.contains("in 1 of") && e.contains("token 0, channel 5"), "{e}");
+    assert_eq!(e, PARITY_REFUSAL);
+    assert!(!e.contains("token") && !e.contains("channel") && !e.chars().any(|c| c.is_ascii_digit() && !"2".contains(c)), "{e}");
+}
+
+/// **R5b (privacy review P-5): a verifier's copy of an export** — every
+/// public file, and no prover-private `seq_*` entry. A plain recursive copy
+/// (the test exports are small); the real exports use hard links.
+pub(super) fn verifier_copy(vdir: &Path) -> PathBuf {
+    fn copy(from: &Path, to: &Path, top: bool) {
+        std::fs::create_dir_all(to).unwrap();
+        for e in std::fs::read_dir(from).unwrap() {
+            let e = e.unwrap();
+            let name = e.file_name();
+            if top && name.to_string_lossy().starts_with("seq_") {
+                continue;
+            }
+            let (src, dst) = (e.path(), to.join(&name));
+            if e.file_type().unwrap().is_dir() {
+                copy(&src, &dst, false);
+            } else {
+                std::fs::copy(&src, &dst).unwrap();
+            }
+        }
+    }
+    let name = vdir.file_name().unwrap().to_string_lossy().to_string();
+    let to = vdir.with_file_name(format!("{name}-verifier-copy"));
+    copy(vdir, &to, true);
+    to
+}
+
+/// NATIVE R6: a plain recursive copy of a test export (every entry)
+pub(super) fn copy_tree_for_tests(from: &Path, to: &Path) {
+    std::fs::create_dir_all(to).unwrap();
+    for e in std::fs::read_dir(from).unwrap() {
+        let e = e.unwrap();
+        let (src, dst) = (e.path(), to.join(e.file_name()));
+        if e.file_type().unwrap().is_dir() {
+            copy_tree_for_tests(&src, &dst);
+        } else {
+            std::fs::copy(&src, &dst).unwrap();
+        }
+    }
+}
+
+/// R5b (P-5): a prover-private copy of the export's sequence `s0` OUTSIDE the
+/// export (the raw files only, no manifest), for `--seq-dir`
+pub(super) fn private_seq_copy(vdir: &Path) -> PathBuf {
+    let name = vdir.file_name().unwrap().to_string_lossy().to_string();
+    let to = vdir.with_file_name(format!("{name}-private-seq-s0"));
+    std::fs::create_dir_all(&to).unwrap();
+    for e in std::fs::read_dir(vdir.join("seq_s0")).unwrap() {
+        let e = e.unwrap();
+        if e.file_name() != "manifest.json" {
+            std::fs::copy(e.path(), to.join(e.file_name())).unwrap();
+        }
+    }
+    to
 }
 
 /// THE CLI BRIDGE END TO END on the tiny export: prove (with the
@@ -313,16 +403,35 @@ fn the_cli_proves_and_verifies_the_tiny_export_with_every_control() {
     let s = |v: &[&str]| -> Vec<String> { v.iter().map(|x| x.to_string()).collect() };
     let vd = vdir.display().to_string();
     let od = out.display().to_string();
+    // R5b (P-3 / C-R4): the context label is a deployment constant
+    let other = dir.join("artifact-other-label");
+    assert_eq!(trained_prove_command(&s(&["--export", &vd, "--layer", "0", "--seq", "s0", "--out", &other.display().to_string(), "--label", "per-request-label"])), 1, "a free --label was accepted");
+    assert!(!other.exists(), "the refused prover wrote an artifact");
+    // R5b (P-5): exactly one of --seq / --seq-dir
+    let both = dir.join("artifact-both");
+    let pseq = private_seq_copy(&vdir);
+    assert_eq!(trained_prove_command(&s(&["--export", &vd, "--layer", "0", "--seq", "s0", "--seq-dir", &pseq.display().to_string(), "--out", &both.display().to_string()])), 1, "both --seq and --seq-dir were accepted");
     assert_eq!(trained_prove_command(&s(&["--export", &vd, "--layer", "0", "--seq", "s0", "--out", &od, "--controls"])), 0, "prove failed");
     let stmt = std::fs::read_to_string(out.join("statement.json")).unwrap();
-    for k in ["\"norm_tn\": 10", "\"norm_cn_a\": 1336", "\"norm_cn_m\": 2158", "\"norm_ceps\": 33554467", "\"sh_ao\": 6"] {
+    for k in ["\"norm_tn\": 10", "\"norm_cn_a\": 1336", "\"norm_cn_m\": 2158", "\"norm_ceps\": 33554467", "\"sh_ao\": 6", "\"backend\": \"gpu: off", "\"gpu_declines\": 0"] {
         assert!(stmt.contains(k), "statement.json does not carry {k}");
     }
     let id = stmt.split("\"trained_statement_identity\": \"").nth(1).unwrap().split('"').next().unwrap().to_string();
-    assert_eq!(trained_verify_command(&s(&["--export", &vd, "--layer", "0", "--artifact", &od, "--expect-statement", &id, "--controls"])), 0, "verify failed");
+    // R5b (P-5): the verifier refuses an export holding a seq_* entry, and
+    // verifies from its copy of the public files
+    assert_eq!(trained_verify_command(&s(&["--export", &vd, "--layer", "0", "--artifact", &od, "--expect-statement", &id])), 1, "a verifier accepted an export holding seq_s0");
+    let vc = verifier_copy(&vdir);
+    let vcd = vc.display().to_string();
+    assert_eq!(trained_verify_command(&s(&["--export", &vcd, "--layer", "0", "--artifact", &od, "--expect-statement", &id, "--controls"])), 0, "verify failed");
     let wrong = hex(&sha256(b"another statement"));
-    assert_eq!(trained_verify_command(&s(&["--export", &vd, "--layer", "0", "--artifact", &od, "--expect-statement", &wrong])), 1, "a wrong statement pin was accepted");
+    assert_eq!(trained_verify_command(&s(&["--export", &vcd, "--layer", "0", "--artifact", &od, "--expect-statement", &wrong])), 1, "a wrong statement pin was accepted");
+    assert_eq!(trained_verify_command(&s(&["--export", &vcd, "--layer", "0", "--artifact", &od, "--expect-statement", &id, "--label", "per-request-label"])), 1, "a verifier accepted a free --label");
     assert_eq!(trained_prove_command(&s(&["--export", &vd, "--layer", "0", "--seq", "s0", "--out", &od])), 1, "an existing output directory was overwritten");
+    // R5b (P-5): the hidden input from a prover-private directory outside
+    // the export proves the same statement
+    let o2 = dir.join("artifact-seq-dir");
+    assert_eq!(trained_prove_command(&s(&["--export", &vcd, "--layer", "0", "--seq-dir", &pseq.display().to_string(), "--out", &o2.display().to_string()])), 0, "prove from --seq-dir failed");
+    assert_eq!(trained_verify_command(&s(&["--export", &vcd, "--layer", "0", "--artifact", &o2.display().to_string(), "--expect-statement", &id])), 0, "verify of the --seq-dir run failed");
 }
 
 /// **READER COMPATIBILITY WITH A REAL EXPORT'S LAYERS** (heavy, release):

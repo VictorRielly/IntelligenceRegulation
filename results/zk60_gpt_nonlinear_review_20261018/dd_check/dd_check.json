@@ -1,0 +1,234 @@
+{
+ "A": {
+  "admitted_members": 272,
+  "fit_cap32": 116,
+  "fit_cap64": 137,
+  "members_without_zero_output": 111,
+  "used": {
+   "8B b6/b7 (T32/T64/T128), hd 128 fE 9": {
+    "2": 19,
+    "3": 11,
+    "4": 6
+   },
+   "8B pg_rot1_T32 (older), hd 128 fE 9": {
+    "1": 32,
+    "2": 19,
+    "4": 6
+   },
+   "TinyLlama pg_rot1 / b4, hd 64 fE 9": {
+    "1": 24,
+    "2": 14,
+    "3": 8
+   },
+   "B6 candidate (a) one-sided score class, layer 1, hd 128 fE 9": {
+    "0": 55
+   }
+  },
+  "edge": {
+   "hd64_fe9": {
+    "max_e_s_over_32": 0,
+    "max_e_s_over_64": -1
+   },
+   "hd64_fe10": {
+    "max_e_s_over_32": 0,
+    "max_e_s_over_64": -1
+   },
+   "hd64_fe11": {
+    "max_e_s_over_32": 0,
+    "max_e_s_over_64": -1
+   },
+   "hd64_fe12": {
+    "max_e_s_over_32": 1,
+    "max_e_s_over_64": -1
+   },
+   "hd64_fe13": {
+    "max_e_s_over_32": 1,
+    "max_e_s_over_64": -1
+   },
+   "hd64_fe14": {
+    "max_e_s_over_32": 1,
+    "max_e_s_over_64": 0
+   },
+   "hd64_fe15": {
+    "max_e_s_over_32": 1,
+    "max_e_s_over_64": 0
+   },
+   "hd64_fe16": {
+    "max_e_s_over_32": 1,
+    "max_e_s_over_64": 0
+   },
+   "hd128_fe9": {
+    "max_e_s_over_32": 0,
+    "max_e_s_over_64": -1
+   },
+   "hd128_fe10": {
+    "max_e_s_over_32": 1,
+    "max_e_s_over_64": -1
+   },
+   "hd128_fe11": {
+    "max_e_s_over_32": 1,
+    "max_e_s_over_64": 0
+   },
+   "hd128_fe12": {
+    "max_e_s_over_32": 1,
+    "max_e_s_over_64": 0
+   },
+   "hd128_fe13": {
+    "max_e_s_over_32": 1,
+    "max_e_s_over_64": 0
+   },
+   "hd128_fe14": {
+    "max_e_s_over_32": 1,
+    "max_e_s_over_64": 0
+   },
+   "hd128_fe15": {
+    "max_e_s_over_32": 1,
+    "max_e_s_over_64": 0
+   },
+   "hd128_fe16": {
+    "max_e_s_over_32": 1,
+    "max_e_s_over_64": 0
+   }
+  },
+  "max_n_col": 257
+ },
+ "B": {
+  "today": {
+   "a_rows": 9185,
+   "h_rows": 11056,
+   "elems": 663257088,
+   "u8": 306249728,
+   "N": 323026944,
+   "eterms": 495452160,
+   "a_sites": 122,
+   "h_sites": 50,
+   "per_entry": {
+    "S": {
+     "A": 13,
+     "U8": 15,
+     "H": 9,
+     "committed": 31
+    }
+   },
+   "dd_size": 0
+  },
+  "DD cap 32, as counted in variants_r2 (no DD-slot sites)": {
+   "a_rows": 7281,
+   "h_rows": 8710,
+   "elems": 523993088,
+   "u8": 219742208,
+   "N": 244908032,
+   "eterms": 395837440,
+   "a_sites": 114,
+   "h_sites": 45,
+   "per_entry": {
+    "S": {
+     "A": 5,
+     "U8": 4,
+     "H": 4,
+     "committed": 13
+    },
+    "DD": {
+     "A": 10,
+     "U8": 11,
+     "H": 7,
+     "committed": 24
+    }
+   },
+   "dd_size": 524288,
+   "d_elems_pct": -20.996986314905385,
+   "d_u8_pct": -28.24737855767173,
+   "d_eterms_pct": -20.105820105820104
+  },
+  "DD cap 32, with the DD slot's 11 A + 7 H claim sites": {
+   "a_rows": 7303,
+   "h_rows": 8724,
+   "elems": 525172736,
+   "u8": 219742208,
+   "N": 244908032,
+   "eterms": 395837440,
+   "a_sites": 125,
+   "h_sites": 52,
+   "per_entry": {
+    "S": {
+     "A": 5,
+     "U8": 4,
+     "H": 4,
+     "committed": 13
+    },
+    "DD": {
+     "A": 10,
+     "U8": 11,
+     "H": 7,
+     "committed": 24
+    }
+   },
+   "dd_size": 524288,
+   "d_elems_pct": -20.819129489649725,
+   "d_u8_pct": -28.24737855767173,
+   "d_eterms_pct": -20.105820105820104
+  },
+  "DD cap 64 (needed if any layer has e_s 0 at hd 128)": {
+   "a_rows": 7463,
+   "h_rows": 8948,
+   "elems": 537755648,
+   "u8": 225509376,
+   "N": 250675200,
+   "eterms": 405274624,
+   "a_sites": 125,
+   "h_sites": 52,
+   "per_entry": {
+    "S": {
+     "A": 5,
+     "U8": 4,
+     "H": 4,
+     "committed": 13
+    },
+    "DD": {
+     "A": 10,
+     "U8": 11,
+     "H": 7,
+     "committed": 24
+    }
+   },
+   "dd_size": 1048576,
+   "d_elems_pct": -18.92199002025592,
+   "d_u8_pct": -26.364219987160286,
+   "d_eterms_pct": -18.201058201058196
+  }
+ },
+ "C": {
+  "N_today": 323026944,
+  "N_dd": 244908032,
+  "T_dd": 524288,
+  "block_today": 99.73291044809133,
+  "block_dd_naive": 100.1323215845853,
+  "block_dd": 100.12002046848384,
+  "block_dd_tight": 100.12500515393837,
+  "gain_naive": 0.399411136493967,
+  "gain": 0.3871100203925124,
+  "run32_today": 94.73291044809133,
+  "run32_dd": 95.12002046848384,
+  "refusal_block": 108.9999999993282,
+  "refusal_run32": 103.9999999993282
+ },
+ "D": {
+  "honest_holds": "20/20",
+  "bad_P_all_slots_constrained_passes": "0/20",
+  "bad_P_with_unconstrained_padding_slot_passes": "20/20",
+  "cross_row_reuse_without_row_key_passes": "20/20",
+  "cross_row_reuse_with_row_key_passes": "0/20",
+  "sum_keyed_honest_holds": "20/20",
+  "sum_keyed_bad_P_passes": "0/20",
+  "bad_P_with_multiplicities_after_alpha_passes": "20/20"
+ },
+ "E": {
+  "entries_checked": 196608,
+  "worst_distinct_used_per_row_by_e_s": {
+   "2": 19,
+   "3": 11,
+   "4": 6,
+   "1": 32
+  }
+ }
+}
