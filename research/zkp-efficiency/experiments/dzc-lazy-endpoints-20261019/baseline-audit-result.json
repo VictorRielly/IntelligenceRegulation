@@ -1,0 +1,255 @@
+{
+  "status": "PASS",
+  "checks": 246,
+  "accounting": [
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": false,
+      "bank_logical_scratch_bytes": 1264,
+      "pair_logical_scratch_bytes": 288,
+      "bank_with_common_endpoint_and_accumulator_words": 202,
+      "pair_with_common_endpoint_and_accumulator_words": 141,
+      "fixed_retained_endpoint_bank_reduction": 0.301980198019802,
+      "fixed_retained_endpoint_bank_is_not_last_use_peak": true,
+      "total_last_use_bank_words_including_accumulator": 130,
+      "total_last_use_pair_words_including_accumulator": 129,
+      "total_last_use_reduction": 0.007692307692307665,
+      "current_unpadded_catalog": true,
+      "full_original_tables_retained": 59,
+      "denominators_created_each_row": 34,
+      "baseline_and_pair_same_operations": [
+        272,
+        150,
+        331,
+        72
+      ],
+      "physical_memory_or_register_claim": false
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "padded": true,
+      "bank_logical_scratch_bytes": 1264,
+      "pair_logical_scratch_bytes": 288,
+      "bank_with_common_endpoint_and_accumulator_words": 204,
+      "pair_with_common_endpoint_and_accumulator_words": 143,
+      "fixed_retained_endpoint_bank_reduction": 0.2990196078431373,
+      "fixed_retained_endpoint_bank_is_not_last_use_peak": true,
+      "total_last_use_bank_words_including_accumulator": 194,
+      "total_last_use_pair_words_including_accumulator": 131,
+      "total_last_use_reduction": 0.32474226804123707,
+      "current_unpadded_catalog": false,
+      "full_original_tables_retained": 60,
+      "denominators_created_each_row": 34,
+      "baseline_and_pair_same_operations": [
+        356,
+        154,
+        427,
+        72
+      ],
+      "physical_memory_or_register_claim": false
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": false,
+      "bank_logical_scratch_bytes": 1264,
+      "pair_logical_scratch_bytes": 288,
+      "bank_with_common_endpoint_and_accumulator_words": 202,
+      "pair_with_common_endpoint_and_accumulator_words": 141,
+      "fixed_retained_endpoint_bank_reduction": 0.301980198019802,
+      "fixed_retained_endpoint_bank_is_not_last_use_peak": true,
+      "total_last_use_bank_words_including_accumulator": 130,
+      "total_last_use_pair_words_including_accumulator": 129,
+      "total_last_use_reduction": 0.007692307692307665,
+      "current_unpadded_catalog": true,
+      "full_original_tables_retained": 59,
+      "denominators_created_each_row": 34,
+      "baseline_and_pair_same_operations": [
+        272,
+        150,
+        331,
+        72
+      ],
+      "physical_memory_or_register_claim": false
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "padded": true,
+      "bank_logical_scratch_bytes": 1264,
+      "pair_logical_scratch_bytes": 288,
+      "bank_with_common_endpoint_and_accumulator_words": 204,
+      "pair_with_common_endpoint_and_accumulator_words": 143,
+      "fixed_retained_endpoint_bank_reduction": 0.2990196078431373,
+      "fixed_retained_endpoint_bank_is_not_last_use_peak": true,
+      "total_last_use_bank_words_including_accumulator": 194,
+      "total_last_use_pair_words_including_accumulator": 131,
+      "total_last_use_reduction": 0.32474226804123707,
+      "current_unpadded_catalog": false,
+      "full_original_tables_retained": 60,
+      "denominators_created_each_row": 34,
+      "baseline_and_pair_same_operations": [
+        356,
+        154,
+        427,
+        72
+      ],
+      "physical_memory_or_register_claim": false
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": false,
+      "bank_logical_scratch_bytes": 1392,
+      "pair_logical_scratch_bytes": 288,
+      "bank_with_common_endpoint_and_accumulator_words": 214,
+      "pair_with_common_endpoint_and_accumulator_words": 145,
+      "fixed_retained_endpoint_bank_reduction": 0.32242990654205606,
+      "fixed_retained_endpoint_bank_is_not_last_use_peak": true,
+      "total_last_use_bank_words_including_accumulator": 142,
+      "total_last_use_pair_words_including_accumulator": 133,
+      "total_last_use_reduction": 0.06338028169014087,
+      "current_unpadded_catalog": false,
+      "full_original_tables_retained": 61,
+      "denominators_created_each_row": 38,
+      "baseline_and_pair_same_operations": [
+        292,
+        166,
+        357,
+        80
+      ],
+      "physical_memory_or_register_claim": false
+    },
+    {
+      "descriptor": "generic-four-top",
+      "padded": true,
+      "bank_logical_scratch_bytes": 1392,
+      "pair_logical_scratch_bytes": 288,
+      "bank_with_common_endpoint_and_accumulator_words": 216,
+      "pair_with_common_endpoint_and_accumulator_words": 147,
+      "fixed_retained_endpoint_bank_reduction": 0.3194444444444444,
+      "fixed_retained_endpoint_bank_is_not_last_use_peak": true,
+      "total_last_use_bank_words_including_accumulator": 206,
+      "total_last_use_pair_words_including_accumulator": 135,
+      "total_last_use_reduction": 0.34466019417475724,
+      "current_unpadded_catalog": false,
+      "full_original_tables_retained": 62,
+      "denominators_created_each_row": 38,
+      "baseline_and_pair_same_operations": [
+        376,
+        170,
+        453,
+        80
+      ],
+      "physical_memory_or_register_claim": false
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": false,
+      "bank_logical_scratch_bytes": 1520,
+      "pair_logical_scratch_bytes": 288,
+      "bank_with_common_endpoint_and_accumulator_words": 234,
+      "pair_with_common_endpoint_and_accumulator_words": 157,
+      "fixed_retained_endpoint_bank_reduction": 0.3290598290598291,
+      "fixed_retained_endpoint_bank_is_not_last_use_peak": true,
+      "total_last_use_bank_words_including_accumulator": 154,
+      "total_last_use_pair_words_including_accumulator": 145,
+      "total_last_use_reduction": 0.058441558441558406,
+      "current_unpadded_catalog": false,
+      "full_original_tables_retained": 67,
+      "denominators_created_each_row": 42,
+      "baseline_and_pair_same_operations": [
+        320,
+        182,
+        391,
+        88
+      ],
+      "physical_memory_or_register_claim": false
+    },
+    {
+      "descriptor": "generic-five-top",
+      "padded": true,
+      "bank_logical_scratch_bytes": 1520,
+      "pair_logical_scratch_bytes": 288,
+      "bank_with_common_endpoint_and_accumulator_words": 236,
+      "pair_with_common_endpoint_and_accumulator_words": 159,
+      "fixed_retained_endpoint_bank_reduction": 0.326271186440678,
+      "fixed_retained_endpoint_bank_is_not_last_use_peak": true,
+      "total_last_use_bank_words_including_accumulator": 226,
+      "total_last_use_pair_words_including_accumulator": 147,
+      "total_last_use_reduction": 0.3495575221238938,
+      "current_unpadded_catalog": false,
+      "full_original_tables_retained": 68,
+      "denominators_created_each_row": 42,
+      "baseline_and_pair_same_operations": [
+        412,
+        186,
+        495,
+        88
+      ],
+      "physical_memory_or_register_claim": false
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": false,
+      "bank_logical_scratch_bytes": 1232,
+      "pair_logical_scratch_bytes": 288,
+      "bank_with_common_endpoint_and_accumulator_words": 200,
+      "pair_with_common_endpoint_and_accumulator_words": 141,
+      "fixed_retained_endpoint_bank_reduction": 0.29500000000000004,
+      "fixed_retained_endpoint_bank_is_not_last_use_peak": true,
+      "total_last_use_bank_words_including_accumulator": 129,
+      "total_last_use_pair_words_including_accumulator": 129,
+      "total_last_use_reduction": 0.0,
+      "current_unpadded_catalog": false,
+      "full_original_tables_retained": 59,
+      "denominators_created_each_row": 33,
+      "baseline_and_pair_same_operations": [
+        267,
+        147,
+        324,
+        70
+      ],
+      "physical_memory_or_register_claim": false
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "padded": true,
+      "bank_logical_scratch_bytes": 1232,
+      "pair_logical_scratch_bytes": 288,
+      "bank_with_common_endpoint_and_accumulator_words": 202,
+      "pair_with_common_endpoint_and_accumulator_words": 143,
+      "fixed_retained_endpoint_bank_reduction": 0.2920792079207921,
+      "fixed_retained_endpoint_bank_is_not_last_use_peak": true,
+      "total_last_use_bank_words_including_accumulator": 192,
+      "total_last_use_pair_words_including_accumulator": 131,
+      "total_last_use_reduction": 0.31770833333333337,
+      "current_unpadded_catalog": false,
+      "full_original_tables_retained": 60,
+      "denominators_created_each_row": 33,
+      "baseline_and_pair_same_operations": [
+        351,
+        151,
+        420,
+        70
+      ],
+      "physical_memory_or_register_claim": false
+    }
+  ],
+  "controls": {
+    "retain_bank_destroys_streaming_retention_gain": true,
+    "common_endpoints_and_accumulator_are_not_eliminated": true,
+    "input_last_use_demotes_scratch_only_claim": true
+  },
+  "end_to_end": {
+    "measured_8B_D_affected_time": null,
+    "predicted_8B_speedup": null,
+    "measured_native_speedup": null,
+    "maximum_speedup_if_all_D_deleted_in_carried_1B_diagnostic": 1.18112662101913,
+    "maximum_diagnostic_positions_per_second_if_all_D_deleted": 0.8686151695496095,
+    "caveat": "A ceiling on deleting ALL D in a 1.1B one-pass GPU-arm diagnostic; no estimate for this schedule or for 8B. Actual D phase, native compilation, registers, spills, occupancy and enclosing clocks owed."
+  },
+  "wall_seconds": 0.11829324300197186,
+  "rss_kib": 19352,
+  "cpu_affinity": [
+    0
+  ],
+  "threads": 1
+}

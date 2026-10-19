@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "python3",
+    "experiments/dzc-lazy-endpoints-20261019/run.py"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 8.658684449997963,
+  "log": "run.log"
+}

@@ -1,0 +1,6 @@
+[13:36:07Z] pass 1: stats from cache b5_stats_T128_n30_r1_L32.pkl
+[13:36:07Z] variant l8_b7_voc0: Variant(name='pg', norm_cn='profile', tables='layer', residual='global', shifts='profile', rotate=1, margin=0.5, margin_ch=3.0, margin_pow2=0.25, tn=9, cn_max=1048576, shapes=('range', 'smooth', 'gamma'), o16=False, s16=False, f_e=9, f_p=9); qkv window (1, 8); stats b5_stats_T128_n30_r1_L32.pkl; sh_s overrides {1: 7}
+[13:38:05Z] vocab0: layer-0 maxima merged {'xa_max': [4.674041748046875, 5.5318098068237305], 'q_pair': [14.363375353024653, 15.949927960369623], 'k_pair': [15.080891541137476, 18.155017108809965], 'v_max': [0.5222693681716919, 0.726884126663208]}
+[13:38:05Z] profile: cn 2092/1424 e_s None silu None shifts {'ao': 3, 'g': 8, 'h': 14, 'o': 9, 'qkv': 8, 'rope': 7, 's': 6, 'u': 0, 'z': 4} s_x 0.000721808 (138s)
+[13:38:47Z] L00 {'norm_tn': 9, 'norm_cn_a': 2092, 'norm_cn_m': 1424, 'norm_ceps': 78617, 'sh_qkv': 8, 'sh_rope': 7, 'sh_s': 6, 'sh_o': 9, 'sh_ao': 3, 'sh_g': 8, 'sh_u': 0, 'sh_h': 14, 'sh_z': 4, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-4, -12], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {} words equal to llama3_8b_pg_rot1_b7_T128: 9 / 13 (180s)
+[13:38:47Z] done (180s) -> /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/variants/l8_b7_voc0

@@ -1,0 +1,73 @@
+{
+ "field_half_log2": 63.0,
+ "profiles": {
+  "TinyLlama-1.1B T32": {
+   "qkv (sh_qkv 1..8)": 25.001,
+   "score (sh_s 1..8)": 20.045,
+   "pv (sh_o 9..16)": 23.596,
+   "ao (sh_ao 0..8)": 25.322,
+   "gate (sh_g 1..8)": 25.001,
+   "product (sh_h 9..16)": 31.585,
+   "down (sh_z 1..8)": 35.0,
+   "norm quotient (tn, cn_a, cn_m, ceps)": 43.088,
+   "norm isqrt (ceps)": 41.585
+  },
+  "TinyLlama-1.1B T64": {
+   "qkv (sh_qkv 1..8)": 25.001,
+   "score (sh_s 1..8)": 20.045,
+   "pv (sh_o 9..16)": 24.008,
+   "ao (sh_ao 0..8)": 25.322,
+   "gate (sh_g 1..8)": 25.001,
+   "product (sh_h 9..16)": 31.585,
+   "down (sh_z 1..8)": 35.0,
+   "norm quotient (tn, cn_a, cn_m, ceps)": 43.088,
+   "norm isqrt (ceps)": 41.585
+  },
+  "TinyLlama-1.1B T128": {
+   "qkv (sh_qkv 1..8)": 25.001,
+   "score (sh_s 1..8)": 20.045,
+   "pv (sh_o 9..16)": 24.591,
+   "ao (sh_ao 0..8)": 25.322,
+   "gate (sh_g 1..8)": 25.001,
+   "product (sh_h 9..16)": 31.585,
+   "down (sh_z 1..8)": 35.0,
+   "norm quotient (tn, cn_a, cn_m, ceps)": 43.088,
+   "norm isqrt (ceps)": 41.585
+  },
+  "Llama-3-8B T32": {
+   "qkv (sh_qkv 1..8)": 26.001,
+   "score (sh_s 1..8)": 21.023,
+   "pv (sh_o 9..16)": 23.596,
+   "ao (sh_ao 0..8)": 26.17,
+   "gate (sh_g 1..8)": 26.001,
+   "product (sh_h 9..16)": 31.585,
+   "down (sh_z 1..8)": 36.0,
+   "norm quotient (tn, cn_a, cn_m, ceps)": 43.088,
+   "norm isqrt (ceps)": 42.322
+  },
+  "Llama-3-8B T64": {
+   "qkv (sh_qkv 1..8)": 26.001,
+   "score (sh_s 1..8)": 21.023,
+   "pv (sh_o 9..16)": 24.008,
+   "ao (sh_ao 0..8)": 26.17,
+   "gate (sh_g 1..8)": 26.001,
+   "product (sh_h 9..16)": 31.585,
+   "down (sh_z 1..8)": 36.0,
+   "norm quotient (tn, cn_a, cn_m, ceps)": 43.088,
+   "norm isqrt (ceps)": 42.322
+  },
+  "Llama-3-8B T128": {
+   "qkv (sh_qkv 1..8)": 26.001,
+   "score (sh_s 1..8)": 21.023,
+   "pv (sh_o 9..16)": 24.591,
+   "ao (sh_ao 0..8)": 26.17,
+   "gate (sh_g 1..8)": 26.001,
+   "product (sh_h 9..16)": 31.585,
+   "down (sh_z 1..8)": 36.0,
+   "norm quotient (tn, cn_a, cn_m, ceps)": 43.088,
+   "norm isqrt (ceps)": 42.322
+  }
+ },
+ "worst_log2": 43.088,
+ "verdict": "every clause below p/2 at all six trained profiles over every class (margin about 2^19)"
+}

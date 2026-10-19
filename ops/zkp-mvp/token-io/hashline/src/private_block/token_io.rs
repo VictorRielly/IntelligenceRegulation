@@ -32,6 +32,8 @@
 //! the development rung, not the hidden-length variant. The profile string is
 //! new (D17); no existing profile, relation, slot or byte moves.
 
+pub(crate) mod cli;
+pub(crate) mod load;
 pub(crate) mod run;
 pub(crate) mod stage_in;
 pub(crate) mod stage_out;
@@ -43,6 +45,8 @@ pub(crate) mod tests;
 mod r2_tests;
 #[cfg(test)]
 mod r3_tests;
+#[cfg(test)]
+mod cli_tests;
 
 /// **THE TOKEN-I/O RUN PROFILES THIS BUILD REGISTERS, with their block shape**
 /// (test only): the one list the profile-registry censuses (s24 / s25 / s33)
@@ -1422,7 +1426,67 @@ impl Decommitment {
     pub(crate) fn of(ep: &crate::pcs::CommittedZk) -> Decommitment {
         Decommitment { data: ep.data.clone(), pads: ep.pads.clone(), salts: ep.salts.clone() }
     }
+
+    /// the file form (the CLI's owner-private directory): a magic, the three
+    /// counts, the words (LE) and the salts
+    pub(crate) fn to_bytes(&self) -> Vec<u8> {
+        let mut b = Vec::with_capacity(8 + 24 + 8 * (self.data.len() + self.pads.len()) + 32 * self.salts.len());
+        b.extend_from_slice(DECOMMITMENT_MAGIC);
+        for n in [self.data.len(), self.pads.len(), self.salts.len()] {
+            b.extend_from_slice(&(n as u64).to_le_bytes());
+        }
+        for w in self.data.iter().chain(self.pads.iter()) {
+            b.extend_from_slice(&w.0.to_le_bytes());
+        }
+        for s in &self.salts {
+            b.extend_from_slice(s);
+        }
+        b
+    }
+
+    /// the inverse of [`Decommitment::to_bytes`]: exact length, canonical
+    /// words (the owner check re-checks every word anyway)
+    pub(crate) fn from_bytes(b: &[u8]) -> Result<Decommitment, String> {
+        let bad = || "decommitment: not a token-endpoint decommitment file".to_string();
+        if b.len() < 32 || &b[..8] != DECOMMITMENT_MAGIC {
+            return Err(bad());
+        }
+        let n = |i: usize| -> Result<usize, String> { usize::try_from(u64::from_le_bytes(b[8 + 8 * i..16 + 8 * i].try_into().map_err(|_| bad())?)).map_err(|_| bad()) };
+        let (nd, np, ns) = (n(0)?, n(1)?, n(2)?);
+        let words = nd.checked_add(np).ok_or_else(bad)?;
+        let want = words.checked_mul(8).and_then(|x| x.checked_add(32usize.checked_mul(ns)?)).and_then(|x| x.checked_add(32)).ok_or_else(bad)?;
+        if b.len() != want {
+            return Err(format!("decommitment: {} bytes, its counts say {want}", b.len()));
+        }
+        let mut at = 32;
+        let mut word = || {
+            let v = u64::from_le_bytes(b[at..at + 8].try_into().expect("eight bytes"));
+            at += 8;
+            v
+        };
+        let mut data = Vec::with_capacity(nd);
+        for _ in 0..nd {
+            let v = word();
+            if v >= P {
+                return Err("decommitment: a noncanonical word".into());
+            }
+            data.push(Fp::new(v));
+        }
+        let mut pads = Vec::with_capacity(np);
+        for _ in 0..np {
+            let v = word();
+            if v >= P {
+                return Err("decommitment: a noncanonical word".into());
+            }
+            pads.push(Fp::new(v));
+        }
+        let salts = b[32 + 8 * words..].chunks_exact(32).map(|c| c.try_into().expect("32 bytes")).collect();
+        Ok(Decommitment { data, pads, salts })
+    }
 }
+
+/// the decommitment file's magic
+pub(crate) const DECOMMITMENT_MAGIC: &[u8; 8] = b"HLPTKDC1";
 
 /// **`owner_check` (DESIGN 3.4; R0's `owner_check_*` semantics on the real
 /// commitment).** Re-encodes the decommitted rows at the token endpoint's

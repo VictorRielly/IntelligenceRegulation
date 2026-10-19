@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-static-runtime-20261019/run.py", line 320, in <module>
+    if __name__=='__main__':main()
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-static-runtime-20261019/run.py", line 223, in main
+    ct=time.perf_counter();cp=subprocess.run(argv,cwd=H,capture_output=True,text=True,timeout=40)
+  File "/usr/lib/python3.10/subprocess.py", line 505, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+  File "/usr/lib/python3.10/subprocess.py", line 1154, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+  File "/usr/lib/python3.10/subprocess.py", line 2022, in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+  File "/usr/lib/python3.10/subprocess.py", line 1198, in _check_timeout
+    raise TimeoutExpired(
+subprocess.TimeoutExpired: Command '['rustc', '--edition=2021', '--crate-type=cdylib', '-C', 'codegen-units=1', '-C', 'opt-level=1', '--emit=link,asm,llvm-ir', 'kernels.rs', '-o', 'kernels.so']' timed out after 40 seconds

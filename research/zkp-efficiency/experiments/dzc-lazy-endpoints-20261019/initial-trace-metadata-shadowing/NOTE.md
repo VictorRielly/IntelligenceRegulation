@@ -1,0 +1,1 @@
+Independent audit caught a saved-metadata error: the loop over baseline lifetimes overwrote variable ll before lazy_io was serialized. Candidate arithmetic and node traces were unaffected; old source/read assertions ran before the shadowing. Renamed the local and reran main and audit. Initial failure retained.

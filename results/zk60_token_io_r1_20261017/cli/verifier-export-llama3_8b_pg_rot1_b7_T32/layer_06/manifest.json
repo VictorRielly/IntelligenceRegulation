@@ -1,0 +1,218 @@
+{
+ "arrays": {
+  "act": {
+   "dtype": "int16",
+   "file": "act.bin",
+   "sha256": "94b2860b5fafff04c91ea06daa13b7ed22f3966518c952a67b5929c563ba47de",
+   "shape": [
+    256
+   ]
+  },
+  "exp": {
+   "dtype": "int64",
+   "file": "exp.bin",
+   "sha256": "eff5f616f1ab89ff9a53de312daa47adcd0722909626120e6532b923c0588ec3",
+   "shape": [
+    256
+   ]
+  },
+  "gamma_a": {
+   "dtype": "int8",
+   "file": "gamma_a.bin",
+   "sha256": "9ce2519c0561bb0b06617143d723160ce3a095ce9fa2bada3403d84d32045e47",
+   "shape": [
+    4096
+   ]
+  },
+  "gamma_m": {
+   "dtype": "int8",
+   "file": "gamma_m.bin",
+   "sha256": "fe0c3635dc23cab756bd3040dad1cc21db9774429aae6f3589298ff0785ef3cd",
+   "shape": [
+    4096
+   ]
+  },
+  "rope_cos": {
+   "dtype": "int64",
+   "file": "rope_cos.bin",
+   "sha256": "018b4691cedc88541ec83414a82cd5e51468d492d6a9d60591c1635aa6057f22",
+   "shape": [
+    32,
+    64
+   ]
+  },
+  "rope_sin": {
+   "dtype": "int64",
+   "file": "rope_sin.bin",
+   "sha256": "5bed0707384ed256882d49e14085dbcf87cd09eb616a43138584eb8b8f767e9f",
+   "shape": [
+    32,
+    64
+   ]
+  },
+  "wd_t": {
+   "dtype": "int8",
+   "file": "wd_t.bin",
+   "sha256": "10f23ff7db8bdfe572f396d6b35bc7b6bfbc1d4aa75792c5726fc8ac8ae3e961",
+   "shape": [
+    14336,
+    4096
+   ]
+  },
+  "wg_t": {
+   "dtype": "int8",
+   "file": "wg_t.bin",
+   "sha256": "f4e8d9a0f6abbe900c083bb97c035017aaa33e765b3f34bfe4d120fef3bb01ac",
+   "shape": [
+    4096,
+    14336
+   ]
+  },
+  "wk": {
+   "dtype": "int8",
+   "file": "wk.bin",
+   "sha256": "5533fc5157a0ee62bbc5977961ca488a883af071cb60a7c589f840fa9a86fe44",
+   "shape": [
+    1024,
+    4096
+   ]
+  },
+  "wo": {
+   "dtype": "int8",
+   "file": "wo.bin",
+   "sha256": "94591a06593c484e8fb0a0f7dfd534e9298405a29fc34aa63ea452c96403f44d",
+   "shape": [
+    4096,
+    4096
+   ]
+  },
+  "wq": {
+   "dtype": "int8",
+   "file": "wq.bin",
+   "sha256": "761d860403dca47ce736bdd2b641c8ad83e77e78a876900e731f915f9ca698d5",
+   "shape": [
+    4096,
+    4096
+   ]
+  },
+  "wu_t": {
+   "dtype": "int8",
+   "file": "wu_t.bin",
+   "sha256": "f5e8b6faf159051607cfe458d3e923418a77fb3c995b1ac269336df6089c67f9",
+   "shape": [
+    4096,
+    14336
+   ]
+  },
+  "wv": {
+   "dtype": "int8",
+   "file": "wv.bin",
+   "sha256": "709854dcbfed82c108bea5022f48501d4c002fbefbbd253e928111d7e8c1c39a",
+   "shape": [
+    1024,
+    4096
+   ]
+  }
+ },
+ "constants": {
+  "exp_e_s": 2,
+  "f_e": 9,
+  "f_p": 9,
+  "f_ro": 7,
+  "norm_ceps": 78617,
+  "norm_cn_a": 2092,
+  "norm_cn_m": 1424,
+  "norm_tn": 9,
+  "rope_theta": 500000.0,
+  "sh_ao": 3,
+  "sh_g": 8,
+  "sh_h": 14,
+  "sh_o": 9,
+  "sh_qkv": 8,
+  "sh_r2": 0,
+  "sh_rope": 7,
+  "sh_s": 6,
+  "sh_u": 0,
+  "sh_z": 4,
+  "silu_member": [
+   -3,
+   -12
+  ]
+ },
+ "kind": "layer",
+ "layer": 6,
+ "metadata_out_of_proof": {
+  "norm_consts": {
+   "K_a": 15.663479923518164,
+   "K_m": 23.01123595505618,
+   "ceps": 78617,
+   "ceps_exact": 78617.11076448206,
+   "cn_a": 2092,
+   "cn_m": 1424
+  },
+  "scales": {
+   "act_scale": 0.000244140625,
+   "gate_scale": 0.125,
+   "s_h": [
+    0.003929542657279487,
+    0.019577552843448087
+   ],
+   "s_k": [
+    0.20104308906908497,
+    0.444659052339419
+   ],
+   "s_q": [
+    0.14055712949321056,
+    0.3108786294987886
+   ],
+   "s_u": [
+    0.0009823856643198718,
+    0.004894388210862022
+   ],
+   "s_v": [
+    0.012769770434522253,
+    0.04180870281429741
+   ],
+   "s_x_in": 0.0007218075732845454,
+   "s_x_out": 0.0007218075732845454,
+   "score_scale": 4.0
+  },
+  "weights_clipped": {
+   "wd": 0,
+   "wg": 0,
+   "wk": 0,
+   "wo": 0,
+   "wq": 0,
+   "wu": 0,
+   "wv": 0
+  }
+ },
+ "orientation": {
+  "padding": "none (true extents)",
+  "wd_t": "(input f, output d) row-major",
+  "wg_t/wu_t": "(input d, output f) row-major",
+  "wq/wk/wv/wo": "(output, input) row-major"
+ },
+ "schema": "zk60-trained-profile-export/1",
+ "tables": {
+  "act": {
+   "generator": "zkp-core tables.rs int16out_member(Silu, e_in, e_out) (frozen registry)",
+   "silu_member": [
+    -3,
+    -12
+   ],
+   "spec_digest": "859344ba5ed57bd3f831c9082e5991fe7012a0c5696cfa705320ffdb6cb17a25"
+  },
+  "exp": {
+   "e_s": 2,
+   "generator": "hashline tables_attn.rs exp_member(e_s, head_dim 128, f_e)",
+   "spec_digest": "423a43e7b2cfdd6022c642930bfee973effc51462c883b108de3a24ff9fa7ab6"
+  },
+  "rope": {
+   "generator": "hashline tables_attn.rs rope_tables_generate(T, 128, 500000.0, 7)",
+   "spec_digest": "d937dca078d3b3b35b573cf014c6e59a06e4cf1a14c33626eef19c898aad99cf",
+   "t_max": 32
+  }
+ },
+ "variant": "pg"
+}

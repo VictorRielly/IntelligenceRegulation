@@ -1,0 +1,34 @@
+[13:13:08Z] stream F released
+[13:13:08Z] start full_ppl
+[zk60-guard 06:13:08] START fp-F_full_ppl class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=acfbbabac8bf
+[zk60-guard 06:13:08] END fp-F_full_ppl exit=3 child_wall=0s peak_rss=0.00G min_avail=11.73G
+[13:13:08Z] end full_ppl exit 3
+[13:13:08Z] start full_lam0
+[zk60-guard 06:13:08] START fp-F_full_lam0 class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=06a04cb04f0f
+[zk60-guard 06:13:09] END fp-F_full_lam0 exit=3 child_wall=0s peak_rss=0.00G min_avail=11.74G
+[13:13:09Z] end full_lam0 exit 3
+[13:13:09Z] start full_lam250
+[zk60-guard 06:13:09] START fp-F_full_lam250 class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=e208b441634f
+[zk60-guard 06:13:09] END fp-F_full_lam250 exit=3 child_wall=0s peak_rss=0.00G min_avail=11.73G
+[13:13:09Z] end full_lam250 exit 3
+[13:13:09Z] start full_lam500
+[zk60-guard 06:13:09] START fp-F_full_lam500 class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=725d327eb9ea
+[zk60-guard 06:13:09] END fp-F_full_lam500 exit=3 child_wall=0s peak_rss=0.00G min_avail=11.74G
+[13:13:09Z] end full_lam500 exit 3
+[13:13:09Z] start full_lam750
+[zk60-guard 06:13:09] START fp-F_full_lam750 class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=525382469917
+[zk60-guard 06:13:09] END fp-F_full_lam750 exit=3 child_wall=0s peak_rss=0.00G min_avail=11.74G
+[13:13:09Z] end full_lam750 exit 3
+[13:13:09Z] start abl_o
+[zk60-guard 06:13:10] START fp-F_abl_o class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=428c956be929
+[zk60-guard 06:13:10] END fp-F_abl_o exit=3 child_wall=0s peak_rss=0.00G min_avail=11.74G
+[13:13:10Z] end abl_o exit 3
+[13:13:10Z] start abl_rope
+[zk60-guard 06:13:10] START fp-F_abl_rope class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=84526d287a62
+[zk60-guard 06:13:10] END fp-F_abl_rope exit=3 child_wall=0s peak_rss=0.00G min_avail=11.74G
+[13:13:10Z] end abl_rope exit 3
+[13:13:10Z] start abl_attn_core
+[zk60-guard 06:13:10] START fp-F_abl_attn_core class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=7d8ef532bbf1
+[zk60-guard 06:13:10] END fp-F_abl_attn_core exit=3 child_wall=0s peak_rss=0.00G min_avail=11.63G
+[13:13:10Z] end abl_attn_core exit 3
+[13:13:10Z] stream F finished

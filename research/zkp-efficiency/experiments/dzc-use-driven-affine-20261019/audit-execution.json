@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "python3",
+    "experiments/dzc-use-driven-affine-20261019/audit.py"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 0.618544347002171
+}

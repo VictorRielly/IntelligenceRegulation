@@ -1,0 +1,411 @@
+[
+  {
+    "schedule": "lazy",
+    "total_fp2_words": 77,
+    "at_node": 138,
+    "active_label": "multiply",
+    "decomposition": {
+      "endpoints": 54,
+      "derived": 18,
+      "construction_transient": 0,
+      "round_accumulator": 5
+    },
+    "live_nodes": [
+      {
+        "id": 4,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 17,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 13,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 33,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 28,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 18,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 31,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 19,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 34,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 22,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 37,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 23,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 40,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 35,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 43,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 36,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 46,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 37,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 49,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 38,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 52,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 9,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 55,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 10,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 58,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 11,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 61,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 12,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 64,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 13,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 67,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 14,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 70,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 15,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 73,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 16,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 76,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 25,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 79,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 26,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 82,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 27,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 85,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 28,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 88,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 29,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 91,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 30,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 94,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 31,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 97,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 32,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 112,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 24,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 115,
+        "words": 3,
+        "deps": [
+          111,
+          114
+        ],
+        "label": "add",
+        "external": false
+      },
+      {
+        "id": 129,
+        "words": 4,
+        "deps": [
+          116,
+          128
+        ],
+        "label": "add",
+        "external": false
+      },
+      {
+        "id": 132,
+        "words": 2,
+        "deps": [
+          130,
+          131
+        ],
+        "label": "denominator",
+        "external": false
+      },
+      {
+        "id": 135,
+        "words": 2,
+        "deps": [
+          133,
+          134
+        ],
+        "label": "denominator",
+        "external": false
+      },
+      {
+        "id": 137,
+        "words": 3,
+        "deps": [
+          136,
+          132
+        ],
+        "label": "multiply",
+        "external": false
+      },
+      {
+        "id": 138,
+        "words": 4,
+        "deps": [
+          137,
+          135
+        ],
+        "label": "multiply",
+        "external": false
+      }
+    ]
+  },
+  {
+    "schedule": "driven",
+    "total_fp2_words": 27,
+    "at_node": 166,
+    "active_label": "multiply",
+    "decomposition": {
+      "endpoints": 4,
+      "derived": 18,
+      "construction_transient": 0,
+      "round_accumulator": 5
+    },
+    "live_nodes": [
+      {
+        "id": 25,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 24,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 147,
+        "words": 3,
+        "deps": [
+          141,
+          146
+        ],
+        "label": "add",
+        "external": false
+      },
+      {
+        "id": 156,
+        "words": 4,
+        "deps": [
+          137,
+          155
+        ],
+        "label": "add",
+        "external": false
+      },
+      {
+        "id": 158,
+        "words": 2,
+        "deps": [],
+        "label": "original_endpoint_pair",
+        "external": true,
+        "source_index": 20,
+        "construction_transient_fp2_words": 1
+      },
+      {
+        "id": 160,
+        "words": 2,
+        "deps": [
+          157,
+          159
+        ],
+        "label": "denominator",
+        "external": false
+      },
+      {
+        "id": 163,
+        "words": 2,
+        "deps": [
+          161,
+          162
+        ],
+        "label": "denominator",
+        "external": false
+      },
+      {
+        "id": 165,
+        "words": 3,
+        "deps": [
+          164,
+          160
+        ],
+        "label": "multiply",
+        "external": false
+      },
+      {
+        "id": 166,
+        "words": 4,
+        "deps": [
+          165,
+          163
+        ],
+        "label": "multiply",
+        "external": false
+      }
+    ]
+  }
+]

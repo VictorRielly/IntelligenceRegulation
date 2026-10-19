@@ -1,0 +1,39 @@
+{
+ "export": "/home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_b7_T128",
+ "profile_sha256": "040eb5cfa3e21634e8e13c9a00a108b301231af456bd3c539ac725c7f6269a6e",
+ "vocab": 128256,
+ "input": "export embedding table",
+ "refusing_tokens": 2,
+ "by_site": {
+  "V": 2
+ },
+ "worst_abs": {
+  "y": 25,
+  "Q": 66,
+  "K": 67,
+  "V": 166,
+  "QR_bound": 66,
+  "KR_bound": 67
+ },
+ "class_int8": 127,
+ "score_bound_all_token_pairs_loose": 588,
+ "score_class": 127,
+ "rows": [
+  {
+   "token": 662,
+   "text": "Ġ.",
+   "sites": [
+    "V"
+   ]
+  },
+  {
+   "token": 16309,
+   "text": "Tags",
+   "sites": [
+    "V"
+   ]
+  }
+ ],
+ "seconds": 741.3031888008118,
+ "scope": "layer 0 only (exhaustive over the vocabulary for norm_a / Q / K / V / RoPE); later layers depend on context"
+}

@@ -216,6 +216,11 @@ impl TokenRunStatement {
         // constructor's rebuild, the trained class)
         let mut stage_sh_s = vec![sh.sh_s; l];
         for (k, r) in model.layers.iter().enumerate() {
+            // review TR3-3: the record read for stage k IS block k's (made
+            // local here; `check_against` above already aligns them)
+            if block_digests.get(k) != Some(&r.block_digest) {
+                return Err(format!("token I/O run: layer record {k} (layer {}) is not block {k}'s digest (review TR3-3)", r.index));
+            }
             if let Some(v) = r.sh_s {
                 sh.with_score_shift(v).map_err(|e| format!("token I/O run: layer {}'s own score shift: {e}", r.index))?;
                 stage_sh_s[k] = v;
@@ -248,6 +253,10 @@ impl TokenRunStatement {
     }
     pub(crate) fn l(&self) -> usize {
         self.rs.l()
+    }
+    /// the run's context (the deployment's, bound by the endpoint specs)
+    pub(crate) fn context(&self) -> Digest {
+        self.context
     }
     pub(crate) fn roots(&self) -> (Digest, Digest) {
         (self.in_root, self.out_root)
@@ -571,6 +580,17 @@ pub(crate) fn prove_token_run(
 /// **THE TOKEN-I/O RUN PROVER.** One transcript, one OS stream, `L + 2`
 /// segments, each handed to `sink` and dropped (M-3); block `k` asked for
 /// at its own stage (R3 streaming).
+///
+/// **The sink contract (reviews R2-5 / TR3-1).** Before the FIRST segment
+/// exists the prover has (1) taken the stage-OUT witness and run its
+/// byte-lookup refusal and (2) checked EVERY block against the run's stage
+/// shape and the statement's digest (CS-1 / CS-4 / CS-6), so the refusals a
+/// caller can provoke with its inputs leave the sink empty. What remains
+/// possible mid-run (a block file that changes between the pre-check and its
+/// stage's reload, which the per-stage check refuses by name; a resource
+/// failure) can still come after earlier segments, so a sink must treat what
+/// it receives as UNPUBLISHED until this function returns `Ok` (the CLI's
+/// sink writes `<out>.incomplete/` and renames it only then).
 pub(crate) fn prove_token_run_with(
     st: &TokenRunStatement,
     blocks: &mut dyn TokenBlocks,
@@ -604,6 +624,13 @@ pub(crate) fn prove_token_run_with(
     let wout = src.stage_out()?;
     if !cheating && stage_out::byte_misses(&stage_out::layout(sh, tp), tp, &wout)? > 0 {
         return Err("token I/O stage OUT: the witness looks up a value that is not a byte (the class of the miss only)".into());
+    }
+    // review TR3-1: every block's CS-1 / CS-4 / CS-6 check BEFORE the first
+    // segment (the per-stage check below stays: a block that changes between
+    // the two is refused at its stage)
+    for k in 0..l {
+        let blk = blocks.block(k)?;
+        stage_block_is_the_statements(st, k, &blk, !cheating)?;
     }
     let mut rng = ZkRng::from_os(&super::super::hash_domain::run_seed_domain(st.rs.profile())).map_err(|e| format!("token I/O run randomness: {e}"))?;
     let tag = sh.hash_tag();

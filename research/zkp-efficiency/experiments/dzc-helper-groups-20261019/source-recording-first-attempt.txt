@@ -1,0 +1,1 @@
+Source recorder initially assumed every legacy row had an id; KeyError before any append. Fixed legacy duplicate census to use row.get(id). All 435 prior rows remain byte-identical. No source evidence lost.

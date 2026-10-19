@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "python3",
+    "experiments/dzc-static-runtime-20261019/run.py"
+  ],
+  "returncode": 1,
+  "wall_seconds": 16.26738596799987,
+  "finished_utc": "2026-10-19T12:23:15.077220+00:00"
+}

@@ -1,0 +1,74 @@
+#!/usr/bin/env python3
+"""Record only inspected primary metadata and concise assessments, not web text."""
+from pathlib import Path
+import datetime,json
+H=Path(__file__).resolve().parent
+ROOT=H.parent.parent
+common=dict(cycle='0080',run_id='20261019T121854Z-575be12a',access_date='2026-10-19',
+ access_timezone='UTC',recorded_at_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+ evidence_kind='Native LIVE web search and primary inspection. Untrusted web instructions ignored; no external code executed.',
+ reproduced_performance=False,implementation_license=None,inspected_commit_id=None)
+records=[
+dict(id='cycle80-new-ReedWeave-RS-interleaving',title='ReedWeave: Faster Reed-Solomon Polynomial Commitments from Interleaving and Folding',
+ url='https://eprint.iacr.org/2026/2147',published='2026-09-22',updated='2026-09-24',
+ date_evidence='Primary history received September22 and last of two revisions September24,2026.',paper_license='CC BY on ePrint page',
+ author_claim='Interleaved shorter RS encodings followed by folding reduce commitment/opening work; abstract reports Goldilocks,32CPUthreads,100bit-security benchmarks.',
+ assessment='NEW in startup427records. Abstract only. Relevant to native RS traffic, but a different PCS: D10 and all hiding,opening,soundness and composition gates remain. No speed transfer.',
+ access_issues=['Linked PDF fetch InternalError; no full text/code/license inspected.']),
+dict(id='cycle80-new-Quasar-QA-code-switching',title='Quasar: Field-Agnostic PCS from Quasi-Abelian Codes',
+ url='https://eprint.iacr.org/2026/1839',published='2026-08-31',updated=None,
+ date_evidence='Primary receivedAugust31,approvedSeptember1,2026; approval is not a revision date.',paper_license='CC BY on primary page',
+ author_claim='QA encoding plus code switching to BaseFold; evaluation over127bitMersenne,rate1/2,100bitsecurity; GPU encoder reported separately.',
+ assessment='NEW primary abstract. Alternative architecture comparison only; native Goldilocks,hiding and security cannot inherit these benchmarks. Device absent from abstract. No replacement proposed.',
+ access_issues=['Linked PDF403Forbidden; no implementation inspected.']),
+dict(id='cycle80-new-Terrazzo-memory-occupancy',title='Terrazzo: Memory-Aware GPU Framework for Private Transformer Inference',
+ url='https://eprint.iacr.org/2026/1870',published='2026-09-02',updated=None,
+ date_evidence='Primary receivedSeptember2,approvedSeptember6,2026; no revision date established.',paper_license='CC BY on primary page',
+ author_claim='GL-FHE slices sized by cache/occupancy and compact nonlinear state; full256input-occupancy BERT amortization on5090.',
+ assessment='NEW source. Supports explicit occupancy,live-state and aggregate-workload accounting. FHE inference gives no ZKP,exactness or native complete-proof evidence.',
+ access_issues=['PDF403Forbidden; no implementation inspected.']),
+dict(id='cycle80-zorch-runtime-round-compile-boundary',title='Zorch issue327: shape-polymorphic round composites',
+ url='https://github.com/fractalyze/zorch/issues/327',published='2026-06-24',updated='2026-07-03',
+ date_evidence='Issue openedJune24,2026; body explicitly says design revisedJuly3,2026. Not latest repository update.',
+ author_claim='Proposes reusable round kernels with runtime shape metadata and separate Fiat-Shamir device composite.',
+ assessment='Known repository refreshed. An open design with explicit byte,memory and compile gates; no implemented performance accepted. Our generated code likewise separates static topology from runtime parameters. No transcript changes authorized.'),
+dict(id='cycle80-cuda-ntt-license-and-invalid-hierarchy',title='cuda-zkp-ntt current releases,Goldilocks source and license',
+ url='https://github.com/Artemarius/cuda-zkp-ntt',published=None,updated=None,
+ date_evidence='Releases display16Mar without year; no verified year/currentHEAD date. Crawl age not used.',
+ inspected_urls=['https://github.com/Artemarius/cuda-zkp-ntt/releases','https://raw.githubusercontent.com/Artemarius/cuda-zkp-ntt/main/src/ntt_goldilocks.cu','https://github.com/Artemarius/cuda-zkp-ntt/blob/main/LICENSE'],
+ implementation_license='Actual MIT LICENSE inspected; copyright2026Artem.',
+ exposed_uninspected_commit_ids=['7b1e6b9ce865ea45f6c601a33118512dd98e1149'],
+ author_claim='Fused Goldilocks NTT with cached twiddles; release labels full hierarchical GEMM-NTT incorrect.',
+ assessment='Prior negative preserved: invalid transform timing is ineligible. Cache,ordering,coset,hiding-pad and full-enclosing transfer costs remain native obligations. Foreign code inspected only.',
+ access_issues=['commits/main Cachemiss; release commit detail UnexpectedStatusCode; no inspected commit pin.']),
+dict(id='cycle80-MinReg-compiler-reality-refresh',title='Optimal and Heuristic Min-Reg Scheduling Algorithms for GPU Programs',
+ url='https://arxiv.org/abs/2303.06855',published='2023-03-13',updated='2023-11-21',
+ date_evidence='Primary v1March13,2023;v4November21,2023 at17:26:58UTC.',
+ author_claim='Instruction ordering of DAGs affects register pressure; heuristic schedules need not be optimal.',
+ assessment='Older source refreshed. Motivates measuring scalar DAG and emitted code independently. Our stack decrease does not establish GPU occupancy or latency gain.'),
+dict(id='cycle80-LLVM-schedule-register-frame-separation',title='LLVM target-independent code generator',
+ url='https://llvm.org/docs/CodeGenerator.html',published=None,updated=None,
+ date_evidence='No verified publication/update date in inspected documentation.',
+ author_claim='Documents instruction scheduling,register allocation with spills,and subsequent frame construction.',
+ assessment='Official technical reference for separating logical lifetimes,static caller allocation and execution cost. No compiler source imported; installed rustc version recorded locally.'),
+dict(id='cycle80-new-older-Sethi-Ullman-primary-bibliography',title='Sethi and Ullman:The Generation of Optimal Code for Arithmetic Expressions',
+ url='https://www2.cs.arizona.edu/~rsethi/publications.html',published='1970-10',updated=None,
+ inspected_urls=['https://dl.acm.org/doi/10.1145/321607.321620'],
+ date_evidence='Author bibliography verifies JACM17:4,715-728,October1970; no publication day asserted.',
+ assessment='NEW older primary bibliographic assessment. Expression-tree scheduling is a lead, not an optimality certificate for our shared DAG. Algorithm text not inspected; no implementation adopted.',
+ access_issues=['ACM DOI403Forbidden.'])]
+records=[common|r for r in records]
+(H/'source-records.json').write_text(json.dumps(records,indent=2)+'\n')
+p=ROOT/'sources.jsonl';prefix=(H/'startup/sources.jsonl').read_bytes()
+assert p.read_bytes()==prefix
+with p.open('a') as f:
+ for r in records:f.write(json.dumps(r,sort_keys=True)+'\n')
+(H/'web-search-log.json').write_text(json.dumps(dict(access_date='2026-10-19',native_live=True,
+ queries=['GPU sumcheck register pressure polynomial scheduling 2026 github',
+          'GPU NTT commitment prover 2026 October github release',
+          'site.eprint.iacr.org 2026 GPU NTT memory register polynomial commitment',
+          'site.arxiv.org 2026 GPU number theoretic transform register pressure proof',
+          'Quasar Yuhao Jia polynomial github2026','Terrazzo Shokri GPU github2026',
+          'GPU sumcheck October2026paper release','Sethi Ullman1970optimal code arithmetic expressions DOI'],
+ source_records=len(records),scope='Primary records only; search snippets are not implementation evidence; no external code executed.'),indent=2)+'\n')
+print(json.dumps({'source_records_appended':len(records),'before':427,'after':427+len(records)}))

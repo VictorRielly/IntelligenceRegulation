@@ -18,3 +18,12 @@
 [zk60-guard 03:16:48] END r7-stale-dead-forged exit=0 child_wall=0s peak_rss=0.00G min_avail=14.13G
 [zk60-guard 03:16:48] waiting for /tmp/zk-heavy.lock (0s)
 [zk60-guard 03:17:48] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 03:18:48] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 03:19:15] START r7-8b-b7-under-r7 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=147s run=57dbf0a428ed
+[zk60-guard 03:19:54] END r7-8b-b7-under-r7 exit=0 child_wall=38s peak_rss=1.93G min_avail=11.94G
+[zk60-guard 03:19:54] START r7-test-build class=build need=3G cap=6G enforce=cgroup+watchdog waited=0s run=ae57fc10fad6
+[zk60-guard 03:22:14] END r7-test-build exit=0 child_wall=140s peak_rss=1.76G min_avail=12.33G
+[zk60-guard 03:22:14] START r7-fast class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=adbd0da4d413
+[zk60-guard 03:22:16] END r7-fast exit=0 child_wall=2s peak_rss=0.17G min_avail=13.80G
+[zk60-guard 03:22:16] START r7-author-subset class=cpu need=4G cap=6G enforce=cgroup+watchdog waited=0s run=a4f2707dacfb
+[zk60-guard 03:22:34] END r7-author-subset exit=0 child_wall=18s peak_rss=1.01G min_avail=12.78G

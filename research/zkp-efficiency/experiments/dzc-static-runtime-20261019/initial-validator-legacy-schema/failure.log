@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-static-runtime-20261019/validate.py", line 20, in <module>
+    assert len(sources)==435 and len({x['id'] for x in sources})==435;checks+=1
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-static-runtime-20261019/validate.py", line 20, in <setcomp>
+    assert len(sources)==435 and len({x['id'] for x in sources})==435;checks+=1
+KeyError: 'id'

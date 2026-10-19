@@ -1,0 +1,433 @@
+{
+ "shape_independent": {
+  "a_disclosed": 0,
+  "h_disclosed": 2,
+  "endpoint_disclosed": 0,
+  "boundary_disclosed": 0,
+  "m_disclosed": 0,
+  "boundary_reserved_rank": 6,
+  "m_rows": 50,
+  "m_functionals": 34,
+  "n_slots": 23,
+  "a_groups": 36,
+  "h_groups": 9,
+  "channels": 28,
+  "three_role_generators": 154
+ },
+ "pad_rule": {
+  "the_rule": "tau(log dom) + mu(base + n_pad) + nu + zeta(n_pad), with pad_on = any(Shape::pads(d)) over the domains the slot hosts (argument.rs:936, pad.rs:361-369)",
+  "domains": [
+   {
+    "domain": "D",
+    "true_size": 65536,
+    "domain_log": 16,
+    "padded_size": 65536,
+    "pads": false,
+    "host_slot": 14
+   },
+   {
+    "domain": "F",
+    "true_size": 180224,
+    "domain_log": 18,
+    "padded_size": 262144,
+    "pads": true,
+    "host_slot": 18
+   },
+   {
+    "domain": "Ht",
+    "true_size": 1024,
+    "domain_log": 10,
+    "padded_size": 1024,
+    "pads": false,
+    "host_slot": 17
+   },
+   {
+    "domain": "Kv",
+    "true_size": 8192,
+    "domain_log": 13,
+    "padded_size": 8192,
+    "pads": false,
+    "host_slot": 16
+   },
+   {
+    "domain": "L",
+    "true_size": 288,
+    "domain_log": 12,
+    "padded_size": 4096,
+    "pads": true,
+    "host_slot": 3
+   },
+   {
+    "domain": "Q",
+    "true_size": 65536,
+    "domain_log": 16,
+    "padded_size": 65536,
+    "pads": false,
+    "host_slot": 15
+   },
+   {
+    "domain": "S",
+    "true_size": 32768,
+    "domain_log": 15,
+    "padded_size": 32768,
+    "pads": false,
+    "host_slot": 17
+   },
+   {
+    "domain": "T",
+    "true_size": 32,
+    "domain_log": 5,
+    "padded_size": 32,
+    "pads": false,
+    "host_slot": 2
+   },
+   {
+    "domain": "Tab",
+    "true_size": 256,
+    "domain_log": 12,
+    "padded_size": 4096,
+    "pads": true,
+    "host_slot": 19
+   }
+  ],
+  "domains_that_pad": [
+   "F",
+   "L",
+   "Tab"
+  ],
+  "domains_that_do_not_pad": [
+   "D",
+   "Ht",
+   "Kv",
+   "Q",
+   "S",
+   "T"
+  ],
+  "per_zero_check_slot": [
+   {
+    "slot": 2,
+    "name": "SC_TZC",
+    "hosts": [
+     "T"
+    ],
+    "tau_domain": "T",
+    "tau_draws": 5,
+    "mu_base": 6,
+    "helpers_in_mu": 0,
+    "pad_on": false,
+    "n_pad": 0,
+    "nu": 2,
+    "zeta": 0,
+    "predicted_definition_draws": 13,
+    "declared_by_the_capture": 13,
+    "equal": true
+   },
+   {
+    "slot": 3,
+    "name": "SC_LZC",
+    "hosts": [
+     "L"
+    ],
+    "tau_domain": "L",
+    "tau_draws": 12,
+    "mu_base": 0,
+    "helpers_in_mu": 0,
+    "pad_on": true,
+    "n_pad": 1,
+    "nu": 0,
+    "zeta": 1,
+    "predicted_definition_draws": 14,
+    "declared_by_the_capture": 14,
+    "equal": true
+   },
+   {
+    "slot": 14,
+    "name": "SC_DZC",
+    "hosts": [
+     "D"
+    ],
+    "tau_domain": "D",
+    "tau_draws": 16,
+    "mu_base": 28,
+    "helpers_in_mu": 17,
+    "pad_on": false,
+    "n_pad": 0,
+    "nu": 2,
+    "zeta": 0,
+    "predicted_definition_draws": 46,
+    "declared_by_the_capture": 46,
+    "equal": true
+   },
+   {
+    "slot": 15,
+    "name": "SC_QZC",
+    "hosts": [
+     "Q"
+    ],
+    "tau_domain": "Q",
+    "tau_draws": 16,
+    "mu_base": 8,
+    "helpers_in_mu": 7,
+    "pad_on": false,
+    "n_pad": 0,
+    "nu": 2,
+    "zeta": 0,
+    "predicted_definition_draws": 26,
+    "declared_by_the_capture": 26,
+    "equal": true
+   },
+   {
+    "slot": 16,
+    "name": "SC_KVZC",
+    "hosts": [
+     "Kv"
+    ],
+    "tau_domain": "Kv",
+    "tau_draws": 13,
+    "mu_base": 7,
+    "helpers_in_mu": 6,
+    "pad_on": false,
+    "n_pad": 0,
+    "nu": 2,
+    "zeta": 0,
+    "predicted_definition_draws": 22,
+    "declared_by_the_capture": 22,
+    "equal": true
+   },
+   {
+    "slot": 17,
+    "name": "SC_SZC",
+    "hosts": [
+     "Ht",
+     "S"
+    ],
+    "tau_domain": "S",
+    "tau_draws": 15,
+    "mu_base": 13,
+    "helpers_in_mu": 7,
+    "pad_on": false,
+    "n_pad": 0,
+    "nu": 2,
+    "zeta": 0,
+    "predicted_definition_draws": 30,
+    "declared_by_the_capture": 30,
+    "equal": true
+   },
+   {
+    "slot": 18,
+    "name": "SC_FZC",
+    "hosts": [
+     "F"
+    ],
+    "tau_domain": "F",
+    "tau_draws": 18,
+    "mu_base": 9,
+    "helpers_in_mu": 5,
+    "pad_on": true,
+    "n_pad": 1,
+    "nu": 2,
+    "zeta": 1,
+    "predicted_definition_draws": 31,
+    "declared_by_the_capture": 31,
+    "equal": true
+   },
+   {
+    "slot": 19,
+    "name": "SC_TAB",
+    "hosts": [
+     "Tab"
+    ],
+    "tau_domain": "Tab",
+    "tau_draws": 12,
+    "mu_base": 3,
+    "helpers_in_mu": 0,
+    "pad_on": true,
+    "n_pad": 1,
+    "nu": 0,
+    "zeta": 1,
+    "predicted_definition_draws": 17,
+    "declared_by_the_capture": 17,
+    "equal": true
+   }
+  ],
+  "slots_whose_draw_count_is_derived_here": [
+   2,
+   3,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19
+  ],
+  "all_derived_counts_equal_the_capture": true,
+  "disagreements": [],
+  "what_this_is_not": "a check of the prover: the capture's declared count is an INPUT.  What it predicts is that the port will consume exactly this many, and the gate's own confirmation is that the slot's terminal identity holds -- `Ctx.pad_draws` refuses BY NAME on any mismatch, which is finding M-F1's repair"
+ },
+ "receipt": {
+  "segment_bytes_declared": [
+   11320120,
+   11698968
+  ],
+  "total_segment_bytes": 23019088,
+  "sumcheck_rounds_per_slot": [
+   17,
+   17,
+   6,
+   13,
+   16,
+   12,
+   12,
+   12,
+   10,
+   9,
+   12,
+   12,
+   12,
+   14,
+   17,
+   17,
+   14,
+   16,
+   19,
+   13,
+   13,
+   17,
+   17
+  ],
+  "degrees": [
+   3,
+   3,
+   3,
+   4,
+   3,
+   2,
+   2,
+   2,
+   3,
+   3,
+   2,
+   2,
+   2,
+   2,
+   4,
+   4,
+   4,
+   4,
+   5,
+   3,
+   2,
+   2,
+   2
+  ],
+  "rounds_of_slots_16_and_18": 33,
+  "bytes_per_round_per_degree": 16,
+  "the_law": "a stage of a shape whose slots 16 and 18 have one degree less sends 528 bytes less per stage, everything else being equal",
+  "endpoint_rows": 21
+ },
+ "replay": {
+  "positions_checked": 251,
+  "challenges_checked": 9002,
+  "definition_draws_per_stage": 378,
+  "definition_draws_are_read_from_the_capture": true,
+  "definition_draws_derived_for": [
+   2,
+   3,
+   8,
+   9,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19
+  ],
+  "definition_draws_still_read_from_the_capture": [
+   0,
+   1,
+   4,
+   5,
+   6,
+   7,
+   10,
+   11,
+   12,
+   13,
+   20,
+   21,
+   22
+  ],
+  "bilinear_definition_draws_derived_and_compared": [
+   {
+    "slot": 8,
+    "captured": 15,
+    "derived": 15
+   },
+   {
+    "slot": 9,
+    "captured": 16,
+    "derived": 16
+   }
+  ],
+  "sumcheck_rounds_per_stage": 317,
+  "m_proximity_rhos_per_stage": [
+   48,
+   48
+  ],
+  "segment_position_tags": 4
+ },
+ "hash_layer": {
+  "openings": 9,
+  "columns": 2304,
+  "column_bytes": 14782464,
+  "largest_column_bytes": 14384,
+  "tree_depth": 14
+ },
+ "masking": {
+  "rows": 50,
+  "functionals": 34,
+  "slot_lengths": [
+   53,
+   53,
+   20,
+   54,
+   50,
+   26,
+   26,
+   26,
+   32,
+   29,
+   26,
+   26,
+   26,
+   30,
+   70,
+   70,
+   58,
+   66,
+   97,
+   41,
+   28,
+   36,
+   36
+  ],
+  "largest_L": 97,
+  "largest_L_slot": 18,
+  "mask_msg": 512,
+  "mask_q": 256,
+  "ruling_C4_headroom": 159,
+  "coefficient_unknowns_fp": 1958,
+  "q_entries_per_stage": 1024
+ },
+ "terminals": {
+  "slot_checks_expected": 46,
+  "why": "public_tables_included is True, so every slot's tables are carried and all 23 can be evaluated"
+ },
+ "joint": {
+  "identified_row_pairs": 64,
+  "sum_of_the_parts": 4,
+  "whole_run_joint": 4,
+  "whole_run_generators": 206
+ }
+}
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/r7/l2/prediction_r7_l2_zero.json

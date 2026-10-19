@@ -1,0 +1,12 @@
+warning: due to multiple output types requested, the explicitly specified output file name will be adapted for each output type
+
+warning: unused variable: `bases`
+    --> kernels.rs:1198:72
+     |
+1198 | #[inline(never)] unsafe fn helper_0(raw:*const Gp2, params:*const Gp2, bases:*const u64, scratch:*mut Gp2) {
+     |                                                                        ^^^^^ help: if this is intentional, prefix it with an underscore: `_bases`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: 2 warnings emitted
+

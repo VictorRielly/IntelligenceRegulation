@@ -1396,3 +1396,213 @@ running. The (B) work that does not wait on them was started in parallel.
     in R7, and R7's shape.rs adds only `with_score_shift` (unused here).
   - Owner's question left: restrict the declared class (sh <= 7), or keep
     pg_rot1's duplicate lookups now that they are read.
+- 10:26 UTC **P-18 CAPTURE DONE on R7** (sub-lane; `EV/r7cli/PROGRESS.md`,
+  `r7cli/bundle_summary.json`). Bundle
+  `~/zk60-artifacts/tinyllama-cli-r7-capture-dense-l2/`: 2 blocks (layers 7,
+  8), ho00, manifest 23a8c899..., 46 pins, run_capture.rs 31557a27.
+  - **How it was made.** It was captured from a run directory the R7 CLI
+    itself proved (`stack-prove`, e51cc6a4; the prover-private input came
+    from `--seq-dir`) and a FRESH PROCESS verified. That verifier reported
+    `"verified"` and then `"statement-published"`, "by stack-verify, from its
+    own rendering and the hashes of the verified bytes". The verifier export
+    had its `seq_*` directories dropped.
+  - **Statement identity** ef0610008901e09101709db727a19b30a5de9afb64217e284432afe892aaeb54
+    = `run.json["calibration"]`. The published backend is the CPU constant
+    (Q-2).
+  - **The capture test** (`capture_a_cli_run_directory`, test-only, its copy
+    `trained-1b-gate-r7-cli/`, sources df989c33...) calls the CLI's own
+    `run::verify_run_from_dir_hashed_with` on the CLI's run directory. It
+    checks the published statement and `segments.json` entry by entry, and
+    then `check_bundle_on_disk`.
+  - Steps [MEASURED, shared box, n=1]: build 147 s / 1.82 GiB; prove 5.7 s /
+    1.02 GiB; verify 0.87 s / 0.27 GiB; capture 1.8 s / 0.36 GiB.
+- 10:27 UTC `r7/cli_queue.sh` launched detached (marker `r7/cli_queue.done`).
+  On the CLI bundle, with the R7 zero L2 harness capture as partner, it runs
+  pass A, everything, schema, G-10 and the TL controls.
+- 10:28 UTC **Q-6 PASS on R5b** (`q6/`, `q6/q6_queue.done` = 0; build 146 s
+  / 1.77 GiB after a 50-minute wait for the heavy lock). Both inputs pass
+  `gr4_trained_t32_run_l2_{dense_ho00,zero}`:
+  - the run header is rebuilt (= binding); the B_0 plane is block 1's input;
+    dense parity holds at 131,072 words (both layers);
+  - the stage layouts are [16, 16] | [18, 16];
+  - both segments are verified by the production `run::verify_run`;
+  - **all seven roots are rebuilt from ONE replay stream** (B_0, A_0, M_0,
+    H_0, A_1, M_1, H_1); the stream ends where the prover's did; and **the
+    prover consumed exactly the predicted 77,919,360 bytes** (= 1,007,616 +
+    2 x 38,455,872, as PREDICTED at 09:38 [MODEL]: hit);
+  - non-vacuity 5 of 5: a reset before stage 1 moves A_1; B_0 drawn after the
+    block moves B_0 and A_0; m1 / m2 / alpha on stage 1 move A_1 / H_1 / M_1.
+
+  15.2 s / 16.2 s, 1.04 GiB [MEASURED, shared box, n=1]. The three existing
+  tests still pass with `rebuild` wrapping `rebuild_on`.
+  - **Covered now**: the stage loop for L = 2 (B before A, stage 1 on the
+    stream after stage 0, the B_0 opening). **Still not covered**: L >= 3
+    (the same loop body, not replayed), the production `prove_run` on OS
+    randomness (replicated, and accepted by the production verifier), and
+    the endpoint generators (in situ).
+  - The same tests on R7 are in `r7/heavy_queue.sh`; there every stage is
+    proved under `stage_shape(k)`.
+- **PART (A) DONE** at 10:28 UTC: G-7, Q-6 and tools v7 (plus v8 for (B)).
+- 10:29 UTC: coordinator, as security owner. **D31** (register,
+  2026-10-19 10:29): pg_rot1's four identical lookup pairs are KEPT as read
+  and the declared class is NOT restricted. Reopen if a capture ever shows a
+  duplicated plane, a repeated terminal coordinate or equal published values
+  from those pairs. The draft must cite D31 and replace its old description
+  of the duplicate with G-7's reading (part C).
+  - Also for (C): **review round r7 ACCEPTED R7 on soundness**
+    (`results/zk60_d24_review_20261017/R7_VERDICT.md`: N-r6-b closed, Q-2
+    holds; notes N-r7-a..d). Cite it with r5 / r6 for the statement-writer
+    path.
+  - Note N-r7-c under Q-4: a CPU prover may claim one of the two device
+    names; the backend is an unverifiable self-report limited to three
+    fixed names.
+  - N-r7-b (a prover-chosen NUMBER echoed in LOCAL verifier output only) falls
+    under §6's rule that verifier output stays local.
+- 10:30 UTC **R7 heavy queue done** (`r7/heavy_queue.done` = 0;
+  [MEASURED, shared box, n=1]):
+  - build 145 s / 1.8 GiB;
+  - **all five stage-47 tests PASS on R7**, every stage under
+    `stage_shape(k)`: Q-6's L = 2 replay on dense and zero (77,919,360 bytes
+    counted exactly, 7 roots, 5 of 5 non-vacuity), block dense / zero, and
+    boundary B_0;
+  - six captures, parity bit-exact on the dense ones. Manifest sha256
+    prefixes: L1 dense e28e5128 / zero 33efd9b7; L2 dense cdc17cca / zero
+    a27243f0; L22 dense 647dda41 / zero 8eb1850e. Costs: L1 4 s, L2 7 s,
+    L22 82 / 77 s at 2.46 GiB.
+- 10:28 UTC **FAILING-FIRST probe as predicted**: the frozen v7 driver on R7
+  L2 dense refuses `run.rs` (ad92be08, no reading in v7) and SUSPENDS every
+  stage, status NOT-OK (`r7/probe_before_repin/`). The predictor exits 1 by
+  design: there is no validation record, the same as on R5b.
+- Bookkeeping: the `g()` helpers of `v7/v7_queue.sh` and `r7/cli_queue.sh`
+  print `$?` after a `$(date)` substitution, so their progress lines always
+  say exit 0. The guard records (`*.guard.json`, `exit` / `child_rc`) are
+  the authority; the v7 jobs were all 0 there. The other queues capture
+  `rc` first.
+- RENAME: the provenance finding I called "G-11" at 09:42 and 10:06 UTC
+  (TOOLS list incomplete; also in the frozen v8 comment in
+  `zk60_native_run_gate.py`) is **G-14**. G-11 already names the arms-only
+  status finding in the draft. The v8 source comment keeps the old label;
+  the draft records the alias.
+- 11:53 UTC **R7 gating and CLI queues done** (`r7/light_queue.done` = 0,
+  `r7/cli_queue.done` = 0; summary `r7/r7-summary.json` by
+  `r7/summarize_r7.py`; [MEASURED, shared box, n=1]). **Every record PASS,
+  0 unexplained leaves, pins ok (no pin moved), export ok, 0 findings.**
+
+  | Record | Status | Pre-image (st 11), entries / diff | Mask | Joint, couplings | Terminal | Replay chal. | Cols | Wall / peak |
+  |---|---|---|---|---|---|---|---|---|
+  | L1 dense everything | PASS | 1,132,108 / 0 | 16,155 / 0 | 1,148,263 / 0, yes | 23/23 | 4,511 | 1,280 | 826 s / 0.69 GiB |
+  | L1 zero everything | PASS | 1,130,559 / 0 | 16,155 / 0 | 1,146,714 / 0, yes | 23/23 | 4,511 | 1,280 | 736 s / 0.70 |
+  | L2 dense everything | PASS | 2,253,304 / 0 | 32,310 / 0 | 2,285,614 / 0, yes | 46/46 | 9,002 | 2,304 | 833 s / 0.76 |
+  | L2 zero everything | PASS | 2,249,505 / 0 | 32,310 / 0 | 2,281,815 / 0, yes | 46/46 | 9,002 | 2,304 | 994 s / 0.70 |
+  | **CLI L2 dense everything** | **PASS** | 2,249,640 / 0 | 32,310 / 0 | 2,281,950 / 0, yes | 46/46 | 9,002 | 2,304 | 1,039 s / 0.74 |
+  | L22 dense pass A | PASS | (pass F not run) | | | 506/506 | 98,822 | 22,784 (162.2 MB) | 551 s / 5.3 |
+  | L22 zero pass A | PASS | | | | 506/506 | 98,822 | 22,784 | 460 s / 5.5 |
+  | L1 / L2 dense / zero, CLI: pass A | PASS each | | | | 23 / 46 | | | 20-34 s, 0.13-0.18 |
+
+  - **Controls in every everything pass**:
+    - CT 9/9, GQ 13/13, P 6/6, M 6/6;
+    - X 23/23 at L1 and 24/24 at L2;
+    - C 6/6 at L2 (L1: C1-C4 not applicable by name, C5 and C6 fire);
+    - CH 7/7 (CH-6 firing), M9 3/3.
+    - **M9-3 ok on all five** (draw-count arm D 48/46, Kv 24/22, Q 28/26,
+      S 32/30, T 15/13).
+  - **Other checks**:
+    - schema ok on the six harness bundles and on the CLI bundle;
+    - G-10 8/8 at L1, L2, L22 and on CLI;
+    - pin controls PC-0..PC-11 12/12 exact on R7 L1;
+    - TL ok on L1 dense, L2 dense, L2 zero and CLI, the same per control as
+      on R5b;
+    - dense vs zero at L2: 16 of 128 figures differ, all sampled-column
+      ones (distinct opened columns, pad margin, pad block);
+    - channels 10/5/5/8 (everything) and 2/5/5/16 (pass A), as on R5b.
+  - **The export cross-check at L22** recomputes the 22-layer identity, equal
+    to the independent statement's (68ad19c8...).
+  - **The L2 identity against the CLI's own published statement**
+    (`tinyllama-cli-r7-run-l2/statement/statement.json`, schema /2,
+    be899df3...; `r7/cli/e3-vs-cli-statement-*`, pass A with `--statement`
+    = that file, 30 s each): the gate recomputes the layers 7-8 identity
+    from the export, and it EQUALS the R7 verifier's published
+    `trained_statement_identity` for BOTH the CLI bundle and the harness
+    dense L2 bundle. `run.json["calibration"]` = ef061000... in the CLI,
+    harness-dense and harness-zero L2 bundles alike.
+- **PART (B) DONE** at 11:57 UTC.
+
+### Round 6 part (C): consolidation of the draft on R7 (from 10:40 UTC)
+
+- 10:40-11:58 UTC: the consolidated draft was written as a working copy,
+  `r7/DRAFT_round6_working.md`. Each review item and where it went:
+  - Q-5, one basis: R7, with R5b's L22 pass F / T carried by reading as Q-1
+    allows; tree A / R5 / R5b moved to Appendix H; §8's "pre-port" sentence
+    and the §1 Path row fixed.
+  - Q-3: M-9 stated operationally; the writer label is unauthenticated
+    (N-r6-a).
+  - Q-4: the backend is a self-report, with N-r7-c.
+  - Q-2: `prover_reported` is a §5 condition, enforced in R7.
+  - P-1: described as R6 / R7's verifier-written statement, citing
+    R5 / R6 / R7_VERDICT.
+  - Admissibility now includes CS-3 (`trained_block.rs:2075`).
+  - The census is moved to completeness (Q-7, for the owner to confirm).
+  - D31 is cited, and G-7's reading replaces the old duplicate description
+    in §3 (e), step 4 and §7.
+  - The S-4 order is cited at R7 `protocol.rs` lines.
+  - G-14 (alias "G-11" in v8) recorded.
+  - The R7 figures were filled from `r7/r7-summary.json`.
+- 11:59 UTC: the G-7 helper was resumed to re-run the terminal surjection on
+  the R7 stage files (harness L1 dense / zero, L2 dense, and the CLI L2
+  bundle), so that G-7's figures share the basis too (Q-5). NL-1's inputs
+  are byte-identical in R7, so it is not re-run.
+- 12:01 UTC **DRAFT INSTALLED** (round 6, on R7):
+  `PRIVACY_STATEMENT_TRAINED_T32_DRAFT.md` = the working copy; the round-5
+  text is kept byte for byte as `PRIVACY_STATEMENT_TRAINED_T32_DRAFT.round5.md`.
+  - The terminal-surjection paragraph still cites the R5b stage files ("R7
+    moves none of its inputs").
+  - The G-7 helper's re-run on the R7 stage files (`EV/g7/r7/`, its own
+    guarded light job) was STILL RUNNING when this lane was told to hand
+    back. When it lands, replace that clause with the R7 figures.
+- **PART (C) DONE** apart from that one clause. Not a privacy acceptance.
+- 12:01 UTC: coordinator. The three owner confirmations are already
+  recorded:
+  - **D28**: CS-2 / CS-5 not needed at the trained profiles;
+  - **D29**: the census is a completeness item, not a condition, under R6's
+    sealing-pass CS-3;
+  - the **D9 figures** printed for Victor (`ZK60_RULINGS_FOR_VICTOR_20261017.md`,
+    end: 2^-70.4 per run, 2^-40.5 over a billion runs).
+
+  All three are dated 2026-10-19 09:31 UTC. The draft now cites them in §0,
+  §3 step 4, §3b (P-13, P-22, Q-7), §4, §5 S and §10a (new rows for D28,
+  D29, the D9 figures and D31). §10b item 2 is closed, and item 3 is marked
+  D29. The working copy is synced. The independent reviewer starts its
+  final pass now. Still to do: the §3 step 4 surjection clause, once the
+  G-7 helper's R7 re-run lands (queue started 11:58:49 UTC); then re-freeze
+  the draft.
+- 12:01 UTC: interim draft state (D28 / D29 / D9 cited; surjection clause still on the R5b stage files): PRIVACY_STATEMENT_TRAINED_T32_DRAFT.md sha256 8e0142524ab08a4ccef7882d231df68a294934a454a23d0f8cc8b31abe66b64d. Handed back on the harness's instruction while the G-7 helper's R7 surjection re-run (EV/g7/r7/, its own guarded light job) is still running; the clause replacement and the final re-freeze follow when it lands.
+- 12:48 UTC: the G-7 helper's R7 surjection re-run landed (`EV/g7/r7/`,
+  exit 0, 2,986 s, 0.54 GiB [MEASURED, shared box, n=1]). On all seven R7
+  stage files (harness L1 dense / zero, L2 dense stages 0-1, CLI L2 stages
+  0-1):
+  - A 36/36 surjective, disclosed 0;
+  - H 8/9, with group 8 (the LogUp sum claim) disclosing exactly 2; joint
+    {7, 8} 16,388 / 16,382 / 16,384 / 2;
+  - input, output and boundary surjective, disclosed 0;
+  - the PCS census: no identical claims and no equal published values.
+
+  The figures equal the R5b run group for group (`compare_r5b_r7.json`).
+  Controls: C1 / C2 / G7-D3 fire; C3 / C6 / C8 / G7-D1 do not; G7-D2 is 2
+  short with 0 disclosed.
+- 12:49-12:51 UTC: the coordinator's final requests applied to the draft:
+  - the §0 G-7 bullet and the §3 step 4 surjection clause now carry the R7
+    per-bundle figures;
+  - REVIEW3 E-1 checked: the confirmations are no longer owed in §0, §3 step
+    4, §3b P-13 / Q-7 and §10a / §10b, all citing D28 / D29 / the D9 sheet;
+  - REVIEW3 E-2: the census reading is said to be made on R5b's lines, and
+    to hold on R7 because R7 changes only `trained_block.rs` from R6;
+  - the title and status now read "FINAL DRAFT for the security owner's
+    decision (not accepted, not in force)", quoting REVIEW3's verdict;
+  - §10a and §11 cite REVIEW3 and `EV/g7/r7/`.
+- **12:51 UTC DRAFT RE-FROZEN**: `PRIVACY_STATEMENT_TRAINED_T32_DRAFT.md`
+  sha256 **f971424fe8ead7d47dafb88ccb0b3910f11dfe1d94cfb10406c1aabf8403a779**
+  (1,060 lines).
+  - Byte copy: `PRIVACY_STATEMENT_TRAINED_T32_DRAFT.final-20261019.md`.
+  - Digests: `PRIVACY_STATEMENT_TRAINED_T32_DRAFT.final.sha256`.
+  - The round-5 text is kept (16e7335a...).
+  - Not a privacy acceptance.

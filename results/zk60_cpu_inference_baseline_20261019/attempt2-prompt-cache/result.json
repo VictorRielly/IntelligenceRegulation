@@ -1,0 +1,42 @@
+{
+ "model": "deepseek-r1:8b (Llama-3.1-8B architecture, 8.0B params, Q4_K_M)",
+ "device": "CPU only (CUDA_VISIBLE_DEVICES=-1, num_gpu=0)",
+ "runs": [
+  {
+   "prompt": "p32",
+   "rep": 0,
+   "wall_s": 9.671,
+   "prompt_eval_count": 27,
+   "prompt_eval_s": 1.237,
+   "load_s": 8.426710292,
+   "total_s": 9.670322581
+  },
+  {
+   "prompt": "p32",
+   "rep": 1,
+   "wall_s": 0.206,
+   "prompt_eval_count": 27,
+   "prompt_eval_s": 0.1,
+   "load_s": 0.102058656,
+   "total_s": 0.205309891
+  },
+  {
+   "prompt": "p128",
+   "rep": 0,
+   "wall_s": 3.313,
+   "prompt_eval_count": 103,
+   "prompt_eval_s": 3.297,
+   "load_s": 0.012500218,
+   "total_s": 3.312231709
+  },
+  {
+   "prompt": "p128",
+   "rep": 1,
+   "wall_s": 0.12,
+   "prompt_eval_count": 103,
+   "prompt_eval_s": 0.102,
+   "load_s": 0.013134619,
+   "total_s": 0.119170983
+  }
+ ]
+}

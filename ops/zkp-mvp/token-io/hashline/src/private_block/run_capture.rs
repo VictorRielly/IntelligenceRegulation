@@ -216,7 +216,7 @@ pub(super) const SHARED_SOURCE_FILES: [&str; 29] = [
     "../zkp-core/src/tables.rs",
 ];
 
-pub(super) const OWN_SOURCE_FILES: [&str; 21] = [
+pub(super) const OWN_SOURCE_FILES: [&str; 23] = [
     "src/private_block/run_capture.rs",
     "src/private_block/run.rs",
     "src/private_block/boundary.rs",
@@ -263,6 +263,12 @@ pub(super) const OWN_SOURCE_FILES: [&str; 21] = [
     "src/private_block/token_io/stage_in.rs",
     "src/private_block/token_io/stage_out.rs",
     "src/private_block/token_io/run.rs",
+    // TOKEN I/O LANE (2026-10-19, review TR3-2): the production loaders (the
+    // token tables, the export's public side, the streaming block source)
+    // decide the public statement a token run binds; the CLI bridge renders
+    // and publishes it. Both pinned.
+    "src/private_block/token_io/load.rs",
+    "src/private_block/token_io/cli.rs",
     // NATIVE LANE R5b (review r4 note N-r4-d; the privacy-gate lane): the
     // trained export reader and CLI bridge. It adds no protocol code, but it
     // decides the public statement a trained run binds (the padded words,

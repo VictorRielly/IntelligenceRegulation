@@ -1,0 +1,52 @@
+[
+  {
+    "path": "startup/AGENDA.md",
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603
+  },
+  {
+    "path": "startup/CLAUDE.md",
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089
+  },
+  {
+    "path": "startup/FINDINGS.md",
+    "sha256": "145727f5aea533abc7375e1b40fc9e80d880d87cb50cd8cc96369971105af811",
+    "bytes": 569758
+  },
+  {
+    "path": "startup/MVP_STATUS.md",
+    "sha256": "41f521cace7ea594fcc142cedde0a7cd8fd018c2bb3c7ea2f57d3895d9994eac",
+    "bytes": 74734
+  },
+  {
+    "path": "startup/PROGRESS.md",
+    "sha256": "98d13517493669092fdc90dbaffdd5d0c47920a6acfe838c8d644fa85fb4fa59",
+    "bytes": 2157
+  },
+  {
+    "path": "startup/STATE.md",
+    "sha256": "efa045403939c62fa7be19faf7dd166c2dc3cb3070ded4438b55fb98fbd4d737",
+    "bytes": 6115
+  },
+  {
+    "path": "startup/ZK60_CODEX_FABLE_COORDINATION.md",
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889
+  },
+  {
+    "path": "startup/ZK60_DECISIONS.md",
+    "sha256": "463a69b44388b8d0adda033e6c5e6700033183f54771158201652cfb084c80a6",
+    "bytes": 91055
+  },
+  {
+    "path": "startup/ZK60_THROUGHPUT_TARGET.md",
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941
+  },
+  {
+    "path": "startup/sources.jsonl",
+    "sha256": "eda54f3c259efb2f2f8f15dec31f704da8c954c343b393f90ec579f47125d889",
+    "bytes": 547572
+  }
+]

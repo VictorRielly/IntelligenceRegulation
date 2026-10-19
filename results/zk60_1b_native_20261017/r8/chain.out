@@ -1,0 +1,2 @@
+/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/manifest_check.json: 220 files, tree 760697bf89ce53daf522fa3c91cba026c0b15e5c45a185643f8a792545f5b326
+[zk60-guard 06:37:19] START r8-check class=cpu need=4G cap=7G enforce=cgroup+watchdog waited=0s run=34107eae6690

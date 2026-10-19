@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-static-runtime-20261019/run.py", line 297, in <module>
+    if __name__=='__main__':main()
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-static-runtime-20261019/run.py", line 211, in main
+    U=ctypes.c_uint64;ptr=ctypes.POINTER(U);lib=ctypes.CDLL(str(H/'kernels.so'))
+  File "/usr/lib/python3.10/ctypes/__init__.py", line 374, in __init__
+    self._handle = _dlopen(self._name, mode)
+OSError: /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-static-runtime-20261019/kernels.so: cannot open shared object file: No such file or directory

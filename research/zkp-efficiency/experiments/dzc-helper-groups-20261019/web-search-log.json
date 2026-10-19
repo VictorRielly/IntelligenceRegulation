@@ -1,0 +1,29 @@
+{
+  "accessed_utc": "2026-10-19T13:26:46.627313+00:00",
+  "tool": "native LIVE web.run",
+  "queries": [
+    "sumcheck GKR GPU batching October 2026 paper github",
+    "sumcheck prover GPU fusion helper kernels compilation 2026",
+    "sumcheck round batching 2026 small values implementation github",
+    "site.llvm.org MachineOutliner function outlining 2017 code size",
+    "sumcheck GPU batched prover October 2026 release Github"
+  ],
+  "selected_primary_urls": [
+    "https://arxiv.org/abs/2608.03537",
+    "https://lists.llvm.org/pipermail/llvm-dev/2017-September/117814.html",
+    "https://developer.nvidia.com/blog/?p=119743",
+    "https://arxiv.org/abs/2610.14849",
+    "https://github.com/Oraclizer/statesync-gkr/releases",
+    "https://docs.rs/p3-sumcheck/latest/src/p3_sumcheck/strategy.rs.html",
+    "https://github.com/arkworks-rs/sumcheck"
+  ],
+  "source_count_before": 435,
+  "source_count_after": 442,
+  "novelty": "ComFuse,NVIDIAJulyfusion andLLVM2017outlining new tostartup inventory. StateSync,arkworks andPlonky3 refreshed,not new.",
+  "failures": [
+    "Release commit4750931 detail InternalError; no full inspected commit pin.",
+    "Release-linked performancePR and commit detail InternalError. No full inspected commit or license text.",
+    "raw src/ml_sumcheck/prover.rs InternalError; GitHubblob sameInternalError; rawMITlicense InternalError; GitHublicense no file content."
+  ],
+  "limits": "Search/primary inspections only. No installations/downloaded script execution/external writes/messages. No foreign performance reproduced."
+}

@@ -1,0 +1,15 @@
+[load          ]      0.6 s   peak RSS     128 MB   ok
+[replay        ]      0.4 s   peak RSS     128 MB   ok
+[hash          ]      0.3 s   peak RSS     128 MB   ok
+[terminals     ]     96.3 s   peak RSS     296 MB   ok
+[commitments   ]     15.1 s   peak RSS     296 MB   ok
+[boundary      ]      2.3 s   peak RSS     305 MB   ok
+[preimage      ]      0.2 s   peak RSS     305 MB   ok
+[fullpreimage  ]    773.0 s   peak RSS     702 MB   ok
+[mask          ]     55.3 s   peak RSS     702 MB   ok
+[joint         ]      0.0 s   peak RSS     702 MB   ok
+[runcontrols   ]     50.0 s   peak RSS     711 MB   ok
+[export        ]      0.0 s   peak RSS     711 MB   ok
+[channels      ]      0.0 s   peak RSS     711 MB   ok
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/r7/l2/r7-l2-zero-everything.json   total 993.5 s   peak RSS 711 MB   ok=True
+status: PASS   unexplained false leaves 0   -> /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/r7/l2/r7-l2-zero-everything.status.json

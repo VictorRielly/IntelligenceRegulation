@@ -1,0 +1,22 @@
+{
+ "export": "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T128",
+ "profile_sha256": "b418a1dd9c23d758efc03ef5b8cb8dfb1b73b893dab7114c5b93233a30062601",
+ "vocab": 32000,
+ "input": "export embedding table",
+ "refusing_tokens": 0,
+ "by_site": {},
+ "worst_abs": {
+  "y": 19,
+  "Q": 48,
+  "K": 78,
+  "V": 98,
+  "QR_bound": 49,
+  "KR_bound": 78
+ },
+ "class_int8": 127,
+ "score_bound_all_token_pairs_loose": 279,
+ "score_class": 127,
+ "rows": [],
+ "seconds": 48.228989601135254,
+ "scope": "layer 0 only (exhaustive over the vocabulary for norm_a / Q / K / V / RoPE); later layers depend on context"
+}

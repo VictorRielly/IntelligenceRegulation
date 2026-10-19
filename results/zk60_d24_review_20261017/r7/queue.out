@@ -4,3 +4,9 @@
 [10:16:48Z] r7-stale-dead-forged exit 0
 [10:16:48Z] after r7-stale-dead-forged: run-r6 entries: segment-000.bin segment-001.bin statement 
 [10:16:48Z] run-r6-live entries: segment-000.bin segment-001.bin statement statement.writing-1 
+[10:19:54Z] r7-8b-b7-under-r7 exit 0
+[10:22:14Z] r7-test-build exit 0
+[10:22:14Z] lib test binary: target/release/deps/hashline-c216206c25033b64
+[10:22:16Z] r7-fast exit 0
+[10:22:34Z] r7-author-subset exit 0
+[10:22:34Z] queue end

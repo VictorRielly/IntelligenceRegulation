@@ -1,0 +1,4 @@
+[11:57:46Z] start abl_base (--pos-chunk 256)
+[zk60-guard 04:57:46] START fp-ab8_abl_base class=light need=4.5G cap=6G enforce=cgroup+watchdog waited=0s run=e032ba9ea096
+[zk60-guard 06:05:35] END fp-ab8_abl_base exit=0 child_wall=4068s peak_rss=4.61G min_avail=7.13G
+[13:05:35Z] end abl_base exit 0

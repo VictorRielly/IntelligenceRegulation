@@ -1,0 +1,55 @@
+{
+ "entries": [
+  {
+   "class_int8": 127,
+   "exports_matched_at_record": [
+    "/home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_b7_T128",
+    "/home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_b7_T32"
+   ],
+   "fingerprint": "f8086a4022bade60f010077a0b72a66b382df2178afe3eb93178fc49c310df39",
+   "fingerprint_parts": {
+    "embedding_int16.bin": "8b5a5fb10fb331dd5b8882bac6717d800f88a2b9a6affe1c7b7b75238686f1ca",
+    "layer_00/gamma_a.bin": "4f936eee8955a5e746d06143545f337bdc303a4b18b48220e3934c65e0c1c019",
+    "layer_00/manifest.json without RoPE": "77b71c4ba99e929f6b5cd9b117edeb5b4483f43d88ae16404bde289e1789c74f",
+    "layer_00/wk.bin": "0d37240a9eb26ba0f78b98d8c3bc44c7594c1cda5241638587bbc3f2b554f620",
+    "layer_00/wq.bin": "0f9eb71d18430e8dc4b55dc6870dad0dbf540f1e4f38d5eaf6e98d9dac475db5",
+    "layer_00/wv.bin": "bbdf32f502e3190efdf60dbd2a84c176ea25ca74d034f60f310477651bf34222"
+   },
+   "refusing": [
+    {
+     "display": " .",
+     "sites": [
+      "V"
+     ],
+     "text": "\u0120.",
+     "token": 662
+    },
+    {
+     "display": "Tags",
+     "sites": [
+      "V"
+     ],
+     "text": "Tags",
+     "token": 16309
+    }
+   ],
+   "scan": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/runs/llama3-8b/vocab0_llama3_8b_pg_rot1_b7_T128.json",
+   "scan_export": "/home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_b7_T128",
+   "scan_profile_sha256": "040eb5cfa3e21634e8e13c9a00a108b301231af456bd3c539ac725c7f6269a6e",
+   "scan_scope": "layer 0 only (exhaustive over the vocabulary for norm_a / Q / K / V / RoPE); later layers depend on context",
+   "scan_sha256": "994d761d0aa5f7bf51f58df2046b37563b4b330022df2c26755c84f0e14f3578",
+   "vocab": 128256,
+   "worst_abs": {
+    "K": 67,
+    "KR_bound": 67,
+    "Q": 66,
+    "QR_bound": 66,
+    "V": 166,
+    "y": 25
+   }
+  }
+ ],
+ "fingerprint_rule": "sha256 over the SHA-256s of the embedding table, layer_00 gamma_a.bin / wq.bin / wk.bin / wv.bin and the canonical layer_00 manifest without rope_cos / rope_sin / tables.rope",
+ "fix": "a layer-0 recalibrated export is coming from the calibration/fidelity lanes (results/zk60_fidelity_parity_20261019/PROGRESS.md, 13:26 UTC 2026-10-19 vocabulary scan); until it lands, choose a prompt without this token",
+ "what": "known layer-0 refusing tokens per export layer-0 fingerprint (demo pre-check; the proof system refuses such prompts on its own)"
+}

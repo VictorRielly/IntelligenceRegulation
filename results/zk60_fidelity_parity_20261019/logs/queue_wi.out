@@ -1,0 +1,22 @@
+[12:37:10Z] start wi_gatepc5 (--gate-pc -5)
+[zk60-guard 05:37:10] admission waiting: budget: 11+2.5 GiB > 11.9 GiB with live [fp-abB_abl_act(light,2.5G), g7-ts-r7(light,1.5G), fp-abA_abl_pdiv(light,2.5G), fp-ab8_abl_base(light,4.5G)]
+[zk60-guard 05:38:10] admission waiting: budget: 11+2.5 GiB > 11.9 GiB with live [fp-abB_abl_act(light,2.5G), g7-ts-r7(light,1.5G), fp-abA_abl_pdiv(light,2.5G), fp-ab8_abl_base(light,4.5G)]
+[zk60-guard 05:39:10] admission waiting: budget: 11+2.5 GiB > 11.9 GiB with live [fp-abB_abl_act(light,2.5G), g7-ts-r7(light,1.5G), fp-abA_abl_pdiv(light,2.5G), fp-ab8_abl_base(light,4.5G)]
+[zk60-guard 05:40:10] admission waiting: budget: 11+2.5 GiB > 11.9 GiB with live [fp-abB_abl_act(light,2.5G), g7-ts-r7(light,1.5G), fp-abA_abl_pdiv(light,2.5G), fp-ab8_abl_base(light,4.5G)]
+[zk60-guard 05:41:10] admission waiting: budget: 11+2.5 GiB > 11.9 GiB with live [fp-abB_abl_act(light,2.5G), g7-ts-r7(light,1.5G), fp-abA_abl_pdiv(light,2.5G), fp-ab8_abl_base(light,4.5G)]
+[zk60-guard 05:42:10] admission waiting: budget: 11+2.5 GiB > 11.9 GiB with live [fp-abB_abl_act(light,2.5G), g7-ts-r7(light,1.5G), fp-abA_abl_pdiv(light,2.5G), fp-ab8_abl_base(light,4.5G)]
+[zk60-guard 05:43:11] admission waiting: budget: 11+2.5 GiB > 11.9 GiB with live [fp-abB_abl_uh(light,2.5G), fp-abA_abl_exp(light,2.5G), g7-ts-r7(light,1.5G), fp-ab8_abl_base(light,4.5G)]
+[zk60-guard 05:44:11] admission waiting: budget: 11+2.5 GiB > 11.9 GiB with live [fp-abB_abl_uh(light,2.5G), fp-abA_abl_exp(light,2.5G), g7-ts-r7(light,1.5G), fp-ab8_abl_base(light,4.5G)]
+[zk60-guard 05:45:11] admission waiting: budget: 11+2.5 GiB > 11.9 GiB with live [fp-abB_abl_uh(light,2.5G), fp-abA_abl_exp(light,2.5G), g7-ts-r7(light,1.5G), fp-ab8_abl_base(light,4.5G)]
+[zk60-guard 05:46:11] admission waiting: budget: 11+2.5 GiB > 11.9 GiB with live [fp-abB_abl_uh(light,2.5G), fp-abA_abl_exp(light,2.5G), g7-ts-r7(light,1.5G), fp-ab8_abl_base(light,4.5G)]
+[zk60-guard 05:47:11] admission waiting: budget: 11+2.5 GiB > 11.9 GiB with live [fp-abB_abl_uh(light,2.5G), fp-abA_abl_exp(light,2.5G), g7-ts-r7(light,1.5G), fp-ab8_abl_base(light,4.5G)]
+[zk60-guard 05:48:11] admission waiting: budget: 11+2.5 GiB > 11.9 GiB with live [fp-abB_abl_uh(light,2.5G), fp-abA_abl_exp(light,2.5G), g7-ts-r7(light,1.5G), fp-ab8_abl_base(light,4.5G)]
+[zk60-guard 05:49:12] admission waiting: budget: 9.5+2.5 GiB > 11.9 GiB with live [fp-abB_abl_uh(light,2.5G), fp-abA_abl_exp(light,2.5G), fp-ab8_abl_base(light,4.5G)]
+[zk60-guard 05:50:12] admission waiting: budget: 9.5+2.5 GiB > 11.9 GiB with live [fp-abB_abl_uh(light,2.5G), fp-abA_abl_exp(light,2.5G), fp-ab8_abl_base(light,4.5G)]
+[zk60-guard 05:51:07] START fp-wi_wi_gatepc5 class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=837s run=d7572a6f1e59
+[zk60-guard 05:51:07] END fp-wi_wi_gatepc5 exit=3 child_wall=0s peak_rss=0.00G min_avail=9.50G
+[12:51:07Z] end wi_gatepc5 exit 3
+[12:51:07Z] start wi_gatepc8sat (--gate-pc -8:sat)
+[zk60-guard 05:51:07] START fp-wi_wi_gatepc8sat class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=4e604119d4f6
+[zk60-guard 05:51:07] END fp-wi_wi_gatepc8sat exit=3 child_wall=0s peak_rss=0.00G min_avail=10.73G
+[12:51:07Z] end wi_gatepc8sat exit 3

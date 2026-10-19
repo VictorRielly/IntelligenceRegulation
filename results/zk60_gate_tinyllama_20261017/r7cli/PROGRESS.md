@@ -108,3 +108,62 @@ n=1] unless labelled otherwise.
   `--export /home/victor/zk60-artifacts/tinyllama-cli-r7-verifier-export
   --artifact /home/victor/zk60-artifacts/tinyllama-cli-r7-run-l2
   --expect-statement ef061000…eb54 --layers 7..9 --label zk60-trained-stack`.
+- 10:20 build DONE, exit 0 (`p18-build.log`, `p18-build.guard.json`): waited
+  558.6 s, child wall 147.3 s, peak RSS 1.82 GiB, peak cgroup 1.79 GiB
+  [MEASURED, shared box, n=1]; no warning from `run_capture_tests.rs`. Test
+  binary `ops/zkp-mvp/trained-1b-gate-r7-cli/hashline/target/release/deps/hashline-6d7fc4ee9d7ac607`
+  sha256 `f794602d842457604ade1c8fd0dc4e029584de249291f7edf7062068548028e3`.
+- 10:20 `record_sources.py v1` (this dir):
+  - `trained-1b-gate-r7-cli-vs-frozen-r7.v1.patch` 42,491 B, sha256
+    `700557cb6a7acd701b37f4f59d238a2cde677d861f234398a469afda0da4f6c6`, 2
+    files (`run_capture.rs`, `run_capture_tests.rs`);
+  - **`trained-1b-gate-r7-cli.sources.v1.sha256`** 219 files, sha256
+    **`df989c33632082120126d37ef827651ab275f15f392e4c20e5f4cad5e7e45e27`**;
+  - `r7cli-source-pins.v1.json`: 46 pins; copy ≠ R7 only in `run_capture.rs`
+    (`31557a27…be6f`, the capture patch); R7 ≠ R5b in the same six pins as R6
+    (`run.rs`, `protocol.rs`, `shape.rs`, `private_block.rs`,
+    `trained_statement.rs`, `trained_block.rs`).
+- 10:23 stack-verify DONE, exit 0 (`p18-verify.log`, `p18-verify.guard.json`):
+  waited 355.4 s, child wall 0.87 s, peak RSS 0.27 GiB, peak cgroup 0.49 GiB
+  [MEASURED, shared box, n=1]. Events, quoted:
+  `{"event":"verified","blocks":2,"receipt_bytes":23019088,…,"statement_identity":"ef0610008901e09101709db727a19b30a5de9afb64217e284432afe892aaeb54",…}`
+  then `{"event":"statement-published","by":"stack-verify, from its own
+  rendering and the hashes of the verified bytes","to":"/home/victor/zk60-artifacts/tinyllama-cli-r7-run-l2/statement","prover_statement_removed":"/home/victor/zk60-artifacts/tinyllama-cli-r7-run-l2.unverified-statement"}`.
+  `statement/`: `expected.bin` and `segments.json` byte-identical to the
+  prover's copies; `statement.json` `be899df3…5e36` names the fresh-process
+  writer, backend `gpu: off (built without --features gpu-cuda)`, identity
+  `ef061000…eb54`. The unverified sibling is gone (removed by the CLI).
+- 10:23 capture queued (guard class cpu, need 2 / cap 3.5, max 1800,
+  detached; label `p18-r7cli-capture`; `p18-capture.*`): the test binary
+  above, `private_block::run_capture_tests::capture_a_cli_run_directory
+  --exact --ignored --nocapture`, env `HL_PB_EXPORT=<verifier export>
+  HL_PB_ARTIFACT=<run> HL_PB_LAYERS=7..9 HL_PB_LABEL=zk60-trained-stack
+  HL_PB_CAPTURE_DIR=/home/victor/zk60-artifacts/tinyllama-cli-r7-capture-dense-l2
+  HL_PB_SEQ=ho00 HL_PB_CLI_SHA256=e51cc6a4…78d1 HL_RUN_CAPTURE_PUBLIC_TABLES=1
+  HL_TEST_SOURCE_COMMIT=uncommitted,gate-r7-cli=native-r7-tree-36a8aed1+capture-patch-700557cb,sources-df989c33,cli-e51cc6a4`.
+- 10:25 capture DONE, exit 0, `test ... ok` (`p18-capture.log`,
+  `p18-capture.guard.json`): waited 92.1 s, child wall 1.83 s (statement
+  rebuild 0.37 s; `verify_run_from_dir_hashed_with` + record 0.99 s over 2
+  block loads), peak RSS 0.36 GiB, peak cgroup 0.42 GiB [MEASURED, shared
+  box, n=1]. Every assertion of the test held: the identity rebuilt from the
+  verifier export = the CLI's published `statement.json`; the verified
+  segment hashes = the CLI verifier's `statement/segments.json`; the bounded
+  re-read = the verified bytes; `check_bundle_on_disk` (manifest, schema,
+  binding, stage pins, allow-list over every key, every array reference).
+- **Bundle** `/home/victor/zk60-artifacts/tinyllama-cli-r7-capture-dense-l2/`
+  (`bundle_summary.json`, sha256 `7008a8a4…d2d6`; `bundle_summary.py`):
+  schema `hashline-native-capture/5-run`, profile
+  `hashline-zk-mr1/private-run-tinyllama-1.1b-t32-trained-statement/1`, 2
+  blocks; files `run.json` 35,107 B, `stage-00.json` 3,602,196 B,
+  `stage-01.json` 4,308,469 B, `arrays.bin` 34,076,168 B, `README.md` 4,812 B
+  = 42,026,752 B; `manifest.json` sha256 `23a8c899…83b3`; 46 source pins, =
+  `r7cli-source-pins.v1.json`'s gate-copy column (`run_capture.rs`
+  `31557a27…be6f`). `run.json["calibration"]` = `ef061000…eb54` = the
+  statement identity; `context` and `expected_policy` = the statement's; the
+  stage files' segment pins = the CLI's `segments.json`;
+  `fully_verified: true`, `privacy_review_complete: false`. Segments NOT
+  copied into the bundle (`HL_RUN_CAPTURE_SEGMENTS` unset; the gate reads
+  the JSON; the receipt stays in the run directory, pinned by digest).
+- 10:25 all four `.sh.done` markers present, each `0`; no job of this lane is
+  queued or running. Handed back to the coordinator for gating. **Not a
+  privacy result.**

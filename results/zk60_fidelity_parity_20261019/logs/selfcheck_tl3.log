@@ -1,0 +1,24 @@
+/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/fp_lib.py:200: RuntimeWarning: divide by zero encountered in divide
+  return (We / s.reshape(shape).astype(np.float32)).astype(np.float32), s
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/fp_selfcheck.py", line 93, in <module>
+    main()
+  File "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/fp_selfcheck.py", line 69, in main
+    Wreal, wrep = fl.real_weights(Wrot, Lw)
+  File "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/fp_lib.py", line 217, in real_weights
+    assert frac < 1e-3, f"{k}: real weights do not round back to the words ({frac})"
+AssertionError: wq: real weights do not round back to the words (0.09229564666748047)
+/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/fp_lib.py:210: RuntimeWarning: divide by zero encountered in divide
+  return (We / s.reshape(shape).astype(np.float32)).astype(np.float32), s
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/fp_selfcheck.py", line 93, in <module>
+    main()
+  File "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/fp_selfcheck.py", line 69, in main
+    Wreal, wrep = fl.real_weights(Wrot, Lw)
+  File "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/fp_lib.py", line 227, in real_weights
+    assert frac < 1e-3, f"{k}: real weights do not round back to the words ({frac})"
+AssertionError: wq: real weights do not round back to the words (0.001953125)
+[11:43:41Z] L00 {'layer': 0, 'i_block_eq_export': True, 'rx_exact_eq_export': True, 'violations_rx': 0, 'all_relaxed_vs_float_update': {'cos_mean': 0.9999999722018683, 'cos_min': 0.99999974986334, 'rel_l2': 0.00027038441339356247}, 'all_exact_vs_float_update_cos_mean': 0.9765824870733102, 'real_weight_fit': {'wq_reround_mismatch': 0.0, 'wk_reround_mismatch': 0.0, 'wv_reround_mismatch': 0.0, 'wo_reround_mismatch': 0.0, 'wg_t_reround_mismatch': 8.669766512784091e-08, 'wu_t_reround_mismatch': 0.0, 'wd_t_reround_mismatch': 0.0, 'ls_fallback_groups': 0}} (6s)
+[11:43:48Z] L01 {'layer': 1, 'i_block_eq_export': True, 'rx_exact_eq_export': True, 'violations_rx': 0, 'all_relaxed_vs_float_update': {'cos_mean': 0.9999999355697691, 'cos_min': 0.9999998081200357, 'rel_l2': 0.00038171205895138656}, 'all_exact_vs_float_update_cos_mean': 0.9308384749472622, 'real_weight_fit': {'wq_reround_mismatch': 0.0, 'wk_reround_mismatch': 0.0, 'wv_reround_mismatch': 0.0, 'wo_reround_mismatch': 0.0, 'wg_t_reround_mismatch': 3.4679066051136365e-07, 'wu_t_reround_mismatch': 0.0, 'wd_t_reround_mismatch': 0.0, 'ls_fallback_groups': 0}} (13s)
+[11:43:49Z] L02 {'layer': 2, 'i_block_eq_export': True, 'rx_exact_eq_export': True, 'violations_rx': 0} (13s)
+[11:43:49Z] ALL BIT-EXACT: True

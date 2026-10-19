@@ -1,0 +1,54 @@
+[13:05:39Z] stream V released
+[13:05:39Z] start build_tl_dg
+[zk60-guard 06:05:39] START fp-V_build_tl_dg class=light need=2G cap=3G enforce=cgroup+watchdog waited=0s run=16890df2e08a
+[zk60-guard 06:12:04] END fp-V_build_tl_dg exit=0 child_wall=385s peak_rss=0.81G min_avail=6.88G
+[13:12:04Z] end build_tl_dg exit 0
+[13:12:04Z] start var_dg
+[zk60-guard 06:12:04] START fp-V_var_dg class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=0e3bfeec912d
+[zk60-guard 06:12:04] END fp-V_var_dg exit=3 child_wall=1s peak_rss=0.00G min_avail=10.58G
+[13:12:04Z] end var_dg exit 3
+[13:12:04Z] start build_tl_dg_w16
+[zk60-guard 06:12:04] START fp-V_build_tl_dg_w16 class=light need=2G cap=3G enforce=cgroup+watchdog waited=0s run=589cd831e992
+[zk60-guard 06:12:04] END fp-V_build_tl_dg_w16 exit=3 child_wall=0s peak_rss=0.00G min_avail=10.36G
+[13:12:04Z] end build_tl_dg_w16 exit 3
+[13:12:04Z] start var_dg_w16
+[zk60-guard 06:12:05] START fp-V_var_dg_w16 class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=822129d05edd
+[zk60-guard 06:12:05] END fp-V_var_dg_w16 exit=3 child_wall=0s peak_rss=0.00G min_avail=10.38G
+[13:12:05Z] end var_dg_w16 exit 3
+[13:12:05Z] start build_tl_pg_w16
+[zk60-guard 06:12:05] START fp-V_build_tl_pg_w16 class=light need=2G cap=3G enforce=cgroup+watchdog waited=0s run=e28b66ccadba
+[zk60-guard 06:12:05] END fp-V_build_tl_pg_w16 exit=3 child_wall=0s peak_rss=0.00G min_avail=10.32G
+[13:12:05Z] end build_tl_pg_w16 exit 3
+[13:12:05Z] start var_pg_w16
+[zk60-guard 06:12:05] START fp-V_var_pg_w16 class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=c37b1bde0ce7
+[zk60-guard 06:12:05] END fp-V_var_pg_w16 exit=3 child_wall=0s peak_rss=0.00G min_avail=10.13G
+[13:12:05Z] end var_pg_w16 exit 3
+[13:12:05Z] start wi_gatepc8sat
+[zk60-guard 06:12:06] START fp-V_wi_gatepc8sat class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=e12b0f961b36
+[zk60-guard 06:12:06] END fp-V_wi_gatepc8sat exit=2 child_wall=0s peak_rss=0.00G min_avail=10.27G
+[13:12:06Z] end wi_gatepc8sat exit 2
+[13:12:06Z] start fix_pround
+[zk60-guard 06:12:06] START fp-V_fix_pround class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=2729d91b5351
+[zk60-guard 06:12:06] END fp-V_fix_pround exit=3 child_wall=0s peak_rss=0.00G min_avail=10.37G
+[13:12:06Z] end fix_pround exit 3
+[13:12:06Z] start abl_ffn_core
+[zk60-guard 06:12:06] START fp-V_abl_ffn_core class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=fffe6c010f43
+[zk60-guard 06:12:06] END fp-V_abl_ffn_core exit=3 child_wall=0s peak_rss=0.00G min_avail=10.30G
+[13:12:06Z] end abl_ffn_core exit 3
+[13:12:06Z] start abl_softmax
+[zk60-guard 06:12:07] START fp-V_abl_softmax class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=8f23d49899e8
+[zk60-guard 06:12:07] END fp-V_abl_softmax exit=3 child_wall=0s peak_rss=0.00G min_avail=10.10G
+[13:12:07Z] end abl_softmax exit 3
+[13:12:07Z] start abl_w_attn
+[zk60-guard 06:12:07] START fp-V_abl_w_attn class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=7625d28f0dd0
+[zk60-guard 06:12:07] END fp-V_abl_w_attn exit=3 child_wall=0s peak_rss=0.00G min_avail=10.23G
+[13:12:07Z] end abl_w_attn exit 3
+[13:12:07Z] start abl_w_ffn
+[zk60-guard 06:12:07] START fp-V_abl_w_ffn class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=bf6ce5861884
+[zk60-guard 06:12:07] END fp-V_abl_w_ffn exit=3 child_wall=0s peak_rss=0.00G min_avail=10.38G
+[13:12:07Z] end abl_w_ffn exit 3
+[13:12:07Z] start abl_all
+[zk60-guard 06:12:08] START fp-V_abl_all class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=6e5185335eba
+[zk60-guard 06:12:08] END fp-V_abl_all exit=3 child_wall=0s peak_rss=0.00G min_avail=10.32G
+[13:12:08Z] end abl_all exit 3
+[13:12:08Z] stream V finished

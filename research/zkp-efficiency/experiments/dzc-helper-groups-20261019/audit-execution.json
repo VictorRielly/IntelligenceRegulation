@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "python3",
+    "experiments/dzc-helper-groups-20261019/audit.py"
+  ],
+  "returncode": 0,
+  "wall_seconds": 0.2160501230027876,
+  "finished_utc": "2026-10-19T13:27:25.391438+00:00"
+}

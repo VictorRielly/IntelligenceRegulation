@@ -1,0 +1,454 @@
+{
+  "status": "PASS",
+  "run_id": "20261019T091854Z-7d13829d",
+  "seed": 2026101977,
+  "checks": {
+    "row_coefficients": 1950,
+    "equal_operation_censuses": 390,
+    "value_independent_traces": 390,
+    "independent_lifetime_audits": 20,
+    "native_grid_values": 2145,
+    "native_offgrid_values": 390,
+    "round_messages": 90,
+    "original_finals": 1845,
+    "final_relations": 30,
+    "permutations": 30,
+    "aliases": 30,
+    "fixtures": 30
+  },
+  "controls": {
+    "wrong_pair": true,
+    "drop_high_degree": true,
+    "stale_mu": true,
+    "helper_order": true,
+    "wrong_msb": true,
+    "stale_recovered_claim": true,
+    "omit_support": true
+  },
+  "census": [
+    {
+      "descriptor": "TinyLlama1.1B",
+      "ln": 4,
+      "norm_w": 32,
+      "padded": false,
+      "N_examples": [
+        2,
+        8,
+        32
+      ],
+      "tables": 59,
+      "lookups": 34,
+      "helpers": 17,
+      "degree": 4,
+      "prep": [
+        76,
+        54,
+        0,
+        30
+      ],
+      "row_operations": [
+        272,
+        150,
+        331,
+        72
+      ],
+      "bank_peak_words": 79,
+      "pair_peak_words": 18,
+      "bank_denominator_words": 68,
+      "pair_denominator_words": 4,
+      "common_endpoint_words": 118,
+      "common_round_accumulator_words": 5,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "coefficient_bytes_per_fp2": 16,
+      "node_count": [
+        359,
+        359
+      ]
+    },
+    {
+      "descriptor": "TinyLlama1.1B",
+      "ln": 4,
+      "norm_w": 32,
+      "padded": true,
+      "N_examples": [
+        2,
+        8,
+        32
+      ],
+      "tables": 60,
+      "lookups": 34,
+      "helpers": 17,
+      "degree": 5,
+      "prep": [
+        76,
+        54,
+        35,
+        30
+      ],
+      "row_operations": [
+        356,
+        154,
+        427,
+        72
+      ],
+      "bank_peak_words": 79,
+      "pair_peak_words": 18,
+      "bank_denominator_words": 68,
+      "pair_denominator_words": 4,
+      "common_endpoint_words": 120,
+      "common_round_accumulator_words": 5,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "coefficient_bytes_per_fp2": 16,
+      "node_count": [
+        439,
+        439
+      ]
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "ln": 4,
+      "norm_w": 32,
+      "padded": false,
+      "N_examples": [
+        2,
+        8,
+        32
+      ],
+      "tables": 59,
+      "lookups": 34,
+      "helpers": 17,
+      "degree": 4,
+      "prep": [
+        76,
+        54,
+        0,
+        30
+      ],
+      "row_operations": [
+        272,
+        150,
+        331,
+        72
+      ],
+      "bank_peak_words": 79,
+      "pair_peak_words": 18,
+      "bank_denominator_words": 68,
+      "pair_denominator_words": 4,
+      "common_endpoint_words": 118,
+      "common_round_accumulator_words": 5,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "coefficient_bytes_per_fp2": 16,
+      "node_count": [
+        359,
+        359
+      ]
+    },
+    {
+      "descriptor": "Llama3-8B",
+      "ln": 4,
+      "norm_w": 32,
+      "padded": true,
+      "N_examples": [
+        2,
+        8,
+        32
+      ],
+      "tables": 60,
+      "lookups": 34,
+      "helpers": 17,
+      "degree": 5,
+      "prep": [
+        76,
+        54,
+        35,
+        30
+      ],
+      "row_operations": [
+        356,
+        154,
+        427,
+        72
+      ],
+      "bank_peak_words": 79,
+      "pair_peak_words": 18,
+      "bank_denominator_words": 68,
+      "pair_denominator_words": 4,
+      "common_endpoint_words": 120,
+      "common_round_accumulator_words": 5,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "coefficient_bytes_per_fp2": 16,
+      "node_count": [
+        439,
+        439
+      ]
+    },
+    {
+      "descriptor": "generic-four-top",
+      "ln": 4,
+      "norm_w": 31,
+      "padded": false,
+      "N_examples": [
+        2,
+        8,
+        32
+      ],
+      "tables": 61,
+      "lookups": 38,
+      "helpers": 19,
+      "degree": 4,
+      "prep": [
+        80,
+        58,
+        0,
+        30
+      ],
+      "row_operations": [
+        292,
+        166,
+        357,
+        80
+      ],
+      "bank_peak_words": 87,
+      "pair_peak_words": 18,
+      "bank_denominator_words": 76,
+      "pair_denominator_words": 4,
+      "common_endpoint_words": 122,
+      "common_round_accumulator_words": 5,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "coefficient_bytes_per_fp2": 16,
+      "node_count": [
+        385,
+        385
+      ]
+    },
+    {
+      "descriptor": "generic-four-top",
+      "ln": 4,
+      "norm_w": 31,
+      "padded": true,
+      "N_examples": [
+        2,
+        8,
+        32
+      ],
+      "tables": 62,
+      "lookups": 38,
+      "helpers": 19,
+      "degree": 5,
+      "prep": [
+        80,
+        58,
+        35,
+        30
+      ],
+      "row_operations": [
+        376,
+        170,
+        453,
+        80
+      ],
+      "bank_peak_words": 87,
+      "pair_peak_words": 18,
+      "bank_denominator_words": 76,
+      "pair_denominator_words": 4,
+      "common_endpoint_words": 124,
+      "common_round_accumulator_words": 5,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "coefficient_bytes_per_fp2": 16,
+      "node_count": [
+        465,
+        465
+      ]
+    },
+    {
+      "descriptor": "generic-five-top",
+      "ln": 5,
+      "norm_w": 39,
+      "padded": false,
+      "N_examples": [
+        2,
+        8,
+        32
+      ],
+      "tables": 67,
+      "lookups": 42,
+      "helpers": 21,
+      "degree": 4,
+      "prep": [
+        88,
+        62,
+        0,
+        34
+      ],
+      "row_operations": [
+        320,
+        182,
+        391,
+        88
+      ],
+      "bank_peak_words": 95,
+      "pair_peak_words": 18,
+      "bank_denominator_words": 84,
+      "pair_denominator_words": 4,
+      "common_endpoint_words": 134,
+      "common_round_accumulator_words": 5,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "coefficient_bytes_per_fp2": 16,
+      "node_count": [
+        423,
+        423
+      ]
+    },
+    {
+      "descriptor": "generic-five-top",
+      "ln": 5,
+      "norm_w": 39,
+      "padded": true,
+      "N_examples": [
+        2,
+        8,
+        32
+      ],
+      "tables": 68,
+      "lookups": 42,
+      "helpers": 21,
+      "degree": 5,
+      "prep": [
+        88,
+        62,
+        39,
+        34
+      ],
+      "row_operations": [
+        412,
+        186,
+        495,
+        88
+      ],
+      "bank_peak_words": 95,
+      "pair_peak_words": 18,
+      "bank_denominator_words": 84,
+      "pair_denominator_words": 4,
+      "common_endpoint_words": 136,
+      "common_round_accumulator_words": 5,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "coefficient_bytes_per_fp2": 16,
+      "node_count": [
+        511,
+        511
+      ]
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "ln": 4,
+      "norm_w": 32,
+      "padded": false,
+      "N_examples": [
+        2,
+        8,
+        32
+      ],
+      "tables": 59,
+      "lookups": 33,
+      "helpers": 17,
+      "degree": 4,
+      "prep": [
+        75,
+        53,
+        0,
+        30
+      ],
+      "row_operations": [
+        267,
+        147,
+        324,
+        70
+      ],
+      "bank_peak_words": 77,
+      "pair_peak_words": 18,
+      "bank_denominator_words": 66,
+      "pair_denominator_words": 4,
+      "common_endpoint_words": 118,
+      "common_round_accumulator_words": 5,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "coefficient_bytes_per_fp2": 16,
+      "node_count": [
+        355,
+        355
+      ]
+    },
+    {
+      "descriptor": "generic-odd-helper",
+      "ln": 4,
+      "norm_w": 32,
+      "padded": true,
+      "N_examples": [
+        2,
+        8,
+        32
+      ],
+      "tables": 60,
+      "lookups": 33,
+      "helpers": 17,
+      "degree": 5,
+      "prep": [
+        75,
+        53,
+        35,
+        30
+      ],
+      "row_operations": [
+        351,
+        151,
+        420,
+        70
+      ],
+      "bank_peak_words": 77,
+      "pair_peak_words": 18,
+      "bank_denominator_words": 66,
+      "pair_denominator_words": 4,
+      "common_endpoint_words": 120,
+      "common_round_accumulator_words": 5,
+      "added_full_tables": 0,
+      "removed_original_tables": 0,
+      "coefficient_bytes_per_fp2": 16,
+      "node_count": [
+        435,
+        435
+      ]
+    }
+  ],
+  "synthetic_digest": "648ee374e880b5e3a75910b21c4362f1eaf5410faea01ae765227dbfd597b01e",
+  "wall_seconds": 6.348416198998166,
+  "rss_kib": 33804,
+  "compiler_rss_kib": 132128,
+  "cpu_affinity": [
+    0
+  ],
+  "threads": 1,
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "compiler_argv": [
+    "rustc",
+    "--edition=2021",
+    "--crate-type=cdylib",
+    "-C",
+    "codegen-units=1",
+    "-C",
+    "opt-level=0",
+    "counted-shim.rs",
+    "-o",
+    "counted-reference.so"
+  ],
+  "logical_lifetime_model": "Last-use polynomial-buffer words, fresh output before input release; input endpoints/common round accumulator/plan, primitive scalar temps, register allocation, physical memory and all enclosing costs excluded from scratch peaks.",
+  "limits": "59s CPU/wall,512MiB address space,one nice19 CPU; noGPU/Cargo/install",
+  "scope": "Synthetic complete-D polynomial and original finals; actual captured Rust body/catalog with exact u128 field and Shape/Layout substitutes. No native proof/RNG/transcript/masks/privacy/device throughput."
+}

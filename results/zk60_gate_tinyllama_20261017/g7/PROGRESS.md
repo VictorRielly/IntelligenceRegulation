@@ -221,3 +221,34 @@ Write set (exclusive): `ops/zkp-mvp/trained-1b-gate-g7/` and this directory.
    own captures: 176 rows, 0 disagreements).
 6. Nothing pending: queue.done (0), ts_queue.done (0), every guarded job of
    this sub-lane has its .done marker; no job of this sub-lane is live.
+
+## Follow-up: R7 evidence basis (review round 2, Q-5)
+
+- 11:58 UTC: coordinator request (11:59 UTC message): re-run the terminal
+  surjection (stages 1 and 2, same width and method) on the R7 captures —
+  harness bundles tinyllama-trained-r7-capture-{dense-l1, zero-l1, dense-l2}
+  and the CLI-path bundle tinyllama-cli-r7-capture-dense-l2 (proved by the R7
+  CLI, fresh-process verified). NL-1 not re-run (its inputs are byte-identical
+  in R7, per the coordinator). Write set `g7/r7/`; R5b records untouched.
+  All four bundles: schema 5-run, log_cols 12, A 1729 rows / 120 claims, H
+  1798 / 50.
+- 11:58:49 UTC: `g7/r7/ts_queue_r7.sh` launched detached (marker
+  `g7/r7/ts_queue_r7.done`): `g7/ts_trained.py` UNCHANGED (sha256
+  d6f6cf93...), class light, need 1.5 / cap 3, label g7-ts-r7; controls and
+  G-7 probes again on the first bundle's A (R7 dense-l1).
+- 12:48:35 UTC: g7-ts-r7 exit 0 (`g7/r7/ts_trained.json` sha256 ca476a7e...,
+  log `g7/r7/g7-ts-r7.log`, guard `g7/r7/g7-ts-r7.guard.json`): 2,985.6 s
+  wall for 9 stage files, peak RSS 0.54 GiB [MEASURED, shared box, n=1; two
+  other light jobs were live]. Stage 1: no finding on any of the 9 stage
+  files. Stage 2, every stage file of all four bundles (harness dense-l1,
+  zero-l1, dense-l2 s00/s01; CLI-path dense-l2 s00/s01): **A 36/36
+  surjective, disclosed 0; H 8/9, group 8 (LogUp sum) disclosed 2, joint
+  component {7, 8} 16,388 / 16,382 / 16,384, disclosed 2, u rows 1696/1697;
+  Input / Output / the 22-row boundary (2 claims) surjective, disclosed 0;
+  annihilator kills every blinding and data generator; PCS census: no
+  identical claims, no equal published values.** Comparison with R5b
+  (`g7/r7/compare_r5b_r7.json`): per-role figures INCLUDING every group's
+  (members, rank, expected rank) list, the joint components and the census
+  are EQUAL at every stage file (the CLI bundle compared with the R5b harness
+  dense-l2); the controls and G-7 probes (on R7 dense-l1) equal R5b's row
+  for row. Differences: none. Nothing pending (`g7/r7/ts_queue_r7.done` = 0).

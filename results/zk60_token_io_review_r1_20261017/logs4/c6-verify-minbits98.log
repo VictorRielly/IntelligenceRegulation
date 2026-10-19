@@ -1,0 +1,1 @@
+{"event":"refused","command":"verify","error":"token I/O run: the statement's derived whole-run figure (97 bits, tier mvp-95-whole-run (D27)) is below the verifier's minimum of 98 bits (D27 policy)"}

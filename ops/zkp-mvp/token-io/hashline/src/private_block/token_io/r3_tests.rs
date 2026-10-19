@@ -28,8 +28,9 @@ use super::tests::*;
 use super::*;
 use super::super::layout::{Ids, A_X2};
 use super::super::run::{BlockRef, RunShape, RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32};
-use super::super::trained_block::{sha256, Constants, TrainedExport};
-use super::super::trained_statement::{IntegerCalibration, LayerRecord, Provenance, TrainedModelStatement};
+use super::super::trained_block::{sha256, TrainedExport};
+use super::load::{load_token_tables, ExportPublic, ExportTokenBlocks, TableFiles};
+use super::super::trained_statement::{LayerRecord, TrainedModelStatement};
 use super::super::BlockPublic;
 use std::path::{Path, PathBuf};
 
@@ -202,6 +203,56 @@ fn r3_a_layer_with_its_own_score_shift_is_proved_at_its_stage_shape() {
     }
     let e = verify_token_run(&st2, &fx.blocks, &fx.tables, &segs2, R1_DEV_POLICY_R3).err().expect("A BLOCK WITNESSED AT THE WRONG SCORE SHIFT VERIFIED");
     record("R3-10", "block 1 witnessed at the run-wide score shift under a per-layer statement", &[Site::Block], &e);
+}
+
+/// **REVIEW TR3-1, FAILING FIRST: a wrong block at a LATER stage is refused
+/// before any segment reaches the sink.** A stream handing block 0 again at
+/// stage 1: the honest prover refuses by name (CS-6) and the sink has
+/// received nothing (the digest pre-check of every block runs before stage
+/// IN, so stage IN's segment, which carries the input endpoint's opening,
+/// is never handed out for a run that is refused).
+#[test]
+fn tr3_1_a_wrong_block_at_a_later_stage_is_refused_before_any_segment() {
+    let fx = fx_generic();
+    let tp = profile(&fx);
+    let mut pipe = honest(&fx, &tp);
+    let (ins, outs) = endpoint_specs(&fx.sh, ctx(), &tp).unwrap();
+    let (roots, owners) = seal_endpoints(&ins, &outs, &pipe.in_plane, &pipe.out_plane, &fx.sh.hash_tag()).unwrap();
+    let st = statement(&fx, roots, SelectorVariant::PublicRow).unwrap();
+    let mut emitted: Vec<usize> = Vec::new();
+    let mut bl = GenBlocks { all: fx.blocks.clone(), order: vec![0, 0], cur: None, loads: 0 };
+    let e = prove_token_run_with(&st, &mut bl, &fx.tables, &mut PipelineSource(&mut pipe), owners, &mut |k, _| {
+        emitted.push(k);
+        Ok(())
+    })
+    .err()
+    .expect("REVIEW TR3-1: a run handed block 0 at stage 1 PROVED");
+    assert!(e.contains("ruling CS-6 — block 1"), "{e}");
+    assert!(emitted.is_empty(), "REVIEW TR3-1: segments {emitted:?} reached the sink before the refusal");
+    eprintln!("TOKEN-IO-R3 REVIEW TR3-1 | block 0 handed again at stage 1 | refused before any segment: {e} | segments emitted: {}", emitted.len());
+}
+
+/// **REVIEW TR3-2, FAILING FIRST: a truncated head manifest is refused by
+/// name**, never a panic (the manifests are parsed as JSON, bounded).
+#[test]
+fn tr3_2_a_truncated_manifest_is_refused_by_name() {
+    let t = generic_tables(384, 0x7472_3332);
+    let dir = std::env::temp_dir().join(format!("tio-tr3-2-{}", std::process::id()));
+    write_token_tables(&dir, &t, norm());
+    let hm = std::fs::read(dir.join("head_manifest.json")).unwrap();
+    let at = hm.windows(8).position(|w| w == b"\"sha256\"").expect("a sha256 key") + 14;
+    std::fs::write(dir.join("head_manifest.json"), &hm[..at]).unwrap();
+    let files = TableFiles { emb_dir: dir.clone(), head_dir: dir.clone() };
+    let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| load_token_tables(&files, t.v, t.d)));
+    let _ = std::fs::remove_dir_all(&dir);
+    match r {
+        Ok(Err(e)) => {
+            assert!(e.contains("head_manifest.json"), "{e}");
+            eprintln!("TOKEN-IO-R3 REVIEW TR3-2 | a head manifest truncated inside a digest | refused: {e}");
+        }
+        Ok(Ok(_)) => panic!("REVIEW TR3-2: a truncated manifest LOADED"),
+        Err(_) => panic!("REVIEW TR3-2: a truncated manifest PANICKED the loader instead of being refused by name"),
+    }
 }
 
 // ------------------------------------------------------------------ 2. the multi-row planes at V_pad 2^17
@@ -380,7 +431,7 @@ fn r3_streamed_blocks_prove_and_verify_and_another_block_at_a_stage_is_refused()
         Ok(())
     })
     .unwrap_or_else(|e| panic!("the streamed run did not prove: {e}"));
-    assert_eq!(bl.loads, 2, "one load per block stage");
+    assert_eq!(bl.loads, 4, "the pre-check pass (review TR3-1), then one load per block stage");
     verify_token_run_with(&st, &mut gen(vec![0, 1]), &fx.tables, &segs, R1_DEV_POLICY_R3).expect("the streamed run verifies with a streamed verifier");
     verify_token_run(&st, &fx.blocks, &fx.tables, &segs, R1_DEV_POLICY_R3).expect("and with a resident one");
     let e = verify_token_run_with(&st, &mut gen(vec![1, 0]), &fx.tables, &segs, R1_DEV_POLICY_R3).unwrap_err();
@@ -416,81 +467,12 @@ fn r3_the_parallel_folds_equal_the_serial_folds() {
     assert_eq!(tables.logits(&y), serial, "the parallel logits");
 }
 
-/// R2's file format: `embedding_int16.bin` ([V, d] int16 LE) described by
-/// `token_io.json` (`embedding_table` -> `sha256`), and `head_int8_perrow.bin`
-/// ([V, d] int8) / `head_mult12.bin` ([V] int64 LE) described by
-/// `head_manifest.json` (each file's `sha256`, and the `final_norm`
-/// constants). Read in 16 MiB chunks with the SHA-256 streamed: no second
-/// copy of a 1.05 GB table.
-pub(super) struct TableFiles {
-    pub emb_dir: PathBuf,
-    pub head_dir: PathBuf,
+/// write a table set in R2's format (the loader and CLI tests, and nothing else)
+pub(super) fn write_token_tables(dir: &Path, t: &TokenTables, norm: FinalNorm) {
+    write_token_tables_bos(dir, t, norm, 1)
 }
 
-/// the SHA-256 recorded under `key` (the first `"sha256": "<hex>"` after it)
-fn json_sha_after(text: &str, key: &str) -> Result<String, String> {
-    let at = text.find(key).ok_or_else(|| format!("manifest: no `{key}`"))?;
-    let rest = &text[at..];
-    let s = rest.find("\"sha256\"").ok_or_else(|| format!("manifest: no sha256 after `{key}`"))?;
-    let q = rest[s + 8..].find('"').ok_or("manifest: malformed sha256")? + s + 9;
-    let h = &rest[q..q + 64];
-    if !h.bytes().all(|c| c.is_ascii_hexdigit()) {
-        return Err(format!("manifest: `{key}`'s sha256 is not 64 hex digits"));
-    }
-    Ok(h.to_ascii_lowercase())
-}
-
-/// the integer recorded under `key` inside the `final_norm` object
-fn json_int_in_final_norm(text: &str, key: &str) -> Result<i64, String> {
-    let fnm = text.find("\"final_norm\"").ok_or("head manifest: no final_norm")?;
-    let rest = &text[fnm..];
-    let at = rest.find(&format!("\"{key}\"")).ok_or_else(|| format!("head manifest: final_norm has no `{key}`"))? + key.len() + 2;
-    let colon = rest[at..].find(':').ok_or("head manifest: malformed")? + at + 1;
-    let num: String = rest[colon..].trim_start().chars().take_while(|c| c.is_ascii_digit() || *c == '-').collect();
-    num.parse::<i64>().map_err(|_| format!("head manifest: final_norm.{key} is not an integer"))
-}
-
-/// read `path` (exactly `len` bytes) in chunks, hashing as it goes
-fn read_streamed(path: &Path, len: usize, want: &str, mut each: impl FnMut(&[u8])) -> Result<(), String> {
-    use sha2::Digest as _;
-    use std::io::Read;
-    let meta = std::fs::metadata(path).map_err(|e| format!("{}: {e}", path.display()))?;
-    if meta.len() != len as u64 {
-        return Err(format!("{}: {} bytes, the table is {len}", path.display(), meta.len()));
-    }
-    let mut f = std::fs::File::open(path).map_err(|e| format!("{}: {e}", path.display()))?;
-    let mut h = sha2::Sha256::new();
-    let mut buf = vec![0u8; 16 << 20];
-    let mut left = len;
-    while left > 0 {
-        let n = left.min(buf.len());
-        f.read_exact(&mut buf[..n]).map_err(|e| format!("{}: {e}", path.display()))?;
-        h.update(&buf[..n]);
-        each(&buf[..n]);
-        left -= n;
-    }
-    let got: [u8; 32] = h.finalize().into();
-    if hex(&got) != want {
-        return Err(format!("{}: not the recorded table (sha256 {} != {want})", path.display(), hex(&got)));
-    }
-    Ok(())
-}
-
-/// **THE TRAINED TABLES' LOADER** (R2's format; R3's trained run)
-pub(super) fn load_token_tables(files: &TableFiles, v: usize, d: usize) -> Result<(TokenTables, String), String> {
-    let tio = std::fs::read_to_string(files.emb_dir.join("token_io.json")).map_err(|e| format!("token_io.json: {e}"))?;
-    let hm = std::fs::read_to_string(files.head_dir.join("head_manifest.json")).map_err(|e| format!("head_manifest.json: {e}"))?;
-    let mut emb: Vec<i16> = Vec::with_capacity(v * d);
-    read_streamed(&files.emb_dir.join("embedding_int16.bin"), 2 * v * d, &json_sha_after(&tio, "\"embedding_table\"")?, |b| emb.extend(b.chunks_exact(2).map(|c| i16::from_le_bytes([c[0], c[1]]))))?;
-    let mut head: Vec<i8> = Vec::with_capacity(v * d);
-    read_streamed(&files.head_dir.join("head_int8_perrow.bin"), v * d, &json_sha_after(&hm, "\"head_int8_perrow.bin\"")?, |b| head.extend(b.iter().map(|x| *x as i8)))?;
-    let mut mult: Vec<i64> = Vec::with_capacity(v);
-    read_streamed(&files.head_dir.join("head_mult12.bin"), 8 * v, &json_sha_after(&hm, "\"head_mult12.bin\"")?, |b| mult.extend(b.chunks_exact(8).map(|c| i64::from_le_bytes(c.try_into().unwrap()))))?;
-    Ok((TokenTables::new(v, d, emb, head, mult)?, hm))
-}
-
-/// write a table set in R2's format (the loader test, and nothing else)
-fn write_token_tables(dir: &Path, t: &TokenTables, norm: FinalNorm) {
+pub(super) fn write_token_tables_bos(dir: &Path, t: &TokenTables, norm: FinalNorm, bos: u64) {
     std::fs::create_dir_all(dir).unwrap();
     let emb: Vec<u8> = t.emb.iter().flat_map(|w| w.to_le_bytes()).collect();
     let head: Vec<u8> = t.head.iter().map(|w| *w as u8).collect();
@@ -502,7 +484,10 @@ fn write_token_tables(dir: &Path, t: &TokenTables, norm: FinalNorm) {
     std::fs::write(
         dir.join("head_manifest.json"),
         format!(
-            "{{\"head_int8_perrow.bin\": {{\"sha256\": \"{}\"}}, \"head_mult12.bin\": {{\"sha256\": \"{}\"}}, \"final_norm\": {{\"g0\": {}, \"tn\": {}, \"ceps\": {}, \"cn_calibrated\": {}}}}}\n",
+            "{{\"V\": {}, \"d\": {}, \"bos\": {}, \"head_int8_perrow.bin\": {{\"sha256\": \"{}\"}}, \"head_mult12.bin\": {{\"sha256\": \"{}\"}}, \"final_norm\": {{\"g0\": {}, \"tn\": {}, \"ceps\": {}, \"cn_calibrated\": {}}}}}\n",
+            t.v,
+            t.d,
+            bos,
             hex(&sha256(&head)),
             hex(&sha256(&mult)),
             norm.g0,
@@ -514,11 +499,6 @@ fn write_token_tables(dir: &Path, t: &TokenTables, norm: FinalNorm) {
     .unwrap();
 }
 
-/// the final norm a head manifest records (`cn_calibrated`)
-fn manifest_norm(hm: &str) -> Result<FinalNorm, String> {
-    Ok(FinalNorm { g0: json_int_in_final_norm(hm, "g0")?, cn: json_int_in_final_norm(hm, "cn_calibrated")?, tn: json_int_in_final_norm(hm, "tn")? as u32, ceps: json_int_in_final_norm(hm, "ceps")? })
-}
-
 /// **R3: the table loader** round-trips a written set (R2's format) and
 /// refuses a table whose bytes are not the recorded ones, or of another size.
 #[test]
@@ -527,98 +507,43 @@ fn r3_the_table_loader_round_trips_and_refuses_a_table_that_is_not_the_recorded_
     let dir = std::env::temp_dir().join(format!("tio-r3-loader-{}", std::process::id()));
     write_token_tables(&dir, &t, norm());
     let files = TableFiles { emb_dir: dir.clone(), head_dir: dir.clone() };
-    let (back, hm) = load_token_tables(&files, t.v, t.d).expect("the written set loads");
+    let (back, m) = load_token_tables(&files, t.v, t.d).expect("the written set loads");
     assert_eq!(back, t, "the round trip");
-    assert_eq!(manifest_norm(&hm).unwrap(), norm(), "the final norm the manifest records");
+    assert_eq!((m.norm, m.v, m.d, m.bos), (norm(), t.v, t.d, 1), "what the manifests record");
+    let e = load_token_tables(&files, t.v + 1, t.d).unwrap_err();
+    assert!(e.contains("the manifests declare V 300"), "{e}");
     let mut head = std::fs::read(dir.join("head_int8_perrow.bin")).unwrap();
     head[1234] ^= 1;
     std::fs::write(dir.join("head_int8_perrow.bin"), &head).unwrap();
     let e = load_token_tables(&files, t.v, t.d).unwrap_err();
     assert!(e.contains("not the recorded table"), "{e}");
-    let e = load_token_tables(&files, t.v + 1, t.d).unwrap_err();
+    head.pop();
+    std::fs::write(dir.join("head_int8_perrow.bin"), &head).unwrap();
+    let e = load_token_tables(&files, t.v, t.d).unwrap_err();
     assert!(e.contains("bytes, the table is"), "{e}");
+    // a link in place of a table is refused before it is opened
+    std::fs::remove_file(dir.join("head_int8_perrow.bin")).unwrap();
+    std::os::unix::fs::symlink(dir.join("embedding_int16.bin"), dir.join("head_int8_perrow.bin")).unwrap();
+    let e = load_token_tables(&files, t.v, t.d).unwrap_err();
+    assert!(e.contains("not a regular file"), "{e}");
     let _ = std::fs::remove_dir_all(&dir);
 }
 
 // ------------------------------------------------------------------ 5. the R3 run
 
-/// the public side of the R3 run: the export's 32 layers' records and block
-/// digests (each block loaded, digested and DROPPED: the digest pass), the
-/// trained-model statement under the R3 profile
-struct R3Pub {
-    ex: TrainedExport,
-    c: Constants,
-    sh: Shape,
-    layers: Vec<u32>,
-    digests: Vec<Digest>,
-    model: TrainedModelStatement,
-    digest_s: f64,
-}
-
 fn env_path(k: &str, default: &str) -> PathBuf {
     PathBuf::from(std::env::var(k).unwrap_or_else(|_| default.to_string()))
 }
 
-fn r3_public() -> R3Pub {
+/// the R3 run's public side: the production digest pass (`load::
+/// ExportPublic`, review TR3-2) over the export's 32 layers, timed
+fn r3_public() -> (ExportPublic, f64) {
     let t0 = std::time::Instant::now();
     let export = env_path("TOKEN_IO_R3_EXPORT", "/home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_T32");
-    let ex = TrainedExport::load(&export).unwrap_or_else(|e| panic!("the export: {e}"));
-    let layers = ex.layers.clone();
-    assert_eq!(layers.len(), 32, "the Llama-3-8B export has 32 layers");
-    let c = ex.run_constants(&layers).unwrap();
-    let sh = ex.shape_for(&c).unwrap();
-    let mut digests = Vec::with_capacity(32);
-    let mut records = Vec::with_capacity(32);
-    for &k in &layers {
-        let t = ex.load_layer(&sh, &c, k, false).unwrap_or_else(|e| panic!("layer {k}: {e}"));
-        digests.push(t.record.block_digest);
-        records.push(t.record);
-    }
-    let prov = Provenance {
-        label: format!("export:{}", ex.variant),
-        residual_unit: ex.residual_unit,
-        quantizer_sha256: ex.tool_sha256,
-        calibration_set_sha256: ex.calibration_set_sha256,
-        export_profile_sha256: ex.profile_sha256,
-        calibration_tool_sha256: ex.tool_sha256,
-        rope_theta: c.rope_theta,
-    };
-    let cal = IntegerCalibration::as_the_code_proves(&sh, &prov);
-    let model = TrainedModelStatement::new(&sh, RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32, ex.source.clone(), cal, records).unwrap_or_else(|e| panic!("the R3 trained-model statement: {e}"));
-    R3Pub { ex, c, sh, layers, digests, model, digest_s: t0.elapsed().as_secs_f64() }
-}
-
-/// **THE R3 BLOCK SOURCE**: block `k` reloaded from the export at its stage
-/// (`reload_block`, the native loader's proving-pass reload) and refused
-/// unless its digest is the digest pass's; ONE resident at a time.
-struct ExportBlocks<'a> {
-    p: &'a R3Pub,
-    cur: Option<(usize, std::sync::Arc<BlockPublic>)>,
-    load_s: f64,
-}
-
-impl TokenBlocks for ExportBlocks<'_> {
-    fn count(&self) -> usize {
-        self.p.layers.len()
-    }
-    fn block(&mut self, k: usize) -> Result<BlockRef<'_>, String> {
-        if let Some((j, a)) = &self.cur {
-            if *j == k {
-                return Ok(BlockRef::Shared(a.clone()));
-            }
-        }
-        self.cur = None;
-        let t = std::time::Instant::now();
-        let layer = *self.p.layers.get(k).ok_or_else(|| format!("R3: no block {k}"))?;
-        let blk = self.p.ex.reload_block(&self.p.sh, &self.p.c, layer, false)?;
-        if blk.digest() != self.p.digests[k] {
-            return Err(format!("R3: layer {layer}'s reloaded public statement is not the digest pass's"));
-        }
-        let a = std::sync::Arc::new(blk);
-        self.cur = Some((k, a.clone()));
-        self.load_s += t.elapsed().as_secs_f64();
-        Ok(BlockRef::Shared(a))
-    }
+    let p = ExportPublic::load(&export).unwrap_or_else(|e| panic!("the export: {e}"));
+    assert_eq!(p.layers.len(), 32, "the Llama-3-8B export has 32 layers");
+    assert_eq!(p.profile, RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32);
+    (p, t0.elapsed().as_secs_f64())
 }
 
 fn seq_tokens(ex: &TrainedExport, seq: &str) -> Vec<u64> {
@@ -685,8 +610,9 @@ fn plant(t: &mut TokenTables, rows: &[(u64, Vec<i16>)]) {
 fn r3_tables(planted: Option<&[(u64, Vec<i16>)]>) -> (TokenTables, FinalNorm, String) {
     match (std::env::var("TOKEN_IO_R3_EMB"), std::env::var("TOKEN_IO_R3_HEAD")) {
         (Ok(e), Ok(h)) => {
-            let (t, hm) = load_token_tables(&TableFiles { emb_dir: e.into(), head_dir: h.into() }, 128_256, 4096).unwrap_or_else(|e| panic!("the trained R3 tables: {e}"));
-            (t, manifest_norm(&hm).expect("the head manifest's final norm"), "trained".into())
+            let (t, m) = load_token_tables(&TableFiles { emb_dir: e.into(), head_dir: h.into() }, 128_256, 4096).unwrap_or_else(|e| panic!("the trained R3 tables: {e}"));
+            assert_eq!(m.bos, R3_BOS, "the trained manifest's BOS");
+            (t, m.norm, "trained".into())
         }
         _ => {
             let mut t = hashed_tables(128_256, 4096);
@@ -701,7 +627,7 @@ fn r3_tables(planted: Option<&[(u64, Vec<i16>)]>) -> (TokenTables, FinalNorm, St
 /// bit against the export's x_out_Lk (the native parity) before its segment
 /// exists; boundary `k + 1` sealed from the export's x_out_Lk
 struct R3Source<'a> {
-    p: &'a R3Pub,
+    p: &'a ExportPublic,
     seq: String,
     ids: Ids,
     stage_in: Option<(StageInWitness, Vec<i16>)>,
@@ -795,7 +721,7 @@ const R3_POLICY: VerifierPolicy = VerifierPolicy { min_whole_run_bits: 95 };
 fn token_io_r3_prove_to_dir() {
     let t_all = std::time::Instant::now();
     let seq = r3_seq();
-    let p = r3_public();
+    let (p, digest_s) = r3_public();
     let sh = &p.sh;
     let tokens = seq_tokens(&p.ex, &seq);
     let x_in0 = p.ex.load_seq(sh, &seq, p.layers[0]).unwrap().0;
@@ -826,7 +752,7 @@ fn token_io_r3_prove_to_dir() {
         write_planted(&dir, &rows);
     }
     let mut src = R3Source { p: &p, seq: seq.clone(), ids: Ids::new(sh).unwrap(), stage_in: Some((wit_in, b_in)), stage_out: Some(wout), x: x_in0.clone(), witness_s: 0.0, parity: 0 };
-    let mut blocks = ExportBlocks { p: &p, cur: None, load_s: 0.0 };
+    let mut blocks = ExportTokenBlocks::new(&p);
     let t = std::time::Instant::now();
     let mut lens = Vec::new();
     let proved = prove_token_run_with(&st, &mut blocks, &tables, &mut src, owners, &mut |k, b| {
@@ -866,7 +792,7 @@ fn token_io_r3_prove_to_dir() {
         src.witness_s,
         blocks.load_s,
         stats.hwm_mib.iter().map(|m| m.round()).collect::<Vec<_>>(),
-        p.digest_s,
+        digest_s,
         w.openings,
         w.column_log2,
         w.logup_log2,
@@ -897,7 +823,7 @@ fn token_io_r3_prove_to_dir() {
         lens.len(),
         src.witness_s,
         blocks.load_s,
-        p.digest_s,
+        digest_s,
         stats.hwm_mib.iter().cloned().fold(0.0, f64::max),
         w.total_log2,
         w.floor_bits,
@@ -915,7 +841,7 @@ fn token_io_r3_prove_to_dir() {
 #[ignore]
 fn token_io_r3_verify_from_dir() {
     let seq = r3_seq();
-    let p = r3_public();
+    let (p, digest_s) = r3_public();
     let mode = if std::env::var("TOKEN_IO_R3_EMB").is_ok() && std::env::var("TOKEN_IO_R3_HEAD").is_ok() { "trained" } else { "generic" };
     let dir = r3_out().join(format!("{mode}-{seq}"));
     let planted = if mode == "generic" { Some(read_planted(&dir, p.sh.width)) } else { None };
@@ -938,7 +864,7 @@ fn token_io_r3_verify_from_dir() {
     assert_eq!(field("parameter_line"), st.parameter_line().unwrap(), "the saved run is another statement");
     assert_eq!(field("trained_statement_identity"), hex(&p.model.identity()));
     let segs: Vec<Vec<u8>> = (0..34).map(|k| std::fs::read(dir.join(format!("segment_{k:03}.bin"))).unwrap()).collect();
-    let mut blocks = ExportBlocks { p: &p, cur: None, load_s: 0.0 };
+    let mut blocks = ExportTokenBlocks::new(&p);
     let t0 = std::time::Instant::now();
     verify_token_run_with(&st, &mut blocks, &tables, &segs, R3_POLICY).unwrap_or_else(|e| panic!("the saved R3 run does not verify in a fresh process: {e}"));
     let vs = t0.elapsed().as_secs_f64();
@@ -946,13 +872,13 @@ fn token_io_r3_verify_from_dir() {
     let mut bad = segs.clone();
     let at = bad[0].len() / 2;
     bad[0][at] ^= 1;
-    assert!(verify_token_run_with(&st, &mut ExportBlocks { p: &p, cur: None, load_s: 0.0 }, &tables, &bad, R3_POLICY).is_err(), "a one-bit change verified");
+    assert!(verify_token_run_with(&st, &mut ExportTokenBlocks::new(&p), &tables, &bad, R3_POLICY).is_err(), "a one-bit change verified");
     eprintln!(
         "TOKEN-IO-R3 FRESH-PROCESS VERIFY {mode}-{seq}: accepted from {} ({} B) in {vs:.1} s (of which block loads {:.1} s) under a {}-bit policy (digest pass {:.1} s, tables {tables_s:.1} s); a one-bit change refused [MEASURED, shared box, n=1]",
         dir.display(),
         segs.iter().map(|s| s.len()).sum::<usize>(),
         blocks.load_s,
         R3_POLICY.min_whole_run_bits,
-        p.digest_s
+        digest_s
     );
 }

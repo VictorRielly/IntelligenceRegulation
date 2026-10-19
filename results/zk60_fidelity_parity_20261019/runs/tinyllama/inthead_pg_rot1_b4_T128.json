@@ -1,0 +1,8 @@
+{
+ "source": "built by fp_eval (8B rule at TinyLlama, b4 calibration set)",
+ "cn": 5664,
+ "tn": 10,
+ "ceps": 74429,
+ "calib_sequences": 108,
+ "xhat_rot_absmax": 5.453668118120166
+}

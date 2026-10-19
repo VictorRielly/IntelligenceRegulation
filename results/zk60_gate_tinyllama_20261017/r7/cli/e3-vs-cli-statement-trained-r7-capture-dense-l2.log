@@ -1,0 +1,11 @@
+[load          ]      0.6 s   peak RSS     127 MB   ok
+[replay        ]      0.4 s   peak RSS     127 MB   ok
+[hash          ]      0.2 s   peak RSS     127 MB   ok
+[terminals     ]      4.4 s   peak RSS     170 MB   ok
+[commitments   ]     20.3 s   peak RSS     170 MB   ok
+[boundary      ]      2.6 s   peak RSS     187 MB   ok
+[preimage      ]      0.2 s   peak RSS     187 MB   ok
+[export        ]      0.0 s   peak RSS     187 MB   ok
+[channels      ]      0.0 s   peak RSS     187 MB   ok
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/r7/cli/e3-vs-cli-statement-trained-r7-capture-dense-l2.json   total 28.7 s   peak RSS 187 MB   ok=True
+status: PASS   unexplained false leaves 0   -> /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/r7/cli/e3-vs-cli-statement-trained-r7-capture-dense-l2.status.json

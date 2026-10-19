@@ -1,0 +1,304 @@
+{
+ "T": 128,
+ "kind": "profile",
+ "layers": [
+  {
+   "dir": "layer_00",
+   "layer": 0,
+   "manifest_sha256": "6579b101285a2254244a26fbfc158119736700559ff417d26d65ca4d94c46966"
+  },
+  {
+   "dir": "layer_01",
+   "layer": 1,
+   "manifest_sha256": "326215e75a87dddf553fb2eb4731f47436bca611396e50a57f296a4badb16bcc"
+  },
+  {
+   "dir": "layer_02",
+   "layer": 2,
+   "manifest_sha256": "10b6bd04765607fc3636b82ffec3165505c0cd8b2d772aee7bee8b875aaba3d0"
+  },
+  {
+   "dir": "layer_03",
+   "layer": 3,
+   "manifest_sha256": "c376ad7f3655e43c546510ca1412bf23234ba0ffdb149bf49bac457e2fad9012"
+  },
+  {
+   "dir": "layer_04",
+   "layer": 4,
+   "manifest_sha256": "f639e5ccd188ad62b46e2fe55f63124e7619fcfee976452f7f357dbdeb84eca4"
+  },
+  {
+   "dir": "layer_05",
+   "layer": 5,
+   "manifest_sha256": "83ddae6d2e8bbe61cc3a5c88cd7dce146f2a4c91ef2ee8a63bde62a7895f9adb"
+  },
+  {
+   "dir": "layer_06",
+   "layer": 6,
+   "manifest_sha256": "845c4598ae5b3773f0413eb70f8ab80f0ce622240b911b4687e6bb9aabd509eb"
+  },
+  {
+   "dir": "layer_07",
+   "layer": 7,
+   "manifest_sha256": "692cc571f51c1ef49646dd95286c26f83189bce7cb756a05edb3c297c05a2fca"
+  },
+  {
+   "dir": "layer_08",
+   "layer": 8,
+   "manifest_sha256": "1afb123cbcef3e1a18415abdb019f0793c314ef6ce6c35d833dc8f39de83ca37"
+  },
+  {
+   "dir": "layer_09",
+   "layer": 9,
+   "manifest_sha256": "cc668bab2099fb81be97e89404e74412175dbe49719d2417104d8408f0bbcd07"
+  },
+  {
+   "dir": "layer_10",
+   "layer": 10,
+   "manifest_sha256": "a12de405399c7f1b3408859914c29370abcf37f13c67e2d80063d81354be0670"
+  },
+  {
+   "dir": "layer_11",
+   "layer": 11,
+   "manifest_sha256": "52c4e2762ac66026933bf289b35d045b36458385b192acbf2ecbd3e06541710b"
+  },
+  {
+   "dir": "layer_12",
+   "layer": 12,
+   "manifest_sha256": "b3fd197cab7acd072f8f0089d889569a93d0397d3e9f9cb537a1b2f8a9b5bfe9"
+  },
+  {
+   "dir": "layer_13",
+   "layer": 13,
+   "manifest_sha256": "236f05ed88fed0c05a2876b92522750dc7def05a379cb7094a032f7f75b480fb"
+  },
+  {
+   "dir": "layer_14",
+   "layer": 14,
+   "manifest_sha256": "b71d63b771c8e23c079a8c22f1c49a146d3c998103bf0f8adde13c4d6ade04f9"
+  },
+  {
+   "dir": "layer_15",
+   "layer": 15,
+   "manifest_sha256": "ba1e09c5b4a45ab41464a0c811a66894bf4afe23e2d44de30262bb8f928c215b"
+  },
+  {
+   "dir": "layer_16",
+   "layer": 16,
+   "manifest_sha256": "c49b3667270602dbc816638b77f1cb40d0f9bd6cb4e286c92e5904e632d43038"
+  },
+  {
+   "dir": "layer_17",
+   "layer": 17,
+   "manifest_sha256": "af68610b510ac3d789cc6689028c4ce248371acc0bc07fd2c57baf87139e3b92"
+  },
+  {
+   "dir": "layer_18",
+   "layer": 18,
+   "manifest_sha256": "91134fb43f408b1b6c445d958818f499b6dea899a8e5551241946598bd2d269c"
+  },
+  {
+   "dir": "layer_19",
+   "layer": 19,
+   "manifest_sha256": "4fd173fe2e4638dd9dada33b43c492f589917c2cd835b93f1dedd9e64d1b0cff"
+  },
+  {
+   "dir": "layer_20",
+   "layer": 20,
+   "manifest_sha256": "06873e5b789c127f32b41c22c78246ca6f4fc914ab0bb1b5d6af321aac84235d"
+  },
+  {
+   "dir": "layer_21",
+   "layer": 21,
+   "manifest_sha256": "55e0f5b76d1bbcf0d19f9a44367ead087f1588c792d40b209e54a9cba8a53af9"
+  }
+ ],
+ "metadata_out_of_proof": {
+  "profile_decisions": {
+   "cn_a": null,
+   "cn_m": null,
+   "e_s": null,
+   "shifts": null,
+   "silu": null
+  },
+  "residual_scales_in": [
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893
+  ],
+  "residual_scales_out": [
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893
+  ],
+  "rotation": {
+   "seed": 1,
+   "sign_sha256": "db7b32c2445beded0a2cc56c5739f8cc84aa6f50fd0e9e18aebbe6ef7ab873a1"
+  }
+ },
+ "only_layers": null,
+ "per_layer_constants_differ": [
+  "exp_e_s",
+  "norm_cn_a",
+  "norm_cn_m",
+  "sh_ao",
+  "sh_g",
+  "sh_h",
+  "sh_qkv",
+  "sh_s",
+  "sh_z",
+  "silu_member"
+ ],
+ "profile_constants": {
+  "exp_e_s": null,
+  "f_e": 9,
+  "f_p": 9,
+  "f_ro": 7,
+  "norm_ceps": 74429,
+  "norm_cn_a": null,
+  "norm_cn_m": null,
+  "norm_tn": 10,
+  "rope_theta": 10000.0,
+  "sh_ao": null,
+  "sh_g": null,
+  "sh_h": null,
+  "sh_o": 9,
+  "sh_qkv": null,
+  "sh_r2": 0,
+  "sh_rope": 7,
+  "sh_s": null,
+  "sh_u": 0,
+  "sh_z": null,
+  "silu_member": null
+ },
+ "profile_from": null,
+ "reference_export": "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T128",
+ "schema": "zk60-trained-profile-export/1 (pseudo-export of the fidelity lane; NOT an export of record)",
+ "scope": "fidelity data, not a proof, not a privacy claim",
+ "sequences": [],
+ "sh_s_overrides": {},
+ "shift_windows": {
+  "ao": [
+   1,
+   8
+  ],
+  "g": [
+   1,
+   16
+  ],
+  "h": [
+   9,
+   16
+  ],
+  "o": [
+   9,
+   16
+  ],
+  "qkv": [
+   1,
+   16
+  ],
+  "rope": [
+   1,
+   8
+  ],
+  "s": [
+   1,
+   8
+  ],
+  "z": [
+   1,
+   16
+  ]
+ },
+ "tool_sha256": {
+  "fp_lib.py": "6bced24bd84447592f99b66c7aeee8ac368dbb1903ad10ece8d3ce12f29fcf77",
+  "fp_variant.py": "7d1e174701dc6076d376ce4e0b28a405bd6d1311e26c2bfdcd45046f102b3cb5"
+ },
+ "variant": "tl_dg_w16",
+ "variant_options": {
+  "cn_max": 65536,
+  "f_e": 9,
+  "f_p": 9,
+  "margin": 0.5,
+  "margin_ch": 3.0,
+  "margin_pow2": 0.25,
+  "name": "dg",
+  "norm_cn": "layer",
+  "o16": false,
+  "residual": "global",
+  "rotate": 1,
+  "s16": false,
+  "shapes": [
+   "range",
+   "smooth",
+   "gamma"
+  ],
+  "shifts": "free",
+  "tables": "layer",
+  "tn": 10
+ },
+ "vocab0": null,
+ "words_equal_to_reference_per_layer": [
+  4,
+  4,
+  4,
+  4,
+  4,
+  4,
+  3,
+  3,
+  4,
+  4,
+  4,
+  4,
+  3,
+  3,
+  4,
+  4,
+  4,
+  3,
+  4,
+  3,
+  4,
+  4
+ ]
+}

@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-static-runtime-20261019/run.py", line 297, in <module>
+    if __name__=='__main__':main()
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-static-runtime-20261019/run.py", line 236, in main
+    got=run(name,raw,q);assert got==want
+AssertionError

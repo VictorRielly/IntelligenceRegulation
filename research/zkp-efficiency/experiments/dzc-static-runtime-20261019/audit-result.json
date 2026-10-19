@@ -1,0 +1,114 @@
+{
+  "status": "PASS",
+  "checks": 2372,
+  "scalar_accounting": {
+    "baseline": {
+      "peak_fp2_equivalents_including_accumulator": 76,
+      "retain_all_raw_inputs_words": 138.0,
+      "params_bytes": 2352,
+      "raw_input_bytes": 1888,
+      "output_bytes": 80,
+      "logical_requested_bytes_per_row": 4320,
+      "physical_DRAM_bytes": null
+    },
+    "driven": {
+      "peak_fp2_equivalents_including_accumulator": 26.0,
+      "retain_all_raw_inputs_words": 134.0,
+      "params_bytes": 2352,
+      "raw_input_bytes": 1888,
+      "output_bytes": 80,
+      "logical_requested_bytes_per_row": 4320,
+      "physical_DRAM_bytes": null
+    }
+  },
+  "assembly": {
+    "u128": {
+      "baseline": {
+        "local_stack_allocation_bytes": 1368,
+        "callee_saved_push_bytes": 48,
+        "stack_decrement_without_return_address_bytes": 1416,
+        "instruction_lines": 32338,
+        "call_instructions": 3423,
+        "rsp_address_references": 6838,
+        "conditional_jumps": 0,
+        "limitations": "Static emitted x86-64 code; stack allocation is not spill traffic. Dynamic branches may belong to unchanged field arithmetic. No GPU allocation or speed claim."
+      },
+      "driven": {
+        "local_stack_allocation_bytes": 600,
+        "callee_saved_push_bytes": 48,
+        "stack_decrement_without_return_address_bytes": 648,
+        "instruction_lines": 32515,
+        "call_instructions": 3423,
+        "rsp_address_references": 6771,
+        "conditional_jumps": 0,
+        "limitations": "Static emitted x86-64 code; stack allocation is not spill traffic. Dynamic branches may belong to unchanged field arithmetic. No GPU allocation or speed claim."
+      },
+      "candidate_stack_allocation_decreases": true
+    },
+    "native": {
+      "baseline": {
+        "local_stack_allocation_bytes": 1160,
+        "callee_saved_push_bytes": 48,
+        "stack_decrement_without_return_address_bytes": 1208,
+        "instruction_lines": 6986,
+        "call_instructions": 884,
+        "rsp_address_references": 2501,
+        "conditional_jumps": 0,
+        "limitations": "Static emitted x86-64 code; stack allocation is not spill traffic. Dynamic branches may belong to unchanged field arithmetic. No GPU allocation or speed claim.",
+        "ELF_symbol_bytes": 33878
+      },
+      "driven": {
+        "local_stack_allocation_bytes": 360,
+        "callee_saved_push_bytes": 48,
+        "stack_decrement_without_return_address_bytes": 408,
+        "instruction_lines": 7011,
+        "call_instructions": 884,
+        "rsp_address_references": 2455,
+        "conditional_jumps": 0,
+        "limitations": "Static emitted x86-64 code; stack allocation is not spill traffic. Dynamic branches may belong to unchanged field arithmetic. No GPU allocation or speed claim.",
+        "ELF_symbol_bytes": 32967
+      },
+      "candidate_stack_allocation_decreases": true
+    }
+  },
+  "native_shared_Fp2_helpers": [
+    {
+      "symbol": "_RNvMCs1s40fzKackN_7kernelsNtB2_3Fp23add",
+      "local_stack_subtractions_bytes": [],
+      "callee_saved_push_bytes": 0,
+      "call_instructions": 0,
+      "conditional_jumps": 0
+    },
+    {
+      "symbol": "_RNvMCs1s40fzKackN_7kernelsNtB2_3Fp23mul",
+      "local_stack_subtractions_bytes": [],
+      "callee_saved_push_bytes": 8,
+      "call_instructions": 0,
+      "conditional_jumps": 0
+    },
+    {
+      "symbol": "_RNvMCs1s40fzKackN_7kernelsNtB2_3Fp23sub",
+      "local_stack_subtractions_bytes": [],
+      "callee_saved_push_bytes": 0,
+      "call_instructions": 0,
+      "conditional_jumps": 0
+    },
+    {
+      "symbol": "_RNvMCs1s40fzKackN_7kernelsNtB2_3Fp28mul_base",
+      "local_stack_subtractions_bytes": [],
+      "callee_saved_push_bytes": 0,
+      "call_instructions": 0,
+      "conditional_jumps": 0
+    }
+  ],
+  "negative_controls": {
+    "retaining_raw_inputs_loses_peak_gain": true
+  },
+  "wall_seconds": 1.0050895059976028,
+  "rss_kib": 24252,
+  "threads": 1,
+  "cpu_affinity": [
+    0
+  ],
+  "limits": "59sCPU/wall,512MiBAS,one nice19 CPU"
+}

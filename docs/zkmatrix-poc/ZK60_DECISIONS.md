@@ -57,6 +57,8 @@ proposal is accepted by this performance direction. No speed result is claimed.
 | D28 | **CS-2 and CS-5 are not needed at the trained profiles.** The 125M lane's refusal rulings CS-2 and CS-5 guard against shapes whose arithmetic windows could be set loosely; at the trained profiles every window is derived and checked exactly at construction (`shape.rs` ~1196-1200, ~1238-1246; `layout.rs` ~1080-1082) and the width is capped at 4096, so neither ruling adds a refusal the trained door does not already make. The trained privacy statement records them as unnecessary on these code facts | **construction reading (security owner); not a privacy acceptance** — reopen if a trained profile ever admits a declared (not derived) window or a width above 4096 | 2026-10-19 09:31 | Claude (coordinating session as security owner), on the privacy review (`results/zk60_privacy_review_trained_t32_20261017/REVIEW.md` P-13, `REVIEW2.md`) and the native tree |
 | D29 | **The refusal census is a completeness item, not a condition of the trained privacy statement.** Since native R6 the honest prover runs the CS-3 lookup-miss refusal on every sealed witness in the sealing pass, before the run header exists (review r6, N-r5-a), so every refusal the trained door or the witness builder can make happens before anything is published (H-1 by code). Under D20/D21 a refused input publishes nothing; how often honest inputs are refused (GN-1/GS-14) is therefore a completeness and usability measurement, still owed, but it no longer bounds the privacy sentence | **reading (security owner); not a privacy acceptance** — reopen if any refusal can occur after the run header | 2026-10-19 09:31 | Claude (coordinating session as security owner), on `REVIEW2.md` Q-7 and `results/zk60_d24_review_20261017/R6_VERDICT.md` |
 | D30 | **DD, the per-row division dictionary, admitted into the Llama-3-8B T512 profile specification.** Each attention row gets `cap` committed slots (key = row id or row Sum, public e from sorted({0} ∪ exp outputs), P_dict = floor(e·2^F_P/Sum) proved by the existing exact-division relation with byte-limb windows); each score entry does one tuple lookup into its row's slots instead of carrying its own division limbs. Bit-exact; −20.8% committed elements, −28.2% byte lookups, −20.1% zero-check work at 8B T512 [COUNTED]; supersedes EXR; FN stays a fallback. Conditions (binding): (1) every dictionary position is a valid tuple — division clauses and limb lookups at every slot of a true row with no usage gate, pads (key, 0, 0) and pad-zero limbs, multiplicities and helpers never gated; (2) tuples and multiplicities committed in `A` before β, γ, α, a distinct tag and β² for P; (3) the table helper in the single value-0 sum claim with sign −1, every dictionary plane opened only at its own reserved site, no virtual claim, P-3 unchanged; (4) the prover inverts every dictionary slot on every attempt, and the refusal residual 2·L·(768 + rows·cap)/p² (~2^-103 per 32-block run) replaces D22 §9 item 10's challenge-only sentence for this profile; (5) lookup term (N + 2303 + 4·rows·cap)/|F| per block, P's range accepted as range-by-membership in D16 rule 5's audit; (6) a profile whose exp tables need more than `cap` slots is refused at the trained door by name before any header; plus binding changes B-1..B-8 of the check | **construction rule (security owner); paper only, nothing built; not a privacy acceptance** — before any DD receipt is called sound or private: an independent soundness review of the written relations, the rank lemma / NL-1 / gate blinding and joint passes on captures of the new profile, and the calibration lane confirming the column count ≤ cap at T512 (the B6 e_s 0 candidate would force cap 64). Lapses on any unconstrained position, multiplicities moved after α, the helper leaving the sum claim, or cap exceeded without a refusal | 2026-10-19 09:53 | Claude (coordinating session as security owner), on the proposal (`results/zk60_gpt_nonlinear_review_20261018/REVIEW.md` round 2, from Victor's shared GPT conversation "Optimize Lookup Table Size") and its adversarial check (`.../dd_check/CHECK.md`) |
+| D31 | **pg_rot1's identical lookup pairs are kept, as read; the declared class is not restricted.** At the trained TinyLlama export pg_rot1 four lookup pairs coincide (F RGL, Q RQL, Kv RKL, RVL), each landing in one paired LogUp helper whose relation has two equal denominators (H[19], H[26], H[28], H[39]). G-7 read them at the trained export: no duplicated H plane, no repeated terminal coordinate, no two equal published values in any capture; NL-1 S0–S5 pass; terminal surjection A 36/36 disclosed 0, H 8/9 with the LogUp sum claim disclosing exactly the declared 2, endpoints and boundary 0. Soundness of a paired helper with equal members is the LogUp check's counted case. Restricting the class to sh <= 7 (no such pairs) would discard the evidence of record for no measured gain | **reading (security owner); not a privacy acceptance** — reopen if a capture ever shows a duplicated plane, a repeated terminal coordinate or equal published values from these pairs | 2026-10-19 10:29 | Claude (coordinating session as security owner), on the gate's G-7 (`results/zk60_gate_tinyllama_20261017/g7/`) |
+| D32 | **Fidelity target: no performance degradation versus the float model.** The proved integer model must score essentially the same as the original float model on task performance (held-out perplexity and downstream benchmarks); token-by-token agreement with the float model is a diagnostic, not the target. Today's gap: held-out perplexity 9.72 -> 15.48 at Llama-3-8B T128 (export b7) and 12.67 -> 15.80 at TinyLlama-1.1B T128; the exact metric set and the numeric "no degradation" threshold are proposed by the fidelity lane for Victor to confirm. Weight-side calibration (rounding, scale folding, rotations, calibration data) costs the proof nothing because weights are public and fixed; profile changes are costed against the speed plan | **ACCEPTED by Victor 2026-10-19 11:30 UTC** (Claude console: "fidelity target: no performance degredation versus float"; also stated by Telegram at 11:28 UTC) — the threshold numbers are still to be ruled | 2026-10-19 | Victor |
 | — | RTX 5090 install (an action, not a ruling; the 600 W bound was ruled on 2026-09-04) | **go**; date, machine and host RAM still to be named | 2026-09-19 | Victor (Telegram 11:50) |
 
 Operational rules (detached heavy runs, the shared-box lock, command hygiene)
@@ -968,6 +970,37 @@ top-2 margin 4.40), parity bit-exact at 32 layers, 471,285,072 B, prove
 191.7 s, fresh verify 43.4 s under a 95-bit policy, whole-run 97 bits with
 the omitted terms bounded explicitly (review R2-1) [MEASURED, shared box,
 n=1; `results/zk60_token_io_r1_20261017/runs/r3/trained-ho00/`]. The token
-tree is now rebased on native R6. Independent review round 3 running. Not a
+tree is now rebased on native R6. **Independent review round 3 (reported
+10:58 UTC, `results/zk60_token_io_review_r1_20261017/REVIEW3.md`): R3 may stand as the
+trained Llama-3-8B next-token result** — the merge onto R6 loses nothing (the tree
+differs from R6 in exactly the lane's 15 files; R6's refusals intact), streaming
+checks each reloaded block's digest at use, the per-layer shift is bound in the
+stage line, the 8B table loader is length- and SHA-checked, V_pad 2^17 is the
+door's exact edge, the whole-run figure recounts to 2^-97.575 (floor 97); the
+receipt re-verifies with the reviewer's binary (37.7 s); 15 forgeries, 9 receipt
+probes and a full 32-layer forgery refused. Findings LOW/INFO only (TR3-1 a
+mid-run refusal after earlier segments reached the sink; TR3-2 the loader and
+streaming source are test code; TR3-3 shift read by record position). Not a
 privacy acceptance (G-1..G-7 owed), not a hidden prompt length, not a token
 stream.
+
+**Independent review round 7, 2026-10-19 (reported 10:25 UTC) — R7 accepted on
+soundness.** Frozen copy `ops/zkp-mvp/trained-1b-review-r7/` (= the R7 freeze
+of 2026-10-19T09:58:29Z, tree 36a8aed1…). The diff changes only statement
+writing and publication plus a pre-listing cleanup; no proof, transcript,
+loader or relation code. N-r6-b closed: a leftover `statement.writing-<pid>`
+is removed only if its name is all ASCII digits, it is a real directory, its
+pid is dead and it holds only the verifier's three regular files; every
+other case is refused by name and kept (400 racing runs: outside targets
+survived every run). Q-2 closed: `prover_reported.backend` is one of three
+build constants (the CPU constant byte-identical to R5b/R6's), declines 0 on
+the CPU path and <= 4096 with the device, checked before writing and before
+publishing; 22 bypass attempts refused with nothing published. R6 CPU
+statements byte-check under R7 (incl. the 8B b7 T128 stack, 97c4acda…).
+**Notes, not soundness:** N-r7-a the live-pid test assumes `/proc` in the
+verifier's own pid namespace (a removed live writer only fails its own
+rename); N-r7-b the `gpu_declines` parse error echoes the prover's numeral in
+local verifier output (deferred: fix with the next tree change, not worth a
+re-pin now); N-r7-c a CPU prover may claim the device name (an unverifiable
+self-report, now limited to three fixed names). Evidence:
+`results/zk60_d24_review_20261017/R7_VERDICT.md`. Not a privacy acceptance.

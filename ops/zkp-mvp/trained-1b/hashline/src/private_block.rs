@@ -167,6 +167,9 @@ mod ladder8b_tests;
 // NATIVE R6: the per-layer softmax score shift (test only)
 #[cfg(test)]
 mod r6_tests;
+// NATIVE R8: every export-chosen calibration constant per layer (test only)
+#[cfg(test)]
+mod r8_tests;
 // STAGE 19 (test-only): DENSE public weights and a numerically non-trivial
 // witness at the shaped geometries, where the diagonal fixture leaves every
 // hidden unit above `d` with no input and no output weight.

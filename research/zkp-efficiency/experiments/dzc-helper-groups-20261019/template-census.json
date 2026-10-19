@@ -1,0 +1,48 @@
+{
+  "status": "PASS",
+  "groups": 19,
+  "normalized_shape_classes": 10,
+  "classes": [
+    [
+      0
+    ],
+    [
+      1
+    ],
+    [
+      2
+    ],
+    [
+      3,
+      4,
+      5,
+      6,
+      7,
+      9
+    ],
+    [
+      8
+    ],
+    [
+      10
+    ],
+    [
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    [
+      16
+    ],
+    [
+      17
+    ],
+    [
+      18
+    ]
+  ],
+  "normalization": "same opcode/dependency topology and frontier order; every raw/parameter/base load address abstracted to runtime index. Does not authorize equal slots or private value caching.",
+  "caveat": "Counts only. Different concrete slot maps require validated address plans and extra traffic/dispatch; no outlined code compiled or performance predicted."
+}

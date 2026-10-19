@@ -1,0 +1,23 @@
+[zk60-guard 04:45:11] START trv4-b1-build-tests class=build need=3G cap=5G enforce=cgroup+watchdog waited=0s run=217956a224da
+[zk60-guard 04:47:59] END trv4-b1-build-tests exit=0 child_wall=168s peak_rss=1.96G min_avail=8.56G
+[zk60-guard 04:47:59] START trv4-b2-build-cli class=build need=3G cap=5G enforce=cgroup+watchdog waited=0s run=a84f646ba94e
+[zk60-guard 04:48:56] END trv4-b2-build-cli exit=0 child_wall=57s peak_rss=1.15G min_avail=10.45G
+[zk60-guard 04:48:56] START trv4-t1-tests class=cpu need=5G cap=8G enforce=cgroup+watchdog waited=0s run=000a2208f4a3
+[zk60-guard 04:51:17] END trv4-t1-tests exit=0 child_wall=141s peak_rss=2.51G min_avail=9.14G
+[zk60-guard 04:51:17] START trv4-c1-verify-recheck class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=9a81c4815ecc
+[zk60-guard 04:52:37] END trv4-c1-verify-recheck exit=0 child_wall=80s peak_rss=2.78G min_avail=5.96G
+[zk60-guard 04:52:37] START trv4-c2-verify-publish class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=8634735d7084
+[zk60-guard 04:53:57] END trv4-c2-verify-publish exit=0 child_wall=80s peak_rss=2.80G min_avail=10.18G
+[zk60-guard 04:53:57] START trv4-c3-owner class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=bedc947ebdc8
+[zk60-guard 04:54:28] END trv4-c3-owner exit=0 child_wall=31s peak_rss=1.77G min_avail=11.16G
+[zk60-guard 04:54:28] START trv4-c4-verify-tamper class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=a71868bc29cb
+[zk60-guard 04:55:34] END trv4-c4-verify-tamper exit=1 child_wall=66s peak_rss=2.84G min_avail=9.88G
+[zk60-guard 04:55:34] START trv4-c5-owner-tamper class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=2f04170ff904
+[zk60-guard 04:56:08] END trv4-c5-owner-tamper exit=0 child_wall=34s peak_rss=1.79G min_avail=10.92G
+[zk60-guard 04:56:08] START trv4-c6-verify-minbits98 class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=3d3c0beaff8a
+[zk60-guard 04:56:41] END trv4-c6-verify-minbits98 exit=1 child_wall=33s peak_rss=1.90G min_avail=10.78G
+[zk60-guard 04:56:41] START trv4-c7-verify-prover-export class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=573ebd2750d2
+[zk60-guard 04:56:41] END trv4-c7-verify-prover-export exit=1 child_wall=0s peak_rss=0.00G min_avail=12.95G
+[zk60-guard 04:56:41] START trv4-c8-owner-input-dec class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=4005a5f8f8af
+[zk60-guard 04:57:09] END trv4-c8-owner-input-dec exit=1 child_wall=28s peak_rss=1.77G min_avail=11.58G
+tests=0

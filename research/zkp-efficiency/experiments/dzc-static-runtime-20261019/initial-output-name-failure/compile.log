@@ -1,0 +1,29 @@
+warning: due to multiple output types requested, the explicitly specified output file name will be adapted for each output type
+
+warning: type `Fp2` is more private than the item `baseline`
+  --> kernels.rs:18:14
+   |
+18 | #[no_mangle] pub unsafe extern "C" fn baseline(raw:*const Fp2, params:*const Fp2, bases:*const u64, out:*mut Fp2) {
+   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ function `baseline` is reachable at visibility `pub`
+   |
+note: but type `Fp2` is only usable at visibility `pub(crate)`
+  --> kernels.rs:6:34
+   |
+ 6 | #[repr(C)] #[derive(Clone,Copy)] struct Fp2{a:u64,b:u64}
+   |                                  ^^^^^^^^^^
+   = note: `#[warn(private_interfaces)]` on by default
+
+warning: type `Fp2` is more private than the item `driven`
+    --> kernels.rs:1192:14
+     |
+1192 | #[no_mangle] pub unsafe extern "C" fn driven(raw:*const Fp2, params:*const Fp2, bases:*const u64, out:*mut Fp2) {
+     |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ function `driven` is reachable at visibility `pub`
+     |
+note: but type `Fp2` is only usable at visibility `pub(crate)`
+    --> kernels.rs:6:34
+     |
+   6 | #[repr(C)] #[derive(Clone,Copy)] struct Fp2{a:u64,b:u64}
+     |                                  ^^^^^^^^^^
+
+warning: 3 warnings emitted
+

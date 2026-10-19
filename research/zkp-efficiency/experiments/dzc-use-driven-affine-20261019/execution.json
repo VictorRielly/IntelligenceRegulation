@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "python3",
+    "experiments/dzc-use-driven-affine-20261019/run.py"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 12.707716814002197
+}

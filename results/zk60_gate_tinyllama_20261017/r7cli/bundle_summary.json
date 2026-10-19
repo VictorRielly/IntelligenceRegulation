@@ -1,0 +1,50 @@
+{
+ "bundle": "/home/victor/zk60-artifacts/tinyllama-cli-r7-capture-dense-l2",
+ "manifest_sha256": "23a8c8996a12f43bd4f62f51be55a6ebf33aa177fb5ab31ff5264360694d83b3",
+ "schema": "hashline-native-capture/5-run",
+ "profile": "hashline-zk-mr1/private-run-tinyllama-1.1b-t32-trained-statement/1",
+ "blocks": 2,
+ "source_commit": "uncommitted,gate-r7-cli=native-r7-tree-36a8aed1+capture-patch-700557cb,sources-df989c33,cli-e51cc6a4",
+ "files": [
+  [
+   "run.json",
+   35107,
+   "281e60d17ccac9c74782652d66d4885244aed538aeac230cc2c6b0bea8fa4e8d"
+  ],
+  [
+   "stage-00.json",
+   3602196,
+   "90388204f3f7085dabe5d3c2a1b52a83998dff7616988e4980152020d7d6801c"
+  ],
+  [
+   "stage-01.json",
+   4308469,
+   "5f4a471024d54fe656995a61fb20896f817af6208bdca03e42ec03b15c7c767f"
+  ],
+  [
+   "arrays.bin",
+   34076168,
+   "57874190b5046070611defb72cfffb766a5aab356d2a737dd383696b3f8e9770"
+  ],
+  [
+   "README.md",
+   4812,
+   "5decfa508ad960f60e5eb75301c0adc81f1d268aa6266c7a2e995bae60844ef6"
+  ]
+ ],
+ "total_bytes": 42026752,
+ "source_pins_count": 46,
+ "source_pins_equal_gate_copy_r7cli_v1": true,
+ "run_capture_rs_pin": "31557a2722997d900bcf21e67f3aa312b9bf7f70ea81a0212470c32602c5be6f",
+ "statement_dir": "/home/victor/zk60-artifacts/tinyllama-cli-r7-run-l2/statement",
+ "statement_written_by": "stack-verify, after its fresh-process verification of the run directory, from its own data and the hashes of the bytes it verified",
+ "statement_identity": "ef0610008901e09101709db727a19b30a5de9afb64217e284432afe892aaeb54",
+ "run_calibration_hex": "ef0610008901e09101709db727a19b30a5de9afb64217e284432afe892aaeb54",
+ "calibration_equals_identity": true,
+ "context_equals_statement": true,
+ "expected_policy_equals_statement_expected_io": true,
+ "stage_segment_pins_equal_cli_segments_json": true,
+ "fully_verified": true,
+ "privacy_review_complete": false,
+ "note": "a CAPTURE of the production CLI's receipt; NOT a privacy result"
+}

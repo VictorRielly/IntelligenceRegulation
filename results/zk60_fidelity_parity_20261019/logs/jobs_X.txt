@@ -1,0 +1,8 @@
+vocab0_8b|2|1|llama3-8b|fp_vocab0.py /home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_b7_T128
+vocab0_tl|1.5|1|tinyllama|fp_vocab0.py /home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T128
+build_l8_b7_voc0|3.5|2|llama3-8b|fp_variant.py --variant pg --profile-from /home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/runs/llama3_8b_pg_rot1_T128/prepass.json --sh-s-layer 1:7 --vocab0 --only-layers 0 --name l8_b7_voc0
+vocab0_8b_voc0|2|1|llama3-8b|fp_vocab0.py /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/variants/l8_b7_voc0
+e8_voc0|3|1|llama3-8b|fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/variants/l8_b7_voc0 --corpora fineweb:48,wikitext:48 --tag e8_voc0 --pos-chunk 256
+build_l8_dg_voc0|3.5|2|llama3-8b|fp_variant.py --variant dg --vocab0 --name l8_dg_voc0
+vocab0_8b_dg|2|1|llama3-8b|fp_vocab0.py /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/variants/l8_dg_voc0
+e8_dg_voc0|3|1|llama3-8b|fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/variants/l8_dg_voc0 --corpora fineweb:48,wikitext:48 --tag e8_dg_voc0 --pos-chunk 256

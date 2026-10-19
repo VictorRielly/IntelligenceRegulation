@@ -1,0 +1,37 @@
+{
+  "run_id": "20261019T111854Z-5ff11116",
+  "search_engine": "native LIVE web tool",
+  "queries": [
+    "GPU zero knowledge softmax lookup quantization exact integer October 2026 sumcheck lookup GitHub",
+    "site.eprint.iacr.org 2026 lookup softmax GPU zkLLM",
+    "register pressure sumcheck GPU polynomial expression scheduling GitHub",
+    "\"Bits Under ZK-LLM\" github",
+    "\"Optimal and Heuristic Min-Reg\" github",
+    "site.github.com/Plonky3/Plonky3/releases \"Oct\" \"0.9.0\"",
+    "\"Packing Breaks the Mask\" sumcheck 2026"
+  ],
+  "rotation": {
+    "this_cycle": [
+      "lookup arguments/softmax",
+      "quantization/arithmetic",
+      "DAG memory scheduling"
+    ],
+    "next_cycle": [
+      "memory traffic and static native compiler realization",
+      "GPU NTT/commitments"
+    ],
+    "retained_queue": [
+      "sumcheck/GKR",
+      "batching/amortization",
+      "proof composition"
+    ]
+  },
+  "records": [
+    "cycle79-MinReg-older-DAG-scheduling",
+    "cycle79-BitsUnderZKLLM-query-cost-and-clock-boundary",
+    "cycle79-deepprove-softmax-current-readme-license",
+    "cycle79-Plonky3-current-release-and-mask-RNG",
+    "cycle79-packed-sumcheck-mask-boundary-refresh"
+  ],
+  "limitations": "Only primary papers/maintainer pages support assessments. No foreign benchmark reproduced; cache errors retained and not bypassed."
+}

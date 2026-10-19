@@ -1,0 +1,1 @@
+{"event":"refused","command":"verify","error":"privacy review P-5: the export directory /home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_b7_T32 holds the prover-private entry \"seq_ho09\"; a verifier's copy of the export holds the public files only (copy it without seq_*)"}

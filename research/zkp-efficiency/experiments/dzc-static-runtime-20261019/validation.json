@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "checks": 53,
+  "checked_utc": "2026-10-19T12:34:56.900396+00:00",
+  "source_records": 435,
+  "production_and_owner_pins_unchanged": true,
+  "prior_findings_and_sources_preserved": true,
+  "target_proved_positions": 0,
+  "limits": "one nice19 CPU,59sCPU/wall,512MiBAS",
+  "scope": "Artifact and source-pin integrity; does not verify a native proof or privacy."
+}

@@ -1,0 +1,11 @@
+[13:13:26Z] lane Y released
+[13:22:26Z] start var_dg (need 2.5 weight 1 tinyllama fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/variants/tl_dg --corpora fineweb:48,wikitext:48 --tag var_dg)
+[zk60-guard 06:22:26] START fp-L_var_dg class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=3ed3ab590d6a
+[zk60-guard 06:30:36] END fp-L_var_dg exit=0 child_wall=490s peak_rss=1.54G min_avail=7.23G
+[13:30:36Z] end var_dg exit 0
+[13:30:36Z] start build_tl_dg_w16 (need 2 weight 1 tinyllama fp_variant.py --variant dg --window qkv:16,g:16,z:16 --name tl_dg_w16)
+[zk60-guard 06:30:36] START fp-L_build_tl_dg_w16 class=light need=2G cap=3G enforce=cgroup+watchdog waited=0s run=41dcea2a6479
+[zk60-guard 06:35:47] END fp-L_build_tl_dg_w16 exit=0 child_wall=311s peak_rss=0.79G min_avail=13.19G
+[13:35:47Z] end build_tl_dg_w16 exit 0
+[13:38:47Z] start var_dg_w16 (need 2.5 weight 1 tinyllama fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/variants/tl_dg_w16 --corpora fineweb:48,wikitext:48 --tag var_dg_w16)
+[zk60-guard 06:38:47] START fp-L_var_dg_w16 class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=405a4382d1fd

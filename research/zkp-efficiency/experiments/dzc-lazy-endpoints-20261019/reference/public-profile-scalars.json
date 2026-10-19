@@ -1,0 +1,36 @@
+[
+  {
+    "name": "TinyLlama1.1B",
+    "width": 2048,
+    "context": 128,
+    "source_path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5b/verifier-exports/pg_rot1_b4_T128/profile.json",
+    "source_sha256": "b418a1dd9c23d758efc03ef5b8cb8dfb1b73b893dab7114c5b93233a30062601",
+    "public_scalars": {
+      "f_e": 9,
+      "norm_ceps": 74429,
+      "norm_cn_a": 3583,
+      "norm_cn_m": 2873,
+      "norm_tn": 10,
+      "sh_ao": 3,
+      "sh_z": 4,
+      "T": 128
+    }
+  },
+  {
+    "name": "Llama3-8B",
+    "width": 4096,
+    "context": 128,
+    "source_path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5b/verifier-exports/llama3_8b_pg_rot1_b6_T128/profile.json",
+    "source_sha256": "eedbcff1201f631c2d5aaa46bbd2cee6a1b1290ec08078415a9ed31567ee23df",
+    "public_scalars": {
+      "f_e": 9,
+      "norm_ceps": 78617,
+      "norm_cn_a": 2092,
+      "norm_cn_m": 1424,
+      "norm_tn": 9,
+      "sh_ao": 3,
+      "sh_z": 4,
+      "T": 128
+    }
+  }
+]

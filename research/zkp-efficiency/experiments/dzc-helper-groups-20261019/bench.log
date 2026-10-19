@@ -1,0 +1,16 @@
+{"rep":0,"arm":"baseline","rows":8192,"nanoseconds":52810675,"checksum":17775018417042316688}
+{"rep":0,"arm":"grouped","rows":8192,"nanoseconds":48550302,"checksum":17775018417042316688}
+{"rep":1,"arm":"grouped","rows":8192,"nanoseconds":53364410,"checksum":17775018417042316688}
+{"rep":1,"arm":"baseline","rows":8192,"nanoseconds":48899014,"checksum":17775018417042316688}
+{"rep":2,"arm":"baseline","rows":8192,"nanoseconds":46999251,"checksum":17775018417042316688}
+{"rep":2,"arm":"grouped","rows":8192,"nanoseconds":53131603,"checksum":17775018417042316688}
+{"rep":3,"arm":"grouped","rows":8192,"nanoseconds":55146963,"checksum":17775018417042316688}
+{"rep":3,"arm":"baseline","rows":8192,"nanoseconds":53142255,"checksum":17775018417042316688}
+{"rep":4,"arm":"baseline","rows":8192,"nanoseconds":49483891,"checksum":17775018417042316688}
+{"rep":4,"arm":"grouped","rows":8192,"nanoseconds":52076871,"checksum":17775018417042316688}
+{"rep":5,"arm":"grouped","rows":8192,"nanoseconds":53549318,"checksum":17775018417042316688}
+{"rep":5,"arm":"baseline","rows":8192,"nanoseconds":52670091,"checksum":17775018417042316688}
+{"rep":6,"arm":"baseline","rows":8192,"nanoseconds":49627982,"checksum":17775018417042316688}
+{"rep":6,"arm":"grouped","rows":8192,"nanoseconds":56574948,"checksum":17775018417042316688}
+{"rep":7,"arm":"grouped","rows":8192,"nanoseconds":54342649,"checksum":17775018417042316688}
+{"rep":7,"arm":"baseline","rows":8192,"nanoseconds":52088770,"checksum":17775018417042316688}

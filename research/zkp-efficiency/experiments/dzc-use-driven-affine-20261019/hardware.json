@@ -1,0 +1,17 @@
+{
+  "cpu_model": "Intel(R) Core(TM) Ultra 9 185H",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "experiment_threads": 1,
+  "affinity": [
+    0
+  ],
+  "nice": 19,
+  "GPU_jobs": 0,
+  "device": "CPU only",
+  "main_wall_seconds": 8.612566210002115,
+  "main_rss_kib": 47748,
+  "compiler_rss_kib": 138144,
+  "audit_wall_seconds": 0.26066511999670183,
+  "audit_rss_kib": 24352,
+  "limits": "59sCPU/wall,512MiBASperexperiment"
+}

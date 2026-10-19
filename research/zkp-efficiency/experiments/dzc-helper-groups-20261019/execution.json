@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "python3",
+    "experiments/dzc-helper-groups-20261019/run.py",
+    "--native-field"
+  ],
+  "returncode": 0,
+  "wall_seconds": 7.387140155995439,
+  "finished_utc": "2026-10-19T13:21:52.519261+00:00"
+}

@@ -1,5 +1,30 @@
 # Where the MVP stands, in plain words
 
+**2026-10-19 13:38 UTC — demo-ready CLI, honest baselines, fidelity target set.**
+- **Demo flow for the trained 8B next-token proof** (`results/zk60_token_io_r1_20261017/tools/r4_cli_demo.sh`):
+  `prove` 227 s (laptop CPU; 471 MB) -> `verify` 90 s (pinned to the trained
+  model identity and the token-profile digest; the verifier publishes the
+  statement itself) -> `owner` 83 s (re-verifies, then the prompt owner reads
+  token 11) -> `input-owner` (the prompt owner confirms the proof used their
+  32-token prompt). A layer-0 pre-check refuses the two tokens that overflow on
+  today's 8B export (" ." and "Tags") by name before anything runs. Reviewed
+  (token review rounds 1–4; round-4 fixes under confirmation).
+- **Honest speed baseline** (`results/zk60_cpu_inference_baseline_20261019/README.md`):
+  plain CPU inference of an 8B Llama at 8-bit takes ~1.55 s for 32 tokens and
+  ~5.6 s for 128; the private proof takes 156 s and 433 s — about 100x and
+  77x [MEASURED]. Tokens/s improves with prompt length up to ~128–256 tokens
+  (~0.3 tok/s on the laptop CPU), then falls as attention grows.
+- **Fidelity (D32: no performance degradation versus float).** Proposed
+  threshold (for Victor): perplexity <= 1.01x float on FineWeb and WikiText,
+  LAMBADA >= 99% of float, zero refusals. Today: TinyLlama 1.23x / 1.28x, 8B
+  1.63x / 1.77x. Per-layer constants close ~52% of TinyLlama's gap (1.105x /
+  1.121x) with no new proof planes; native round R8 is adding them for every
+  shift. The 8B refused every WikiText window at layer 0 (token " ."); a
+  vocabulary-wide recalibration of layer 0 (no proof cost) is in progress.
+- **Privacy at trained TinyLlama size:** the statement is final after three
+  independent review rounds and the gate's R7 re-gate; acceptance awaits
+  Victor's word in the console.
+
 **2026-10-19 10:20 UTC — first private proof of a trained Llama-3-8B's NEXT
 TOKEN.** One proof: a 32-token hidden prompt -> the trained int16 embedding ->
 all 32 trained blocks (streamed; layer 1 at its own score shift) -> final norm

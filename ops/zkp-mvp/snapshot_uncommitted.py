@@ -55,7 +55,7 @@ def main():
 
     raw = git("status", "--porcelain=v1", "-z", "--untracked-files=all")
     entries = raw.split(b"\0")
-    add, remove, skipped_dirs, skipped_build = [], [], [], []
+    add, remove, skipped_dirs, skipped_build, skipped_private = [], [], [], [], []
     i = 0
     while i < len(entries):
         e = entries[i].decode("utf-8", "surrogateescape")
@@ -71,6 +71,12 @@ def main():
         if any(c == "target" or c.startswith("target-")
                for c in path.split("/")[:-1]):   # cargo build output
             skipped_build.append(path)
+            continue
+        # owner decommitments (token I/O `prove`) hold hidden prompt/output
+        # values in clear: never retained in a snapshot (D21; review TR4-3)
+        if any(c.endswith("owner-private") for c in path.split("/")[:-1]) \
+                or path.endswith(".dec"):
+            skipped_private.append(path)
             continue
         if "D" in xy and not os.path.lexists(os.path.join(REPO, path)):
             remove.append(path)
@@ -98,7 +104,7 @@ def main():
     print(f"add {len(small)} small files, remove {len(remove)}, exclude "
           f"{len(excluded)} large ({reused} sha256 reused), "
           f"skipped nested repos {len(skipped_dirs)}, build outputs "
-          f"{len(skipped_build)}")
+          f"{len(skipped_build)}, owner-private files {len(skipped_private)}")
     if dry:
         return
 

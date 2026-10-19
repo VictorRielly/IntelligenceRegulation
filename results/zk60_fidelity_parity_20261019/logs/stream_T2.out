@@ -1,0 +1,30 @@
+[13:05:51Z] stream T2 released
+[13:05:51Z] start wi_gatepc8sat (tinyllama fineweb:48,wikitext:48 need 2.5 --gate-pc -8:sat)
+[zk60-guard 06:05:51] START fp-T2_wi_gatepc8sat class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=af1b119047c1
+[zk60-guard 06:05:52] END fp-T2_wi_gatepc8sat exit=2 child_wall=0s peak_rss=0.00G min_avail=10.33G
+[13:05:52Z] end wi_gatepc8sat exit 2
+[13:05:52Z] start fix_pround (tinyllama fineweb:48,wikitext:48 need 2.5 --mods pround)
+[zk60-guard 06:05:52] START fp-T2_fix_pround class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=5c5ca31e92bf
+[zk60-guard 06:05:52] END fp-T2_fix_pround exit=3 child_wall=0s peak_rss=0.00G min_avail=10.05G
+[13:05:52Z] end fix_pround exit 3
+[13:05:52Z] start abl_ffn_core (tinyllama fineweb:48,wikitext:48 need 2.5 --relax ffn_core)
+[zk60-guard 06:05:52] START fp-T2_abl_ffn_core class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=bf9e634c6316
+[zk60-guard 06:05:53] END fp-T2_abl_ffn_core exit=3 child_wall=0s peak_rss=0.00G min_avail=10.00G
+[13:05:53Z] end abl_ffn_core exit 3
+[13:05:53Z] start abl_w_attn (tinyllama fineweb:48,wikitext:48 need 2.5 --relax w_attn)
+[zk60-guard 06:05:53] START fp-T2_abl_w_attn class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=215b10451edb
+[zk60-guard 06:05:53] END fp-T2_abl_w_attn exit=3 child_wall=0s peak_rss=0.00G min_avail=9.96G
+[13:05:53Z] end abl_w_attn exit 3
+[13:05:53Z] start abl_w_ffn (tinyllama fineweb:48,wikitext:48 need 2.5 --relax w_ffn)
+[zk60-guard 06:05:53] START fp-T2_abl_w_ffn class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=39e5cf270fe1
+[zk60-guard 06:05:53] END fp-T2_abl_w_ffn exit=3 child_wall=0s peak_rss=0.00G min_avail=9.95G
+[13:05:53Z] end abl_w_ffn exit 3
+[13:05:53Z] start abl_softmax (tinyllama fineweb:48,wikitext:48 need 2.5 --relax softmax)
+[zk60-guard 06:05:53] START fp-T2_abl_softmax class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=97f588da31b3
+[zk60-guard 06:05:54] END fp-T2_abl_softmax exit=3 child_wall=0s peak_rss=0.00G min_avail=10.01G
+[13:05:54Z] end abl_softmax exit 3
+[13:05:54Z] start abl_all (tinyllama fineweb:48,wikitext:48 need 2.5 --relax all)
+[zk60-guard 06:05:54] START fp-T2_abl_all class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=240a1d7d2bbc
+[zk60-guard 06:05:54] END fp-T2_abl_all exit=3 child_wall=0s peak_rss=0.00G min_avail=9.77G
+[13:05:54Z] end abl_all exit 3
+[13:05:54Z] stream T2 finished

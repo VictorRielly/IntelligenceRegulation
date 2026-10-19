@@ -1755,3 +1755,57 @@ converted to UTC; the guard log prints PDT).
   `r7/frozen-tree/`, note `r7/FROZEN.txt`, patch `r7/r7-vs-r6.patch` 331
   lines, two files: trained_block.rs, trained_stack_tests.rs; CLIs built
   from this tree; R6 stays frozen).
+
+## Round 8 (coordinator; opened 2026-10-19 13:31 UTC): every export-chosen calibration constant per layer (D32, fidelity)
+
+The fidelity lane's `dg` variant (per-layer Cn + per-layer free shifts +
+per-layer tables, zero new planes) closes ~52% of TinyLlama's log-perplexity
+gap; it varies norm_cn_a, norm_cn_m, sh_ao, sh_h, sh_s, sh_z. R8 generalises
+R6's mechanism from `sh_s` to all eleven NormCalibration constants (norm_tn,
+norm_cn_a, norm_cn_m, norm_ceps, sh_ao, sh_qkv, sh_s, sh_o, sh_g, sh_h, sh_z),
+classes unchanged. Out of scope, with reasons: `f_e` (moves the softmax
+sigma_s limb count, so the plane list and the counted receipt: a structural
+constant, not a calibration within a fixed layout); `rope_theta`, `sh_rope`,
+`sh_u`, `f_p`, `f_ro`, `sh_r2` (pinned by the relations or the model, not
+export choices); `exp_e_s` / `silu_member` are already per-block table keys.
+Start tree = the R7 freeze (36a8aed1..., working copy unchanged).
+- 13:3x UTC R8 edits (live tree):
+  * shape.rs `Shape::with_layer_calibration(cal)`: trained shapes only;
+    `derive_at_width` (every class unchanged: tn / cn / ceps / four-limb norm
+    window, sh_ao <= 8, each shift in its window), then CS-8 rebuild, trained
+    class, and `Ids` / `HIds` rebuilt and compared (plane list unmoved);
+    `with_score_shift` is now its sh_s special case.
+  * trained_statement.rs: `LayerRecord.own: [Option<i64>; 11]` over
+    `OWN_FIELDS` (canonical order, sh_s FIRST with R6's labels:
+    sh-score-layer / "score shift"), helpers `cal_field`, `apply_own`,
+    `own_of`, `has_own`; encoding adds one label per own constant only;
+    check_self refuses an own value equal to the run's and validates the
+    layer's whole calibration at the door.
+  * run.rs: `stage_cal: Vec<NormCalibration>`; stage line appends one clause
+    per own constant ("; {label} {v} (the layer's own; the run's is {b})", so
+    an sh_s-only stage line is R6's text); `stage_shape` via the door.
+  * trained_block.rs loader: `per_layer_cal_fields()` (the OWN_FIELDS keys in
+    `per_layer_constants_differ`); run base = the most common combination of
+    the listed fields over the run's layers (ties: smallest in canonical
+    order, sh_s first -> R6's base for sh_s-only exports); `masked` compares
+    every non-listed constant; each layer's own fields recorded and its whole
+    calibration validated at the door; sealing-pass witnesses at the layer's
+    calibration (layout cache keyed by calibration); statement.json layer
+    objects add each own constant under its export key (sh_s first).
+  * tests: r8_tests.rs (door over every class incl. refusals, layout counts
+    unmoved and only the constants' schedule lines change; statement labels /
+    canonical refusal / identity per field; no-wrap over each class at all
+    six trained profiles; two-block library run with block 1 own in all
+    eleven fields, run-wide / shifts-only / norm-only verifiers refuse);
+    trained_stack_tests `r8_a_fully_per_layer_calibration_proves_verifies_
+    and_every_constant_is_bound` (4 layers, layer 1 own in all eleven, layer 2
+    in seven; x_out = the independent reference kernel's at each layer's
+    constants, asserted bit-exact against the native witness and again by
+    stack-prove's parity; verify with controls; for EACH of the eleven, a
+    verifier export with that one constant flattened, own statement pinned,
+    is refused); R6 test literals ported.
+  * `r8/r8_nowrap_classes.py` [COUNTED]: every clause with a per-layer
+    constant, over its whole class, at all six trained profiles: worst 2^43.09
+    (the norm quotient's x g Cn term), p/2 ~ 2^63, margin ~2^19.
+- 13:37 UTC `r8_chain.sh` launched (check -> CLIs -> compat re-verifies of
+  b7 (97c4acda...), 8B T32 and TinyLlama T32 under R8 -> suite -> freeze).

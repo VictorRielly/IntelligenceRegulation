@@ -1700,7 +1700,7 @@ fn the_draw_accounting_assertions_are_still_blocked_on_the_generators_accessor()
 /// — and the three `cfg(test)` modules that WRITE a retained bundle, because
 /// a retained capture counts as publishing and its digests are call sites
 /// like any other.
-const CALL_SITES: [(&str, &str, usize, &str); 19] = [
+const CALL_SITES: [(&str, &str, usize, &str); 20] = [
     // TOKEN I/O R1 LANE: the token-I/O run's statement digests, unkeyed hashes
     // of public words (TK1 the token profile's canonical text, TK2 the int16
     // embedding table, TK3 the int8 head with its per-row multipliers) ...
@@ -1713,6 +1713,11 @@ const CALL_SITES: [(&str, &str, usize, &str); 19] = [
     ("src/private_block/token_io.rs", "MerkleTree::build_keyed(", 1, "P4 recomputed by the token endpoint's OWNER: the tree under the profile's node key, outside the proof"),
     // TK4-TK6: the token-I/O run's public statement, calibration and schedule
     ("src/private_block/token_io/run.rs", "blake3::Hasher::new(", 3, "TK4-TK6 — the token-I/O run's public statement digest (31-byte literal, block, embedding and head digests), its calibration digest (32-byte literal, model identity, profile digest) and its schedule digest (33-byte literal, framed lines), all unkeyed"),
+    // TOKEN I/O LANE (2026-10-19, review TR3-2): the production table loader
+    // streams the SHA-256 of each PUBLIC table file and compares it with its
+    // manifest's, outside the proof (the tables enter the statement by their
+    // own blake3 digests, TK2 / TK3)
+    ("src/private_block/token_io/load.rs", "Sha256::new(", 1, "TK7 — the SHA-256 of each public token-table file (embedding, head, multipliers), streamed in chunks and compared with the calibration lane's manifest, outside the proof; file integrity only"),
     // NATIVE LANE: the trained-block CLI's request context, an unkeyed hash of
     // public words (variant, label, layer); its file digests are SHA-256 via
     // `Sha256::digest`, not an entry point of this table

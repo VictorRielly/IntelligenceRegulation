@@ -1,0 +1,19 @@
+{
+  "cpu_model": "Intel(R) Core(TM) Ultra 9 185H",
+  "device": "CPU only",
+  "GPU_jobs": 0,
+  "experiment_CPU_affinity": [
+    0
+  ],
+  "nice": 19,
+  "threads": 1,
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: x86_64-unknown-linux-gnu\nrelease: 1.97.1\nLLVM version: 22.1.6\n",
+  "main_wall_seconds": 3.8074739259973285,
+  "compiler_seconds": 1.0550918570006615,
+  "main_rss_kib": 37976,
+  "compiler_rss_kib": 130212,
+  "audit_wall_seconds": 1.0050895059976028,
+  "audit_rss_kib": 24252,
+  "limits": "59s CPU/wall,512MiBAS per experiment; one CPU affinity; codegenunits1"
+}

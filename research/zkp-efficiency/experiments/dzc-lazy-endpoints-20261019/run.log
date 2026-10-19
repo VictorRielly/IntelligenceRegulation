@@ -1,0 +1,96 @@
+{
+  "status": "PASS",
+  "run_id": "20261019T101854Z-3562a78f",
+  "seed": 2026101978,
+  "checks": {
+    "lazy_coefficients": 1950,
+    "charged_endpoint_censuses": 390,
+    "lazy_value_independent_traces": 390,
+    "row_coefficients": 1950,
+    "equal_operation_censuses": 390,
+    "value_independent_traces": 390,
+    "independent_lifetime_audits": 20,
+    "native_grid_values": 2145,
+    "native_offgrid_values": 390,
+    "round_messages": 90,
+    "original_finals": 1845,
+    "final_relations": 30,
+    "permutations": 30,
+    "aliases": 30,
+    "fixtures": 30
+  },
+  "controls": {
+    "no_memoization_adds_reads": true,
+    "wrong_pair": true,
+    "drop_high_degree": true,
+    "stale_mu": true,
+    "helper_order": true,
+    "wrong_msb": true,
+    "stale_recovered_claim": true,
+    "omit_support": true
+  },
+  "synthetic_digest": "fde3b39fcafabd32ab9bbe167eb8dd0eac87b83406124245e5cc59e7cc30bf3b",
+  "wall_seconds": 8.612566210002115,
+  "rss_kib": 47748,
+  "compiler_rss_kib": 138144,
+  "cpu_affinity": [
+    0
+  ],
+  "threads": 1,
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "compiler_argv": [
+    "rustc",
+    "--edition=2021",
+    "--crate-type=cdylib",
+    "-C",
+    "codegen-units=1",
+    "-C",
+    "opt-level=0",
+    "counted-shim.rs",
+    "-o",
+    "counted-reference.so"
+  ],
+  "logical_lifetime_model": "See independent audit: every original endpoint plus one high-value transient per construction, derived polynomial buffers and five-word round accumulator. Excludes primitive-internal scratch, plan, physical registers and enclosing tables/proof.",
+  "limits": "59s CPU/wall,512MiB address space,one nice19 CPU; noGPU/Cargo/install",
+  "scope": "Synthetic complete-D polynomial and original finals; actual captured Rust body/catalog with exact u128 field and Shape/Layout substitutes. No native proof/RNG/transcript/masks/privacy/device throughput."
+}
+{
+  "descriptor": "Llama3-8B",
+  "ln": 4,
+  "norm_w": 32,
+  "padded": false,
+  "N_examples": [
+    2,
+    8,
+    32
+  ],
+  "tables": 59,
+  "lookups": 34,
+  "helpers": 17,
+  "degree": 4,
+  "prep": [
+    76,
+    54,
+    0,
+    30
+  ],
+  "row_operations": [
+    272,
+    150,
+    331,
+    72
+  ],
+  "bank_peak_words": 79,
+  "pair_peak_words": 18,
+  "bank_denominator_words": 68,
+  "pair_denominator_words": 4,
+  "common_endpoint_words": 118,
+  "common_round_accumulator_words": 5,
+  "added_full_tables": 0,
+  "removed_original_tables": 0,
+  "coefficient_bytes_per_fp2": 16,
+  "node_count": [
+    359,
+    359
+  ]
+}

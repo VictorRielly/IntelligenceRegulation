@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "checks": 69,
+  "checked_utc": "2026-10-19T13:31:34.039528+00:00",
+  "source_records": 442,
+  "prior_findings_and_source_prefixes_preserved": true,
+  "native_and_carried_owner_pins_unchanged": true,
+  "completed_target_proofs": 0,
+  "completed_model_passes": 0,
+  "proved_positions": 0,
+  "scope": "Source/artifact integrity and retained synthetic controls; no native receipt verification or privacy acceptance.",
+  "limits": "One nice19 CPU,59sCPU/wall,512MiBAS"
+}

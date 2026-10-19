@@ -1,0 +1,12 @@
+[zk60-guard 03:27:50] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 03:28:50] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 03:29:50] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 03:30:31] START trv3-build class=build need=3G cap=5G enforce=cgroup+watchdog waited=161s run=b95206c58798
+[zk60-guard 03:33:34] END trv3-build exit=0 child_wall=183s peak_rss=1.91G min_avail=11.57G
+[zk60-guard 03:33:34] START trv3-tests class=cpu need=5G cap=8G enforce=cgroup+watchdog waited=0s run=91c9694f5f76
+[zk60-guard 03:35:53] END trv3-tests exit=0 child_wall=140s peak_rss=2.17G min_avail=11.13G
+[zk60-guard 03:35:54] START trv3-r3scale class=cpu need=5.5G cap=8G enforce=cgroup+watchdog waited=0s run=e23819f1df89
+[zk60-guard 03:54:10] END trv3-r3scale exit=0 child_wall=1097s peak_rss=3.97G min_avail=9.28G
+[zk60-guard 03:54:10] START trv3-lane-verify class=cpu need=4.5G cap=7G enforce=cgroup+watchdog waited=0s run=579f587a8e62
+[zk60-guard 03:55:31] END trv3-lane-verify exit=0 child_wall=81s peak_rss=2.96G min_avail=10.42G
+tests=0 r3scale=0 lane_verify=0

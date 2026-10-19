@@ -1,0 +1,185 @@
+{
+  "status": "PASS",
+  "seed": 2026101981,
+  "rows": [
+    {
+      "rep": 0,
+      "arm": "baseline",
+      "rows": 8192,
+      "nanoseconds": 52810675,
+      "checksum": 17775018417042316688
+    },
+    {
+      "rep": 0,
+      "arm": "grouped",
+      "rows": 8192,
+      "nanoseconds": 48550302,
+      "checksum": 17775018417042316688
+    },
+    {
+      "rep": 1,
+      "arm": "grouped",
+      "rows": 8192,
+      "nanoseconds": 53364410,
+      "checksum": 17775018417042316688
+    },
+    {
+      "rep": 1,
+      "arm": "baseline",
+      "rows": 8192,
+      "nanoseconds": 48899014,
+      "checksum": 17775018417042316688
+    },
+    {
+      "rep": 2,
+      "arm": "baseline",
+      "rows": 8192,
+      "nanoseconds": 46999251,
+      "checksum": 17775018417042316688
+    },
+    {
+      "rep": 2,
+      "arm": "grouped",
+      "rows": 8192,
+      "nanoseconds": 53131603,
+      "checksum": 17775018417042316688
+    },
+    {
+      "rep": 3,
+      "arm": "grouped",
+      "rows": 8192,
+      "nanoseconds": 55146963,
+      "checksum": 17775018417042316688
+    },
+    {
+      "rep": 3,
+      "arm": "baseline",
+      "rows": 8192,
+      "nanoseconds": 53142255,
+      "checksum": 17775018417042316688
+    },
+    {
+      "rep": 4,
+      "arm": "baseline",
+      "rows": 8192,
+      "nanoseconds": 49483891,
+      "checksum": 17775018417042316688
+    },
+    {
+      "rep": 4,
+      "arm": "grouped",
+      "rows": 8192,
+      "nanoseconds": 52076871,
+      "checksum": 17775018417042316688
+    },
+    {
+      "rep": 5,
+      "arm": "grouped",
+      "rows": 8192,
+      "nanoseconds": 53549318,
+      "checksum": 17775018417042316688
+    },
+    {
+      "rep": 5,
+      "arm": "baseline",
+      "rows": 8192,
+      "nanoseconds": 52670091,
+      "checksum": 17775018417042316688
+    },
+    {
+      "rep": 6,
+      "arm": "baseline",
+      "rows": 8192,
+      "nanoseconds": 49627982,
+      "checksum": 17775018417042316688
+    },
+    {
+      "rep": 6,
+      "arm": "grouped",
+      "rows": 8192,
+      "nanoseconds": 56574948,
+      "checksum": 17775018417042316688
+    },
+    {
+      "rep": 7,
+      "arm": "grouped",
+      "rows": 8192,
+      "nanoseconds": 54342649,
+      "checksum": 17775018417042316688
+    },
+    {
+      "rep": 7,
+      "arm": "baseline",
+      "rows": 8192,
+      "nanoseconds": 52088770,
+      "checksum": 17775018417042316688
+    }
+  ],
+  "ns_per_row": {
+    "baseline": [
+      6446.6156005859375,
+      5969.117919921875,
+      5737.2132568359375,
+      6487.0916748046875,
+      6040.5140380859375,
+      6429.4544677734375,
+      6058.103271484375,
+      6358.492431640625
+    ],
+    "grouped": [
+      5926.550537109375,
+      6514.210205078125,
+      6485.7913818359375,
+      6731.8070068359375,
+      6357.0399169921875,
+      6536.781982421875,
+      6906.12158203125,
+      6633.6241455078125
+    ]
+  },
+  "median_ns_per_row": {
+    "baseline": 6208.2978515625,
+    "grouped": 6525.49609375
+  },
+  "paired_speedups": [
+    1.0877517301540163,
+    0.9163225827850434,
+    0.884581837291828,
+    0.9636478984345883,
+    0.9502086060431703,
+    0.9835809860360873,
+    0.8772077351268621,
+    0.9585246755269512
+  ],
+  "median_ratio": 0.9513909383086894,
+  "compiler_argv": [
+    "rustc",
+    "--edition=2021",
+    "-C",
+    "codegen-units=1",
+    "-C",
+    "opt-level=1",
+    "-L",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-helper-groups-20261019",
+    "-l",
+    "dylib=kernels",
+    "-C",
+    "link-arg=-Wl,-rpath,/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-helper-groups-20261019",
+    "bench.rs",
+    "-o",
+    "bench"
+  ],
+  "compile_seconds": 0.33951138600241393,
+  "child_wall_seconds": 0.8417568299992126,
+  "wall_seconds": 1.1819111130025703,
+  "rss_kib": 11932,
+  "child_peak_rss_kib": 123564,
+  "cpu_affinity": [
+    0
+  ],
+  "threads": 1,
+  "finished_utc": "2026-10-19T13:23:58.243706+00:00",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "scope": "Shared-host cache-resident 32 synthetic rows and one arbitrary synthetic parameter pack;8192 rows/sample;8 alternating pairs,256 warmup rows/arm. Exact outputs and checksums agree. Baseline scalar noinline adapters;candidate groups inline native field. No full-D sampler,fold/reduction,model,witness,masks,PCS,serialization,verification,GPU or target rate. Not quiesced/p95.",
+  "limits": "59s CPU/wall,512MiB address space,one nice19 CPU;no Cargo/dependencies/GPU"
+}

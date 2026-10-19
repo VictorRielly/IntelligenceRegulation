@@ -1,0 +1,8 @@
+{"prompt": "p32", "seed": 11, "wall_s": 1.297, "prompt_eval_count": 27, "prompt_eval_s": 1.28, "load_s": 0.012820196, "total_s": 1.296179216}
+{"prompt": "p32", "seed": 12, "wall_s": 1.47, "prompt_eval_count": 30, "prompt_eval_s": 1.456, "load_s": 0.01046578, "total_s": 1.468860689}
+{"prompt": "p32", "seed": 13, "wall_s": 1.326, "prompt_eval_count": 27, "prompt_eval_s": 1.31, "load_s": 0.010988877, "total_s": 1.324511514}
+{"prompt": "p32", "seed": 14, "wall_s": 1.446, "prompt_eval_count": 29, "prompt_eval_s": 1.43, "load_s": 0.011697731, "total_s": 1.444948854}
+{"prompt": "p128", "seed": 21, "wall_s": 4.49, "prompt_eval_count": 103, "prompt_eval_s": 4.474, "load_s": 0.011384455, "total_s": 4.489575586}
+{"prompt": "p128", "seed": 22, "wall_s": 4.541, "prompt_eval_count": 103, "prompt_eval_s": 4.525, "load_s": 0.010452489, "total_s": 4.539213866}
+{"prompt": "p128", "seed": 23, "wall_s": 4.616, "prompt_eval_count": 104, "prompt_eval_s": 4.601, "load_s": 0.010608039, "total_s": 4.615133374}
+{"prompt": "p128", "seed": 24, "wall_s": 4.538, "prompt_eval_count": 103, "prompt_eval_s": 4.523, "load_s": 0.010912643, "total_s": 4.536826173}

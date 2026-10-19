@@ -1,0 +1,10 @@
+
+running 1 test
+CAPTURE TinyLlama-trained CLI run L=2 layers 7..9: trained statement identity ef0610008901e09101709db727a19b30a5de9afb64217e284432afe892aaeb54 (public; = the CLI's published statement.json)
+CAPTURE TinyLlama-trained CLI run L=2 layers 7..9: rebuilt the statement in 0.37 s; verify_run_from_dir_hashed_with + record 0.99 s over 2 block loads; segments 23019088 B, = statement/segments.json entry for entry; high-water mark 0.37 GiB
+CAPTURE TinyLlama-trained CLI run L=2 layers 7..9: run.json 35107 B, stage files [3602196, 4308469] B; arrays.bin 34076168 B over 1159 distinct arrays, 1177 references (18 deduplicated), 1283 inline
+CAPTURE TinyLlama-trained CLI run L=2 layers 7..9 RESULT: 42026752 B (42.0 MB) at /home/victor/zk60-artifacts/tinyllama-cli-r7-capture-dense-l2, self-consistent, every key on the allow-list — a CAPTURE of the production CLI's receipt, not a privacy result
+test private_block::run_capture_tests::capture_a_cli_run_directory ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 589 filtered out; finished in 1.77s
+

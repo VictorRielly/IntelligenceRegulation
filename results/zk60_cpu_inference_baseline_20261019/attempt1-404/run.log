@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/results/zk60_cpu_inference_baseline_20261019/measure.py", line 34, in <module>
+    r = call('/api/generate', {'model': 'deepseek-r1:8b', 'prompt': p, 'raw': True, 'stream': False,
+  File "/home/victor/IntelligenceRegulation/results/zk60_cpu_inference_baseline_20261019/measure.py", line 13, in call
+    with urllib.request.urlopen(req, timeout=900) as r:
+  File "/usr/lib/python3.10/urllib/request.py", line 216, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python3.10/urllib/request.py", line 525, in open
+    response = meth(req, response)
+  File "/usr/lib/python3.10/urllib/request.py", line 634, in http_response
+    response = self.parent.error(
+  File "/usr/lib/python3.10/urllib/request.py", line 563, in error
+    return self._call_chain(*args)
+  File "/usr/lib/python3.10/urllib/request.py", line 496, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python3.10/urllib/request.py", line 643, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 404: Not Found

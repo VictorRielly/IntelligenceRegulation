@@ -1,0 +1,5 @@
+{
+ "model": "deepseek-r1:8b (Llama-3.1-8B architecture, 8.0B params, Q4_K_M)",
+ "device": "CPU only (CUDA_VISIBLE_DEVICES=-1, num_gpu=0)",
+ "runs": []
+}

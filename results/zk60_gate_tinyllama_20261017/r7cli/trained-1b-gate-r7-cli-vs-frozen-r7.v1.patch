@@ -1,0 +1,551 @@
+diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/hashline/src/private_block/run_capture.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-r7-cli/hashline/src/private_block/run_capture.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/hashline/src/private_block/run_capture.rs	2026-10-17 16:38:20.059915747 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-r7-cli/hashline/src/private_block/run_capture.rs	2026-10-19 03:04:10.402240111 -0700
+@@ -1329,9 +1329,25 @@
+     let sh = &h.sh;
+     let mut out = Vec::new();
+     let schema = schema_of(r.store.is_on());
++    // PRIVACY GATE LANE (2026-10-17, additive, test-scoped like this whole
++    // module): a TRAINED-calibration shape carries its per-profile
++    // calibration (D24's norm constants, the seven requantization shifts and
++    // the derived `D_max`) inside `shape`, so a gate reads the constants the
++    // relations were built with instead of the frozen literals. Every
++    // public: each is bound into the schedule line, the parameter line and
++    // the trained-model statement. On every other shape this is EMPTY, so no
++    // byte of any bundle of a frozen or registered development profile moves.
++    let trained = if sh.trained_calibration {
++        format!(
++            ",\"trained_calibration\":true,\"norm_tn\":{},\"norm_cn_a\":{},\"norm_cn_m\":{},\"norm_ceps\":{},\"sh_ao\":{},\"sh_qkv\":{},\"sh_s\":{},\"sh_o\":{},\"sh_g\":{},\"sh_h\":{},\"sh_z\":{},\"d_max\":{}",
++            sh.norm_tn, sh.norm_cn_a, sh.norm_cn_m, sh.norm_ceps, sh.sh_ao, sh.sh_qkv, sh.sh_s, sh.sh_o, sh.sh_g, sh.sh_h, sh.sh_z, sh.d_max
++        )
++    } else {
++        String::new()
++    };
+     write!(
+         out,
+-        "{{\"schema\":{schema:?},\"kind\":\"zk60-run-verifier-observations\",\"coverage\":\"native-run-all-stages-v1\",\"profile\":{:?},\"transcript_domain\":{:?},\"block_profile\":{:?},\"blocks\":{},\"boundaries\":{},\"fully_verified\":true,\"privacy\":\"P1\",\"privacy_review_complete\":false,\"weight_policy\":\"public-statement\",\"field_modulus\":{},\"extension_nonresidue\":{},\"public_tables_included\":{},\"source_commit\":{:?},\"run_binding\":{:?},\"context\":{:?},\"calibration\":{:?},\"public_statement_digest\":{:?},\"parameter_line\":{:?},\"schedule_digest\":{:?},\"expected_policy\":{:?},\"expected_policy_sha256\":{:?},\"run_shape_words\":{:?},\"shape\":{{\"name\":{:?},\"profile\":{:?},\"tokens\":{},\"width\":{},\"hidden\":{},\"q_heads\":{},\"kv_heads\":{},\"head_dim\":{},\"t_pad\":{},\"d_pad\":{},\"h_pad\":{},\"f_pad\":{},\"log_cols\":{},\"cols\":{},\"inv_rate\":{},\"opened_cols\":{},\"f_e\":{},\"endpoint_rows\":{},\"endpoint_log_n\":{},\"endpoint_inv_rate\":{},\"endpoint_general\":{},\"norm_wrho\":{},\"wrho_s\":{},\"slots\":{:?},\"a_groups\":{},\"h_groups\":{},\"n_slots\":{N_SLOTS}}},",
++        "{{\"schema\":{schema:?},\"kind\":\"zk60-run-verifier-observations\",\"coverage\":\"native-run-all-stages-v1\",\"profile\":{:?},\"transcript_domain\":{:?},\"block_profile\":{:?},\"blocks\":{},\"boundaries\":{},\"fully_verified\":true,\"privacy\":\"P1\",\"privacy_review_complete\":false,\"weight_policy\":\"public-statement\",\"field_modulus\":{},\"extension_nonresidue\":{},\"public_tables_included\":{},\"source_commit\":{:?},\"run_binding\":{:?},\"context\":{:?},\"calibration\":{:?},\"public_statement_digest\":{:?},\"parameter_line\":{:?},\"schedule_digest\":{:?},\"expected_policy\":{:?},\"expected_policy_sha256\":{:?},\"run_shape_words\":{:?},\"shape\":{{\"name\":{:?},\"profile\":{:?},\"tokens\":{},\"width\":{},\"hidden\":{},\"q_heads\":{},\"kv_heads\":{},\"head_dim\":{},\"t_pad\":{},\"d_pad\":{},\"h_pad\":{},\"f_pad\":{},\"log_cols\":{},\"cols\":{},\"inv_rate\":{},\"opened_cols\":{},\"f_e\":{},\"endpoint_rows\":{},\"endpoint_log_n\":{},\"endpoint_inv_rate\":{},\"endpoint_general\":{},\"norm_wrho\":{},\"wrho_s\":{},\"slots\":{:?},\"a_groups\":{},\"h_groups\":{},\"n_slots\":{N_SLOTS}{trained}}},",
+         h.profile,
+         h.profile,
+         sh.profile,
+@@ -1718,6 +1734,23 @@
+     "a_groups",
+     "h_groups",
+     "n_slots",
++    // PRIVACY GATE LANE (2026-10-17): a trained-calibration shape's public
++    // calibration, written only when `trained_calibration` is true. Each is
++    // a PUBLIC profile constant (bound into the schedule and parameter lines
++    // and the trained-model statement); no witness quantity is behind any.
++    "trained_calibration",
++    "norm_tn",
++    "norm_cn_a",
++    "norm_cn_m",
++    "norm_ceps",
++    "sh_ao",
++    "sh_qkv",
++    "sh_s",
++    "sh_o",
++    "sh_g",
++    "sh_h",
++    "sh_z",
++    "d_max",
+     // external endpoints and boundaries
+     "input_root",
+     "output_root",
+@@ -1938,8 +1971,18 @@
+     } else {
+         format!("Every array is an inline JSON list (schema `{SCHEMA}`); this bundle has no `{ARRAYS_FILE}`.")
+     };
++    // PRIVACY GATE LANE (2026-10-17): a TRAINED-calibration run's weights
++    // are the trained public words of a calibration export and its hidden
++    // input is the export's (or the all-zero plane), so the stock sentence
++    // would be false there; every other profile keeps it byte for byte.
++    let trained_run = b.profile == super::run::RUN_PROFILE_TINYLLAMA_T32_TRAINED || b.profile == super::run::RUN_PROFILE_RUNG_TC;
++    let weights = if trained_run {
++        "The weights are the\nTRAINED public words of the calibration export the note names (public by\nscope P1); the hidden input came from that export's held-out sequence or is\nthe all-zero plane, as the note says, and is not here."
++    } else {
++        "The weights are\nsynthetic and public; the hidden input came from the lane's fixture generator\nand is not here."
++    };
+     let readme = format!(
+-        "# ZK60 run capture bundle\n\n{note}\n\nWhat this is: the VERIFIER'S VIEW of one private run of {} blocks under one\ntranscript, profile `{}`, written by `hashline/src/private_block/run_capture.rs`\n(schema `{schema}`). It is the INPUT to the privacy gate of ruling M-8 and it\nis NOT a privacy result: no gate has read it.\n\nWhat made it:\n\n    {command}\n\nFiles: `run.json` (the run header, the shape, the external endpoints and the\n{} internal boundaries) and `stage-NN.json` (per stage: the roots, the\ntwenty-three slot transcripts, the M opening, and the A, H and IO openings).\nEach stage file carries its segment's length and SHA-256, so the bundle is\npinned to the exact receipt bytes that were verified; the segments themselves\nare written into `segments/` only when `HL_RUN_CAPTURE_SEGMENTS=1` asks for\nthem, because they are a third of a bundle and the gate reads only the JSON.\n`manifest.json` lists every file with its SHA-256 and pins the source files.\n\n{arrays_note}\n\nNOT in this bundle: any prover-side value. The list is in `run.json` under\n`not_in_a_capture`, and `every_key_of_a_bundle_is_on_the_allow_list` fails if\nthe writer ever emits a field outside its declared allow-list. The weights are\nsynthetic and public; the hidden input came from the lane's fixture generator\nand is not here.\n\n{payload} bytes of run file, stage files and segments.\n",
++        "# ZK60 run capture bundle\n\n{note}\n\nWhat this is: the VERIFIER'S VIEW of one private run of {} blocks under one\ntranscript, profile `{}`, written by `hashline/src/private_block/run_capture.rs`\n(schema `{schema}`). It is the INPUT to the privacy gate of ruling M-8 and it\nis NOT a privacy result: no gate has read it.\n\nWhat made it:\n\n    {command}\n\nFiles: `run.json` (the run header, the shape, the external endpoints and the\n{} internal boundaries) and `stage-NN.json` (per stage: the roots, the\ntwenty-three slot transcripts, the M opening, and the A, H and IO openings).\nEach stage file carries its segment's length and SHA-256, so the bundle is\npinned to the exact receipt bytes that were verified; the segments themselves\nare written into `segments/` only when `HL_RUN_CAPTURE_SEGMENTS=1` asks for\nthem, because they are a third of a bundle and the gate reads only the JSON.\n`manifest.json` lists every file with its SHA-256 and pins the source files.\n\n{arrays_note}\n\nNOT in this bundle: any prover-side value. The list is in `run.json` under\n`not_in_a_capture`, and `every_key_of_a_bundle_is_on_the_allow_list` fails if\nthe writer ever emits a field outside its declared allow-list. {weights}\n\n{payload} bytes of run file, stage files and segments.\n",
+         b.l,
+         b.profile,
+         b.l.saturating_sub(1)
+diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/hashline/src/private_block/run_capture_tests.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-r7-cli/hashline/src/private_block/run_capture_tests.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/hashline/src/private_block/run_capture_tests.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-r7-cli/hashline/src/private_block/run_capture_tests.rs	2026-10-19 03:07:05.628143920 -0700
+@@ -2082,3 +2082,473 @@
+     assert!(total < 2_000_000_000, "the 125M bundle is {total} B, past the 2 GB runaway ceiling");
+     eprintln!("CAPTURE 125M RESULT: {total} B ({:.1} MB) at {} — a CAPTURE, not a privacy result; no gate has read it", total as f64 / 1e6, dir.display());
+ }
++
++// -------------------------------------------------- PRIVACY GATE LANE (2026-10-17): the trained TinyLlama T32 capture
++//
++// ADDITIVE AND TEST-ONLY. Nothing below changes a prover or verifier relation:
++// it builds a run through the same production constructors the trained stack
++// CLI uses (`TrainedExport::load` / `run_constants` / `shape_for` /
++// `load_layer` / `statement_of_records`, `IoSpec::new_shaped`,
++// `prepare_endpoints`, `RunStatement::new_bound`, `run::prove_run`), and
++// VERIFIES it with the production run verifier while the capture's recorder
++// is attached, exactly as `capture_a_run_into` does at the development
++// shapes and at 125M. The bundle is written only after the run verified.
++
++/// One honest trained chain: the export's own public block per layer (each
++/// with ITS tables), the hidden inputs and the `l + 1` padded planes the
++/// run's IO commitments carry. Prover side only; none of it reaches a bundle.
++struct TrainedChain<'a> {
++    sh: Shape,
++    // BORROWED, never cloned: 22 padded TinyLlama blocks are about 1.3 GB,
++    // and the stack holds them once (the stack CLI's own rule)
++    blocks: &'a [BlockPublic],
++    inputs: Vec<Vec<i16>>,
++    planes: Vec<Vec<i16>>,
++}
++
++impl<'a> TrainedChain<'a> {
++    fn build(sh: &Shape, blocks: &'a [BlockPublic], x0: Vec<i16>) -> TrainedChain<'a> {
++        let ids = Ids::new(sh).expect("the trained shape has a plane map");
++        let mut inputs = Vec::with_capacity(blocks.len());
++        let mut planes = Vec::with_capacity(blocks.len() + 1);
++        let mut x = x0;
++        for (k, b) in blocks.iter().enumerate() {
++            let w = witness::build_shaped(sh, b.attention(), b.feed_forward(), &x).unwrap_or_else(|e| panic!("block {k}: the honest trained witness: {e}"));
++            if k == 0 {
++                planes.push(padded(&w, ids.at(A_X)));
++            }
++            planes.push(padded(&w, ids.at(A_X2)));
++            inputs.push(x);
++            x = true_input(sh, &padded(&w, ids.at(A_X2)));
++        }
++        TrainedChain { sh: sh.clone(), blocks, inputs, planes }
++    }
++    /// the true `[T, d]` output words of block `k` (for the parity check)
++    fn output_words(&self, k: usize) -> Vec<i16> {
++        true_input(&self.sh, &self.planes[k + 1])
++    }
++}
++
++impl RunWitnessSource for TrainedChain<'_> {
++    fn witness(&mut self, k: usize) -> Result<Witness, String> {
++        witness::build_shaped(&self.sh, self.blocks[k].attention(), self.blocks[k].feed_forward(), &self.inputs[k])
++    }
++    fn boundary_plane(&mut self, k: usize) -> Result<Vec<i16>, String> {
++        Ok(self.planes[k + 1].clone())
++    }
++}
++
++/// The capture's public context word: the same length-prefixed recipe as the
++/// stack CLI's `stack_context`, under this lane's own label, so a capture run
++/// is never mistaken for a stack-CLI artifact. Public.
++fn trained_capture_context(variant: &str, layers: &[u32]) -> Digest {
++    let mut b = Vec::new();
++    for s in ["hashline/zk60-trained-stack-context/1", variant, "zk60-privacy-gate-capture"] {
++        b.extend_from_slice(&(s.len() as u64).to_le_bytes());
++        b.extend_from_slice(s.as_bytes());
++    }
++    for l in layers {
++        b.extend_from_slice(&u64::from(*l).to_le_bytes());
++    }
++    *blake3::hash(&b).as_bytes()
++}
++
++/// What the trained capture did, for the note and the log (public facts).
++struct TrainedCaptureFacts {
++    variant: String,
++    layers: Vec<u32>,
++    statement_identity: String,
++    silu: Vec<(i32, i32)>,
++    exp_e_s: Vec<i32>,
++    calibration: String,
++    parity_words: usize,
++}
++
++/// Prove an honest trained run over `layers` (dense: the export's hidden
++/// input on `seq`, with the native output checked bit for bit against the
++/// export's `x_out` at every layer; zero: the all-zero hidden plane on the
++/// SAME trained public blocks), then VERIFY it with the recorder attached.
++fn prove_and_capture_trained(export: &Path, seq: &str, layers: &[u32], dense: bool, opts: run_capture::CaptureOpts) -> (Vec<Vec<u8>>, Bundle, Digest, TrainedCaptureFacts) {
++    use super::trained_block::TrainedExport;
++    let ex = TrainedExport::load(export).unwrap_or_else(|e| panic!("the export {}: {e}", export.display()));
++    let c = ex.run_constants(layers).expect("the run-level constants");
++    let sh = ex.shape_for(&c).expect("the trained shape (through the door)");
++    assert!(sh.trained_calibration, "the export did not build a trained-calibration shape");
++    let mut blocks = Vec::with_capacity(layers.len());
++    let mut records = Vec::with_capacity(layers.len());
++    for &l in layers {
++        let t = ex.load_layer(&sh, &c, l, false).unwrap_or_else(|e| panic!("layer {l}: {e}"));
++        records.push(t.record);
++        blocks.push(t.blk);
++    }
++    let silu: Vec<(i32, i32)> = records.iter().map(|r| r.silu_member).collect();
++    let exp_e_s: Vec<i32> = records.iter().map(|r| r.exp_e_s).collect();
++    let st_model = ex.statement_of_records(&sh, &c, records).expect("the trained-model statement");
++    let x0 = if dense { ex.load_seq(&sh, seq, layers[0]).expect("the export's hidden input").0 } else { vec![0i16; sh.tokens * sh.width] };
++    let mut chain = TrainedChain::build(&sh, &blocks, x0);
++    // PARITY (dense only): the native chain IS the export's reference chain
++    let mut parity_words = 0usize;
++    if dense {
++        for (k, &l) in layers.iter().enumerate() {
++            let (_, want) = ex.load_seq(&sh, seq, l).expect("the export's reference output");
++            let got = chain.output_words(k);
++            let differ = got.iter().zip(want.iter()).filter(|(a, b)| a != b).count();
++            assert_eq!(differ, 0, "parity: layer {l}'s native output differs from the export's x_out in {differ} words (no value printed)");
++            parity_words += got.len();
++        }
++    }
++    let l = layers.len();
++    let ctx = trained_capture_context(&ex.variant, layers);
++    let spec = IoSpec::new_shaped(&sh, ctx, 0, 0).expect("the run's endpoint spec");
++    let (expected, owners) = prepare_endpoints(spec, &chain.planes[0], &chain.planes[l]).expect("the run's external endpoint owners");
++    let rs = ex.geometry.run_shape(&sh, l).expect("the trained run shape");
++    let st = RunStatement::new_bound(rs, ctx, expected, &blocks, &vec![(0, 0); l], &st_model).expect("the bound run statement");
++    let segs = prove_to_vec(&st, &blocks, &mut chain, owners);
++    drop(chain);
++    let binding = st.binding().expect("the run binding");
++    let guard = run_capture::Recorder::attach();
++    run_capture::begin_run_with(st.capture_header().expect("the capture header"), binding, opts);
++    run::verify_run(&st, &blocks, &segs).expect("the honest trained run verifies");
++    let bundle = run_capture::take().expect("a bundle for an accepted run");
++    drop(guard);
++    let id: String = st_model.identity().iter().map(|b| format!("{b:02x}")).collect();
++    let facts = TrainedCaptureFacts { variant: ex.variant.clone(), layers: layers.to_vec(), statement_identity: id, silu, exp_e_s, calibration: sh.norm_calibration().describe(), parity_words };
++    (segs, bundle, binding, facts)
++}
++
++/// **PRIVACY GATE LANE: CAPTURE ONE BOUND PRIVATE RUN OF TRAINED TinyLlama
++/// BLOCKS AT T = 32**, for the joint-view / run gate at the trained profile.
++///
++/// | variable | what | default |
++/// |---|---|---|
++/// | `HL_PB_CAPTURE_DIR` | where the bundle goes | **required**, absolute, refused inside the repository |
++/// | `HL_PB_INPUT` | `dense` (the export's real hidden input, parity-checked) or `zero` (the all-zero hidden plane on the same trained blocks) | `dense` |
++/// | `HL_PB_CAPTURE_BLOCKS` | `L` | 2 |
++/// | `HL_PB_FIRST_LAYER` | the first export layer of the run | 7 |
++/// | `HL_PB_EXPORT` | the calibration export (variant directory) | the repository's `pg_rot1_export_T32` |
++/// | `HL_PB_SEQ` | the held-out sequence id | `ho00` |
++/// | `HL_RUN_CAPTURE_PUBLIC_TABLES` | `1` carries the public tables' values | **required** |
++/// | `HL_TEST_SOURCE_COMMIT` | the label the bundle records | `uncommitted-test` |
++///
++/// Why layer 7 by default: across the 7 | 8 boundary BOTH per-block table
++/// keys of `pg_rot1` change (exp `e_s` 1 -> 2, SiLU member (-1,-10) ->
++/// (-4,-13)), so a two-block bundle there is the most demanding window for a
++/// gate that must carry every stage's own public tables.
++#[test]
++#[ignore = "captures a trained TinyLlama run; set HL_PB_CAPTURE_DIR (outside the repo) and HL_RUN_CAPTURE_PUBLIC_TABLES"]
++fn capture_a_tinyllama_trained_run() {
++    let dense = capture_dense_from_env();
++    let dir = capture_dir_from_env();
++    let l = capture_blocks_from_env(2);
++    let first: u32 = match std::env::var("HL_PB_FIRST_LAYER") {
++        Ok(v) => v.parse().unwrap_or_else(|_| panic!("HL_PB_FIRST_LAYER={v:?} is not a number")),
++        Err(_) => 7,
++    };
++    let export = match std::env::var("HL_PB_EXPORT") {
++        Ok(v) => PathBuf::from(v),
++        Err(_) => Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../../results/zk60_1b_calibration_20260929/export/pg_rot1_export_T32"),
++    };
++    let seq = std::env::var("HL_PB_SEQ").unwrap_or_else(|_| "ho00".into());
++    let public_tables = match std::env::var("HL_RUN_CAPTURE_PUBLIC_TABLES").as_deref() {
++        Ok("1") => true,
++        Ok("0") => false,
++        _ => panic!("HL_RUN_CAPTURE_PUBLIC_TABLES is not set to 1 or 0; this test will not pick for you"),
++    };
++    let layers: Vec<u32> = (first..first + l as u32).collect();
++    let opts = run_capture::CaptureOpts { arrays: true, public_tables };
++    let t0 = std::time::Instant::now();
++    let (segs, bundle, binding, facts) = prove_and_capture_trained(&export, &seq, &layers, dense, opts);
++    let capture_s = t0.elapsed().as_secs_f64();
++    let tag = format!("TinyLlama-trained L={l} layers {}..{} {}", layers[0], layers[l - 1] + 1, if dense { "dense" } else { "zero" });
++    eprintln!(
++        "CAPTURE {tag}: witness={}, public tables={}, parity words {}, prove+verify+record {capture_s:.2} s, high-water mark {:.2} GiB",
++        if dense { "the export's hidden input (generic, parity bit-exact)" } else { "all-zero (degenerate)" },
++        if public_tables { "values" } else { "length + digest only" },
++        facts.parity_words,
++        run::peak_rss_mib() / 1024.0
++    );
++    let (distinct, stored, deduped, inline, blob) = bundle.arrays.stats();
++    eprintln!("CAPTURE {tag}: run.json {} B, stage files {:?} B; arrays.bin {blob} B over {distinct} distinct arrays, {stored} references ({deduped} deduplicated), {inline} inline", bundle.run_json.len(), bundle.stages.iter().map(|s| s.len()).collect::<Vec<_>>());
++    eprintln!("CAPTURE {tag}: segments {} B (pinned by digest)", segs.iter().map(|s| s.len()).sum::<usize>());
++    let note = format!(
++        "Bundle: one honest {l}-block private run of TRAINED TinyLlama-1.1B-Chat blocks at T = 32,\nbound to its trained-model statement (run profile\n`hashline-zk-mr1/private-run-tinyllama-1.1b-t32-trained-statement/1`, block profile\nthe trained TinyLlama T32 profile), under the D19 separating hash tag.\n\nExport: variant `{}` (calibration `{}`), layers {:?}, per-block table keys\nexp e_s {:?} and SiLU members {:?}; trained-model statement identity\n{}.\n\nHidden input: {}.\n\nWritten by the PRIVACY GATE lane (2026-10-17) from `ops/zkp-mvp/trained-1b-gate/`\n(the frozen review copy `trained-1b-review-r2` plus test-only capture code).\nA capture is the INPUT to the run privacy gate and is NOT a privacy result.",
++        facts.variant,
++        facts.calibration,
++        facts.layers,
++        facts.exp_e_s,
++        facts.silu,
++        facts.statement_identity,
++        if dense {
++            format!("the export's own held-out sequence `{seq}` entering layer {} (the real integer hidden state), and the native output was checked bit for bit against the export's reference output at every layer ({} words). THE GENERIC WITNESS", layers[0], facts.parity_words)
++        } else {
++            "the ALL-ZERO hidden plane on the same trained public blocks - the fixed input the privacy case is stated at, and the named DEGENERATE partner of the dense run".to_string()
++        }
++    );
++    let command = "HL_PB_CAPTURE_DIR=<dir> HL_PB_INPUT=<dense|zero> HL_PB_CAPTURE_BLOCKS=<L> HL_PB_FIRST_LAYER=<k> HL_PB_SEQ=<id> HL_RUN_CAPTURE_PUBLIC_TABLES=1 HL_TEST_SOURCE_COMMIT=<label> cargo test --release --lib private_block::run_capture_tests::capture_a_tinyllama_trained_run -- --ignored --nocapture";
++    run_capture::write_bundle(&dir, &bundle, &segs, &note, command).unwrap_or_else(|e| panic!("{tag}: {e}"));
++    let total = check_bundle_on_disk(&dir, l, binding, &segs, true);
++    assert!(total < 2_000_000_000, "the trained bundle is {total} B, past the 2 GB runaway ceiling");
++    eprintln!("CAPTURE {tag} RESULT: {total} B ({:.1} MB) at {}, self-consistent, every key on the allow-list — a CAPTURE, not a privacy result", total as f64 / 1e6, dir.display());
++}
++
++// -------------------------------------------------- PRIVACY GATE LANE, P-18 (2026-10-19): a capture of the production CLI's run directory
++//
++// ADDITIVE AND TEST-ONLY (review P-18 of the trained T32 privacy draft). The
++// RECEIPT BYTES are the production CLI's (`zk60_trained_block stack-prove`);
++// its fresh-process `stack-verify` has already verified the run directory and
++// published `<run>/statement/`. This test re-verifies THE SAME DIRECTORY with
++// the CLI's own verification function, `run::verify_run_from_dir_hashed_with`,
++// the gate's recorder attached, after rebuilding the run statement exactly as
++// the CLI's `stack_verify_inner` does (R7 `trained_block.rs:2707-2768`). The
++// pieces of that function that are private to `trained_block` (a sibling
++// module) are re-stated here from its `pub(crate)` constructors, each next to
++// the CLI line it mirrors; R7's bodies of `stack_records`, `stack_context`,
++// `BlockCache` / `CacheBlocks`, `parse_layers`, `refuse_prover_private_entries`
++// and `label_of` are byte-identical to R6's. Nothing here changes a prover or
++// verifier relation, and nothing here is a privacy result.
++
++/// **A mirror of the stack CLI's private `CacheBlocks` / `BlockCache`** (R7
++/// `trained_block.rs:1763-1858`): ONE block resident, reloaded from the
++/// export with `reload_block` (no RoPE from the export: the CLI default) and
++/// refused unless its digest is the statement's; the shape compared on the
++/// block GEOMETRY only (`fit_the_shape`); CS-6 on the digest list
++/// (`are_the_statements`). Public data only.
++struct CliBlocks<'a> {
++    ex: &'a super::trained_block::TrainedExport,
++    sh: &'a Shape,
++    c: &'a super::trained_block::Constants,
++    layers: Vec<u32>,
++    digests: Vec<Digest>,
++    cur: Option<(usize, std::sync::Arc<BlockPublic>)>,
++    loads: usize,
++}
++
++impl run::BlockSource for CliBlocks<'_> {
++    // = `BlockCache::get` + `CacheBlocks::block`
++    fn block(&mut self, k: usize) -> Result<run::BlockRef<'_>, String> {
++        if let Some((j, a)) = &self.cur {
++            if *j == k {
++                return Ok(run::BlockRef::Shared(a.clone()));
++            }
++        }
++        if k >= self.layers.len() {
++            return Err(format!("trained stack: no block {k} in a {}-block run", self.layers.len()));
++        }
++        // drop the previous block BEFORE the next one is read
++        self.cur = None;
++        let blk = self.ex.reload_block(self.sh, self.c, self.layers[k], false)?;
++        if blk.digest() != self.digests[k] {
++            return Err(format!("trained stack: layer {}'s reloaded public statement is not the one the run statement binds", self.layers[k]));
++        }
++        let a = std::sync::Arc::new(blk);
++        self.cur = Some((k, a.clone()));
++        self.loads += 1;
++        Ok(run::BlockRef::Shared(a))
++    }
++    fn count(&self) -> usize {
++        self.layers.len()
++    }
++    // = `CacheBlocks::fit_the_shape` (the block GEOMETRY, not the whole shape)
++    fn fit_the_shape(&mut self, sh: &Shape) -> Result<(), String> {
++        let geometry = |s: &Shape| (s.profile, s.tokens, s.width, s.hidden, s.q_heads, s.head_dim, s.kv_heads, s.t_pad, s.d_pad, s.h_pad, s.f_pad);
++        if geometry(self.sh) != geometry(sh) {
++            return Err(format!("private run: the block cache was built for the block geometry of {:?}, the run's shape is {:?}", self.sh.name, sh.name));
++        }
++        Ok(())
++    }
++    // = `CacheBlocks::are_the_statements` (ruling CS-6)
++    fn are_the_statements(&mut self, st: &RunStatement) -> Result<(), String> {
++        let want = st.block_digests();
++        if self.digests.len() != want.len() {
++            return Err(format!("private run: ruling CS-6 — the run statement holds {} block digests and {} blocks were handed", want.len(), self.digests.len()));
++        }
++        for (k, (got, w)) in self.digests.iter().zip(want).enumerate() {
++            run::digest_is_the_statements(k, got, w)?;
++        }
++        Ok(())
++    }
++}
++
++/// = the CLI's private `stack_context` (R7 `trained_block.rs:1944`), C-R1's
++/// 40-byte refusal included. Public.
++fn cli_stack_context(variant: &str, layers: &[u32], label: &str) -> Digest {
++    let mut b = Vec::new();
++    for s in ["hashline/zk60-trained-stack-context/1", variant, label] {
++        b.extend_from_slice(&(s.len() as u64).to_le_bytes());
++        b.extend_from_slice(s.as_bytes());
++    }
++    for l in layers {
++        b.extend_from_slice(&u64::from(*l).to_le_bytes());
++    }
++    assert_ne!(b.len(), 40, "context: condition C-R1 — a 40-byte input to the unkeyed hash is refused");
++    *blake3::hash(&b).as_bytes()
++}
++
++/// a small regular file read whole, refused above `max` or when it is not a
++/// regular file (a link is not followed). Public files of the run directory.
++fn read_small_regular(p: &Path, max: u64) -> Vec<u8> {
++    let m = std::fs::symlink_metadata(p).unwrap_or_else(|e| panic!("{}: {e}", p.display()));
++    assert!(m.file_type().is_file(), "{} is not a regular file", p.display());
++    assert!(m.len() <= max, "{} is {} B, above {max} B", p.display(), m.len());
++    std::fs::read(p).unwrap_or_else(|e| panic!("{}: {e}", p.display()))
++}
++
++/// the `statement_written_by` text of the CLI's FRESH-PROCESS verifier
++/// (R7 `trained_block.rs:2163`, `StatementWriter::FreshVerify`, private)
++const CLI_FRESH_VERIFY_WRITER: &str = "stack-verify, after its fresh-process verification of the run directory, from its own data and the hashes of the bytes it verified";
++
++/// **PRIVACY GATE LANE, P-18: CAPTURE THE PRODUCTION CLI'S RUN DIRECTORY.**
++///
++/// | variable | what |
++/// |---|---|
++/// | `HL_PB_EXPORT` | the VERIFIER's copy of the export (no `seq_*`; refused otherwise, as the CLI's P-5) |
++/// | `HL_PB_ARTIFACT` | the CLI's run directory, after `stack-verify` published `statement/` |
++/// | `HL_PB_LAYERS` | `A..B`, B exclusive, as the CLI's `--layers` |
++/// | `HL_PB_LABEL` | the context label (C-R4 allow-list: `zk60-trained-stack`) |
++/// | `HL_PB_CAPTURE_DIR` | where the bundle goes: absolute, outside the repository |
++/// | `HL_PB_SEQ` | for the note only: the held-out sequence the prover was given (the verifier never reads it) |
++/// | `HL_PB_CLI_SHA256` | for the note only: the sha256 of the CLI binary that proved and verified |
++/// | `HL_RUN_CAPTURE_PUBLIC_TABLES` | `1` carries the public tables' values (**required**) |
++/// | `HL_TEST_SOURCE_COMMIT` | the label the bundle records |
++#[test]
++#[ignore = "captures a production-CLI run directory; set HL_PB_EXPORT, HL_PB_ARTIFACT, HL_PB_LAYERS, HL_PB_LABEL, HL_PB_CAPTURE_DIR, HL_PB_SEQ, HL_PB_CLI_SHA256, HL_RUN_CAPTURE_PUBLIC_TABLES"]
++fn capture_a_cli_run_directory() {
++    use super::trained_block::{hex, parse_json, TrainedExport, J, STACK_LABELS};
++    let var = |k: &str| std::env::var(k).unwrap_or_else(|_| panic!("{k} is not set; this test will not choose it for you"));
++    let dir = capture_dir_from_env();
++    let export = PathBuf::from(var("HL_PB_EXPORT"));
++    let art = PathBuf::from(var("HL_PB_ARTIFACT"));
++    let spec = var("HL_PB_LAYERS");
++    let label = var("HL_PB_LABEL");
++    let seq_note = var("HL_PB_SEQ");
++    let cli_sha = var("HL_PB_CLI_SHA256");
++    let public_tables = match std::env::var("HL_RUN_CAPTURE_PUBLIC_TABLES").as_deref() {
++        Ok("1") => true,
++        Ok("0") => false,
++        _ => panic!("HL_RUN_CAPTURE_PUBLIC_TABLES is not set to 1 or 0; this test will not pick for you"),
++    };
++    let t0 = std::time::Instant::now();
++    // = `label_of(f, &STACK_LABELS)` (C-R4)
++    assert!(STACK_LABELS.contains(&label.as_str()), "--label: ruling C-R4 — this build admits {STACK_LABELS:?}, not {label:?}");
++    // = `refuse_prover_private_entries(&export)` (P-5)
++    for e in std::fs::read_dir(&export).unwrap_or_else(|e| panic!("{}: {e}", export.display())) {
++        let name = e.unwrap_or_else(|e| panic!("{}: {e}", export.display())).file_name().to_string_lossy().to_string();
++        assert!(!name.starts_with("seq_"), "privacy review P-5: the export directory {} holds the prover-private entry {name:?}; a verifier's copy holds the public files only", export.display());
++    }
++    // = `TrainedExport::load` + `parse_layers`
++    let ex = TrainedExport::load(&export).unwrap_or_else(|e| panic!("the export {}: {e}", export.display()));
++    let (a, b) = spec.split_once("..").expect("HL_PB_LAYERS is A..B (B exclusive)");
++    let (a, b): (u32, u32) = (a.parse().expect("HL_PB_LAYERS: A is not an integer"), b.parse().expect("HL_PB_LAYERS: B is not an integer"));
++    assert!(a < b, "HL_PB_LAYERS: an empty range");
++    let layers: Vec<u32> = (a..b).collect();
++    for m in &layers {
++        assert!(ex.layers.contains(m), "HL_PB_LAYERS: layer {m} is not in the export");
++    }
++    let l = layers.len();
++    // = `stack_records(&ex, &layers, false)`: the same loads and checks, in
++    //   layer order (the CLI loads two at a time in parallel; same results)
++    let c = ex.run_constants(&layers).expect("the run-level constants");
++    let sh = ex.shape_for(&c).expect("the trained shape (through the door)");
++    assert!(sh.trained_calibration, "the export did not build a trained-calibration shape");
++    let (mut digests, mut records, mut silu, mut exp_e_s) = (Vec::with_capacity(l), Vec::with_capacity(l), Vec::new(), Vec::new());
++    for &m in &layers {
++        let t = ex.load_layer(&sh, &c, m, false).unwrap_or_else(|e| panic!("layer {m}: {e}"));
++        digests.push(t.record.block_digest);
++        silu.push(t.record.silu_member);
++        exp_e_s.push(t.record.exp_e_s);
++        records.push(t.record);
++        // the block itself is dropped here: one resident at a time
++    }
++    let st = ex.statement_of_records(&sh, &c, records).expect("the trained-model statement");
++    let identity = hex(&st.identity());
++    // = `stack_context(&ex.variant, &layers, label)`
++    let ctx = cli_stack_context(&ex.variant, &layers, &label);
++    // = R7's `clear_stale_writing_dirs(&art)` (N-r6-b), as a refusal that
++    //   mutates nothing: this test never removes anything from the run
++    for e in std::fs::read_dir(&art).unwrap_or_else(|e| panic!("{}: {e}", art.display())) {
++        let name = e.unwrap_or_else(|e| panic!("{}: {e}", art.display())).file_name().to_string_lossy().to_string();
++        assert!(!name.starts_with(&format!("{}.writing-", super::run_sink::STATEMENT_DIR)), "{}: a half-written statement directory {name:?} is in the run; this test does not clear it", art.display());
++    }
++    // the statement directory: the one the CLI's FRESH-PROCESS verifier wrote
++    // (the prover's unverified directory must be gone: `stack-verify` promoted it)
++    let sdir = art.join(super::run_sink::STATEMENT_DIR);
++    let unverified = art.with_file_name(format!("{}.unverified-statement", art.file_name().expect("the run directory has a name").to_string_lossy()));
++    assert!(std::fs::symlink_metadata(&unverified).is_err(), "{} still exists: `stack-verify` has not published this run", unverified.display());
++    let sm = std::fs::symlink_metadata(&sdir).unwrap_or_else(|e| panic!("{}: {e} (run the CLI's stack-verify first)", sdir.display()));
++    assert!(sm.is_dir() && !sm.file_type().is_symlink(), "{} is not a real directory", sdir.display());
++    let mut names: Vec<String> = std::fs::read_dir(&sdir).expect("the statement directory").map(|e| e.expect("an entry").file_name().to_string_lossy().to_string()).collect();
++    names.sort();
++    assert_eq!(names, ["expected.bin", "segments.json", "statement.json"], "{} does not hold exactly the verifier's three files", sdir.display());
++    let stmt = parse_json(&read_small_regular(&sdir.join("statement.json"), 4 << 20)).expect("statement.json parses (the CLI's strict parser)");
++    let field = |k: &str| -> String { stmt.get(k).and_then(J::str).unwrap_or_else(|e| panic!("statement.json: {k}: {e}")).to_string() };
++    assert_eq!(field("schema"), "zk60-trained-stack-run/2", "statement.json schema");
++    assert_eq!(field("statement_written_by"), CLI_FRESH_VERIFY_WRITER, "statement.json was not written by the CLI's fresh-process verifier");
++    assert_eq!(field("trained_statement_identity"), identity, "the CLI's published statement identity is not the one rebuilt here from the verifier's export");
++    assert_eq!(field("context_label"), label, "statement.json context label");
++    assert_eq!(field("context"), hex(&ctx), "statement.json context");
++    // = the CLI's policy read: canonical, carrying this run's context
++    let expected_bytes = read_small_regular(&sdir.join("expected.bin"), 4096);
++    assert_eq!(field("expected_io"), hex(&expected_bytes), "statement.json expected_io is not expected.bin");
++    let expected = super::ExpectedIo::from_bytes_at(&sh, &expected_bytes).expect("expected.bin decodes at the run's shape");
++    assert_eq!(expected.to_bytes(), expected_bytes, "expected.bin is not the canonical encoding of its policy");
++    assert_eq!(&expected_bytes[8..40], &ctx[..], "the artifact's endpoint policy carries another context");
++    // = `RunStatement::new_bound_from_digests(...)`, the CLI's own call
++    let rs = ex.geometry.run_shape(&sh, l).expect("the trained run shape");
++    let rst = RunStatement::new_bound_from_digests(rs, ctx, expected.clone(), digests.clone(), &vec![(0, 0); l], &st).expect("the bound run statement");
++    let header = rst.capture_header().expect("the capture header");
++    assert_eq!(header.calibration, st.identity(), "the run header's calibration word is not the trained statement identity");
++    let binding = rst.binding().expect("the run binding");
++    let load_s = t0.elapsed().as_secs_f64();
++    // THE CLI'S VERIFICATION FUNCTION on THE CLI'S RUN DIRECTORY, recorder attached
++    let opts = run_capture::CaptureOpts { arrays: true, public_tables };
++    let t1 = std::time::Instant::now();
++    let guard = run_capture::Recorder::attach();
++    run_capture::begin_run_with(header, binding, opts);
++    let mut blocks = CliBlocks { ex: &ex, sh: &sh, c: &c, layers: layers.clone(), digests: digests.clone(), cur: None, loads: 0 };
++    let seen = run::verify_run_from_dir_hashed_with(&rst, &mut blocks, &art).unwrap_or_else(|e| panic!("the CLI's run directory did not verify: {e}"));
++    let bundle = run_capture::take().expect("a bundle for an accepted run");
++    drop(guard);
++    let verify_s = t1.elapsed().as_secs_f64();
++    let loads = blocks.loads;
++    drop(blocks);
++    // the bytes verified here are the bytes the CLI's fresh-process verifier
++    // verified: `segments.json` (its hashes of EXACTLY those bytes), entry for entry
++    let sj = parse_json(&read_small_regular(&sdir.join("segments.json"), 4 << 20)).expect("segments.json parses");
++    let entries = sj.arr().expect("segments.json is a list");
++    assert_eq!(entries.len(), l, "segments.json does not list {l} segments");
++    for (k, (e, (n, h))) in entries.iter().zip(&seen).enumerate() {
++        assert_eq!(e.get("file").and_then(J::str).expect("file"), super::run_sink::segment_file_name(k), "segments.json entry {k}: file");
++        assert_eq!(e.get("bytes").and_then(J::i64).expect("bytes"), *n as i64, "segments.json entry {k}: the CLI's verifier verified another length");
++        assert_eq!(e.get("sha256").and_then(J::str).expect("sha256"), h.as_str(), "segments.json entry {k}: the CLI's verifier verified other bytes");
++    }
++    // re-read through the run verifier's bounded reader; they must be the verified bytes
++    let paths = super::run_sink::segment_paths(&art, l).expect("the run directory holds exactly the run's segments");
++    let segs: Vec<Vec<u8>> = paths.iter().enumerate().map(|(k, p)| run::read_segment_bounded(&rst, k, p).unwrap_or_else(|e| panic!("segment {k}: {e}"))).collect();
++    for (k, (s, (n, h))) in segs.iter().zip(&seen).enumerate() {
++        assert_eq!(s.len() as u64, *n, "segment {k} changed length after its verification");
++        assert_eq!(&super::run_sink::digest_hex(s), h, "segment {k} changed after its verification");
++    }
++    let tag = format!("TinyLlama-trained CLI run L={l} layers {}..{}", layers[0], layers[l - 1] + 1);
++    eprintln!("CAPTURE {tag}: trained statement identity {identity} (public; = the CLI's published statement.json)");
++    eprintln!(
++        "CAPTURE {tag}: rebuilt the statement in {load_s:.2} s; verify_run_from_dir_hashed_with + record {verify_s:.2} s over {loads} block loads; segments {} B, = statement/segments.json entry for entry; high-water mark {:.2} GiB",
++        seen.iter().map(|(n, _)| *n).sum::<u64>(),
++        run::peak_rss_mib() / 1024.0
++    );
++    let (distinct, stored, deduped, inline, blob) = bundle.arrays.stats();
++    eprintln!("CAPTURE {tag}: run.json {} B, stage files {:?} B; arrays.bin {blob} B over {distinct} distinct arrays, {stored} references ({deduped} deduplicated), {inline} inline", bundle.run_json.len(), bundle.stages.iter().map(|s| s.len()).collect::<Vec<_>>());
++    let note = format!(
++        "Bundle: one honest {l}-block private run of TRAINED TinyLlama-1.1B-Chat blocks at T = 32,\nbound to its trained-model statement, under the D19 separating hash tag, whose\nRECEIPT BYTES WERE WRITTEN BY THE PRODUCTION CLI (`zk60_trained_block stack-prove`,\nthe native R7 release binary, sha256 {cli_sha}), not by the test harness\n(privacy review P-18).\n\nVerification: the CLI's own fresh-process `stack-verify` (same binary) verified the run\ndirectory and published its `statement/` (writer: the fresh-process verifier); this\ncapture then verified THE SAME DIRECTORY with the CLI's verification function\n`run::verify_run_from_dir_hashed_with`, the statement rebuilt as the CLI's\n`stack_verify_inner` does (block source: a test-local mirror of the CLI's private\n`CacheBlocks`), with the gate's recorder attached. The bytes it verified equal the\nCLI verifier's `statement/segments.json` entry for entry.\n\nExport: variant `{}` (calibration `{}`), layers {:?}, context label `{label}`,\nper-block table keys exp e_s {:?} and SiLU members {:?}; trained-model statement\nidentity {identity}.\n\nHidden input: the export's held-out sequence `{seq_note}` entering layer {}, handed to the\nprover through `--seq-dir` (P-5); the CLI's sealing pass checked the native output\nbit for bit against the export's reference output at every layer before the run\nheader (ruling H-1). THE GENERIC WITNESS. The verifier never read it.\n\nWritten by the PRIVACY GATE lane (P-18 sub-lane, 2026-10-19) from\n`ops/zkp-mvp/trained-1b-gate-r7-cli/` (the frozen native R7 tree plus test-only capture\ncode). A capture is the INPUT to the run privacy gate and is NOT a privacy result.",
++        ex.variant,
++        sh.norm_calibration().describe(),
++        layers,
++        exp_e_s,
++        silu,
++        layers[0]
++    );
++    let command = "zk60_trained_block stack-prove --export <export> --seq-dir <prover-private seq dir> --out <run> --layers A..B --label zk60-trained-stack; zk60_trained_block stack-verify --export <verifier copy> --artifact <run> --expect-statement <identity> --layers A..B --label zk60-trained-stack; HL_PB_EXPORT=<verifier copy> HL_PB_ARTIFACT=<run> HL_PB_LAYERS=A..B HL_PB_LABEL=zk60-trained-stack HL_PB_CAPTURE_DIR=<dir> HL_PB_SEQ=<id> HL_PB_CLI_SHA256=<sha> HL_RUN_CAPTURE_PUBLIC_TABLES=1 HL_TEST_SOURCE_COMMIT=<label> cargo test --release --lib private_block::run_capture_tests::capture_a_cli_run_directory -- --ignored --nocapture";
++    run_capture::write_bundle(&dir, &bundle, &segs, &note, command).unwrap_or_else(|e| panic!("{tag}: {e}"));
++    let total = check_bundle_on_disk(&dir, l, binding, &segs, true);
++    assert!(total < 2_000_000_000, "the CLI-run bundle is {total} B, past the 2 GB runaway ceiling");
++    eprintln!("CAPTURE {tag} RESULT: {total} B ({:.1} MB) at {}, self-consistent, every key on the allow-list — a CAPTURE of the production CLI's receipt, not a privacy result", total as f64 / 1e6, dir.display());
++}

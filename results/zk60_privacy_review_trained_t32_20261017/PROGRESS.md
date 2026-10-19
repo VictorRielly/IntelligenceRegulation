@@ -122,3 +122,42 @@ write set. Objects: R5b frozen tree
   by reading, the statement must still name R6 (condition 7); closed list of
   5 items. Nothing launched; nothing pending. Round 2 closed. NOT a privacy
   acceptance.
+
+## ROUND 3 (final pass; coordinator brief received 2026-10-19 ~12:00 UTC)
+
+Brief: check round-2 closing items 1-5 on native R7 (R7_VERDICT), re-attack
+what the R7 move and tools v7/v8 changed (G-4's tightened criterion, PC-9b,
+the CLI-path capture), final verdict in plain words with the exact residual
+figures. Objects: draft sha256 080cddbc… (mtime 2026-10-19 11:59 UTC),
+`EV/r7/r7-summary.json`, `EV/r7cli/`, `EV/q6/`, `EV/g7/`, tools v8 manifest
+sha256 e047fb59… (checked), register D28, D29, D31. Output `REVIEW3.md`.
+
+- 12:00 — round 3 opened; confirmed the draft and v8 manifest hashes the
+  brief names.
+- 12:03 — read: R7_VERDICT (R7 = R6 + `trained_block.rs` statement-writing
+  changes only; Q-2 allow-list holds; N-r6-b closed; N-r7-a..d); the whole
+  revised draft (1,019 lines, §3b maps P and Q); register D28, D29, D31;
+  Victor's sheet `ZK60_RULINGS_FOR_VICTOR_20261017.md` (D9 figures, 09:31
+  UTC; 2^-70.4 ≈ 6.6e-22 per run, ≈ 6.6e-16 per million, checked). Checked:
+  live `scripts/` = v8 (54 of 54); `r7-summary.json` (12 records PASS, 0
+  unexplained, pins ok, terminal 23/46/506, M9-3 both arms D 48/46 Kv 24/22
+  Q 28/26 S 32/30 T 15/13); v8 M9-3 code (exact regex, exact surplus 1/2,
+  exact stopped-slot sets); PC-9b construction and its R7 L1 result (NOT-OK
+  as designed, 3 stages held, exact); CLI path logs (`prover_start`
+  constant backend, sealing before header, fresh `stack-verify`
+  `statement-published`, capture = verified bytes = `segments.json`), E3
+  identity equal for CLI and harness bundles; stage-47 L = 2 logs on R7 and
+  R5b (7 roots, 77,919,360 B, 5 of 5 non-vacuity); R6 `private_block.rs`
+  hunk = a test-module line only; R7 queues ran under the v8 manifest.
+  G-7's R7 surjection re-run is RUNNING (started 11:58:49 UTC): stage 1 clean
+  on all four bundles; stage 2 A 36/36 disclosed 0 on R7 dense-l1 so far.
+- 12:05 — `REVIEW3.md` written. Verdict: YES, conditional on G-7's R7
+  surjection clause landing as expected (A 36/36 disclosed 0; H 8/9 with the
+  sum claim disclosing exactly 2; endpoints / boundary 0), with two wording
+  errata (E-1: the draft still lists D28 / D29 / the D9 sheet as owed; E-2:
+  the census reading is R5b's, its R7 re-check holds trivially). Round-2
+  items 1-5 closed; G-4 two-arm criterion, PC-9b, CLI-path capture and R7's
+  writer changes attacked, no new channel. Residual figures unchanged (§4 of
+  REVIEW3). The surjection job (gate lane's, not mine) was still running at
+  12:04 UTC (no `.done`). Nothing of mine launched or pending. Review lane
+  closed. NOT a privacy acceptance.

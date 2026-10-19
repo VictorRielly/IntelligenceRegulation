@@ -1,0 +1,38 @@
+{
+  "status": "PASS",
+  "checks": 1465,
+  "controls": {
+    "missing_store": true,
+    "stale_slot": true,
+    "caller_only_stack_misleads": true,
+    "ignoring_frontier_traffic_misleads": true
+  },
+  "groups": 19,
+  "scratch_bytes": 208,
+  "crossing_loads": 127,
+  "crossing_stores": 131,
+  "final_scratch_loads": 5,
+  "baseline_logical_requested_bytes": 4320,
+  "candidate_added_logical_scratch_bytes": 4208,
+  "candidate_logical_requested_bytes": 8528,
+  "physical_DRAM_bytes": null,
+  "original_fold_reads": 118,
+  "original_fold_writes": 59,
+  "original_fold_field_calls": {
+    "add": 59,
+    "sub": 59,
+    "mul": 59
+  },
+  "baseline_code_bytes": 33543,
+  "candidate_code_bytes": 145739,
+  "wall_seconds": 0.12299566799629247,
+  "rss_kib": 21136,
+  "threads": 1,
+  "cpu_affinity": [
+    0
+  ],
+  "limits": "59sCPU/wall,512MiBAS,one nice19 CPU",
+  "caveat": "Static x86 allocation and address extent, including leaf red zone and return addresses below exported entry RSP; excludes caller return address, harness/enclosing stack and dynamic sampling. Logical scratch traffic is not DRAM. No GPU or proving performance measured."
+}
+baseline {'local_sub_bytes': 360, 'push_bytes': 48, 'red_zone_bytes': 0, 'own_span_below_entry_rsp_bytes': 408, 'call_count': 884, 'instruction_lines': 7012, 'rsp_references': 2455, 'call_chain_span_below_entry_rsp_bytes': 424, 'symbol_bytes': 32967}
+driven {'local_sub_bytes': 208, 'push_bytes': 40, 'red_zone_bytes': 0, 'own_span_below_entry_rsp_bytes': 248, 'call_count': 19, 'instruction_lines': 120, 'rsp_references': 5, 'call_chain_span_below_entry_rsp_bytes': 504, 'symbol_bytes': 405}

@@ -1,0 +1,376 @@
+{
+  "run_id": "20261019T111854Z-5ff11116",
+  "created_at_utc": "2026-10-19T11:31:43.040054+00:00",
+  "artifacts": [
+    {
+      "path": "FINDINGS.md",
+      "bytes": 577436,
+      "sha256": "d6391ead092420542ffb2ff65ed2c20b9bbc391f9c97b473229d042e5b7ddb51"
+    },
+    {
+      "path": "PROGRESS.md",
+      "bytes": 2368,
+      "sha256": "a74206c736f037b4b660997ea2cf82eacb3238b4f69d4f84aac828e83aaf77eb"
+    },
+    {
+      "path": "STATE.md",
+      "bytes": 6195,
+      "sha256": "15e97e5b746e058a57356ff480923d2b2c3421012ef25f57ea63e90719597d54"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/README.md",
+      "bytes": 8628,
+      "sha256": "ba4d26bcf06018ecb9e919d303d0fde9904ae659740239136672b6660a61f728"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/__pycache__/baseline-audit.cpython-310.pyc",
+      "bytes": 7409,
+      "sha256": "05e925a95097d1ce22ba21616a021f6f0ffef20abdc23e0a5fb6b4f41d775014"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/__pycache__/prior-run.cpython-310.pyc",
+      "bytes": 18865,
+      "sha256": "81f0c227362175017722d952560f8e5e9ec72e83ec82664db1563189ccf01d0a"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/audit-execution.json",
+      "bytes": 148,
+      "sha256": "7b2d93107bff524a14f47b1286fcb6a2212be6c99af38134efc41d5775809721"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/audit-result.json",
+      "bytes": 14633,
+      "sha256": "857a0f04d373c529086d1df0f08e84248f076a234a11b8e515b00fede4c28224"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/audit.log",
+      "bytes": 1722,
+      "sha256": "d25caba0ee75144755ddd9de69fccb1b11823cf4bad83eb219bbf5c4eeda4fe9"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/audit.py",
+      "bytes": 9467,
+      "sha256": "1bbc0485a3376d9189aa9ffc00e0b391ac83064d6ca0ed88957a1db009bb33c0"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/baseline-audit-result.json",
+      "bytes": 11499,
+      "sha256": "1106301d842e5b88ddef2ffb3aec65319dcf001f8044dca3ff04e9ba958e5263"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/baseline-audit.py",
+      "bytes": 7002,
+      "sha256": "d70664571f571ec0c0b1d5711b6020dc5845c82a11d88706598e4270c31fb105"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/baseline-result.json",
+      "bytes": 9707,
+      "sha256": "98dea7438e028c61deed54b81434d6bd1d95f4deca8a7769a07bbd306445ac40"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/baseline-run.py",
+      "bytes": 19014,
+      "sha256": "db12e27ec9643101c94c44603d9ec2d9a8a05c8be62e27ece3af243c37422214"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/compile.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/cost-result.json",
+      "bytes": 5572,
+      "sha256": "c1baa71c3c6790baec30aa762057ea25715c292382cde59022e3cb994336c197"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/cost_accounting.py",
+      "bytes": 4790,
+      "sha256": "78ed9ff42dd16b4f9b509f8eb05dd8e154afe272ce54784e073ff789e752ab4a"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/counted-reference.so",
+      "bytes": 4582352,
+      "sha256": "4b19feefc87a255abb0c934f1498ec0ba39f9bd12f0b28ad49dd954eea15e6b3"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/counted-shim.rs",
+      "bytes": 18333,
+      "sha256": "c37a376f040084c8dbbafd174db7345f51ef52e739e0556e6ccb141ce0d08e1e"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/execution.json",
+      "bytes": 147,
+      "sha256": "cdb43943de776685a65663c937c4f14758f93343c8f5732f166b767044c92f43"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/final-progress.md",
+      "bytes": 2368,
+      "sha256": "a74206c736f037b4b660997ea2cf82eacb3238b4f69d4f84aac828e83aaf77eb"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/final-state.md",
+      "bytes": 6195,
+      "sha256": "15e97e5b746e058a57356ff480923d2b2c3421012ef25f57ea63e90719597d54"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/hardware.json",
+      "bytes": 457,
+      "sha256": "f021b1ea6184c700357378c57038aa22102352cd203c913c84fe3213777dc4e0"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/latest-owner-clocks.json",
+      "bytes": 1622,
+      "sha256": "6c648857169e7bc959b345057755b592373861bc78ee0c6bb11d3b82f133c916"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/latest-owner-evidence-pins.json",
+      "bytes": 1032,
+      "sha256": "b7272075d15506a488cb7c89f1001f6815d321823f570ab4a69ab53b80600af9"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/native/hashline__src__private_block__argument.rs",
+      "bytes": 109208,
+      "sha256": "9e70bbe558d7771b16f2a6f7f526ad3e548895d32ed0f6b897b85d0dd48b29b5"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/native/hashline__src__private_block__layout.rs",
+      "bytes": 64489,
+      "sha256": "fcf9dda4e507d2a347f786ddc537feff3ac57779abae88cea91ee48d4b34c855"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/native/hashline__src__private_block__pad.rs",
+      "bytes": 56654,
+      "sha256": "4f0c11c50503dd8cb4fb38d2b5be5e4f08ec310ee916b83a357f0283ede9eb42"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/native/hashline__src__private_block__shape.rs",
+      "bytes": 102462,
+      "sha256": "e6c7290b5c2d897ccaaa6284c813bbcfea563aaef7594c309b955a5588c1e073"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/native/zkp-core__src__field.rs",
+      "bytes": 11065,
+      "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/native/zkp-core__src__sumcheck__rounds.rs",
+      "bytes": 7092,
+      "sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/native-full-closure.rs.inc",
+      "bytes": 3853,
+      "sha256": "ff211a135747ce09e1faff290539b892b45d8102e423d9065fc9e0c282d9bca6"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/peak-decomposition.json",
+      "bytes": 8896,
+      "sha256": "7d736535013587747e0d72269ae125e6422f5d43af194d8575b07b579e539657"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/prior-run.py",
+      "bytes": 16280,
+      "sha256": "719c391dabc20916a06df0535028431726888b28cbb4f1ae44aaa914fe10b96a"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/prior-source-inventory.json",
+      "bytes": 202988,
+      "sha256": "10d0a295289356dc25f938904da3bd0bac6b3d58fd2d6d56ebf373788d2cbde7"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/reference/__pycache__/prepare.cpython-310.pyc",
+      "bytes": 6522,
+      "sha256": "db3e9cf6f80a2a8746b0a05c94a099fcbcf706f7d2190fba494f10c0f788f5d5"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/reference/__pycache__/reference_math.cpython-310.pyc",
+      "bytes": 3945,
+      "sha256": "d59f68c72f5d80ce87f54bc92638653b44ad14b93a672521b3fd861c26d3b070"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/reference/__pycache__/run.cpython-310.pyc",
+      "bytes": 18051,
+      "sha256": "561c4c561604a6bbabae1f4fa08ddb0da3c8ea96ba0d74fe7999c1e8632ee201"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/reference/constants.json",
+      "bytes": 1076,
+      "sha256": "9727e83700e02d1f9417f3104fdd330150d080e019f9c909917d4f1cd7459b7e"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/reference/native/hashline__src__private_block__argument.rs",
+      "bytes": 109208,
+      "sha256": "9e70bbe558d7771b16f2a6f7f526ad3e548895d32ed0f6b897b85d0dd48b29b5"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/reference/native/hashline__src__private_block__layout.rs",
+      "bytes": 64489,
+      "sha256": "fcf9dda4e507d2a347f786ddc537feff3ac57779abae88cea91ee48d4b34c855"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/reference/native/hashline__src__private_block__pad.rs",
+      "bytes": 56654,
+      "sha256": "4f0c11c50503dd8cb4fb38d2b5be5e4f08ec310ee916b83a357f0283ede9eb42"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/reference/native/hashline__src__private_block__shape.rs",
+      "bytes": 102462,
+      "sha256": "e6c7290b5c2d897ccaaa6284c813bbcfea563aaef7594c309b955a5588c1e073"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/reference/native/zkp-core__src__sumcheck__rounds.rs",
+      "bytes": 7092,
+      "sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/reference/native-full-closure.rs.inc",
+      "bytes": 3853,
+      "sha256": "ff211a135747ce09e1faff290539b892b45d8102e423d9065fc9e0c282d9bca6"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/reference/prepare.py",
+      "bytes": 6099,
+      "sha256": "7b6a3b22d5450ee85d682ef1548b6fab1a1e8de9436a9e21e8b14e1b3442e1b6"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/reference/provenance.json",
+      "bytes": 2398,
+      "sha256": "c2dec8e8fa22f877c7473d936ab035ab320bac55bf0521846896d26c2a4cd393"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/reference/public-profile-scalars.json",
+      "bytes": 1006,
+      "sha256": "82c523ac4912f1a3b33e5ad9662053e54e60f6ca9a73ce46a0cf812d6a1e7475"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/reference/reference_math.py",
+      "bytes": 1744,
+      "sha256": "2d5e05dcd7aba6f67520a4472faacb28c9cd16b6734ec05eb67249a8a88f7c26"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/reference/run.py",
+      "bytes": 13813,
+      "sha256": "454d0b3c3590ad586389bbaf1a064e95f1dd9c01f001b142d52b000e0c82d493"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/reference/shim.rs",
+      "bytes": 18214,
+      "sha256": "a4a3ac50b03345da8499a2b679cf35143c79f2e62c08e68d34a581a68b8be398"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/result.json",
+      "bytes": 14191,
+      "sha256": "7dbe368e50f3cffff40f3f7145dcf81cc07225fcf67ebb668ef29b4d0d074e8e"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/run.log",
+      "bytes": 3119,
+      "sha256": "ac4aaddc29841cc2b0a1313286b62e973fa81bcd6645c4b09d5ca130c684d08b"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/run.py",
+      "bytes": 23573,
+      "sha256": "e799acd424c08006b8ad4b8e60c4b9840ef6da924a7b3c18e61ef1c808c68c8f"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/source-pins.json",
+      "bytes": 2858,
+      "sha256": "7867a89d7b8ee816d5416cd0e4d85e0fb3f0f88f5f08ecda994fc9282bfb6ae3"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/source-records.json",
+      "bytes": 8167,
+      "sha256": "8ab58432b514fc7b3380673b51477bcba489795841d1a0c125e2a45fa9ce7033"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/startup/AGENDA.md",
+      "bytes": 5603,
+      "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/startup/CLAUDE.md",
+      "bytes": 14089,
+      "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/startup/FINDINGS.md",
+      "bytes": 569758,
+      "sha256": "145727f5aea533abc7375e1b40fc9e80d880d87cb50cd8cc96369971105af811"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/startup/MVP_STATUS.md",
+      "bytes": 74734,
+      "sha256": "41f521cace7ea594fcc142cedde0a7cd8fd018c2bb3c7ea2f57d3895d9994eac"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/startup/PROGRESS.md",
+      "bytes": 2157,
+      "sha256": "98d13517493669092fdc90dbaffdd5d0c47920a6acfe838c8d644fa85fb4fa59"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/startup/STATE.md",
+      "bytes": 6115,
+      "sha256": "efa045403939c62fa7be19faf7dd166c2dc3cb3070ded4438b55fb98fbd4d737"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/startup/ZK60_CODEX_FABLE_COORDINATION.md",
+      "bytes": 64889,
+      "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/startup/ZK60_DECISIONS.md",
+      "bytes": 91055,
+      "sha256": "463a69b44388b8d0adda033e6c5e6700033183f54771158201652cfb084c80a6"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/startup/ZK60_THROUGHPUT_TARGET.md",
+      "bytes": 4941,
+      "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/startup/sources.jsonl",
+      "bytes": 547572,
+      "sha256": "eda54f3c259efb2f2f8f15dec31f704da8c954c343b393f90ec579f47125d889"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/startup-manifest.json",
+      "bytes": 1489,
+      "sha256": "f1ea2858bd606b31659246d0f892a084388c1a1e8d4b11823149c6eea3d48ce7"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/target-accounting.json",
+      "bytes": 8773,
+      "sha256": "1a71417508bfac8faa89390bc50c2fb7e1418c44048e80fcd53b9aa401b272b3"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/traces.json",
+      "bytes": 3690577,
+      "sha256": "51da6dc619f211aa38f6ca9b71907ec8d15a12010e2d23912f0f79369fa3ff52"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/validation.json",
+      "bytes": 2423,
+      "sha256": "1da5423a6e15ba9fa262783104f639eceb1bfe5c241c07ab8721eb55d92f8987"
+    },
+    {
+      "path": "experiments/dzc-use-driven-affine-20261019/web-search-log.json",
+      "bytes": 1351,
+      "sha256": "cfa548d9894a8cea1e7750a71b889a3808f6514a927dc5952781d8674b1f9969"
+    },
+    {
+      "path": "handoffs/20261019-dzc-use-driven-affine.md",
+      "bytes": 4013,
+      "sha256": "3072d53219e6b3e8b03a9fd615775a0db97c788cb854c5299a9205b609e9bdad"
+    },
+    {
+      "path": "progress/20261019T111854Z-5ff11116.md",
+      "bytes": 7638,
+      "sha256": "d169bfd7302bd9ffd06fab0cc26922b7f15aa48ce363dbf76455d12904a57666"
+    },
+    {
+      "path": "sources.jsonl",
+      "bytes": 555171,
+      "sha256": "506103df0603ebfc95f8a3641777801008c17122dbd118a004051c72cb55452d"
+    }
+  ]
+}

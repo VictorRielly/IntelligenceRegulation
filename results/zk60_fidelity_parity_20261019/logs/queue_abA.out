@@ -1,0 +1,40 @@
+[11:57:21Z] start abl_base ()
+[zk60-guard 04:57:21] START fp-abA_abl_base class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=b03a5bf73c4b
+[zk60-guard 05:08:38] END fp-abA_abl_base exit=0 child_wall=677s peak_rss=1.62G min_avail=9.05G
+[12:08:38Z] end abl_base exit 0
+[12:08:38Z] start abl_headf (--head float)
+[zk60-guard 05:08:38] START fp-abA_abl_headf class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=9f78cbafc94b
+[zk60-guard 05:17:05] END fp-abA_abl_headf exit=0 child_wall=507s peak_rss=1.36G min_avail=9.32G
+[12:17:05Z] end abl_headf exit 0
+[12:17:05Z] start abl_score (--relax score)
+[zk60-guard 05:17:05] START fp-abA_abl_score class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=48f50f9ee3ba
+[zk60-guard 05:25:26] END fp-abA_abl_score exit=0 child_wall=501s peak_rss=1.68G min_avail=8.10G
+[12:25:26Z] end abl_score exit 0
+[12:25:26Z] start abl_qk (--relax qk)
+[zk60-guard 05:25:26] START fp-abA_abl_qk class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=5b650a79877f
+[zk60-guard 05:34:21] END fp-abA_abl_qk exit=0 child_wall=534s peak_rss=1.72G min_avail=8.59G
+[12:34:21Z] end abl_qk exit 0
+[12:34:21Z] start abl_pdiv (--relax pdiv)
+[zk60-guard 05:34:21] START fp-abA_abl_pdiv class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=db5015f21e9e
+[zk60-guard 05:43:02] END fp-abA_abl_pdiv exit=0 child_wall=521s peak_rss=1.72G min_avail=8.70G
+[12:43:02Z] end abl_pdiv exit 0
+[12:43:02Z] start abl_exp (--relax exp)
+[zk60-guard 05:43:02] START fp-abA_abl_exp class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=7f8d858b92cb
+[zk60-guard 05:51:05] END fp-abA_abl_exp exit=0 child_wall=483s peak_rss=1.72G min_avail=8.90G
+[12:51:06Z] end abl_exp exit 0
+[12:51:06Z] start abl_softmax (--relax softmax)
+[zk60-guard 05:51:06] START fp-abA_abl_softmax class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=291a88994c3b
+[zk60-guard 05:51:06] END fp-abA_abl_softmax exit=3 child_wall=0s peak_rss=0.00G min_avail=10.44G
+[12:51:06Z] end abl_softmax exit 3
+[12:51:06Z] start abl_attn_core (--relax attn_core)
+[zk60-guard 05:51:06] START fp-abA_abl_attn_core class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=c81890087ac3
+[zk60-guard 05:51:06] END fp-abA_abl_attn_core exit=3 child_wall=0s peak_rss=0.00G min_avail=10.53G
+[12:51:06Z] end abl_attn_core exit 3
+[12:51:06Z] start abl_o (--relax o)
+[zk60-guard 05:51:06] START fp-abA_abl_o class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=ebf20fe57936
+[zk60-guard 05:51:07] END fp-abA_abl_o exit=3 child_wall=0s peak_rss=0.00G min_avail=10.67G
+[12:51:07Z] end abl_o exit 3
+[12:51:07Z] start abl_rope (--relax rope)
+[zk60-guard 05:51:07] START fp-abA_abl_rope class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=32a1857cf978
+[zk60-guard 05:51:07] END fp-abA_abl_rope exit=3 child_wall=0s peak_rss=0.00G min_avail=11.20G
+[12:51:07Z] end abl_rope exit 3

@@ -1,0 +1,16 @@
+[13:13:06Z] lane X released
+[13:13:06Z] start vocab0_8b (need 2 weight 1 llama3-8b fp_vocab0.py /home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_b7_T128)
+[zk60-guard 06:13:06] START fp-L_vocab0_8b class=light need=2G cap=3G enforce=cgroup+watchdog waited=0s run=0e23ed5780b0
+[zk60-guard 06:25:27] END fp-L_vocab0_8b exit=0 child_wall=742s peak_rss=2.20G min_avail=7.72G
+[13:25:27Z] end vocab0_8b exit 0
+[13:25:27Z] start vocab0_tl (need 1.5 weight 1 tinyllama fp_vocab0.py /home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T128)
+[zk60-guard 06:25:28] START fp-L_vocab0_tl class=light need=1.5G cap=2.5G enforce=cgroup+watchdog waited=0s run=0889e8da005b
+[zk60-guard 06:26:16] END fp-L_vocab0_tl exit=0 child_wall=48s peak_rss=0.58G min_avail=8.19G
+[13:26:16Z] end vocab0_tl exit 0
+[13:35:47Z] start build_l8_b7_voc0 (need 3.5 weight 2 llama3-8b fp_variant.py --variant pg --profile-from /home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/runs/llama3_8b_pg_rot1_T128/prepass.json --sh-s-layer 1:7 --vocab0 --only-layers 0 --name l8_b7_voc0)
+[zk60-guard 06:35:47] START fp-L_build_l8_b7_voc0 class=light need=3.5G cap=4.5G enforce=cgroup+watchdog waited=0s run=65532b05b8b1
+[zk60-guard 06:38:47] END fp-L_build_l8_b7_voc0 exit=0 child_wall=180s peak_rss=3.07G min_avail=10.91G
+[13:38:47Z] end build_l8_b7_voc0 exit 0
+[13:38:47Z] start vocab0_8b_voc0 (need 2 weight 1 llama3-8b fp_vocab0.py /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/variants/l8_b7_voc0)
+[zk60-guard 06:38:47] waiting for admission lock (0s)
+[zk60-guard 06:38:48] START fp-L_vocab0_8b_voc0 class=light need=2G cap=3G enforce=cgroup+watchdog waited=1s run=37236e02bace

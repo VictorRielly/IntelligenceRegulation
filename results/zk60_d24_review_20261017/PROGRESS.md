@@ -833,3 +833,28 @@ No git. Heavy jobs through scripts/zk60_resource_guard.py.
   pid (4999999 > pid_max 4194304) holding forged contents (run-r6) and of
   pid 1 (run-r6-live; the queue job labelled r7-r6-rung-statement is this
   live-pid case). Launched r7/r7_queue.sh (detached, guarded).
+- 10:16-10:22 UTC r7_queue.sh (waited ~12 min for the heavy lock behind
+  another lane's suite): r7-cli-build exit 0, review CLI sha256 539450e6...
+  (r7/binaries.sha256). CLI: run-r6-live (stale statement.writing-1)
+  refused by name "process 1 is alive ...", entry kept; run-r6 (stale dir
+  of dead pid 4999999 with forged files) -> "stale-statement-writing-
+  removed", verified, "statement-checked" (R6-published rung statement
+  valid under R7); the native b7 T128 stack (read only) verified (load 9.5
+  s, verify 29.0 s, 2.15 GB) and its R6 statement "statement-checked".
+  r7-test-build exit 0; r7-fast 2 passed: r7_1 every cleanup attack refused
+  by name and kept (live pid, pid 1, symlink, file, extra/renamed file,
+  subdir, symlink/FIFO inside, 10 odd names), dead pid with forged / empty
+  / leading-zero dirs removed; 400 race runs (link planted inside / dir
+  swapped for a link to the outside dir): removed 63, refused 337, outside
+  survived every run. r7_2: 13 check cases as expected, no text echoed;
+  e2e 9 edits refused, nothing published (the 61-digit declines numeral IS
+  echoed by J::i64's error: N-r7-b); a canonical CUDA-live claim from a
+  CPU prover accepted and published under prover_reported (by design).
+  r7-author-subset (author's tests on my binary, their tiny exports
+  redirected into my scratch): 48 passed, 0 failed, 1 ignored, incl.
+  review_n_r6_b, privacy_q2, review_r5_3, the per-layer stack test. No
+  /tmp leftovers; r7 frozen copy unchanged (219 OK).
+- 10:24 UTC: R7_VERDICT.md written. VERDICT: R7 ACCEPTED on soundness
+  (statement-layer change only); N-r6-b CLOSED; Q-2 holds; R6 CPU
+  statements stay valid (rung + 8B b7 T128 byte-checked under R7); notes
+  N-r7-a..d. Round 7 closed; nothing of mine is running.

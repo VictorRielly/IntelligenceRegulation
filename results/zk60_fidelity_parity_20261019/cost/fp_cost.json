@@ -1,0 +1,203 @@
+{
+ "tinyllama_T128": {
+  "baseline": {
+   "committed_elems": 68403200,
+   "u8": 28999680,
+   "receipt": 23049192,
+   "block_proof_s_cpu_law": 6.316545454545454,
+   "S_A_planes": 11,
+   "ls": 2,
+   "lp": 2,
+   "wrho_s": 16,
+   "committed_delta_pct": 0.0,
+   "proof_delta_pct": 0.0,
+   "receipt_delta_pct": 0.0
+  },
+  "sh_qkv two-byte remainder": {
+   "committed_elems": 68927488,
+   "u8": 29327360,
+   "receipt": 23114792,
+   "block_proof_s_cpu_law": 6.386648032724068,
+   "S_A_planes": 11,
+   "ls": 2,
+   "lp": 2,
+   "wrho_s": 16,
+   "committed_delta_pct": 0.7664670658682704,
+   "proof_delta_pct": 1.1098246451811233,
+   "receipt_delta_pct": 0.28460867521951094
+  },
+  "sh_g two-byte remainder": {
+   "committed_elems": 69484544,
+   "u8": 30048256,
+   "receipt": 23184376,
+   "block_proof_s_cpu_law": 6.409995848351006,
+   "S_A_planes": 11,
+   "ls": 2,
+   "lp": 2,
+   "wrho_s": 16,
+   "committed_delta_pct": 1.5808383233532952,
+   "proof_delta_pct": 1.4794541490761093,
+   "receipt_delta_pct": 0.586502121202348
+  },
+  "sh_qkv + sh_g two-byte": {
+   "committed_elems": 70008832,
+   "u8": 30375936,
+   "receipt": 23249976,
+   "block_proof_s_cpu_law": 6.48009842652962,
+   "S_A_planes": 11,
+   "ls": 2,
+   "lp": 2,
+   "wrho_s": 16,
+   "committed_delta_pct": 2.3473053892215656,
+   "proof_delta_pct": 2.589278794257255,
+   "receipt_delta_pct": 0.8711107964218368
+  },
+  "sh_qkv + sh_g + sh_z two-byte": {
+   "committed_elems": 70860800,
+   "u8": 30638080,
+   "receipt": 23356504,
+   "block_proof_s_cpu_law": 6.554068196023078,
+   "S_A_planes": 11,
+   "ls": 2,
+   "lp": 2,
+   "wrho_s": 16,
+   "committed_delta_pct": 3.592814371257491,
+   "proof_delta_pct": 3.760326640358458,
+   "receipt_delta_pct": 1.3332875182783033
+  }
+ },
+ "llama3-8b_T128": {
+  "baseline": {
+   "committed_elems": 117882880,
+   "u8": 51937280,
+   "receipt": 29300856,
+   "block_proof_s_cpu_law": 10.598917180438352,
+   "S_A_planes": 11,
+   "ls": 2,
+   "lp": 2,
+   "wrho_s": 16,
+   "committed_delta_pct": 0.0,
+   "proof_delta_pct": 0.0,
+   "receipt_delta_pct": 0.0
+  },
+  "sh_qkv two-byte remainder": {
+   "committed_elems": 119062528,
+   "u8": 52723712,
+   "receipt": 29448376,
+   "block_proof_s_cpu_law": 10.748500567120077,
+   "S_A_planes": 11,
+   "ls": 2,
+   "lp": 2,
+   "wrho_s": 16,
+   "committed_delta_pct": 1.0006949270326526,
+   "proof_delta_pct": 1.4113081943672556,
+   "receipt_delta_pct": 0.5034665198859756
+  },
+  "sh_g two-byte remainder": {
+   "committed_elems": 120012800,
+   "u8": 54034432,
+   "receipt": 29567112,
+   "block_proof_s_cpu_law": 10.779220593421044,
+   "S_A_planes": 11,
+   "ls": 2,
+   "lp": 2,
+   "wrho_s": 16,
+   "committed_delta_pct": 1.8068102849200907,
+   "proof_delta_pct": 1.7011493713288361,
+   "receipt_delta_pct": 0.9086970018896467
+  },
+  "sh_qkv + sh_g two-byte": {
+   "committed_elems": 121192448,
+   "u8": 54820864,
+   "receipt": 29714632,
+   "block_proof_s_cpu_law": 10.928803980102769,
+   "S_A_planes": 11,
+   "ls": 2,
+   "lp": 2,
+   "wrho_s": 16,
+   "committed_delta_pct": 2.8075052119527433,
+   "proof_delta_pct": 3.1124575656960918,
+   "receipt_delta_pct": 1.4121635217756001
+  },
+  "sh_qkv + sh_g + sh_z two-byte": {
+   "committed_elems": 122830848,
+   "u8": 55345152,
+   "receipt": 29919464,
+   "block_proof_s_cpu_law": 11.063751023174095,
+   "S_A_planes": 11,
+   "ls": 2,
+   "lp": 2,
+   "wrho_s": 16,
+   "committed_delta_pct": 4.197359277275892,
+   "proof_delta_pct": 4.385672940191032,
+   "receipt_delta_pct": 2.1112284228146816
+  }
+ },
+ "llama3-8b_T512": {
+  "baseline": {
+   "committed_elems": 663257088,
+   "u8": 306249728,
+   "receipt": 69554440,
+   "block_proof_s_cpu_law": 51.97759290238243,
+   "S_A_planes": 13,
+   "ls": 3,
+   "lp": 2,
+   "wrho_s": 18,
+   "committed_delta_pct": 0.0,
+   "proof_delta_pct": 0.0,
+   "receipt_delta_pct": 0.0
+  },
+  "sh_qkv two-byte remainder": {
+   "committed_elems": 667713536,
+   "u8": 309395456,
+   "receipt": 69833032,
+   "block_proof_s_cpu_law": 52.52355195876451,
+   "S_A_planes": 13,
+   "ls": 3,
+   "lp": 2,
+   "wrho_s": 18,
+   "committed_delta_pct": 0.6719035620769809,
+   "proof_delta_pct": 1.0503738743874225,
+   "receipt_delta_pct": 0.4005380533579128
+  },
+  "sh_g two-byte remainder": {
+   "committed_elems": 671711232,
+   "u8": 314638336,
+   "receipt": 70082840,
+   "block_proof_s_cpu_law": 52.68561180505636,
+   "S_A_planes": 13,
+   "ls": 3,
+   "lp": 2,
+   "wrho_s": 18,
+   "committed_delta_pct": 1.2746405809989536,
+   "proof_delta_pct": 1.3621617761400362,
+   "receipt_delta_pct": 0.7596926953908234
+  },
+  "sh_qkv + sh_g two-byte": {
+   "committed_elems": 676167680,
+   "u8": 317784064,
+   "receipt": 70361432,
+   "block_proof_s_cpu_law": 53.23157086143843,
+   "S_A_planes": 13,
+   "ls": 3,
+   "lp": 2,
+   "wrho_s": 18,
+   "committed_delta_pct": 1.9465441430759345,
+   "proof_delta_pct": 2.4125356505274365,
+   "receipt_delta_pct": 1.1602307487487584
+  },
+  "sh_qkv + sh_g + sh_z two-byte": {
+   "committed_elems": 682590208,
+   "u8": 319881216,
+   "receipt": 70762872,
+   "block_proof_s_cpu_law": 53.745374041892575,
+   "S_A_planes": 13,
+   "ls": 3,
+   "lp": 2,
+   "wrho_s": 18,
+   "committed_delta_pct": 2.914875747245693,
+   "proof_delta_pct": 3.4010446440452924,
+   "receipt_delta_pct": 1.7373901651713375
+  }
+ }
+}

@@ -937,3 +937,315 @@ a shared box, n = 1.
   Final source `manifest_final_r3d.sha256` (= R3-D, 67327e11...). Controls
   table regenerated from t19: **66 lines, 65 as predicted, 0 elsewhere, 1
   N/A**. Nothing launched by this lane is pending.
+
+## Round 4 (coordinator 10:5x): review round 3 ACCEPTED R3; TR3-1..TR3-3 + a CLI
+
+REVIEW3.md: R3 accepted as the trained Llama-3-8B next-token result. This
+round (small, test-first, in this tree): TR3-1 (a mid-run refusal must leave
+nothing in the sink: hold stage IN's segment, or pre-check every block's
+CS-6 digest before the first segment); TR3-2 (the 8B table loader and the
+streaming block source into the production module, real JSON parse of the
+manifests, bounded reads, a truncated manifest refused by name, tests);
+TR3-3 (a local assertion that each layer record's digest is its block's);
+then a CLI (prove-to-dir / verify-from-dir with native R7's publication
+rules: the verifier writes the statement, the backend allow-list).
+
+- 11:00 plan:
+  * adopt the native R7 freeze's two changed files (`trained_block.rs`,
+    `trained_stack_tests.rs`: N-r6-b stale-writer cleanup and the Q-2
+    backend allow-list), unchanged here, so this tree = R7 + this lane's
+    15 files (checked: exactly those differ from `r7/frozen-tree/`);
+  * TR3-1: the run prover checks every block (CS-1 / CS-4 / CS-6, the
+    stage shape) BEFORE stage IN, in addition to the per-stage check
+    (the defence against a block changing between the two); the CLI's
+    sink writes `run.incomplete/` and renames it to `run/` only after Ok
+    (on Err the directory is removed), so no refusal of any kind leaves
+    segments behind; the sink contract documented;
+  * TR3-2: `token_io/load.rs` (production): manifests through
+    `run::read_regular_file_bounded` (regular file, bounded, no link
+    followed) and `trained_block::parse_json` (strict); data files with the
+    metadata-length check, exact chunked reads, streamed SHA-256; the export
+    block source (`reload_block` + digest check) moved out of the tests;
+  * TR3-3: `layers[k].block_digest == block_digests[k]` asserted where the
+    shift is read (defensive: `check_against` already aligns them, so the
+    refusal is not reachable from outside; noted);
+  * CLI `token_io/cli.rs` + `examples/zk60_token_io.rs`: `prove`
+    (prover-private prompt and hidden activations from the export's seq_*
+    or a private dir; endpoints sealed from the export's words; parity per
+    layer; segments into `<out>/run/`; an UNVERIFIED statement beside it;
+    the owners' decommitments into a private dir), `verify` (refuses an
+    export holding seq_*; pins the trained identity; rebuilds the statement
+    from public files; the prover's statement must be the canonical
+    rendering with an allowed backend; verifies; PUBLISHES `<out>/statement/`
+    itself from the hashes of the bytes it verified; removes the unverified
+    one; a second verify re-checks byte for byte), `owner` (the output
+    owner's check against the published statement: prints the token).
+- 11:02 T-A (failing first): `tr3_1_a_wrong_block_at_a_later_stage_is_
+  refused_before_any_segment` (block 0 handed again at stage 1: must be
+  refused with ZERO segments emitted) and `tr3_2_a_truncated_manifest_is_
+  refused_by_name` (a head manifest cut inside a digest: must be an Err
+  naming the file, not a panic). `manifest_r4A.sha256` (e0398172...).
+  Launched `t22-tr3-failfirst`. Expected: both FAIL (2 segments emitted;
+  the substring parser panics).
+- 11:10 t22-tr3-failfirst RESULT (exit 101), as predicted: **2 FAILED**:
+  TR3-1 "segments [0, 1] reached the sink before the refusal"; TR3-2 the
+  substring parser panicked ("end byte index 100 is out of bounds") instead
+  of refusing the truncated manifest.
+- 11:12 STAGE T-B synced (`manifest_r4B.sha256`, 86f5958c...; vs T-A:
+  private_block.rs (the CLI re-export), run_capture.rs (load.rs and cli.rs
+  pinned: [23]), s25_tests.rs (CALL_SITES [20]: TK7 the loader's streamed
+  SHA-256 of the public table files), token_io.rs (modules; decommitment file
+  form), token_io/run.rs (TR3-1 pre-check, TR3-3 assertion, the sink
+  contract, `context()`), r3_tests.rs (the production loaders; the load
+  count 4 with the pre-check), trained_block.rs (VISIBILITY ONLY: `flags`,
+  `flag`, `need`, `js`, `refuse_prover_private_entries`, `write_new`,
+  `stack_context`, `render_segments_json`, `check_statement_dir`,
+  `publish_statement_dir` -> pub(crate), no body changed); added
+  `token_io/load.rs`, `token_io/cli.rs`, `token_io/cli_tests.rs`,
+  `examples/zk60_token_io.rs`). Launched `t23-r4-built` (token_io + every
+  census + trained_stack / trained_block tests, --nocapture).
+- 11:15 **t23-r4-built RESULT (exit 0): 98 passed, 0 failed, 7 ignored**
+  (token_io, every census, the native trained_stack / trained_block CLI
+  tests over the visibility-widened helpers). TR3-1 (refused at stage 1's
+  pre-check, **0 segments emitted**) and TR3-2 (the truncated manifest
+  refused by name: "head_manifest.json: JSON: unterminated string at byte
+  70") now pass; the production loader round trip, wrong digest, short file
+  and a LINK in place of a table are refused by name; streaming test with 4
+  loads (pre-check + stages). **CLI end to end on the tiny export:** prove
+  -> verify (the VERIFIER publishes `<run>/statement/`, the unverified
+  statement removed) -> second verify re-checks byte for byte -> owner
+  reads token 165 = the reference; refused with nothing published: the
+  owner before publication, a verifier handed the export with seq_* (P-5),
+  a wrong pin, a tampered segment ("stage OUT A: pcs zk: column index ..."),
+  a backend outside the build's names (R7 / Q-2); a prove into an existing
+  directory refused.
+- 11:16 launched `tools/r4_cli_demo.sh` (detached): build the CLI example
+  (guarded build) -> **the 8B CLI demo on the b7 T32 export**: `prove`
+  (prover-private seq_ho00) -> `verify` from a VERIFIER COPY of the export
+  (public entries hard-linked, no seq_*), pinned to the trained identity the
+  R3 harness derived (47f01943...) -> `verify` again (re-check) -> `owner`
+  (the output decommitment against the published statement) -> s6 the full
+  suite.
+- 11:24 **THE 8B NEXT-TOKEN PROOF FROM THE COMMAND LINE** (`cli/`,
+  [MEASURED, shared box, n=1]): CLI built from this tree
+  (`cli/zk60_token_io.release.bin`, `cli/binaries.sha256`);
+  * `prove` (b7 T32 export, prover-private seq_ho00, trained tables, BOS
+    128000, Cn 4,234): exit 0, 34 segments / 471,285,072 B (= counted),
+    prove 198.1 s (witness 16.8 s, block reloads 26.1 s incl. the TR3-1
+    pre-check pass), digest pass ~20 s, total 236.1 s, VmHWM 3,426 MiB,
+    parity at 32 layers, whole-run floor 97 bits; segments renamed into
+    place after Ok; an UNVERIFIED statement beside the run;
+  * `verify` from the VERIFIER COPY (public entries hard-linked, no seq_*),
+    pinned to 47f01943... (the R3 harness's independent identity), policy
+    95 bits: exit 0, verify 42.7 s (reloads 12.6 s), total 72.8 s, peak 2.78
+    GiB; the statement PUBLISHED BY THE VERIFIER (`run-b7_T32-ho00/statement/`:
+    statement.json + segments.json of the verified bytes), the unverified
+    one removed;
+  * `verify` again: `statement-checked` byte for byte, exit 0 (70.4 s);
+  * `owner` (output decommitment from `run-b7_T32-ho00.owner-private/`,
+    mode 0600, against the published statement): **next token 11**, exit 0
+    (29.6 s, 1.77 GiB).
+  The full suite (s6) runs next.
+- 11:35 **s6-suite RESULT (exit 0) on the round-4 tree: 29 targets, 735
+  passed, 0 failed, 37 ignored** (lib 590 / 37; every integration target and
+  doc-test ok, pins unchanged). Against s5 (729 / 37): +2 the TR3 tests, +2
+  the CLI end-to-end tests, +2 the native R7 tests adopted with its two files
+  (N-r6-b, Q-2). Guard 655 s, peak RSS 6.03 GiB. Final source
+  `manifest_final_r4.sha256` (= T-B, 86f5958c...; this tree = the native R7
+  freeze + this lane's 19 files: 8 changed incl. the visibility-only
+  trained_block.rs, 11 added). Nothing launched by this lane is pending.
+
+## REPORT addendum (10-19 11:36 UTC): round 4
+
+* **TR3-1 fixed** (failing first): the run prover checks EVERY block (CS-1 /
+  CS-4 / CS-6 at its stage shape) before the first segment, besides the
+  per-stage check; a block handed wrongly at stage 1 is refused with zero
+  segments emitted. The sink contract is written on `prove_token_run_with`;
+  the CLI builds `<out>.incomplete/` and renames it only after Ok.
+* **TR3-2 fixed** (failing first): `token_io/load.rs` in production: the
+  manifests read bounded from regular files and parsed strictly (a
+  truncated manifest refused by name), the tables read with the length check,
+  exact chunked reads and a streamed SHA-256 (a link refused), the export's
+  public side and the streaming block source (digest check on reload); the
+  R3 harness now uses them.
+* **TR3-3**: the per-stage shift is read only after the record's digest is
+  asserted to be its block's (defensive; `check_against` already aligns).
+* **The CLI** `examples/zk60_token_io.rs` (`prove` / `verify` / `owner`)
+  with the native R7 rules (the verifier writes the statement from the
+  bytes it verified; the backend one of the build's names; a stale writer
+  directory cleared or refused; a verifier refuses an export holding seq_*;
+  the context label a deployment constant). **The trained 8B next-token proof
+  from the command line**: prove 236 s total (3.4 GiB), verify from a
+  verifier copy 73 s (2.8 GiB), statement published by the verifier,
+  re-checked byte for byte, the owner reads token 11.
+* Tests: 735 / 0 / 37 full suite. No privacy claim.
+
+## Round 5 (coordinator ~11:55): review round 4's TR4-1 .. TR4-4 before the CLI demo
+
+REVIEW4.md: prove and verify sound, nothing an audience sees leaks; fix
+before a demo: TR4-1 (MEDIUM: `owner` trusted any `statement/` whose writer
+line says verify: it printed token 11 over a tampered 8B copy), TR4-2
+(MEDIUM: the pin covered only the trained blocks; the tables, BOS and final
+norm came from the manifests handed to the verifier), TR4-3 (LOW, D21: the
+owners' decommitments in a 0755 sibling directory inside the repo; MOVE the
+demo's out of the repo), TR4-4 (INFO: no-follow table opens, owner files
+before the final rename, an input-owner check).
+
+- 12:05 T-A (failing first, `manifest_r5A.sha256`): the CLI ACCEPTS the new
+  flags as stubs (`--owner-dir`, `--expect-token-profile`, `owner
+  --min-bits`; ignored), and three tests: `tr4_1_...` (owner over a run
+  flipped after publication; owner over a prover-written statement/: both
+  must refuse), `tr4_2_...` (a run with every head multiplier moved, and one
+  with half the Cn, verified under the APPROVED token profile's pin: must
+  refuse, nothing published), `tr4_3_...` (decommitments in the given owner
+  directory, 0700, none beside the run; an owner directory inside the run's
+  parent refused). Launched `t24-tr4-failfirst` (`-- token_io::cli_tests`).
+  Expected: the three tr4 tests FAIL, the two existing CLI tests pass.
+- 12:10 TR4-3 data move DONE: the demo's
+  `results/zk60_token_io_r1_20261017/cli/run-b7_T32-ho00.owner-private/`
+  (input.dec, output.dec; 0600) MOVED OUT of the repository to
+  **`/home/victor/zk60-artifacts/token-io/run-b7_T32-ho00.owner-private/`**
+  (directories 0700); no `*owner-private` or `*.dec` remains under this
+  lane's results directory (checked with find).
+- 12:20 T-B prepared in `wip-r5b/` (not yet synced: t24 is still queued):
+  * TR4-1: `check_run` = verify's check path (P-5, both pins, the found
+    statement's writer, the canonical rendering, every segment re-read at
+    its counted length and VERIFIED under `--min-bits`, and for a published
+    statement `segments.json` = the verified bytes' hashes); `verify`,
+    `owner` and the new `input-owner` all go through it; `owner` prints the
+    token only after it;
+  * TR4-2: `--expect-token-profile HEX` required by verify / owner /
+    input-owner, compared with the rebuilt statement's token profile digest
+    and refused by name; a new `profile` command prints both pins of an
+    approved export + table set;
+  * TR4-3: `--owner-dir`, default `$HOME/zk60-artifacts/token-io/<run>.
+    owner-private`; refused inside the run's parent; created 0700;
+  * TR4-4: the owners' files and the unverified statement written BEFORE the
+    run is renamed into place (a failure removes all three); table opens with
+    `O_NOFOLLOW | O_NONBLOCK`; `input-owner` (the input owner's check with
+    its own `--prompt`);
+  * `tools/r4_cli_demo.sh` rewritten for round 5 (profile -> prove with the
+    default owner directory -> verify with both pins -> re-check -> owner ->
+    input-owner -> full suite), run directory `cli/run-b7_T32-ho00-r5`.
+- 12:50 t24 is WAITING: it holds the heavy lock while the guard's budget
+  (11.9 GiB) is taken by another lane's light jobs (fp-* at 9.5-11 GiB); it
+  starts when 4 GiB free up. Not restarted (rules: never restart a queued
+  job; never SIGKILL a guard).
+- 12:54 t24-tr4-failfirst RESULT (exit 101), as predicted: **3 FAILED**
+  (TR4-1 "the owner printed a token over a run whose segment was flipped
+  after publication"; TR4-2 "a run with another head verified under the
+  approved token profile's pin"; TR4-3 "the decommitments are not in the
+  given owner directory"), the two existing CLI tests pass.
+- 12:56 STAGE T-B synced (`manifest_r5B.sha256`, 5f7d155e...; vs T-A:
+  examples/zk60_token_io.rs, private_block.rs (re-exports `profile`,
+  `input-owner`), token_io/cli.rs, cli_tests.rs, load.rs) and launched
+  `tools/r5_chain.sh` (detached): t25 (token_io + every census + the native
+  trained CLI tests) -> if green, `tools/r4_cli_demo.sh` (round-5 8B demo:
+  build -> profile -> prove -> verify -> re-check -> owner -> input-owner ->
+  s7 full suite).
+- 13:02 **t25-r5-built RESULT (exit 0): 101 passed, 0 failed, 7 ignored**
+  (token_io incl. the three TR4 tests and the input-owner / profile lines,
+  every census, the native trained CLI tests): TR4-1 (owner over a run
+  flipped after publication, and over a prover-written statement/: both
+  refused), TR4-2 (another head; half the Cn: refused under the
+  token-profile pin, nothing published), TR4-3 (decommitments in the given
+  owner directory 0700 / files 0600, none beside the run; an owner directory
+  inside the run's parent refused) now pass. The 8B demo chain continues.
+- 13:14 **THE ROUND-5 8B CLI DEMO, END TO END** (`tools/r4_cli_demo.sh`,
+  `cli/zk60_token_io.r5.release.bin`, `cli/binaries_r5.sha256`) [MEASURED,
+  shared box, n=1]:
+  * `profile` on the calibration lane's APPROVED export + `token_io/`
+    tables: trained identity 47f01943... (= the R3 harness's, checked by the
+    script), **token profile digest e8238cf1...** (recorded in
+    `cli/token_profile_pin_b7_T32.txt`; V 128,256, BOS 128,000, final norm
+    g0 127 / Cn 4,234 / tn 9 / Ceps 78,617, the three table SHA-256s);
+  * `prove` (seq_ho00 prover-private; owner directory by DEFAULT
+    `/home/victor/zk60-artifacts/token-io/run-b7_T32-ho00-r5.owner-private`,
+    0700, files 0600, outside the repository): exit 0, 34 segments /
+    471,285,072 B, prove 226.7 s (block reloads 37.0 s incl. the TR3-1
+    pre-check), total 266.8 s, VmHWM 3,482 MiB, parity at 32 layers;
+  * `verify` from the verifier copy with BOTH pins: exit 0, published by the
+    verifier (verify 52.1 s, total 90.3 s, 2.80 GiB);
+  * `verify` again: statement-checked, exit 0 (83.8 s);
+  * `owner` with both pins (its full re-check of the published statement
+    against every segment first): **next token 11**, exit 0 (82.6 s);
+  * `input-owner` with the owner's own prompt (the 32 ho00 ids): input
+    checked, exit 0 (83.6 s).
+  The full suite (s7) runs last in the chain.
+- 13:29 **s7 FULL SUITE (exit 0): 738 passed, 0 failed, 37 ignored** over
+  29 targets (lib 593 / 0 / 37; s6 was 735 / 0 / 37, +3 TR4 tests), wall
+  922 s, peak 6.0 GiB RSS / 6.2 GiB cgroup, no guard wait
+  (`logs/s7-suite.log`, `logs/s7-suite.guard.json`). The round-5 chain
+  (`logs/r5_chain.done`) is complete.
+- 13:35 COORDINATOR ADD-ON (layer-0 refusals): the fidelity lane's
+  exhaustive vocabulary scan (`results/zk60_fidelity_parity_20261019/runs/
+  llama3-8b/vocab0_llama3_8b_pg_rot1_b7_T128.json`) finds two tokens that
+  leave the int8 range at layer 0, site V: " ." (id 662) and "Tags"
+  (id 16309). Task: a pre-check in the demo that names the token and
+  refuses before proving, with a pointer to the fix (a layer-0
+  recalibrated export). Coverage of the demo's b7_T32 export [COUNTED, file
+  identity]: embedding_int16.bin is the same inode as T128's; layer_00
+  gamma_a / wq / wk / wv / act / exp / gamma_m identical by SHA-256; the
+  layer_00 manifests differ only in rope_cos / rope_sin / tables.rope
+  (t_max 32 vs 128), and T32's RoPE tables are a byte prefix of T128's
+  (positions a subset of the scanned ones). V has no RoPE. So the same two
+  tokens refuse on b7_T32. Neither demo prompt (seq_ho00, seq_ho09)
+  contains them. Plan (simplest first, keeps the demoed r5 binary):
+  `tools/layer0_precheck.py` (`record`: fingerprints the scanned export's
+  layer-0 inputs and writes `tools/layer0_refusals.json`; `check`: refuses
+  a prompt with a listed token by name, exit 2, before anything is built
+  or proved; an export whose fingerprint has no recorded scan is reported
+  "not covered", exit 0) and the demo script runs it first.
+- 13:36 LAYER-0 PRE-CHECK DONE (no binary change; the demoed r5 binary
+  da48f6d4... stands):
+  * `tools/layer0_precheck.py` (82ee7f9e...) `record` wrote
+    `tools/layer0_refusals.json` (5633343a...; `logs/p5-record.log`): one
+    entry, layer-0 fingerprint f8086a40... (embedding table + layer_00
+    gamma_a / wq / wk / wv + manifest without RoPE), refusing 662 " ." and
+    16309 "Tags" (site V, class 127), source scan path + SHA-256; matched
+    exports b7_T128 (scanned) and b7_T32 (RoPE prefix checked).
+  * `tools/test_layer0_precheck.py` (6c73f467...): 4 tests OK in 5.7 s
+    (`logs/p5-precheck-tests.log`): ho00 / ho09 clear; a prompt with 662 at
+    positions 1, 7 and 16309 at 3 refused by name with positions and the
+    fix pointer on T32, T128 and the verifier copy (exit 2); a copy with
+    one wv byte flipped is "not-covered" (exit 0) and `record` refuses it
+    as an --also-export (exit 1, nothing written).
+  * `tools/r4_cli_demo.sh` (4466800f...): the pre-check runs FIRST, before
+    the build and the prove (logs/d0-precheck.{log,exit}); SEQ=<ID>
+    (default ho00) or PROMPT_IDS=... selects the prompt; LOGS=<dir>
+    redirects the logs. Exercised (`logs/precheck_exercise/`): ho00 with
+    662 at position 5 and 16309 at 20 -> both named, d0 exit 2, script
+    exit 1, nothing built or proved.
+- 13:37 FINAL MANIFEST `manifest_final_r5.sha256` (231 files, 5f7d155e...;
+  = T-B, i.e. the binary demoed and the suite s7 ran on; vs final r4:
+  5 changed: examples/zk60_token_io.rs, private_block.rs, token_io/cli.rs,
+  cli_tests.rs, load.rs).
+
+## Round 5 REPORT (13:37 UTC)
+
+Review round 4 (REVIEW4.md) fixed test-first; t24 failed exactly the three
+new TR4 tests, t25 green (101 / 0 / 7); full suite s7 738 / 0 / 37.
+- TR4-1 (MEDIUM) fixed: `owner` (and the new `input-owner`) runs verify's
+  re-check path first (`check_run`, published statement required): the
+  published statement must equal a fresh full verification of every
+  segment byte for byte and `segments.json` must hash the bytes verified;
+  a run flipped after publication and a prover-written `statement/` are
+  refused before anything is printed.
+- TR4-2 (MEDIUM) fixed: `--expect-token-profile HEX` (required on verify,
+  owner, input-owner) pins the statement's token_profile_digest (tables,
+  BOS, final norm); another head or half the Cn is refused by name, nothing
+  published. `zk60_token_io profile` prints both pins for an approved
+  export + tables.
+- TR4-3 (LOW, D21) fixed: owner directory 0700 / files 0600; `--owner-dir`,
+  default `$HOME/zk60-artifacts/token-io/<run>.owner-private`; an owner
+  directory inside the run's parent is refused. The old demo directory was
+  MOVED to `/home/victor/zk60-artifacts/token-io/run-b7_T32-ho00.owner-private/`
+  (nothing owner-private remains under results/).
+- TR4-4 (INFO) done: O_NOFOLLOW | O_NONBLOCK on table opens in load.rs;
+  owner files written before the final rename (any failure removes them);
+  `input-owner` command added.
+- 8B CLI demo re-run end to end with the fixed binary (above, 13:14):
+  profile, prove 266.8 s total, verify (published) 90.3 s, re-check 83.8 s,
+  owner token 11, input-owner 32 tokens, all with both pins, exit 0.
+- Coordinator add-on: layer-0 refusal pre-check in the demo (13:36).
+No privacy acceptance is claimed.

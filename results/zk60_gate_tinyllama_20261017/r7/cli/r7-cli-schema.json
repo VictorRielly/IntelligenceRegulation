@@ -1,0 +1,68 @@
+{
+ "allowed_keys": 222,
+ "bundles": [
+  {
+   "bundle": "tinyllama-cli-r7-capture-dense-l2",
+   "controls": {
+    "all_fire": true,
+    "controls": [
+     {
+      "control": "SC-1",
+      "findings_naming_it": [
+       "S1: stage-00.json carries field(s) not on the capture allow-list: ['extra_private_field']"
+      ],
+      "fires": true,
+      "what": "an unlisted key added to stage-00.json"
+     },
+     {
+      "control": "SC-2",
+      "findings_naming_it": [
+       "S1: run.json carries field(s) not on the capture allow-list: ['hidden_debug']"
+      ],
+      "fires": true,
+      "what": "an unlisted key nested in run.json's shape"
+     },
+     {
+      "control": "SC-3",
+      "findings_naming_it": [
+       "S2: stage-00.json contains the forbidden word 'seed'"
+      ],
+      "fires": true,
+      "what": "the word 'seed' appended to stage-00.json's bytes"
+     },
+     {
+      "control": "SC-4",
+      "findings_naming_it": [
+       "S3: 1 byte range(s) of arrays.bin no reference covers (first [34076168, 34076176])"
+      ],
+      "fires": true,
+      "what": "arrays.bin eight bytes longer than every reference covers"
+     }
+    ],
+    "ok": true
+   },
+   "coverage": {
+    "arrays_bin_bytes": 34076168,
+    "bytes_past_the_end": 0,
+    "covered_exactly": true,
+    "gap_count": 0,
+    "gaps": [],
+    "references": 1177
+   },
+   "files": [
+    "run.json",
+    "stage-00.json",
+    "stage-01.json",
+    "manifest.json"
+   ],
+   "findings": [],
+   "keys_checked": 56047,
+   "ok": true
+  }
+ ],
+ "ok": true,
+ "privacy_acceptance": false,
+ "privacy_property_established": false,
+ "tool_sha256": "0ce637279da750897b6c4487f8f662e1918e749c0bdefb2a14f1d69afea5f6eb",
+ "what": "closed key schema, forbidden words and arrays.bin coverage (finding P-10)"
+}

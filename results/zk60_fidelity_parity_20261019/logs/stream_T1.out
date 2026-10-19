@@ -1,0 +1,26 @@
+[13:05:51Z] stream T1 released
+[13:05:51Z] start wi_gatepc5 (tinyllama fineweb:48,wikitext:48 need 2.5 --gate-pc -5)
+[zk60-guard 06:05:51] START fp-T1_wi_gatepc5 class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=5b8fd2582ef4
+[zk60-guard 06:12:56] END fp-T1_wi_gatepc5 exit=0 child_wall=425s peak_rss=1.62G min_avail=6.91G
+[13:12:56Z] end wi_gatepc5 exit 0
+[13:12:56Z] start abl_wts (tinyllama fineweb:48,wikitext:48 need 2.5 --relax wts)
+[zk60-guard 06:12:56] START fp-T1_abl_wts class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=2957ac9b3cad
+[zk60-guard 06:12:57] END fp-T1_abl_wts exit=3 child_wall=0s peak_rss=0.00G min_avail=12.26G
+[13:12:57Z] end abl_wts exit 3
+[13:12:57Z] start fix_gptq (tinyllama fineweb:48,wikitext:48 need 3 --gptq fwcal:64 --save-words)
+[zk60-guard 06:12:57] START fp-T1_fix_gptq class=light need=3G cap=4G enforce=cgroup+watchdog waited=0s run=b71790a6a310
+[zk60-guard 06:12:57] END fp-T1_fix_gptq exit=3 child_wall=0s peak_rss=0.00G min_avail=12.24G
+[13:12:57Z] end fix_gptq exit 3
+[13:12:57Z] start abl_o (tinyllama fineweb:48,wikitext:48 need 2.5 --relax o)
+[zk60-guard 06:12:57] START fp-T1_abl_o class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=141addfda271
+[zk60-guard 06:12:57] END fp-T1_abl_o exit=3 child_wall=0s peak_rss=0.00G min_avail=12.22G
+[13:12:57Z] end abl_o exit 3
+[13:12:57Z] start abl_rope (tinyllama fineweb:48,wikitext:48 need 2.5 --relax rope)
+[zk60-guard 06:12:57] START fp-T1_abl_rope class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=5b244a3c0259
+[zk60-guard 06:12:57] END fp-T1_abl_rope exit=3 child_wall=0s peak_rss=0.00G min_avail=12.19G
+[13:12:57Z] end abl_rope exit 3
+[13:12:57Z] start abl_attn_core (tinyllama fineweb:48,wikitext:48 need 2.5 --relax attn_core)
+[zk60-guard 06:12:57] START fp-T1_abl_attn_core class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=050aa180b90a
+[zk60-guard 06:12:57] END fp-T1_abl_attn_core exit=3 child_wall=0s peak_rss=0.00G min_avail=12.19G
+[13:12:57Z] end abl_attn_core exit 3
+[13:12:57Z] stream T1 finished

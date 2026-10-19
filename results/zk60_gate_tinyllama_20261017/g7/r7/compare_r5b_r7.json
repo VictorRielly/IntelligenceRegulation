@@ -1,0 +1,3401 @@
+{
+ "r5b": {
+  "tinyllama-trained-X-capture-dense-l1/stage-00": {
+   "A": {
+    "groups": 36,
+    "surjective": 36,
+    "short": [],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      35,
+      8260,
+      8260
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      7,
+      8204,
+      8204
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      11,
+      8212,
+      8212
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      11,
+      8212,
+      8212
+     ],
+     [
+      3,
+      8196,
+      8196
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ]
+    ],
+    "disclosed": 0,
+    "by_group": {},
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [],
+    "census": {
+     "claims": 120,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   },
+   "H": {
+    "groups": 9,
+    "surjective": 8,
+    "short": [
+     8
+    ],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      17,
+      8224,
+      8224
+     ],
+     [
+      7,
+      8204,
+      8204
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      8,
+      8206,
+      8206
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      3,
+      8196,
+      8196
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8190,
+      8192
+     ]
+    ],
+    "disclosed": 2,
+    "by_group": {
+     "8": 2
+    },
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [
+     [
+      [
+       7,
+       8
+      ],
+      16388,
+      16382,
+      16384,
+      2,
+      [
+       1696,
+       1697
+      ]
+     ]
+    ],
+    "census": {
+     "claims": 50,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   },
+   "Input": {
+    "groups": 1,
+    "surjective": 1,
+    "short": [],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ]
+    ],
+    "disclosed": 0,
+    "by_group": {},
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [],
+    "census": {
+     "claims": 1,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   },
+   "Output": {
+    "groups": 1,
+    "surjective": 1,
+    "short": [],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ]
+    ],
+    "disclosed": 0,
+    "by_group": {},
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [],
+    "census": {
+     "claims": 1,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   }
+  },
+  "tinyllama-trained-X-capture-zero-l1/stage-00": {
+   "A": {
+    "groups": 36,
+    "surjective": 36,
+    "short": [],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      35,
+      8260,
+      8260
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      7,
+      8204,
+      8204
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      11,
+      8212,
+      8212
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      11,
+      8212,
+      8212
+     ],
+     [
+      3,
+      8196,
+      8196
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ]
+    ],
+    "disclosed": 0,
+    "by_group": {},
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [],
+    "census": {
+     "claims": 120,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   },
+   "H": {
+    "groups": 9,
+    "surjective": 8,
+    "short": [
+     8
+    ],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      17,
+      8224,
+      8224
+     ],
+     [
+      7,
+      8204,
+      8204
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      8,
+      8206,
+      8206
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      3,
+      8196,
+      8196
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8190,
+      8192
+     ]
+    ],
+    "disclosed": 2,
+    "by_group": {
+     "8": 2
+    },
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [
+     [
+      [
+       7,
+       8
+      ],
+      16388,
+      16382,
+      16384,
+      2,
+      [
+       1696,
+       1697
+      ]
+     ]
+    ],
+    "census": {
+     "claims": 50,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   },
+   "Input": {
+    "groups": 1,
+    "surjective": 1,
+    "short": [],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ]
+    ],
+    "disclosed": 0,
+    "by_group": {},
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [],
+    "census": {
+     "claims": 1,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   },
+   "Output": {
+    "groups": 1,
+    "surjective": 1,
+    "short": [],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ]
+    ],
+    "disclosed": 0,
+    "by_group": {},
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [],
+    "census": {
+     "claims": 1,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   }
+  },
+  "tinyllama-trained-X-capture-dense-l2/stage-00": {
+   "A": {
+    "groups": 36,
+    "surjective": 36,
+    "short": [],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      35,
+      8260,
+      8260
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      7,
+      8204,
+      8204
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      11,
+      8212,
+      8212
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      11,
+      8212,
+      8212
+     ],
+     [
+      3,
+      8196,
+      8196
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ]
+    ],
+    "disclosed": 0,
+    "by_group": {},
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [],
+    "census": {
+     "claims": 120,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   },
+   "H": {
+    "groups": 9,
+    "surjective": 8,
+    "short": [
+     8
+    ],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      17,
+      8224,
+      8224
+     ],
+     [
+      7,
+      8204,
+      8204
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      8,
+      8206,
+      8206
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      3,
+      8196,
+      8196
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8190,
+      8192
+     ]
+    ],
+    "disclosed": 2,
+    "by_group": {
+     "8": 2
+    },
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [
+     [
+      [
+       7,
+       8
+      ],
+      16388,
+      16382,
+      16384,
+      2,
+      [
+       1696,
+       1697
+      ]
+     ]
+    ],
+    "census": {
+     "claims": 50,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   },
+   "Input": {
+    "groups": 1,
+    "surjective": 1,
+    "short": [],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ]
+    ],
+    "disclosed": 0,
+    "by_group": {},
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [],
+    "census": {
+     "claims": 1,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   }
+  },
+  "tinyllama-trained-X-capture-dense-l2/stage-01": {
+   "A": {
+    "groups": 36,
+    "surjective": 36,
+    "short": [],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      35,
+      8260,
+      8260
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      7,
+      8204,
+      8204
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      11,
+      8212,
+      8212
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      11,
+      8212,
+      8212
+     ],
+     [
+      3,
+      8196,
+      8196
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ]
+    ],
+    "disclosed": 0,
+    "by_group": {},
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [],
+    "census": {
+     "claims": 120,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   },
+   "H": {
+    "groups": 9,
+    "surjective": 8,
+    "short": [
+     8
+    ],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      17,
+      8224,
+      8224
+     ],
+     [
+      7,
+      8204,
+      8204
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      8,
+      8206,
+      8206
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      3,
+      8196,
+      8196
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8190,
+      8192
+     ]
+    ],
+    "disclosed": 2,
+    "by_group": {
+     "8": 2
+    },
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [
+     [
+      [
+       7,
+       8
+      ],
+      16388,
+      16382,
+      16384,
+      2,
+      [
+       1696,
+       1697
+      ]
+     ]
+    ],
+    "census": {
+     "claims": 50,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   },
+   "Input": {
+    "groups": 2,
+    "surjective": 2,
+    "short": [],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ]
+    ],
+    "disclosed": 0,
+    "by_group": {},
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [],
+    "census": {
+     "claims": 2,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   },
+   "Output": {
+    "groups": 1,
+    "surjective": 1,
+    "short": [],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ]
+    ],
+    "disclosed": 0,
+    "by_group": {},
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [],
+    "census": {
+     "claims": 1,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   }
+  }
+ },
+ "r7": {
+  "tinyllama-trained-X-capture-dense-l1/stage-00": {
+   "A": {
+    "groups": 36,
+    "surjective": 36,
+    "short": [],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      35,
+      8260,
+      8260
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      7,
+      8204,
+      8204
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      11,
+      8212,
+      8212
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      11,
+      8212,
+      8212
+     ],
+     [
+      3,
+      8196,
+      8196
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ]
+    ],
+    "disclosed": 0,
+    "by_group": {},
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [],
+    "census": {
+     "claims": 120,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   },
+   "H": {
+    "groups": 9,
+    "surjective": 8,
+    "short": [
+     8
+    ],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      17,
+      8224,
+      8224
+     ],
+     [
+      7,
+      8204,
+      8204
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      8,
+      8206,
+      8206
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      3,
+      8196,
+      8196
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8190,
+      8192
+     ]
+    ],
+    "disclosed": 2,
+    "by_group": {
+     "8": 2
+    },
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [
+     [
+      [
+       7,
+       8
+      ],
+      16388,
+      16382,
+      16384,
+      2,
+      [
+       1696,
+       1697
+      ]
+     ]
+    ],
+    "census": {
+     "claims": 50,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   },
+   "Input": {
+    "groups": 1,
+    "surjective": 1,
+    "short": [],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ]
+    ],
+    "disclosed": 0,
+    "by_group": {},
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [],
+    "census": {
+     "claims": 1,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   },
+   "Output": {
+    "groups": 1,
+    "surjective": 1,
+    "short": [],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ]
+    ],
+    "disclosed": 0,
+    "by_group": {},
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [],
+    "census": {
+     "claims": 1,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   }
+  },
+  "tinyllama-trained-X-capture-zero-l1/stage-00": {
+   "A": {
+    "groups": 36,
+    "surjective": 36,
+    "short": [],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      35,
+      8260,
+      8260
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      7,
+      8204,
+      8204
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      11,
+      8212,
+      8212
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      11,
+      8212,
+      8212
+     ],
+     [
+      3,
+      8196,
+      8196
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ]
+    ],
+    "disclosed": 0,
+    "by_group": {},
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [],
+    "census": {
+     "claims": 120,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   },
+   "H": {
+    "groups": 9,
+    "surjective": 8,
+    "short": [
+     8
+    ],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      17,
+      8224,
+      8224
+     ],
+     [
+      7,
+      8204,
+      8204
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      8,
+      8206,
+      8206
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      3,
+      8196,
+      8196
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8190,
+      8192
+     ]
+    ],
+    "disclosed": 2,
+    "by_group": {
+     "8": 2
+    },
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [
+     [
+      [
+       7,
+       8
+      ],
+      16388,
+      16382,
+      16384,
+      2,
+      [
+       1696,
+       1697
+      ]
+     ]
+    ],
+    "census": {
+     "claims": 50,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   },
+   "Input": {
+    "groups": 1,
+    "surjective": 1,
+    "short": [],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ]
+    ],
+    "disclosed": 0,
+    "by_group": {},
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [],
+    "census": {
+     "claims": 1,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   },
+   "Output": {
+    "groups": 1,
+    "surjective": 1,
+    "short": [],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ]
+    ],
+    "disclosed": 0,
+    "by_group": {},
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [],
+    "census": {
+     "claims": 1,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   }
+  },
+  "tinyllama-trained-X-capture-dense-l2/stage-00": {
+   "A": {
+    "groups": 36,
+    "surjective": 36,
+    "short": [],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      35,
+      8260,
+      8260
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      7,
+      8204,
+      8204
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      11,
+      8212,
+      8212
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      11,
+      8212,
+      8212
+     ],
+     [
+      3,
+      8196,
+      8196
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ]
+    ],
+    "disclosed": 0,
+    "by_group": {},
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [],
+    "census": {
+     "claims": 120,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   },
+   "H": {
+    "groups": 9,
+    "surjective": 8,
+    "short": [
+     8
+    ],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      17,
+      8224,
+      8224
+     ],
+     [
+      7,
+      8204,
+      8204
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      8,
+      8206,
+      8206
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      3,
+      8196,
+      8196
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8190,
+      8192
+     ]
+    ],
+    "disclosed": 2,
+    "by_group": {
+     "8": 2
+    },
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [
+     [
+      [
+       7,
+       8
+      ],
+      16388,
+      16382,
+      16384,
+      2,
+      [
+       1696,
+       1697
+      ]
+     ]
+    ],
+    "census": {
+     "claims": 50,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   },
+   "Input": {
+    "groups": 1,
+    "surjective": 1,
+    "short": [],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ]
+    ],
+    "disclosed": 0,
+    "by_group": {},
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [],
+    "census": {
+     "claims": 1,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   }
+  },
+  "tinyllama-trained-X-capture-dense-l2/stage-01": {
+   "A": {
+    "groups": 36,
+    "surjective": 36,
+    "short": [],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      35,
+      8260,
+      8260
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      7,
+      8204,
+      8204
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      11,
+      8212,
+      8212
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      11,
+      8212,
+      8212
+     ],
+     [
+      3,
+      8196,
+      8196
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ]
+    ],
+    "disclosed": 0,
+    "by_group": {},
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [],
+    "census": {
+     "claims": 120,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   },
+   "H": {
+    "groups": 9,
+    "surjective": 8,
+    "short": [
+     8
+    ],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      17,
+      8224,
+      8224
+     ],
+     [
+      7,
+      8204,
+      8204
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      8,
+      8206,
+      8206
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      3,
+      8196,
+      8196
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8190,
+      8192
+     ]
+    ],
+    "disclosed": 2,
+    "by_group": {
+     "8": 2
+    },
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [
+     [
+      [
+       7,
+       8
+      ],
+      16388,
+      16382,
+      16384,
+      2,
+      [
+       1696,
+       1697
+      ]
+     ]
+    ],
+    "census": {
+     "claims": 50,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   },
+   "Input": {
+    "groups": 2,
+    "surjective": 2,
+    "short": [],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ]
+    ],
+    "disclosed": 0,
+    "by_group": {},
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [],
+    "census": {
+     "claims": 2,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   },
+   "Output": {
+    "groups": 1,
+    "surjective": 1,
+    "short": [],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ]
+    ],
+    "disclosed": 0,
+    "by_group": {},
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [],
+    "census": {
+     "claims": 1,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   }
+  },
+  "tinyllama-cli-X-capture-dense-l2/stage-00": {
+   "A": {
+    "groups": 36,
+    "surjective": 36,
+    "short": [],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      35,
+      8260,
+      8260
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      7,
+      8204,
+      8204
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      11,
+      8212,
+      8212
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      11,
+      8212,
+      8212
+     ],
+     [
+      3,
+      8196,
+      8196
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ]
+    ],
+    "disclosed": 0,
+    "by_group": {},
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [],
+    "census": {
+     "claims": 120,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   },
+   "H": {
+    "groups": 9,
+    "surjective": 8,
+    "short": [
+     8
+    ],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      17,
+      8224,
+      8224
+     ],
+     [
+      7,
+      8204,
+      8204
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      8,
+      8206,
+      8206
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      3,
+      8196,
+      8196
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8190,
+      8192
+     ]
+    ],
+    "disclosed": 2,
+    "by_group": {
+     "8": 2
+    },
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [
+     [
+      [
+       7,
+       8
+      ],
+      16388,
+      16382,
+      16384,
+      2,
+      [
+       1696,
+       1697
+      ]
+     ]
+    ],
+    "census": {
+     "claims": 50,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   },
+   "Input": {
+    "groups": 1,
+    "surjective": 1,
+    "short": [],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ]
+    ],
+    "disclosed": 0,
+    "by_group": {},
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [],
+    "census": {
+     "claims": 1,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   }
+  },
+  "tinyllama-cli-X-capture-dense-l2/stage-01": {
+   "A": {
+    "groups": 36,
+    "surjective": 36,
+    "short": [],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      35,
+      8260,
+      8260
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      7,
+      8204,
+      8204
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      11,
+      8212,
+      8212
+     ],
+     [
+      2,
+      8194,
+      8194
+     ],
+     [
+      11,
+      8212,
+      8212
+     ],
+     [
+      3,
+      8196,
+      8196
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ]
+    ],
+    "disclosed": 0,
+    "by_group": {},
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [],
+    "census": {
+     "claims": 120,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   },
+   "H": {
+    "groups": 9,
+    "surjective": 8,
+    "short": [
+     8
+    ],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      17,
+      8224,
+      8224
+     ],
+     [
+      7,
+      8204,
+      8204
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      8,
+      8206,
+      8206
+     ],
+     [
+      6,
+      8202,
+      8202
+     ],
+     [
+      3,
+      8196,
+      8196
+     ],
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8190,
+      8192
+     ]
+    ],
+    "disclosed": 2,
+    "by_group": {
+     "8": 2
+    },
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [
+     [
+      [
+       7,
+       8
+      ],
+      16388,
+      16382,
+      16384,
+      2,
+      [
+       1696,
+       1697
+      ]
+     ]
+    ],
+    "census": {
+     "claims": 50,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   },
+   "Input": {
+    "groups": 2,
+    "surjective": 2,
+    "short": [],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ],
+     [
+      1,
+      8192,
+      8192
+     ]
+    ],
+    "disclosed": 0,
+    "by_group": {},
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [],
+    "census": {
+     "claims": 2,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   },
+   "Output": {
+    "groups": 1,
+    "surjective": 1,
+    "short": [],
+    "ranks": [
+     [
+      1,
+      8192,
+      8192
+     ]
+    ],
+    "disclosed": 0,
+    "by_group": {},
+    "ann_blind": true,
+    "ann_data": true,
+    "joint": [],
+    "census": {
+     "claims": 1,
+     "identical_claims": [],
+     "equal_published_values": [],
+     "same_data_weights_same_group": [],
+     "same_group_pairs_sharing_a_data_row": 0
+    },
+    "orig_ok": true
+   }
+  }
+ },
+ "comparison": [
+  [
+   "tinyllama-trained-X-capture-dense-l1/stage-00",
+   "tinyllama-trained-X-capture-dense-l1/stage-00",
+   true,
+   []
+  ],
+  [
+   "tinyllama-trained-X-capture-zero-l1/stage-00",
+   "tinyllama-trained-X-capture-zero-l1/stage-00",
+   true,
+   []
+  ],
+  [
+   "tinyllama-trained-X-capture-dense-l2/stage-00",
+   "tinyllama-trained-X-capture-dense-l2/stage-00",
+   true,
+   []
+  ],
+  [
+   "tinyllama-trained-X-capture-dense-l2/stage-01",
+   "tinyllama-trained-X-capture-dense-l2/stage-01",
+   true,
+   []
+  ],
+  [
+   "tinyllama-cli-X-capture-dense-l2/stage-00",
+   "tinyllama-trained-X-capture-dense-l2/stage-00",
+   true,
+   []
+  ],
+  [
+   "tinyllama-cli-X-capture-dense-l2/stage-01",
+   "tinyllama-trained-X-capture-dense-l2/stage-01",
+   true,
+   []
+  ]
+ ],
+ "controls_equal": true,
+ "controls_r7": [
+  [
+   "honest reference",
+   8194,
+   8194,
+   0
+  ],
+  [
+   "C1 shared reserved pair",
+   8192,
+   8194,
+   2
+  ],
+  [
+   "C2 cm = 0 (pair removed)",
+   8192,
+   8194,
+   2
+  ],
+  [
+   "C3 lambda_c = 0",
+   8194,
+   8194,
+   0
+  ],
+  [
+   "C6 cw = delta (one nonzero entry)",
+   8194,
+   8194,
+   0
+  ],
+  [
+   "C8 pair weights Fp-dependent",
+   8194,
+   8194,
+   0
+  ],
+  [
+   "G7-D1 duplicate claim: same data weights, its OWN reserved pair (cm, cm U)",
+   8196,
+   8196,
+   0
+  ],
+  [
+   "G7-D2 duplicate claim: an exact copy (two identical coordinates, shared pair)",
+   8194,
+   8196,
+   0
+  ],
+  [
+   "G7-D3 control: a copy sharing the pair whose DATA weights differ in one row",
+   8194,
+   8196,
+   2
+  ]
+ ]
+}

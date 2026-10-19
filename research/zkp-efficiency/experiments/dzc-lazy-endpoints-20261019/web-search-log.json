@@ -1,0 +1,20 @@
+{
+  "access_date": "2026-10-19",
+  "mode": "native LIVE web search",
+  "queries": [
+    "GPU sumcheck just in time evaluation streaming register pressure commitments 2026 github",
+    "GPU NTT Goldilocks commitment batch amortization 2026 GitHub release",
+    "sumcheck variable ordering register allocation just in time multilinear endpoints older streaming implementation",
+    "site.arxiv.org sumcheck GPU 2026 October",
+    "site.eprint.iacr.org 2026 sumcheck streaming memory efficient prover",
+    "Poletto Sarkar Linear Scan Register Allocation 1999 pdf author",
+    "Chimera sumcheck Farheen Tsoutsos github GPU 2026"
+  ],
+  "primary_index": "https://eprint.iacr.org/days/7",
+  "additional_failed_primary": [
+    "https://eprint.iacr.org/2026/2532"
+  ],
+  "inspected_unrecorded_background": "HERMES index abstract filtered: private inference with encrypted KV is a different product/proof relation; no performance transferred.",
+  "records": 8,
+  "external_code_executed": false
+}

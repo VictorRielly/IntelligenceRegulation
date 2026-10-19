@@ -1,0 +1,14 @@
+{
+  "peak_words": 77,
+  "at": 138,
+  "endpoint_words": 54,
+  "derived_words": 18,
+  "transient_words": 0,
+  "accumulator_words": 5,
+  "labels": {
+    "original_endpoint_pair": 27,
+    "add": 2,
+    "denominator": 2,
+    "multiply": 2
+  }
+}

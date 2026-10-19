@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "python3",
+    "experiments/dzc-lazy-endpoints-20261019/audit.py"
+  ],
+  "exit_code": 1,
+  "elapsed_seconds": 0.1361910350024118,
+  "log": "audit.log"
+}

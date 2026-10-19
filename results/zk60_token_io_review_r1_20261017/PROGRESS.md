@@ -155,3 +155,164 @@ R2. Write REVIEW2.md. Same write set plus `ops/zkp-mvp/token-io-review-r2/`,
   R2 may stand as the trained-model next-token result (with the stated
   wording / limits); base for R3 yes, conditionally (streaming blocks,
   V_pad 2^17 edge, census, R2-1, own controls, G-gates owed).
+
+## ROUND 3 (2026-10-19 UTC): rebase onto native R6, per-layer shifts, rung R3 (Llama-3-8B)
+
+Brief: review `ops/zkp-mvp/token-io/` at `manifest_final_r3d.sha256`: the
+merge onto the R6 freeze (tree = R6 + the lane's 15 files; no R6 fix lost),
+streaming (CS-6 digest checks on reload, no TOCTOU), per-layer shifts, the
+8B tables loader, the V_pad 2^17 edge, the whole-run figure, re-verify the
+trained receipt with my binary in a fresh process, own tamper tests at R3
+shape. Write REVIEW3.md. Write set + `ops/zkp-mvp/token-io-review-r3/`,
+`ops/zkp-mvp/token-io-review-r3-scratch/`.
+
+- 10:18:29 round 3 start.
+- 10:19 frozen copy `ops/zkp-mvp/token-io-review-r3/` (rsync, no target);
+  manifest `ops/zkp-mvp/token-io-review-r3.sha256` (228 files, list sha256
+  4ab62df1861ad4b049ceba0a6f36518e6a43eabaaed03c7c98a54d77583d7234). All 227
+  entries of `manifest_final_r3d.sha256` (file sha256 67327e11...) match;
+  the extra file is BASELINE.sha256.
+- 10:25 MERGE VERIFIED: R6 frozen tree intact (219 entries of
+  r6/manifest_frozen.json match). Review tree vs R6: exactly the lane's 15
+  files (7 changed: private_block.rs, run.rs, run_capture.rs, s24, s25, s33,
+  hash_domain_tests; 8 added: token_io.rs + token_io/{r0_words, r2_tests,
+  r3_tests, run, stage_in, stage_out, tests}.rs) + BASELINE.sha256. R6's 18
+  changed files: its 14 others byte-identical in the tree; s25 / s33 /
+  hash_domain_tests untouched by R6 (R5 == R6). My own 3-way merge
+  (`git merge-file -p`, stdout only; ours = snap-r3c, base = R5 frozen,
+  theirs = R6) equals the tree's private_block.rs, run.rs, s24_tests.rs
+  byte for byte; run_capture.rs has 2 conflict regions, resolved by keeping
+  BOTH sides (16 + 4 token_io + R6's trained_block.rs = [21]). No R6 change
+  lost. Products in `ops/zkp-mvp/token-io-review-r3-scratch/merge/`.
+- 10:22-10:26 read the lane's ledger (R3 plan, R3-A/B/C, round-2 items
+  folded, the rebase R3-D, per-layer shift port, generic and trained 8B
+  runs, s5 729/0/37) and the code diffs r2-tree -> r3-tree: token_io.rs
+  (R3 profile entries, parallel folds with serial references,
+  describe_under / digest_under keeping R1/R2 texts byte for byte),
+  stage_out.rs (byte_misses, asked first), run.rs (WholeRun with the R2-2
+  stage-IN term and the R2-1 omitted bound 137*2^-113 + 34*2^-117.2 =
+  2^-105.88 before the floor; private whole_run; stage_sh_s from the
+  trained statement's records, validated by with_score_shift, named in the
+  stage lines; TokenBlocks streaming with CS-1/4/6 per stage on the SAME
+  object that is then proved / verified: no TOCTOU between check and use;
+  BlockPublic::digest() hashes the in-memory words each call), r3_tests.rs
+  (loader: metadata length check BEFORE reading, exact-length chunked reads
+  with streamed SHA-256, refusal on mismatch; ExportBlocks: reload +
+  digest check vs the digest pass, one resident). Omitted-term constants =
+  MEMO_G02 (2^-113 per opening, 2^-117.2 per block, at 8B T512); the 8B
+  LogUp term agrees with RECOUNT's derived stack figure.
+- 10:27 saved trained receipt fingerprint (lane runs/r3/trained-ho00): 34
+  segments, 471,285,072 B, sha256 over per-segment sha256s eda3752ca537...;
+  statement.txt sha256 e02c8199...
+- 10:27 scratch `ops/zkp-mvp/token-io-review-r3-scratch/tree/` = frozen r3
+  + `token_io/run/review_tests.rs` (rv3_a1 per-layer shift probes, rv3_a2
+  wrong block mid-run on both sides + segments emitted; rv3_b 15 controls
+  at R3 shape on the b7 export's layers 0-1 (layer 1 at its own shift) with
+  the TRAINED tables; rv3_c1 the saved trained receipt in a fresh process +
+  an independent whole-run recount + 9 probes; rv3_c2 one full-scale
+  trained forgery).
+- 10:27:50 launched detached `launch_r3.sh` (marker `logs3/launch_r3.done`):
+  build -> token_io tests (lane's incl. R3 units + my A; cpu 5/8) -> my B/C
+  `rv3_ --ignored --test-threads 1` (cpu 5.5/8) -> the lane's
+  `token_io_r3_verify_from_dir` (env as their t21) on THEIR bytes with MY
+  binary (cpu 4.5/7). Heavy lock held by another lane at launch.
+- 10:30:43 build started; 10:33:43 build exit 0 (3m02s, no warning from my
+  file).
+- 10:35:58 t1 token_io exit 0: 31 passed / 0 failed / 9 ignored (lane 29 +
+  my 2 A); 72 AS PREDICTED, 0 NOT. RV3-A1 per-layer probes refused
+  (binding; the trained door refuses own == run's and 40); RV3-A2 a wrong
+  block at stage 1 refused by name on both sides; the honest prover had
+  already emitted 2 segments (TR3-1, LOW).
+- 10:54:15 t2 R3-scale exit 0 (1,097 s, peak RSS 3.97 GiB, cgroup 8.0 with
+  page cache): rv3_b 15/15 refused as predicted (b7 layers 0-1, layer 1 at
+  own shift 7, TRAINED tables, Cn 4,234 admitted max |y| 71; honest
+  two-layer token 28246, 31.0 s); rv3_c1: the lane's trained receipt
+  VERIFIES with my binary in a fresh process (37.7 s, 95-bit policy); my
+  independent recount = the code's figure (137 openings, column 2^-98.045,
+  logup 2^-99.441, omitted 2^-105.883, total 2^-97.575, floor 97, margin
+  0.575 bits); 9 probes refused; rv3_c2: full 32-layer trained forgery
+  (A6-only at id 53,488, honest 11) proved in 170.5 s and refused at RSEL.
+- 10:55:45 t3 the lane's token_io_r3_verify_from_dir with MY binary on the
+  lane's bytes: accepted 41.8 s, one-bit change refused. launch_r3.done = 0.
+  NOTHING OF MINE PENDING; frozen r3 copy re-checked (228 entries, 0
+  mismatch).
+- 10:58 REVIEW3.md final: merge verified; R3 sound as built at the level
+  tested; R2-1..R2-6 closed; TR3-1 LOW (mid-run refusals after segments
+  reached the sink), TR3-2 / TR3-3 INFO; verdict: R3 may stand as the
+  trained 8B next-token result (stated wording / limits).
+
+## ROUND 4 (2026-10-19 UTC): TR3 fixes + the token CLI (prove / verify / owner)
+
+Brief: review `ops/zkp-mvp/token-io/` at `manifest_final_r4.sha256`
+(native R7 + the lane's 19 files): TR3-1..3 fixes; the CLI
+`examples/zk60_token_io.rs` + `token_io/cli.rs` (prove / verify / owner:
+publication races, owner decommitment readability / leakage, refusal texts,
+partial runs, verify for the wrong export); re-run the 8B CLI demo
+artefacts (`results/zk60_token_io_r1_20261017/cli/`) through my own binary.
+Verdict: is the token CLI fit for a demo? Write set + token-io-review-r4/,
+token-io-review-r4-scratch/.
+
+- 11:37:18 round 4 start.
+- 11:38 frozen copy `ops/zkp-mvp/token-io-review-r4/`; manifest
+  `ops/zkp-mvp/token-io-review-r4.sha256` (232 files, list sha256
+  1beca5cae036dccd4281410a62c3ccf0ea7302e7ea1acf96e6f5bfa8e59dbae6). All 231
+  entries of `manifest_final_r4.sha256` (file sha256 86f5958c...) match; the
+  extra file is BASELINE.sha256.
+- 11:39 base verified: R7 freeze intact (219 entries of r7/manifest_frozen.json);
+  review tree vs R7 = exactly the lane's 19 files (8 changed: private_block.rs,
+  run.rs, run_capture.rs, s24, s25, s33, hash_domain_tests, trained_block.rs;
+  11 added: examples/zk60_token_io.rs, token_io.rs, token_io/{r0_words,
+  r2_tests, r3_tests, run, stage_in, stage_out, tests, load, cli, cli_tests}.rs);
+  R7 vs R6 = trained_block.rs + trained_stack_tests.rs only; the lane's
+  trained_block.rs vs R7 = VISIBILITY ONLY (10 fn signatures -> pub(crate)).
+- 11:40-11:43 read: token_io/run.rs (TR3-1 pre-check of every block before
+  the first segment; TR3-3 digest assertion; sink contract), token_io.rs
+  (Decommitment file codec: lengths checked before allocation), load.rs
+  (bounded strict manifests; regular-file, length-checked, chunked,
+  SHA-streamed tables; note: File::open without O_NOFOLLOW after the
+  symlink_metadata check, SHA-bound), cli.rs (prove / verify / owner), R7
+  helpers (check_statement_dir, publish_statement_dir, clear_stale_
+  writing_dirs, read_regular_file_bounded with O_NOFOLLOW|O_NONBLOCK).
+  Static candidates: (1) the verify / owner pin is the TRAINED identity only;
+  the token stages' tables, BOS, final norm come from the manifests handed
+  to the verifier (unpinned); (2) `owner` checks against `<run>/statement/`
+  without verifying the run (a prover-written statement/ or a tampered
+  receipt are not detected by the owner command); (3) the owners'
+  decommitments are a SIBLING of the run directory, directory mode 0755,
+  files 0600; in the demo they sit inside results/ (not git-ignored:
+  `git check-ignore` exit 1) = a retained bundle (D21); (4) no input-owner
+  command; (5) a kill mid-prove leaves `<out>.incomplete/` (refused on
+  retry; nothing verifiable).
+- 11:44 scratch `ops/zkp-mvp/token-io-review-r4-scratch/tree/` = frozen r4 +
+  `token_io/cli/review_tests.rs` (a child of token_io::cli: rv4_1 pin,
+  rv4_2 owner, rv4_3 refusal texts, rv4_4 partial runs / placement, rv4_5
+  wrong export + a publication race) + one `mod review_tests;` line in
+  cli.rs; `prep_b8.py` (scratch artefact dirs hard-linking the lane's 8B
+  segments read-only; one tampered copy; a reconstructed unverified
+  statement for an independent publication).
+- 11:45:11 launched detached `launch_r4.sh` (marker `logs4/launch_r4.done`):
+  test build + CLI build (build class) -> token_io tests (cpu 5/8) -> prep
+  -> my CLI binary on the 8B artefacts: c1 verify re-check, c2 verify
+  publish (compare with the lane's published files), c3 owner, c4 verify
+  tampered, c5 owner tampered, c6 --min-bits 98, c7 the prover's export
+  (seq_*), c8 owner with input.dec (each cpu-guarded).
+- 11:48 / 11:49 builds exit 0; 11:51:19 t1 token_io exit 0: 38 passed / 0
+  failed / 6 ignored; 77 AS PREDICTED, 0 NOT. Demonstrated: TR4-pin (a run
+  proved with another head, or another Cn, verified AND published under the
+  same identity pin); TR4-owner (owner exit 0 after a tampered segment and
+  over a prover-written statement/); placement (sibling dir 755, files
+  600). Clean: refusal texts (263 / 4321 / x9y not echoed), mid-run
+  refusal leaves nothing, wrong export refused, the publication race
+  leaves exactly statement/.
+- 11:52-11:57 my CLI binary (sha256 4bf20de7...) on the 8B artefacts: c1
+  re-check exit 0; c2 independent publication byte-identical to the lane's
+  statement.json and segments.json; c3 owner token 11; c4 tampered copy
+  refused at block 19; c5 owner over it: token 11 (TR4-owner at 8B); c6
+  --min-bits 98 refused; c7 prover export refused (P-5); c8 input.dec
+  refused. launch_r4.done = 0. NOTHING OF MINE PENDING.
+- 12:00 REVIEW4.md final: TR3-1..3 closed; CLI sound for prove / verify, no
+  hidden-data leak on published outputs; TR4-1 MEDIUM (owner does not
+  re-verify), TR4-2 MEDIUM (pin misses the token stages' constants), TR4-3
+  LOW (owner-private sibling, 0755 dir, inside results/), TR4-4 INFO.
+  Verdict: fit for a demo after the two small fixes (or an explicit
+  verify-then-owner procedure and a shown table-SHA check).

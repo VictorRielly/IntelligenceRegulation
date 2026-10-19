@@ -1,0 +1,57 @@
+{
+ "export": "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T128",
+ "layers": [
+  {
+   "layer": 0,
+   "i_block_eq_export": true,
+   "rx_exact_eq_export": true,
+   "violations_rx": 0,
+   "all_relaxed_vs_float_update": {
+    "cos_mean": 0.9999999722018683,
+    "cos_min": 0.99999974986334,
+    "rel_l2": 0.00027038441339356247
+   },
+   "all_exact_vs_float_update_cos_mean": 0.9765824870733102,
+   "real_weight_fit": {
+    "wq_reround_mismatch": 0.0,
+    "wk_reround_mismatch": 0.0,
+    "wv_reround_mismatch": 0.0,
+    "wo_reround_mismatch": 0.0,
+    "wg_t_reround_mismatch": 8.669766512784091e-08,
+    "wu_t_reround_mismatch": 0.0,
+    "wd_t_reround_mismatch": 0.0,
+    "ls_fallback_groups": 0
+   }
+  },
+  {
+   "layer": 1,
+   "i_block_eq_export": true,
+   "rx_exact_eq_export": true,
+   "violations_rx": 0,
+   "all_relaxed_vs_float_update": {
+    "cos_mean": 0.9999999355697691,
+    "cos_min": 0.9999998081200357,
+    "rel_l2": 0.00038171205895138656
+   },
+   "all_exact_vs_float_update_cos_mean": 0.9308384749472622,
+   "real_weight_fit": {
+    "wq_reround_mismatch": 0.0,
+    "wk_reround_mismatch": 0.0,
+    "wv_reround_mismatch": 0.0,
+    "wo_reround_mismatch": 0.0,
+    "wg_t_reround_mismatch": 3.4679066051136365e-07,
+    "wu_t_reround_mismatch": 0.0,
+    "wd_t_reround_mismatch": 0.0,
+    "ls_fallback_groups": 0
+   }
+  },
+  {
+   "layer": 2,
+   "i_block_eq_export": true,
+   "rx_exact_eq_export": true,
+   "violations_rx": 0
+  }
+ ],
+ "relaxed": [],
+ "all_bit_exact": true
+}

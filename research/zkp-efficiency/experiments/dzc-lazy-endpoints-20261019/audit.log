@@ -1,0 +1,50 @@
+{
+  "status": "PASS",
+  "checks": 221,
+  "controls": {
+    "retain_original_sources_loses_peak_gain": true,
+    "no_memoization_increases_reads": true
+  },
+  "limits": "59sCPU/wall,512MiBAS,one nice19 thread",
+  "scope": "Logical scheduling model only. Python keeps graph/oracle values; no Python RSS reduction claim. Native byte/RNG/refusal/privacy/timing gates owed.",
+  "wall_seconds": 0.26066511999670183,
+  "rss_kib": 24352,
+  "threads": 1,
+  "cpu_affinity": [
+    0
+  ]
+}
+{
+  "descriptor": "Llama3-8B",
+  "padded": false,
+  "tables": 59,
+  "lookups": 34,
+  "helpers": 17,
+  "eager_total_logical_words": 129,
+  "lazy_total_logical_words": 77,
+  "reduction": 0.4031007751937985,
+  "logical_bytes_saved": 832,
+  "lazy_with_sources_retained_until_end_words": 136,
+  "endpoint_reads_per_row": 118,
+  "endpoint_subtractions_per_row": 59,
+  "no_memoization_endpoint_reads_per_row": 198,
+  "no_memoization_endpoint_subtractions_per_row": 99,
+  "original_fold_reads_per_row": 118,
+  "original_fold_writes_per_row": 59,
+  "original_fold_operations_add_sub_mul": [
+    59,
+    59,
+    59
+  ],
+  "row_plus_endpoints_plus_original_fold_operations_add_sub_mul_base": [
+    331,
+    268,
+    390,
+    72
+  ],
+  "row_round_reduction_and_sample_conversion_excluded_from_that_census": true,
+  "full_original_tables_added": 0,
+  "full_original_tables_removed": 0,
+  "current_unpadded_catalog": true,
+  "physical_register_or_memory_claim": false
+}
